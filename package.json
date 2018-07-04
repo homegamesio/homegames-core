@@ -1,0 +1,32 @@
+{
+  "name": "homegames",
+  "version": "0.0.1",
+  "description": "Play games at home",
+  "main": "App.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "npm run-script test",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prosif/homegames.git"
+  },
+  "keywords": [
+    "homegames"
+  ],
+  "author": "Joseph Garcia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prosif/homegames/issues"
+  },
+  "homepage": "https://github.com/prosif/homegames#readme",
+  "dependencies": {
+    "babel-preset-env": "^1.7.0",
+    "express": "^4.16.3",
+    "uuid": "^3.2.1",
+    "ws": "^5.2.1"
+  }
+}
