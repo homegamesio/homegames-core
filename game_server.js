@@ -4,15 +4,9 @@ const server = new WebSocket.Server({
 	port: 8080
 });
 
-let width = 10;
-let height = 10;
+let width = 128;
+let height = 720;
 let gamePixels = new Uint8ClampedArray(width * height * 4);
-//for (let i = 0; i < gamePixels.length; i+=4) {
-//	gamePixels[i] = 255;
-//  gamePixels[i + 1] = 0;
-//  gamePixels[i + 2] = 0;
-//  gamePixels[i + 3] = 255;
-//}
 
 setInterval(function() {
 	let newGamePixels = new Uint8ClampedArray(width * height * 4);
