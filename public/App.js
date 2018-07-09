@@ -1,5 +1,3 @@
-let title = document.getElementById('title');
-
 const socket = new WebSocket('ws://192.168.1.17:8080');
 
 socket.binaryType = 'arraybuffer';
@@ -19,8 +17,8 @@ let windowHeight = window.innerHeight;
 canvas.height = windowHeight;
 canvas.width = windowWidth;
 
-let originalWidth = 160;
-let originalHeight = 90;
+let originalWidth = 16;
+let originalHeight = 9;
 let scaleFactor = Math.floor(windowWidth / originalWidth);
 let BYTES_PER_PIXEL = 4;
 

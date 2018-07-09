@@ -19,8 +19,8 @@ let colorKeys = Object.keys(COLORS);
 
 // max "good" size seems like ~320x180
 
-let width = 160;
-let height = 90;
+let width = 16;
+let height = 9;
 let gamePixels = new Uint8ClampedArray(width * height * 4);
 
 setInterval(function() {
@@ -43,7 +43,7 @@ setInterval(function() {
     	client.send(gamePixels);
 		}
 	});
-}, 16.67);
+}, 333);
 
 server.on('connection', (ws) => {
 //	console.log("ws connection", ws);
