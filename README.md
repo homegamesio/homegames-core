@@ -1,5 +1,5 @@
 # homegames
-Play games at home
+#### Play games at home
 
 Play simple browser-based games on a local network with your friends. 
 
