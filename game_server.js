@@ -1,4 +1,5 @@
 const WebSocket = require('ws');
+const uuid = require('uuid');
 
 const server = new WebSocket.Server({
 	port: 8080
@@ -19,8 +20,8 @@ let colorKeys = Object.keys(COLORS);
 
 // max "good" size seems like ~320x180
 
-let width = 320;
-let height = 180;
+let width = 160;
+let height = 90;
 let gamePixels = new Uint8ClampedArray(width * height * 4);
 
 const flippedPixels = {};
@@ -34,11 +35,11 @@ let newGamePixels = new Uint8ClampedArray(width * height * 4);
 const updateGameState = function() {
 	for (let i = 0; i < gamePixels.length; i+=4) {
 		let y = ((i/4) % width);
-		let flipped = flippedPixels[(i/4)];
+		let color = flippedPixels[(i/4)];
 		if(y < (width / 2)) {
-			color = flipped ? COLORS.GREEN : COLORS.ORANGE;
+			color = color ? color : COLORS.ORANGE;
 		} else {
-			color = flipped ? COLORS.ORANGE : COLORS.GREEN;
+			color = color ? color : COLORS.GREEN;
 		}
 		newGamePixels[i] = color[0];
 		newGamePixels[i + 1] = color[1];
@@ -51,13 +52,19 @@ const updateGameState = function() {
 
 updateGameState();
 
+const clientColors = {};
+
 server.on('connection', (ws) => {
+	ws.id = uuid();
+	let colorKey = Math.floor(Math.random() * colorKeys.length);
+	let color = COLORS[colorKeys[colorKey]];
+	clientColors[ws.id] = color;
 	ws.on('message', (msg) => {
 		if(msg['req']) {
     	ws.send(gamePixels);
 		} else {
 			msg.split(',').forEach(function(i) {
-				flippedPixels[i] = true;//!(flippedPixels[msg]);
+				flippedPixels[i] = clientColors[ws.id];//true;//!(flippedPixels[msg]);
 			});
 			updateGameState();
 			server.clients.forEach(function(client) {

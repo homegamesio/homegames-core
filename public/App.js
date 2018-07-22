@@ -16,8 +16,8 @@ const ctx = canvas.getContext('2d');
 let windowWidth = window.innerWidth;
 let windowHeight = window.innerHeight;
 
-let originalWidth = 320;
-let originalHeight = 180;
+let originalWidth = 160;
+let originalHeight = 90;
 let scaleFactor = Math.floor(windowWidth / originalWidth);
 let BYTES_PER_PIXEL = 4;
 
