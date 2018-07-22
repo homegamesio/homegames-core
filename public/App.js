@@ -16,8 +16,8 @@ const ctx = canvas.getContext('2d');
 let windowWidth = window.innerWidth;
 let windowHeight = window.innerHeight;
 
-let originalWidth = 160;
-let originalHeight = 90;
+let originalWidth = 240;
+let originalHeight = 135;
 let scaleFactor = Math.floor(windowWidth / originalWidth);
 let BYTES_PER_PIXEL = 4;
 
@@ -83,7 +83,7 @@ const draw = function(x, y) {
 	let clickX = Math.floor(x / pixelWidth);
 	let clickY = Math.floor(y  / pixelWidth);
 	let clickIndex = (originalWidth * clickY) + clickX;
-	let clickIndices = [clickIndex, clickIndex+1, clickIndex + originalWidth, clickIndex + originalWidth+1];
+	let clickIndices = [clickIndex, clickIndex+1, clickIndex + 2, clickIndex + originalWidth, clickIndex + originalWidth + 1, clickIndex + originalWidth + 2, clickIndex + 2 * originalWidth, clickIndex + 2 * originalWidth + 1, clickIndex + 2 * originalWidth + 2];
 	socket.send(clickIndices);
 };
 
