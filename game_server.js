@@ -26,7 +26,7 @@ const randomizeDrawColor = function(ws) {
 };
 
 const handleBoardClick = function() {
-    this.color = 1;
+    this.color = COLORS.TERRACOTTA;
     squisher.update(this);
     gamePixels = squisher.getPixels();
 };
