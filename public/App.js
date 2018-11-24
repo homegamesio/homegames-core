@@ -16,8 +16,8 @@ const ctx = canvas.getContext('2d');
 let windowWidth = window.innerWidth;
 let windowHeight = window.innerHeight;
 
-let originalWidth = 192;
-let originalHeight = 108;
+let originalWidth = 320;
+let originalHeight = 180;
 let scaleFactor = Math.floor(windowWidth / originalWidth);
 let BYTES_PER_PIXEL = 4;
 
@@ -62,8 +62,6 @@ let imageData = null;//new ImageData(new Uint8ClampedArray(), canvasWidth);
 
 socket.onmessage = function(msg) {
 	let newPixels = scalePixels(msg.data);
-	console.log("GOT STUFF");
-    console.log(msg);
     imageData = new ImageData(newPixels, originalWidth * scaleFactor, originalHeight * scaleFactor);
 };
 
