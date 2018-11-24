@@ -1,6 +1,6 @@
 // Insert your local IP + port here
 // 192.168.1.11
-const socket = new WebSocket('ws://192.168.0.102:7080');
+const socket = new WebSocket('ws://192.168.0.104:7080');
 
 socket.binaryType = 'arraybuffer';
 
@@ -111,7 +111,7 @@ canvas.addEventListener('touchmove', function(e) {
 function render(timestamp) {
 	if (imageData) {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-  	ctx.putImageData(imageData, 0, 0);
+  	    ctx.putImageData(imageData, 0, 0);
 	}
 
 	window.requestAnimationFrame(render);

@@ -59,3 +59,5 @@ const squisher = new Squisher(192, 108, board);
 squisher.handleClick(120, 40);
 //console.log(squisher.getPixels());
 //
+//
+console.log('hi!');

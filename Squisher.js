@@ -1,3 +1,5 @@
+const COLORS = require('./Colors');
+
 class Squisher {
     constructor(width, height, root) {
         this.width = width;
@@ -62,10 +64,12 @@ class Squisher {
                 let entityCount = this.entities[i][j].length;
                 if (entityCount > 0) {
                     let k = 4 * ((j * this.width) + i);
-                    this.tempPixels[k] = this.entities[i][j][entityCount - 1].color[0];
-                    this.tempPixels[k+ 1] = this.entities[i][j][entityCount - 1].color[1];
-                    this.tempPixels[k + 2] = this.entities[i][j][entityCount - 1].color[2];
-                    this.tempPixels[k + 3] = this.entities[i][j][entityCount - 1].color[3];
+                    let color = this.entities[i][j][entityCount - 1].color;
+                    
+                    this.tempPixels[k] = color[0];
+                    this.tempPixels[k+ 1] = color[1];
+                    this.tempPixels[k + 2] = color[2];
+                    this.tempPixels[k + 3] = color[3];
                 }
             }
         }
