@@ -1,11 +1,9 @@
 const WebSocket = require('ws');
 const uuid = require('uuid');
 
-const server = new WebSocket.Server({
-	port: 8080
-});
+const GameNode = require('./GameNode');
+const Squisher = require('./Squisher');
 
-const clientColors = {};
 const COLORS = {
 	BLACK: [0, 0, 0, 255],
 	WHITE: [255, 255, 255, 255],
@@ -36,35 +34,33 @@ const COLORS = {
 	TERRACOTTA: [226, 114, 91, 255]
 };
 
-let squareColor = COLORS.TERRACOTTA;
+const listenable = function(obj, onChange) {
+    const handler = {
+        get(target, property, receiver) {
+            try {
+                return new Proxy(target[property], handler);
+            } catch (err) {
+                return Reflect.get(target, property, receiver);
+            }
+        },
+        defineProperty(target, property, descriptor) {
+            onChange();
+            return Reflect.defineProperty(target, property, descriptor);
+        },
+        deleteProperty(target, property) {
+            onChange();
+            return Reflect.deleteProperty(target, property);
+        }
+    };
 
-let colorKeys = Object.keys(COLORS);
-
-// max "good" size seems like ~320x180
-
-let width = 240;
-let height = 135;
-let gamePixels = new Uint8ClampedArray(width * height * 4);
-
-let changedPixels = {};
-
-const pixelColorMap = {};
-const boardEntities = {};
-
-let leftSideColor = COLORS.ORANGE;
-let rightSideColor = COLORS.GREEN;
-
-const resetBoard = function() {
-	changedPixels = {};
-	updateGameState();
+    return new Proxy(obj, handler);
 };
 
+const colorKeys = Object.keys(COLORS);
+
 const randomizeBackground = function() {
-	let leftSideColorKey = Math.floor(Math.random() * colorKeys.length);
-	let rightSideColorKey = Math.floor(Math.random() * colorKeys.length);
-	leftSideColor = COLORS[colorKeys[leftSideColorKey]];
-	rightSideColor = COLORS[colorKeys[rightSideColorKey]];
-	updateGameState();
+	let colorKey = Math.floor(Math.random() * colorKeys.length);
+	boardColor = COLORS[colorKeys[colorKey]];
 };
 
 const randomizeDrawColor = function(ws) {
@@ -73,127 +69,39 @@ const randomizeDrawColor = function(ws) {
 	clientColors[ws.id] = newColor;
 };
 
-const resetButton = {'color': COLORS.RED, 'onClick': resetBoard};
-const randomizeBackgroundButton = {'color': COLORS.PINK, 'onClick': randomizeBackground};
-const randomizeClientDrawColorButton = {'color': COLORS.YELLOW, 'onClick': randomizeDrawColor};
-const BLACK_PIXEL = {'color': COLORS.BLACK, 'onClick': function() {}};
-
-for (let i = 1; i < 2; i++) {
-	boardEntities[i * width - 1] = BLACK_PIXEL;
-	boardEntities[i * width - 4] = BLACK_PIXEL;
-	boardEntities[i * width - 3] = BLACK_PIXEL;
-	boardEntities[i * width - 2] = BLACK_PIXEL;
-	boardEntities[i * width - 5] = BLACK_PIXEL;
-	boardEntities[i * width - 8] = BLACK_PIXEL;
-	boardEntities[i * width - 7] = BLACK_PIXEL;
-	boardEntities[i * width - 6] = BLACK_PIXEL;
-	boardEntities[i * width - 9] = BLACK_PIXEL;
-	boardEntities[i * width - 12] = BLACK_PIXEL;
-	boardEntities[i * width - 11] = BLACK_PIXEL;
-	boardEntities[i * width - 10] = BLACK_PIXEL;
-	boardEntities[i * width - 13] = BLACK_PIXEL;
-	boardEntities[i * width - 14] = BLACK_PIXEL;
-	boardEntities[i * width - 15] = BLACK_PIXEL;
-	boardEntities[i * width - 16] = BLACK_PIXEL;
-}
-
-for (let i = 2; i < 6; i++) {
-	boardEntities[i * width - 1] = BLACK_PIXEL;
-
-	boardEntities[i * width - 5] = resetButton;
-	boardEntities[i * width - 4] = resetButton;
-	boardEntities[i * width - 3] = resetButton;
-	boardEntities[i * width - 2] = resetButton;
-
-	boardEntities[i * width - 6] = BLACK_PIXEL;
-
-	boardEntities[i * width - 10] = randomizeBackgroundButton;
-	boardEntities[i * width - 9] = randomizeBackgroundButton;
-	boardEntities[i * width - 8] = randomizeBackgroundButton;
-	boardEntities[i * width - 7] = randomizeBackgroundButton;
-
-	boardEntities[i * width - 11] = BLACK_PIXEL;
-
-	boardEntities[i * width - 15] = randomizeClientDrawColorButton;
-	boardEntities[i * width - 14] = randomizeClientDrawColorButton;
-	boardEntities[i * width - 13] = randomizeClientDrawColorButton;
-	boardEntities[i * width - 12] = randomizeClientDrawColorButton;
-
-	boardEntities[i * width - 16] = BLACK_PIXEL;
-}
-
-for (let i = 6; i < 7; i++) {
-	boardEntities[i * width - 1] = BLACK_PIXEL;
-	boardEntities[i * width - 4] = BLACK_PIXEL;
-	boardEntities[i * width - 3] = BLACK_PIXEL;
-	boardEntities[i * width - 2] = BLACK_PIXEL;
-	boardEntities[i * width - 5] = BLACK_PIXEL;
-	boardEntities[i * width - 8] = BLACK_PIXEL;
-	boardEntities[i * width - 7] = BLACK_PIXEL;
-	boardEntities[i * width - 6] = BLACK_PIXEL;
-	boardEntities[i * width - 9] = BLACK_PIXEL;
-	boardEntities[i * width - 12] = BLACK_PIXEL;
-	boardEntities[i * width - 11] = BLACK_PIXEL;
-	boardEntities[i * width - 10] = BLACK_PIXEL;
-	boardEntities[i * width - 13] = BLACK_PIXEL;
-	boardEntities[i * width - 14] = BLACK_PIXEL;
-	boardEntities[i * width - 15] = BLACK_PIXEL;
-	boardEntities[i * width - 16] = BLACK_PIXEL;
-}
-
-
-// initial game state
-//
-let newGamePixels = new Uint8ClampedArray(width * height * 4);
-
-const updateGameState = function() {
-	for (let i = 0; i < gamePixels.length; i+=4) {
-		let color = COLORS.BLACK;
-		if ((i/4) in boardEntities) {
-			color = boardEntities[i/4].color;
-		} else {
-			let y = ((i/4) % width);
-			color = changedPixels[(i/4)];
-			if(y < (width / 2)) {
-				color = color ? color : leftSideColor;
-			} else {
-				color = color ? color : rightSideColor;
-			}
-		}
-		newGamePixels[i] = color[0];
-		newGamePixels[i + 1] = color[1];
-		newGamePixels[i + 2] = color[2];
-		newGamePixels[i + 3] = color[3];
-	}
-
-	gamePixels = newGamePixels;
+const handleBoardClick = function() {
+    this.color = COLORS.GREEN;
+    squisher.update(this);
+    gamePixels = squisher.getPixels();
 };
 
-updateGameState();
+const resetBoard = function() {
+    console.log("RESET BOARD");
+};
 
+const board = listenable(new GameNode(COLORS.BLUE, handleBoardClick, {'x': 0, 'y': 0}, {'x': 1, 'y': 1}), function() {console.log("BOARD CHANGED")});
+
+const resetButton = listenable(new GameNode(COLORS.RED, resetBoard, {'x': .9, 'y': 0}, {'x': .1, 'y': .5}), function() {console.log("RESET BUTTON CHANGED");});
+
+board.addChild(resetButton);
+
+const squisher = new Squisher(192, 108, board);
+
+const server = new WebSocket.Server({
+	port: 7080
+});
+
+let gamePixels = squisher.getPixels();
 
 server.on('connection', (ws) => {
 	ws.id = uuid();
-	let colorKey = Math.floor(Math.random() * colorKeys.length);
-	let color = COLORS[colorKeys[colorKey]];
-	clientColors[ws.id] = color;
-	ws.on('message', (msg) => {
-		if(msg['req']) {
-    	ws.send(gamePixels);
-		} else {
-			msg.split(',').forEach(function(i) {
-				if (boardEntities[i]) {
-					boardEntities[i].onClick(ws);
-				}
-				changedPixels[i] = clientColors[ws.id];
-			});
-			updateGameState();
-			server.clients.forEach(function(client) {
-  			if (client.readyState === WebSocket.OPEN) {
-					client.send(gamePixels);
-				}
-			});
-		}
-	});
 	ws.send(gamePixels);
+    ws.on('message', function(msg) {
+        let data = JSON.parse(msg);
+        if (!data.x) {
+            console.log(data);
+            return;
+        }
+        squisher.handleClick(data.x, data.y);
+    });
 });

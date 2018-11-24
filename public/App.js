@@ -1,6 +1,6 @@
 // Insert your local IP + port here
 // 192.168.1.11
-const socket = new WebSocket('ws://192.168.1.11:8080');
+const socket = new WebSocket('ws://192.168.0.102:7080');
 
 socket.binaryType = 'arraybuffer';
 
@@ -16,8 +16,8 @@ const ctx = canvas.getContext('2d');
 let windowWidth = window.innerWidth;
 let windowHeight = window.innerHeight;
 
-let originalWidth = 240;
-let originalHeight = 135;
+let originalWidth = 192;
+let originalHeight = 108;
 let scaleFactor = Math.floor(windowWidth / originalWidth);
 let BYTES_PER_PIXEL = 4;
 
@@ -62,7 +62,9 @@ let imageData = null;//new ImageData(new Uint8ClampedArray(), canvasWidth);
 
 socket.onmessage = function(msg) {
 	let newPixels = scalePixels(msg.data);
-	imageData = new ImageData(newPixels, originalWidth * scaleFactor, originalHeight * scaleFactor);
+	console.log("GOT STUFF");
+    console.log(msg);
+    imageData = new ImageData(newPixels, originalWidth * scaleFactor, originalHeight * scaleFactor);
 };
 
 window.addEventListener("resize", function(x) {
@@ -83,8 +85,7 @@ const draw = function(x, y) {
 	let clickX = Math.floor(x / pixelWidth);
 	let clickY = Math.floor(y  / pixelWidth);
 	let clickIndex = (originalWidth * clickY) + clickX;
-	let clickIndices = [clickIndex, clickIndex+1, clickIndex + 2, clickIndex + originalWidth, clickIndex + originalWidth + 1, clickIndex + originalWidth + 2, clickIndex + 2 * originalWidth, clickIndex + 2 * originalWidth + 1, clickIndex + 2 * originalWidth + 2];
-	socket.send(clickIndices);
+    socket.send(JSON.stringify({'x': clickX, 'y': clickY}));
 };
 
 canvas.addEventListener('mousedown', function(e) {
