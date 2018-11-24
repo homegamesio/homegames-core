@@ -3,8 +3,17 @@ class Squisher {
         this.width = width;
         this.height = height;
         this.root = root;
+        this.listeners = new Set();
         this.tempPixels = new Uint8ClampedArray(this.width * this.height * 4);
         this.initialize();
+    }
+
+    addListener(listener) {
+        this.listeners.add(listener);
+    }
+
+    removeListener(listener) {
+        this.listeners.remove(listener);
     }
 
     initialize() {
@@ -28,6 +37,7 @@ class Squisher {
         for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
             for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
                 this.entities[i][j].push(node);
+                node.index = this.entities[i][j].length - 1;
             }
         }
 
@@ -39,7 +49,7 @@ class Squisher {
     update(node) {
         for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
             for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
-                this.entities[i][j][1] = node;
+                this.entities[i][j][node.index] = node;
             }
         }
 
@@ -61,6 +71,13 @@ class Squisher {
         }
 
         this.pixelBoard = this.tempPixels;
+        this.notifyListeners();
+    }
+
+    notifyListeners() {
+        for (let listener of this.listeners) {
+            listener.handleUpdate(this.pixelBoard);
+        }
     }
 
     handleClick(x, y) {

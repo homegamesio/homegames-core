@@ -79,6 +79,11 @@ const resetBoard = function() {
     console.log("RESET BOARD");
 };
 
+const listener = {
+    handleUpdate: function(pixels) {
+        console.log("GOT UPDATE!!!!");
+    }
+};
 const board = listenable(new GameNode(COLORS.BLUE, handleBoardClick, {'x': 0, 'y': 0}, {'x': 1, 'y': 1}), function() {console.log("BOARD CHANGED")});
 
 const resetButton = listenable(new GameNode(COLORS.RED, resetBoard, {'x': .9, 'y': 0}, {'x': .1, 'y': .5}), function() {console.log("RESET BUTTON CHANGED");});
@@ -86,6 +91,7 @@ const resetButton = listenable(new GameNode(COLORS.RED, resetBoard, {'x': .9, 'y
 board.addChild(resetButton);
 
 const squisher = new Squisher(192, 108, board);
+squisher.addListener(listener);
 
 const server = new WebSocket.Server({
 	port: 7080
