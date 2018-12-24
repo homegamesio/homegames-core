@@ -4,12 +4,14 @@ const listenable = function(obj, onChange) {
             return Reflect.get(target, property, receiver);
         },
         defineProperty(target, property, descriptor) {
+            const change = Reflect.defineProperty(target, property, descriptor);
             onChange && onChange();
-            return Reflect.defineProperty(target, property, descriptor);
+            return change;
         },
         deleteProperty(target, property) {
+            const change = Reflect.deleteProperty(target, property);
             onChange && onChange();
-            return Reflect.deleteProperty(target, property);
+            return change;
         }
     };
 
