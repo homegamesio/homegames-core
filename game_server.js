@@ -18,8 +18,12 @@ const randomizeDrawColor = function(ws) {
 	clientColors[ws.id] = newColor;
 };
 
-const handleBoardClick = function() {
-    this.color = COLORS.TERRACOTTA;
+const handleBoardClick = function(x, y) {
+    const coloredPixelRaw = new GameNode(COLORS.BLACK, () => {}, {'x': x, 'y': y}, {'x': .0016, 'y': .0009});
+//    coloredPixelRaw.index = 1;
+    const coloredPixel = listenable(coloredPixelRaw, () => {});
+
+    board.addChild(coloredPixel);
 };
 
 const colorKeys = Object.keys(COLORS);
@@ -39,11 +43,12 @@ const listener = {
     }
 };
 
+// this is a hack. a game should be able to run without a squisher. a game session requires a squisher.
 let squisher;
 
-const board = listenable(new GameNode(COLORS.PURPLE, handleBoardClick, {'x': 0, 'y': 0}, {'x': 1, 'y': 1}), function() { squisher && squisher.update(board); });
+const board = listenable(new GameNode(COLORS.PURPLE, handleBoardClick, {'x': 0, 'y': 0}, {'x': 1, 'y': 1}), () => { squisher && squisher.update(board); });
 
-const resetButton = listenable(new GameNode(COLORS.RED, randomizeBoardColor, {'x': .85, 'y': 0}, {'x': .15, 'y': .15}), function() { squisher && squisher.update(board); });
+const resetButton = listenable(new GameNode(COLORS.RED, randomizeBoardColor, {'x': .85, 'y': 0}, {'x': .15, 'y': .15}), () => { squisher && squisher.update(board); });
 
 board.addChild(resetButton);
 

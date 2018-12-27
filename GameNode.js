@@ -9,10 +9,12 @@ class GameNode {
 
     addChild(node) {
         this.children.push(node);
+        // hack to trigger onupdate. should be able to selectively re-render a subtree based on update, then tell client to only re-render updated part of canvas.
+        this.children = this.children;
     }
 
-    handleClick() {
-        this.onClick();
+    handleClick(x, y) {
+        this.onClick(x, y);
     }
 }
 

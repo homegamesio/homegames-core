@@ -1,6 +1,5 @@
 // Insert your local IP + port here
-// 192.168.1.11
-const socket = new WebSocket('ws://192.168.0.104:7080');
+const socket = new WebSocket('ws://192.168.0.103:7080');
 
 socket.binaryType = 'arraybuffer';
 
@@ -46,11 +45,11 @@ let scalePixels = function(buff) {
 		let startY = scaleFactor * ((k / BYTES_PER_PIXEL) % originalWidth);
 		for (let x = startX; x < startX + scaleFactor; x++) {
 			for (let y = startY; y < startY + scaleFactor; y++) {
-				let theNewIndex = BYTES_PER_PIXEL * ((originalWidth * scaleFactor * x) + y);
-				tempPixels[theNewIndex] = arr[k];
-				tempPixels[theNewIndex + 1] = arr[k + 1];
-				tempPixels[theNewIndex + 2] = arr[k + 2];
-				tempPixels[theNewIndex + 3] = arr[k + 3];
+				let newIndex = BYTES_PER_PIXEL * ((originalWidth * scaleFactor * x) + y);
+				tempPixels[newIndex] = arr[k];
+				tempPixels[newIndex + 1] = arr[k + 1];
+				tempPixels[newIndex + 2] = arr[k + 2];
+				tempPixels[newIndex + 3] = arr[k + 3];
 			}
 		}
 	}
@@ -88,10 +87,10 @@ const draw = function(x, y) {
 
 canvas.addEventListener('mousedown', function(e) {
 	mouseDown = true;
-	draw(e.clientX, e.clientY);
 });
 
 canvas.addEventListener('mouseup', function(e) {
+    draw(e.clientX, e.clientY);
 	mouseDown = false;
 });
 

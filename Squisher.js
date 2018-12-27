@@ -54,6 +54,13 @@ class Squisher {
                 this.entities[i][j][node.index] = node;
             }
         }
+        
+        for (let i = 0; i < node.children.length; i++) {
+            if (!node.children[i].index) {
+                node.children[i].index = node.index + 1;
+            }
+            this.update(node.children[i]);
+        }
 
         this.updatePixelBoard();
     }
@@ -85,9 +92,11 @@ class Squisher {
     }
 
     handleClick(x, y) {
+        let translatedX = (x / this.width);
+        let translatedY = (y / this.height);
         let entityCount = this.entities[x][y].length;
         if (entityCount > 0) {
-            this.entities[x][y][entityCount - 1].handleClick();
+            this.entities[x][y][entityCount - 1].handleClick(translatedX, translatedY);
         }
     }
 
