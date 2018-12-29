@@ -1,4 +1,4 @@
-const COLORS = {
+const colors = {
 	BLACK: [0, 0, 0, 255],
 	WHITE: [255, 255, 255, 255],
 	GRAY: [190, 190, 190, 255],
@@ -28,4 +28,11 @@ const COLORS = {
 	TERRACOTTA: [226, 114, 91, 255]
 };
 
-module.exports = COLORS;
+const colorValues = Object.values(colors);
+
+const randomColor = function() {
+    const colorIndex = Math.floor(Math.random() * colorValues.length);    
+    return colorValues[colorIndex];
+}
+
+module.exports = { colors, randomColor };
