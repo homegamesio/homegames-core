@@ -1,9 +1,11 @@
 const WebSocket = require('ws');
+const uuid = require('uuid');
 
 class Player {
     constructor(ws) {
         this.inputListeners = new Set();
         this.ws = ws;
+	    this.ws.id = uuid();
         this.ws.on('message', this.handlePlayerInput.bind(this));
         this.ws.on('close', this.disconnect.bind(this));
     }

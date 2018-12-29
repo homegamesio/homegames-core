@@ -1,5 +1,4 @@
 const WebSocket = require('ws');
-const uuid = require('uuid');
 const Draw = require('./src/games/draw');
 const GameSession = require('./src/GameSession');
 const Player = require('./src/Player');
@@ -12,7 +11,6 @@ const draw = new Draw();
 const session = new GameSession(draw, {'width': 320, 'height': 180});
 
 server.on('connection', (ws) => {
-	ws.id = uuid();
     const player = new Player(ws);
     session.addPlayer(player);
 });

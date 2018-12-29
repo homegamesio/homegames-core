@@ -76,7 +76,7 @@ window.addEventListener("resize", function(x) {
 	socket.send(JSON.stringify({"req": true}));
 });
 
-const draw = function(x, y) {
+const click = function(x, y) {
 	let pixelWidth = canvas.width / originalWidth;
 	let pixelHeight = canvas.height / originalHeight;
 	let clickX = Math.floor(x / pixelWidth);
@@ -90,19 +90,19 @@ canvas.addEventListener('mousedown', function(e) {
 });
 
 canvas.addEventListener('mouseup', function(e) {
-    draw(e.clientX, e.clientY);
+    click(e.clientX, e.clientY);
 	mouseDown = false;
 });
 
 canvas.addEventListener('mousemove', function(e) {
 	if (mouseDown) {
-		draw(e.clientX, e.clientY);
+		click(e.clientX, e.clientY);
 	}
 });
 
 canvas.addEventListener('touchmove', function(e) {
 	e.preventDefault();
-	draw(e.touches['0'].clientX, e.touches['0'].clientY);
+	click(e.touches['0'].clientX, e.touches['0'].clientY);
 });
 
 function render(timestamp) {
