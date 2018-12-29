@@ -6,10 +6,23 @@ class Draw {
     constructor() {
         const board = gameNode(colors.PURPLE, this.handleBoardClick.bind(this), {'x': 0, 'y': 0}, {'x': 1, 'y': 1});
         const randomizeButton = gameNode(colors.RED, this.randomizeBoardColor.bind(this), {'x': .8, 'y': 0}, {'x': .15, 'y': .15});
+        const resetButton = gameNode(colors.BLUE, this.resetBoard.bind(this), {x: .6, y: 0}, {x: .15, y: .15});
+
         board.addChild(randomizeButton);
+        board.addChild(resetButton);
         this.board = board;
     }
-    
+
+    resetBoard() {
+        const randomizeButton = gameNode(colors.RED, this.randomizeBoardColor.bind(this), {'x': .8, 'y': 0}, {'x': .15, 'y': .15});
+        const resetButton = gameNode(colors.BLUE, this.resetBoard.bind(this), {x: .6, y: 0}, {x: .15, y: .15});
+
+        this.board.clearChildren();
+
+        this.board.addChild(randomizeButton);
+        this.board.addChild(resetButton);
+    }
+
     handleBoardClick(x, y) {
         const coloredPixel = gameNode(colors.BLACK, () => {}, {'x': x, 'y': y}, {'x': .0016, 'y': .0009});
         this.board.addChild(coloredPixel);

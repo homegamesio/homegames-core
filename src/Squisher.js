@@ -22,12 +22,6 @@ class Squisher {
             entities[i] = new Array(this.height);
         }
 
-        for (let i = 0; i < this.width; i++) {
-            for (let j = 0; j < this.height; j++) {
-                entities[i][j] = new Array();
-            }
-        }
-
         this.entities = entities;
         this.initializeHelper(this.root);
         this.updatePixelBoard();
@@ -40,8 +34,7 @@ class Squisher {
     initializeHelper(node) {
         for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
             for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
-                this.entities[i][j].push(node);
-                node.index = this.entities[i][j].length - 1;
+                this.entities[i][j] = node;
             }
         }
 
@@ -55,14 +48,11 @@ class Squisher {
     update(node) {
         for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
             for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
-                this.entities[i][j][node.index] = node;
+                this.entities[i][j] = node;
             }
         }
         
         for (let i = 0; i < node.children.length; i++) {
-            if (!node.children[i].index) {
-                node.children[i].index = node.index + 1;
-            }
             this.update(node.children[i]);
         }
 
@@ -72,10 +62,9 @@ class Squisher {
     updatePixelBoard() {
         for (let i = 0; i < this.width; i++) {
             for (let j = 0; j < this.height; j++) {
-                let entityCount = this.entities[i][j].length;
-                if (entityCount > 0) {
+                if (this.entities[i][j]) {
                     let k = 4 * ((j * this.width) + i);
-                    let color = this.entities[i][j][entityCount - 1].color;
+                    let color = this.entities[i][j].color;
                     
                     this.tempPixels[k] = color[0];
                     this.tempPixels[k+ 1] = color[1];
@@ -97,14 +86,14 @@ class Squisher {
 
     handlePlayerInput(player, input) {
         // currently assume all input is clicks
-        let translatedX = (input.x / this.width);
-        let translatedY = (input.y / this.height);
+        const translatedX = (input.x / this.width);
+        const translatedY = (input.y / this.height);
         if (translatedX >= 1 || translatedY >= 1) {
             return;
         }
-        let entityCount = this.entities[input.x][input.y].length;
-        if (entityCount > 0) {
-            this.entities[input.x][input.y][entityCount - 1].handleClick(translatedX, translatedY);
+        const entity = this.entities[input.x][input.y];
+        if (entity) {
+            entity.handleClick(translatedX, translatedY);
         }
     }
 

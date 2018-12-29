@@ -25,6 +25,10 @@ class GameNode {
             listener.handleStateChange(this);
         }
     }
+
+    clearChildren() {
+        this.children = new Array();
+    }
 }
 
 const gameNode = (color, onClick, pos, size) => {
