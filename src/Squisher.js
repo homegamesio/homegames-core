@@ -1,10 +1,8 @@
-const COLORS = require('./Colors');
-
 class Squisher {
-    constructor(width, height, root) {
+    constructor(width, height, game) {
         this.width = width;
         this.height = height;
-        this.root = root;
+        this.root = game.getRoot();
         this.listeners = new Set();
         this.tempPixels = new Uint8ClampedArray(this.width * this.height * 4);
         this.initialize();
@@ -35,6 +33,10 @@ class Squisher {
         this.updatePixelBoard();
     }
 
+    handleStateChange(node) {
+        this.update(node);
+    }
+
     initializeHelper(node) {
         for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
             for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
@@ -42,6 +44,8 @@ class Squisher {
                 node.index = this.entities[i][j].length - 1;
             }
         }
+
+        node.addListener(this);
 
         for (let i = 0; i < node.children.length; i++) {
             this.initializeHelper(node.children[i]);
@@ -91,12 +95,16 @@ class Squisher {
         }
     }
 
-    handleClick(x, y) {
-        let translatedX = (x / this.width);
-        let translatedY = (y / this.height);
-        let entityCount = this.entities[x][y].length;
+    handlePlayerInput(player, input) {
+        // currently assume all input is clicks
+        let translatedX = (input.x / this.width);
+        let translatedY = (input.y / this.height);
+        if (translatedX >= 1 || translatedY >= 1) {
+            return;
+        }
+        let entityCount = this.entities[input.x][input.y].length;
         if (entityCount > 0) {
-            this.entities[x][y][entityCount - 1].handleClick(translatedX, translatedY);
+            this.entities[input.x][input.y][entityCount - 1].handleClick(translatedX, translatedY);
         }
     }
 

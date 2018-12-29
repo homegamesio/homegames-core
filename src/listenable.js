@@ -18,7 +18,4 @@ const listenable = function(obj, onChange) {
     return new Proxy(obj, handler);
 };
 
-
-module.exports = {
-    listenable
-};
+module.exports = listenable;

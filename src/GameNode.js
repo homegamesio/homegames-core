@@ -1,3 +1,5 @@
+const listenable = require('./listenable');
+
 class GameNode {
     constructor(color, onClick, pos, size) {
         this.children = new Array();
@@ -5,6 +7,7 @@ class GameNode {
         this.onClick = onClick;
         this.pos = pos;
         this.size = size;
+        this.listeners = new Set();
     }
 
     addChild(node) {
@@ -13,9 +16,24 @@ class GameNode {
         this.children = this.children;
     }
 
+    addListener(listener) {
+        this.listeners.add(listener);
+    }
+
     handleClick(x, y) {
         this.onClick(x, y);
     }
+
+    stateChanged() {
+        for (let listener of this.listeners) {
+            listener.handleStateChange(this);
+        }
+    }
 }
 
-module.exports = GameNode;
+const gameNode = (color, onClick, pos, size) => {
+    const node = new GameNode(color, onClick, pos, size);
+    return listenable(node, node.stateChanged.bind(node));
+}
+
+module.exports = gameNode;
