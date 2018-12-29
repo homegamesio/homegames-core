@@ -93,7 +93,7 @@ class Squisher {
         }
         const entity = this.entities[input.x][input.y];
         if (entity) {
-            entity.handleClick(translatedX, translatedY);
+            entity.handleClick(player, translatedX, translatedY);
         }
     }
 

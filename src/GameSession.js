@@ -13,6 +13,7 @@ class GameSession {
         player.addInputListener(this.squisher);
         player.receiveUpdate(this.squisher.getPixels());
         this.players.add(player);
+        this.game.handleNewPlayer(player);
     }
 
     handleUpdate(update) {

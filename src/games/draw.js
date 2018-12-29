@@ -11,6 +11,8 @@ class Draw {
         board.addChild(randomizeButton);
         board.addChild(resetButton);
         this.board = board;
+
+        this.playerColorMap = {};
     }
 
     resetBoard() {
@@ -23,8 +25,13 @@ class Draw {
         this.board.addChild(resetButton);
     }
 
-    handleBoardClick(x, y) {
-        const coloredPixel = gameNode(colors.BLACK, () => {}, {'x': x, 'y': y}, {'x': .0016, 'y': .0009});
+    handleNewPlayer(player) {
+        this.playerColorMap[player.id] = colors.GREEN;
+    }
+
+    handleBoardClick(player, x, y) {
+        const playerColor = this.playerColorMap[player.id];
+        const coloredPixel = gameNode(playerColor, () => {}, {'x': x, 'y': y}, {'x': .0016, 'y': .0009});
         this.board.addChild(coloredPixel);
     }
 
