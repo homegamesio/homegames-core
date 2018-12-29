@@ -10,10 +10,15 @@ class GameNode {
         this.listeners = new Set();
     }
 
+    handleStateChange(child) {
+        // TODO: fix this whole "listen to my kids" thing. it's complicated and inefficient
+        this.onStateChange();
+    }
+
     addChild(node) {
+        node.addListener(this);
         this.children.push(node);
-        // hack to trigger onupdate. should be able to selectively re-render a subtree based on update, then tell client to only re-render updated part of canvas.
-        this.children = this.children;
+        this.onStateChange();
     }
 
     addListener(listener) {

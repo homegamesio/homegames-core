@@ -4,20 +4,14 @@ const colorKeys = Object.keys(colors);
 
 class Draw {
     constructor() {
-        const board = gameNode(colors.PURPLE, this.handleBoardClick.bind(this), {'x': 0, 'y': 0}, {'x': 1, 'y': 1});
-        const randomizeButton = gameNode(colors.RED, this.randomizeBoardColor.bind(this), {'x': .8, 'y': 0}, {'x': .15, 'y': .15});
-        const resetButton = gameNode(colors.BLUE, this.resetBoard.bind(this), {x: .6, y: 0}, {x: .15, y: .15});
-
-        board.addChild(randomizeButton);
-        board.addChild(resetButton);
-        this.board = board;
-
         this.playerColorMap = {};
+        this.board = gameNode(colors.PURPLE, this.handleBoardClick.bind(this), {'x': 0, 'y': 0}, {'x': 1, 'y': 1});
+        this.initializeBoard();
     }
 
-    resetBoard() {
+    initializeBoard() {
         const randomizeButton = gameNode(colors.RED, this.randomizeBoardColor.bind(this), {'x': .8, 'y': 0}, {'x': .15, 'y': .15});
-        const resetButton = gameNode(colors.BLUE, this.resetBoard.bind(this), {x: .6, y: 0}, {x: .15, y: .15});
+        const resetButton = gameNode(colors.BLUE, this.initializeBoard.bind(this), {x: .6, y: 0}, {x: .15, y: .15});
 
         this.board.clearChildren();
 
@@ -27,6 +21,15 @@ class Draw {
 
     handleNewPlayer(player) {
         this.playerColorMap[player.id] = colors.GREEN;
+        const setPlayerColor = function() {
+            this.playerColorMap[player.id] = colors.BLACK;
+        }.bind(this);
+
+        const playerColorButton = gameNode(colors.GREEN, function() {
+            this.color = colors.BLACK;
+            setPlayerColor();
+        }, {'x': 0, 'y': 0}, {'x': .1, 'y': .1});
+        this.board.addChild(playerColorButton);
     }
 
     handleBoardClick(player, x, y) {

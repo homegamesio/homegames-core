@@ -3,6 +3,7 @@ class Squisher {
         this.width = width;
         this.height = height;
         this.root = game.getRoot();
+        this.root.addListener(this);
         this.listeners = new Set();
         this.tempPixels = new Uint8ClampedArray(this.width * this.height * 4);
         this.initialize();
@@ -37,8 +38,6 @@ class Squisher {
                 this.entities[i][j] = node;
             }
         }
-
-        node.addListener(this);
 
         for (let i = 0; i < node.children.length; i++) {
             this.initializeHelper(node.children[i]);
