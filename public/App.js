@@ -77,12 +77,23 @@ window.addEventListener("resize", function(x) {
 });
 
 const click = function(x, y) {
-	let pixelWidth = canvas.width / originalWidth;
-	let pixelHeight = canvas.height / originalHeight;
-	let clickX = Math.floor(x / pixelWidth);
-	let clickY = Math.floor(y  / pixelWidth);
-	let clickIndex = (originalWidth * clickY) + clickX;
-    socket.send(JSON.stringify({'x': clickX, 'y': clickY}));
+	const pixelWidth = canvas.width / originalWidth;
+	const pixelHeight = canvas.height / originalHeight;
+	const clickX = Math.floor(x / pixelWidth);
+	const clickY = Math.floor(y  / pixelWidth);
+	const clickIndex = (originalWidth * clickY) + clickX;
+    const payload = {type: 'click',  data: {x: clickX, y: clickY}};
+    socket.send(JSON.stringify(payload));
+};
+
+const keydown = function(key) {
+    const payload = {type: 'keydown',  data: {key: key}};
+    socket.send(JSON.stringify(payload));
+};
+
+const keyup = function(key) {
+    const payload = {type: 'keydown',  data: {key: key}};
+    socket.send(JSON.stringify(payload));
 };
 
 canvas.addEventListener('mousedown', function(e) {
@@ -103,6 +114,16 @@ canvas.addEventListener('mousemove', function(e) {
 canvas.addEventListener('touchmove', function(e) {
 	e.preventDefault();
 	click(e.touches['0'].clientX, e.touches['0'].clientY);
+});
+
+document.addEventListener('keydown', function(e) {
+    e.preventDefault();
+    keydown(e.key);
+});
+
+document.addEventListener('keyup', function(e) {
+    e.preventDefault();
+    keyup(e.key);
 });
 
 function render(timestamp) {

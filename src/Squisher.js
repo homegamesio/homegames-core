@@ -85,13 +85,22 @@ class Squisher {
     }
 
     handlePlayerInput(player, input) {
-        // currently assume all input is clicks
-        const translatedX = (input.x / this.width);
-        const translatedY = (input.y / this.height);
+        if (input.type === 'click') {
+            this.handleClick(player, input.data);
+        } else if (input.type === 'keydown' || input.type === 'keyup') {
+            // TODO: something with key events
+        } else {
+            console.log("Unknown input type: " + input.type);
+        }
+    }
+
+    handleClick(player, click) {
+        const translatedX = (click.x / this.width);
+        const translatedY = (click.y / this.height);
         if (translatedX >= 1 || translatedY >= 1) {
             return;
         }
-        const entity = this.entities[input.x][input.y];
+        const entity = this.entities[click.x][click.y];
         if (entity) {
             entity.handleClick(player, translatedX, translatedY);
         }

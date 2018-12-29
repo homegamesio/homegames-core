@@ -12,11 +12,10 @@ class Player {
 
     handlePlayerInput(msg) {
         const data = JSON.parse(msg);
-        // only input is x, y clicks for now
-        if (!data.x) {
+        if (!data.type) {
             console.log(data);
             return;
-        } 
+        }
         
         for (let listener of this.inputListeners) {
             listener.handlePlayerInput(this, data);
