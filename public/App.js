@@ -1,6 +1,5 @@
 // Insert your local IP + port here
-// 192.168.1.11
-const socket = new WebSocket('ws://192.168.1.11:8080');
+const socket = new WebSocket('ws://192.168.0.103:7080');
 
 socket.binaryType = 'arraybuffer';
 
@@ -16,8 +15,8 @@ const ctx = canvas.getContext('2d');
 let windowWidth = window.innerWidth;
 let windowHeight = window.innerHeight;
 
-let originalWidth = 240;
-let originalHeight = 135;
+let originalWidth = 320;
+let originalHeight = 180;
 let scaleFactor = Math.floor(windowWidth / originalWidth);
 let BYTES_PER_PIXEL = 4;
 
@@ -46,11 +45,11 @@ let scalePixels = function(buff) {
 		let startY = scaleFactor * ((k / BYTES_PER_PIXEL) % originalWidth);
 		for (let x = startX; x < startX + scaleFactor; x++) {
 			for (let y = startY; y < startY + scaleFactor; y++) {
-				let theNewIndex = BYTES_PER_PIXEL * ((originalWidth * scaleFactor * x) + y);
-				tempPixels[theNewIndex] = arr[k];
-				tempPixels[theNewIndex + 1] = arr[k + 1];
-				tempPixels[theNewIndex + 2] = arr[k + 2];
-				tempPixels[theNewIndex + 3] = arr[k + 3];
+				let newIndex = BYTES_PER_PIXEL * ((originalWidth * scaleFactor * x) + y);
+				tempPixels[newIndex] = arr[k];
+				tempPixels[newIndex + 1] = arr[k + 1];
+				tempPixels[newIndex + 2] = arr[k + 2];
+				tempPixels[newIndex + 3] = arr[k + 3];
 			}
 		}
 	}
@@ -62,7 +61,7 @@ let imageData = null;//new ImageData(new Uint8ClampedArray(), canvasWidth);
 
 socket.onmessage = function(msg) {
 	let newPixels = scalePixels(msg.data);
-	imageData = new ImageData(newPixels, originalWidth * scaleFactor, originalHeight * scaleFactor);
+    imageData = new ImageData(newPixels, originalWidth * scaleFactor, originalHeight * scaleFactor);
 };
 
 window.addEventListener("resize", function(x) {
@@ -77,40 +76,39 @@ window.addEventListener("resize", function(x) {
 	socket.send(JSON.stringify({"req": true}));
 });
 
-const draw = function(x, y) {
+const click = function(x, y) {
 	let pixelWidth = canvas.width / originalWidth;
 	let pixelHeight = canvas.height / originalHeight;
 	let clickX = Math.floor(x / pixelWidth);
 	let clickY = Math.floor(y  / pixelWidth);
 	let clickIndex = (originalWidth * clickY) + clickX;
-	let clickIndices = [clickIndex, clickIndex+1, clickIndex + 2, clickIndex + originalWidth, clickIndex + originalWidth + 1, clickIndex + originalWidth + 2, clickIndex + 2 * originalWidth, clickIndex + 2 * originalWidth + 1, clickIndex + 2 * originalWidth + 2];
-	socket.send(clickIndices);
+    socket.send(JSON.stringify({'x': clickX, 'y': clickY}));
 };
 
 canvas.addEventListener('mousedown', function(e) {
 	mouseDown = true;
-	draw(e.clientX, e.clientY);
 });
 
 canvas.addEventListener('mouseup', function(e) {
+    click(e.clientX, e.clientY);
 	mouseDown = false;
 });
 
 canvas.addEventListener('mousemove', function(e) {
 	if (mouseDown) {
-		draw(e.clientX, e.clientY);
+		click(e.clientX, e.clientY);
 	}
 });
 
 canvas.addEventListener('touchmove', function(e) {
 	e.preventDefault();
-	draw(e.touches['0'].clientX, e.touches['0'].clientY);
+	click(e.touches['0'].clientX, e.touches['0'].clientY);
 });
 
 function render(timestamp) {
 	if (imageData) {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-  	ctx.putImageData(imageData, 0, 0);
+  	    ctx.putImageData(imageData, 0, 0);
 	}
 
 	window.requestAnimationFrame(render);
