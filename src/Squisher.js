@@ -18,11 +18,13 @@ class Squisher {
     }
 
     initialize() {
-        let entities = new Array(this.width);
+        let entities = new Array()//this.width);
+        let clickListeners = new Array(this.width);
         for (let i = 0; i < this.width; i++) {
-            entities[i] = new Array(this.height);
+            clickListeners[i] = new Array(this.height);
         }
 
+        this.clickListeners = clickListeners;
         this.entities = entities;
         this.initializeHelper(this.root);
         this.updatePixelBoard();
@@ -33,9 +35,13 @@ class Squisher {
     }
 
     initializeHelper(node) {
+        //this.clickListeners = node;
+        //this.updatePixelBoard();
+        //return;
+        this.entities.push(node);
         for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
             for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
-                this.entities[i][j] = node;
+                this.clickListeners[i][j] = node;
             }
         }
 
@@ -45,36 +51,23 @@ class Squisher {
     }
 
     update(node) {
-        for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
-            for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
-                this.entities[i][j] = node;
-            }
-        }
-        
-        for (let i = 0; i < node.children.length; i++) {
-            this.update(node.children[i]);
-        }
-
         this.updatePixelBoard();
     }
 
     updatePixelBoard() {
-        for (let i = 0; i < this.width; i++) {
-            for (let j = 0; j < this.height; j++) {
-                if (this.entities[i][j]) {
-                    let k = 4 * ((j * this.width) + i);
-                    let color = this.entities[i][j].color;
-                    
-                    this.tempPixels[k] = color[0];
-                    this.tempPixels[k+ 1] = color[1];
-                    this.tempPixels[k + 2] = color[2];
-                    this.tempPixels[k + 3] = color[3];
-                }
-            }
+        this.pixelBoard = new Array(8 * this.entities.length);
+        for (let i = 0; i < this.entities.length; i++) {
+            this.pixelBoard[i] = this.entities[i].color[0];
+            this.pixelBoard[i + 1] = this.entities[i].color[1];
+            this.pixelBoard[i + 2] = this.entities[i].color[2];
+            this.pixelBoard[i + 3] = this.entities[i].color[3];
+            this.pixelBoard[i + 4] = this.entities[i].pos.x;
+            this.pixelBoard[i + 5] = this.entities[i].pos.y;
+            this.pixelBoard[i + 6] = this.entities[i].size.x;
+            this.pixelBoard[i + 7] = this.entities[i].size.y;
         }
 
-        this.pixelBoard = this.tempPixels;
-        this.notifyListeners();
+       this.notifyListeners();
     }
 
     notifyListeners() {
@@ -94,12 +87,12 @@ class Squisher {
     }
 
     handleClick(player, click) {
-        const translatedX = (click.x / this.width);
+        let translatedX = (click.x / this.width);
         const translatedY = (click.y / this.height);
         if (translatedX >= 1 || translatedY >= 1) {
             return;
         }
-        const entity = this.entities[click.x][click.y];
+        const entity = this.clickListeners[click.x][click.y];
         if (entity) {
             entity.handleClick(player, translatedX, translatedY);
         }

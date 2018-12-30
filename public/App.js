@@ -1,5 +1,5 @@
 // Insert your local IP + port here
-const socket = new WebSocket('ws://192.168.0.103:7080');
+const socket = new WebSocket('ws://192.168.0.104:7080');
 
 socket.binaryType = 'arraybuffer';
 
@@ -60,8 +60,20 @@ let scalePixels = function(buff) {
 let imageData = null;//new ImageData(new Uint8ClampedArray(), canvasWidth);
 
 socket.onmessage = function(msg) {
-	let newPixels = scalePixels(msg.data);
-    imageData = new ImageData(newPixels, originalWidth * scaleFactor, originalHeight * scaleFactor);
+    console.log("GOT");
+    console.log(msg.data);
+    let buf = new Uint8ClampedArray(msg.data);
+    let color = buf.slice(0, 4);
+    let startX = buf[4];
+    let startY = buf[5];
+    let width = buf[6];
+    let height = buf[7];
+    
+    ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
+    ctx.rect(startX, startY, originalWidth * scaleFactor * width, originalHeight * height * scaleFactor);
+    ctx.fill();
+	//let newPixels = scalePixels(msg.data);
+    //imageData = new ImageData(newPixels, originalWidth * scaleFactor, originalHeight * scaleFactor);
 };
 
 window.addEventListener("resize", function(x) {
