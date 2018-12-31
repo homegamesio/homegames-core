@@ -27,6 +27,7 @@ canvas.height = maxHeight;
 canvas.width = maxWidth;
 
 let mouseDown = false;
+const keysDown = {};
 
 socket.onmessage = function(msg) {
     let buf = new Uint8ClampedArray(msg.data);
@@ -52,12 +53,12 @@ const click = function(x, y) {
 };
 
 const keydown = function(key) {
-    const payload = {type: 'keydown',  data: {key: key}};
+    const payload = {type: 'keydown',  key: key};
     socket.send(JSON.stringify(payload));
 };
 
 const keyup = function(key) {
-    const payload = {type: 'keydown',  data: {key: key}};
+    const payload = {type: 'keyup',  key: key};
     socket.send(JSON.stringify(payload));
 };
 
@@ -83,10 +84,13 @@ canvas.addEventListener('touchmove', function(e) {
 
 document.addEventListener('keydown', function(e) {
     e.preventDefault();
+    //!keysDown[e.key] && keydown(e.key);
     keydown(e.key);
+    keysDown[e.key] = true;
 });
 
 document.addEventListener('keyup', function(e) {
     e.preventDefault();
     keyup(e.key);
+    keysDown[e.key] = false;
 });

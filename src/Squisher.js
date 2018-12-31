@@ -2,6 +2,7 @@ class Squisher {
     constructor(width, height, game) {
         this.width = width;
         this.height = height;
+        this.game = game;
         this.root = game.getRoot();
         this.root.addListener(this);
         this.listeners = new Set();
@@ -76,8 +77,10 @@ class Squisher {
     handlePlayerInput(player, input) {
         if (input.type === 'click') {
             this.handleClick(player, input.data);
-        } else if (input.type === 'keydown' || input.type === 'keyup') {
-            // TODO: something with key events
+        } else if (input.type === 'keydown') { 
+            this.game.handleKeyDown(player, input.key);
+        } else if (input.type === 'keyup') {
+            this.game.handleKeyUp(player, input.key);
         } else {
             console.log("Unknown input type: " + input.type);
         }
