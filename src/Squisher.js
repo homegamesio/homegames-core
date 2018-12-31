@@ -19,12 +19,7 @@ class Squisher {
 
     initialize() {
         let entities = new Array()//this.width);
-        let clickListeners = new Array(this.width);
-        for (let i = 0; i < this.width; i++) {
-            clickListeners[i] = new Array(this.height);
-        }
-
-        this.clickListeners = clickListeners;
+        this.clickListeners = new Array(this.width * this.height);
         this.entities = entities;
         this.update(this.root);
     }
@@ -41,12 +36,11 @@ class Squisher {
 
     updateHelper(node) {
         if (!this.entities.includes(node)) {
-            console.log("does this happen");
             node.addListener(this);
             this.entities.push(node);
             for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
                 for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
-                    this.clickListeners[i][j] = node;
+                    this.clickListeners[i * this.width + j] = node;
                 }
             }
         }
@@ -94,7 +88,7 @@ class Squisher {
         if (translatedX >= 1 || translatedY >= 1) {
             return;
         }
-        const entity = this.clickListeners[click.x][click.y];
+        const entity = this.clickListeners[click.x * this.width + click.y];
         if (entity) {
             entity.handleClick(player, translatedX, translatedY);
         }

@@ -8,9 +8,9 @@ const server = new WebSocket.Server({
 	port: 7080
 });
 
-//const draw = new Draw();
-const layerTest = new LayerTest();
-const session = new GameSession(layerTest, {'width': 320, 'height': 180});
+const draw = new Draw();
+//const layerTest = new LayerTest();
+const session = new GameSession(draw, {'width': 320, 'height': 180});
 
 server.on('connection', (ws) => {
     const player = new Player(ws);
