@@ -20,14 +20,17 @@ class Draw {
     }
 
     handleNewPlayer(player) {
-        this.playerColorMap[player.id] = colors.GREEN;
-        const setPlayerColor = function() {
-            this.playerColorMap[player.id] = colors.BLACK;
+        const initialColor = randomColor();
+
+        this.playerColorMap[player.id] = initialColor;
+        
+        const setPlayerColor = function(color) {
+            this.playerColorMap[player.id] = color;
         }.bind(this);
 
-        const playerColorButton = gameNode(colors.GREEN, function() {
-            this.color = colors.BLACK;
-            setPlayerColor();
+        const playerColorButton = gameNode(initialColor, function() {
+            this.color = randomColor();
+            setPlayerColor(this.color);
         }, {'x': 0, 'y': 0}, {'x': .1, 'y': .1});
         this.board.addChild(playerColorButton);
     }

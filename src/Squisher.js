@@ -31,7 +31,6 @@ class Squisher {
     update(node) {
         this.updateHelper(node);
         this.updatePixelBoard();
-        console.log(this.entities.length);
     }
 
     updateHelper(node) {
