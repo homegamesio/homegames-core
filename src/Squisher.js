@@ -26,38 +26,34 @@ class Squisher {
 
         this.clickListeners = clickListeners;
         this.entities = entities;
-        this.initializeHelper(this.root);
-        this.updatePixelBoard();
+        this.update(this.root);
     }
 
     handleStateChange(node) {
         this.update(node);
     }
 
-    initializeHelper(node) {
-        //this.clickListeners = node;
-        //this.updatePixelBoard();
-        //return;
-        this.entities.push(node);
-        for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
-            for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
-                this.clickListeners[i][j] = node;
-            }
-        }
-
-        for (let i = 0; i < node.children.length; i++) {
-            this.initializeHelper(node.children[i]);
-        }
+    update(node) {
+        this.updateHelper(node);
+        this.updatePixelBoard();
+        console.log(this.entities.length);
     }
 
-    update(node) {
-        // this is bad. need to finalize this whole thing
-        for (let i = 0; i < node.children.length; i++) {
-            if (!this.entities.includes(node.children[i])) {
-                this.entities.push(node.children[i]);
+    updateHelper(node) {
+        if (!this.entities.includes(node)) {
+            console.log("does this happen");
+            node.addListener(this);
+            this.entities.push(node);
+            for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
+                for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
+                    this.clickListeners[i][j] = node;
+                }
             }
         }
-        this.updatePixelBoard();
+
+        for (let i = 0; i < node.children.length; i++) {
+            this.updateHelper(node.children[i]);
+        }
     }
 
     updatePixelBoard() {

@@ -10,13 +10,7 @@ class GameNode {
         this.listeners = new Set();
     }
 
-    handleStateChange(child) {
-        // TODO: fix this whole "listen to my kids" thing. it's complicated and inefficient
-        this.onStateChange();
-    }
-
     addChild(node) {
-        node.addListener(this);
         this.children.push(node);
         this.onStateChange();
     }
