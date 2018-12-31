@@ -3,13 +3,29 @@ const {colors, randomColor} = require('../Colors');
 
 class MoveTest {
     constructor() {
-        this.base = gameNode(randomColor(), () => {}, 
+        this.base = gameNode(randomColor(), this.moveGuy.bind(this), 
             {'x': 0, 'y': 0}, {'x': 1, 'y': 1});
 
-        this.mover = gameNode(randomColor(), this.handleLayerClick,
+        const setActiveMover = function(mover) {
+            this.activeMover = mover;
+        }.bind(this);
+
+        const mover1 = gameNode(randomColor(), function(player, x, y) {setActiveMover(this)},//setActiveMoverthis),
             {'x': .45, 'y': .435}, {'x': .1, 'y': .17});
 
-        this.base.addChild(this.mover);
+        
+        const mover2 = gameNode(randomColor(), function(player, x, y) {setActiveMover(this)},//setActiveMoverthis),
+            {'x': .25, 'y': .235}, {'x': .1, 'y': .17});
+
+        this.base.addChild(mover1);
+        this.base.addChild(mover2);
+        this.activeMover = null;
+    }
+
+    moveGuy(player, x, y) {
+        if (this.activeMover) {
+            this.activeMover.pos = {x: x, y: y};
+        }
     }
 
     handleKeyDown(player, key) {
