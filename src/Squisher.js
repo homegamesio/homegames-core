@@ -57,14 +57,14 @@ class Squisher {
     updatePixelBoard() {
         this.pixelBoard = new Array(8 * this.entities.length);
         for (let i = 0; i < this.entities.length; i++) {
-            this.pixelBoard[i] = this.entities[i].color[0];
-            this.pixelBoard[i + 1] = this.entities[i].color[1];
-            this.pixelBoard[i + 2] = this.entities[i].color[2];
-            this.pixelBoard[i + 3] = this.entities[i].color[3];
-            this.pixelBoard[i + 4] = this.entities[i].pos.x;
-            this.pixelBoard[i + 5] = this.entities[i].pos.y;
-            this.pixelBoard[i + 6] = this.entities[i].size.x;
-            this.pixelBoard[i + 7] = this.entities[i].size.y;
+            this.pixelBoard[8 * i] = this.entities[i].color[0];
+            this.pixelBoard[8 * i + 1] = this.entities[i].color[1];
+            this.pixelBoard[8 * i + 2] = this.entities[i].color[2];
+            this.pixelBoard[8 * i + 3] = this.entities[i].color[3];
+            this.pixelBoard[8 * i + 4] = this.entities[i].pos.x * 100;
+            this.pixelBoard[8 * i + 5] = this.entities[i].pos.y * 100;
+            this.pixelBoard[8 * i + 6] = this.entities[i].size.x * 100;
+            this.pixelBoard[8 * i + 7] = this.entities[i].size.y * 100;
         }
 
        this.notifyListeners();

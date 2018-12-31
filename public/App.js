@@ -60,20 +60,16 @@ let scalePixels = function(buff) {
 let imageData = null;//new ImageData(new Uint8ClampedArray(), canvasWidth);
 
 socket.onmessage = function(msg) {
-    console.log("GOT");
-    console.log(msg.data);
     let buf = new Uint8ClampedArray(msg.data);
-    let color = buf.slice(0, 4);
-    let startX = buf[4];
-    let startY = buf[5];
-    let width = buf[6];
-    let height = buf[7];
-    
-    ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
-    ctx.rect(startX, startY, originalWidth * scaleFactor * width, originalHeight * height * scaleFactor);
-    ctx.fill();
-	//let newPixels = scalePixels(msg.data);
-    //imageData = new ImageData(newPixels, originalWidth * scaleFactor, originalHeight * scaleFactor);
+    for (let i = 0; i < buf.length; i+=8) {
+        let color = buf.slice(i, i + 4);
+        let startX = (buf[i + 4]/100) * originalWidth * scaleFactor;
+        let startY = (buf[i + 5]/100) * originalHeight * scaleFactor;
+        let width = (buf[i + 6] / 100) * originalWidth * scaleFactor;
+        let height = (buf[i + 7] / 100) * originalHeight * scaleFactor;
+        ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
+        ctx.fillRect(startX, startY, width, height);
+    }
 };
 
 window.addEventListener("resize", function(x) {
