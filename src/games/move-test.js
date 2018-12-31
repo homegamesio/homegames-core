@@ -7,7 +7,7 @@ class MoveTest {
             {'x': 0, 'y': 0}, {'x': 1, 'y': 1});
 
         this.mover = gameNode(randomColor(), this.handleLayerClick,
-            {'x': .5, 'y': .5}, {'x': .1, 'y': .1});
+            {'x': .45, 'y': .45}, {'x': .1, 'y': .1});
 
         this.base.addChild(this.mover);
     }
