@@ -1,7 +1,10 @@
 const listenable = require('./listenable');
 
+let id = 0;
+
 class GameNode {
     constructor(color, onClick, pos, size) {
+        this.id = id++;
         this.children = new Array();
         this.color = color;
         this.handleClick = onClick;

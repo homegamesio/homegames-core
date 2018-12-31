@@ -18,9 +18,9 @@ class Squisher {
     }
 
     initialize() {
-        let entities = new Array()//this.width);
+        this.ids = new Set();
+        this.entities = new Array();
         this.clickListeners = new Array(this.width * this.height);
-        this.entities = entities;
         this.update(this.root);
     }
 
@@ -35,7 +35,9 @@ class Squisher {
     }
 
     updateHelper(node) {
-        if (!this.entities.includes(node)) {
+
+        if (!this.ids.has(node.id)) {
+            this.ids.add(node.id);
             node.addListener(this);
             this.entities.push(node);
             for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
