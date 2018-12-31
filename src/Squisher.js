@@ -51,6 +51,12 @@ class Squisher {
     }
 
     update(node) {
+        // this is bad. need to finalize this whole thing
+        for (let i = 0; i < node.children.length; i++) {
+            if (!this.entities.includes(node.children[i])) {
+                this.entities.push(node.children[i]);
+            }
+        }
         this.updatePixelBoard();
     }
 

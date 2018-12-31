@@ -1,5 +1,5 @@
 const gameNode = require('../GameNode');
-const colors = require('../Colors');
+const {colors, randomColor} = require('../Colors');
 const colorKeys = Object.keys(colors);
 
 class Draw {
@@ -34,7 +34,7 @@ class Draw {
 
     handleBoardClick(player, x, y) {
         const playerColor = this.playerColorMap[player.id];
-        const coloredPixel = gameNode(playerColor, () => {}, {'x': x, 'y': y}, {'x': .0016, 'y': .0009});
+        const coloredPixel = gameNode(playerColor, () => {}, {'x': x, 'y': y}, {'x': .01, 'y': .01});
         this.board.addChild(coloredPixel);
     }
 
