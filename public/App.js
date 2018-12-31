@@ -20,44 +20,13 @@ let originalHeight = 180;
 let scaleFactor = Math.floor(windowWidth / originalWidth);
 let BYTES_PER_PIXEL = 4;
 
-let maxWidth = scaleFactor * originalWidth;
-let maxHeight = scaleFactor * originalHeight;
+const maxWidth = scaleFactor * originalWidth;
+const maxHeight = scaleFactor * originalHeight;
 
-let canvasWidth = maxWidth;
-let canvasHeight = maxHeight;
-//if (windowWidth > maxWidth) {
-//	canvasWidth = maxWidth;
-//	canvasHeight = (windowWidth/canvasWidth) * windowHeight;
-//}
-
-canvas.height = canvasHeight;
-canvas.width = canvasWidth;
+canvas.height = maxHeight;
+canvas.width = maxWidth;
 
 let mouseDown = false;
-
-let tempPixels = new Uint8ClampedArray(originalWidth * originalHeight * scaleFactor * scaleFactor * BYTES_PER_PIXEL);
-
-let scalePixels = function(buff) {
-	let arr = new Uint8ClampedArray(buff);
-
-	for (let k = 0; k < arr.length; k+=BYTES_PER_PIXEL) {
-		let startX = scaleFactor * Math.floor((k / BYTES_PER_PIXEL) / originalWidth);
-		let startY = scaleFactor * ((k / BYTES_PER_PIXEL) % originalWidth);
-		for (let x = startX; x < startX + scaleFactor; x++) {
-			for (let y = startY; y < startY + scaleFactor; y++) {
-				let newIndex = BYTES_PER_PIXEL * ((originalWidth * scaleFactor * x) + y);
-				tempPixels[newIndex] = arr[k];
-				tempPixels[newIndex + 1] = arr[k + 1];
-				tempPixels[newIndex + 2] = arr[k + 2];
-				tempPixels[newIndex + 3] = arr[k + 3];
-			}
-		}
-	}
-
-	return tempPixels;
-};
-
-let imageData = null;//new ImageData(new Uint8ClampedArray(), canvasWidth);
 
 socket.onmessage = function(msg) {
     let buf = new Uint8ClampedArray(msg.data);
@@ -71,18 +40,6 @@ socket.onmessage = function(msg) {
         ctx.fillRect(startX, startY, width, height);
     }
 };
-
-window.addEventListener("resize", function(x) {
-	// todo: this should not interfere with current pixels being repainted
-
-	windowWidth = window.innerWidth;
-	windowHeight = window.innerHeight;
-	scaleFactor = Math.floor(windowWidth / originalWidth);
-	tempPixels = new Uint8ClampedArray(originalWidth * originalHeight * scaleFactor * scaleFactor * BYTES_PER_PIXEL);
-	canvas.height = windowHeight;
-	canvas.width = windowWidth;
-	socket.send(JSON.stringify({"req": true}));
-});
 
 const click = function(x, y) {
 	const pixelWidth = canvas.width / originalWidth;
@@ -133,14 +90,3 @@ document.addEventListener('keyup', function(e) {
     e.preventDefault();
     keyup(e.key);
 });
-
-function render(timestamp) {
-	if (imageData) {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-  	    ctx.putImageData(imageData, 0, 0);
-	}
-
-	window.requestAnimationFrame(render);
-};
-
-window.requestAnimationFrame(render);
