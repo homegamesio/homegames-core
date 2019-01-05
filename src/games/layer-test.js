@@ -1,5 +1,5 @@
 const gameNode = require('../GameNode');
-const {colors, randomColor} = require('../Colors');
+const { randomColor } = require('../Colors');
 
 class LayerTest {
     constructor() {
