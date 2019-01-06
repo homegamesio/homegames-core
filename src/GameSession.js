@@ -1,5 +1,4 @@
 const Squisher = require('./Squisher');
-const listenable = require('./listenable');
 
 class GameSession {
     constructor(game, res) {

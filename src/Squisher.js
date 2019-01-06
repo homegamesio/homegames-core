@@ -6,7 +6,6 @@ class Squisher {
         this.root = game.getRoot();
         this.root.addListener(this);
         this.listeners = new Set();
-        this.tempPixels = new Uint8ClampedArray(this.width * this.height * 4);
         this.initialize();
     }
 
