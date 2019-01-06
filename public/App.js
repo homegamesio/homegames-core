@@ -21,8 +21,8 @@ const scaleFactor = Math.floor(windowWidth / originalWidth);
 const horizontalScale = originalWidth * scaleFactor;
 const verticalScale = originalHeight * scaleFactor;
 
-canvas.height = scaleFactor * originalHeight;
-canvas.width = scaleFactor * originalWidth;
+canvas.height = verticalScale;
+canvas.width = horizontalScale;
 
 let mouseDown = false;
 const keysDown = {};
