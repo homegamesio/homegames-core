@@ -52,16 +52,24 @@ class Squisher {
     }
 
     updatePixelBoard() {
-        this.pixelBoard = new Array(8 * this.entities.length);
+        const entityFrameSize = 42;
+        this.pixelBoard = new Array(entityFrameSize * this.entities.length);
         for (let i = 0; i < this.entities.length; i++) {
-            this.pixelBoard[8 * i] = this.entities[i].color[0];
-            this.pixelBoard[8 * i + 1] = this.entities[i].color[1];
-            this.pixelBoard[8 * i + 2] = this.entities[i].color[2];
-            this.pixelBoard[8 * i + 3] = this.entities[i].color[3];
-            this.pixelBoard[8 * i + 4] = this.entities[i].pos.x * 100;
-            this.pixelBoard[8 * i + 5] = this.entities[i].pos.y * 100;
-            this.pixelBoard[8 * i + 6] = this.entities[i].size.x * 100;
-            this.pixelBoard[8 * i + 7] = this.entities[i].size.y * 100;
+            this.pixelBoard[entityFrameSize * i] = this.entities[i].color[0];
+            this.pixelBoard[entityFrameSize * i + 1] = this.entities[i].color[1];
+            this.pixelBoard[entityFrameSize * i + 2] = this.entities[i].color[2];
+            this.pixelBoard[entityFrameSize * i + 3] = this.entities[i].color[3];
+            this.pixelBoard[entityFrameSize * i + 4] = this.entities[i].pos.x * 100;
+            this.pixelBoard[entityFrameSize * i + 5] = this.entities[i].pos.y * 100;
+            this.pixelBoard[entityFrameSize * i + 6] = this.entities[i].size.x * 100;
+            this.pixelBoard[entityFrameSize * i + 7] = this.entities[i].size.y * 100;
+            if (this.entities[i].text) {
+                this.pixelBoard[entityFrameSize * i + 8] = this.entities[i].text.x * 100;
+                this.pixelBoard[entityFrameSize * i + 9] = this.entities[i].text.y * 100;
+                for (let textIndex = 0; textIndex < 32 && textIndex < this.entities[i].text.text.length; textIndex++) {
+                    this.pixelBoard[entityFrameSize * i + 10 + textIndex] = this.entities[i].text.text.charCodeAt(textIndex);
+                }
+            }
         }
 
         this.notifyListeners();

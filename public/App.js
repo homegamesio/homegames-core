@@ -30,7 +30,8 @@ const keysDown = {};
 socket.onmessage = function(msg) {
     let color, startX, startY, width, height;
     const buf = new Uint8ClampedArray(msg.data);
-    for (let i = 0; i < buf.length; i+=8) {
+    console.log(buf);
+    for (let i = 0; i < buf.length; i += 42) {
         color = buf.slice(i, i + 4);
         startX = (buf[i + 4] / 100) * horizontalScale;
         startY = (buf[i + 5] / 100) * verticalScale;
@@ -38,6 +39,18 @@ socket.onmessage = function(msg) {
         height = (buf[i + 7] / 100) * verticalScale;
         ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
         ctx.fillRect(startX, startY, width, height);
+        // todo: remove magic numbers, make this a function
+        if (buf[i + 10] !== 0) {
+            const textStartX = (buf[i + 8] / 100) * horizontalScale;
+            const textStartY = (buf[i + 9] / 100) * verticalScale;
+            const textArray = buf.slice(i + 10, buf.indexOf(0, i + 10));
+            const string = String.fromCharCode(...textArray);
+            // todo: encode this in the payload
+            ctx.font = '48px sans-serif';
+            ctx.fillStyle = "black";
+            ctx.textAlign = "center";
+            ctx.fillText(string, textStartX, textStartY);
+        }
     }
 };
 

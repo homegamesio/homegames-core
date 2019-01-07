@@ -3,13 +3,14 @@ const listenable = require('./listenable');
 let id = 0;
 
 class GameNode {
-    constructor(color, onClick, pos, size) {
+    constructor(color, onClick, pos, size, text) {
         this.id = id++;
         this.children = new Array();
         this.color = color;
         this.handleClick = onClick;
         this.pos = pos;
         this.size = size;
+        this.text = text;
         this.listeners = new Set();
     }
 
@@ -33,8 +34,8 @@ class GameNode {
     }
 }
 
-const gameNode = (color, onClick, pos, size) => {
-    const node = new GameNode(color, onClick, pos, size);
+const gameNode = (color, onClick, pos, size, text) => {
+    const node = new GameNode(color, onClick, pos, size, text);
     return listenable(node, node.onStateChange.bind(node));
 };
 

@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const Draw = require('./src/games/draw');
 const LayerTest = require('./src/games/layer-test');
 const MoveTest = require('./src/games/move-test');
+const TextTest = require('./src/games/text-test');
 const GameSession = require('./src/GameSession');
 const Player = require('./src/Player');
 
@@ -10,9 +11,10 @@ const server = new WebSocket.Server({
 });
 
 let toExecute;
-toExecute = new Draw();
-// toExecute = new LayerTest();
+//toExecute = new Draw();
+//toExecute = new LayerTest();
 // toExecute = new MoveTest();
+toExecute = new TextTest();
 
 const session = new GameSession(toExecute, {'width': 320, 'height': 180});
 
