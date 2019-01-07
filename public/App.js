@@ -1,5 +1,5 @@
 // Insert your local IP + port here
-const socket = new WebSocket('ws://192.168.0.103:7080');
+const socket = new WebSocket('ws://192.168.1.14:7080');
 
 socket.binaryType = 'arraybuffer';
 
@@ -15,74 +15,49 @@ const ctx = canvas.getContext('2d');
 let windowWidth = window.innerWidth;
 let windowHeight = window.innerHeight;
 
-let originalWidth = 320;
-let originalHeight = 180;
-let scaleFactor = Math.floor(windowWidth / originalWidth);
-let BYTES_PER_PIXEL = 4;
+const originalWidth = 320;
+const originalHeight = 180;
+const scaleFactor = Math.floor(windowWidth / originalWidth);
+const horizontalScale = originalWidth * scaleFactor;
+const verticalScale = originalHeight * scaleFactor;
 
-let maxWidth = scaleFactor * originalWidth;
-let maxHeight = scaleFactor * originalHeight;
-
-let canvasWidth = maxWidth;
-let canvasHeight = maxHeight;
-//if (windowWidth > maxWidth) {
-//	canvasWidth = maxWidth;
-//	canvasHeight = (windowWidth/canvasWidth) * windowHeight;
-//}
-
-canvas.height = canvasHeight;
-canvas.width = canvasWidth;
+canvas.height = verticalScale;
+canvas.width = horizontalScale;
 
 let mouseDown = false;
-
-let tempPixels = new Uint8ClampedArray(originalWidth * originalHeight * scaleFactor * scaleFactor * BYTES_PER_PIXEL);
-
-let scalePixels = function(buff) {
-	let arr = new Uint8ClampedArray(buff);
-
-	for (let k = 0; k < arr.length; k+=BYTES_PER_PIXEL) {
-		let startX = scaleFactor * Math.floor((k / BYTES_PER_PIXEL) / originalWidth);
-		let startY = scaleFactor * ((k / BYTES_PER_PIXEL) % originalWidth);
-		for (let x = startX; x < startX + scaleFactor; x++) {
-			for (let y = startY; y < startY + scaleFactor; y++) {
-				let newIndex = BYTES_PER_PIXEL * ((originalWidth * scaleFactor * x) + y);
-				tempPixels[newIndex] = arr[k];
-				tempPixels[newIndex + 1] = arr[k + 1];
-				tempPixels[newIndex + 2] = arr[k + 2];
-				tempPixels[newIndex + 3] = arr[k + 3];
-			}
-		}
-	}
-
-	return tempPixels;
-};
-
-let imageData = null;//new ImageData(new Uint8ClampedArray(), canvasWidth);
+const keysDown = {};
 
 socket.onmessage = function(msg) {
-	let newPixels = scalePixels(msg.data);
-    imageData = new ImageData(newPixels, originalWidth * scaleFactor, originalHeight * scaleFactor);
+    let color, startX, startY, width, height;
+    const buf = new Uint8ClampedArray(msg.data);
+    for (let i = 0; i < buf.length; i+=8) {
+        color = buf.slice(i, i + 4);
+        startX = (buf[i + 4] / 100) * horizontalScale;
+        startY = (buf[i + 5] / 100) * verticalScale;
+        width = (buf[i + 6] / 100) * horizontalScale;
+        height = (buf[i + 7] / 100) * verticalScale;
+        ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
+        ctx.fillRect(startX, startY, width, height);
+    }
 };
 
-window.addEventListener("resize", function(x) {
-	// todo: this should not interfere with current pixels being repainted
-
-	windowWidth = window.innerWidth;
-	windowHeight = window.innerHeight;
-	scaleFactor = Math.floor(windowWidth / originalWidth);
-	tempPixels = new Uint8ClampedArray(originalWidth * originalHeight * scaleFactor * scaleFactor * BYTES_PER_PIXEL);
-	canvas.height = windowHeight;
-	canvas.width = windowWidth;
-	socket.send(JSON.stringify({"req": true}));
-});
-
 const click = function(x, y) {
-	let pixelWidth = canvas.width / originalWidth;
-	let pixelHeight = canvas.height / originalHeight;
-	let clickX = Math.floor(x / pixelWidth);
-	let clickY = Math.floor(y  / pixelWidth);
-	let clickIndex = (originalWidth * clickY) + clickX;
-    socket.send(JSON.stringify({'x': clickX, 'y': clickY}));
+	const pixelWidth = canvas.width / originalWidth;
+	const pixelHeight = canvas.height / originalHeight;
+	const clickX = Math.floor(x / pixelWidth);
+	const clickY = Math.floor(y  / pixelHeight);
+    const payload = {type: 'click',  data: {x: clickX, y: clickY}};
+    socket.send(JSON.stringify(payload));
+};
+
+const keydown = function(key) {
+    const payload = {type: 'keydown',  key: key};
+    socket.send(JSON.stringify(payload));
+};
+
+const keyup = function(key) {
+    const payload = {type: 'keyup',  key: key};
+    socket.send(JSON.stringify(payload));
 };
 
 canvas.addEventListener('mousedown', function(e) {
@@ -105,13 +80,17 @@ canvas.addEventListener('touchmove', function(e) {
 	click(e.touches['0'].clientX, e.touches['0'].clientY);
 });
 
-function render(timestamp) {
-	if (imageData) {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-  	    ctx.putImageData(imageData, 0, 0);
-	}
+document.addEventListener('keydown', function(e) {
+	  // Key code values 36-40 are the arrow keys
+		if (e.key.length == 1 && e.key >= ' ' && e.key <= 'z' || e.keyCode >= 36 && e.keyCode <= 40) {
+    	e.preventDefault();
+    	keydown(e.key);
+    	keysDown[e.key] = true;
+		}
+});
 
-	window.requestAnimationFrame(render);
-};
-
-window.requestAnimationFrame(render);
+document.addEventListener('keyup', function(e) {
+    e.preventDefault();
+    keyup(e.key);
+    keysDown[e.key] = false;
+});

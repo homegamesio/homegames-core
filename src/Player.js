@@ -5,18 +5,17 @@ class Player {
     constructor(ws) {
         this.inputListeners = new Set();
         this.ws = ws;
-	    this.ws.id = uuid();
+	    this.id = uuid();
         this.ws.on('message', this.handlePlayerInput.bind(this));
         this.ws.on('close', this.disconnect.bind(this));
     }
 
     handlePlayerInput(msg) {
         const data = JSON.parse(msg);
-        // only input is x, y clicks for now
-        if (!data.x) {
+        if (!data.type) {
             console.log(data);
             return;
-        } 
+        }
         
         for (let listener of this.inputListeners) {
             listener.handlePlayerInput(this, data);

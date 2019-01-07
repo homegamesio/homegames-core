@@ -1,5 +1,4 @@
 const Squisher = require('./Squisher');
-const listenable = require('./listenable');
 
 class GameSession {
     constructor(game, res) {
@@ -13,6 +12,7 @@ class GameSession {
         player.addInputListener(this.squisher);
         player.receiveUpdate(this.squisher.getPixels());
         this.players.add(player);
+        this.game.handleNewPlayer(player);
     }
 
     handleUpdate(update) {

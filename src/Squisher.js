@@ -2,9 +2,10 @@ class Squisher {
     constructor(width, height, game) {
         this.width = width;
         this.height = height;
+        this.game = game;
         this.root = game.getRoot();
+        this.root.addListener(this);
         this.listeners = new Set();
-        this.tempPixels = new Uint8ClampedArray(this.width * this.height * 4);
         this.initialize();
     }
 
@@ -17,76 +18,53 @@ class Squisher {
     }
 
     initialize() {
-        let entities = new Array(this.width);
-        for (let i = 0; i < this.width; i++) {
-            entities[i] = new Array(this.height);
-        }
-
-        for (let i = 0; i < this.width; i++) {
-            for (let j = 0; j < this.height; j++) {
-                entities[i][j] = new Array();
-            }
-        }
-
-        this.entities = entities;
-        this.initializeHelper(this.root);
-        this.updatePixelBoard();
+        this.ids = new Set();
+        this.entities = new Array();
+        this.clickListeners = new Array(this.width * this.height);
+        this.update(this.root);
     }
 
     handleStateChange(node) {
         this.update(node);
     }
 
-    initializeHelper(node) {
-        for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
-            for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
-                this.entities[i][j].push(node);
-                node.index = this.entities[i][j].length - 1;
-            }
-        }
-
-        node.addListener(this);
-
-        for (let i = 0; i < node.children.length; i++) {
-            this.initializeHelper(node.children[i]);
-        }
-    }
-
     update(node) {
-        for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
-            for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
-                this.entities[i][j][node.index] = node;
-            }
-        }
-        
-        for (let i = 0; i < node.children.length; i++) {
-            if (!node.children[i].index) {
-                node.children[i].index = node.index + 1;
-            }
-            this.update(node.children[i]);
-        }
-
+        this.updateHelper(node);
         this.updatePixelBoard();
     }
 
-    updatePixelBoard() {
-        for (let i = 0; i < this.width; i++) {
-            for (let j = 0; j < this.height; j++) {
-                let entityCount = this.entities[i][j].length;
-                if (entityCount > 0) {
-                    let k = 4 * ((j * this.width) + i);
-                    let color = this.entities[i][j][entityCount - 1].color;
-                    
-                    this.tempPixels[k] = color[0];
-                    this.tempPixels[k+ 1] = color[1];
-                    this.tempPixels[k + 2] = color[2];
-                    this.tempPixels[k + 3] = color[3];
+    updateHelper(node) {
+
+        if (!this.ids.has(node.id)) {
+            this.ids.add(node.id);
+            node.addListener(this);
+            this.entities.push(node);
+            for (let i = Math.floor(node.pos.x * this.width); i < this.width * (node.pos.x + node.size.x); i++) {
+                for (let j = Math.floor(node.pos.y * this.height); j < this.height * (node.pos.y + node.size.y); j++) {
+                    this.clickListeners[i * this.width + j] = node;
                 }
             }
         }
 
-        this.pixelBoard = this.tempPixels;
-        this.notifyListeners();
+        for (let i = 0; i < node.children.length; i++) {
+            this.updateHelper(node.children[i]);
+        }
+    }
+
+    updatePixelBoard() {
+        this.pixelBoard = new Array(8 * this.entities.length);
+        for (let i = 0; i < this.entities.length; i++) {
+            this.pixelBoard[8 * i] = this.entities[i].color[0];
+            this.pixelBoard[8 * i + 1] = this.entities[i].color[1];
+            this.pixelBoard[8 * i + 2] = this.entities[i].color[2];
+            this.pixelBoard[8 * i + 3] = this.entities[i].color[3];
+            this.pixelBoard[8 * i + 4] = this.entities[i].pos.x * 100;
+            this.pixelBoard[8 * i + 5] = this.entities[i].pos.y * 100;
+            this.pixelBoard[8 * i + 6] = this.entities[i].size.x * 100;
+            this.pixelBoard[8 * i + 7] = this.entities[i].size.y * 100;
+        }
+
+       this.notifyListeners();
     }
 
     notifyListeners() {
@@ -96,15 +74,26 @@ class Squisher {
     }
 
     handlePlayerInput(player, input) {
-        // currently assume all input is clicks
-        let translatedX = (input.x / this.width);
-        let translatedY = (input.y / this.height);
+        if (input.type === 'click') {
+            this.handleClick(player, input.data);
+        } else if (input.type === 'keydown') { 
+            this.game.handleKeyDown && this.game.handleKeyDown(player, input.key);
+        } else if (input.type === 'keyup') {
+            this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
+        } else {
+            console.log("Unknown input type: " + input.type);
+        }
+    }
+
+    handleClick(player, click) {
+        let translatedX = (click.x / this.width);
+        const translatedY = (click.y / this.height);
         if (translatedX >= 1 || translatedY >= 1) {
             return;
         }
-        let entityCount = this.entities[input.x][input.y].length;
-        if (entityCount > 0) {
-            this.entities[input.x][input.y][entityCount - 1].handleClick(translatedX, translatedY);
+        const entity = this.clickListeners[click.x * this.width + click.y];
+        if (entity) {
+            entity.handleClick(player, translatedX, translatedY);
         }
     }
 

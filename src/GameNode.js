@@ -1,7 +1,10 @@
 const listenable = require('./listenable');
 
+let id = 0;
+
 class GameNode {
     constructor(color, onClick, pos, size) {
+        this.id = id++;
         this.children = new Array();
         this.color = color;
         this.handleClick = onClick;
@@ -12,8 +15,7 @@ class GameNode {
 
     addChild(node) {
         this.children.push(node);
-        // hack to trigger onupdate. should be able to selectively re-render a subtree based on update, then tell client to only re-render updated part of canvas.
-        this.children = this.children;
+        this.onStateChange();
     }
 
     addListener(listener) {
@@ -24,6 +26,10 @@ class GameNode {
         for (let listener of this.listeners) {
             listener.handleStateChange(this);
         }
+    }
+
+    clearChildren() {
+        this.children = new Array();
     }
 }
 
