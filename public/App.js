@@ -1,5 +1,5 @@
 // Insert your local IP + port here
-const socket = new WebSocket('ws://192.168.0.114:7080');
+const socket = new WebSocket('ws://192.168.1.14:7080');
 
 socket.binaryType = 'arraybuffer';
 
@@ -81,9 +81,12 @@ canvas.addEventListener('touchmove', function(e) {
 });
 
 document.addEventListener('keydown', function(e) {
-    e.preventDefault();
-    keydown(e.key);
-    keysDown[e.key] = true;
+	  // Key code values 36-40 are the arrow keys
+		if (e.key.length == 1 && e.key >= ' ' && e.key <= 'z' || e.keyCode >= 36 && e.keyCode <= 40) {
+    	e.preventDefault();
+    	keydown(e.key);
+    	keysDown[e.key] = true;
+		}
 });
 
 document.addEventListener('keyup', function(e) {
