@@ -52,22 +52,27 @@ class Squisher {
     }
 
     updatePixelBoard() {
-        const entityFrameSize = 42;
+        const entityFrameSize = 44;
         this.pixelBoard = new Array(entityFrameSize * this.entities.length);
         for (let i = 0; i < this.entities.length; i++) {
             this.pixelBoard[entityFrameSize * i] = this.entities[i].color[0];
             this.pixelBoard[entityFrameSize * i + 1] = this.entities[i].color[1];
             this.pixelBoard[entityFrameSize * i + 2] = this.entities[i].color[2];
             this.pixelBoard[entityFrameSize * i + 3] = this.entities[i].color[3];
-            this.pixelBoard[entityFrameSize * i + 4] = this.entities[i].pos.x * 100;
-            this.pixelBoard[entityFrameSize * i + 5] = this.entities[i].pos.y * 100;
-            this.pixelBoard[entityFrameSize * i + 6] = this.entities[i].size.x * 100;
-            this.pixelBoard[entityFrameSize * i + 7] = this.entities[i].size.y * 100;
+            this.pixelBoard[entityFrameSize * i + 4] = Math.floor(this.entities[i].pos.x * 100);
+            this.pixelBoard[entityFrameSize * i + 5] = this.entities[i].pos.x * 10000 % 100;
+            this.pixelBoard[entityFrameSize * i + 6] = Math.floor(this.entities[i].pos.y * 100);
+            this.pixelBoard[entityFrameSize * i + 7] = this.entities[i].pos.y * 10000 % 100;
+            this.pixelBoard[entityFrameSize * i + 8] = Math.floor(this.entities[i].size.x * 100);
+            this.pixelBoard[entityFrameSize * i + 9] = this.entities[i].size.x * 10000 % 100;
+            this.pixelBoard[entityFrameSize * i + 10] = Math.floor(this.entities[i].size.y * 100);
+            this.pixelBoard[entityFrameSize * i + 11] = this.entities[i].size.y * 10000 % 100;
+
             if (this.entities[i].text) {
-                this.pixelBoard[entityFrameSize * i + 8] = this.entities[i].text.x * 100;
-                this.pixelBoard[entityFrameSize * i + 9] = this.entities[i].text.y * 100;
+                this.pixelBoard[entityFrameSize * i + 12] = this.entities[i].text.x * 100;
+                this.pixelBoard[entityFrameSize * i + 13] = this.entities[i].text.y * 100;
                 for (let textIndex = 0; textIndex < 32 && textIndex < this.entities[i].text.text.length; textIndex++) {
-                    this.pixelBoard[entityFrameSize * i + 10 + textIndex] = this.entities[i].text.text.charCodeAt(textIndex);
+                    this.pixelBoard[entityFrameSize * i + 14 + textIndex] = this.entities[i].text.text.charCodeAt(textIndex);
                 }
             }
         }

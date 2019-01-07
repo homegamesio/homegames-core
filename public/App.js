@@ -30,20 +30,23 @@ const keysDown = {};
 socket.onmessage = function(msg) {
     let color, startX, startY, width, height;
     const buf = new Uint8ClampedArray(msg.data);
-    console.log(buf);
-    for (let i = 0; i < buf.length; i += 42) {
+    for (let i = 0; i < buf.length; i += 44) {
         color = buf.slice(i, i + 4);
         startX = (buf[i + 4] / 100) * horizontalScale;
-        startY = (buf[i + 5] / 100) * verticalScale;
-        width = (buf[i + 6] / 100) * horizontalScale;
-        height = (buf[i + 7] / 100) * verticalScale;
+        startX += (buf[i + 5] / (100 * 100)) * horizontalScale;
+        startY = (buf[i + 6] / 100) * verticalScale;
+        startY += (buf[i + 7] / (100 * 100)) * verticalScale;
+        width = (buf[i + 8] / 100) * horizontalScale;
+        width += (buf[i + 9] / (100 * 100)) * horizontalScale;
+        height = (buf[i + 10] / 100) * verticalScale;
+        height += (buf[i + 11] / (100 * 100)) * verticalScale;
         ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
         ctx.fillRect(startX, startY, width, height);
         // todo: remove magic numbers, make this a function
-        if (buf[i + 10] !== 0) {
-            const textStartX = (buf[i + 8] / 100) * horizontalScale;
-            const textStartY = (buf[i + 9] / 100) * verticalScale;
-            const textArray = buf.slice(i + 10, buf.indexOf(0, i + 10));
+        if (buf[i + 14] !== 0) {
+            const textStartX = (buf[i + 12] / 100) * horizontalScale;
+            const textStartY = (buf[i + 13] / 100) * verticalScale;
+            const textArray = buf.slice(i + 14, buf.indexOf(0, i + 14));
             const string = String.fromCharCode(...textArray);
             // todo: encode this in the payload
             ctx.font = '48px sans-serif';

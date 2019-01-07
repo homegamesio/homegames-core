@@ -37,7 +37,7 @@ class Draw {
 
     handleBoardClick(player, x, y) {
         const playerColor = this.playerColorMap[player.id];
-        const coloredPixel = gameNode(playerColor, () => {}, {'x': x, 'y': y}, {'x': .01, 'y': .01});
+        const coloredPixel = gameNode(playerColor, () => {}, {'x': x, 'y': y}, {'x': 1/320, 'y': 1/180});
         this.board.addChild(coloredPixel);
     }
 
