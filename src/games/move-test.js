@@ -10,12 +10,14 @@ class MoveTest {
             this.activeMover = mover;
         }.bind(this);
 
-        const mover1 = gameNode(randomColor(), function(player, x, y) {setActiveMover(this)},//setActiveMoverthis),
-            {'x': .45, 'y': .435}, {'x': .1, 'y': .17});
+        const mover1 = gameNode(randomColor(), function() {
+            setActiveMover(this);
+        }, {'x': .45, 'y': .435}, {'x': .1, 'y': .17});
 
         
-        const mover2 = gameNode(randomColor(), function(player, x, y) {setActiveMover(this)},//setActiveMoverthis),
-            {'x': .25, 'y': .235}, {'x': .1, 'y': .17});
+        const mover2 = gameNode(randomColor(), function() {
+            setActiveMover(this);
+        }, {'x': .25, 'y': .235}, {'x': .1, 'y': .17});
 
         this.base.addChild(mover1);
         this.base.addChild(mover2);
@@ -46,17 +48,9 @@ class MoveTest {
         }
     }
 
-    handleKeyUp(player, key) {
-        // nothing
-    }
-
-    handleLayerClick(player, x, y) {
+    handleLayerClick() {
         // todo: squisher needs to update pos after original
         this.color = randomColor();
-    }
-
-    handleNewPlayer() {
-        // nothing
     }
 
     getRoot() {

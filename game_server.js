@@ -6,7 +6,7 @@ const GameSession = require('./src/GameSession');
 const Player = require('./src/Player');
 
 const server = new WebSocket.Server({
-	port: 7080
+    port: 7080
 });
 
 let toExecute;

@@ -36,6 +36,6 @@ class GameNode {
 const gameNode = (color, onClick, pos, size) => {
     const node = new GameNode(color, onClick, pos, size);
     return listenable(node, node.onStateChange.bind(node));
-}
+};
 
 module.exports = gameNode;

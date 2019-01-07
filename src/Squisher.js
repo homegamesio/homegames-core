@@ -64,7 +64,7 @@ class Squisher {
             this.pixelBoard[8 * i + 7] = this.entities[i].size.y * 100;
         }
 
-       this.notifyListeners();
+        this.notifyListeners();
     }
 
     notifyListeners() {
@@ -81,7 +81,7 @@ class Squisher {
         } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
         } else {
-            console.log("Unknown input type: " + input.type);
+            console.log('Unknown input type: ' + input.type);
         }
     }
 

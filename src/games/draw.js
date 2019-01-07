@@ -43,7 +43,7 @@ class Draw {
 
     randomizeBoardColor() {
         const colorIndex = Math.floor(Math.random() * colorKeys.length);
-	    this.board.color = colors[colorKeys[colorIndex]];
+        this.board.color = colors[colorKeys[colorIndex]];
     }
 
     getRoot() {

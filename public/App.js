@@ -6,7 +6,7 @@ socket.binaryType = 'arraybuffer';
 let socketIsReady = false;
 
 socket.onopen = function(e) {
-	socketIsReady = true;
+    socketIsReady = true;
 };
 
 const canvas = document.getElementById("game");
@@ -42,10 +42,10 @@ socket.onmessage = function(msg) {
 };
 
 const click = function(x, y) {
-	const pixelWidth = canvas.width / originalWidth;
-	const pixelHeight = canvas.height / originalHeight;
-	const clickX = Math.floor(x / pixelWidth);
-	const clickY = Math.floor(y  / pixelHeight);
+    const pixelWidth = canvas.width / originalWidth;
+    const pixelHeight = canvas.height / originalHeight;
+    const clickX = Math.floor(x / pixelWidth);
+    const clickY = Math.floor(y  / pixelHeight);
     const payload = {type: 'click',  data: {x: clickX, y: clickY}};
     socket.send(JSON.stringify(payload));
 };
@@ -61,36 +61,42 @@ const keyup = function(key) {
 };
 
 canvas.addEventListener('mousedown', function(e) {
-	mouseDown = true;
+    mouseDown = true;
 });
 
 canvas.addEventListener('mouseup', function(e) {
     click(e.clientX, e.clientY);
-	mouseDown = false;
+    mouseDown = false;
 });
 
 canvas.addEventListener('mousemove', function(e) {
-	if (mouseDown) {
-		click(e.clientX, e.clientY);
-	}
+    if (mouseDown) {
+        click(e.clientX, e.clientY);
+    }
 });
 
 canvas.addEventListener('touchmove', function(e) {
-	e.preventDefault();
-	click(e.touches['0'].clientX, e.touches['0'].clientY);
+    e.preventDefault();
+    click(e.touches['0'].clientX, e.touches['0'].clientY);
 });
 
+function keyMatters(event) {
+    // Key code values 36-40 are the arrow keys
+    return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40;
+}
+
 document.addEventListener('keydown', function(e) {
-	  // Key code values 36-40 are the arrow keys
-		if (e.key.length == 1 && e.key >= ' ' && e.key <= 'z' || e.keyCode >= 36 && e.keyCode <= 40) {
-    	e.preventDefault();
-    	keydown(e.key);
-    	keysDown[e.key] = true;
-		}
+    if (keyMatters(e)) {
+        e.preventDefault();
+        keydown(e.key);
+        keysDown[e.key] = true;
+    }
 });
 
 document.addEventListener('keyup', function(e) {
-    e.preventDefault();
-    keyup(e.key);
-    keysDown[e.key] = false;
+    if (keyMatters(e)) {
+        e.preventDefault();
+        keyup(e.key);
+        keysDown[e.key] = false;
+    }
 });

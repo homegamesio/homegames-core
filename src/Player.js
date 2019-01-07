@@ -5,7 +5,7 @@ class Player {
     constructor(ws) {
         this.inputListeners = new Set();
         this.ws = ws;
-	    this.id = uuid();
+        this.id = uuid();
         this.ws.on('message', this.handlePlayerInput.bind(this));
         this.ws.on('close', this.disconnect.bind(this));
     }
@@ -22,7 +22,7 @@ class Player {
         }
     }
 
-    disconnect(msg) {
+    disconnect() {
         // handle cleanup here. will probably need to notify listeners. too many listeners.
     }
 
