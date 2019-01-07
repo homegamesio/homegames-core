@@ -52,7 +52,7 @@ class Squisher {
     }
 
     updatePixelBoard() {
-        const entityFrameSize = 44;
+        const entityFrameSize = 46;
         this.pixelBoard = new Array(entityFrameSize * this.entities.length);
         for (let i = 0; i < this.entities.length; i++) {
             this.pixelBoard[entityFrameSize * i] = this.entities[i].color[0];

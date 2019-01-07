@@ -30,7 +30,7 @@ const keysDown = {};
 socket.onmessage = function(msg) {
     let color, startX, startY, width, height;
     const buf = new Uint8ClampedArray(msg.data);
-    for (let i = 0; i < buf.length; i += 44) {
+    for (let i = 0; i < buf.length; i += 46) {
         color = buf.slice(i, i + 4);
         startX = (buf[i + 4] / 100) * horizontalScale;
         startX += (buf[i + 5] / (100 * 100)) * horizontalScale;
