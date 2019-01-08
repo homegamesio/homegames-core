@@ -5,7 +5,7 @@ const colorKeys = Object.keys(colors);
 class Draw {
     constructor() {
         this.playerColorMap = {};
-        this.board = gameNode(colors.PURPLE, this.handleBoardClick.bind(this), {'x': 0, 'y': 0}, {'x': 1, 'y': 1});
+        this.board = gameNode([0, 128, 128, 255], this.handleBoardClick.bind(this), {'x': 0, 'y': 0}, {'x': 1, 'y': 1});
         this.initializeBoard();
     }
 
@@ -43,7 +43,7 @@ class Draw {
 
     randomizeBoardColor() {
         const colorIndex = Math.floor(Math.random() * colorKeys.length);
-        this.board.color = colors[colorKeys[colorIndex]];
+        this.board.color = [0, 128, 128, 255];
     }
 
     getRoot() {

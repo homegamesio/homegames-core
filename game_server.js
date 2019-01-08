@@ -11,10 +11,10 @@ const server = new WebSocket.Server({
 });
 
 let toExecute;
-//toExecute = new Draw();
+toExecute = new Draw();
 //toExecute = new LayerTest();
 //toExecute = new MoveTest();
-toExecute = new TextTest();
+//toExecute = new TextTest();
 
 const session = new GameSession(toExecute, {'width': 320, 'height': 180});
 

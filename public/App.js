@@ -1,5 +1,5 @@
 // Insert your local IP + port here
-const socket = new WebSocket('ws://192.168.1.14:7080');
+const socket = new WebSocket('ws://192.168.0.114:7080');
 
 socket.binaryType = 'arraybuffer';
 
@@ -33,13 +33,13 @@ socket.onmessage = function(msg) {
     for (let i = 0; i < buf.length; i += 46) {
         color = buf.slice(i, i + 4);
         startX = (buf[i + 4] / 100) * horizontalScale;
-        startX += (buf[i + 5] / (100 * 100)) * horizontalScale;
+        startX += (buf[i + 5] / (10000)) * horizontalScale;
         startY = (buf[i + 6] / 100) * verticalScale;
-        startY += (buf[i + 7] / (100 * 100)) * verticalScale;
+        startY += (buf[i + 7] / (10000)) * verticalScale;
         width = (buf[i + 8] / 100) * horizontalScale;
-        width += (buf[i + 9] / (100 * 100)) * horizontalScale;
+        width += (buf[i + 9] / (10000)) * horizontalScale;
         height = (buf[i + 10] / 100) * verticalScale;
-        height += (buf[i + 11] / (100 * 100)) * verticalScale;
+        height += (buf[i + 11] / (10000)) * verticalScale;
         ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
         ctx.fillRect(startX, startY, width, height);
         // todo: remove magic numbers, make this a function
@@ -57,11 +57,21 @@ socket.onmessage = function(msg) {
     }
 };
 
+clickTest = function() {
+    for(let i = 0; i < 10; i++) {
+        for(let j = 0 / 9; j < 10; j++) {
+            click(i + 200, j + 200);
+        }
+    }
+}
+
+toDisplay = [];
 const click = function(x, y) {
     const pixelWidth = canvas.width / originalWidth;
     const pixelHeight = canvas.height / originalHeight;
     const clickX = Math.floor(x / pixelWidth);
     const clickY = Math.floor(y  / pixelHeight);
+    toDisplay.push({ x, clickX, y, clickY });
     const payload = {type: 'click',  data: {x: clickX, y: clickY}};
     socket.send(JSON.stringify(payload));
 };
