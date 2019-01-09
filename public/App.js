@@ -58,20 +58,26 @@ socket.onmessage = function(msg) {
 };
 
 clickTest = function() {
-    for(let i = 0; i < 10; i++) {
-        for(let j = 0 / 9; j < 10; j++) {
+    for(let i = 0; i < 100; i++) {
+        for(let j = 0; j < 100; j++) {
             click(i + 200, j + 200);
         }
     }
 }
 
-toDisplay = [];
+clickTestSmaller = function() {
+    for(let i = 0; i < 10; i++) {
+        for(let j = 0; j < 10; j++) {
+            click(i + 200, j + 200);
+        }
+    }
+}
+
 const click = function(x, y) {
     const pixelWidth = canvas.width / originalWidth;
     const pixelHeight = canvas.height / originalHeight;
     const clickX = Math.floor(x / pixelWidth);
     const clickY = Math.floor(y  / pixelHeight);
-    toDisplay.push({ x, clickX, y, clickY });
     const payload = {type: 'click',  data: {x: clickX, y: clickY}};
     socket.send(JSON.stringify(payload));
 };
