@@ -7,8 +7,8 @@ class TextTest {
         this.count = 0;
         this.players = new Set();
         this.base = gameNode(randomColor(), this.handleLayerClick.bind(this), 
-            {'x': 0, 'y': 0}, {'x': 1, 'y': 1}, {'x': .5, 'y': .5, 'text': this.baseText});
-        this.playerCount = gameNode(colors.BLACK, null, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': .5, 'y': .25, 'text': this.players.size + ' players'});
+            {'x': 0, 'y': 0}, {'x': 100, 'y': 100}, {'x': 50, 'y': 50, 'text': this.baseText});
+        this.playerCount = gameNode(colors.BLACK, null, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 50, 'y': 25, 'text': this.players.size + ' players'});
         this.base.addChild(this.playerCount);
     }
 

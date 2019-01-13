@@ -5,13 +5,13 @@ const colorKeys = Object.keys(colors);
 class Draw {
     constructor() {
         this.playerColorMap = {};
-        this.board = gameNode(colors.PURPLE, this.handleBoardClick.bind(this), {'x': 0, 'y': 0}, {'x': 1, 'y': 1});
+        this.board = gameNode(colors.PURPLE, this.handleBoardClick.bind(this), {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
         this.initializeBoard();
     }
 
     initializeBoard() {
-        const randomizeButton = gameNode(colors.RED, this.randomizeBoardColor.bind(this), {'x': .8, 'y': 0}, {'x': .15, 'y': .15});
-        const resetButton = gameNode(colors.BLUE, this.initializeBoard.bind(this), {x: .6, y: 0}, {x: .15, y: .15});
+        const randomizeButton = gameNode(colors.RED, this.randomizeBoardColor.bind(this), {'x': 80, 'y': 0}, {'x': 15, 'y': 15});
+        const resetButton = gameNode(colors.BLUE, this.initializeBoard.bind(this), {x: 60, y: 0}, {x: 15, y: 15});
 
         this.board.clearChildren();
 
@@ -31,13 +31,13 @@ class Draw {
         const playerColorButton = gameNode(initialColor, function() {
             this.color = randomColor();
             setPlayerColor(this.color);
-        }, {'x': 0, 'y': 0}, {'x': .1, 'y': .1});
+        }, {'x': 0, 'y': 0}, {'x': 10, 'y': 10});
         this.board.addChild(playerColorButton);
     }
 
     handleBoardClick(player, x, y) {
         const playerColor = this.playerColorMap[player.id];
-        const coloredPixel = gameNode(playerColor, () => {}, {'x': x, 'y': y}, {'x': 1/320, 'y': 1/180});
+        const coloredPixel = gameNode(playerColor, () => {}, {'x': x * 100, 'y': y * 100}, {'x': 200/320, 'y': 200/180});
         this.board.addChild(coloredPixel);
     }
 

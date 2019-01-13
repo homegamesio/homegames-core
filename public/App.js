@@ -30,30 +30,39 @@ const keysDown = {};
 socket.onmessage = function(msg) {
     let color, startX, startY, width, height;
     const buf = new Uint8ClampedArray(msg.data);
-    for (let i = 0; i < buf.length; i += 46) {
-        color = buf.slice(i, i + 4);
-        startX = (buf[i + 4] / 100) * horizontalScale;
-        startX += (buf[i + 5] / (100 * 100)) * horizontalScale;
-        startY = (buf[i + 6] / 100) * verticalScale;
-        startY += (buf[i + 7] / (100 * 100)) * verticalScale;
-        width = (buf[i + 8] / 100) * horizontalScale;
-        width += (buf[i + 9] / (100 * 100)) * horizontalScale;
-        height = (buf[i + 10] / 100) * verticalScale;
-        height += (buf[i + 11] / (100 * 100)) * verticalScale;
+    let i = 0;
+    while (i < buf.length) {
+        const frameSize = buf[i];
+        const start = i + 1;
+        // todo: store some code here to signify what fields it has/doesnt have instead of frame size
+        color = buf.slice(start, start + 4);
+        startX = (buf[start + 4] / 100) * horizontalScale;
+        startX += (buf[start + 5] /10000) * horizontalScale;
+        startY = (buf[start + 6] / 100) * verticalScale;
+        startY += (buf[start + 7] / 10000) * verticalScale;
+        width = (buf[start + 8] / 100) * horizontalScale;
+        width += (buf[start + 9] / 10000) * horizontalScale;
+        height = (buf[start + 10] / 100) * verticalScale;
+        height += (buf[start + 11] / 10000) * verticalScale;
         ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
         ctx.fillRect(startX, startY, width, height);
-        // todo: remove magic numbers, make this a function
-        if (buf[i + 14] !== 0) {
-            const textStartX = (buf[i + 12] / 100) * horizontalScale;
-            const textStartY = (buf[i + 13] / 100) * verticalScale;
-            const textArray = buf.slice(i + 14, buf.indexOf(0, i + 14));
+
+        if (frameSize > 13) {
+            // has text
+            const textStartX = (buf[start + 12] / 100) * horizontalScale;
+            const textStartY = (buf[start + 13] / 100) * verticalScale;
+            const textArray = buf.slice(start + 14, start + frameSize);
             const string = String.fromCharCode(...textArray);
+
             // todo: encode this in the payload
-            ctx.font = '48px sans-serif';
             ctx.fillStyle = "black";
+            ctx.font = '48px sans-serif';
             ctx.textAlign = "center";
+            
             ctx.fillText(string, textStartX, textStartY);
         }
+
+        i += frameSize;
     }
 };
 
