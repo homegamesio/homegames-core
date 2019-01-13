@@ -1,5 +1,5 @@
 // Insert your local IP + port here
-const socket = new WebSocket('ws://192.168.1.14:7080');
+const socket = new WebSocket('wss://192.168.1.14:7080');
 
 socket.binaryType = 'arraybuffer';
 
@@ -27,9 +27,34 @@ canvas.width = horizontalScale;
 let mouseDown = false;
 const keysDown = {};
 
+// audio test
+
+const freqArray = new Float32Array(5);
+freqArray[0] = 1000;
+freqArray[1] = 2000;
+freqArray[2] = 3000;
+freqArray[3] = 4000;
+freqArray[4] = 5000;
+
+const magResponseOutput = new Float32Array(5);
+const phaseResponseOutput = new Float32Array(5);
+
+const blob = new Blob([1, 2], {'type': 'audio/ogg; codecs=opus' });
+const audioTag = document.createElement('audio');
+document.getElementById('homegames-main').appendChild(audioTag);
+document.querySelector('audio').src = URL.createObjectURL(blob);
+console.log(audioTag);
+
+// end audio test
+
 socket.onmessage = function(msg) {
     let color, startX, startY, width, height;
     const buf = new Uint8ClampedArray(msg.data);
+    if (buf.length < 12) {
+        console.log("sound?");
+        console.log(buf);
+        return;
+    }
     let i = 0;
     while (i < buf.length) {
         const frameSize = buf[i];

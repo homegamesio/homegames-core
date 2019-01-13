@@ -6,9 +6,14 @@ const TextTest = require('./src/games/text-test');
 const Demo = require('./src/games/demo');
 const GameSession = require('./src/GameSession');
 const Player = require('./src/Player');
+const https = require('https');
+const fs = require('fs');
 
-const server = new WebSocket.Server({
-    port: 7080
+const PORT = 7080;
+
+const server = https.createServer({
+    cert: fs.readFileSync('ssl/localhost.crt'),
+    key: fs.readFileSync('ssl/localhost.key')
 });
 
 let toExecute;
@@ -20,7 +25,19 @@ toExecute = new Demo();
 
 const session = new GameSession(toExecute, {'width': 320, 'height': 180});
 
-server.on('connection', (ws) => {
+const wss = new WebSocket.Server({
+    server
+});
+
+wss.on('connection', (ws) => {
     const player = new Player(ws);
     session.addPlayer(player);
+    player.receiveUpdate([4, 2, 0]);
 });
+
+server.listen(PORT, () => {
+    const ws = new WebSocket(`wss://localhost:${server.address().port}`, {
+        rejectUnauthorized: false
+    });
+});
+
