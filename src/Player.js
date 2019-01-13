@@ -4,6 +4,7 @@ const uuid = require('uuid');
 class Player {
     constructor(ws) {
         this.inputListeners = new Set();
+        this.stateListeners = new Set();
         this.ws = ws;
         this.id = uuid();
         this.ws.on('message', this.handlePlayerInput.bind(this));
@@ -17,13 +18,19 @@ class Player {
             return;
         }
         
-        for (let listener of this.inputListeners) {
+        for (const listener of this.inputListeners) {
             listener.handlePlayerInput(this, data);
         }
     }
 
     disconnect() {
-        // handle cleanup here. will probably need to notify listeners. too many listeners.
+        for (const listener of this.stateListeners) {
+            listener.handlePlayerDisconnect(this);
+        }
+    }
+
+    addStateListener(listener) {
+        this.stateListeners.add(listener);
     }
 
     addInputListener(listener) {

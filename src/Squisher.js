@@ -106,7 +106,7 @@ class Squisher {
         }
         const entity = this.clickListeners[click.x * this.width + click.y];
         if (entity) {
-            entity.handleClick(player, translatedX, translatedY);
+            entity.handleClick && entity.handleClick(player, translatedX, translatedY);
         }
     }
 
