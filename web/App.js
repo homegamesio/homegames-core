@@ -1,7 +1,8 @@
 // Insert your local IP + port here
 const socket = new WebSocket('wss://192.168.1.14:7080');
 
-socket.binaryType = 'arraybuffer';
+//socket.binaryType = 'arraybuffer';
+socket.binaryType = 'blob';
 
 let socketIsReady = false;
 
@@ -38,23 +39,16 @@ freqArray[4] = 5000;
 
 const magResponseOutput = new Float32Array(5);
 const phaseResponseOutput = new Float32Array(5);
-
-const blob = new Blob([1, 2], {'type': 'audio/ogg; codecs=opus' });
-const audioTag = document.createElement('audio');
-document.getElementById('homegames-main').appendChild(audioTag);
-document.querySelector('audio').src = URL.createObjectURL(blob);
-console.log(audioTag);
-
 // end audio test
 
+
 socket.onmessage = function(msg) {
+    // assume its only sound. might need two servers or figure out how to encode 8 bit values to/from base 64 strings
+    const snd = new Audio("data:audio/wav;base64," + msg.data);
+    snd.play();
+    return;
     let color, startX, startY, width, height;
     const buf = new Uint8ClampedArray(msg.data);
-    if (buf.length < 12) {
-        console.log("sound?");
-        console.log(buf);
-        return;
-    }
     let i = 0;
     while (i < buf.length) {
         const frameSize = buf[i];
