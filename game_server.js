@@ -8,15 +8,14 @@ const GameSession = require('./src/GameSession');
 const Player = require('./src/Player');
 const https = require('https');
 const fs = require('fs');
-const file = fs.readFileSync('/path/to/file');
 
-const audio64 = Buffer.from(file).toString('base64');
+const sample = fs.readFileSync('/Users/josephgarcia/Downloads/gettysburg.wav');
 
 const PORT = 7080;
 
 const server = https.createServer({
-    cert: fs.readFileSync('/path/to/cert'),
-    key: fs.readFileSync('/path/to/key')
+    cert: fs.readFileSync('ssl/localhost.crt'),
+    key: fs.readFileSync('ssl/localhost.key')
 });
 
 let toExecute;
@@ -35,7 +34,7 @@ const wss = new WebSocket.Server({
 wss.on('connection', (ws) => {
     const player = new Player(ws);
     //session.addPlayer(player);
-    player.receiveUpdate(audio64);
+    player.receiveUpdate(sample);
 });
 
 server.listen(PORT, () => {

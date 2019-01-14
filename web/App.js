@@ -1,10 +1,11 @@
 // Insert your local IP + port here
 const socket = new WebSocket('wss://192.168.1.14:7080');
 
-//socket.binaryType = 'arraybuffer';
-socket.binaryType = 'blob';
+socket.binaryType = 'arraybuffer';
+//socket.binaryType = 'blob';
 
 let socketIsReady = false;
+let audioAllowed = false;
 
 socket.onopen = function(e) {
     socketIsReady = true;
@@ -28,24 +29,34 @@ canvas.width = horizontalScale;
 let mouseDown = false;
 const keysDown = {};
 
-// audio test
 
-const freqArray = new Float32Array(5);
-freqArray[0] = 1000;
-freqArray[1] = 2000;
-freqArray[2] = 3000;
-freqArray[3] = 4000;
-freqArray[4] = 5000;
-
-const magResponseOutput = new Float32Array(5);
-const phaseResponseOutput = new Float32Array(5);
-// end audio test
-
+let audioCtx, source;
+setTimeout(() => {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    source = audioCtx.createBufferSource();
+}, 5000);
 
 socket.onmessage = function(msg) {
-    // assume its only sound. might need two servers or figure out how to encode 8 bit values to/from base 64 strings
-    const snd = new Audio("data:audio/wav;base64," + msg.data);
-    snd.play();
+    setTimeout(() => {
+        audioCtx.decodeAudioData(msg.data, (buffer) => {
+            source.buffer = buffer;
+            source.connect(audioCtx.destination);
+            source.start(0);
+            //source.loop = true;
+        }, (error) => {
+            console.error(error);
+        })
+    }, 5500);
+        //const snd = new Audio("data:audio/wav;base64," + msg.data);
+
+        //if (snd !== undefined && audioAllowed) {
+        //    snd.play().then(_ => {
+        //        console.log('Autoplay started!');
+        //    }).catch(error => {
+        //        console.log('nooo');
+        //        console.log(error);
+        //    });
+        //}
     return;
     let color, startX, startY, width, height;
     const buf = new Uint8ClampedArray(msg.data);
@@ -143,4 +154,8 @@ document.addEventListener('keyup', function(e) {
         keyup(e.key);
         keysDown[e.key] = false;
     }
+});
+
+document.getElementById('unmute').addEventListener('click', () => {
+    audioAllowed = !audioAllowed;
 });
