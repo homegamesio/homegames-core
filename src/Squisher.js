@@ -1,38 +1,3 @@
-function squish(entity) {
-    const squishedSize = entity.text ? 12 + ((entity.text.text.length % 32) + 2) : 12;
-    const squished = new Array(squishedSize + 1);
-    let squishedIndex = 0;
-    squished[squishedIndex++] = squished.length;
-    squished[squishedIndex++] = entity.color[0];
-    squished[squishedIndex++] = entity.color[1];
-    squished[squishedIndex++] = entity.color[2];
-    squished[squishedIndex++] = entity.color[3];
-
-    squished[squishedIndex++] = Math.floor(entity.pos.x);
-    squished[squishedIndex++] = Math.floor(100 * (entity.pos.x - Math.floor(entity.pos.x)));
-
-    squished[squishedIndex++] = Math.floor(entity.pos.y);
-    squished[squishedIndex++] = Math.floor( 100 * (entity.pos.y - Math.floor(entity.pos.y)));
-
-    squished[squishedIndex++] = Math.floor(entity.size.x);
-    squished[squishedIndex++] = Math.floor(100 * (entity.size.x - Math.floor(entity.size.x)));
-
-    squished[squishedIndex++] = Math.floor(entity.size.y);
-    squished[squishedIndex++] = Math.floor(100 * (entity.size.y - Math.floor(entity.size.y)));
-
-    if (entity.text) {
-        squished[squishedIndex++] = entity.text.x;
-        squished[squishedIndex++] = entity.text.y;
-
-        let textIndex = 0;
-        while (squishedIndex < squished.length) {
-            squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex++);
-        }
-    }
-
-    return squished;
-}
-
 class Squisher {
     constructor(width, height, game) {
         this.width = width;
@@ -41,7 +6,8 @@ class Squisher {
         this.root = game.getRoot();
         this.root.addListener(this);
         this.listeners = new Set();
-        this.initialize();
+        this.assets = {};
+        this.assetBundle = [];
     }
 
     addListener(listener) {
@@ -52,7 +18,18 @@ class Squisher {
         this.listeners.remove(listener);
     }
 
-    initialize() {
+    async initialize() {
+        const gameAssets = this.game.getAssets ? this.game.getAssets() : [];
+        
+        console.log("INITIALIZING");
+
+        for (const key in gameAssets) {
+            const payload = await gameAssets[key].getData();
+            const base32 = (payload.length).toString(32);
+            this.assets[key] = [1, base32.charCodeAt(0), base32.charCodeAt(1), base32.charCodeAt(2), base32.charCodeAt(3), ...payload];// payload.charCodeAt(4)];//(...payload)];
+            this.assetBundle.push(...this.assets[key]);
+        }
+        
         this.ids = new Set();
         this.entities = new Array();
         this.clickListeners = new Array(this.width * this.height);
@@ -89,7 +66,7 @@ class Squisher {
     updatePixelBoard() {
         const temp = new Array(this.entities.length);
         for (let i = 0; i < this.entities.length; i++) {
-            temp[i] = squish(this.entities[i]);
+            temp[i] = this.squish(this.entities[i]);
         }
 
         this.pixelBoard = Array.prototype.concat.apply([], temp);
@@ -126,9 +103,60 @@ class Squisher {
             entity.handleClick && entity.handleClick(player, translatedX, translatedY);
         }
     }
+    
+    squish(entity) {
+        const squishedSize = entity.text ? 13 + ((entity.text.text.length % 32) + 2) : 13;
+        const squished = new Array(squishedSize + 2);
+        let squishedIndex = 0;
+        squished[squishedIndex++] = 3;
+        squished[squishedIndex++] = squished.length;
+        squished[squishedIndex++] = entity.color[0];
+        squished[squishedIndex++] = entity.color[1];
+        squished[squishedIndex++] = entity.color[2];
+        squished[squishedIndex++] = entity.color[3];
+
+        squished[squishedIndex++] = Math.floor(entity.pos.x);
+        squished[squishedIndex++] = Math.floor(100 * (entity.pos.x - Math.floor(entity.pos.x)));
+
+        squished[squishedIndex++] = Math.floor(entity.pos.y);
+        squished[squishedIndex++] = Math.floor( 100 * (entity.pos.y - Math.floor(entity.pos.y)));
+
+        squished[squishedIndex++] = Math.floor(entity.size.x);
+        squished[squishedIndex++] = Math.floor(100 * (entity.size.x - Math.floor(entity.size.x)));
+
+        squished[squishedIndex++] = Math.floor(entity.size.y);
+        squished[squishedIndex++] = Math.floor(100 * (entity.size.y - Math.floor(entity.size.y)));
+
+        if (entity.text) {
+            squished[squishedIndex++] = entity.text.x;
+            squished[squishedIndex++] = entity.text.y;
+
+            let textIndex = 0;
+            while (squishedIndex < squished.length) {
+                squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex++);
+            }
+        }
+
+        if (entity.assets) {
+            for (const key in entity.assets) {
+                console.log(key);
+                console.log(key in this.assets);
+            }
+        }
+
+        return squished;
+    }
 
     getPixels() {
         return this.pixelBoard;
+    }
+
+    async getAssets() {
+        if (this.assets && !this.assetBundle.length) {
+            return this.initialize().then(_ => this.assetBundle);
+        }
+
+        return this.assetBundle;
     }
 }
 
