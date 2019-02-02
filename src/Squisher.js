@@ -7,7 +7,6 @@ class Squisher {
         this.root.addListener(this);
         this.listeners = new Set();
         this.assets = {};
-        this.assetBundle = [];
     }
 
     addListener(listener) {
@@ -21,15 +20,25 @@ class Squisher {
     async initialize() {
         const gameAssets = this.game.getAssets ? this.game.getAssets() : [];
         
-        console.log("INITIALIZING");
+        let assetBundleSize = 0;
 
         for (const key in gameAssets) {
             const payload = await gameAssets[key].getData();
-            const base32 = (payload.length).toString(32);
-            this.assets[key] = [1, base32.charCodeAt(0), base32.charCodeAt(1), base32.charCodeAt(2), base32.charCodeAt(3), ...payload];// payload.charCodeAt(4)];//(...payload)];
-            this.assetBundle.push(...this.assets[key]);
+            const base32 = (payload.length).toString(36);
+            this.assets[key] = [1, base32.charCodeAt(0), base32.charCodeAt(1), base32.charCodeAt(2), base32.charCodeAt(3), ...payload];
+            assetBundleSize += this.assets[key].length;
         }
+
+        this.assetBundle = new Array(assetBundleSize);
         
+        for (let index = 0; index < assetBundleSize; index++) {
+            for (const key in this.assets) {
+                for (let y = 0; y < this.assets[key].length; y++) {
+                    this.assetBundle[index++] = this.assets[key][y];
+                }
+            }
+        }
+
         this.ids = new Set();
         this.entities = new Array();
         this.clickListeners = new Array(this.width * this.height);
@@ -105,8 +114,10 @@ class Squisher {
     }
     
     squish(entity) {
-        const squishedSize = entity.text ? 13 + ((entity.text.text.length % 32) + 2) : 13;
+        const squishedSize = entity.text ? 15 + ((entity.text.text.length % 32) + 2) : 15;
         const squished = new Array(squishedSize + 2);
+        console.log(squished);
+        console.log(entity.text);
         let squishedIndex = 0;
         squished[squishedIndex++] = 3;
         squished[squishedIndex++] = squished.length;
@@ -152,7 +163,7 @@ class Squisher {
     }
 
     async getAssets() {
-        if (this.assets && !this.assetBundle.length) {
+        if (this.assets && !this.assetBundle) {
             return this.initialize().then(_ => this.assetBundle);
         }
 

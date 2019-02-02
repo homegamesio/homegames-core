@@ -6,7 +6,7 @@ class SplashScreen {
     constructor() {
         this.assets = {
             'slothboy': new Asset('url', {
-                'location': 'https://i.kym-cdn.com/photos/images/newsfeed/000/437/645/a9d.jpg'
+                'location': 'https://s3-us-west-1.amazonaws.com/homegamesio/images/splash_screen.png'
             })
         };
         

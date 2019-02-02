@@ -64,6 +64,8 @@ const FRAME_TYPES = {
     }
 };
 
+const gameAssets = {};
+
 socket.onmessage = function(msg) {
     const buf = new Uint8ClampedArray(msg.data);
     // more audio stuff
@@ -82,20 +84,19 @@ socket.onmessage = function(msg) {
     let i = 0;
     while (i < buf.length) {
         const frameType = buf[i];
-        console.log(frameType);
 
         if (frameType === 1) {
-            console.log("GOT ONE");
             const payloadLengthBase32 = String.fromCharCode.apply(null, buf.slice(i + 1, i + 5));
-            const payloadLength = parseInt(payloadLengthBase32, 32);
-            const wot = buf.slice(i + 5, i + 5 + payloadLength);
-            const imgBase64 = btoa(String.fromCharCode.apply(null, buf.slice(i + 5, i + 5 + payloadLength)));
-            console.log(wot);
+            const payloadLength = parseInt(payloadLengthBase32, 36);
+            const payloadData = buf.slice(i + 5, i + 5 + payloadLength);
+            const imgBase64 = btoa(String.fromCharCode.apply(null, payloadData));
             const image = new Image();
             image.onload = () => {
-                ctx.drawImage(image, 0, 0, 320, 320 * (image.height/image.width));
+                ctx.drawImage(image, 0, 0, 800, 800 * (image.height/image.width));
             };
-            image.src = "data:image/jpeg;base64," + imgBase64;
+            gameAssets['key'] = "data:image/jpeg;base64," + imgBase64;
+            image.src = gameAssets['key'];
+
             i += 5 + payloadLength;
         } else {
             const frameSize = buf[i + 1];
@@ -109,22 +110,24 @@ socket.onmessage = function(msg) {
             width += (buf[start + 9] / 10000) * horizontalScale;
             height = (buf[start + 10] / 100) * verticalScale;
             height += (buf[start + 11] / 10000) * verticalScale;
-            //ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
+            ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
             //ctx.fillRect(startX, startY, width, height);
 
-            if (frameSize > 13) {
+            console.log("SDF");
+            if (frameSize > 15) {
+                console.log("HAS TEXT");
                 // has text
-                const textStartX = (buf[start + 12] / 100) * horizontalScale;
-                const textStartY = (buf[start + 13] / 100) * verticalScale;
-                const textArray = buf.slice(start + 14, start + frameSize);
-                const string = String.fromCharCode(...textArray);
+                //const textStartX = (buf[start + 12] / 100) * horizontalScale;
+                //const textStartY = (buf[start + 13] / 100) * verticalScale;
+                //const textArray = buf.slice(start + 14, start + frameSize);
+                //const string = String.fromCharCode(...textArray);
 
                 // todo: encode this in the payload
-                ctx.fillStyle = "black";
-                ctx.font = '48px sans-serif';
-                ctx.textAlign = "center";
+                //ctx.fillStyle = "black";
+                //ctx.font = '48px sans-serif';
+                //ctx.textAlign = "center";
             
-                ctx.fillText(string, textStartX, textStartY);
+                //ctx.fillText(string, textStartX, textStartY);
             }
             i += frameSize;
         }
@@ -192,6 +195,6 @@ document.addEventListener('keyup', function(e) {
     }
 });
 
-document.getElementById('unmute').addEventListener('click', () => {
-    audioAllowed = !audioAllowed;
-});
+//document.getElementById('unmute').addEventListener('click', () => {
+//    audioAllowed = !audioAllowed;
+//});
