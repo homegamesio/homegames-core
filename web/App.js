@@ -92,7 +92,11 @@ socket.onmessage = function(msg) {
             const payloadKeyRaw = buf.slice(i + 5, i + 5 + 32);
             const payloadData = buf.slice(i + 5 + 32, i + 5 +  payloadLength);
             const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k)); 
-            const imgBase64 = btoa(String.fromCharCode.apply(null, payloadData));
+            let imgBase64String = '';
+            for (let i = 0; i < payloadData.length; i++) {
+                imgBase64String += String.fromCharCode(payloadData[i]);
+            }
+            const imgBase64 = btoa(imgBase64String);
             gameAssets[payloadKey] = "data:image/jpeg;base64," + imgBase64;
             i += 5 + payloadLength;
         } else {
