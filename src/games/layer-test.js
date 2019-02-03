@@ -10,7 +10,7 @@ class LayerTest {
         let prev = this.base;
         for (let i = increment; i < 50; i+= 2 * increment) {
             const child = gameNode(randomColor(), this.handleLayerClick,
-                {'x': i, 'y': i}, {'x': 100 - (2 * i), 'y': 100 - (2 * i)}, {'x': 50, 'y': 50, 'text': 'ayy lmao'});
+                {'x': i, 'y': i}, {'x': 100 - (2 * i), 'y': 100 - (2 * i)});
             prev.addChild(child);
             prev = child;
         }

@@ -125,10 +125,10 @@ class Squisher {
     }
     
     squish(entity) {
-        let squishedSize = entity.text ? 14 + 32 + 2 : 14;
-        if (entity.assets) {
-            squishedSize += 36 * Object.keys(entity.assets).length;
-        }
+        // Type (1) + Size (1) + color (4) + pos (4) + size (4) + text position (2) + text (32) + assets (36 * assetCount)
+        // TODO: store type in array to stop sending unnecessary data 
+        let squishedSize = 1 + 1 + 4 + 4 + 4 + 2 + 32 + 2 + (36 * Object.keys(entity.assets ? entity.assets : {}).length);
+
         const squished = new Array(squishedSize);
         let squishedIndex = 0;
         squished[squishedIndex++] = 3;
@@ -150,19 +150,17 @@ class Squisher {
         squished[squishedIndex++] = Math.floor(entity.size.y);
         squished[squishedIndex++] = Math.floor(100 * (entity.size.y - Math.floor(entity.size.y)));
 
-        if (entity.text) {
-            squished[squishedIndex++] = entity.text.x;
-            squished[squishedIndex++] = entity.text.y;
+        squished[squishedIndex++] = entity.text && entity.text.x;
+        squished[squishedIndex++] = entity.text && entity.text.y;
 
-            let textIndex = 0;
-            while (textIndex < 32) {
-                if (textIndex < entity.text.text.length) {
-                    squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex);
-                } else {
-                    squished[squishedIndex++] = null;
-                }
-                textIndex++;
+        let textIndex = 0;
+        while (textIndex < 32) {
+            if (entity.text && textIndex < entity.text.text.length) {
+                squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex);
+            } else {
+                squished[squishedIndex++] = null;
             }
+            textIndex++;
         }
 
         if (entity.assets) {

@@ -1,11 +1,46 @@
 const gameNode = require('../GameNode');
 const {colors, randomColor} = require('../Colors');
 const colorKeys = Object.keys(colors);
+const Asset = require('../Asset');
 
 class Draw {
     constructor() {
+        this.assets = {
+            'test': new Asset('url', {
+                'location': 'https://www.nicepng.com/png/full/323-3239506_kanye-west-shrug-transparent.png'
+            })
+        }
+
         this.playerColorMap = {};
-        this.board = gameNode(colors.PURPLE, this.handleBoardClick.bind(this), {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
+        this.board = gameNode(
+            colors.PURPLE, 
+            this.handleBoardClick.bind(this), 
+            {
+                'x': 0, 
+                'y': 0
+            }, 
+            {
+                'x': 100, 
+                'y': 100
+            },
+            {
+                'x': 0,
+                'y': 0,
+                'text': 'what'
+            },
+            {
+                'test': {
+                    size: {
+                        x: 5,
+                        y: 5
+                    },
+                    pos: {
+                        x: 47,
+                        y: 5
+                    }
+                }
+            }
+        );
         this.initializeBoard();
     }
 
@@ -33,6 +68,10 @@ class Draw {
             setPlayerColor(this.color);
         }, {'x': 0, 'y': 0}, {'x': 10, 'y': 10});
         this.board.addChild(playerColorButton);
+    }
+
+    getAssets() {
+        return this.assets;
     }
 
     handleBoardClick(player, x, y) {
