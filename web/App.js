@@ -66,6 +66,8 @@ const FRAME_TYPES = {
 
 const gameAssets = {};
 
+const imageCache = {};
+
 socket.onmessage = function(msg) {
     const buf = new Uint8ClampedArray(msg.data);
     // more audio stuff
@@ -134,13 +136,23 @@ socket.onmessage = function(msg) {
                 const assetKeyArray = buf.slice(start + 50, start + 50 + 32);
                 const assetKey = String.fromCharCode.apply(null, assetKeyArray.filter(x => x));
                 
-                const image = new Image();
-                image.onload = () => {
+                let image;
+                if (imageCache[assetKey]) {
+                    image = imageCache[assetKey];
                     ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
-                        (assetPosY / 100) * verticalScale, (assetSizeX / 100) * horizontalScale, ( (assetSizeX / 100 * horizontalScale) * (image.height/image.width)));
-                };
+                            (assetPosY / 100) * verticalScale, image.width, image.height)
 
-                image.src = gameAssets[assetKey];
+                } else {
+                    image = new Image(assetSizeX / 100 * horizontalScale, assetSizeY / 100 * verticalScale);
+                    imageCache[assetKey] = image;
+                    image.onload = () => {
+                        ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
+                            (assetPosY / 100) * verticalScale, image.width, image.height)
+                    };
+
+                    image.src = gameAssets[assetKey];
+                }
+                
             }
 
             i += frameSize;
