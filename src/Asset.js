@@ -3,8 +3,6 @@ const Stream = require('stream').Transform;
 const fs = require('fs');
 const crypto = require('crypto');
 
-const shasum = crypto.createHash('sha1');
-
 const CACHE_DIR = './.asset_cache/';
 
 if (!fs.existsSync(CACHE_DIR)) {
@@ -19,6 +17,7 @@ class Asset {
 
     download(uri) {
         return new Promise((resolve, reject) => {
+            const shasum = crypto.createHash('sha1');
             shasum.update(uri);
             const fileHash = shasum.digest('hex');
             const filePath = CACHE_DIR + fileHash;

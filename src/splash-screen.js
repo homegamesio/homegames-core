@@ -7,7 +7,11 @@ class SplashScreen {
         this.assets = {
             'splashScreen': new Asset('url', {
                 'location': 'https://s3-us-west-1.amazonaws.com/homegamesio/images/splash_screen.png'
+            }),
+            'logo': new Asset('url', {
+                'location': 'https://s3-us-west-1.amazonaws.com/homegamesio/images/logo.png'
             })
+
         };
         
         this.clickCount = 0;
@@ -31,8 +35,38 @@ class SplashScreen {
             {
                 'splashScreen': {
                     size: {
+                        x: 45,
+                        y: 45
+                    },
+                    pos: {
                         x: 25,
-                        y: 25
+                        y: 20
+                    }
+                }
+            }
+        );
+ 
+        this.logo = gameNode(
+            colors.PERRYWINKLE, 
+            this.handleLayerClick.bind(this), 
+            {
+                'x': 0, 
+                'y': 0
+            }, 
+            {
+                'x': 20, 
+                'y': 20
+            },
+            {
+                'x': 0,
+                'y': 0,
+                'text': ''
+            },
+            {
+                'logo': {
+                    size: {
+                        x: 10,
+                        y: 10
                     },
                     pos: {
                         x: 1,
@@ -41,6 +75,9 @@ class SplashScreen {
                 }
             }
         );
+
+        this.base.addChild(this.logo);
+
 
     }
 
