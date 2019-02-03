@@ -127,7 +127,7 @@ class Squisher {
     squish(entity) {
         // Type (1) + Size (1) + color (4) + pos (4) + size (4) + text position (2) + text (32) + assets (36 * assetCount)
         // TODO: store type in array to stop sending unnecessary data 
-        let squishedSize = 1 + 1 + 4 + 4 + 4 + 2 + 32 + 2 + (36 * Object.keys(entity.assets ? entity.assets : {}).length);
+        let squishedSize = 1 + 1 + 4 + 4 + 4 + 2 + 32 + (36 * Object.keys(entity.assets ? entity.assets : {}).length);
 
         const squished = new Array(squishedSize);
         let squishedIndex = 0;

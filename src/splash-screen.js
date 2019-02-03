@@ -57,11 +57,7 @@ class SplashScreen {
                 'x': 20, 
                 'y': 20
             },
-            {
-                'x': 0,
-                'y': 0,
-                'text': ''
-            },
+            null,
             {
                 'logo': {
                     size: {

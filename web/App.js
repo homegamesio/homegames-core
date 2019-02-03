@@ -124,25 +124,27 @@ socket.onmessage = function(msg) {
                 ctx.fillText(text, textX, textY);
             }
 
-
-            const assetPosX = buf[start + 46];
-            const assetPosY = buf[start + 47];
+            if (frameSize > 2 + 46) { 
+                const assetPosX = buf[start + 46];
+                const assetPosY = buf[start + 47];
                 
-            const assetSizeX = buf[start + 48];
-            const assetSizeY = buf[start + 49];
+                const assetSizeX = buf[start + 48];
+                const assetSizeY = buf[start + 49];
 
-            const assetKeyArray = buf.slice(start + 50, start + 50 + 32);
-            const assetKey = String.fromCharCode.apply(null, assetKeyArray.filter(x => x));
+                const assetKeyArray = buf.slice(start + 50, start + 50 + 32);
+                const assetKey = String.fromCharCode.apply(null, assetKeyArray.filter(x => x));
                 
-            const image = new Image();
-            image.onload = () => {
-                ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
-                    (assetPosY / 100) * verticalScale, (assetSizeX / 100) * horizontalScale, ( (assetSizeX / 100 * horizontalScale) * (image.height/image.width)));
-            };
+                const image = new Image();
+                image.onload = () => {
+                    ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
+                        (assetPosY / 100) * verticalScale, (assetSizeX / 100) * horizontalScale, ( (assetSizeX / 100 * horizontalScale) * (image.height/image.width)));
+                };
 
-            image.src = gameAssets[assetKey];
+                image.src = gameAssets[assetKey];
+            }
 
             i += frameSize;
+
         }
     }
 
