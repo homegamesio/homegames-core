@@ -31,15 +31,7 @@ const wss = new WebSocket.Server({
     server
 });
 
-// the first connection will be the HTTPS server connecting to the socket. ignore it as a "player"
-let firstConnection = false;
-
 wss.on('connection', (ws) => {
-    if (!firstConnection) {
-        firstConnection = true;
-        return;
-    }
-
     const player = new Player(ws);
     session.addPlayer(player);
 });
