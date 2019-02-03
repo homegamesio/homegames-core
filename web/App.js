@@ -205,6 +205,9 @@ const keyup = function(key) {
 const unlock = () => {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
         for (const key in gameAssets) {
             if (gameAssets[key]['type'] === 'audio' && !gameAssets[key]['decoded']) {
                 audioCtx.decodeAudioData(gameAssets[key].data, (buffer) => {
