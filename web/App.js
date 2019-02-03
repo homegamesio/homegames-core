@@ -202,7 +202,7 @@ const keyup = function(key) {
     socket.send(JSON.stringify(payload));
 };
 
-canvas.addEventListener('mousedown', function(e) {
+const unlock = () => {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
         for (const key in gameAssets) {
@@ -214,8 +214,13 @@ canvas.addEventListener('mousedown', function(e) {
             }
         }
     }
+}
 
+document.addEventListener('touchstart', unlock, false);
+
+canvas.addEventListener('mousedown', function(e) {
     mouseDown = true;
+    unlock();
 });
 
 canvas.addEventListener('mouseup', function(e) {
@@ -255,6 +260,3 @@ document.addEventListener('keyup', function(e) {
     }
 });
 
-//document.getElementById('unmute').addEventListener('click', () => {
-//    audioAllowed = !audioAllowed;
-//});
