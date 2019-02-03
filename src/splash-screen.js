@@ -5,14 +5,16 @@ const { colors, randomColor } = require('./Colors');
 class SplashScreen {
     constructor() {
         this.assets = {
-            'slothboy': new Asset('url', {
+            'splashScreen': new Asset('url', {
                 'location': 'https://s3-us-west-1.amazonaws.com/homegamesio/images/splash_screen.png'
             })
         };
         
+        this.clickCount = 0;
+        
         this.base = gameNode(
-            randomColor(), 
-            this.handleLayerClick, 
+            colors.PERRYWINKLE, 
+            this.handleLayerClick.bind(this), 
             {
                 'x': 0, 
                 'y': 0
@@ -21,20 +23,30 @@ class SplashScreen {
                 'x': 100, 
                 'y': 100
             },
-            null,
             {
-                'slothboy': {
+                'x': 80,
+                'y': 10,
+                'text': this.clickCount
+            },
+            {
+                'splashScreen': {
                     size: {
-                        x: 50,
-                        y: 50
-                    },
-                    pos: {
                         x: 25,
                         y: 25
+                    },
+                    pos: {
+                        x: 1,
+                        y: 1
                     }
                 }
             }
         );
+
+    }
+
+    handleLayerClick() {
+        this.clickCount++;
+        this.base.text = {'x': this.base.text.x, 'y': this.base.text.y, text: this.clickCount + ''}; 
     }
     
     handleImageClick() {
@@ -51,28 +63,6 @@ class SplashScreen {
 
     getAssets() {
         return this.assets;
-    }
-}
-
-class Demo {
-    constructor() {
-        this.base = gameNode(colors.WHITE, null, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 25, 'y': 25, 'text': 'ayy lmao'}); 
-        this.layerTest = new LayerTest();
-        this.layerTest.setParent(this);
-        this.base.addChild(this.layerTest.getRoot());
-    }
-
-    addClick() {
-    }
-
-    handleNewPlayer(player) {
-    }
-
-    handlePlayerDisconnect(player) {
-    }
-
-    getRoot() {
-        return this.base;
     }
 }
 

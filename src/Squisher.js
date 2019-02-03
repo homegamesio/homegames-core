@@ -1,3 +1,5 @@
+const ASSET_TYPE = 1;
+
 class Squisher {
     constructor(width, height, game) {
         this.width = width;
@@ -24,8 +26,17 @@ class Squisher {
 
         for (const key in gameAssets) {
             const payload = await gameAssets[key].getData();
-            const base32 = (payload.length).toString(36);
-            this.assets[key] = [1, base32.charCodeAt(0), base32.charCodeAt(1), base32.charCodeAt(2), base32.charCodeAt(3), ...payload];
+            const assetKeyLength = 32;
+            let keyIndex = 0;
+            const assetKeyArray = new Array(32);
+            while (keyIndex < assetKeyLength && keyIndex < key.length) {
+                assetKeyArray[keyIndex] = key.charCodeAt(keyIndex);
+                keyIndex++;
+            }
+
+            const encodedLength = (payload.length + assetKeyLength).toString(36);
+
+            this.assets[key] = [ASSET_TYPE, encodedLength.charCodeAt(0), encodedLength.charCodeAt(1), encodedLength.charCodeAt(2), encodedLength.charCodeAt(3), ...assetKeyArray, ...payload];
             assetBundleSize += this.assets[key].length;
         }
 
@@ -114,10 +125,11 @@ class Squisher {
     }
     
     squish(entity) {
-        const squishedSize = entity.text ? 15 + ((entity.text.text.length % 32) + 2) : 15;
-        const squished = new Array(squishedSize + 2);
-        console.log(squished);
-        console.log(entity.text);
+        let squishedSize = entity.text ? 14 + 32 + 2 : 14;
+        if (entity.assets) {
+            squishedSize += 36 * Object.keys(entity.assets).length;
+        }
+        const squished = new Array(squishedSize);
         let squishedIndex = 0;
         squished[squishedIndex++] = 3;
         squished[squishedIndex++] = squished.length;
@@ -143,15 +155,30 @@ class Squisher {
             squished[squishedIndex++] = entity.text.y;
 
             let textIndex = 0;
-            while (squishedIndex < squished.length) {
-                squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex++);
+            while (textIndex < 32) {
+                if (textIndex < entity.text.text.length) {
+                    squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex);
+                } else {
+                    squished[squishedIndex++] = null;
+                }
+                textIndex++;
             }
         }
 
         if (entity.assets) {
             for (const key in entity.assets) {
-                console.log(key);
-                console.log(key in this.assets);
+                const asset = entity.assets[key];
+                squished[squishedIndex++] = asset.pos.x;
+                squished[squishedIndex++] = asset.pos.y;
+                squished[squishedIndex++] = asset.size.x;
+                squished[squishedIndex++] = asset.size.y;
+                for (let i = 0; i < 32; i++) {
+                    if (i < key.length) {
+                        squished[squishedIndex++] = key.charCodeAt(i);
+                    } else {
+                        squished[squishedIndex++] = null;
+                    }
+                }
             }
         }
 

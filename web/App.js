@@ -88,51 +88,62 @@ socket.onmessage = function(msg) {
         if (frameType === 1) {
             const payloadLengthBase32 = String.fromCharCode.apply(null, buf.slice(i + 1, i + 5));
             const payloadLength = parseInt(payloadLengthBase32, 36);
-            const payloadData = buf.slice(i + 5, i + 5 + payloadLength);
-            const imgBase64 = btoa(String.fromCharCode.apply(null, payloadData));
-            const image = new Image();
-            image.onload = () => {
-                ctx.drawImage(image, 0, 0, 800, 800 * (image.height/image.width));
-            };
-            gameAssets['key'] = "data:image/jpeg;base64," + imgBase64;
-            image.src = gameAssets['key'];
 
+            const payloadKeyRaw = buf.slice(i + 5, i + 5 + 32);
+            const payloadData = buf.slice(i + 5 + 32, i + 5 +  payloadLength);
+            const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k)); 
+            const imgBase64 = btoa(String.fromCharCode.apply(null, payloadData));
+            gameAssets[payloadKey] = "data:image/jpeg;base64," + imgBase64;
             i += 5 + payloadLength;
         } else {
             const frameSize = buf[i + 1];
             const start = i + 2;
             color = buf.slice(start, start + 4);
-            startX = (buf[start + 4] / 100) * horizontalScale;
-            startX += (buf[start + 5] /10000) * horizontalScale;
-            startY = (buf[start + 6] / 100) * verticalScale;
-            startY += (buf[start + 7] / 10000) * verticalScale;
-            width = (buf[start + 8] / 100) * horizontalScale;
-            width += (buf[start + 9] / 10000) * horizontalScale;
-            height = (buf[start + 10] / 100) * verticalScale;
-            height += (buf[start + 11] / 10000) * verticalScale;
+            startX = ((buf[start + 4] / 100) + (buf[start + 5] / 10000)) * horizontalScale;
+            startY = ((buf[start + 6] / 100) + (buf[start + 7] / 10000)) * verticalScale;
+            width = ((buf[start + 8] / 100) + (buf[start + 9] / 10000)) * horizontalScale;
+            height = ((buf[start + 10] / 100) + (buf[start + 11] / 10000)) * verticalScale;
             ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
-            //ctx.fillRect(startX, startY, width, height);
+            ctx.fillRect(startX, startY, width, height);
 
-            console.log("SDF");
-            if (frameSize > 15) {
-                console.log("HAS TEXT");
-                // has text
-                //const textStartX = (buf[start + 12] / 100) * horizontalScale;
-                //const textStartY = (buf[start + 13] / 100) * verticalScale;
-                //const textArray = buf.slice(start + 14, start + frameSize);
-                //const string = String.fromCharCode(...textArray);
-
+            if (frameSize > 14) {
+                const textX = (buf[start + 12] / 100) * horizontalScale;
+                const textY = (buf[start + 13] / 100) * verticalScale;
+                const textArray = buf.slice(start + 14, start + 14 + 32);
+                const textStripped = textArray.filter(x => x);
+                const text = String.fromCharCode.apply(null, textStripped);
+                
                 // todo: encode this in the payload
-                //ctx.fillStyle = "black";
-                //ctx.font = '48px sans-serif';
-                //ctx.textAlign = "center";
-            
-                //ctx.fillText(string, textStartX, textStartY);
+                ctx.fillStyle = "black";
+                ctx.font = '48px sans-serif';
+                ctx.textAlign = "center";
+
+                ctx.fillText(text, textX, textY);
+            }
+
+            if (frameSize > 14 + 34) {
+                const assetPosX = buf[start + 46];
+                const assetPosY = buf[start + 47];
+                
+                const assetSizeX = buf[start + 48];
+                const assetSizeY = buf[start + 49];
+
+                const assetKeyArray = buf.slice(start + 50, start + 50 + 32);
+                const assetKey = String.fromCharCode.apply(null, assetKeyArray.filter(x => x));
+                
+                const image = new Image();
+                image.onload = () => {
+                    ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
+                        (assetPosY / 100) * verticalScale, (assetSizeX / 100) * horizontalScale, ( (assetSizeX / 100 * horizontalScale) * (image.height/image.width)));
+                };
+
+                image.src = gameAssets[assetKey];
+
             }
             i += frameSize;
         }
-
     }
+
 };
 
 const click = function(x, y) {
