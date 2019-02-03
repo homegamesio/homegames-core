@@ -29,9 +29,9 @@ canvas.width = horizontalScale;
 let mouseDown = false;
 const keysDown = {};
 
-// audio stuff
-//let audioCtx, source;
-//
+let audioCtx, source;
+
+
 //const noteMap = {
 //    C0: 16.35,
 //    C1: 32.70
@@ -47,7 +47,6 @@ const keysDown = {};
 //    o.connect(audioCtx.destination);
 //    o.start(0);
 //
-//    console.log("did it!");
 ////    source = audioCtx.createBufferSource();
 //}, 5000);
 //
@@ -70,37 +69,48 @@ const imageCache = {};
 
 socket.onmessage = function(msg) {
     const buf = new Uint8ClampedArray(msg.data);
-    // more audio stuff
-   // setTimeout(() => {
-   //     audioCtx.decodeAudioData(msg.data, (buffer) => {
-   //         o.stop();
-            //source.buffer = buffer;
-            //source.connect(audioCtx.destination);
-            //source.start(0);
-            //source.loop = true;
-   //     }, (error) => {
-   //         console.error(error);
-  //      })
-  //  }, 5500);
     let color, startX, startY, width, height;
     let i = 0;
     while (i < buf.length) {
         const frameType = buf[i];
 
         if (frameType === 1) {
-            const payloadLengthBase32 = String.fromCharCode.apply(null, buf.slice(i + 1, i + 5));
-            const payloadLength = parseInt(payloadLengthBase32, 36);
+            const assetType = buf[i + 1];
+            // image
+            if (assetType === 1) {
+                const payloadLengthBase32 = String.fromCharCode.apply(null, buf.slice(i + 2, i + 6));
+                const payloadLength = parseInt(payloadLengthBase32, 36);
 
-            const payloadKeyRaw = buf.slice(i + 5, i + 5 + 32);
-            const payloadData = buf.slice(i + 5 + 32, i + 5 +  payloadLength);
-            const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k)); 
-            let imgBase64String = '';
-            for (let i = 0; i < payloadData.length; i++) {
-                imgBase64String += String.fromCharCode(payloadData[i]);
+                const payloadKeyRaw = buf.slice(i + 6, i + 6 + 32);
+                const payloadData = buf.slice(i + 6 + 32, i + 6 +  payloadLength);
+                const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k)); 
+                let imgBase64String = '';
+                for (let i = 0; i < payloadData.length; i++) {
+                    imgBase64String += String.fromCharCode(payloadData[i]);
+                }
+                const imgBase64 = btoa(imgBase64String);
+                gameAssets[payloadKey] = {'type': 'image', 'data': "data:image/jpeg;base64," + imgBase64};
+                i += 6 + payloadLength;
+            } else {
+                // audio
+                const payloadLengthBase32 = String.fromCharCode.apply(null, buf.slice(i + 2, i + 6));
+                const payloadLength = parseInt(payloadLengthBase32, 36);
+                const payloadKeyRaw = buf.slice(i + 6, i + 6 + 32);
+                const payloadData = buf.slice(i + 6 + 32, i + 6 +  payloadLength);
+                const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k)); 
+                if (!audioCtx) {
+                    gameAssets[payloadKey] = {'type': 'audio', 'data': payloadData.buffer, 'decoded': false};
+                } else {
+                    audioCtx.decodeAudioData(payloadData.buffer, (buffer) => {
+                        gameAssets[payloadKey] = {'type': 'audio', 'data': buffer, 'decoded': true};
+                        //source.buffer = buffer;
+                        //source.start(0);
+                        //source.loop = true;
+                    });
+                }
+
+                i += 6 + payloadLength;
             }
-            const imgBase64 = btoa(imgBase64String);
-            gameAssets[payloadKey] = "data:image/jpeg;base64," + imgBase64;
-            i += 5 + payloadLength;
         } else {
             const frameSize = buf[i + 1];
             const start = i + 2;
@@ -136,23 +146,34 @@ socket.onmessage = function(msg) {
                 const assetKeyArray = buf.slice(start + 50, start + 50 + 32);
                 const assetKey = String.fromCharCode.apply(null, assetKeyArray.filter(x => x));
                 
-                let image;
-                if (imageCache[assetKey]) {
-                    image = imageCache[assetKey];
-                    ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
-                            (assetPosY / 100) * verticalScale, image.width, image.height)
-
+                if (gameAssets[assetKey]['type'] === 'audio') {
+                    if (audioCtx) {
+                        source = audioCtx.createBufferSource();
+                        source.connect(audioCtx.destination);
+                        source.buffer = gameAssets[assetKey].data;
+                        source.start(0);
+                    } else {
+                        console.log("Cant play audio");
+                    }
                 } else {
-                    image = new Image(assetSizeX / 100 * horizontalScale, assetSizeY / 100 * verticalScale);
-                    imageCache[assetKey] = image;
-                    image.onload = () => {
+                
+                    let image;
+                    if (imageCache[assetKey]) {
+                        image = imageCache[assetKey];
                         ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
                             (assetPosY / 100) * verticalScale, image.width, image.height)
-                    };
 
-                    image.src = gameAssets[assetKey];
+                    } else {
+                        image = new Image(assetSizeX / 100 * horizontalScale, assetSizeY / 100 * verticalScale);
+                        imageCache[assetKey] = image;
+                        image.onload = () => {
+                            ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
+                                (assetPosY / 100) * verticalScale, image.width, image.height)
+                        };
+
+                        image.src = gameAssets[assetKey].data;
+                    }
                 }
-                
             }
 
             i += frameSize;
@@ -182,6 +203,18 @@ const keyup = function(key) {
 };
 
 canvas.addEventListener('mousedown', function(e) {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+        for (const key in gameAssets) {
+            if (gameAssets[key]['type'] === 'audio' && !gameAssets[key]['decoded']) {
+                audioCtx.decodeAudioData(gameAssets[key].data, (buffer) => {
+                    gameAssets[key].data = buffer;
+                    gameAssets[key].decoded = true;
+                });
+            }
+        }
+    }
+
     mouseDown = true;
 });
 

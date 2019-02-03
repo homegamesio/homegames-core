@@ -35,8 +35,10 @@ class Squisher {
             }
 
             const encodedLength = (payload.length + assetKeyLength).toString(36);
+            
+            const assetType = gameAssets[key].info.type === 'image' ? 1 : 2;
 
-            this.assets[key] = [ASSET_TYPE, encodedLength.charCodeAt(0), encodedLength.charCodeAt(1), encodedLength.charCodeAt(2), encodedLength.charCodeAt(3), ...assetKeyArray, ...payload];
+            this.assets[key] = [ASSET_TYPE, assetType, encodedLength.charCodeAt(0), encodedLength.charCodeAt(1), encodedLength.charCodeAt(2), encodedLength.charCodeAt(3), ...assetKeyArray, ...payload];
             assetBundleSize += this.assets[key].length;
         }
 
@@ -125,9 +127,9 @@ class Squisher {
     }
     
     squish(entity) {
-        // Type (1) + Size (1) + color (4) + pos (4) + size (4) + text position (2) + text (32) + assets (36 * assetCount)
+        // Type (1) + Size (1) + color (4) + pos (4) + size (4) + text position (2) + text (32) + assets (37 * assetCount)
         // TODO: store type in array to stop sending unnecessary data 
-        let squishedSize = 1 + 1 + 4 + 4 + 4 + 2 + 32 + (36 * Object.keys(entity.assets ? entity.assets : {}).length);
+        let squishedSize = 1 + 1 + 4 + 4 + 4 + 2 + 32 + (37 * Object.keys(entity.assets ? entity.assets : {}).length);
 
         const squished = new Array(squishedSize);
         let squishedIndex = 0;

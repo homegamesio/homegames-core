@@ -6,12 +6,17 @@ class SplashScreen {
     constructor() {
         this.assets = {
             'splashScreen': new Asset('url', {
-                'location': 'https://s3-us-west-1.amazonaws.com/homegamesio/images/splash_screen.png'
+                'location': 'https://s3-us-west-1.amazonaws.com/homegamesio/images/splash_screen.png',
+                'type': 'image'
             }),
             'logo': new Asset('url', {
-                'location': 'https://s3-us-west-1.amazonaws.com/homegamesio/images/logo.png'
+                'location': 'https://s3-us-west-1.amazonaws.com/homegamesio/images/logo.png',
+                'type': 'image'
+            }),
+            'clickSound': new Asset('url', {
+                'location': 'http://www.noiseaddicts.com/samples_1w72b820/3740.mp3',
+                'type': 'audio'
             })
-
         };
         
         this.clickCount = 0;
@@ -72,9 +77,34 @@ class SplashScreen {
             }
         );
 
+        this.soundPlayer = gameNode(
+            colors.PERRYWINKLE,
+            null,
+            {
+                'x': 0,
+                'y': 0
+            },
+            {
+                'x': 0,
+                'y': 0
+            }, 
+            null,
+            {
+                'clickSound': {
+                    size: {
+                        x: 0,
+                        y: 0
+                    },
+                    pos: {
+                        x: 0,
+                        y: 0
+                    }
+                }
+            }
+        );
+
         this.base.addChild(this.logo);
-
-
+        this.base.addChild(this.soundPlayer);
     }
 
     handleLayerClick() {
@@ -82,14 +112,6 @@ class SplashScreen {
         this.base.text = {'x': this.base.text.x, 'y': this.base.text.y, text: this.clickCount + ''}; 
     }
     
-    handleImageClick() {
-        console.log("IDK");
-    }
-
-    setParent(parent) {
-        this.parent = parent;
-    }
-
     getRoot() {
         return this.base;
     }
