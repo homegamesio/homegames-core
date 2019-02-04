@@ -9,6 +9,7 @@ const Player = require('./src/Player');
 const SplashScreen = require('./src/splash-screen');
 const https = require('https');
 const fs = require('fs');
+const linkHelper = require('./src/link-helper');
 
 const PORT = 7080;
 
@@ -16,6 +17,8 @@ const server = https.createServer({
     cert: fs.readFileSync('ssl/localhost.crt'),
     key: fs.readFileSync('ssl/localhost.key'),
 });
+
+linkHelper();
 
 let toExecute;
 toExecute = new SplashScreen();
@@ -37,8 +40,6 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(PORT, () => {
-    const ws = new WebSocket(`wss://192.168.1.16:${server.address().port}`, {
-        rejectUnauthorized: false
-    });
+
 });
 
