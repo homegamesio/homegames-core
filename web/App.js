@@ -1,3 +1,12 @@
+const hostRequest = new XMLHttpRequest();
+hostRequest.onreadystatechange = (res) => {
+    console.log("RESPONSE");
+    console.log(res);
+};
+
+hostRequest.open('GET', 'http://homegames.link');
+hostRequest.send();
+
 // Insert your local IP + port here
 const socket = new WebSocket('wss://192.168.1.16:7080');
 
