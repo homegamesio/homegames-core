@@ -1,8 +1,8 @@
-// Insert your local IP + port here
-const socket = new WebSocket('wss://192.168.1.16:7080');
+const localIP = window.location.hostname;
+
+const socket = new WebSocket('ws://' + localIP + ':7080');
 
 socket.binaryType = 'arraybuffer';
-//socket.binaryType = 'blob';
 
 let socketIsReady = false;
 let audioAllowed = false;
@@ -30,38 +30,6 @@ let mouseDown = false;
 const keysDown = {};
 
 let audioCtx, source;
-
-
-//const noteMap = {
-//    C0: 16.35,
-//    C1: 32.70
-//};
-//
-//let o;
-//setTimeout(() => {
-//    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-//    o = audioCtx.createOscillator()
-//    //const g = audioCtx.createGain();
-//    //o.connect(g);
-//    o.frequency.value = 440;//noteMap.C0;
-//    o.connect(audioCtx.destination);
-//    o.start(0);
-//
-////    source = audioCtx.createBufferSource();
-//}, 5000);
-//
-
-const FRAME_TYPES = {
-    1: {
-        'type': 'asset'
-    },
-    2: {
-        'type': 'info'
-    },
-    3: {
-        'type': 'entity'
-    }
-};
 
 const gameAssets = {};
 
@@ -103,9 +71,6 @@ socket.onmessage = function(msg) {
                 } else {
                     audioCtx.decodeAudioData(payloadData.buffer, (buffer) => {
                         gameAssets[payloadKey] = {'type': 'audio', 'data': buffer, 'decoded': true};
-                        //source.buffer = buffer;
-                        //source.start(0);
-                        //source.loop = true;
                     });
                 }
 
@@ -153,7 +118,7 @@ socket.onmessage = function(msg) {
                         source.buffer = gameAssets[assetKey].data;
                         source.start(0);
                     } else {
-                        console.log("Cant play audio");
+                        console.warn("Cant play audio");
                     }
                 } else {
                 
@@ -235,6 +200,11 @@ canvas.addEventListener('mousemove', function(e) {
     if (mouseDown) {
         click(e.clientX, e.clientY);
     }
+});
+
+canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    click(e.touches['0'].clientX, e.touches['0'].clientY);
 });
 
 canvas.addEventListener('touchmove', function(e) {

@@ -8,10 +8,15 @@ const GameSession = require('./src/GameSession');
 const Player = require('./src/Player');
 const SplashScreen = require('./src/splash-screen');
 const http = require('http');
+const linkHelper = require('./src/link-helper');
+
+const fs = require('fs');
 
 const PORT = 7080;
 
 const server = http.createServer();
+
+linkHelper();
 
 let toExecute;
 toExecute = new SplashScreen();
