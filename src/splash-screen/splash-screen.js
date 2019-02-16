@@ -1,6 +1,6 @@
-const gameNode = require("./GameNode");
-const Asset = require("./Asset");
-const { colors } = require("./Colors");
+const gameNode = require("../GameNode");
+const Asset = require("../Asset");
+const { colors } = require("../Colors");
 
 class SplashScreen {
     constructor() {
