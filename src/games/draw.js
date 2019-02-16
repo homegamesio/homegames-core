@@ -1,35 +1,35 @@
-const gameNode = require('../GameNode');
-const {colors, randomColor} = require('../Colors');
+const gameNode = require("../GameNode");
+const {colors, randomColor} = require("../Colors");
 const colorKeys = Object.keys(colors);
-const Asset = require('../Asset');
+const Asset = require("../Asset");
 
 class Draw {
     constructor() {
         this.assets = {
-            'test': new Asset('url', {
-                'location': 'https://www.nicepng.com/png/full/323-3239506_kanye-west-shrug-transparent.png'
+            "test": new Asset("url", {
+                "location": "https://www.nicepng.com/png/full/323-3239506_kanye-west-shrug-transparent.png"
             })
-        }
+        };
 
         this.playerColorMap = {};
         this.board = gameNode(
             colors.PURPLE, 
             this.handleBoardClick.bind(this), 
             {
-                'x': 0, 
-                'y': 0
+                "x": 0, 
+                "y": 0
             }, 
             {
-                'x': 100, 
-                'y': 100
+                "x": 100, 
+                "y": 100
             },
             {
-                'x': 0,
-                'y': 0,
-                'text': 'what'
+                "x": 0,
+                "y": 0,
+                "text": "what"
             },
             {
-                'test': {
+                "test": {
                     size: {
                         x: 5,
                         y: 5
@@ -45,7 +45,7 @@ class Draw {
     }
 
     initializeBoard() {
-        const randomizeButton = gameNode(colors.RED, this.randomizeBoardColor.bind(this), {'x': 80, 'y': 0}, {'x': 15, 'y': 15});
+        const randomizeButton = gameNode(colors.RED, this.randomizeBoardColor.bind(this), {"x": 80, "y": 0}, {"x": 15, "y": 15});
         const resetButton = gameNode(colors.BLUE, this.initializeBoard.bind(this), {x: 60, y: 0}, {x: 15, y: 15});
 
         this.board.clearChildren();
@@ -66,7 +66,7 @@ class Draw {
         const playerColorButton = gameNode(initialColor, function() {
             this.color = randomColor();
             setPlayerColor(this.color);
-        }, {'x': 0, 'y': 0}, {'x': 10, 'y': 10});
+        }, {"x": 0, "y": 0}, {"x": 10, "y": 10});
         this.board.addChild(playerColorButton);
     }
 
@@ -76,7 +76,7 @@ class Draw {
 
     handleBoardClick(player, x, y) {
         const playerColor = this.playerColorMap[player.id];
-        const coloredPixel = gameNode(playerColor, () => {}, {'x': x * 100, 'y': y * 100}, {'x': 200/320, 'y': 200/180});
+        const coloredPixel = gameNode(playerColor, () => {}, {"x": x * 100, "y": y * 100}, {"x": 200/320, "y": 200/180});
         this.board.addChild(coloredPixel);
     }
 

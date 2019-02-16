@@ -3,12 +3,11 @@ const Draw = require('./src/games/draw');
 const LayerTest = require('./src/games/layer-test');
 const MoveTest = require('./src/games/move-test');
 const TextTest = require('./src/games/text-test');
-const Demo = require('./src/games/demo');
 const GameSession = require('./src/GameSession');
 const Player = require('./src/Player');
-const SplashScreen = require('./src/splash-screen');
+const SplashScreen = require('./src/splash-screen/splash-screen');
 const http = require('http');
-const linkHelper = require('./src/link-helper');
+const linkHelper = require('./src/util/link-helper');
 
 const fs = require('fs');
 

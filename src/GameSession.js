@@ -1,4 +1,4 @@
-const Squisher = require('./Squisher');
+const Squisher = require("./Squisher");
 
 class GameSession {
     constructor(game, res) {

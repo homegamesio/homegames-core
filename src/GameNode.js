@@ -1,4 +1,4 @@
-const listenable = require('./listenable');
+const listenable = require("./util/listenable");
 
 let id = 0;
 

@@ -36,7 +36,7 @@ class Squisher {
 
             const encodedLength = (payload.length + assetKeyLength).toString(36);
             
-            const assetType = gameAssets[key].info.type === 'image' ? 1 : 2;
+            const assetType = gameAssets[key].info.type === "image" ? 1 : 2;
 
             this.assets[key] = [ASSET_TYPE, assetType, encodedLength.charCodeAt(0), encodedLength.charCodeAt(1), encodedLength.charCodeAt(2), encodedLength.charCodeAt(3), ...assetKeyArray, ...payload];
             assetBundleSize += this.assets[key].length;
@@ -103,14 +103,14 @@ class Squisher {
     }
 
     handlePlayerInput(player, input) {
-        if (input.type === 'click') {
+        if (input.type === "click") {
             this.handleClick(player, input.data);
-        } else if (input.type === 'keydown') { 
+        } else if (input.type === "keydown") { 
             this.game.handleKeyDown && this.game.handleKeyDown(player, input.key);
-        } else if (input.type === 'keyup') {
+        } else if (input.type === "keyup") {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
         } else {
-            console.log('Unknown input type: ' + input.type);
+            console.log("Unknown input type: " + input.type);
         }
     }
 
@@ -191,7 +191,7 @@ class Squisher {
 
     async getAssets() {
         if (this.assets && !this.assetBundle) {
-            return this.initialize().then(_ => this.assetBundle);
+            return this.initialize().then(this.assetBundle);
         }
 
         return this.assetBundle;
