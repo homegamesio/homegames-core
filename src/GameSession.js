@@ -1,4 +1,4 @@
-const Squisher = require('./Squisher');
+const Squisher = require("./Squisher");
 
 class GameSession {
     constructor(game, res) {
@@ -8,11 +8,20 @@ class GameSession {
         this.players = new Set();
     }
 
-    addPlayer(player) {
+    async addPlayer(player) {
         player.addInputListener(this.squisher);
+        player.addStateListener(this);
+        const gameAssets = await this.squisher.getAssets();
+        player.receiveUpdate(gameAssets);
         player.receiveUpdate(this.squisher.getPixels());
         this.players.add(player);
+
         this.game.handleNewPlayer && this.game.handleNewPlayer(player);
+    }
+
+    handlePlayerDisconnect(player) {
+        this.players.delete(player);
+        this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(player);
     }
 
     handleUpdate(update) {

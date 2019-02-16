@@ -1,29 +1,35 @@
-const WebSocket = require('ws');
-const uuid = require('uuid');
+const WebSocket = require("ws");
+const uuid = require("uuid");
 
 class Player {
     constructor(ws) {
         this.inputListeners = new Set();
+        this.stateListeners = new Set();
         this.ws = ws;
         this.id = uuid();
-        this.ws.on('message', this.handlePlayerInput.bind(this));
-        this.ws.on('close', this.disconnect.bind(this));
+        this.ws.on("message", this.handlePlayerInput.bind(this));
+        this.ws.on("close", this.disconnect.bind(this));
     }
 
     handlePlayerInput(msg) {
         const data = JSON.parse(msg);
         if (!data.type) {
-            console.log(data);
             return;
         }
         
-        for (let listener of this.inputListeners) {
+        for (const listener of this.inputListeners) {
             listener.handlePlayerInput(this, data);
         }
     }
 
     disconnect() {
-        // handle cleanup here. will probably need to notify listeners. too many listeners.
+        for (const listener of this.stateListeners) {
+            listener.handlePlayerDisconnect(this);
+        }
+    }
+
+    addStateListener(listener) {
+        this.stateListeners.add(listener);
     }
 
     addInputListener(listener) {

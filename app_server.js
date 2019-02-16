@@ -1,7 +1,8 @@
-const express = require('express');
+const express = require("express");
+const http = require("http");
 
 const app = express();
 
-app.use(express.static('public'));
+http.createServer(app).listen(80);
 
-app.listen(5000);
+app.use(express.static("web"));
