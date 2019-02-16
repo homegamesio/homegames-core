@@ -24,11 +24,7 @@ class Draw {
                 "x": 100, 
                 "y": 100
             },
-            {
-                "x": 0,
-                "y": 0,
-                "text": "what"
-            },
+            null,
             {
                 "test": {
                     size: {
