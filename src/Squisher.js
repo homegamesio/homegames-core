@@ -191,7 +191,7 @@ class Squisher {
 
     async getAssets() {
         if (this.assets && !this.assetBundle) {
-            return this.initialize().then(this.assetBundle);
+            return this.initialize().then(() => this.assetBundle);
         }
 
         return this.assetBundle;
