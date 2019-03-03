@@ -63,6 +63,8 @@ class Squisher {
     }
 
     update(node) {
+        // todo: only clear listeners at this node's previous position
+        this.clickListeners.length = 0;
         this.updateHelper(node);
         this.updatePixelBoard();
     }
@@ -73,10 +75,11 @@ class Squisher {
             this.ids.add(node.id);
             node.addListener(this);
             this.entities.push(node);
-            for (let i = Math.floor((node.pos.x/100) * this.width); i < this.width * ((node.pos.x/100) + (node.size.x/100)); i++) {
-                for (let j = Math.floor((node.pos.y/100) * this.height); j < this.height * ((node.pos.y/100) + (node.size.y/100)); j++) {
-                    this.clickListeners[i * this.width + j] = node;
-                }
+        }
+        
+        for (let i = Math.floor((node.pos.x/100) * this.width); i < this.width * ((node.pos.x/100) + (node.size.x/100)); i++) {
+            for (let j = Math.floor((node.pos.y/100) * this.height); j < this.height * ((node.pos.y/100) + (node.size.y/100)); j++) {
+                this.clickListeners[i * this.width + j] = node;
             }
         }
 
