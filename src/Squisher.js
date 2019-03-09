@@ -64,6 +64,7 @@ class Squisher {
 
     update(node) {
         // todo: make this respectable
+        this.collisionsRecorded = new Set();
         this.entities = new Array();
         this.ids = new Set();
         this.clickListeners.length = 0;
@@ -81,6 +82,14 @@ class Squisher {
         
         for (let i = Math.floor((node.pos.x/100) * this.width); i < this.width * ((node.pos.x/100) + (node.size.x/100)); i++) {
             for (let j = Math.floor((node.pos.y/100) * this.height); j < this.height * ((node.pos.y/100) + (node.size.y/100)); j++) {
+                const prevNode = this.clickListeners[i * this.width + j];
+                if (prevNode && prevNode.handleClick) {
+                    const collisionKey = prevNode.id + ' ' + node.id;
+                    if (!this.collisionsRecorded.has(collisionKey)) {
+                        this.collisionsRecorded.add(collisionKey);
+                        this.game.handleCollision && this.game.handleCollision(prevNode, node);
+                    }
+                }
                 this.clickListeners[i * this.width + j] = node;
             }
         }
