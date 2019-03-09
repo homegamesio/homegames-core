@@ -63,9 +63,11 @@ class Squisher {
     }
 
     update(node) {
-        // todo: only clear listeners at this node's previous position
+        // todo: make this respectable
+        this.entities = new Array();
+        this.ids = new Set();
         this.clickListeners.length = 0;
-        this.updateHelper(node);
+        this.updateHelper(this.root);//node);
         this.updatePixelBoard();
     }
 
