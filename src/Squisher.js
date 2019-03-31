@@ -77,11 +77,16 @@ class Squisher {
         }
 
         this.stuff[node.id] = this.squish(node);
+
+        let i = Math.floor((node.pos.x * this.width / 100));
+        let j = Math.floor((node.pos.y * this.height / 100));
+
+        let prevNode = this.clickListeners[i * this.width + j];
         
-        if (!this.pastFirst) {
+        if (!prevNode || prevNode.id !== node.id) {
+        
             for (let i = Math.floor((node.pos.x/100) * this.width); i < this.width * ((node.pos.x/100) + (node.size.x/100)); i++) {
                 for (let j = Math.floor((node.pos.y/100) * this.height); j < this.height * ((node.pos.y/100) + (node.size.y/100)); j++) {
-        //      console.log("CHANGE AT " + i + ', ' + j);
                 //const prevNode = this.clickListeners[i * this.width + j];
                 //if (prevNode && prevNode.handleClick) {
                 //    const collisionKey = prevNode.id + ' ' + node.id;
@@ -93,9 +98,8 @@ class Squisher {
                     this.clickListeners[i * this.width + j] = node;
                 }
             }
+        //}
         }
-
-        //console.log(this.squish(node));
 
         for (let i = 0; i < node.children.length; i++) {
             this.updateHelper(node.children[i]);
@@ -103,19 +107,7 @@ class Squisher {
     }
 
     updatePixelBoard() {
-        //this.ids.forEach( {
-        //    console.log("ay");
-        //    console.log(nodeId);
-        //}
-        //const temp = new Array(this.entities.length);
-        //for (let i = 0; i < this.entities.length; i++) {
-        //    temp[i] = this.squish(this.entities[i]);
-        //}
-        //
-        
         this.pixelBoard = Array.prototype.concat.apply([], Object.values(this.stuff));
-        //this.pixelBoard = this.stuff[0].concat(this.stuff[1]);
-
         this.notifyListeners();
     }
 
