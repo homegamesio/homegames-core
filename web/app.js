@@ -86,19 +86,22 @@ socket.onmessage = function(msg) {
             height = ((buf[start + 10] / 100) + (buf[start + 11] / 10000)) * verticalScale;
             ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
             ctx.fillRect(startX, startY, width, height);
+            
+            // has text
+            if (frameSize > start + 12) {
+                const textX = (buf[start + 12] / 100) * horizontalScale;
+                const textY = (buf[start + 13] / 100) * verticalScale;
+                const textArray = buf.slice(start + 14, start + 14 + 32);
+                const textStripped = textArray.filter(x => x);
+                const text = String.fromCharCode.apply(null, textStripped);
+                if (text) {
+                    // todo: encode this in the payload
+                    ctx.fillStyle = "black";
+                    ctx.font = '48px sans-serif';
+                    ctx.textAlign = "center";
 
-            const textX = (buf[start + 12] / 100) * horizontalScale;
-            const textY = (buf[start + 13] / 100) * verticalScale;
-            const textArray = buf.slice(start + 14, start + 14 + 32);
-            const textStripped = textArray.filter(x => x);
-            const text = String.fromCharCode.apply(null, textStripped);
-            if (text) {
-                // todo: encode this in the payload
-                ctx.fillStyle = "black";
-                ctx.font = '48px sans-serif';
-                ctx.textAlign = "center";
-
-                ctx.fillText(text, textX, textY);
+                    ctx.fillText(text, textX, textY);
+                }
             }
 
             if (frameSize > 2 + 46) { 

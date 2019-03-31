@@ -6,9 +6,10 @@ class Squisher {
         this.height = height;
         this.game = game;
         this.root = game.getRoot();
-        this.root.addListener(this);
         this.listeners = new Set();
         this.assets = {};
+        this.initialize();
+        this.pastFirst = true;
     }
 
     addListener(listener) {
@@ -22,6 +23,9 @@ class Squisher {
     async initialize() {
         const gameAssets = this.game.getAssets ? this.game.getAssets() : [];
         
+        this.stuff = {};
+        this.ids = new Set();
+
         let assetBundleSize = 0;
 
         for (const key in gameAssets) {
@@ -52,8 +56,6 @@ class Squisher {
             }
         }
 
-        this.ids = new Set();
-        this.entities = new Array();
         this.clickListeners = new Array(this.width * this.height);
         this.update(this.root);
     }
@@ -63,12 +65,7 @@ class Squisher {
     }
 
     update(node) {
-        // todo: make this respectable
-        this.collisionsRecorded = new Set();
-        this.entities = new Array();
-        this.ids = new Set();
-        this.clickListeners.length = 0;
-        this.updateHelper(this.root);//node);
+        this.updateHelper(node);
         this.updatePixelBoard();
     }
 
@@ -77,22 +74,28 @@ class Squisher {
         if (!this.ids.has(node.id)) {
             this.ids.add(node.id);
             node.addListener(this);
-            this.entities.push(node);
         }
+
+        this.stuff[node.id] = this.squish(node);
         
-        for (let i = Math.floor((node.pos.x/100) * this.width); i < this.width * ((node.pos.x/100) + (node.size.x/100)); i++) {
-            for (let j = Math.floor((node.pos.y/100) * this.height); j < this.height * ((node.pos.y/100) + (node.size.y/100)); j++) {
-                const prevNode = this.clickListeners[i * this.width + j];
-                if (prevNode && prevNode.handleClick) {
-                    const collisionKey = prevNode.id + ' ' + node.id;
-                    if (!this.collisionsRecorded.has(collisionKey)) {
-                        this.collisionsRecorded.add(collisionKey);
-                        this.game.handleCollision && this.game.handleCollision(prevNode, node);
-                    }
+        if (!this.pastFirst) {
+            for (let i = Math.floor((node.pos.x/100) * this.width); i < this.width * ((node.pos.x/100) + (node.size.x/100)); i++) {
+                for (let j = Math.floor((node.pos.y/100) * this.height); j < this.height * ((node.pos.y/100) + (node.size.y/100)); j++) {
+        //      console.log("CHANGE AT " + i + ', ' + j);
+                //const prevNode = this.clickListeners[i * this.width + j];
+                //if (prevNode && prevNode.handleClick) {
+                //    const collisionKey = prevNode.id + ' ' + node.id;
+                //    if (!this.collisionsRecorded.has(collisionKey)) {
+                //        this.collisionsRecorded.add(collisionKey);
+                //        this.game.handleCollision && this.game.handleCollision(prevNode, node);
+                //    }
+                //}
+                    this.clickListeners[i * this.width + j] = node;
                 }
-                this.clickListeners[i * this.width + j] = node;
             }
         }
+
+        //console.log(this.squish(node));
 
         for (let i = 0; i < node.children.length; i++) {
             this.updateHelper(node.children[i]);
@@ -100,12 +103,18 @@ class Squisher {
     }
 
     updatePixelBoard() {
-        const temp = new Array(this.entities.length);
-        for (let i = 0; i < this.entities.length; i++) {
-            temp[i] = this.squish(this.entities[i]);
-        }
-
-        this.pixelBoard = Array.prototype.concat.apply([], temp);
+        //this.ids.forEach( {
+        //    console.log("ay");
+        //    console.log(nodeId);
+        //}
+        //const temp = new Array(this.entities.length);
+        //for (let i = 0; i < this.entities.length; i++) {
+        //    temp[i] = this.squish(this.entities[i]);
+        //}
+        //
+        
+        this.pixelBoard = Array.prototype.concat.apply([], Object.values(this.stuff));
+        //this.pixelBoard = this.stuff[0].concat(this.stuff[1]);
 
         this.notifyListeners();
     }
@@ -134,16 +143,16 @@ class Squisher {
         if (translatedX >= 1 || translatedY >= 1) {
             return;
         }
-        const entity = this.clickListeners[click.x * this.width + click.y];
-        if (entity) {
-            entity.handleClick && entity.handleClick(player, translatedX, translatedY);
+        const node = this.clickListeners[click.x * this.width + click.y];
+        if (node) {
+            node.handleClick && node.handleClick(player, translatedX, translatedY);
         }
     }
     
     squish(entity) {
         // Type (1) + Size (1) + color (4) + pos (4) + size (4) + text position (2) + text (32) + assets (37 * assetCount)
         // TODO: store type in array to stop sending unnecessary data 
-        let squishedSize = 1 + 1 + 4 + 4 + 4 + 2 + 32 + (37 * Object.keys(entity.assets ? entity.assets : {}).length);
+        let squishedSize = 1 + 1 + 4 + 4 + 4 + (entity.text ? 2 + 32 : 0) + (entity.assets ? 37 * Object.keys(entity.assets).length : 0);
 
         const squished = new Array(squishedSize);
         let squishedIndex = 0;
@@ -166,17 +175,19 @@ class Squisher {
         squished[squishedIndex++] = Math.floor(entity.size.y);
         squished[squishedIndex++] = Math.floor(100 * (entity.size.y - Math.floor(entity.size.y)));
 
-        squished[squishedIndex++] = entity.text && entity.text.x;
-        squished[squishedIndex++] = entity.text && entity.text.y;
+        if (entity.text) {
+            squished[squishedIndex++] = entity.text && entity.text.x;
+            squished[squishedIndex++] = entity.text && entity.text.y;
 
-        let textIndex = 0;
-        while (textIndex < 32) {
-            if (entity.text && textIndex < entity.text.text.length) {
-                squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex);
-            } else {
-                squished[squishedIndex++] = null;
+            let textIndex = 0;
+            while (textIndex < 32) {
+                if (textIndex < entity.text.text.length) {
+                    squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex);
+                } else {
+                    squished[squishedIndex++] = null;
+                }
+                textIndex++;
             }
-            textIndex++;
         }
 
         if (entity.assets) {
@@ -203,11 +214,7 @@ class Squisher {
         return this.pixelBoard;
     }
 
-    async getAssets() {
-        if (this.assets && !this.assetBundle) {
-            return this.initialize().then(() => this.assetBundle);
-        }
-
+    getAssets() {
         return this.assetBundle;
     }
 }

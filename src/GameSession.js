@@ -12,7 +12,9 @@ class GameSession {
         player.addInputListener(this.squisher);
         player.addStateListener(this);
         const gameAssets = await this.squisher.getAssets();
-        player.receiveUpdate(gameAssets);
+        if (gameAssets && gameAssets.length > 0) {
+            player.receiveUpdate(gameAssets);
+        }
         player.receiveUpdate(this.squisher.getPixels());
         this.players.add(player);
 

@@ -1,7 +1,7 @@
 const WebSocket = require("ws");
 
 const Draw = require("./src/games/draw");
-// const LayerTest = require("./src/games/layer-test");
+const LayerTest = require("./src/games/layer-test");
 const MoveTest = require("./src/games/move-test");
 const AllTest = require('./src/games/alltest');
 // const TextTest = require("./src/games/text-test");
@@ -20,9 +20,9 @@ linkHelper();
 let toExecute;
 //toExecute = new SplashScreen();
 //toExecute = new Draw();
-//toExecute = new LayerTest();
+toExecute = new LayerTest();
 //toExecute = new MoveTest();
-toExecute = new AllTest();
+//toExecute = new AllTest();
 //toExecute = new TextTest();
 //toExecute = new Demo();
 
