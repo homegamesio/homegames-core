@@ -9,7 +9,6 @@ class Squisher {
         this.listeners = new Set();
         this.assets = {};
         this.initialize();
-        this.pastFirst = true;
     }
 
     addListener(listener) {
@@ -65,6 +64,7 @@ class Squisher {
     }
 
     update(node) {
+        this.collisionsRecorded = new Set();
         this.updateHelper(node);
         this.updatePixelBoard();
     }
@@ -82,24 +82,28 @@ class Squisher {
         let j = Math.floor((node.pos.y * this.height / 100));
 
         let prevNode = this.clickListeners[i * this.width + j];
-        
+
+//        this.collisionsRecorded = new Set();
+ 
         if (!prevNode || prevNode.id !== node.id) {
         
             for (let i = Math.floor((node.pos.x/100) * this.width); i < this.width * ((node.pos.x/100) + (node.size.x/100)); i++) {
                 for (let j = Math.floor((node.pos.y/100) * this.height); j < this.height * ((node.pos.y/100) + (node.size.y/100)); j++) {
-                //const prevNode = this.clickListeners[i * this.width + j];
-                //if (prevNode && prevNode.handleClick) {
-                //    const collisionKey = prevNode.id + ' ' + node.id;
-                //    if (!this.collisionsRecorded.has(collisionKey)) {
-                //        this.collisionsRecorded.add(collisionKey);
-                //        this.game.handleCollision && this.game.handleCollision(prevNode, node);
-                //    }
-                //}
+                    const prevNode = this.clickListeners[i * this.width + j];
+                    if (prevNode && prevNode.id !== node.id && prevNode.handleClick) {
+                        //const collisionKey = prevNode.id + ' ' + node.id;
+                        //if (!this.collisionsRecorded.has(collisionKey)) {
+                        //    this.collisionsRecorded.add(collisionKey);
+                            this.game.handleCollision && this.game.handleCollision(prevNode, node);
+                        //}
+                    }
                     this.clickListeners[i * this.width + j] = node;
                 }
             }
         //}
         }
+
+  //      this.collisionsRecorded = new Set();
 
         for (let i = 0; i < node.children.length; i++) {
             this.updateHelper(node.children[i]);
