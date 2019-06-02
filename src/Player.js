@@ -17,6 +17,9 @@ class Player {
         const data = JSON.parse(msg);
         if (!data.type) {
             return;
+        } else if (data.type === 'req') {
+            this.receiveUpdate(this.squisher.getPixels());
+            return;
         }
         
         for (const listener of this.inputListeners) {

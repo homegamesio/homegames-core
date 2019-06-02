@@ -14,16 +14,17 @@ class MoveTest {
 
         this.mover1 = gameNode(randomColor(), function() {
             console.log("CLICKED 1");
-        }, {"x": 45, "y": 43.5}, {"x": 10, "y": 17});
+        }, {"x": 45, "y": 43.5}, {"x": 10, "y": 10});
 
         
         this.mover2 = gameNode(randomColor(), function() {
             console.log("CLICKED 2");
-        }, {"x": 20, "y": 23.5}, {"x": 10, "y": 17});
+        }, {"x": 20, "y": 23.5}, {"x": 10, "y": 10});
 
         this.base.addChild(this.mover1);
         this.base.addChild(this.mover2);
         this.activeMover = null;
+        this.collisions = {};
     }
 
     moveGuy(player, x, y) {
@@ -32,14 +33,13 @@ class MoveTest {
         }
     }
 
-    handleCollision(node1, node2) {
+    handleCollision(collidingNodes) {
+        console.log("COLLIDING NODES");
+        console.log(collidingNodes);
     }
 
     handleKeyUp(player, key) {
         this.keysDown[key] = true;
-        //if(this.keyDownInterval){
-        //    clearInterval(this.keyDownInterval);
-        //}
     }
 
     movePlayer(player, dir, dist = .1) {
@@ -55,8 +55,10 @@ class MoveTest {
         } 
 
         if (dir === 'down') {
-            if (player.pos.y + player.size.y + dist < 100) {
+            if (player.pos.y + player.size.y + dist <= 100) {
                 newY = player.pos.y + dist;
+            } else {
+                newY = 100 - player.size.y;
             }
         } 
 
@@ -71,10 +73,21 @@ class MoveTest {
         if (dir === 'right') {
             if (player.pos.x + player.size.x + dist <= 100) {
                 newX = player.pos.x + dist;
+            } else {
+                newX = 100 - player.size.x;
             }
         } 
 
-        player.pos = {'x': newX, 'y': newY};
+        let wouldBeCollisions = this.squisher.checkCollisions({'id': player.id, 'pos': {'x': newX, 'y': newY}, 'size': player.size}, false);
+        console.log(wouldBeCollisions);
+
+        if (wouldBeCollisions.length == 0) {
+            player.pos = {'x': newX, 'y': newY};
+        }
+    }
+
+    willCollide(node, dir) {
+        console.log("will collide");
     }
 
     handleKeyDown(player, key) {

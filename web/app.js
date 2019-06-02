@@ -35,6 +35,15 @@ const gameAssets = {};
 
 const imageCache = {};
 
+function req() {
+    socket.send(JSON.stringify({'type':'req'}));
+    window.requestAnimationFrame(req);
+}
+
+socket.onopen = () => {
+    window.requestAnimationFrame(req);
+};
+
 socket.onmessage = function(msg) {
     const buf = new Uint8ClampedArray(msg.data);
     let color, startX, startY, width, height;
@@ -445,4 +454,5 @@ setInterval(() => {
         }
 
     }
-}, 8);
+}, 11);
+

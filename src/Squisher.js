@@ -57,14 +57,53 @@ class Squisher {
 
         this.clickListeners = new Array(this.width * this.height);
         this.update(this.root);
+        // acts as a heartbeat
+        setInterval(this.notifyListeners.bind(this), 100);
     }
 
     handleStateChange(node) {
+        this.collisionsRecorded = new Set();
         this.update(node);
+        this.checkCollisions(node);
+    }
+
+    checkCollisions(node, notify = true) {
+        //console.log("Checking");
+        //console.log(node);
+        let collidingNodes = this.collisionHelper(this.root, node);
+        if (notify && collidingNodes.length > 0) {
+            this.game.handleCollision && this.game.handleCollision([node, ...collidingNodes]);
+        }
+        return collidingNodes;
+    }
+
+    collisionHelper(node, nodeToCheck, collisions = []) {
+        if (node.handleClick && node.id !== nodeToCheck.id) {
+            let node1LeftX = this.width * .01 * (node.pos.x);
+            let node1RightX = this.width * .01 * (node.pos.x + node.size.x);
+            let node2LeftX = this.width * .01 * (nodeToCheck.pos.x);
+            let node2RightX = this.width * .01 * (nodeToCheck.pos.x + nodeToCheck.size.x);
+
+            let node1TopY = this.height * .01 * (node.pos.y);
+            let node1BottomY = this.height * .01 * (node.pos.y + node.size.y);
+            let node2TopY = this.height * .01 * (nodeToCheck.pos.y);
+            let node2BottomY = this.height * .01 * (nodeToCheck.pos.y + nodeToCheck.size.y);
+
+            let oneToTheLeft = node2RightX < node1LeftX || node1RightX < node2LeftX;
+            let oneBelow = node1TopY > node2BottomY || node2TopY > node1BottomY;
+            if (!(oneToTheLeft || oneBelow)) {
+                collisions.push(node);
+            }
+        }
+
+        for (let child in node.children) {
+            this.collisionHelper(node.children[child], nodeToCheck, collisions);
+        }
+
+        return collisions;
     }
 
     update(node) {
-        this.collisionsRecorded = new Set();
         this.updateHelper(node);
         this.updatePixelBoard();
     }
@@ -78,33 +117,6 @@ class Squisher {
 
         this.stuff[node.id] = this.squish(node);
 
-        let i = Math.floor((node.pos.x * this.width / 100));
-        let j = Math.floor((node.pos.y * this.height / 100));
-
-        let prevNode = this.clickListeners[i * this.width + j];
-
-//        this.collisionsRecorded = new Set();
- 
-        if (!prevNode || prevNode.id !== node.id) {
-        
-            for (let i = Math.floor((node.pos.x/100) * this.width); i < this.width * ((node.pos.x/100) + (node.size.x/100)); i++) {
-                for (let j = Math.floor((node.pos.y/100) * this.height); j < this.height * ((node.pos.y/100) + (node.size.y/100)); j++) {
-                    const prevNode = this.clickListeners[i * this.width + j];
-                    if (prevNode && prevNode.id !== node.id && prevNode.handleClick) {
-                        //const collisionKey = prevNode.id + ' ' + node.id;
-                        //if (!this.collisionsRecorded.has(collisionKey)) {
-                        //    this.collisionsRecorded.add(collisionKey);
-                            this.game.handleCollision && this.game.handleCollision(prevNode, node);
-                        //}
-                    }
-                    this.clickListeners[i * this.width + j] = node;
-                }
-            }
-        //}
-        }
-
-  //      this.collisionsRecorded = new Set();
-
         for (let i = 0; i < node.children.length; i++) {
             this.updateHelper(node.children[i]);
         }
@@ -112,7 +124,6 @@ class Squisher {
 
     updatePixelBoard() {
         this.pixelBoard = Array.prototype.concat.apply([], Object.values(this.stuff));
-        this.notifyListeners();
     }
 
     notifyListeners() {
