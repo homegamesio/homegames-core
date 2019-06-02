@@ -35,17 +35,12 @@ const gameAssets = {};
 
 const imageCache = {};
 
-function req() {
-    socket.send(JSON.stringify({'type':'req'}));
-    window.requestAnimationFrame(req);
-}
-
-socket.onopen = () => {
-    window.requestAnimationFrame(req);
-};
-
-socket.onmessage = function(msg) {
-    const buf = new Uint8ClampedArray(msg.data);
+let renders = new Array();
+function renderBuf(buf) {
+    //renders.push(new Date());
+    if (renders.length % 100 == 0) {
+        //console.log(renders.length);
+    }
     let color, startX, startY, width, height;
     let i = 0;
     while (i < buf.length) {
@@ -158,97 +153,10 @@ socket.onmessage = function(msg) {
         }
     }
 
-};
 
-const click = function(x, y) {
-    const pixelWidth = canvas.width / originalWidth;
-    const pixelHeight = canvas.height / originalHeight;
-    const clickX = Math.floor(x / pixelWidth);
-    const clickY = Math.floor(y  / pixelHeight);
-    const payload = {type: 'click',  data: {x: clickX, y: clickY}};
-    socket.send(JSON.stringify(payload));
-};
-
-const keydown = function(key) {
-    const payload = {type: 'keydown',  key: key};
-    socket.send(JSON.stringify(payload));
-};
-
-const keyup = function(key) {
-    const payload = {type: 'keyup',  key: key};
-    socket.send(JSON.stringify(payload));
-};
-
-const unlock = () => {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        for (const key in gameAssets) {
-            if (gameAssets[key]['type'] === 'audio' && !gameAssets[key]['decoded']) {
-                audioCtx.decodeAudioData(gameAssets[key].data, (buffer) => {
-                    gameAssets[key].data = buffer;
-                    gameAssets[key].decoded = true;
-                });
-            }
-        }
-    }
 }
 
-document.addEventListener('touchstart', unlock, false);
-
-canvas.addEventListener('mousedown', function(e) {
-    mouseDown = true;
-    unlock();
-});
-
-canvas.addEventListener('mouseup', function(e) {
-    click(e.clientX, e.clientY);
-    mouseDown = false;
-});
-
-canvas.addEventListener('mousemove', function(e) {
-    if (mouseDown) {
-        click(e.clientX, e.clientY);
-    }
-});
-
-canvas.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    click(e.touches['0'].clientX, e.touches['0'].clientY);
-});
-
-canvas.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    click(e.touches['0'].clientX, e.touches['0'].clientY);
-});
-
-function keyMatters(event) {
-    // Key code values 36-40 are the arrow keys
-    return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta';
-}
-
-document.addEventListener('keydown', function(e) {
-    if (keyMatters(e) && !keysDown['Meta']) {
-        e.preventDefault();
-        keydown(e.key);
-        keysDown[e.key] = true;
-    }
-});
-
-document.addEventListener('keyup', function(e) {
-    if (keyMatters(e)) {
-        e.preventDefault();
-        keyup(e.key);
-        keysDown[e.key] = false;
-    }
-});
-
-let gamepad;
-let moving;
-
-setInterval(() => {
+function req() {
     gamepad=navigator.getGamepads()[0]; 
     moving = false;
     if (gamepad) {
@@ -454,5 +362,115 @@ setInterval(() => {
         }
 
     }
-}, 11);
+
+    renderBuf(currentBuf);
+
+    window.requestAnimationFrame(req);
+}
+
+socket.onopen = () => {
+    window.requestAnimationFrame(req);
+};
+
+let currentBuf;
+
+let receivedTimes = new Array();
+socket.onmessage = function(msg) {
+    receivedTimes.push(new Date());
+    if (receivedTimes.length % 100 == 0) {
+        console.log(receivedTimes.length);
+    }
+    currentBuf = new Uint8ClampedArray(msg.data);
+};
+
+const click = function(x, y) {
+    const pixelWidth = canvas.width / originalWidth;
+    const pixelHeight = canvas.height / originalHeight;
+    const clickX = Math.floor(x / pixelWidth);
+    const clickY = Math.floor(y  / pixelHeight);
+    const payload = {type: 'click',  data: {x: clickX, y: clickY}};
+    socket.send(JSON.stringify(payload));
+};
+
+const keydown = function(key) {
+    const payload = {type: 'keydown',  key: key};
+    socket.send(JSON.stringify(payload));
+};
+
+const keyup = function(key) {
+    const payload = {type: 'keyup',  key: key};
+    socket.send(JSON.stringify(payload));
+};
+
+const unlock = () => {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        for (const key in gameAssets) {
+            if (gameAssets[key]['type'] === 'audio' && !gameAssets[key]['decoded']) {
+                audioCtx.decodeAudioData(gameAssets[key].data, (buffer) => {
+                    gameAssets[key].data = buffer;
+                    gameAssets[key].decoded = true;
+                });
+            }
+        }
+    }
+}
+
+document.addEventListener('touchstart', unlock, false);
+
+canvas.addEventListener('mousedown', function(e) {
+    mouseDown = true;
+    unlock();
+});
+
+canvas.addEventListener('mouseup', function(e) {
+    click(e.clientX, e.clientY);
+    mouseDown = false;
+});
+
+canvas.addEventListener('mousemove', function(e) {
+    if (mouseDown) {
+        click(e.clientX, e.clientY);
+    }
+});
+
+canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    click(e.touches['0'].clientX, e.touches['0'].clientY);
+});
+
+canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    click(e.touches['0'].clientX, e.touches['0'].clientY);
+});
+
+function keyMatters(event) {
+    // Key code values 36-40 are the arrow keys
+    return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (keyMatters(e) && !keysDown['Meta']) {
+        e.preventDefault();
+        keydown(e.key);
+        keysDown[e.key] = true;
+    }
+});
+
+document.addEventListener('keyup', function(e) {
+    if (keyMatters(e)) {
+        e.preventDefault();
+        keyup(e.key);
+        keysDown[e.key] = false;
+    }
+});
+
+let gamepad;
+let moving;
+
+//setInterval(() => {
+//}, 11);
 

@@ -65,16 +65,40 @@ class Squisher {
         this.collisionsRecorded = new Set();
         this.update(node);
         this.checkCollisions(node);
+        this.notifyListeners();
     }
 
     checkCollisions(node, notify = true) {
-        //console.log("Checking");
-        //console.log(node);
         let collidingNodes = this.collisionHelper(this.root, node);
         if (notify && collidingNodes.length > 0) {
             this.game.handleCollision && this.game.handleCollision([node, ...collidingNodes]);
         }
         return collidingNodes;
+    }
+
+    findClick(x, y) {
+        return this.findClickHelper(x, y, this.root);
+    }
+
+    findClickHelper(x, y, node, clicked = null) {
+        if (node.handleClick) {
+            let beginX = node.pos.x * this.width * .01;
+            let endX = (node.pos.x + node.size.x) * this.width * .01;
+            let beginY = node.pos.y * this.height * .01;
+            let endY = (node.pos.y + node.size.y) * this.height * .01;
+            let x1 = x * this.width;
+            let y1 = y * this.height;
+            let isClicked = (x1 >= beginX && x1 <= endX) && (y1 >= beginY && y1 <= endY);
+            if (isClicked) {
+                clicked = node;
+            }
+        }
+
+        for (let i in node.children) {
+            return this.findClickHelper(x, y, node.children[i], clicked);
+        }
+
+        return clicked;
     }
 
     collisionHelper(node, nodeToCheck, collisions = []) {
@@ -150,9 +174,11 @@ class Squisher {
         if (translatedX >= 1 || translatedY >= 1) {
             return;
         }
-        const node = this.clickListeners[click.x * this.width + click.y];
-        if (node) {
-            node.handleClick && node.handleClick(player, translatedX, translatedY);
+        //const node = this.clickListeners[click.x * this.width + click.y];
+        const clickedNode = this.findClick(translatedX, translatedY);
+
+        if (clickedNode) {
+            clickedNode.handleClick && clickedNode.handleClick(player, translatedX, translatedY);
         }
     }
     

@@ -38,9 +38,9 @@ class GameSession {
         //if (this.frameTimes.length % 100 == 0) { 
         //    console.log(this.frameTimes.length);
         //}
-        //for (let player of this.players) {
-        //    player.receiveUpdate(update);
-        //}
+        for (let player of this.players) {
+            player.receiveUpdate(update);
+        }
     }
 }
 

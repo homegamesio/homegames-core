@@ -14,12 +14,12 @@ class MoveTest {
 
         this.mover1 = gameNode(randomColor(), function() {
             console.log("CLICKED 1");
-        }, {"x": 45, "y": 43.5}, {"x": 10, "y": 10});
+        }, {"x": 45, "y": 43.5}, {"x": 10, "y": 17});
 
         
         this.mover2 = gameNode(randomColor(), function() {
             console.log("CLICKED 2");
-        }, {"x": 20, "y": 23.5}, {"x": 10, "y": 10});
+        }, {"x": 20, "y": 23.5}, {"x": 10, "y": 17});
 
         this.base.addChild(this.mover1);
         this.base.addChild(this.mover2);
@@ -34,8 +34,8 @@ class MoveTest {
     }
 
     handleCollision(collidingNodes) {
-        console.log("COLLIDING NODES");
-        console.log(collidingNodes);
+        //console.log("COLLIDING NODES");
+        //console.log(collidingNodes);
     }
 
     handleKeyUp(player, key) {
@@ -79,7 +79,7 @@ class MoveTest {
         } 
 
         let wouldBeCollisions = this.squisher.checkCollisions({'id': player.id, 'pos': {'x': newX, 'y': newY}, 'size': player.size}, false);
-        console.log(wouldBeCollisions);
+        //console.log(wouldBeCollisions);
 
         if (wouldBeCollisions.length == 0) {
             player.pos = {'x': newX, 'y': newY};
