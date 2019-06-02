@@ -55,7 +55,6 @@ class Squisher {
             }
         }
 
-        this.clickListeners = new Array(this.width * this.height);
         this.update(this.root);
         // acts as a heartbeat
         setInterval(this.notifyListeners.bind(this), 100);
@@ -174,7 +173,6 @@ class Squisher {
         if (translatedX >= 1 || translatedY >= 1) {
             return;
         }
-        //const node = this.clickListeners[click.x * this.width + click.y];
         const clickedNode = this.findClick(translatedX, translatedY);
 
         if (clickedNode) {
