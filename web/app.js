@@ -37,10 +37,6 @@ const imageCache = {};
 
 let renders = new Array();
 function renderBuf(buf) {
-    //renders.push(new Date());
-    if (renders.length % 100 == 0) {
-        //console.log(renders.length);
-    }
     let color, startX, startY, width, height;
     let i = 0;
     while (i < buf.length) {
@@ -318,6 +314,13 @@ function req() {
             }
         } 
 
+    } else {
+        for (let key in keysDown) {
+            if (keysDown[key]) {
+                keydown(key);
+                moving = true;
+            }
+        }
     }
         
     if (!moving) {
@@ -376,10 +379,6 @@ let currentBuf;
 
 let receivedTimes = new Array();
 socket.onmessage = function(msg) {
-    receivedTimes.push(new Date());
-    if (receivedTimes.length % 100 == 0) {
-        console.log(receivedTimes.length);
-    }
     currentBuf = new Uint8ClampedArray(msg.data);
 };
 
@@ -470,7 +469,4 @@ document.addEventListener('keyup', function(e) {
 
 let gamepad;
 let moving;
-
-//setInterval(() => {
-//}, 11);
 
