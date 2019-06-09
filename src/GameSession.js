@@ -1,13 +1,25 @@
 const Squisher = require("./Squisher");
+const WebSocket = require("ws");
+const http = require('http');
+const Player = require("./Player");
 
 class GameSession {
-    constructor(game, res) {
+    constructor(game, port) {
         this.game = game;
-        this.squisher = new Squisher(res.width, res.height, game);
+        this.port = port;
+        this.squisher = new Squisher(game);
         this.game.squisher = this.squisher;
         this.squisher.addListener(this);
         this.players = new Set();
-        this.frameTimes = new Array();
+        const server = http.createServer();
+        this.wss = new WebSocket.Server({
+            server
+        });
+        this.wss.on('connection', (ws) => {
+            const player = new Player(ws);
+            this.addPlayer(player);
+        });
+        server.listen(port);
     }
 
     async addPlayer(player) {
@@ -34,10 +46,6 @@ class GameSession {
     }
 
     handleUpdate(update) {
-        //this.frameTimes.push(new Date()); 
-        //if (this.frameTimes.length % 100 == 0) { 
-        //    console.log(this.frameTimes.length);
-        //}
         for (let player of this.players) {
             player.receiveUpdate(update);
         }

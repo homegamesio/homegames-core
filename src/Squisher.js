@@ -1,9 +1,10 @@
 const ASSET_TYPE = 1;
 
 class Squisher {
-    constructor(width, height, game) {
-        this.width = width;
-        this.height = height;
+    constructor(game) {
+        let gameResolution = game.getResolution();
+        this.width = gameResolution.x;
+        this.height = gameResolution.y;
         this.game = game;
         this.root = game.getRoot();
         this.listeners = new Set();
@@ -90,6 +91,10 @@ class Squisher {
             let isClicked = (x1 >= beginX && x1 <= endX) && (y1 >= beginY && y1 <= endY);
             if (isClicked) {
                 clicked = node;
+            } else {
+                console.log('not clicked');
+                console.log(beginX);
+                console.log(x1);
             }
         }
 
@@ -210,6 +215,8 @@ class Squisher {
             squished[squishedIndex++] = entity.text && entity.text.x;
             squished[squishedIndex++] = entity.text && entity.text.y;
 
+            console.log("TEXT");
+            console.log(entity.text);
             let textIndex = 0;
             while (textIndex < 32) {
                 if (textIndex < entity.text.text.length) {

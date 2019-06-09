@@ -1,28 +1,33 @@
-const gameNode = require("../GameNode");
 const { randomColor } = require("../Colors");
+const homegames = require('../homegames');
 
 class MoveTest {
     constructor() {
-        this.base = gameNode(randomColor(), null, 
+        this.homegames = homegames();
+        this.base = this.homegames.node(randomColor(), null, 
             {"x": 0, "y": 0}, {"x": 100, "y": 100});
 
-        this.keysDown = {};
+        //this.keysDown = {};
 
-        const setActiveMover = function(mover) {
-            this.activeMover = mover;
-        }.bind(this);
+        //const setActiveMover = function(mover) {
+        //    this.activeMover = mover;
+        //}.bind(this);
 
-        this.mover1 = gameNode(randomColor(), function() {
-        }, {"x": 45, "y": 43.5}, {"x": 10, "y": 17});
+        //this.mover1 = gameNode(randomColor(), function() {
+        //}, {"x": 45, "y": 43.5}, {"x": 10, "y": 17});
 
         
-        this.mover2 = gameNode(randomColor(), function() {
-        }, {"x": 20, "y": 23.5}, {"x": 10, "y": 17});
+        //this.mover2 = gameNode(randomColor(), function() {
+        //}, {"x": 20, "y": 23.5}, {"x": 10, "y": 17});
 
-        this.base.addChild(this.mover1);
-        this.base.addChild(this.mover2);
-        this.activeMover = null;
-        this.collisions = {};
+        //this.base.addChild(this.mover1);
+        //this.base.addChild(this.mover2);
+        //this.activeMover = null;
+        //this.collisions = {};
+    }
+
+    getResolution() {
+        return {'x': 320, 'y': 180};
     }
 
     moveGuy(player, x, y) {
@@ -35,7 +40,7 @@ class MoveTest {
         this.keysDown[key] = true;
     }
 
-    movePlayer(player, dir, dist = .1) {
+    movePlayer(player, dir, dist = .15) {
         let newY = player.pos.y;
         let newX = player.pos.x;
 
@@ -71,7 +76,7 @@ class MoveTest {
             }
         } 
 
-        let wouldBeCollisions = this.squisher.checkCollisions({'id': player.id, 'pos': {'x': newX, 'y': newY}, 'size': player.size}, false);
+        let wouldBeCollisions = this.homegames.checkCollisions({'id': player.id, 'pos': {'x': newX, 'y': newY}, 'size': player.size}, false);
 
         if (wouldBeCollisions.length == 0) {
             player.pos = {'x': newX, 'y': newY};

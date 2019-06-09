@@ -7,9 +7,10 @@ socket.binaryType = 'arraybuffer';
 let socketIsReady = false;
 let audioAllowed = false;
 
-socket.onopen = function(e) {
+socket.addEventListener('open', (e) => {
     socketIsReady = true;
-};
+    console.log("nice");
+});
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext('2d');
@@ -17,14 +18,14 @@ const ctx = canvas.getContext('2d');
 let windowWidth = window.innerWidth;
 let windowHeight = window.innerHeight;
 
-const originalWidth = 320;
-const originalHeight = 180;
-const scaleFactor = Math.floor(windowWidth / originalWidth);
-const horizontalScale = originalWidth * scaleFactor;
-const verticalScale = originalHeight * scaleFactor;
+let originalWidth;//= 320;
+let originalHeight;// = 180;
+let scaleFactor;//= Math.floor(windowWidth / originalWidth);
+let horizontalScale;// = originalWidth * scaleFactor;
+let verticalScale;// = originalHeight * scaleFactor;
 
-canvas.height = verticalScale;
-canvas.width = horizontalScale;
+//canvas.height = verticalScale;
+//canvas.width = horizontalScale;
 
 let mouseDown = false;
 const keysDown = {};
@@ -35,7 +36,6 @@ const gameAssets = {};
 
 const imageCache = {};
 
-let renders = new Array();
 function renderBuf(buf) {
     let color, startX, startY, width, height;
     let i = 0;
@@ -88,7 +88,7 @@ function renderBuf(buf) {
             ctx.fillRect(startX, startY, width, height);
             
             // has text
-            if (frameSize > start + 12) {
+            if (frameSize > 14) {
                 const textX = (buf[start + 12] / 100) * horizontalScale;
                 const textY = (buf[start + 13] / 100) * verticalScale;
                 const textArray = buf.slice(start + 14, start + 14 + 32);
@@ -104,6 +104,7 @@ function renderBuf(buf) {
                 }
             }
 
+            // references asset
             if (frameSize > 2 + 46) { 
                 const assetPosX = buf[start + 46];
                 const assetPosY = buf[start + 47];
@@ -366,20 +367,43 @@ function req() {
 
     }
 
-    renderBuf(currentBuf);
+    currentBuf && renderBuf(currentBuf);
 
     window.requestAnimationFrame(req);
 }
 
 socket.onopen = () => {
-    window.requestAnimationFrame(req);
 };
 
 let currentBuf;
 
 let receivedTimes = new Array();
+let initted;
 socket.onmessage = function(msg) {
     currentBuf = new Uint8ClampedArray(msg.data);
+    // init msg
+    if (currentBuf[0] == 7) {
+        console.log("COOL");
+        console.log(currentBuf);
+        originalWidth = currentBuf[1] * currentBuf[2];
+        originalHeight = currentBuf[3] * currentBuf[4];
+        scaleFactor = Math.floor(windowWidth / originalWidth);
+        horizontalScale = originalWidth * scaleFactor;
+        verticalScale = originalHeight * scaleFactor;
+
+        console.log("WHAT");
+        console.log(originalWidth);
+        console.log(originalHeight);
+        console.log(scaleFactor);
+        console.log(horizontalScale);
+        console.log(verticalScale);
+        canvas.height = verticalScale;
+        canvas.width = horizontalScale;
+    } else if(!initted) {
+        window.requestAnimationFrame(req);
+        initted = true;
+    }
+
 };
 
 const click = function(x, y) {
