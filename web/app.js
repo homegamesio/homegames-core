@@ -39,6 +39,7 @@ let renders = new Array();
 function renderBuf(buf) {
     let color, startX, startY, width, height;
     let i = 0;
+    console.log(buf);
     while (i < buf.length) {
         const frameType = buf[i];
 

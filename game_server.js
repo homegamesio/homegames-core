@@ -17,10 +17,10 @@ const server = http.createServer();
 linkHelper();
 
 let toExecute;
-//toExecute = new SplashScreen();
+toExecute = new SplashScreen();
 //toExecute = new Draw();
 //toExecute = new LayerTest();
-toExecute = new MoveTest();
+//toExecute = new MoveTest();
 //toExecute = new AllTest();
 //toExecute = new TextTest();
 //toExecute = new Demo();

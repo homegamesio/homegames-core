@@ -22,7 +22,7 @@ class Squisher {
     async initialize() {
         const gameAssets = this.game.getAssets ? this.game.getAssets() : [];
         
-        this.stuff = {};
+        this.squishedNodes = {};
         this.ids = new Set();
 
         let assetBundleSize = 0;
@@ -56,12 +56,12 @@ class Squisher {
         }
 
         this.update(this.root);
-        // acts as a heartbeat
-        setInterval(this.notifyListeners.bind(this), 100);
+
+        const heartbeat = this.notifyListeners.bind(this);
+        setInterval(heartbeat, 100);
     }
 
     handleStateChange(node) {
-        this.collisionsRecorded = new Set();
         this.update(node);
         this.checkCollisions(node);
         this.notifyListeners();
@@ -138,7 +138,7 @@ class Squisher {
             node.addListener(this);
         }
 
-        this.stuff[node.id] = this.squish(node);
+        this.squishedNodes[node.id] = this.squish(node);
 
         for (let i = 0; i < node.children.length; i++) {
             this.updateHelper(node.children[i]);
@@ -146,7 +146,7 @@ class Squisher {
     }
 
     updatePixelBoard() {
-        this.pixelBoard = Array.prototype.concat.apply([], Object.values(this.stuff));
+        this.pixelBoard = Array.prototype.concat.apply([], Object.values(this.squishedNodes));
     }
 
     notifyListeners() {
