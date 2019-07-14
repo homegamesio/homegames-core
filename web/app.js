@@ -37,9 +37,9 @@ const imageCache = {};
 
 let renders = new Array();
 function renderBuf(buf) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     let color, startX, startY, width, height;
     let i = 0;
-    console.log(buf);
     while (i < buf.length) {
         const frameType = buf[i];
 
@@ -89,7 +89,7 @@ function renderBuf(buf) {
             ctx.fillRect(startX, startY, width, height);
             
             // has text
-            if (frameSize > start + 12) {
+            if (frameSize > 12) {
                 const textX = (buf[start + 12] / 100) * horizontalScale;
                 const textY = (buf[start + 13] / 100) * verticalScale;
                 const textArray = buf.slice(start + 14, start + 14 + 32);
@@ -100,7 +100,7 @@ function renderBuf(buf) {
                     ctx.fillStyle = "black";
                     ctx.font = '48px sans-serif';
                     ctx.textAlign = "center";
-
+                    ctx.textBaseline = "top";
                     ctx.fillText(text, textX, textY);
                 }
             }

@@ -59,6 +59,7 @@ class Squisher {
 
         const heartbeat = this.notifyListeners.bind(this);
         setInterval(heartbeat, 100);
+        setInterval(this.game.tick.bind(this.game), 16.6);
     }
 
     handleStateChange(node) {
@@ -127,7 +128,10 @@ class Squisher {
     }
 
     update(node) {
-        this.updateHelper(node);
+        // todo: fix this
+        this.squishedNodes = {};
+        this.ids = new Set();
+        this.updateHelper(this.root);
         this.updatePixelBoard();
     }
 

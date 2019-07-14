@@ -7,6 +7,7 @@ const TextTest = require("./src/games/text-test");
 const GameSession = require("./src/GameSession");
 const Player = require("./src/Player");
 const SplashScreen = require("./src/splash-screen/splash-screen");
+const Slaps = require('./src/games/slaps');
 const http = require("http");
 const linkHelper = require("./src/util/link-helper");
 
@@ -17,7 +18,8 @@ const server = http.createServer();
 linkHelper();
 
 let toExecute;
-toExecute = new SplashScreen();
+toExecute = new Slaps();
+//toExecute = new SplashScreen();
 //toExecute = new Draw();
 //toExecute = new LayerTest();
 //toExecute = new MoveTest();
