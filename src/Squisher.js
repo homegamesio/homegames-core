@@ -81,6 +81,7 @@ class Squisher {
     }
 
     findClickHelper(x, y, node, clicked = null) {
+
         if (node.handleClick) {
             let beginX = node.pos.x * this.width * .01;
             let endX = (node.pos.x + node.size.x) * this.width * .01;
@@ -95,7 +96,7 @@ class Squisher {
         }
 
         for (let i in node.children) {
-            return this.findClickHelper(x, y, node.children[i], clicked);
+            clicked = this.findClickHelper(x, y, node.children[i], clicked);
         }
 
         return clicked;
