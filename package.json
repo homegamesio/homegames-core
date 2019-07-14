@@ -25,7 +25,8 @@
   "homepage": "https://github.com/prosif/homegames#readme",
   "dependencies": {
     "request": "^2.88.0",
-    "ws": "^5.2.1"
+    "ws": "^5.2.1",
+    "lodash": ">=4.17.13"
   },
   "devDependencies": {
     "eslint": "^5.16.0"

@@ -20,17 +20,10 @@ const getLocalIP = () => {
 const linkConnect = () => {
     const client = new WebSocket("ws://www.homegames.link:7080");
     
-    const heartbeat = () => {
-        console.log("heartbeat");
-    };
-    
     client.on("open", () => {
         const localIP = getLocalIP();
         client.send(localIP);
-        heartbeat();
     });
-    
-    client.on("ping", heartbeat);
     
     client.on("error", (e) => {
         console.error(e);

@@ -6,9 +6,9 @@ class Squisher {
         this.height = height;
         this.game = game;
         this.root = game.getRoot();
-        this.root.addListener(this);
         this.listeners = new Set();
         this.assets = {};
+        this.initialize();
     }
 
     addListener(listener) {
@@ -22,6 +22,9 @@ class Squisher {
     async initialize() {
         const gameAssets = this.game.getAssets ? this.game.getAssets() : [];
         
+        this.squishedNodes = {};
+        this.ids = new Set();
+
         let assetBundleSize = 0;
 
         for (const key in gameAssets) {
@@ -52,23 +55,83 @@ class Squisher {
             }
         }
 
-        this.ids = new Set();
-        this.entities = new Array();
-        this.clickListeners = new Array(this.width * this.height);
         this.update(this.root);
+
+        const heartbeat = this.notifyListeners.bind(this);
+        setInterval(heartbeat, 100);
+        setInterval(this.game.tick.bind(this.game), 16.6);
     }
 
     handleStateChange(node) {
         this.update(node);
+        this.checkCollisions(node);
+        this.notifyListeners();
+    }
+
+    checkCollisions(node, notify = true) {
+        let collidingNodes = this.collisionHelper(this.root, node);
+        if (notify && collidingNodes.length > 0) {
+            this.game.handleCollision && this.game.handleCollision([node, ...collidingNodes]);
+        }
+        return collidingNodes;
+    }
+
+    findClick(x, y) {
+        return this.findClickHelper(x, y, this.root);
+    }
+
+    findClickHelper(x, y, node, clicked = null) {
+        if (node.handleClick) {
+            let beginX = node.pos.x * this.width * .01;
+            let endX = (node.pos.x + node.size.x) * this.width * .01;
+            let beginY = node.pos.y * this.height * .01;
+            let endY = (node.pos.y + node.size.y) * this.height * .01;
+            let x1 = x * this.width;
+            let y1 = y * this.height;
+            let isClicked = (x1 >= beginX && x1 <= endX) && (y1 >= beginY && y1 <= endY);
+            if (isClicked) {
+                clicked = node;
+            }
+        }
+
+        for (let i in node.children) {
+            return this.findClickHelper(x, y, node.children[i], clicked);
+        }
+
+        return clicked;
+    }
+
+    collisionHelper(node, nodeToCheck, collisions = []) {
+        if (node.handleClick && node.id !== nodeToCheck.id) {
+            let node1LeftX = this.width * .01 * (node.pos.x);
+            let node1RightX = this.width * .01 * (node.pos.x + node.size.x);
+            let node2LeftX = this.width * .01 * (nodeToCheck.pos.x);
+            let node2RightX = this.width * .01 * (nodeToCheck.pos.x + nodeToCheck.size.x);
+
+            let node1TopY = this.height * .01 * (node.pos.y);
+            let node1BottomY = this.height * .01 * (node.pos.y + node.size.y);
+            let node2TopY = this.height * .01 * (nodeToCheck.pos.y);
+            let node2BottomY = this.height * .01 * (nodeToCheck.pos.y + nodeToCheck.size.y);
+
+            let oneToTheLeft = node2RightX < node1LeftX || node1RightX < node2LeftX;
+            let oneBelow = node1TopY > node2BottomY || node2TopY > node1BottomY;
+            if (!(oneToTheLeft || oneBelow)) {
+                collisions.push(node);
+            }
+        }
+
+        for (let child in node.children) {
+            this.collisionHelper(node.children[child], nodeToCheck, collisions);
+        }
+
+        return collisions;
     }
 
     update(node) {
-        // todo: make this respectable
-        this.collisionsRecorded = new Set();
-        this.entities = new Array();
+        // todo: fix this
+        this.squishedNodes = {};
         this.ids = new Set();
-        this.clickListeners.length = 0;
-        this.updateHelper(this.root);//node);
+        this.updateHelper(this.root);
         this.updatePixelBoard();
     }
 
@@ -77,22 +140,9 @@ class Squisher {
         if (!this.ids.has(node.id)) {
             this.ids.add(node.id);
             node.addListener(this);
-            this.entities.push(node);
         }
-        
-        for (let i = Math.floor((node.pos.x/100) * this.width); i < this.width * ((node.pos.x/100) + (node.size.x/100)); i++) {
-            for (let j = Math.floor((node.pos.y/100) * this.height); j < this.height * ((node.pos.y/100) + (node.size.y/100)); j++) {
-                const prevNode = this.clickListeners[i * this.width + j];
-                if (prevNode && prevNode.handleClick) {
-                    const collisionKey = prevNode.id + ' ' + node.id;
-                    if (!this.collisionsRecorded.has(collisionKey)) {
-                        this.collisionsRecorded.add(collisionKey);
-                        this.game.handleCollision && this.game.handleCollision(prevNode, node);
-                    }
-                }
-                this.clickListeners[i * this.width + j] = node;
-            }
-        }
+
+        this.squishedNodes[node.id] = this.squish(node);
 
         for (let i = 0; i < node.children.length; i++) {
             this.updateHelper(node.children[i]);
@@ -100,14 +150,7 @@ class Squisher {
     }
 
     updatePixelBoard() {
-        const temp = new Array(this.entities.length);
-        for (let i = 0; i < this.entities.length; i++) {
-            temp[i] = this.squish(this.entities[i]);
-        }
-
-        this.pixelBoard = Array.prototype.concat.apply([], temp);
-
-        this.notifyListeners();
+        this.pixelBoard = Array.prototype.concat.apply([], Object.values(this.squishedNodes));
     }
 
     notifyListeners() {
@@ -134,16 +177,17 @@ class Squisher {
         if (translatedX >= 1 || translatedY >= 1) {
             return;
         }
-        const entity = this.clickListeners[click.x * this.width + click.y];
-        if (entity) {
-            entity.handleClick && entity.handleClick(player, translatedX, translatedY);
+        const clickedNode = this.findClick(translatedX, translatedY);
+
+        if (clickedNode) {
+            clickedNode.handleClick && clickedNode.handleClick(player, translatedX, translatedY);
         }
     }
     
     squish(entity) {
         // Type (1) + Size (1) + color (4) + pos (4) + size (4) + text position (2) + text (32) + assets (37 * assetCount)
         // TODO: store type in array to stop sending unnecessary data 
-        let squishedSize = 1 + 1 + 4 + 4 + 4 + 2 + 32 + (37 * Object.keys(entity.assets ? entity.assets : {}).length);
+        let squishedSize = 1 + 1 + 4 + 4 + 4 + (entity.text ? 2 + 32 : 0) + (entity.assets ? 37 * Object.keys(entity.assets).length : 0);
 
         const squished = new Array(squishedSize);
         let squishedIndex = 0;
@@ -166,17 +210,19 @@ class Squisher {
         squished[squishedIndex++] = Math.floor(entity.size.y);
         squished[squishedIndex++] = Math.floor(100 * (entity.size.y - Math.floor(entity.size.y)));
 
-        squished[squishedIndex++] = entity.text && entity.text.x;
-        squished[squishedIndex++] = entity.text && entity.text.y;
+        if (entity.text) {
+            squished[squishedIndex++] = entity.text && entity.text.x;
+            squished[squishedIndex++] = entity.text && entity.text.y;
 
-        let textIndex = 0;
-        while (textIndex < 32) {
-            if (entity.text && textIndex < entity.text.text.length) {
-                squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex);
-            } else {
-                squished[squishedIndex++] = null;
+            let textIndex = 0;
+            while (textIndex < 32) {
+                if (textIndex < entity.text.text.length) {
+                    squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex);
+                } else {
+                    squished[squishedIndex++] = null;
+                }
+                textIndex++;
             }
-            textIndex++;
         }
 
         if (entity.assets) {
@@ -203,11 +249,7 @@ class Squisher {
         return this.pixelBoard;
     }
 
-    async getAssets() {
-        if (this.assets && !this.assetBundle) {
-            return this.initialize().then(() => this.assetBundle);
-        }
-
+    getAssets() {
         return this.assetBundle;
     }
 }

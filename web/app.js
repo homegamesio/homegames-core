@@ -35,8 +35,9 @@ const gameAssets = {};
 
 const imageCache = {};
 
-socket.onmessage = function(msg) {
-    const buf = new Uint8ClampedArray(msg.data);
+let renders = new Array();
+function renderBuf(buf) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     let color, startX, startY, width, height;
     let i = 0;
     while (i < buf.length) {
@@ -86,19 +87,22 @@ socket.onmessage = function(msg) {
             height = ((buf[start + 10] / 100) + (buf[start + 11] / 10000)) * verticalScale;
             ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
             ctx.fillRect(startX, startY, width, height);
-
-            const textX = (buf[start + 12] / 100) * horizontalScale;
-            const textY = (buf[start + 13] / 100) * verticalScale;
-            const textArray = buf.slice(start + 14, start + 14 + 32);
-            const textStripped = textArray.filter(x => x);
-            const text = String.fromCharCode.apply(null, textStripped);
-            if (text) {
-                // todo: encode this in the payload
-                ctx.fillStyle = "black";
-                ctx.font = '48px sans-serif';
-                ctx.textAlign = "center";
-
-                ctx.fillText(text, textX, textY);
+            
+            // has text
+            if (frameSize > 12) {
+                const textX = (buf[start + 12] / 100) * horizontalScale;
+                const textY = (buf[start + 13] / 100) * verticalScale;
+                const textArray = buf.slice(start + 14, start + 14 + 32);
+                const textStripped = textArray.filter(x => x);
+                const text = String.fromCharCode.apply(null, textStripped);
+                if (text) {
+                    // todo: encode this in the payload
+                    ctx.fillStyle = "black";
+                    ctx.font = '48px sans-serif';
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "top";
+                    ctx.fillText(text, textX, textY);
+                }
             }
 
             if (frameSize > 2 + 46) { 
@@ -146,6 +150,237 @@ socket.onmessage = function(msg) {
         }
     }
 
+
+}
+
+function req() {
+    gamepad=navigator.getGamepads()[0]; 
+    moving = false;
+    if (gamepad) {
+        // left stick x
+        if (gamepad.axes[2] > 0.2) {
+            moving = true;
+            keydown("ArrowRight");
+            keysDown['ArrowRight'] = true;
+
+            if (keysDown['ArrowLeft']) {
+                keyup('ArrowLeft');
+                keysDown['ArrowLeft'] = false;
+            }
+
+            if (keysDown['ArrowUp']) {
+                keyup('ArrowUp');
+                keysDown['ArrowUp'] = false;
+            }
+
+            if (keysDown['ArrowDown']) {
+                keyup('ArrowDown');
+                keysDown['ArrowDown'] = false;
+            }
+        } if (gamepad.axes[2] < -0.2) {
+            moving = true;
+            keydown("ArrowLeft");
+            keysDown['ArrowLeft'] = true;
+
+            if (keysDown['ArrowRight']) {
+                keyup('ArrowRight');
+                keysDown['ArrowRight'] = false;
+            }
+
+            if (keysDown['ArrowUp']) {
+                keyup('ArrowUp');
+                keysDown['ArrowUp'] = false;
+            }
+
+            if (keysDown['ArrowDown']) {
+                keyup('ArrowDown');
+                keysDown['ArrowDown'] = false;
+            }
+        } if (gamepad.axes[3] > 0.2) {
+            moving = true;
+            keydown("ArrowDown");
+            keysDown['ArrowDown'] = true;
+
+            if (keysDown['ArrowLeft']) {
+                keyup('ArrowLeft');
+                keysDown['ArrowLeft'] = false;
+            }
+
+            if (keysDown['ArrowRight']) {
+                keyup('ArrowRight');
+                keysDown['ArrowRight'] = false;
+            }
+
+            if (keysDown['ArrowUp']) {
+                keyup('ArrowUp');
+                keysDown['ArrowUp'] = false;
+            }
+        } if (gamepad.axes[3] < -0.2) {
+            moving = true;
+            keydown("ArrowUp");
+            keysDown['ArrowUp'] = true;
+
+            if (keysDown['ArrowLeft']) {
+                keyup('ArrowLeft');
+                keysDown['ArrowLeft'] = false;
+            }
+
+            if (keysDown['ArrowDown']) {
+                keyup('ArrowDown');
+                keysDown['ArrowDown'] = false;
+            }
+
+            if (keysDown['ArrowRight']) {
+                keyup('ArrowRight');
+                keysDown['ArrowRight'] = false;
+            }
+        } 
+
+        // right stick x
+        if (gamepad.axes[0] > 0.2) {
+            moving = true;
+            keydown("d");
+            keysDown['d'] = true;
+
+            if (keysDown['a']) {
+                keyup('a');
+                keysDown['a'] = false;
+            }
+
+            if (keysDown['w']) {
+                keyup('w');
+                keysDown['w'] = false;
+            }
+
+            if (keysDown['s']) {
+                keyup('s');
+                keysDown['s'] = false;
+            }
+        } if (gamepad.axes[0] < -0.2) {
+            moving = true;
+            keydown("a");
+            keysDown['a'] = true;
+
+            if (keysDown['d']) {
+                keyup('d');
+                keysDown['d'] = false;
+            }
+
+            if (keysDown['w']) {
+                keyup('w');
+                keysDown['w'] = false;
+            }
+
+            if (keysDown['s']) {
+                keyup('s');
+                keysDown['s'] = false;
+            }
+        } if (gamepad.axes[1] > 0.2) {
+            moving = true;
+            keydown("s");
+            keysDown['s'] = true;
+
+            if (keysDown['a']) {
+                keyup('a');
+                keysDown['a'] = false;
+            }
+
+            if (keysDown['d']) {
+                keyup('d');
+                keysDown['d'] = false;
+            }
+
+            if (keysDown['w']) {
+                keyup('w');
+                keysDown['w'] = false;
+            }
+        } if (gamepad.axes[1] < -0.2) {
+            moving = true;
+            keydown("w");
+            keysDown['w'] = true;
+
+            if (keysDown['a']) {
+                keyup('a');
+                keysDown['a'] = false;
+            }
+
+            if (keysDown['s']) {
+                keyup('s');
+                keysDown['s'] = false;
+            }
+
+            if (keysDown['d']) {
+                keyup('d');
+                keysDown['d'] = false;
+            }
+        } 
+
+    } else {
+        for (let key in keysDown) {
+            if (keysDown[key]) {
+                keydown(key);
+                moving = true;
+            }
+        }
+    }
+        
+    if (!moving) {
+        if (keysDown['ArrowLeft']) {
+            keyup('ArrowLeft');
+            keysDown['ArrowLeft'] = false;
+        }
+
+        if (keysDown['ArrowUp']) {
+            keyup('ArrowUp');
+            keysDown['ArrowUp'] = false;
+        }
+
+        if (keysDown['ArrowDown']) {
+            keyup('ArrowDown');
+            keysDown['ArrowDown'] = false;
+        }
+
+        if (keysDown['ArrowRight']) {
+            keyup('ArrowRight');
+            keysDown['ArrowRight'] = false;
+        }
+
+        if (keysDown['w']) {
+            keyup('w');
+            keysDown['w'] = false;
+        }
+
+        if (keysDown['a']) {
+            keyup('a');
+            keysDown['a'] = false;
+        }
+
+        if (keysDown['s']) {
+            keyup('s');
+            keysDown['s'] = false;
+        }
+
+        if (keysDown['d']) {
+            keyup('d');
+            keysDown['d'] = false;
+        }
+
+    }
+
+    renderBuf(currentBuf);
+
+    window.requestAnimationFrame(req);
+}
+
+socket.onopen = () => {
+    window.requestAnimationFrame(req);
+};
+
+let currentBuf;
+
+let receivedTimes = new Array();
+socket.onmessage = function(msg) {
+    currentBuf = new Uint8ClampedArray(msg.data);
 };
 
 const click = function(x, y) {
@@ -214,11 +449,11 @@ canvas.addEventListener('touchmove', function(e) {
 
 function keyMatters(event) {
     // Key code values 36-40 are the arrow keys
-    return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40;
+    return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta';
 }
 
 document.addEventListener('keydown', function(e) {
-    if (keyMatters(e)) {
+    if (keyMatters(e) && !keysDown['Meta']) {
         e.preventDefault();
         keydown(e.key);
         keysDown[e.key] = true;
@@ -232,4 +467,7 @@ document.addEventListener('keyup', function(e) {
         keysDown[e.key] = false;
     }
 });
+
+let gamepad;
+let moving;
 
