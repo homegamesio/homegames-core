@@ -28,6 +28,7 @@ class Slaps {
             this.base.addChild(messageNode);
         } else if (!this.canStartNewGame && this.playerCount >= 2) {
             this.canStartNewGame = true;
+
             this.base.clearChildren();
             const newGameNode = gameNode(colors.GREEN, this.newGame.bind(this), {x: 37.5, y: 37.5}, {x: 25, y: 25}, {text: 'New Game', x: 50, y: 47.5});
             this.base.addChild(newGameNode);
@@ -46,6 +47,15 @@ class Slaps {
             this.base.addChild(cardNode);
             index += 1;
         }
+
+        if (this.canStartNewGame) {
+            const newGameNode = gameNode(colors.GREEN, function() {
+                this.base.clearChildren();
+                setTimeout(this.newGame.bind(this), 500);
+            }.bind(this), {x: 80, y: 5}, {x: 15, y: 15}, {text: 'New Game', x: 88, y: 10.5});
+            this.base.addChild(newGameNode);
+        }
+
     }
 
     handleNewPlayer(player) {
