@@ -9,7 +9,5 @@ const generateName = async (numberOfWords) => {
     }
     return toReturn.join(" ");
 };
-generateName(2).then(res => {
-    console.log(res);
-});
+
 module.exports = generateName;
