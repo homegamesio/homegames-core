@@ -37,8 +37,13 @@ const wss = new WebSocket.Server({
 });
 
 wss.on("connection", (ws) => {
-    const player = new Player(ws);
-    session.addPlayer(player);
+    function messageHandler(msg) {
+        ws.removeListener('message', messageHandler);
+        const player = new Player(ws);
+        session.addPlayer(player);
+    }
+    
+    ws.on('message', messageHandler);
 });
 
 server.listen(PORT);

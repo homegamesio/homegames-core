@@ -7,10 +7,6 @@ socket.binaryType = 'arraybuffer';
 let socketIsReady = false;
 let audioAllowed = false;
 
-socket.onopen = function(e) {
-    socketIsReady = true;
-};
-
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext('2d');
 
@@ -40,7 +36,7 @@ function renderBuf(buf) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let color, startX, startY, width, height;
     let i = 0;
-    while (i < buf.length) {
+    while (buf && i < buf.length) {
         const frameType = buf[i];
 
         if (frameType === 1) {
@@ -374,6 +370,7 @@ function req() {
 }
 
 socket.onopen = () => {
+    socket.send("ready");
     window.requestAnimationFrame(req);
 };
 
@@ -382,6 +379,9 @@ let currentBuf;
 let receivedTimes = new Array();
 socket.onmessage = function(msg) {
     currentBuf = new Uint8ClampedArray(msg.data);
+    if (currentBuf[0] == 1) {
+        renderBuf(currentBuf);
+    }
 };
 
 const click = function(x, y) {

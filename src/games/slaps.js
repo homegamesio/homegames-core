@@ -1,5 +1,7 @@
+const Asset = require("../Asset");
 const gameNode = require('../GameNode');
 const { colors } = require('../Colors');
+
 
 class Slaps {
     constructor() {
@@ -7,6 +9,12 @@ class Slaps {
         this.players = {};
         this.base = gameNode(colors.BLUE, this.handleBackgroundClick, {'x': 0, 'y': 0}, {'x': 100, 'y': 100}, {'text': this.playerCount, x: 7.5, y: 0});
         this.canStartNewGame = true;
+        this.assets = {
+            "testImg": new Asset("url", {
+                "location": "https://homegamesio.s3-us-west-1.amazonaws.com/test1.png",
+                "type": "image"
+            })
+        };
     }
 
     handleBackgroundClick() {
@@ -43,7 +51,18 @@ class Slaps {
         let index = 0;
         for (let i in this.players) {
             this.hands[i] = this.cards.pop();
-            const cardNode = gameNode(colors.WHITE, null, {x: (index * 12) + 1, y: 20}, {x: 10, y: 10}, {text: '' + this.hands[i], x: (index * 12) + 6, y: 25});
+            const cardNode = gameNode(colors.WHITE, null, {x: (index * 12) + 1, y: 20}, {x: 10, y: 10}, {text: '' + this.hands[i], x: (index * 12) + 6, y: 25}, {
+                "testImg": {
+                    size: {
+                        x: 10,
+                        y: 10
+                    },
+                    pos: {
+                        x: (index * 12) + 6, 
+                        y: 35
+                    }
+                }
+            });
             this.base.addChild(cardNode);
             index += 1;
         }
@@ -77,6 +96,10 @@ class Slaps {
 
     getRoot() {
         return this.base;
+    }
+
+    getAssets() {
+        return this.assets;
     }
 }
 
