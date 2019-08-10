@@ -1,6 +1,7 @@
 const Asset = require("../Asset");
 const gameNode = require('../GameNode');
 const { colors } = require('../Colors');
+const Deck = require("../common/Deck");
 
 
 class Slaps {
@@ -21,11 +22,8 @@ class Slaps {
     }
 
     initializeCards() {
-        // TODO: make this a real card deck. for now, 52 random numbers within 1-20
-        this.cards = new Array(52);
-        for(let i = 0; i < this.cards.length; i++) {
-            this.cards[i] = Math.floor(Math.random() * 21) + 1;
-        }
+        this.deck = new Deck();
+        this.deck.shuffle();
     }
 
     tick() {
@@ -50,8 +48,8 @@ class Slaps {
         this.hands = {};
         let index = 0;
         for (let i in this.players) {
-            this.hands[i] = this.cards.pop();
-            const cardNode = gameNode(colors.WHITE, null, {x: (index * 12) + 1, y: 20}, {x: 10, y: 10}, {text: '' + this.hands[i], x: (index * 12) + 6, y: 25}, {
+            this.hands[i] = this.deck.drawCard();
+            const cardNode = gameNode(colors.WHITE, null, {x: (index * 12) + 1, y: 20}, {x: 10, y: 10}, {text: this.hands[i].toString(), x: (index * 12) + 6, y: 25}, {
                 "testImg": {
                     size: {
                         x: 10,
