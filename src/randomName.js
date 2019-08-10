@@ -1,13 +1,15 @@
-const data = require("./dictionary");
-const length = data.length;
+const generateList = require("./dictionary");
 
-const generateName = (numberOfWords) => {
-	let toReturn = "";
-	for(let i = 0; i < numberOfWords - 1; i++) {
-		toReturn += `${data[Math.floor( Math.random() * length )]} `;
-	}
-	toReturn += `${data[Math.floor( Math.random() * length )]}`;
-	return toReturn;
+const generateName = async (numberOfWords) => {
+    const data = await generateList();
+    const length = data.length;
+    let toReturn = [];
+    for(let i = 0; i < numberOfWords; i++) {
+        toReturn.push(data[Math.floor( Math.random() * length )]);
+    }
+    return toReturn.join(" ");
 };
-
+generateName(2).then(res => {
+    console.log(res);
+});
 module.exports = generateName;
