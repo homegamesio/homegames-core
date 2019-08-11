@@ -17,6 +17,12 @@ const server = http.createServer();
 
 linkHelper();
 
+const players = {};
+
+for (let i = 1; i < 256; i++) {
+    players[i] = false;
+}
+
 let toExecute;
 toExecute = new Slaps();
 //toExecute = new SplashScreen();
@@ -26,6 +32,16 @@ toExecute = new Slaps();
 //toExecute = new AllTest();
 //toExecute = new TextTest();
 //toExecute = new Demo();
+
+const generatePlayerId = () => {
+    for (let k in players) {
+        if (!players[k]) {
+            return k;
+        }
+    }
+
+    throw new Error("no player IDs left in pool");
+};
 
 const session = new GameSession(toExecute, {
     "width": 320, 
@@ -39,11 +55,18 @@ const wss = new WebSocket.Server({
 wss.on("connection", (ws) => {
     function messageHandler(msg) {
         ws.removeListener('message', messageHandler);
+        ws.id = generatePlayerId();
+        ws.send([ws.id]);
         const player = new Player(ws);
         session.addPlayer(player);
+        players[ws.id] = player;
     }
     
     ws.on('message', messageHandler);
+    ws.on('close', () => {
+        players[ws.id].disconnect();
+        players[ws.id] = false;
+    });
 });
 
 server.listen(PORT);

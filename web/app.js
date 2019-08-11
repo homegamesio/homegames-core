@@ -4,6 +4,8 @@ const socket = new WebSocket('ws://' + localIP + ':7080');
 
 socket.binaryType = 'arraybuffer';
 
+window.playerId = null;
+
 let socketIsReady = false;
 let audioAllowed = false;
 
@@ -74,8 +76,13 @@ function renderBuf(buf) {
                 i += 6 + payloadLength;
             }
         } else {
-            const frameSize = buf[i + 1];
-            const start = i + 2;
+            const playerId = buf[i + 1];
+            const frameSize = buf[i + 2];
+            if (playerId !== 0 && playerId !== window.playerId) {
+                i += frameSize;
+                continue;
+            }
+            const start = i + 3;
             color = buf.slice(start, start + 4);
             startX = ((buf[start + 4] / 100) + (buf[start + 5] / 10000)) * horizontalScale;
             startY = ((buf[start + 6] / 100) + (buf[start + 7] / 10000)) * verticalScale;
@@ -102,7 +109,7 @@ function renderBuf(buf) {
                 }
             }
 
-            if (frameSize > 2 + 46) { 
+            if (frameSize > 3 + 46) { 
                 const assetPosX = buf[start + 46];
                 const assetPosY = buf[start + 47];
                 
@@ -376,10 +383,12 @@ socket.onopen = () => {
 
 let currentBuf;
 
-let receivedTimes = new Array();
 socket.onmessage = function(msg) {
     currentBuf = new Uint8ClampedArray(msg.data);
-    if (currentBuf[0] == 1) {
+    if (currentBuf.length == 1) {
+        window.playerId = currentBuf[0];
+    }
+    else if (currentBuf[0] == 1) {
         renderBuf(currentBuf);
     }
 };
