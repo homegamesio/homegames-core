@@ -76,13 +76,13 @@ class Squisher {
         return collidingNodes;
     }
 
-    findClick(x, y) {
-        return this.findClickHelper(x, y, this.root);
+    findClick(x, y, playerId = 0) {
+        return this.findClickHelper(x, y, playerId, this.root);
     }
 
-    findClickHelper(x, y, node, clicked = null) {
+    findClickHelper(x, y, playerId, node, clicked = null) {
 
-        if (node.handleClick) {
+        if (node.handleClick && playerId == node.playerId) {
             let beginX = node.pos.x * this.width * .01;
             let endX = (node.pos.x + node.size.x) * this.width * .01;
             let beginY = node.pos.y * this.height * .01;
@@ -96,7 +96,7 @@ class Squisher {
         }
 
         for (let i in node.children) {
-            clicked = this.findClickHelper(x, y, node.children[i], clicked);
+            clicked = this.findClickHelper(x, y, playerId, node.children[i], clicked);
         }
 
         return clicked;
@@ -178,7 +178,7 @@ class Squisher {
         if (translatedX >= 1 || translatedY >= 1) {
             return;
         }
-        const clickedNode = this.findClick(translatedX, translatedY);
+        const clickedNode = this.findClick(translatedX, translatedY, player.id);
 
         if (clickedNode) {
             clickedNode.handleClick && clickedNode.handleClick(player, translatedX, translatedY);
