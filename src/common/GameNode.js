@@ -13,12 +13,17 @@ class GameNode {
         this.text = text;
         this.assets = assets;
         this.listeners = new Set();
-        this.playerId = playerId;
+        this.playerId = Number(playerId);
     }
 
     addChild(node) {
         this.children.push(node);
         this.onStateChange();
+    }
+
+    removeChild(nodeId) {
+        const removeIndex = this.children.findIndex(child => child.id == nodeId);
+        removeIndex > 0 && this.children.splice(removeIndex, 1);
     }
 
     addListener(listener) {

@@ -1,4 +1,5 @@
 const Squisher = require("./Squisher");
+const { generateName } = require('./common/util/name-generator');
 
 class GameSession {
     constructor(game, res) {
@@ -9,6 +10,9 @@ class GameSession {
     }
 
     async addPlayer(player) {
+        if (!player.name) {
+            player.name = await generateName();
+        }
         player.addInputListener(this.squisher);
         player.addStateListener(this);
         const gameAssets = await this.squisher.getAssets();

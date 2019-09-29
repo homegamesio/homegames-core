@@ -1,6 +1,6 @@
 const Asset = require("../Asset");
 const gameNode = require('../GameNode');
-const { colors } = require('../Colors');
+const { colors, randomColor } = require('../Colors');
 const Deck = require("../common/Deck");
 
 
@@ -16,9 +16,11 @@ class Slaps {
                 "type": "image"
             })
         };
+        this.infoNodes = {};
     }
 
     handleBackgroundClick() {
+
     }
 
     initializeCards() {
@@ -76,8 +78,12 @@ class Slaps {
     }
 
     handleNewPlayer(player) {
-        this.players[player.id] = player;
+        this.players[player.id] = player;        
         this.updatePlayerCount(this.playerCount + 1);
+        let playerName = 'ayy lmao ' + player.id;
+        const infoNode = gameNode(randomColor(), null, {x: 20, y: 20}, {x: 20, y: 20}, {text: playerName, x: 20, y: 20}, null, player.id);
+        this.infoNodes[player.id] = infoNode;
+        this.base.addChild(infoNode);
     }
 
     updatePlayerCount(count) {
@@ -88,7 +94,9 @@ class Slaps {
     }
 
     handlePlayerDisconnect(player) {
+        this.infoNodes[player.id] && this.base.removeChild(this.infoNodes[player.id].id);
         delete this.players[player.id];
+        delete this.infoNodes[player.id];
         this.updatePlayerCount(this.playerCount - 1);
     }
 

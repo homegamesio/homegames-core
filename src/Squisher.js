@@ -57,9 +57,12 @@ class Squisher {
 
         this.update(this.root);
 
-        const heartbeat = this.notifyListeners.bind(this);
-        setInterval(heartbeat, 100);
-        setInterval(this.game.tick.bind(this.game), 16.6);
+        if (this.game.renderType == 'tick') {   
+            setInterval(this.game.tick.bind(this.game), 1000 / this.game.config.frameRate);
+        } else {
+            const heartbeat = this.notifyListeners.bind(this);
+            setInterval(heartbeat, 100);
+        }
     }
 
     handleStateChange(node) {
@@ -103,7 +106,7 @@ class Squisher {
     }
 
     collisionHelper(node, nodeToCheck, collisions = []) {
-        if (node.handleClick && node.id !== nodeToCheck.id) {
+        if (node.pos && nodeToCheck.pos && node.handleClick && node.id !== nodeToCheck.id) {
             let node1LeftX = this.width * .01 * (node.pos.x);
             let node1RightX = this.width * .01 * (node.pos.x + node.size.x);
             let node2LeftX = this.width * .01 * (nodeToCheck.pos.x);
@@ -195,6 +198,11 @@ class Squisher {
         squished[squishedIndex++] = 3;
         squished[squishedIndex++] = entity.playerId;
         squished[squishedIndex++] = squished.length;
+ 
+        if (!(entity.pos || entity.color || entity.size)) {
+            return squished;
+        }
+        
         squished[squishedIndex++] = entity.color[0];
         squished[squishedIndex++] = entity.color[1];
         squished[squishedIndex++] = entity.color[2];
