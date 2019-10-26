@@ -1,9 +1,9 @@
-const { Asset, GameNode, Colors, Deck } = require('../common');
+const { Asset, gameNode, Colors, Deck } = require('../common');
 
 class Test1 {
     constructor() {
         this.players = {};
-        this.base = GameNode(Colors.BLUE, null, {'x': 0, 'y': 0}, {'x': 100, 'y': 100}, {'text': "0", x: 50, y: 5});
+        this.base = gameNode(Colors.BLUE, null, {'x': 0, 'y': 0}, {'x': 100, 'y': 100}, {'text': "0", x: 50, y: 5});
     }
 
     handleNewPlayer(player) {

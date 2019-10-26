@@ -8,6 +8,8 @@ class Menu {
         for (let i in games) {
             let onGameClick = (player, input) => {
                 console.log("Player " + player.id + " wanted to play " + i);
+                let gameInstance = new games[i]();
+                this.base.addChild(gameInstance.getRoot());
             };
             let gameOption = gameNode(Colors.randomColor(), onGameClick, {x: 12 * count + 10, y: 20}, {x: 10, y: 10}, {text: i, x: 10 * count + 10, y: 20 }, null, player.id);
             count = count + 1;

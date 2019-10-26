@@ -84,8 +84,7 @@ class Squisher {
     }
 
     findClickHelper(x, y, playerId, node, clicked = null) {
-
-        if (node.handleClick && playerId == node.playerId) {
+        if (node.handleClick && !node.playerId || playerId == node.playerId) {
             let beginX = node.pos.x * this.width * .01;
             let endX = (node.pos.x + node.size.x) * this.width * .01;
             let beginY = node.pos.y * this.height * .01;
@@ -182,7 +181,7 @@ class Squisher {
             return;
         }
         const clickedNode = this.findClick(translatedX, translatedY, player.id);
-
+        
         if (clickedNode) {
             clickedNode.handleClick && clickedNode.handleClick(player, translatedX, translatedY);
         }
