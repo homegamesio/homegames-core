@@ -224,7 +224,7 @@ class Squisher {
             squished[squishedIndex++] = entity.text && entity.text.y;
 
             let textIndex = 0;
-            while (textIndex < 32) {
+            while (entity.text && textIndex < 32) {
                 if (textIndex < entity.text.text.length) {
                     squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex);
                 } else {
@@ -233,7 +233,7 @@ class Squisher {
                 textIndex++;
             }
         }
-
+        
         if (entity.assets) {
             for (const key in entity.assets) {
                 const asset = entity.assets[key];

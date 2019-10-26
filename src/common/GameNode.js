@@ -23,7 +23,7 @@ class GameNode {
 
     removeChild(nodeId) {
         const removeIndex = this.children.findIndex(child => child.id == nodeId);
-        removeIndex > 0 && this.children.splice(removeIndex, 1);
+        removeIndex >= 0 && this.children.splice(removeIndex, 1);
     }
 
     addListener(listener) {

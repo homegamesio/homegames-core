@@ -92,7 +92,7 @@ function renderBuf(buf) {
             ctx.fillRect(startX, startY, width, height);
             
             // has text
-            if (frameSize > 12) {
+            if (frameSize > 15) {
                 const textX = (buf[start + 12] / 100) * horizontalScale;
                 const textY = (buf[start + 13] / 100) * verticalScale;
                 const textArray = buf.slice(start + 14, start + 14 + 32);

@@ -8,9 +8,9 @@ const GameSession = require("./src/GameSession");
 const Player = require("./src/Player");
 //const Homegames = require('./Homegames');
 //const SplashScreen = require("./src/splash-screen/splash-screen");
-//const Slaps = require('./src/games/slaps');
+const Slaps = require('./src/games/slaps');
 //const NameTest = require('./src/games/name-test');
-const Menu = require('./src/menu');
+//const Menu = require('./src/menu');
 const http = require("http");
 const linkHelper = require("./src/common/util/link-helper");
 
@@ -36,9 +36,9 @@ const generatePlayerId = () => {
     throw new Error("no player IDs left in pool");
 };
 
-const serverRoot = new Homegames();
+const game = new Slaps();
 
-const session = new GameSession(serverRoot, {
+const session = new GameSession(game, {
     "width": 320, 
     "height": 180
 });
