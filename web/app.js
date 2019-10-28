@@ -459,7 +459,7 @@ canvas.addEventListener('touchmove', function(e) {
 
 function keyMatters(event) {
     // Key code values 36-40 are the arrow keys
-    return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta';
+    return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta' || event.key == 'Backspace';
 }
 
 document.addEventListener('keydown', function(e) {

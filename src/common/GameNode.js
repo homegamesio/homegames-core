@@ -24,6 +24,8 @@ class GameNode {
     removeChild(nodeId) {
         const removeIndex = this.children.findIndex(child => child.id == nodeId);
         removeIndex >= 0 && this.children.splice(removeIndex, 1);
+        // hack to invoke update listener
+        this.id = this.id;
     }
 
     addListener(listener) {
@@ -36,8 +38,15 @@ class GameNode {
         }
     }
 
-    clearChildren() {
-        this.children = new Array();
+    clearChildren(excludedNodeIds) {
+        if (!excludedNodeIds) {
+            this.children = new Array();
+        } else {
+            let newChildren = this.children.filter(child => {
+                return excludedNodeIds.includes(child.id);
+            });
+            this.children = newChildren;
+        }
     }
 }
 

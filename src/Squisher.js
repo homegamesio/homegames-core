@@ -59,6 +59,8 @@ class Squisher {
 
         if (this.game.renderType == 'tick') {   
             setInterval(this.game.tick.bind(this.game), 1000 / this.game.config.frameRate);
+        } else if (this.game.tick) {
+            setInterval(this.game.tick.bind(this.game), 16);
         } else {
             const heartbeat = this.notifyListeners.bind(this);
             setInterval(heartbeat, 100);
@@ -198,7 +200,7 @@ class Squisher {
         squished[squishedIndex++] = entity.playerId;
         squished[squishedIndex++] = squished.length;
  
-        if (!(entity.pos || entity.color || entity.size)) {
+        if (!(entity.pos && entity.color && entity.size)) {
             return squished;
         }
         
