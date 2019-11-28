@@ -265,7 +265,8 @@ class WordMatch {
             let ready = this.playerReadyButtons[player.id] && this.playerReadyButtons[player.id].ready;
             let readyStatusColor = ready ? colors.GREEN : colors.RED;
             let statusColor = this.gameInProgress ? readyStatusColor : colors.CREAM;
-            let playerNode = gameNode(statusColor, null, {x: 70, y: 2 + (yPos * 10)}, {x: 5, y: 5}, {x: 85, y: 2 + (yPos * 10), text: player.name});
+            let playerNameText = player.name + ': ' + (player.id in this.scores ? this.scores[player.id] : 0);
+            let playerNode = gameNode(statusColor, null, {x: 70, y: 2 + (yPos * 10)}, {x: 5, y: 5}, {x: 85, y: 2 + (yPos * 10), text: playerNameText});
             this.playerList.addChild(playerNode);
         }
     }
