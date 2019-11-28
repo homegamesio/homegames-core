@@ -31,7 +31,7 @@ for (let i = 1; i < 256; i++) {
 const generatePlayerId = () => {
     for (let k in players) {
         if (!players[k]) {
-            return k;
+            return Number(k);
         }
     }
 
