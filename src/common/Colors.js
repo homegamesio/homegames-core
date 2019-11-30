@@ -1,4 +1,4 @@
-const colors = {
+const COLORS = {
     AQUA: [188, 212, 230, 255],
     BLACK: [0, 0, 0, 255],
     BLUE: [0, 0, 255, 255],
@@ -28,11 +28,13 @@ const colors = {
     YELLOW: [255, 255, 0, 255]
 };
 
-const colorValues = Object.values(colors);
+const colorValues = Object.values(COLORS);
 
 const randomColor = function() {
     const colorIndex = Math.floor(Math.random() * colorValues.length);    
     return colorValues[colorIndex];
 };
 
-module.exports = { colors, randomColor };
+COLORS.randomColor = randomColor;
+
+module.exports = COLORS;

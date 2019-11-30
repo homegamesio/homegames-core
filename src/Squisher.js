@@ -57,9 +57,14 @@ class Squisher {
 
         this.update(this.root);
 
-        const heartbeat = this.notifyListeners.bind(this);
-        setInterval(heartbeat, 100);
-        setInterval(this.game.tick.bind(this.game), 16.6);
+        if (this.game.renderType == 'tick') {   
+            setInterval(this.game.tick.bind(this.game), 1000 / this.game.config.frameRate);
+        } else if (this.game.tick) {
+            setInterval(this.game.tick.bind(this.game), 16);
+        } else {
+            const heartbeat = this.notifyListeners.bind(this);
+            setInterval(heartbeat, 100);
+        }
     }
 
     handleStateChange(node) {
@@ -81,8 +86,7 @@ class Squisher {
     }
 
     findClickHelper(x, y, playerId, node, clicked = null) {
-
-        if (node.handleClick && playerId == node.playerId) {
+        if (node.handleClick && !node.playerId || playerId == node.playerId) {
             let beginX = node.pos.x * this.width * .01;
             let endX = (node.pos.x + node.size.x) * this.width * .01;
             let beginY = node.pos.y * this.height * .01;
@@ -103,7 +107,7 @@ class Squisher {
     }
 
     collisionHelper(node, nodeToCheck, collisions = []) {
-        if (node.handleClick && node.id !== nodeToCheck.id) {
+        if (node.pos && nodeToCheck.pos && node.handleClick && node.id !== nodeToCheck.id) {
             let node1LeftX = this.width * .01 * (node.pos.x);
             let node1RightX = this.width * .01 * (node.pos.x + node.size.x);
             let node2LeftX = this.width * .01 * (nodeToCheck.pos.x);
@@ -179,7 +183,7 @@ class Squisher {
             return;
         }
         const clickedNode = this.findClick(translatedX, translatedY, player.id);
-
+        
         if (clickedNode) {
             clickedNode.handleClick && clickedNode.handleClick(player, translatedX, translatedY);
         }
@@ -195,6 +199,11 @@ class Squisher {
         squished[squishedIndex++] = 3;
         squished[squishedIndex++] = entity.playerId;
         squished[squishedIndex++] = squished.length;
+ 
+        if (!(entity.pos && entity.color && entity.size)) {
+            return squished;
+        }
+        
         squished[squishedIndex++] = entity.color[0];
         squished[squishedIndex++] = entity.color[1];
         squished[squishedIndex++] = entity.color[2];
@@ -217,7 +226,7 @@ class Squisher {
             squished[squishedIndex++] = entity.text && entity.text.y;
 
             let textIndex = 0;
-            while (textIndex < 32) {
+            while (entity.text && textIndex < 32) {
                 if (textIndex < entity.text.text.length) {
                     squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex);
                 } else {
@@ -226,7 +235,7 @@ class Squisher {
                 textIndex++;
             }
         }
-
+        
         if (entity.assets) {
             for (const key in entity.assets) {
                 const asset = entity.assets[key];

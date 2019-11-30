@@ -1,7 +1,4 @@
-const gameNode = require("../GameNode");
-const {colors, randomColor} = require("../Colors");
-const colorKeys = Object.keys(colors);
-const Asset = require("../Asset");
+const { Asset, gameNode, Colors, Deck } = require('../common');
 
 class Draw {
     constructor() {
@@ -14,7 +11,7 @@ class Draw {
 
         this.playerColorMap = {};
         this.board = gameNode(
-            colors.PURPLE, 
+            Colors.PURPLE, 
             this.handleBoardClick.bind(this), 
             {
                 "x": 0, 
@@ -42,8 +39,8 @@ class Draw {
     }
 
     initializeBoard() {
-        const randomizeButton = gameNode(colors.RED, this.randomizeBoardColor.bind(this), {"x": 80, "y": 0}, {"x": 15, "y": 15});
-        const resetButton = gameNode(colors.BLUE, this.initializeBoard.bind(this), {x: 60, y: 0}, {x: 15, y: 15});
+        const randomizeButton = gameNode(Colors.RED, this.randomizeBoardColor.bind(this), {"x": 80, "y": 0}, {"x": 15, "y": 15});
+        const resetButton = gameNode(Colors.BLUE, this.initializeBoard.bind(this), {x: 60, y: 0}, {x: 15, y: 15});
 
         this.board.clearChildren();
 
@@ -52,7 +49,7 @@ class Draw {
     }
 
     handleNewPlayer(player) {
-        const initialColor = randomColor();
+        const initialColor = Colors.randomColor();
 
         this.playerColorMap[player.id] = initialColor;
         
@@ -61,7 +58,7 @@ class Draw {
         }.bind(this);
 
         const playerColorButton = gameNode(initialColor, function() {
-            this.color = randomColor();
+            this.color = Colors.randomColor();
             setPlayerColor(this.color);
         }, {"x": 0, "y": 0}, {"x": 10, "y": 10});
         this.board.addChild(playerColorButton);
@@ -72,14 +69,13 @@ class Draw {
     }
 
     handleBoardClick(player, x, y) {
-        const playerColor = this.playerColorMap[player.id];
-        const coloredPixel = gameNode(playerColor, () => {}, {"x": x * 100, "y": y * 100}, {"x": 9/16, "y": 1});
+        const coloredPixel = gameNode(Colors.randomColor(), () => {}, {"x": 4, "y": 4}, {"x": 2, "y": 2});
+        console.log(coloredPixel);
         this.board.addChild(coloredPixel);
     }
 
     randomizeBoardColor() {
-        const colorIndex = Math.floor(Math.random() * colorKeys.length);
-        this.board.color = colors[colorKeys[colorIndex]];
+        this.board.color = Colors.randomColor();
     }
 
     getRoot() {

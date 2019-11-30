@@ -92,7 +92,7 @@ function renderBuf(buf) {
             ctx.fillRect(startX, startY, width, height);
             
             // has text
-            if (frameSize > 12) {
+            if (frameSize > 15) {
                 const textX = (buf[start + 12] / 100) * horizontalScale;
                 const textY = (buf[start + 13] / 100) * verticalScale;
                 const textArray = buf.slice(start + 14, start + 14 + 32);
@@ -459,7 +459,7 @@ canvas.addEventListener('touchmove', function(e) {
 
 function keyMatters(event) {
     // Key code values 36-40 are the arrow keys
-    return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta';
+    return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta' || event.key == 'Backspace';
 }
 
 document.addEventListener('keydown', function(e) {
