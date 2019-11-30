@@ -1,7 +1,7 @@
 # homegames
 #### Play games at home
 
-Play simple browser-based games on a local network with your friends. 
+Play simple browser-based games on a local network. 
 
 `npm install` and `node app_server.js`, then `node game_server.js`.
 
