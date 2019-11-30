@@ -462,21 +462,35 @@ function keyMatters(event) {
     return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta' || event.key == 'Backspace';
 }
 
-document.addEventListener('keydown', function(e) {
-    if (keyMatters(e) && !keysDown['Meta']) {
-        e.preventDefault();
-        keydown(e.key);
-        keysDown[e.key] = true;
-    }
-});
+function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|Opera Mini/i.test(navigator.userAgent);
+}
 
-document.addEventListener('keyup', function(e) {
-    if (keyMatters(e)) {
-        e.preventDefault();
-        keyup(e.key);
-        keysDown[e.key] = false;
-    }
-});
+if (isMobile()) {
+    document.getElementById('text-hack').addEventListener('input', (e) => {
+        let eventKey = e.data ? e.data.charAt(e.data.length - 1) : 'Backspace';
+        e.key = eventKey;
+        if (keyMatters(e) && !keysDown['Meta']) {
+            e.preventDefault && e.preventDefault();
+            keydown(e.key);
+        }
+    });
+} else {
+    document.addEventListener('keydown', function(e) {
+        if (keyMatters(e) && !keysDown['Meta']) {
+            e.preventDefault();
+            keydown(e.key);
+            keysDown[e.key] = true;
+        }
+    });
+    document.addEventListener('keyup', function(e) {
+        if (keyMatters(e)) {
+            e.preventDefault();
+            keyup(e.key);
+            keysDown[e.key] = false;
+        }
+    });
+}
 
 let gamepad;
 let moving;

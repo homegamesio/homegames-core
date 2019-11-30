@@ -235,7 +235,7 @@ class WordMatch {
             return;
         }
 
-        if (!this.keyCoolDowns[player.id]) {
+        if (!this.keyCoolDowns[player.id] || !this.keyCoolDowns[player.id][key]) {
             let newText = this.responseBoxes[player.id].text;
             if (newText.text.length > 0 && key === 'Backspace') {
                 newText.text = newText.text.substring(0, newText.text.length - 1); 
@@ -243,17 +243,17 @@ class WordMatch {
                 newText.text = newText.text + key;
             }
             this.responseBoxes[player.id].text = newText;
-            this.keyCoolDowns[player.id] = setTimeout(() => {
-                clearTimeout(this.keyCoolDowns[player.id]);
-                delete this.keyCoolDowns[player.id];
-            }, 500);
+            this.keyCoolDowns[player.id][key] = setTimeout(() => {
+                clearTimeout(this.keyCoolDowns[player.id][key]);
+                delete this.keyCoolDowns[player.id][key];
+            }, 250);
         }
     }
 
     handleKeyUp(player, key) {
-        if (this.keyCoolDowns[player.id]) {
-            clearTimeout(this.keyCoolDowns[player.id]);
-            delete this.keyCoolDowns[player.id];
+        if (this.keyCoolDowns[player.id][key]) {
+            clearTimeout(this.keyCoolDowns[player.id][key]);
+            delete this.keyCoolDowns[player.id][key];
         }
     }
 
@@ -273,6 +273,7 @@ class WordMatch {
     }
 
     handleNewPlayer(player) {
+        this.keyCoolDowns[player.id] = {};
         let toggleNameEdit = () => {
             this.players[player.id].name = 'butt';
             this.updatePlayerList();
