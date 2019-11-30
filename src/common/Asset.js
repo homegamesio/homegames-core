@@ -1,4 +1,4 @@
-const request = require("request").defaults({ encoding: null });
+const https = require("https");
 const fs = require("fs");
 const crypto = require("crypto");
 
@@ -24,11 +24,17 @@ class Asset {
                 if (fs.existsSync(filePath)) {
                     resolve(fs.readFileSync(filePath));
                 } else {
-                    request.get(uri, (err, response, body) => {
-
-                        const data = Buffer.from(body);
-                        fs.writeFileSync(filePath, data);
-                        resolve(data);
+                    const writeStream = fs.createWriteStream(filePath);
+                    https.get(uri, (res) => {
+                        res.on("data", (chunk) => {
+                            writeStream.write(chunk);
+                        });
+                        res.on("end", () => {
+                            writeStream.end();
+                            resolve(fs.readFileSync(filePath));
+                        });
+                    }).on("error", error => {
+                        reject(error);
                     });
                 }    
             } catch(err) {
