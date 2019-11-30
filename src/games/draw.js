@@ -21,16 +21,20 @@ class Draw {
                 "x": 100, 
                 "y": 100
             },
-            null,
             {
-                "test": {
-                    size: {
-                        x: 5,
-                        y: 5
+                'text': '',
+                x: 0,
+                y: 0
+            },
+            {
+                'test': {
+                    'pos': {
+                        x: 20,
+                        y: 20
                     },
-                    pos: {
-                        x: 47,
-                        y: 5
+                    'size': {
+                        x: 10,
+                        y: 10
                     }
                 }
             }
@@ -69,8 +73,7 @@ class Draw {
     }
 
     handleBoardClick(player, x, y) {
-        const coloredPixel = gameNode(Colors.randomColor(), () => {}, {"x": 4, "y": 4}, {"x": 2, "y": 2});
-        console.log(coloredPixel);
+        const coloredPixel = gameNode(Colors.randomColor(), () => {}, {"x": x * 100, "y": y * 100}, {"x": .5, "y": .5});
         this.board.addChild(coloredPixel);
     }
 
