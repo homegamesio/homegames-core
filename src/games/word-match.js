@@ -71,7 +71,6 @@ class WordMatch {
             }
             this.scores[player.id] = this.scores[player.id] + 1; 
         }
-        console.log(this.scores);
     }
 
     showResults() {
@@ -88,8 +87,8 @@ class WordMatch {
                 let resultOneText = Object.values(this.responseBoxes)[0].text.text;
                 let resultTwoText = Object.values(this.responseBoxes)[1].text.text;
                 
-                let resultOne = gameNode(colors.WHITE, null, {x: 20, y: 40}, {x: 20, y: 20}, {text: resultOneText, x: 20, y: 40});
-                let resultTwo = gameNode(colors.WHITE, null, {x: 60, y: 40}, {x: 20, y: 20}, {text: resultTwoText, x: 60, y: 40});
+                let resultOne = gameNode(colors.WHITE, null, {x: 20, y: 30}, {x: 20, y: 20}, {text: resultOneText, x: 25, y: 35});
+                let resultTwo = gameNode(colors.WHITE, null, {x: 60, y: 30}, {x: 20, y: 20}, {text: resultTwoText, x: 65, y: 35});
                 this.base.addChild(resultOne);
                 this.base.addChild(resultTwo);
 
@@ -124,8 +123,10 @@ class WordMatch {
                             this.finishRound();
                         }
                     };
-                    let btn1 = gameNode(colors.BLUE, addPlayerVote('yes').bind(this), {x: 30, y: 60}, {x: 20, y: 20}, {text: 'Be Cool', x: 30, y: 60});
-                    let btn2 = gameNode(colors.RED, addPlayerVote('no').bind(this), {x: 60, y: 60}, {x: 20, y: 20}, {text: 'Nah', x: 60, y: 60});
+                    let closeEnoughText = gameNode(colors.CREAM, null, {x: 50, y: 55}, {x: 10, y: 10}, {'text': 'Close Enough?', x: 50, y: 55});
+                    let btn1 = gameNode(colors.BLUE, addPlayerVote('yes').bind(this), {x: 55, y: 65}, {x: 10, y: 10}, {text: 'Yes', x: 60, y: 65});
+                    let btn2 = gameNode(colors.RED, addPlayerVote('no').bind(this), {x: 35, y: 65}, {x: 10, y: 10}, {text: 'No', x: 40, y: 65});
+                    this.base.addChild(closeEnoughText);
                     this.base.addChild(btn1);
                     this.base.addChild(btn2);
                 }
@@ -168,7 +169,7 @@ class WordMatch {
                 this.base.addChild(word2Node);
 
                 for (let j in this.currentPlayerIndices) {
-                    const player = Object.values(this.players)[j];
+                    const player = Object.values(this.players)[this.currentPlayerIndices[j]];
 
                     const toggleEdit = () => {
                         this.responseBoxes[player.id].editing = !this.responseBoxes[player.id].editing;
@@ -304,6 +305,7 @@ class WordMatch {
     handlePlayerDisconnect(player) {
         this.savedNodeRoot.removeChild(this.infoNodes[player.id].id);
         delete this.infoNodes[player.id];
+        delete this.scores[player.id];
         this.updatePlayerList();
     }
 
