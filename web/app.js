@@ -462,11 +462,11 @@ function keyMatters(event) {
     return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta' || event.key == 'Backspace';
 }
 
-function isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|Opera Mini/i.test(navigator.userAgent);
+function isGarbage() {
+    return /Android/i.test(navigator.userAgent);
 }
 
-if (isMobile()) {
+if (isGarbage()) {
     document.getElementById('text-hack').addEventListener('input', (e) => {
         let eventKey = e.data ? e.data.charAt(e.data.length - 1) : 'Backspace';
         e.key = eventKey;
