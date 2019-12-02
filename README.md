@@ -3,7 +3,8 @@
 
 Play simple browser-based games on a local network. 
 
-`npm install` and `node app_server.js`, then `node game_server.js`.
+Download binaries at https://homegames.io or just:
+`npm install` followed by `npm run start`.
 
 Navigate to http://homegames.link in your browser. If it doesn't work, create an issue at https://github.com/homegamesio/homegames
 
