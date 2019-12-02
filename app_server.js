@@ -24,6 +24,12 @@ http.createServer((req, res) => {
             payload = style;
             break;
         }
+        case '/favicon.ico': {
+            const icon = fs.readFileSync('web/favicon.ico');
+            contentType = 'image/x-icon'
+            payload = icon;
+            break;
+        }
         default: {
             res.statusCode = 404;
             res.end();
