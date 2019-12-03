@@ -1,7 +1,8 @@
 const WebSocket = require("ws");
 
-//const Draw = require("./src/games/draw");
-//const LayerTest = require("./src/games/layer-test");
+const Draw = require("./src/games/draw");
+const LayerTest = require("./src/games/layer-test");
+const SpriteTest = require("./src/games/sprite-test");
 //const MoveTest = require("./src/games/move-test");
 //const TextTest = require("./src/games/text-test");
 const GameSession = require("./src/GameSession");
@@ -38,7 +39,7 @@ const generatePlayerId = () => {
     throw new Error("no player IDs left in pool");
 };
 
-const game = new WordMatch();
+const game = new SpriteTest();//WordMatch();
 
 const session = new GameSession(game, {
     "width": 320, 
