@@ -10,6 +10,18 @@ class SpriteTest {
             'dance_down':'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_down.png'
         }
 
+        this.playerSpots = {};
+        
+        let playerRows = 3;
+        let playerCols = 8;
+
+        for (let i = 0; i < playerRows * playerCols; i++) {
+            this.playerSpots[i] = {
+                x: i % playerCols,
+                y: i % playerRows
+            };
+        }
+
         this.assets = {
             "dance0": new Asset("url", {
                 "location": this.danceFrames['dance0'],
@@ -37,7 +49,15 @@ class SpriteTest {
 
         this.background = gameNode(
             Colors.CREAM,
-            null,
+            (player, x, y) => {
+                let fakeArrowKey;
+                if (x >= .25 && x <= .75) {
+                    fakeArrowKey = y <= .5 ? 'ArrowUp' : 'ArrowDown';
+                } else {
+                    fakeArrowKey = x < .5 ? 'ArrowLeft' : 'ArrowRight';
+                }
+                this.handleKeyDown(player, fakeArrowKey);
+            },
             {
                 x: 0,
                 y: 0
@@ -73,20 +93,38 @@ class SpriteTest {
         dancer.assets = newAssets;
     }
 
+    getPlayerSpot() {
+        for (let i in this.playerSpots) {
+            if (!this.playerSpots[i].player) {
+                return this.playerSpots[i];
+            }
+        }
+    }
+
     handleNewPlayer(player) {
+        let spot = this.getPlayerSpot();
+        spot.player = player;
+        let x = ((spot.x * 10) + 2);
+        let y = ((spot.y * 30) + 2);
         this.dancers[player.id] = gameNode(
             Colors.BLACK,
             null,
             {x: 10, y: 10},
             {x: 0, y: 0},
-            {'text': player.name, x: 50, y: 40},
-            {'dance0': {pos: {x: 35, y: 45}, size: {x: 30, y: 30}}}
+            {'text': player.name, x: x + 7, y: y + 1},
+            {'dance0': {pos: {x: x, y: y}, size: {x: 15, y: 15}}}
         );
         this.background.addChild(this.dancers[player.id]);
     }
 
     handlePlayerDisconnect(player) {
-        this.background.clearChildren();
+        // this is terrible but its working and its so cool
+        for (let i in this.playerSpots) {
+            if (this.playerSpots[i].player && this.playerSpots[i].player.id == player.id) {
+                this.playerSpots[i].player = null;
+            }
+        }
+        this.background.removeChild(this.dancers[player.id].id);
         delete this.dancers[player.id];
     }
 

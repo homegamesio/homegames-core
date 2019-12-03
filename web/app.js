@@ -101,7 +101,7 @@ function renderBuf(buf) {
                 if (text) {
                     // todo: encode this in the payload
                     ctx.fillStyle = "black";
-                    let fontSize = 7 * scaleFactor;
+                    let fontSize = 3 * scaleFactor;
                     ctx.font = fontSize + 'px sans-serif';
                     ctx.textAlign = "center";
                     ctx.textBaseline = "top";
