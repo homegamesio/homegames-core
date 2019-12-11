@@ -8,6 +8,8 @@ class GameSession {
         this.squisher.addListener(this);
         this.players = {};
         this.game.players = this.players;
+        this.game.session = this;
+        this.game.squisher = this.squisher;
     }
 
     async addPlayer(player) {
@@ -23,6 +25,10 @@ class GameSession {
         player.receiveUpdate(this.squisher.getPixels());
 
         this.game.handleNewPlayer && this.game.handleNewPlayer(player);
+    }
+
+    removePlayer(player) {
+        delete this.players[player.id];
     }
 
     getGameState() {

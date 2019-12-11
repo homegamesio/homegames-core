@@ -1,9 +1,8 @@
-const gameNode = require("../GameNode");
-const { randomColor } = require("../Colors");
+const { Asset, gameNode, Colors, Deck } = require('../common');
 
 class MoveTest {
     constructor() {
-        this.base = gameNode(randomColor(), null, 
+        this.base = gameNode(Colors.randomColor(), null, 
             {"x": 0, "y": 0}, {"x": 100, "y": 100});
 
         this.keysDown = {};
@@ -12,11 +11,11 @@ class MoveTest {
             this.activeMover = mover;
         }.bind(this);
 
-        this.mover1 = gameNode(randomColor(), function() {
+        this.mover1 = gameNode(Colors.randomColor(), function() {
         }, {"x": 45, "y": 43.5}, {"x": 10, "y": 17});
 
         
-        this.mover2 = gameNode(randomColor(), function() {
+        this.mover2 = gameNode(Colors.randomColor(), function() {
         }, {"x": 20, "y": 23.5}, {"x": 10, "y": 17});
 
         this.base.addChild(this.mover1);
@@ -116,7 +115,7 @@ class MoveTest {
 
     handleLayerClick() {
         // todo: squisher needs to update pos after original
-        this.color = randomColor();
+        this.color = Colors.randomColor();
     }
 
     getRoot() {
