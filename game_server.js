@@ -3,6 +3,7 @@ const WebSocket = require("ws");
 const Draw = require("./src/games/draw");
 const LayerTest = require("./src/games/layer-test");
 const SpriteTest = require("./src/games/sprite-test");
+const HomegamesDashboard = require('./src/HomegamesDashboard');
 //const MoveTest = require("./src/games/move-test");
 //const TextTest = require("./src/games/text-test");
 const GameSession = require("./src/GameSession");
@@ -17,7 +18,8 @@ const linkHelper = require("./src/common/util/link-helper");
 
 const WordMatch = require('./src/games/word-match');
 
-const PORT = 7080;
+const HOMEGAMES_PORT_RANGE_MIN = 7001;
+const HOMEGAMES_PORT_RANGE_MAX = 7100;
 
 const server = http.createServer();
 
@@ -39,9 +41,9 @@ const generatePlayerId = () => {
     throw new Error("no player IDs left in pool");
 };
 
-const game = new SpriteTest();//WordMatch();
+const dashboard = new HomegamesDashboard();
 
-const session = new GameSession(game, {
+const session = new GameSession(dashboard, {
     "width": 320, 
     "height": 180
 });
@@ -63,10 +65,10 @@ wss.on("connection", (ws) => {
     ws.on('message', messageHandler);
 
     ws.on('close', () => {
+        console.log("ay ay");
         players[ws.id].disconnect();
-        players[ws.id] = false;
     });
 });
 
-server.listen(PORT);
+server.listen(7000);
 

@@ -1,12 +1,40 @@
 const localIP = window.location.hostname;
 
-const socket = new WebSocket('ws://' + localIP + ':7080');
+let socket;
+
+const initSocket = (port) => {
+    console.log("AYY");
+socket = new WebSocket('ws://' + localIP + ':' + port);
 
 socket.binaryType = 'arraybuffer';
 
+socket.onopen = () => {
+    socket.send("ready");
+    window.requestAnimationFrame(req);
+};
+
+socket.onmessage = function(msg) {
+    currentBuf = new Uint8ClampedArray(msg.data);
+    if (currentBuf.length == 1) {
+        window.playerId = currentBuf[0];
+    }
+    else if (currentBuf[0] == 1) {
+        renderBuf(currentBuf);
+    } else if (currentBuf[0] === 5) {
+        
+        let a = String(currentBuf[1]);
+        let b = String(currentBuf[2]).length > 1 ? currentBuf[2] : '0' + currentBuf[2];
+        let newPort = a + b;
+        socket.close();
+        initSocket(Number(newPort));
+    }
+};
+}
+
+initSocket(7000);
+
 window.playerId = null;
 
-let socketIsReady = false;
 let audioAllowed = false;
 
 const canvas = document.getElementById("game");
@@ -376,22 +404,7 @@ function req() {
     window.requestAnimationFrame(req);
 }
 
-socket.onopen = () => {
-    socket.send("ready");
-    window.requestAnimationFrame(req);
-};
-
 let currentBuf;
-
-socket.onmessage = function(msg) {
-    currentBuf = new Uint8ClampedArray(msg.data);
-    if (currentBuf.length == 1) {
-        window.playerId = currentBuf[0];
-    }
-    else if (currentBuf[0] == 1) {
-        renderBuf(currentBuf);
-    }
-};
 
 const click = function(x, y) {
     const pixelWidth = canvas.width / originalWidth;
@@ -399,17 +412,17 @@ const click = function(x, y) {
     const clickX = Math.floor(x / pixelWidth);
     const clickY = Math.floor(y  / pixelHeight);
     const payload = {type: 'click',  data: {x: clickX, y: clickY}};
-    socket.send(JSON.stringify(payload));
+    socket.readyState === 1 && socket.send(JSON.stringify(payload));
 };
 
 const keydown = function(key) {
     const payload = {type: 'keydown',  key: key};
-    socket.send(JSON.stringify(payload));
+    socket.readyState === 1 && socket.send(JSON.stringify(payload));
 };
 
 const keyup = function(key) {
     const payload = {type: 'keyup',  key: key};
-    socket.send(JSON.stringify(payload));
+    socket.readyState === 1 && socket.send(JSON.stringify(payload));
 };
 
 const unlock = () => {
