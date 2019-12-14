@@ -6,6 +6,10 @@ class Draw {
             "test": new Asset("url", {
                 "location": "https://www.nicepng.com/png/full/323-3239506_kanye-west-shrug-transparent.png",
                 "type": "image"
+            }),
+            "home-button": new Asset("url", {
+                "location": "https://d3lgoy70hwd3pc.cloudfront.net/home2.png", 
+                "type": "image"
             })
         };
 
@@ -46,26 +50,31 @@ class Draw {
         const randomizeButton = gameNode(Colors.RED, this.randomizeBoardColor.bind(this), {"x": 80, "y": 0}, {"x": 15, "y": 15});
         const resetButton = gameNode(Colors.BLUE, this.initializeBoard.bind(this), {x: 60, y: 0}, {x: 15, y: 15});
 
+        const homeButton = gameNode(Colors.PURPLE, (player, x, y) => {
+            player.receiveUpdate([5, 70, 0]);
+        }, {"x": 3, "y": 3}, {"x": 8, "y": 10}, {'text': '', 'x': 0, 'y': 0}, {'home-button': {pos: {x: 3, y: 3}, size: {x: 8, y: 10}}});
+
         this.board.clearChildren();
 
+        this.board.addChild(homeButton);
         this.board.addChild(randomizeButton);
         this.board.addChild(resetButton);
     }
 
     handleNewPlayer(player) {
-        const initialColor = Colors.randomColor();
+//        const initialColor = Colors.randomColor();
 
-        this.playerColorMap[player.id] = initialColor;
+//        this.playerColorMap[player.id] = initialColor;
         
-        const setPlayerColor = function(color) {
-            this.playerColorMap[player.id] = color;
-        }.bind(this);
+//        const setPlayerColor = function(color) {
+//            this.playerColorMap[player.id] = color;
+//        }.bind(this);
 
-        const playerColorButton = gameNode(initialColor, function() {
-            this.color = Colors.randomColor();
-            setPlayerColor(this.color);
-        }, {"x": 0, "y": 0}, {"x": 10, "y": 10});
-        this.board.addChild(playerColorButton);
+//        const playerColorButton = gameNode(initialColor, function() {
+//            this.color = Colors.randomColor();
+//            setPlayerColor(this.color);
+//        }, {"x": 0, "y": 0}, {"x": 10, "y": 10});
+//        this.board.addChild(playerColorButton);
     }
 
     getAssets() {
