@@ -1,23 +1,11 @@
 const WebSocket = require("ws");
-
-//const Draw = require("./src/games/draw");
-//const LayerTest = require("./src/games/layer-test");
-//const MoveTest = require("./src/games/move-test");
-//const TextTest = require("./src/games/text-test");
 const GameSession = require("./src/GameSession");
 const Player = require("./src/Player");
-//const Homegames = require('./Homegames');
-//const SplashScreen = require("./src/splash-screen/splash-screen");
-//const Slaps = require('./src/games/slaps');
-//const NameTest = require('./src/games/name-test');
-//const Menu = require('./src/menu');
 const http = require("http");
 const linkHelper = require("./src/common/util/link-helper");
-
-const WordMatch = require('./src/games/word-match');
+const { Squarer } = require("./src/games");
 
 const PORT = 7080;
-
 const server = http.createServer();
 
 linkHelper();
@@ -38,10 +26,10 @@ const generatePlayerId = () => {
     throw new Error("no player IDs left in pool");
 };
 
-const game = new WordMatch();
+const game = new Squarer();
 
 const session = new GameSession(game, {
-    "width": 320, 
+    "width": 320,
     "height": 180
 });
 
@@ -58,7 +46,7 @@ wss.on("connection", (ws) => {
         session.addPlayer(player);
         players[ws.id] = player;
     }
-    
+
     ws.on('message', messageHandler);
 
     ws.on('close', () => {

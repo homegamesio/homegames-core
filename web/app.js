@@ -50,7 +50,7 @@ function renderBuf(buf) {
 
                 const payloadKeyRaw = buf.slice(i + 6, i + 6 + 32);
                 const payloadData = buf.slice(i + 6 + 32, i + 6 +  payloadLength);
-                const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k)); 
+                const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k));
                 let imgBase64String = '';
                 for (let i = 0; i < payloadData.length; i++) {
                     imgBase64String += String.fromCharCode(payloadData[i]);
@@ -64,7 +64,7 @@ function renderBuf(buf) {
                 const payloadLength = parseInt(payloadLengthBase32, 36);
                 const payloadKeyRaw = buf.slice(i + 6, i + 6 + 32);
                 const payloadData = buf.slice(i + 6 + 32, i + 6 +  payloadLength);
-                const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k)); 
+                const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k));
                 if (!audioCtx) {
                     gameAssets[payloadKey] = {'type': 'audio', 'data': payloadData.buffer, 'decoded': false};
                 } else {
@@ -90,7 +90,7 @@ function renderBuf(buf) {
             height = ((buf[start + 10] / 100) + (buf[start + 11] / 10000)) * verticalScale;
             ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
             ctx.fillRect(startX, startY, width, height);
-            
+
             // has text
             if (frameSize > 15) {
                 const textX = (buf[start + 12] / 100) * horizontalScale;
@@ -109,16 +109,16 @@ function renderBuf(buf) {
                 }
             }
 
-            if (frameSize > 3 + 46) { 
+            if (frameSize > 3 + 46) {
                 const assetPosX = buf[start + 46];
                 const assetPosY = buf[start + 47];
-                
+
                 const assetSizeX = buf[start + 48];
                 const assetSizeY = buf[start + 49];
 
                 const assetKeyArray = buf.slice(start + 50, start + 50 + 32);
                 const assetKey = String.fromCharCode.apply(null, assetKeyArray.filter(x => x));
-                
+
                 if (gameAssets[assetKey]['type'] === 'audio') {
                     if (audioCtx) {
                         source = audioCtx.createBufferSource();
@@ -129,18 +129,18 @@ function renderBuf(buf) {
                         console.warn("Cant play audio");
                     }
                 } else {
-                
+
                     let image;
                     if (imageCache[assetKey]) {
                         image = imageCache[assetKey];
-                        ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
+                        ctx.drawImage(image, (assetPosX / 100) * horizontalScale,
                             (assetPosY / 100) * verticalScale, image.width, image.height)
 
                     } else {
                         image = new Image(assetSizeX / 100 * horizontalScale, assetSizeY / 100 * verticalScale);
                         imageCache[assetKey] = image;
                         image.onload = () => {
-                            ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
+                            ctx.drawImage(image, (assetPosX / 100) * horizontalScale,
                                 (assetPosY / 100) * verticalScale, image.width, image.height)
                         };
 
@@ -158,7 +158,7 @@ function renderBuf(buf) {
 }
 
 function req() {
-    gamepad=navigator.getGamepads()[0]; 
+    gamepad=navigator.getGamepads()[0];
     moving = false;
     if (gamepad) {
         // left stick x
@@ -238,7 +238,7 @@ function req() {
                 keyup('ArrowRight');
                 keysDown['ArrowRight'] = false;
             }
-        } 
+        }
 
         // right stick x
         if (gamepad.axes[0] > 0.2) {
@@ -317,7 +317,7 @@ function req() {
                 keyup('d');
                 keysDown['d'] = false;
             }
-        } 
+        }
 
     } else {
         for (let key in keysDown) {
@@ -327,7 +327,7 @@ function req() {
             }
         }
     }
-        
+
     if (!moving) {
         if (keysDown['ArrowLeft']) {
             keyup('ArrowLeft');
@@ -414,7 +414,7 @@ const keyup = function(key) {
 
 const unlock = () => {
     if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') {
             audioCtx.resume();
         }

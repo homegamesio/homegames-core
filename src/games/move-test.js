@@ -3,7 +3,7 @@ const { randomColor } = require("../Colors");
 
 class MoveTest {
     constructor() {
-        this.base = gameNode(randomColor(), null, 
+        this.base = gameNode(randomColor(), null,
             {"x": 0, "y": 0}, {"x": 100, "y": 100});
 
         this.keysDown = {};
@@ -15,7 +15,7 @@ class MoveTest {
         this.mover1 = gameNode(randomColor(), function() {
         }, {"x": 45, "y": 43.5}, {"x": 10, "y": 17});
 
-        
+
         this.mover2 = gameNode(randomColor(), function() {
         }, {"x": 20, "y": 23.5}, {"x": 10, "y": 17});
 
@@ -45,7 +45,7 @@ class MoveTest {
             } else {
                 newY = player.pos.y - dist;
             }
-        } 
+        }
 
         if (dir === 'down') {
             if (player.pos.y + player.size.y + dist <= 100) {
@@ -53,7 +53,7 @@ class MoveTest {
             } else {
                 newY = 100 - player.size.y;
             }
-        } 
+        }
 
         if (dir === 'left') {
             if (player.pos.x - dist < 0) {
@@ -61,7 +61,7 @@ class MoveTest {
             } else {
                 newX = player.pos.x - dist;
             }
-        } 
+        }
 
         if (dir === 'right') {
             if (player.pos.x + player.size.x + dist <= 100) {
@@ -69,7 +69,7 @@ class MoveTest {
             } else {
                 newX = 100 - player.size.x;
             }
-        } 
+        }
 
         let wouldBeCollisions = this.squisher.checkCollisions({'id': player.id, 'pos': {'x': newX, 'y': newY}, 'size': player.size}, false);
 
@@ -84,11 +84,11 @@ class MoveTest {
             if (key == "ArrowUp") {
                 this.movePlayer(this.mover1, 'up', .2);
             }
-        
+
             if (key == "ArrowDown") {
                 this.movePlayer(this.mover1, 'down', .2);
             }
-        
+
             if (key == "ArrowLeft") {
                 this.movePlayer(this.mover1, 'left', .2);
             }
@@ -100,11 +100,11 @@ class MoveTest {
             if (key == "w") {
                 this.movePlayer(this.mover2, 'up', .2);
             }
-        
+
             if (key == "s") {
                 this.movePlayer(this.mover2, 'down', .2);
             }
-        
+
             if (key == "a") {
                 this.movePlayer(this.mover2, 'left', .2);
             }

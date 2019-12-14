@@ -31,7 +31,7 @@ const COLORS = {
 const colorValues = Object.values(COLORS);
 
 const randomColor = function() {
-    const colorIndex = Math.floor(Math.random() * colorValues.length);    
+    const colorIndex = Math.floor(Math.random() * colorValues.length);
     return colorValues[colorIndex];
 };
 

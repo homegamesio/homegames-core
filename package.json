@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "npm run-script test",
-    "start": "node game_server.js& node app_server.js"
+    "start": "node game_server.js & node app_server.js"
   },
   "repository": {
     "type": "git",
