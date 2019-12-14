@@ -11,7 +11,6 @@ const http = require("http");
 const HOMEGAMES_PORT_RANGE_MIN = 7001;
 const HOMEGAMES_PORT_RANGE_MAX = 7100;
 
-
 const players = {};
 
 for (let i = 1; i < 256; i++) {
@@ -41,7 +40,6 @@ let sessionIdCounter = 1;
 class HomegamesDashboard {
     constructor() {
         this.base = gameNode(Colors.RED, (player, x, y) => {
-            console.log('clicked');
         }, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
         this.gameIds = {};
@@ -65,6 +63,7 @@ class HomegamesDashboard {
     
     renderGameList() {
         let xIndex = 5;
+        let sessionYIndex = 20;
         this.base.clearChildren();
         for (let key in games) {
             let gameOption = gameNode(Colors.BLACK, (player, x, y) => {
@@ -111,16 +110,23 @@ class HomegamesDashboard {
 
             }, {x: xIndex, y: 0}, {x: 4, y: 4}, {'text': key, x: xIndex, y: 10});
 
-            let sessionCount = Object.values(this.sessions).filter(s => {
+            let activeSessions = Object.values(this.sessions).filter(s => {
                 return s.game.constructor.name === key;
-            }).length;
-            let gameInfoNode = gameNode(Colors.BLUE, (player, x, y) => {
-                let firstSession = Object.values(this.sessions)[0];
-                player.receiveUpdate([5, Math.floor(firstSession.hg_port / 100), Math.floor(firstSession.hg_port % 100)]);
-            }, {x: xIndex, y: 15}, {x: 4, y: 4}, {'text': sessionCount + ' sessions', x: xIndex, y: 15});
+            });
+
+            let gameInfoNode = gameNode(Colors.BLUE, null, {x: xIndex, y: 15}, {x: 4, y: 4}, {'text': activeSessions.length + ' sessions', x: xIndex, y: 15});
+
             this.base.addChild(gameInfoNode);
 
-            xIndex += 5;
+            for (let sessionIndex in activeSessions) {
+                const session = activeSessions[sessionIndex];
+                let sessionNode = gameNode(Colors.BLUE, (player, x, y) => {
+                    player.receiveUpdate([5, Math.floor(session.hg_port / 100), Math.floor(session.hg_port % 100)]);
+                }, {x: xIndex, y: 25 + (sessionIndex * 5)}, {x: 5, y: 5}, {'text': 'session', x: xIndex, y: 25 + (sessionIndex * 5)});
+                this.base.addChild(sessionNode);
+            }
+
+            xIndex += 8;
             this.base.addChild(gameOption);
         }
     }
