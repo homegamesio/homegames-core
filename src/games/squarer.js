@@ -10,10 +10,11 @@ class Squarer {
 
         const setActiveMover = function(mover) {
             this.activeMover = mover;
-        }.bind(this);
+		}.bind(this);
 
-        this.destination = gameNode(randomColor(), function() {}, {"x": 40, "y": 0}, {"x": 10, "y": 10});
-        this.square = gameNode(randomColor(), function() {}, {"x": 85, "y": 85}, {"x": 10, "y": 10});
+		const destinationColor = randomColor([BLACK]);
+        this.destination = gameNode(destinationColor, function() {}, {"x": 40, "y": 0}, {"x": 10, "y": 10});
+        this.square = gameNode(destinationColor, function() {}, {"x": 85, "y": 85}, {"x": 10, "y": 10});
 
         this.base.addChild(this.destination);
         this.base.addChild(this.square);

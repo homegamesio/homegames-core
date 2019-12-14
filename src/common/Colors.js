@@ -30,9 +30,29 @@ const COLORS = {
 
 const colorValues = Object.values(COLORS);
 
-const randomColor = function() {
-    const colorIndex = Math.floor(Math.random() * colorValues.length);
-    return colorValues[colorIndex];
+const randomColor = function(exclusionList=[]) {
+    const filteredList = exclusionList.length ? filterList(colorValues, exclusionList) : colorValues;
+    let colorIndex = -1;
+    while (colorIndex < 0 ) {
+        colorIndex = Math.floor(Math.random() * filteredList.length);
+    }
+    return filteredList[colorIndex];
+};
+
+const filterList = (colorValues, exclusionList) => {
+    return colorValues.filter(elem => {
+        let toReturn = true;
+        exclusionList.forEach(val => {
+            if (elem[0] === val[0]) {
+                toReturn = false;
+            } else if (elem[1] === val[1]) {
+                toReturn = false;
+            } else if (elem[2] === val[2]) {
+                toReturn = false;
+            }
+        });
+        return toReturn;
+    });
 };
 
 COLORS.randomColor = randomColor;
