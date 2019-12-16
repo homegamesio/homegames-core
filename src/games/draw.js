@@ -8,7 +8,7 @@ class Draw {
                 "type": "image"
             }),
             "home-button": new Asset("url", {
-                "location": "https://d3lgoy70hwd3pc.cloudfront.net/home2.png", 
+                "location": "https://d3lgoy70hwd3pc.cloudfront.net/home.png", 
                 "type": "image"
             })
         };
