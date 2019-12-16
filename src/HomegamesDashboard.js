@@ -122,7 +122,7 @@ class HomegamesDashboard {
                 const session = activeSessions[sessionIndex];
                 let sessionNode = gameNode(Colors.BLUE, (player, x, y) => {
                     player.receiveUpdate([5, Math.floor(session.hg_port / 100), Math.floor(session.hg_port % 100)]);
-                }, {x: xIndex, y: 25 + (sessionIndex * 5)}, {x: 5, y: 5}, {'text': 'session', x: xIndex, y: 25 + (sessionIndex * 5)});
+                }, {x: xIndex, y: 20 + (sessionIndex * 6)}, {x: 5, y: 5}, {'text': 'session', x: xIndex, y: 25 + (sessionIndex * 6)});
                 this.base.addChild(sessionNode);
             }
 
