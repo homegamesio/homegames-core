@@ -28,7 +28,7 @@ class GameSession {
     }
 
     removePlayer(player) {
-        delete this.players[player.id];
+        //delete this.players[player.id];
     }
 
     getGameState() {
@@ -36,8 +36,8 @@ class GameSession {
     }
 
     handlePlayerDisconnect(player) {
-        delete this.players[player.id];
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(player);
+        //delete this.players[player.id];
     }
 
     handleUpdate(update) {

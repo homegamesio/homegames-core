@@ -10,6 +10,8 @@ class Player {
     }
 
     handlePlayerInput(msg) {
+        console.log("wat");
+        console.log(msg);
         const data = JSON.parse(msg);
         if (!data.type) {
             return;

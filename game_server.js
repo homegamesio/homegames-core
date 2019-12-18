@@ -1,8 +1,8 @@
 const WebSocket = require("ws");
 
-const Draw = require("./src/games/draw");
-const LayerTest = require("./src/games/layer-test");
-const SpriteTest = require("./src/games/sprite-test");
+//const Draw = require("./src/games/draw");
+//const LayerTest = require("./src/games/layer-test");
+//const SpriteTest = require("./src/games/sprite-test");
 const HomegamesDashboard = require('./src/HomegamesDashboard');
 //const MoveTest = require("./src/games/move-test");
 //const TextTest = require("./src/games/text-test");
@@ -16,7 +16,9 @@ const Player = require("./src/Player");
 const http = require("http");
 const linkHelper = require("./src/common/util/link-helper");
 
-const WordMatch = require('./src/games/word-match');
+//const WordMatch = require('./src/games/word-match');
+const games = require('./src/games');
+console.log(games);
 
 const HOMEGAMES_PORT_RANGE_MIN = 7001;
 const HOMEGAMES_PORT_RANGE_MAX = 7100;
@@ -66,7 +68,7 @@ wss.on("connection", (ws) => {
 
     ws.on('close', () => {
         console.log("ay ay");
-        players[ws.id].disconnect();
+        players[ws.id] && players[ws.id].disconnect();
     });
 });
 
