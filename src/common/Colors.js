@@ -40,18 +40,22 @@ const randomColor = function(exclusionList=[]) {
 };
 
 const filterList = (colorValues, exclusionList) => {
-    return colorValues.filter(elem => {
-        let toReturn = true;
-        exclusionList.forEach(val => {
-            if (elem[0] === val[0]) {
-                toReturn = false;
-            } else if (elem[1] === val[1]) {
-                toReturn = false;
-            } else if (elem[2] === val[2]) {
-                toReturn = false;
+    if (colorValues.length === exclusionList.length) {
+        return [COLORS.WHITE];
+    }
+
+    return colorValues.filter(colorVal => {
+        for (const exclude of exclusionList) {
+            if (
+                colorVal[0] === exclude[0] &&
+                colorVal[1] === exclude[1] &&
+                colorVal[2] === exclude[2] &&
+                colorVal[3] === exclude[3]
+            ) {
+                return false;
             }
-        });
-        return toReturn;
+        }
+        return true;
     });
 };
 

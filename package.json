@@ -7,7 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "npm run-script test",
+    "test": "mocha",
     "start": "node game_server.js & node app_server.js"
   },
   "repository": {
@@ -25,5 +25,8 @@
   "homepage": "https://github.com/prosif/homegames#readme",
   "dependencies": {
     "ws": "^5.2.1"
+  },
+  "devDependencies": {
+    "mocha": "^6.2.2"
   }
 }
