@@ -1,3 +1,5 @@
+const { fork } = require('child_process');
+
 const { Asset, gameNode, Colors, Deck } = require('./common');
 
 const games = require('./games');
@@ -43,19 +45,19 @@ class HomegamesDashboard {
         }, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
         this.gameIds = {};
-        setInterval(() => {
-            let emptySessionIds = Object.keys(this.sessions).filter(s => {
-                return Object.values(this.sessions[s].players).length === 0;
-            });
-
-            emptySessionIds.forEach(id => {
-                delete this.sessions[id];
-            });
-
-            if (emptySessionIds.length > 0) {
-                this.renderGameList();
-            }
-        }, 5000);
+    //    setInterval(() => {
+//            let emptySessionIds = Object.keys(this.sessions).filter(s => {
+//                return Object.values(this.sessions[s].players).length === 0;
+//            });
+//
+//            emptySessionIds.forEach(id => {
+//                delete this.sessions[id];
+//            });
+//
+//            if (emptySessionIds.length > 0) {
+//                this.renderGameList();
+//            }
+//        }, 5000);
 
         this.renderGameList();
 
@@ -68,50 +70,31 @@ class HomegamesDashboard {
         for (let key in games) {
             let gameOption = gameNode(Colors.BLACK, (player, x, y) => {
                 let port = PORTS[portIndex++];
+                console.log(port);
 
-                const session = new GameSession(new games[key](), {
-                    "width": 320, 
-                    "height": 180
-                });
-                
-                const server = http.createServer();
-                
-                const wss = new WebSocket.Server({
-                    server
+                const childSession = fork('game_server2.js');
+                childSession.on('message', (msg) => {
+                    player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
                 });
 
-                wss.on("connection", (ws) => {
-                    function messageHandler(msg) {
-                        ws.removeListener('message', messageHandler);
-                        ws.id = generatePlayerId();
-                        ws.send([ws.id]);
-                        const player = new Player(ws);
-                        session.addPlayer(player);
-                        players[ws.id] = player;
-                    }
-                    
-                    ws.on('message', messageHandler);
+                childSession.send(JSON.stringify({
+                    key,
+                    port
+                }));
                 
-                    ws.on('close', () => {
-                        players[ws.id].disconnect();
-                        delete players[ws.id]; 
-                    });
-                });
+                console.log('spawned dat boi');
 
-                session.hg_port = port;
-
-                this.sessions[sessionIdCounter++] = session;
-                
-                server.listen(port);
-
-                player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
-
+                this.sessions[sessionIdCounter++] = {
+                    game: key,
+                    port: port
+                };
+                 
                 this.renderGameList();
 
             }, {x: xIndex, y: 0}, {x: 4, y: 4}, {'text': key, x: xIndex, y: 10});
 
             let activeSessions = Object.values(this.sessions).filter(s => {
-                return s.game.constructor.name === key;
+                return s === key;
             });
 
             let gameInfoNode = gameNode(Colors.BLUE, null, {x: xIndex, y: 15}, {x: 4, y: 4}, {'text': activeSessions.length + ' sessions', x: xIndex, y: 15});
@@ -132,9 +115,13 @@ class HomegamesDashboard {
     }
 
     handleNewPlayer(player) {
+        console.log("new player?");
+        console.log(Object.values(this.players).length);
     }
 
     handlePlayerDisconnect(player) {
+        console.log("player left");
+        console.log(Object.values(this.players).length);
     }
 
     getRoot() {

@@ -3,13 +3,15 @@ const localIP = window.location.hostname;
 let socket;
 
 const initSocket = (port) => {
-    console.log("AYY");
+    console.log("hello");
+    console.log(port);
+    socket && socket.close();
 socket = new WebSocket('ws://' + localIP + ':' + port);
 
 socket.binaryType = 'arraybuffer';
 
 socket.onopen = () => {
-    socket.send("ready");
+    socket.send('ready');
     window.requestAnimationFrame(req);
 };
 
@@ -32,7 +34,12 @@ socket.onmessage = function(msg) {
 }
 
 initSocket(7000);
-
+document.getElementById('swap').addEventListener('click', (e) => {
+    console.log("SWAP");
+    let val = document.getElementById('port-input').value;
+    console.log(val);
+    initSocket(val);
+});
 window.playerId = null;
 
 let audioAllowed = false;
@@ -407,22 +414,28 @@ function req() {
 let currentBuf;
 
 const click = function(x, y) {
-    const pixelWidth = canvas.width / originalWidth;
-    const pixelHeight = canvas.height / originalHeight;
-    const clickX = Math.floor(x / pixelWidth);
-    const clickY = Math.floor(y  / pixelHeight);
-    const payload = {type: 'click',  data: {x: clickX, y: clickY}};
-    socket.readyState === 1 && socket.send(JSON.stringify(payload));
+    if (socket) {
+        const pixelWidth = canvas.width / originalWidth;
+        const pixelHeight = canvas.height / originalHeight;
+        const clickX = Math.floor(x / pixelWidth);
+        const clickY = Math.floor(y  / pixelHeight);
+        const payload = {type: 'click',  data: {x: clickX, y: clickY}};
+        socket.readyState === 1 && socket.send(JSON.stringify(payload));
+    }
 };
 
 const keydown = function(key) {
-    const payload = {type: 'keydown',  key: key};
-    socket.readyState === 1 && socket.send(JSON.stringify(payload));
+    if (socket) {
+        const payload = {type: 'keydown',  key: key};
+        socket.readyState === 1 && socket.send(JSON.stringify(payload));
+    }
 };
 
 const keyup = function(key) {
-    const payload = {type: 'keyup',  key: key};
-    socket.readyState === 1 && socket.send(JSON.stringify(payload));
+    if (socket) {
+        const payload = {type: 'keyup',  key: key};
+        socket.readyState === 1 && socket.send(JSON.stringify(payload));
+    }
 };
 
 const unlock = () => {
@@ -475,11 +488,11 @@ function keyMatters(event) {
     return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta' || event.key == 'Backspace';
 }
 
-function isGarbage() {
+function isMobile() {
     return /Android/i.test(navigator.userAgent);
 }
 
-if (isGarbage()) {
+if (isMobile()) {
     document.getElementById('text-hack').addEventListener('input', (e) => {
         let eventKey = e.data ? e.data.charAt(e.data.length - 1) : 'Backspace';
         e.key = eventKey;
@@ -491,14 +504,12 @@ if (isGarbage()) {
 } else {
     document.addEventListener('keydown', function(e) {
         if (keyMatters(e) && !keysDown['Meta']) {
-            e.preventDefault();
             keydown(e.key);
             keysDown[e.key] = true;
         }
     });
     document.addEventListener('keyup', function(e) {
         if (keyMatters(e)) {
-            e.preventDefault();
             keyup(e.key);
             keysDown[e.key] = false;
         }
