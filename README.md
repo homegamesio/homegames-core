@@ -3,6 +3,8 @@
 
 Play simple browser-based games on a local network. 
 
+![homegames diagram](https://d3lgoy70hwd3pc.cloudfront.net/homegames.png)
+
 Download binaries at https://homegames.io or just:
 `npm install` followed by `npm run start`.
 
