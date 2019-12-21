@@ -18,7 +18,6 @@ const linkHelper = require("./src/common/util/link-helper");
 
 //const WordMatch = require('./src/games/word-match');
 const games = require('./src/games');
-console.log(games);
 
 const HOMEGAMES_PORT_RANGE_MIN = 7001;
 const HOMEGAMES_PORT_RANGE_MAX = 7100;
@@ -67,7 +66,6 @@ wss.on("connection", (ws) => {
     ws.on('message', messageHandler);
 
     ws.on('close', () => {
-        console.log("ay ay");
         players[ws.id] && players[ws.id].disconnect();
     });
 });

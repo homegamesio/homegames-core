@@ -7,13 +7,14 @@ const games = require('./src/games');
 
 let playerId = 1;
 
-process.on('message', (msg) => {
-    console.log("message from parent");
-    console.log(msg);
-    sessionInfo = JSON.parse(msg);
+let lastMessage;
+
+let gameSession;
+
+const startServer = (sessionInfo) => {
     const gameInstance = new games[sessionInfo.key]();
     const server = http.createServer();
-    const gameSession = new GameSession(gameInstance, {
+    gameSession = new GameSession(gameInstance, {
         width: 320,
         height: 180
     });
@@ -43,6 +44,7 @@ process.on('message', (msg) => {
         ws.on('close', () => {
             console.log("this happens");
             gameSession.players[ws.id] && gameSession.players[ws.id].disconnect();
+            console.log("UHHHH");
         });
 
         process.send(JSON.stringify({
@@ -53,5 +55,36 @@ process.on('message', (msg) => {
     server.listen(sessionInfo.port, null, null, () => {
         process.send(JSON.stringify({success: true}));
     });
+};
+
+process.on('message', (msg) => {
+    console.log("message from parent");
+    console.log(msg);
+    lastMessage = new Date();
+    let message = JSON.parse(msg);
+    if (message.key) {
+        startServer(message);
+    } else {
+        console.log("AY AY");
+        console.log(message);
+        if (message.api) {
+            if (message.api === 'getPlayers') {
+                process.send(JSON.stringify({
+                    'payload': Object.values(gameSession.players).map(p => { return {'ayy': 'lmao'}}),
+                    'requestId': message.requestId
+                }));
+            }
+        }
+    }
 });
 
+const checkPulse = () => {
+    console.log("should i live");
+    console.log(Object.values(gameSession.players).length);
+    if (Object.values(gameSession.players).length == 0 || !lastMessage || new Date() - lastMessage > 5000) {
+        console.log("NO");
+        process.exit(0);
+    }
+};
+
+setInterval(checkPulse, 5000);

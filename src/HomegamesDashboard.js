@@ -45,22 +45,19 @@ class HomegamesDashboard {
         }, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
         this.gameIds = {};
-    //    setInterval(() => {
-//            let emptySessionIds = Object.keys(this.sessions).filter(s => {
-//                return Object.values(this.sessions[s].players).length === 0;
-//            });
-//
-//            emptySessionIds.forEach(id => {
-//                delete this.sessions[id];
-//            });
-//
-//            if (emptySessionIds.length > 0) {
-//                this.renderGameList();
-//            }
-//        }, 5000);
+        this.requestCallbacks = {};
+        this.requestIdCounter = 1;
+        setInterval(this.heartbeat.bind(this), 2000);
+        setInterval(this.renderGameList.bind(this), 5000);
 
         this.renderGameList();
 
+    }
+
+    heartbeat() {
+        Object.values(this.sessions).forEach(session => {
+            session.sendHeartbeat();
+        });
     }
     
     renderGameList() {
@@ -69,10 +66,12 @@ class HomegamesDashboard {
         this.base.clearChildren();
         for (let key in games) {
             let gameOption = gameNode(Colors.BLACK, (player, x, y) => {
+
+                let sessionId = sessionIdCounter++;
                 let port = PORTS[portIndex++];
-                console.log(port);
 
                 const childSession = fork('game_server2.js');
+
                 childSession.on('message', (msg) => {
                     player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
                 });
@@ -81,12 +80,42 @@ class HomegamesDashboard {
                     key,
                     port
                 }));
+
+
+                childSession.on('message', (thang) => {
+                    let jsonMessage = JSON.parse(thang);
+                    if (jsonMessage.requestId) {
+                        this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
+                    }
+                });
+
+                childSession.on('close', () => {
+                    console.log("My mans kill himself");
+                    delete this.sessions[sessionId];
+                });
                 
                 console.log('spawned dat boi');
 
-                this.sessions[sessionIdCounter++] = {
+                this.sessions[sessionId] = {
                     game: key,
-                    port: port
+                    port: port,
+                    sendMessage: (msg) => {
+                    },
+                    getPlayers: (cb) => {
+                        let requestId = this.requestIdCounter++;
+                        if (cb) {
+                            this.requestCallbacks[requestId] = cb;
+                        }
+                        childSession.send(JSON.stringify({
+                            'api': 'getPlayers',
+                            'requestId': requestId
+                        }));
+                    },
+                    sendHeartbeat: () => {
+                        childSession.send(JSON.stringify({
+                            "type": "heartbeat"
+                        }))
+                    }
                 };
                  
                 this.renderGameList();
@@ -94,7 +123,7 @@ class HomegamesDashboard {
             }, {x: xIndex, y: 0}, {x: 4, y: 4}, {'text': key, x: xIndex, y: 10});
 
             let activeSessions = Object.values(this.sessions).filter(s => {
-                return s === key;
+                return s.game === key;
             });
 
             let gameInfoNode = gameNode(Colors.BLUE, null, {x: xIndex, y: 15}, {x: 4, y: 4}, {'text': activeSessions.length + ' sessions', x: xIndex, y: 15});
@@ -104,7 +133,9 @@ class HomegamesDashboard {
             for (let sessionIndex in activeSessions) {
                 const session = activeSessions[sessionIndex];
                 let sessionNode = gameNode(Colors.BLUE, (player, x, y) => {
-                    player.receiveUpdate([5, Math.floor(session.hg_port / 100), Math.floor(session.hg_port % 100)]);
+                    console.log("DAT BOI CLICKK");
+                    console.log(session);
+                    player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
                 }, {x: xIndex, y: 20 + (sessionIndex * 6)}, {x: 5, y: 5}, {'text': 'session', x: xIndex, y: 25 + (sessionIndex * 6)});
                 this.base.addChild(sessionNode);
             }
@@ -115,13 +146,9 @@ class HomegamesDashboard {
     }
 
     handleNewPlayer(player) {
-        console.log("new player?");
-        console.log(Object.values(this.players).length);
     }
 
     handlePlayerDisconnect(player) {
-        console.log("player left");
-        console.log(Object.values(this.players).length);
     }
 
     getRoot() {
