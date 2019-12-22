@@ -8,8 +8,10 @@ const NameTest = require('./name-test');
 const SpriteTest = require('./sprite-test');
 const TextTest = require('./text-test');
 const WordMatch = require('./word-match');
+const HomeButtonTest = require('./home-button-test');
 
 module.exports = {
+    HomeButtonTest,
     Draw,
     LayerTest,
     MoveTest,

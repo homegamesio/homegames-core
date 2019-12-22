@@ -8,26 +8,9 @@ const WebSocket = require("ws");
 
 const GameSession = require("./GameSession");
 const Player = require("./Player");
-const http = require("http");
 
 const HOMEGAMES_PORT_RANGE_MIN = 7001;
 const HOMEGAMES_PORT_RANGE_MAX = 7100;
-
-const players = {};
-
-for (let i = 1; i < 256; i++) {
-    players[i] = false;
-}
-
-const generatePlayerId = () => {
-    for (let k in players) {
-        if (!players[k]) {
-            return Number(k);
-        }
-    }
-
-    throw new Error("no player IDs left in pool");
-};
 
 const PORTS = new Array();
 
@@ -51,7 +34,6 @@ class HomegamesDashboard {
         setInterval(this.renderGameList.bind(this), 5000);
 
         this.renderGameList();
-
     }
 
     heartbeat() {
@@ -70,10 +52,15 @@ class HomegamesDashboard {
                 let sessionId = sessionIdCounter++;
                 let port = PORTS[portIndex++];
 
-                const childSession = fork('game_server2.js');
+                const childSession = fork('src/game_server2.js');
 
                 childSession.on('message', (msg) => {
-                    player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+                    let parsed = JSON.parse(msg);
+                    if (parsed.success) {
+                        
+                        player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+                    }
+//                    player.disconnect();
                 });
 
                 childSession.send(JSON.stringify({
@@ -90,11 +77,9 @@ class HomegamesDashboard {
                 });
 
                 childSession.on('close', () => {
-                    console.log("My mans kill himself");
                     delete this.sessions[sessionId];
                 });
                 
-                console.log('spawned dat boi');
 
                 this.sessions[sessionId] = {
                     game: key,
@@ -133,8 +118,6 @@ class HomegamesDashboard {
             for (let sessionIndex in activeSessions) {
                 const session = activeSessions[sessionIndex];
                 let sessionNode = gameNode(Colors.BLUE, (player, x, y) => {
-                    console.log("DAT BOI CLICKK");
-                    console.log(session);
                     player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
                 }, {x: xIndex, y: 20 + (sessionIndex * 6)}, {x: 5, y: 5}, {'text': 'session', x: xIndex, y: 25 + (sessionIndex * 6)});
                 this.base.addChild(sessionNode);
@@ -145,10 +128,16 @@ class HomegamesDashboard {
         }
     }
 
+    logPlayerCount() {
+        console.log("Homegames dashboard has " + Object.values(this.players).length + " players");
+    }
+
     handleNewPlayer(player) {
+        this.logPlayerCount();
     }
 
     handlePlayerDisconnect(player) {
+        this.logPlayerCount();
     }
 
     getRoot() {

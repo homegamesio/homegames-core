@@ -18,7 +18,6 @@ class TextTest {
     }
 
     handleNewPlayer(player) {
-        this.players.add(player);
         this.updatePlayerCount();
     }
 

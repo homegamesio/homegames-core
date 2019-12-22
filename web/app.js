@@ -3,43 +3,58 @@ const localIP = window.location.hostname;
 let socket;
 
 const initSocket = (port) => {
-    console.log("hello");
+    console.log("initing socket")
     console.log(port);
+
     socket && socket.close();
-socket = new WebSocket('ws://' + localIP + ':' + port);
 
-socket.binaryType = 'arraybuffer';
+    socket = new WebSocket('ws://' + localIP + ':' + port);
 
-socket.onopen = () => {
-    socket.send('ready');
-    window.requestAnimationFrame(req);
-};
+    socket.binaryType = 'arraybuffer';
 
-socket.onmessage = function(msg) {
-    currentBuf = new Uint8ClampedArray(msg.data);
-    if (currentBuf.length == 1) {
-        window.playerId = currentBuf[0];
-    }
-    else if (currentBuf[0] == 1) {
-        renderBuf(currentBuf);
-    } else if (currentBuf[0] === 5) {
-        
-        let a = String(currentBuf[1]);
-        let b = String(currentBuf[2]).length > 1 ? currentBuf[2] : '0' + currentBuf[2];
-        let newPort = a + b;
-        socket.close();
-        initSocket(Number(newPort));
-    }
-};
+    socket.onopen = () => {
+        console.log("sending ready");
+        console.log(socket.readyState);
+        socket.send('ready');
+        window.requestAnimationFrame(req);
+    };
+
+    socket.onerror = (err) => {
+        console.log("ERROR");
+        console.log(err);
+    };
+
+    socket.onclose = (err) => {
+        console.log("CL:OSE");
+        console.log(err);
+    };
+
+    socket.onmessage = function(msg) {
+        currentBuf = new Uint8ClampedArray(msg.data);
+        if (currentBuf.length == 1) {
+            window.playerId = currentBuf[0];
+        }
+        else if (currentBuf[0] == 1) {
+            renderBuf(currentBuf);
+        } else if (currentBuf[0] === 5) {
+            console.log("GONNA INIT");
+            console.log(currentBuf);
+            let a = String(currentBuf[1]);
+            let b = String(currentBuf[2]).length > 1 ? currentBuf[2] : '0' + currentBuf[2];
+            let newPort = a + b;
+            initSocket(Number(newPort).toString());
+        }
+    };
 }
 
-initSocket(7000);
-document.getElementById('swap').addEventListener('click', (e) => {
-    console.log("SWAP");
-    let val = document.getElementById('port-input').value;
+//initSocket(7000);
+
+document.getElementById('pls').onchange = () => {
+    let val = document.getElementById('pls').value;
     console.log(val);
     initSocket(val);
-});
+};
+
 window.playerId = null;
 
 let audioAllowed = false;
@@ -94,6 +109,8 @@ function renderBuf(buf) {
                 gameAssets[payloadKey] = {'type': 'image', 'data': "data:image/jpeg;base64," + imgBase64};
                 i += 6 + payloadLength;
             } else {
+                console.log("wtf");
+                console.log(buf);
                 // audio
                 const payloadLengthBase32 = String.fromCharCode.apply(null, buf.slice(i + 2, i + 6));
                 const payloadLength = parseInt(payloadLengthBase32, 36);
@@ -406,7 +423,7 @@ function req() {
 
     }
 
-    renderBuf(currentBuf);
+    currentBuf && currentBuf.length > 1 && renderBuf(currentBuf);
 
     window.requestAnimationFrame(req);
 }
