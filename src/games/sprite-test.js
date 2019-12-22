@@ -95,7 +95,7 @@ class SpriteTest {
 
     getPlayerSpot() {
         for (let i in this.playerSpots) {
-            if (!this.playerSpots[i].player) {
+            if (!this.playerSpots[i].playerId) {
                 return this.playerSpots[i];
             }
         }
@@ -117,15 +117,17 @@ class SpriteTest {
         this.background.addChild(this.dancers[player.id]);
     }
 
-    handlePlayerDisconnect(player) {
+    handlePlayerDisconnect(playerId) {
         // this is terrible but its working and its so cool
         for (let i in this.playerSpots) {
-            if (this.playerSpots[i].player && this.playerSpots[i].player.id == player.id) {
-                this.playerSpots[i].player = null;
+            if (this.playerSpots[i].playerId == playerId) {
+                this.playerSpots[i].playerId = null;
             }
         }
-        this.background.removeChild(this.dancers[player.id].id);
-        delete this.dancers[player.id];
+        console.log("disconnect");
+        console.log(this.dancers);
+        this.background.removeChild(this.dancers[playerId].id);
+        delete this.dancers[playerId];
     }
 
     getAssets() {

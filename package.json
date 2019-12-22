@@ -6,6 +6,10 @@
   "directories": {
     "lib": "lib"
   },
+  "bin": "app_server",
+  "pkg": {
+    "assets": "web/**/*"
+  },
   "scripts": {
     "test": "npm run-script test",
     "start": "node game_server.js& node app_server.js"
