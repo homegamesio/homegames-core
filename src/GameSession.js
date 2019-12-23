@@ -35,9 +35,9 @@ class GameSession {
         return this.squisher.getPixels();
     }
 
-    handlePlayerDisconnect(player) {
-        this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(player);
-        delete this.players[player.id];
+    handlePlayerDisconnect(playerId) {
+        this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
+        delete this.players[playerId];
     }
 
     handleUpdate(update) {

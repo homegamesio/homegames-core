@@ -33,7 +33,7 @@ const socketServer = (gameSession, port, cb = null) => {
             ws.removeListener('message', messageHandler);
     
             ws.id = generatePlayerId();
-            ws.readyState === 1 && ws.send([ws.id]);
+            ws.send([ws.id]);
 
             const player = new Player(ws);
             gameSession.addPlayer(player);
@@ -42,9 +42,7 @@ const socketServer = (gameSession, port, cb = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
-            console.log("HELLO");
-            console.log(ws.id);
-            gameSession.handlePlayerDisconnect(ws.id);
+            //gameSession.handlePlayerDisconnect(ws.id);
         }
 
         ws.on('close', closeHandler);

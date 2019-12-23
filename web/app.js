@@ -3,18 +3,15 @@ const localIP = window.location.hostname;
 let socket;
 
 const initSocket = (port) => {
-    console.log("initing socket")
+    console.log("new socket");
     console.log(port);
-
     socket && socket.close();
-
     socket = new WebSocket('ws://' + localIP + ':' + port);
 
     socket.binaryType = 'arraybuffer';
 
     socket.onopen = () => {
-        console.log("sending ready");
-        console.log(socket.readyState);
+        console.log("OPEN");
         socket.send('ready');
         window.requestAnimationFrame(req);
     };
@@ -34,11 +31,9 @@ const initSocket = (port) => {
         if (currentBuf.length == 1) {
             window.playerId = currentBuf[0];
         }
-        else if (currentBuf[0] == 1) {
+        else if (currentBuf[0] == 3) {
             renderBuf(currentBuf);
         } else if (currentBuf[0] === 5) {
-            console.log("GONNA INIT");
-            console.log(currentBuf);
             let a = String(currentBuf[1]);
             let b = String(currentBuf[2]).length > 1 ? currentBuf[2] : '0' + currentBuf[2];
             let newPort = a + b;
@@ -47,11 +42,10 @@ const initSocket = (port) => {
     };
 }
 
-//initSocket(7000);
+initSocket(7000);
 
 document.getElementById('pls').onchange = () => {
     let val = document.getElementById('pls').value;
-    console.log(val);
     initSocket(val);
 };
 
@@ -109,8 +103,6 @@ function renderBuf(buf) {
                 gameAssets[payloadKey] = {'type': 'image', 'data': "data:image/jpeg;base64," + imgBase64};
                 i += 6 + payloadLength;
             } else {
-                console.log("wtf");
-                console.log(buf);
                 // audio
                 const payloadLengthBase32 = String.fromCharCode.apply(null, buf.slice(i + 2, i + 6));
                 const payloadLength = parseInt(payloadLengthBase32, 36);
@@ -423,7 +415,7 @@ function req() {
 
     }
 
-    currentBuf && currentBuf.length > 1 && renderBuf(currentBuf);
+    currentBuf && currentBuf.length > 1 && currentBuf[0] == 3 && renderBuf(currentBuf);
 
     window.requestAnimationFrame(req);
 }
@@ -473,6 +465,10 @@ const unlock = () => {
 }
 
 document.addEventListener('touchstart', unlock, false);
+
+document.getElementById('asset-form').addEventListener('submit', (stuff) => {
+    console.log("SUBMITTED");
+});
 
 canvas.addEventListener('mousedown', function(e) {
     mouseDown = true;
