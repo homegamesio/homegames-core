@@ -19,7 +19,7 @@ class Squisher {
         this.listeners.remove(listener);
     }
 
-    async initialize() {
+    async initialize(cb) {
         const gameAssets = this.game.getAssets ? this.game.getAssets() : [];
         
         this.squishedNodes = {};
@@ -65,6 +65,8 @@ class Squisher {
             const heartbeat = this.notifyListeners.bind(this);
             setInterval(heartbeat, 5000);
         }
+
+        cb && cb();
     }
 
     handleStateChange(node) {

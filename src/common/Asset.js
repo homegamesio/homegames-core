@@ -9,9 +9,11 @@ if (!fs.existsSync(CACHE_DIR)) {
 }
 
 class Asset {
-    constructor(sourceType, info) {
+    constructor(sourceType, info, data) {
         this.sourceType = sourceType;
         this.info = info;
+        this.data = data;
+        this.done = false;
     }
 
     download(uri) {
@@ -43,16 +45,26 @@ class Asset {
         });
     }
 
+    saveBinaryFile(path, data, cb) {
+        fs.writeFileSync(path, data, 'binary');
+        this.done = true;
+        this.data = fs.readFileSync(path);
+    }
+
     getData() {
-        if (this.data) {
+        if (this.done) {
             return this.data;
         }
 
         if (this.sourceType === "url") {
             return this.download(this.info.location).then(payload => {
                 this.data = payload;
+                this.done = true;
                 return payload;
             });
+        } else if (this.sourceType === 'file') {
+            this.saveBinaryFile('testthing', this.data);
+            return this.data;
         }
     }
 }

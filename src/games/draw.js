@@ -62,6 +62,8 @@ class Draw {
     }
 
     logPlayerCount() {
+        console.log("draw");
+        console.log(Object.values(this.players).length);
     }
 
     handleNewPlayer(player) {

@@ -15,6 +15,7 @@ const socketServer = (gameSession, port, cb = null) => {
     const generatePlayerId = () => {
         for (let k in playerIds) {
             if (playerIds[k] === false) {
+                playerIds[k] = true;
                 return Number(k);
             }
         }
@@ -42,7 +43,7 @@ const socketServer = (gameSession, port, cb = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
-            //gameSession.handlePlayerDisconnect(ws.id);
+            gameSession.handlePlayerDisconnect(ws.id);
         }
 
         ws.on('close', closeHandler);
