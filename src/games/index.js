@@ -9,17 +9,31 @@ const SpriteTest = require('./sprite-test');
 const TextTest = require('./text-test');
 const WordMatch = require('./word-match');
 const HomeButtonTest = require('./home-button-test');
+const GameA = require('./gamea');
+const GameB = require('./gameb');
+const GameC = require('./gamec');
+const GameD = require('./gamed');
+const GameE = require('./gamee');
+const GameF = require('./gamef');
+const GameG = require('./gameg');
 
 module.exports = {
-    HomeButtonTest,
-    Draw,
-    LayerTest,
-    MoveTest,
-    NameTest,
-    Slaps,
-    SpriteTest,
-    Test1,
-    Test2,
-    TextTest,
-    WordMatch
+    GameA,
+    GameB,
+    GameC,
+    GameD,
+    GameE,
+    GameF,
+    GameG,
+//    HomeButtonTest,
+//    Draw,
+//    LayerTest,
+//    MoveTest,
+//    NameTest,
+//    Slaps,
+//    SpriteTest,
+//    Test1,
+//    Test2,
+//    TextTest,
+//    WordMatch
 };

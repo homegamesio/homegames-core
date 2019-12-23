@@ -51,9 +51,7 @@ class Draw {
         const resetButton = gameNode(Colors.BLUE, this.initializeBoard.bind(this), {x: 60, y: 0}, {x: 15, y: 15});
 
         const homeButton = gameNode(Colors.PURPLE, (player, x, y) => {
-            if (!clickedNode) {
-                player.receiveUpdate([5, 70, 0]);
-            }
+            player.receiveUpdate([5, 70, 0]);
         }, {"x": 3, "y": 3}, {"x": 8, "y": 10}, {'text': '', 'x': 0, 'y': 0}, {'home-button': {pos: {x: 3, y: 3}, size: {x: 8, y: 10}}});
 
         this.board.clearChildren();
