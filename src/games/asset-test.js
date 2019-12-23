@@ -39,7 +39,7 @@ class AssetTest {
                 {text: '', x: 0, y: 0},
                 {'test-upload': {
                     pos: {x: 50, y: 50},
-                    size: {x: 20, y: 10}
+                    size: {x: 20, y: 20}
                 }});
                 this.base.addChild(imageNode);
         });
