@@ -95,7 +95,7 @@ class SpriteTest {
 
     getPlayerSpot() {
         for (let i in this.playerSpots) {
-            if (!this.playerSpots[i].playerId) {
+            if (!this.playerSpots[i].player) {
                 return this.playerSpots[i];
             }
         }
@@ -124,8 +124,6 @@ class SpriteTest {
                 this.playerSpots[i].playerId = null;
             }
         }
-        console.log("disconnect");
-        console.log(this.dancers);
         this.background.removeChild(this.dancers[playerId].id);
         delete this.dancers[playerId];
     }

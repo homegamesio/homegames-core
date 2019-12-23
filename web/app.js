@@ -3,15 +3,12 @@ const localIP = window.location.hostname;
 let socket;
 
 const initSocket = (port) => {
-    console.log("new socket");
-    console.log(port);
     socket && socket.close();
     socket = new WebSocket('ws://' + localIP + ':' + port);
 
     socket.binaryType = 'arraybuffer';
 
     socket.onopen = () => {
-        console.log("OPEN");
         socket.send('ready');
         window.requestAnimationFrame(req);
     };
@@ -30,14 +27,13 @@ const initSocket = (port) => {
         currentBuf = new Uint8ClampedArray(msg.data);
         if (currentBuf.length == 1) {
             window.playerId = currentBuf[0];
-        }
-        else if (currentBuf[0] == 3) {
-            renderBuf(currentBuf);
         } else if (currentBuf[0] === 5) {
             let a = String(currentBuf[1]);
             let b = String(currentBuf[2]).length > 1 ? currentBuf[2] : '0' + currentBuf[2];
             let newPort = a + b;
             initSocket(Number(newPort).toString());
+        } else {
+            renderBuf(currentBuf);
         }
     };
 }
@@ -415,7 +411,7 @@ function req() {
 
     }
 
-    currentBuf && currentBuf.length > 1 && currentBuf[0] == 3 && renderBuf(currentBuf);
+    currentBuf && currentBuf.length > 1 && (currentBuf[0] == 3 || currentBuf[0] == 1) && renderBuf(currentBuf);
 
     window.requestAnimationFrame(req);
 }
@@ -465,6 +461,18 @@ const unlock = () => {
 }
 
 document.addEventListener('touchstart', unlock, false);
+
+document.getElementById('asset-form').addEventListener('input', (stuff) => {
+    console.log("SUBMITTED");
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        console.log('dat boi loaded');
+        console.log(e.target.result);
+        socket.send(e.target.result);
+
+    };
+    reader.readAsBinaryString(document.getElementById('asset-form').files[0]);
+});
 
 document.getElementById('asset-form').addEventListener('submit', (stuff) => {
     console.log("SUBMITTED");
@@ -517,12 +525,14 @@ if (isMobile()) {
 } else {
     document.addEventListener('keydown', function(e) {
         if (keyMatters(e) && !keysDown['Meta']) {
+            e.preventDefault();
             keydown(e.key);
             keysDown[e.key] = true;
         }
     });
     document.addEventListener('keyup', function(e) {
         if (keyMatters(e)) {
+            e.preventDefault();
             keyup(e.key);
             keysDown[e.key] = false;
         }

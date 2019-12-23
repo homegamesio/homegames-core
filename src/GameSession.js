@@ -17,8 +17,9 @@ class GameSession {
          
         player.addInputListener(this.squisher);
         player.addStateListener(this);
+        player.addDataListener(this);
         this.players[player.id] = player;
-        const gameAssets = await this.squisher.getAssets();
+        const gameAssets = this.squisher.getAssets();
         if (gameAssets && gameAssets.length > 0) {
             player.receiveUpdate(gameAssets);
         }
@@ -38,6 +39,11 @@ class GameSession {
     handlePlayerDisconnect(playerId) {
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
         delete this.players[playerId];
+    }
+
+    handlePlayerData(player, data) {
+        console.log("PLAYER " + player.id + " SENT DATA");
+        this.game.handlePlayerData && this.game.handlePlayerData(player, data);
     }
 
     handleUpdate(update) {
