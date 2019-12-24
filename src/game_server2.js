@@ -1,7 +1,4 @@
-const WebSocket = require("ws");
 const GameSession = require("./GameSession");
-const Player = require("./Player");
-const http = require("http");
 const { socketServer } = require('./util/socket');
 const games = require('./games');
 
@@ -13,7 +10,6 @@ let gameSession;
 
 const startServer = (sessionInfo) => {
     const gameInstance = new games[sessionInfo.key]();
-//    const server = http.createServer();
     
     gameSession = new GameSession(gameInstance, {
         width: 320,
@@ -58,6 +54,8 @@ process.on('message', (msg) => {
     if (message.key) {
         startServer(message);
     } else {
+        console.log("Got message");
+        console.log(message);
         if (message.api) {
             if (message.api === 'getPlayers') {
                 process.send(JSON.stringify({
@@ -70,7 +68,7 @@ process.on('message', (msg) => {
 });
 
 const checkPulse = () => {
-    if (!gameSession) {//|| Object.values(gameSession.players).length == 0 || !lastMessage || new Date() - lastMessage > 5000) {
+    if (!gameSession || Object.values(gameSession.players).length == 0 || !lastMessage || new Date() - lastMessage > 5000) {
         process.exit(0);
     }
 };

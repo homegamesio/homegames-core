@@ -63,7 +63,7 @@ class Squisher {
             setInterval(this.game.tick.bind(this.game), 16);
         } else {
             const heartbeat = this.notifyListeners.bind(this);
-            setInterval(heartbeat, 5000);
+            setInterval(heartbeat, 2000);
         }
 
         cb && cb();

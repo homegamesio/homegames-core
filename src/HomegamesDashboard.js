@@ -31,7 +31,7 @@ class HomegamesDashboard {
         this.requestCallbacks = {};
         this.requestIdCounter = 1;
         setInterval(this.heartbeat.bind(this), 2000);
-        setInterval(this.renderGameList.bind(this), 5000);
+//        setInterval(this.renderGameList.bind(this), 5000);
 
         this.renderGameList();
     }
@@ -54,30 +54,24 @@ class HomegamesDashboard {
 
                 const childSession = fork('src/game_server2.js');
 
-                childSession.on('message', (msg) => {
-                    let parsed = JSON.parse(msg);
-                    if (parsed.success) {
-                        
-                        player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
-                    }
-//                    player.disconnect();
-                });
-
                 childSession.send(JSON.stringify({
                     key,
                     port
                 }));
 
-
                 childSession.on('message', (thang) => {
                     let jsonMessage = JSON.parse(thang);
-                    if (jsonMessage.requestId) {
+                    if (jsonMessage.success) {
+                        player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+                    }
+                    else if (jsonMessage.requestId) {
                         this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
                     }
                 });
 
                 childSession.on('close', () => {
                     delete this.sessions[sessionId];
+                    this.renderGameList();
                 });
                 
 
