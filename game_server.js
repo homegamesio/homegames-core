@@ -1,3 +1,5 @@
+#!/usr/bin/env/node
+
 const HomegamesDashboard = require('./src/HomegamesDashboard');
 const GameSession = require("./src/GameSession");
 const { socketServer } = require('./src/util/socket');

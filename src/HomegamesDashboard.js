@@ -1,4 +1,5 @@
 const { fork } = require('child_process');
+const path = require('path');
 
 const { Asset, gameNode, Colors, Deck } = require('./common');
 
@@ -31,7 +32,6 @@ class HomegamesDashboard {
         this.requestCallbacks = {};
         this.requestIdCounter = 1;
         setInterval(this.heartbeat.bind(this), 2000);
-//        setInterval(this.renderGameList.bind(this), 5000);
 
         this.renderGameList();
     }
@@ -52,7 +52,7 @@ class HomegamesDashboard {
                 let sessionId = sessionIdCounter++;
                 let port = PORTS[portIndex++];
 
-                const childSession = fork('src/game_server2.js');
+                const childSession = fork(path.join(__dirname, 'game_server2.js'));
 
                 childSession.send(JSON.stringify({
                     key,
