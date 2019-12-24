@@ -462,7 +462,7 @@ const unlock = () => {
 
 document.addEventListener('touchstart', unlock, false);
 
-document.getElementById('asset-form').addEventListener('input', (stuff) => {
+document.getElementById('asset-form').addEventListener('change', (stuff) => {
     console.log("SUBMITTED");
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -472,10 +472,6 @@ document.getElementById('asset-form').addEventListener('input', (stuff) => {
 
     };
     reader.readAsBinaryString(document.getElementById('asset-form').files[0]);
-});
-
-document.getElementById('asset-form').addEventListener('submit', (stuff) => {
-    console.log("SUBMITTED");
 });
 
 canvas.addEventListener('mousedown', function(e) {
