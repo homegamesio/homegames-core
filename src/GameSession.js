@@ -4,7 +4,7 @@ const { generateName } = require('./common/util/name-generator');
 class GameSession {
     constructor(game, res) {
         this.game = game;
-        this.squisher = new Squisher(res.width, res.height, game);
+        this.squisher = new Squisher(game);
         this.squisher.addListener(this);
         this.players = {};
         this.game.players = this.players;

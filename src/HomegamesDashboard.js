@@ -10,12 +10,13 @@ const WebSocket = require("ws");
 const GameSession = require("./GameSession");
 const Player = require("./Player");
 
-const HOMEGAMES_PORT_RANGE_MIN = 7001;
+const config = require('../config');
+
 const HOMEGAMES_PORT_RANGE_MAX = 7100;
 
 const PORTS = new Array();
 
-for (let i = 7001; i < 7100; i++) {
+for (let i = config.GAME_SERVER_PORT_RANGE_MIN; i < config.GAME_SERVER_PORT_RANGE_MAX; i++) {
     PORTS.push(i);
 }
 
@@ -24,7 +25,26 @@ let portIndex = 0;
 let sessionIdCounter = 1;
 
 class HomegamesDashboard {
+    static metadata() {
+        return {
+            res: {
+                width: 1280,
+                height: 720
+            },
+            author: "Joseph Garcia"
+        };
+    }
+
     constructor() {
+        this.assets = {};
+        Object.keys(games).filter(key => games[key].metadata)
+            .forEach(key => {
+                this.assets[key] = new Asset("url", {
+                    "location": games[key].metadata().thumbnail,
+                    "type": "image"
+                });
+            });
+
         this.base = gameNode(Colors.RED, (player, x, y) => {
         }, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
@@ -52,7 +72,7 @@ class HomegamesDashboard {
                 let sessionId = sessionIdCounter++;
                 let port = PORTS[portIndex++];
 
-                const childSession = fork(path.join(__dirname, 'game_server2.js'));
+                const childSession = fork(path.join(__dirname, 'child_game_server.js'));
 
                 childSession.send(JSON.stringify({
                     key,
@@ -105,7 +125,17 @@ class HomegamesDashboard {
                 return s.game === key;
             });
 
-            let gameInfoNode = gameNode(Colors.BLUE, null, {x: xIndex, y: 15}, {x: 4, y: 4}, {'text': activeSessions.length + ' sessions', x: xIndex, y: 15});
+            let gameInfoNode = gameNode(Colors.BLUE, null, 
+                {x: xIndex, y: 15}, 
+                {x: 4, y: 4}, 
+                {'text': activeSessions.length + ' sessions', x: xIndex, y: 15},
+                {
+                    [key]: {
+                        pos: {x: xIndex, y: 15},
+                        size: {x: 10, y: 10}
+                    }
+                }
+            );
 
             this.base.addChild(gameInfoNode);
 
@@ -136,6 +166,10 @@ class HomegamesDashboard {
 
     getRoot() {
         return this.base;
+    }
+
+    getAssets() {
+        return this.assets;
     }
 }
 

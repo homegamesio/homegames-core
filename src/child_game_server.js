@@ -2,24 +2,26 @@ const GameSession = require("./GameSession");
 const { socketServer } = require('./util/socket');
 const games = require('./games');
 
-let playerId = 1;
-
 let lastMessage;
-
 let gameSession;
+
+const sendProcessMessage = (msg) => {
+    process.send(JSON.stringify(msg))
+};
 
 const startServer = (sessionInfo) => {
     const gameInstance = new games[sessionInfo.key]();
     
-    gameSession = new GameSession(gameInstance, {
-        width: 320,
-        height: 180
-    });
+    gameSession = new GameSession(gameInstance);
+    //, {
+    //    width: 1280,
+    //    height: 720
+    //});
  
     socketServer(gameSession, sessionInfo.port, () => {
-        process.send(JSON.stringify({
+        sendProcessMessage({
             "success": true
-        }));
+        });
     });
 //        let thang =  Object.values(gameSession.players).map(p => {
 //            return {
@@ -28,15 +30,6 @@ const startServer = (sessionInfo) => {
 //            }
 //        });
 //
-//        ws.on('close', () => {
-//            //console.log("this happens");
-//            //console.log("WSID");
-//            //console.log(ws.id);
-//            //console.log(gameSession.players);
-//            //console.log(gameSession.players[ws.id]);
-//            gameSession.players[ws.id] && gameSession.players[ws.id].disconnect();
-//            //console.log("UHHHH");
-//        });
 //
 //        process.send(JSON.stringify({
 //            players: thang

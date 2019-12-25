@@ -12,16 +12,16 @@ const HomeButtonTest = require('./home-button-test');
 const AssetTest = require('./asset-test');
 
 module.exports = {
-    AssetTest,
-    HomeButtonTest,
+//    AssetTest,
+//    HomeButtonTest,
     Draw,
-    LayerTest,
-    MoveTest,
-    NameTest,
-    Slaps,
-    SpriteTest,
-    Test1,
-    Test2,
-    TextTest,
-    WordMatch
+//    LayerTest,
+//    MoveTest,
+//    NameTest,
+//    Slaps,
+//    SpriteTest,
+//    Test1,
+//    Test2,
+//    TextTest,
+//    WordMatch
 };

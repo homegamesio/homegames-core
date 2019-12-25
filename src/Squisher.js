@@ -1,9 +1,9 @@
 const ASSET_TYPE = 1;
 
 class Squisher {
-    constructor(width, height, game) {
-        this.width = width;
-        this.height = height;
+    constructor(game) {
+        this.width = game.metadata ? game.metadata().res.width : 1280;
+        this.height = game.metadata ? game.metadata().res.height : 720;
         this.game = game;
         this.root = game.getRoot();
         this.listeners = new Set();

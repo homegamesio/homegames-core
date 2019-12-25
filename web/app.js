@@ -55,8 +55,8 @@ const ctx = canvas.getContext('2d');
 let windowWidth = window.innerWidth;
 let windowHeight = window.innerHeight;
 
-const originalWidth = 320;
-const originalHeight = 180;
+const originalWidth = 1280;
+const originalHeight = 720;
 const scaleFactor = Math.floor(windowWidth / originalWidth);
 const horizontalScale = originalWidth * scaleFactor;
 const verticalScale = originalHeight * scaleFactor;
@@ -463,11 +463,8 @@ const unlock = () => {
 document.addEventListener('touchstart', unlock, false);
 
 document.getElementById('asset-form').addEventListener('change', (stuff) => {
-    console.log("SUBMITTED");
     const reader = new FileReader();
     reader.onload = (e) => {
-        console.log('dat boi loaded');
-        console.log(e.target.result);
         socket.send(e.target.result);
 
     };
