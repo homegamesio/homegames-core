@@ -67,6 +67,7 @@ class Draw {
         }, {"x": 3, "y": 3}, {"x": 8, "y": 10}, {'text': '', 'x': 0, 'y': 0}, {'home-button': {pos: {x: 3, y: 3}, size: {x: 8, y: 10}}});
 
         this.board.clearChildren();
+        this.homeButton = homeButton;
 
         this.board.addChild(homeButton);
         this.board.addChild(randomizeButton);
@@ -91,12 +92,32 @@ class Draw {
     }
 
     handleBoardClick(player, x, y) {
-        const coloredPixel = gameNode(Colors.randomColor(), () => {}, {"x": x * 100, "y": y * 100}, {"x": .5, "y": .5});
+        const coloredPixel = gameNode(Colors.randomColor(), () => {}, {"x": x * 100, "y": y * 100}, {"x": 0, "y": 0}, 
+            {
+                'text': '',
+                x: 0,
+                y: 0
+            },
+            {
+                'test': {
+                    'pos': {
+                        x: x * 100,
+                        y: y * 100
+                    },
+                    'size': {
+                        x: 1,
+                        y: 1
+                    }
+                }
+            });
+ 
         this.board.addChild(coloredPixel);
     }
 
     randomizeBoardColor() {
-        this.board.color = Colors.randomColor();
+        let color = Colors.randomColor();
+        this.board.color = color;
+        this.homeButton.color = color;
     }
 
     getRoot() {
