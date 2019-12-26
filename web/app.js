@@ -2,6 +2,10 @@ const localIP = window.location.hostname;
 
 let socket;
 
+let horizontalScale = 1;
+let verticalScale = 1;
+let scaleFactor = 1;
+
 const initSocket = (port) => {
     socket && socket.close();
     socket = new WebSocket('ws://' + localIP + ':' + port);
@@ -18,15 +22,23 @@ const initSocket = (port) => {
         console.log(err);
     };
 
-    socket.onclose = (err) => {
-        console.log("CL:OSE");
-        console.log(err);
+    socket.onclose = (m) => {
     };
 
     socket.onmessage = function(msg) {
         currentBuf = new Uint8ClampedArray(msg.data);
-        if (currentBuf.length == 1) {
-            window.playerId = currentBuf[0];
+        if (currentBuf[0] == 2) {
+            console.log("INFO");
+            console.log(currentBuf);
+            window.playerId = currentBuf[1];
+            let gameWidth1 = String(currentBuf[2]);
+            let gameWidth2 = String(currentBuf[3]).length > 1 ? currentBuf[3] : '0' + currentBuf[3];
+
+            let gameHeight1 = String(currentBuf[4]);
+            let gameHeight2 = String(currentBuf[5]);//.length > 1 ? currentBuf[5] : '0' + currentBuf[5];
+            initCanvas(Number(gameWidth1 + gameWidth2), Number(gameHeight1 + gameHeight2));
+
+            //window.playerId = currentBuf[0];
         } else if (currentBuf[0] === 5) {
             let a = String(currentBuf[1]);
             let b = String(currentBuf[2]).length > 1 ? currentBuf[2] : '0' + currentBuf[2];
@@ -51,18 +63,30 @@ let audioAllowed = false;
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext('2d');
+const DEFAULT_WIDTH = 1280;
+const DEFAULT_HEIGHT = 720;
 
-let windowWidth = window.innerWidth;
-let windowHeight = window.innerHeight;
+const initCanvas = (gameWidth, gameHeight) => {
+    console.log(gameWidth);
+    console.log(gameHeight);
+    let windowHeight = window.innerHeight;
+    let windowWidth = window.innerWidth;
+    window.gameWidth = gameWidth;
+    window.gameHeight = gameHeight;
+    
+    scaleFactor = Math.floor(windowWidth / gameWidth);
 
-const originalWidth = 1280;
-const originalHeight = 720;
-const scaleFactor = Math.floor(windowWidth / originalWidth);
-const horizontalScale = originalWidth * scaleFactor;
-const verticalScale = originalHeight * scaleFactor;
+    horizontalScale = gameWidth * scaleFactor;
+    verticalScale = gameHeight * scaleFactor;
 
-canvas.height = verticalScale;
-canvas.width = horizontalScale;
+    canvas.height = verticalScale;
+    canvas.width = horizontalScale;
+    console.log("huh");
+    console.log(canvas.height);
+    console.log(canvas.width);
+};
+
+initCanvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
 let mouseDown = false;
 const keysDown = {};
@@ -420,8 +444,8 @@ let currentBuf;
 
 const click = function(x, y) {
     if (socket) {
-        const pixelWidth = canvas.width / originalWidth;
-        const pixelHeight = canvas.height / originalHeight;
+        const pixelWidth = canvas.width / window.gameWidth;
+        const pixelHeight = canvas.height / window.gameHeight;
         const clickX = Math.floor(x / pixelWidth);
         const clickY = Math.floor(y  / pixelHeight);
         const payload = {type: 'click',  data: {x: clickX, y: clickY}};
