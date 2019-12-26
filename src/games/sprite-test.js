@@ -1,6 +1,16 @@
 const { Asset, gameNode, Colors, Deck } = require('../common');
 
 class SpriteTest {
+    static metadata() {
+        return {
+            res: {
+                width: 1280,
+                height: 720
+            },
+            author: "Joseph Garcia"
+        };
+    }
+
     constructor() {
         this.danceFrames = {
             'dance0':'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_0.png',

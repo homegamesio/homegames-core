@@ -4,6 +4,16 @@ const colors = require('../common/Colors');
 const dictionary = require('../common/util/dictionary');
 
 class WordMatch {
+    static metadata() {
+        return {
+            res: {
+                width: 1280,
+                height: 720
+            },
+            author: "Joseph Garcia"
+        };
+    }
+
     constructor() {
         this.base = gameNode(colors.CREAM, null, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
         this.savedNodeRoot = gameNode(colors.CREAM, null, {x: 0, y: 0}, {x: 0, y: 0});
@@ -303,10 +313,10 @@ class WordMatch {
         this.updatePlayerList();
     }
 
-    handlePlayerDisconnect(player) {
-        this.savedNodeRoot.removeChild(this.infoNodes[player.id].id);
-        delete this.infoNodes[player.id];
-        delete this.scores[player.id];
+    handlePlayerDisconnect(playerId) {
+        this.savedNodeRoot.removeChild(this.infoNodes[playerId].id);
+        delete this.infoNodes[playerId];
+        delete this.scores[playerId];
         this.updatePlayerList();
     }
 

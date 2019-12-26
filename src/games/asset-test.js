@@ -3,6 +3,16 @@ const { Asset, gameNode, Colors, Deck } = require('../common');
 const fs = require('fs');
 
 class AssetTest {
+    static metadata() {
+        return {
+            res: {
+                width: 1280,
+                height: 720
+            },
+            author: "Joseph Garcia"
+        };
+    }
+
     constructor() {
         this.base = gameNode(Colors.BLUE, (player, x, y) => {
             console.log(player.id);

@@ -1,6 +1,16 @@
 const { Asset, gameNode, Colors, Deck } = require('../common');
 
 class MoveTest {
+    static metadata() {
+        return {
+            res: {
+                width: 1280,
+                height: 720
+            },
+            author: "Joseph Garcia"
+        };
+    }
+
     constructor() {
         this.base = gameNode(Colors.randomColor(), null, 
             {"x": 0, "y": 0}, {"x": 100, "y": 100});

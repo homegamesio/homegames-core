@@ -40,7 +40,7 @@ class HomegamesDashboard {
         Object.keys(games).filter(key => games[key].metadata)
             .forEach(key => {
                 this.assets[key] = new Asset("url", {
-                    "location": games[key].metadata().thumbnail,
+                    "location": games[key].metadata().thumbnail || 'https://i0.wp.com/www.palmbeachcountycta.org/wp-content/uploads/2017/10/website-construction-graphic-4.jpg',
                     "type": "image"
                 });
             });
@@ -67,7 +67,11 @@ class HomegamesDashboard {
         let sessionYIndex = 20;
         this.base.clearChildren();
         for (let key in games) {
-            let gameOption = gameNode(Colors.BLACK, (player, x, y) => {
+            let activeSessions = Object.values(this.sessions).filter(s => {
+                return s.game === key;
+            });
+
+            let gameOption = gameNode(Colors.RED, (player, x, y) => {
 
                 let sessionId = sessionIdCounter++;
                 let port = PORTS[portIndex++];
@@ -94,7 +98,6 @@ class HomegamesDashboard {
                     this.renderGameList();
                 });
                 
-
                 this.sessions[sessionId] = {
                     game: key,
                     port: port,
@@ -119,25 +122,12 @@ class HomegamesDashboard {
                  
                 this.renderGameList();
 
-            }, {x: xIndex, y: 0}, {x: 4, y: 4}, {'text': key, x: xIndex, y: 10});
-
-            let activeSessions = Object.values(this.sessions).filter(s => {
-                return s.game === key;
-            });
-
-            let gameInfoNode = gameNode(Colors.BLUE, null, 
-                {x: xIndex, y: 15}, 
-                {x: 4, y: 4}, 
-                {'text': activeSessions.length + ' sessions', x: xIndex, y: 15},
-                {
-                    [key]: {
-                        pos: {x: xIndex, y: 15},
-                        size: {x: 10, y: 10}
-                    }
+            }, {x: xIndex, y: 5}, {x: 10, y: 10}, {'text': key + ': ' + activeSessions.length + ' sessions', x: xIndex + 5, y: 17}, {
+                [key]: {
+                    pos: {x: xIndex, y: 5},
+                    size: {x: 10, y: 10}
                 }
-            );
-
-            this.base.addChild(gameInfoNode);
+            });
 
             for (let sessionIndex in activeSessions) {
                 const session = activeSessions[sessionIndex];
@@ -147,7 +137,7 @@ class HomegamesDashboard {
                 this.base.addChild(sessionNode);
             }
 
-            xIndex += 8;
+            xIndex += 15;
             this.base.addChild(gameOption);
         }
     }

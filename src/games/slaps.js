@@ -5,6 +5,16 @@ const Deck = require("../common/Deck");
 const dictionary = require('../common/util/dictionary');
 
 class Slaps {
+    static metadata() {
+        return {
+            res: {
+                width: 1280,
+                height: 720
+            },
+            author: "Joseph Garcia"
+        };
+    }
+
     constructor() {
         this.players = {};
         this.base = gameNode(colors.EMERALD, this.handleBackgroundClick.bind(this), {'x': 0, 'y': 0}, {'x': 100, 'y': 100});

@@ -2,6 +2,16 @@ const gameNode = require("../common/GameNode");
 const { randomColor } = require("../common/Colors");
 
 class LayerTest {
+    static metadata() {
+        return {
+            res: {
+                width: 1280,
+                height: 720
+            },
+            author: "Joseph Garcia"
+        };
+    }
+
     constructor() {
         this.base = gameNode(randomColor(), this.handleLayerClick, 
             {"x": 0, "y": 0}, {"x": 100, "y": 100});

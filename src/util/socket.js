@@ -34,10 +34,12 @@ const socketServer = (gameSession, port, cb = null) => {
             ws.removeListener('message', messageHandler);
     
             ws.id = generatePlayerId();
-            const gameWidth1 = 12;
-            const gameWidth2 = 80;
-            const gameHeight1 = 72;
-            const gameHeight2 = 0;
+
+            let gameMetadata = gameSession.game.constructor.metadata();
+            const gameWidth1 = gameMetadata.res.width / 100;
+            const gameWidth2 = gameMetadata.res.width % 100;
+            const gameHeight1 = gameMetadata.res.height / 100;
+            const gameHeight2 = gameMetadata.res.height % 100;
             
             // init message
             ws.send([2, ws.id, gameWidth1, gameWidth2, gameHeight1, gameHeight2]);

@@ -74,7 +74,7 @@ const initCanvas = (gameWidth, gameHeight) => {
     window.gameWidth = gameWidth;
     window.gameHeight = gameHeight;
     
-    scaleFactor = Math.floor(windowWidth / gameWidth);
+    scaleFactor = Math.floor(windowWidth / gameWidth) || Math.floor(gameWidth / windowWidth);
 
     horizontalScale = gameWidth * scaleFactor;
     verticalScale = gameHeight * scaleFactor;
@@ -165,7 +165,7 @@ function renderBuf(buf) {
                 if (text) {
                     // todo: encode this in the payload
                     ctx.fillStyle = "black";
-                    let fontSize = 3 * scaleFactor;
+                    let fontSize = 14 * scaleFactor;
                     ctx.font = fontSize + 'px sans-serif';
                     ctx.textAlign = "center";
                     ctx.textBaseline = "top";

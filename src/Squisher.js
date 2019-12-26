@@ -2,8 +2,11 @@ const ASSET_TYPE = 1;
 
 class Squisher {
     constructor(game) {
-        this.width = game.metadata ? game.metadata().res.width : 1280;
-        this.height = game.metadata ? game.metadata().res.height : 720;
+        this.width = game.constructor.metadata ? game.constructor.metadata().res.width : 1280;
+        this.height = game.constructor.metadata ? game.constructor.metadata().res.height : 720;
+        console.log("WIDTH");
+        console.log(this.width);
+        console.log(game.constructor.metadata);
         this.game = game;
         this.root = game.getRoot();
         this.listeners = new Set();
@@ -63,7 +66,7 @@ class Squisher {
             setInterval(this.game.tick.bind(this.game), 16);
         } else {
             const heartbeat = this.notifyListeners.bind(this);
-            setInterval(heartbeat, 2000);
+            setInterval(heartbeat, 5000);
         }
 
         cb && cb();
