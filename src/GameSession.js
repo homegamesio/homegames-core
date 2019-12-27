@@ -42,7 +42,6 @@ class GameSession {
     }
 
     handlePlayerData(player, data) {
-        console.log("PLAYER " + player.id + " SENT DATA");
         this.game.handlePlayerData && this.game.handlePlayerData(player, data);
     }
 

@@ -6,9 +6,9 @@ const Player = require("../Player");
 const socketServer = (gameSession, port, cb = null) => {
     linkHelper();
 
-    let playerIds = new Array(256);
+    let playerIds = {};
 
-    for (let i = 0; i < 255; i++) {
+    for (let i = 1; i < 256; i++) {
         playerIds[i] = false;
     }
 
@@ -51,6 +51,7 @@ const socketServer = (gameSession, port, cb = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
+            playerIds[ws.id] = false;
             gameSession.handlePlayerDisconnect(ws.id);
         }
 

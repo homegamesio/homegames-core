@@ -143,7 +143,6 @@ class HomegamesDashboard {
     }
 
     logPlayerCount() {
-        console.log("Homegames dashboard has " + Object.values(this.players).length + " players");
     }
 
     handleNewPlayer(player) {

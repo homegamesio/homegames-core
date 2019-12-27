@@ -92,23 +92,11 @@ class Draw {
     }
 
     handleBoardClick(player, x, y) {
-        const coloredPixel = gameNode(Colors.randomColor(), () => {}, {"x": x * 100, "y": y * 100}, {"x": 0, "y": 0}, 
+        const coloredPixel = gameNode(Colors.randomColor(), () => {}, {"x": (x * 100) - .25, "y": (y * 100) - .25}, {"x": .5, "y": .5}, 
             {
                 'text': '',
                 x: 0,
                 y: 0
-            },
-            {
-                'test': {
-                    'pos': {
-                        x: x * 100,
-                        y: y * 100
-                    },
-                    'size': {
-                        x: 1,
-                        y: 1
-                    }
-                }
             });
  
         this.board.addChild(coloredPixel);

@@ -28,8 +28,6 @@ const initSocket = (port) => {
     socket.onmessage = function(msg) {
         currentBuf = new Uint8ClampedArray(msg.data);
         if (currentBuf[0] == 2) {
-            console.log("INFO");
-            console.log(currentBuf);
             window.playerId = currentBuf[1];
             let gameWidth1 = String(currentBuf[2]);
             let gameWidth2 = String(currentBuf[3]).length > 1 ? currentBuf[3] : '0' + currentBuf[3];
@@ -67,8 +65,6 @@ const DEFAULT_WIDTH = 1280;
 const DEFAULT_HEIGHT = 720;
 
 const initCanvas = (gameWidth, gameHeight) => {
-    console.log(gameWidth);
-    console.log(gameHeight);
     let windowHeight = window.innerHeight;
     let windowWidth = window.innerWidth;
     window.gameWidth = gameWidth;
@@ -81,9 +77,6 @@ const initCanvas = (gameWidth, gameHeight) => {
 
     canvas.height = verticalScale;
     canvas.width = horizontalScale;
-    console.log("huh");
-    console.log(canvas.height);
-    console.log(canvas.width);
 };
 
 initCanvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);

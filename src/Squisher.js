@@ -4,9 +4,6 @@ class Squisher {
     constructor(game) {
         this.width = game.constructor.metadata ? game.constructor.metadata().res.width : 1280;
         this.height = game.constructor.metadata ? game.constructor.metadata().res.height : 720;
-        console.log("WIDTH");
-        console.log(this.width);
-        console.log(game.constructor.metadata);
         this.game = game;
         this.root = game.getRoot();
         this.listeners = new Set();

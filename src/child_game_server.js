@@ -47,8 +47,6 @@ process.on('message', (msg) => {
     if (message.key) {
         startServer(message);
     } else {
-        console.log("Got message");
-        console.log(message);
         if (message.api) {
             if (message.api === 'getPlayers') {
                 process.send(JSON.stringify({
