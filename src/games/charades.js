@@ -24,6 +24,7 @@ class Charades {
             y: 9
         });
         this.base.addChild(this.newRoundNode);
+        this.playerColors = {};
     }
 
     handleNewPlayer(player) {
@@ -112,7 +113,8 @@ class Charades {
                 if (!this.currentPlayerId || this.currentPlayerId != player.id) {
                     return;
                 }
-                const coloredPixel = gameNode(Colors.randomColor(), () => {}, {"x": (x * 100) - .25, "y": (y * 100) - .25}, {"x": .5, "y": .5});
+                const playerColor = this.playerColors[player.id] || Colors.BLACK;
+                const coloredPixel = gameNode(playerColor, () => {}, {"x": (x * 100) - .25, "y": (y * 100) - .25}, {"x": .5, "y": .5});
                 this.drawNode.addChild(coloredPixel);
             },
             {
@@ -163,6 +165,19 @@ class Charades {
             null,
             currentPlayer.id
         );
+
+        const colorOptions = [Colors.BLACK, Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.WHITE];
+        let optionIndex = 25;
+        for (let colorIndex in colorOptions) {
+            const color = colorOptions[colorIndex];
+            console.log(color);
+            const colorButton = gameNode(color, 
+                (player) => {
+                    this.playerColors[player.id] = color;
+                }, {x: optionIndex, y: 90}, {x: 5, y: 5}, null, currentPlayer.id);
+            clearButton.addChild(colorButton);
+            optionIndex += 10;
+        }
         this.drawNode.addChild(clearButton);
     }
 
