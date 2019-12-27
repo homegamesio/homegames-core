@@ -87,7 +87,7 @@ class SpriteTest {
         this.inputCooldowns[player.id] = setTimeout(function() {
             clearTimeout(this.inputCooldowns[player.id]);
             delete this.inputCooldowns[player.id];
-        }.bind(this), 50);
+        }.bind(this), 150);
 
         let dancer = this.dancers[player.id];
         let frameMap = {
