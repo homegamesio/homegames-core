@@ -121,23 +121,38 @@ class HomegamesDashboard {
                  
                 this.renderGameList();
 
-            }, {x: xIndex, y: 5}, {x: 10, y: 10}, {"text": key + ": " + activeSessions.length + " sessions", x: xIndex + 5, y: 17}, {
+            }, {x: xIndex, y: 5}, {x: 10, y: 10}, {"text": key + "", x: xIndex + 5, y: 17}, {
                 [key]: {
                     pos: {x: xIndex, y: 5},
                     size: {x: 10, y: 10}
                 }
             });
 
+            const authorInfoNode = gameNode(Colors.RED, null, {
+                x: xIndex + 5, 
+                y: 20
+            },
+            {
+                x: 10,
+                y: 10
+            },
+            {
+                text: 'by ' + (games[key].metadata && games[key].metadata()['author'] || 'Unknown Author'),
+                x: xIndex + 5,
+                y: 20
+            });
+
             for (let sessionIndex in activeSessions) {
                 const session = activeSessions[sessionIndex];
                 let sessionNode = gameNode(Colors.BLUE, (player) => {
                     player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
-                }, {x: xIndex, y: 20 + (sessionIndex * 6)}, {x: 5, y: 5}, {"text": "session", x: xIndex, y: 25 + (sessionIndex * 6)});
+                }, {x: xIndex + 3, y: 25 + (sessionIndex * 6)}, {x: 5, y: 5}, {"text": "session", x: xIndex + 3, y: 25 + (sessionIndex * 6)});
                 this.base.addChild(sessionNode);
             }
 
             xIndex += 15;
             this.base.addChild(gameOption);
+            this.base.addChild(authorInfoNode);
         }
     }
 

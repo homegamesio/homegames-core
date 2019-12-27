@@ -9,17 +9,19 @@ const SpriteTest = require("./sprite-test");
 const TextTest = require("./text-test");
 const WordMatch = require("./word-match");
 const HomeButtonTest = require("./home-button-test");
+const Charades = require("./charades");
 
 module.exports = {
-    HomeButtonTest,
+    Charades,
+    WordMatch,
     Draw,
-    LayerTest,
-    MoveTest,
-    NameTest,
     Slaps,
+    MoveTest,
     SpriteTest,
+    LayerTest,
+    HomeButtonTest,
+    NameTest,
     Test1,
     Test2,
     TextTest,
-    WordMatch
 };
