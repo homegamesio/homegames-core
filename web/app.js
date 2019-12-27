@@ -180,13 +180,11 @@ function renderBuf(buf) {
                         console.warn("Cant play audio");
                     }
                 } else {
-                
                     let image;
                     if (imageCache[assetKey]) {
                         image = imageCache[assetKey];
                         ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
                             (assetPosY / 100) * verticalScale, image.width, image.height)
-
                     } else {
                         image = new Image(assetSizeX / 100 * horizontalScale, assetSizeY / 100 * verticalScale);
                         imageCache[assetKey] = image;
@@ -530,3 +528,7 @@ if (isMobile()) {
     });
 }
 
+canvas.addEventListener('mousemove', (e) => {
+    //console.log(e.screenX);
+    //console.log(e.screenY);
+});

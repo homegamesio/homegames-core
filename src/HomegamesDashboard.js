@@ -14,11 +14,20 @@ const config = require('../config');
 
 const HOMEGAMES_PORT_RANGE_MAX = 7100;
 
-const PORTS = new Array();
+const PORTS = {};
 
 for (let i = config.GAME_SERVER_PORT_RANGE_MIN; i < config.GAME_SERVER_PORT_RANGE_MAX; i++) {
-    PORTS.push(i);
+    PORTS[i] = false;
 }
+
+const generateServerPort = () => {
+    for (let p in PORTS) {
+        if (PORTS[p] === false) {
+            PORTS[p] = true;
+            return Number(p);
+        }
+    }
+};
 
 let portIndex = 0;
 
@@ -74,7 +83,7 @@ class HomegamesDashboard {
             let gameOption = gameNode(Colors.RED, (player, x, y) => {
 
                 let sessionId = sessionIdCounter++;
-                let port = PORTS[portIndex++];
+                let port = generateServerPort();
 
                 const childSession = fork(path.join(__dirname, 'child_game_server.js'));
 
@@ -94,8 +103,9 @@ class HomegamesDashboard {
                 });
 
                 childSession.on('close', () => {
+                    PORTS[port] = false;
                     delete this.sessions[sessionId];
-                    this.renderGameList();
+                    this.renderGameList();  
                 });
                 
                 this.sessions[sessionId] = {
