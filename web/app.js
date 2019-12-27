@@ -1,14 +1,35 @@
-const localIP = window.location.hostname;
+const hostname = window.location.hostname;
 
 let socket;
+
+let gamepad;
+let moving;
 
 let horizontalScale = 1;
 let verticalScale = 1;
 let scaleFactor = 1;
 
+window.playerId = null;
+
+let mouseDown = false;
+const keysDown = {};
+
+let audioCtx, source;
+
+const gameAssets = {};
+const imageCache = {};
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext('2d');
+
+const DEFAULT_WIDTH = 1280;
+const DEFAULT_HEIGHT = 720;
+
+let currentBuf;
+
 const initSocket = (port) => {
     socket && socket.close();
-    socket = new WebSocket('ws://' + localIP + ':' + port);
+    socket = new WebSocket('ws://' + hostname + ':' + port);
 
     socket.binaryType = 'arraybuffer';
 
@@ -35,8 +56,6 @@ const initSocket = (port) => {
             let gameHeight1 = String(currentBuf[4]);
             let gameHeight2 = String(currentBuf[5]);//.length > 1 ? currentBuf[5] : '0' + currentBuf[5];
             initCanvas(Number(gameWidth1 + gameWidth2), Number(gameHeight1 + gameHeight2));
-
-            //window.playerId = currentBuf[0];
         } else if (currentBuf[0] === 5) {
             let a = String(currentBuf[1]);
             let b = String(currentBuf[2]).length > 1 ? currentBuf[2] : '0' + currentBuf[2];
@@ -46,23 +65,7 @@ const initSocket = (port) => {
             renderBuf(currentBuf);
         }
     };
-}
-
-initSocket(7000);
-
-document.getElementById('pls').onchange = () => {
-    let val = document.getElementById('pls').value;
-    initSocket(val);
 };
-
-window.playerId = null;
-
-let audioAllowed = false;
-
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext('2d');
-const DEFAULT_WIDTH = 1280;
-const DEFAULT_HEIGHT = 720;
 
 const initCanvas = (gameWidth, gameHeight) => {
     let windowHeight = window.innerHeight;
@@ -80,17 +83,8 @@ const initCanvas = (gameWidth, gameHeight) => {
 };
 
 initCanvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+initSocket(7000);
 
-let mouseDown = false;
-const keysDown = {};
-
-let audioCtx, source;
-
-const gameAssets = {};
-
-const imageCache = {};
-
-let renders = new Array();
 function renderBuf(buf) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let color, startX, startY, width, height;
@@ -210,8 +204,6 @@ function renderBuf(buf) {
 
         }
     }
-
-
 }
 
 function req() {
@@ -433,8 +425,6 @@ function req() {
     window.requestAnimationFrame(req);
 }
 
-let currentBuf;
-
 const click = function(x, y) {
     if (socket) {
         const pixelWidth = canvas.width / window.gameWidth;
@@ -478,15 +468,6 @@ const unlock = () => {
 }
 
 document.addEventListener('touchstart', unlock, false);
-
-document.getElementById('asset-form').addEventListener('change', (stuff) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        socket.send(e.target.result);
-
-    };
-    reader.readAsBinaryString(document.getElementById('asset-form').files[0]);
-});
 
 canvas.addEventListener('mousedown', function(e) {
     mouseDown = true;
@@ -548,7 +529,4 @@ if (isMobile()) {
         }
     });
 }
-
-let gamepad;
-let moving;
 
