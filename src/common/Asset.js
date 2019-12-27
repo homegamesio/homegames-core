@@ -45,8 +45,8 @@ class Asset {
         });
     }
 
-    saveBinaryFile(path, data, cb) {
-        fs.writeFileSync(path, data, 'binary');
+    saveBinaryFile(path, data) {
+        fs.writeFileSync(path, data, "binary");
         this.done = true;
         this.data = fs.readFileSync(path);
     }
@@ -62,8 +62,8 @@ class Asset {
                 this.done = true;
                 return payload;
             });
-        } else if (this.sourceType === 'file') {
-            this.saveBinaryFile('testthing', this.data);
+        } else if (this.sourceType === "file") {
+            this.saveBinaryFile("testthing", this.data);
             return this.data;
         }
     }

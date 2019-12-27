@@ -1,8 +1,8 @@
 const Squisher = require("./Squisher");
-const { generateName } = require('./common/util/name-generator');
+const { generateName } = require("./common/util/name-generator");
 
 class GameSession {
-    constructor(game, res) {
+    constructor(game) {
         this.game = game;
         this.squisher = new Squisher(game);
         this.squisher.addListener(this);

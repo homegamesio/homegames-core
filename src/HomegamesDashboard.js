@@ -1,18 +1,11 @@
-const { fork } = require('child_process');
-const path = require('path');
+const { fork } = require("child_process");
+const path = require("path");
 
-const { Asset, gameNode, Colors, Deck } = require('./common');
+const { Asset, gameNode, Colors } = require("./common");
 
-const games = require('./games');
+const games = require("./games");
 
-const WebSocket = require("ws");
-
-const GameSession = require("./GameSession");
-const Player = require("./Player");
-
-const config = require('../config');
-
-const HOMEGAMES_PORT_RANGE_MAX = 7100;
+const config = require("../config");
 
 const PORTS = {};
 
@@ -28,8 +21,6 @@ const generateServerPort = () => {
         }
     }
 };
-
-let portIndex = 0;
 
 let sessionIdCounter = 1;
 
@@ -49,13 +40,12 @@ class HomegamesDashboard {
         Object.keys(games).filter(key => games[key].metadata)
             .forEach(key => {
                 this.assets[key] = new Asset("url", {
-                    "location": games[key].metadata().thumbnail || 'https://i0.wp.com/www.palmbeachcountycta.org/wp-content/uploads/2017/10/website-construction-graphic-4.jpg',
+                    "location": games[key].metadata().thumbnail || "https://i0.wp.com/www.palmbeachcountycta.org/wp-content/uploads/2017/10/website-construction-graphic-4.jpg",
                     "type": "image"
                 });
             });
 
-        this.base = gameNode(Colors.RED, (player, x, y) => {
-        }, {x: 0, y: 0}, {x: 100, y: 100});
+        this.base = gameNode(Colors.RED, null, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
         this.gameIds = {};
         this.requestCallbacks = {};
@@ -73,26 +63,25 @@ class HomegamesDashboard {
     
     renderGameList() {
         let xIndex = 5;
-        let sessionYIndex = 20;
         this.base.clearChildren();
         for (let key in games) {
             let activeSessions = Object.values(this.sessions).filter(s => {
                 return s.game === key;
             });
 
-            let gameOption = gameNode(Colors.RED, (player, x, y) => {
+            let gameOption = gameNode(Colors.RED, (player) => {
 
                 let sessionId = sessionIdCounter++;
                 let port = generateServerPort();
 
-                const childSession = fork(path.join(__dirname, 'child_game_server.js'));
+                const childSession = fork(path.join(__dirname, "child_game_server.js"));
 
                 childSession.send(JSON.stringify({
                     key,
                     port
                 }));
 
-                childSession.on('message', (thang) => {
+                childSession.on("message", (thang) => {
                     let jsonMessage = JSON.parse(thang);
                     if (jsonMessage.success) {
                         player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
@@ -102,7 +91,7 @@ class HomegamesDashboard {
                     }
                 });
 
-                childSession.on('close', () => {
+                childSession.on("close", () => {
                     PORTS[port] = false;
                     delete this.sessions[sessionId];
                     this.renderGameList();  
@@ -111,7 +100,7 @@ class HomegamesDashboard {
                 this.sessions[sessionId] = {
                     game: key,
                     port: port,
-                    sendMessage: (msg) => {
+                    sendMessage: () => {
                     },
                     getPlayers: (cb) => {
                         let requestId = this.requestIdCounter++;
@@ -119,20 +108,20 @@ class HomegamesDashboard {
                             this.requestCallbacks[requestId] = cb;
                         }
                         childSession.send(JSON.stringify({
-                            'api': 'getPlayers',
-                            'requestId': requestId
+                            "api": "getPlayers",
+                            "requestId": requestId
                         }));
                     },
                     sendHeartbeat: () => {
                         childSession.send(JSON.stringify({
                             "type": "heartbeat"
-                        }))
+                        }));
                     }
                 };
                  
                 this.renderGameList();
 
-            }, {x: xIndex, y: 5}, {x: 10, y: 10}, {'text': key + ': ' + activeSessions.length + ' sessions', x: xIndex + 5, y: 17}, {
+            }, {x: xIndex, y: 5}, {x: 10, y: 10}, {"text": key + ": " + activeSessions.length + " sessions", x: xIndex + 5, y: 17}, {
                 [key]: {
                     pos: {x: xIndex, y: 5},
                     size: {x: 10, y: 10}
@@ -141,9 +130,9 @@ class HomegamesDashboard {
 
             for (let sessionIndex in activeSessions) {
                 const session = activeSessions[sessionIndex];
-                let sessionNode = gameNode(Colors.BLUE, (player, x, y) => {
+                let sessionNode = gameNode(Colors.BLUE, (player) => {
                     player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
-                }, {x: xIndex, y: 20 + (sessionIndex * 6)}, {x: 5, y: 5}, {'text': 'session', x: xIndex, y: 25 + (sessionIndex * 6)});
+                }, {x: xIndex, y: 20 + (sessionIndex * 6)}, {x: 5, y: 5}, {"text": "session", x: xIndex, y: 25 + (sessionIndex * 6)});
                 this.base.addChild(sessionNode);
             }
 
@@ -155,11 +144,11 @@ class HomegamesDashboard {
     logPlayerCount() {
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer() {
         this.logPlayerCount();
     }
 
-    handlePlayerDisconnect(player) {
+    handlePlayerDisconnect() {
         this.logPlayerCount();
     }
 

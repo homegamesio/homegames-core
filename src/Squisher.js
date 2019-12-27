@@ -57,7 +57,7 @@ class Squisher {
 
         this.update(this.root);
 
-        if (this.game.renderType == 'tick') {   
+        if (this.game.renderType == "tick") {   
             setInterval(this.game.tick.bind(this.game), 1000 / this.game.config.frameRate);
         } else if (this.game.tick) {
             setInterval(this.game.tick.bind(this.game), 16);

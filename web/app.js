@@ -20,7 +20,7 @@ const gameAssets = {};
 const imageCache = {};
 
 const canvas = document.getElementById("game");
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext("2d");
 
 const DEFAULT_WIDTH = 1280;
 const DEFAULT_HEIGHT = 720;
@@ -29,12 +29,12 @@ let currentBuf;
 
 const initSocket = (port) => {
     socket && socket.close();
-    socket = new WebSocket('ws://' + hostname + ':' + port);
+    socket = new WebSocket("ws://" + hostname + ":" + port);
 
-    socket.binaryType = 'arraybuffer';
+    socket.binaryType = "arraybuffer";
 
     socket.onopen = () => {
-        socket.send('ready');
+        socket.send("ready");
         window.requestAnimationFrame(req);
     };
 
@@ -43,7 +43,7 @@ const initSocket = (port) => {
         console.log(err);
     };
 
-    socket.onclose = (m) => {
+    socket.onclose = () => {
     };
 
     socket.onmessage = function(msg) {
@@ -51,14 +51,14 @@ const initSocket = (port) => {
         if (currentBuf[0] == 2) {
             window.playerId = currentBuf[1];
             let gameWidth1 = String(currentBuf[2]);
-            let gameWidth2 = String(currentBuf[3]).length > 1 ? currentBuf[3] : '0' + currentBuf[3];
+            let gameWidth2 = String(currentBuf[3]).length > 1 ? currentBuf[3] : "0" + currentBuf[3];
 
             let gameHeight1 = String(currentBuf[4]);
             let gameHeight2 = String(currentBuf[5]);//.length > 1 ? currentBuf[5] : '0' + currentBuf[5];
             initCanvas(Number(gameWidth1 + gameWidth2), Number(gameHeight1 + gameHeight2));
         } else if (currentBuf[0] === 5) {
             let a = String(currentBuf[1]);
-            let b = String(currentBuf[2]).length > 1 ? currentBuf[2] : '0' + currentBuf[2];
+            let b = String(currentBuf[2]).length > 1 ? currentBuf[2] : "0" + currentBuf[2];
             let newPort = a + b;
             initSocket(Number(newPort).toString());
         } else {
@@ -68,7 +68,6 @@ const initSocket = (port) => {
 };
 
 const initCanvas = (gameWidth, gameHeight) => {
-    let windowHeight = window.innerHeight;
     let windowWidth = window.innerWidth;
     window.gameWidth = gameWidth;
     window.gameHeight = gameHeight;
@@ -102,12 +101,12 @@ function renderBuf(buf) {
                 const payloadKeyRaw = buf.slice(i + 6, i + 6 + 32);
                 const payloadData = buf.slice(i + 6 + 32, i + 6 +  payloadLength);
                 const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k)); 
-                let imgBase64String = '';
+                let imgBase64String = "";
                 for (let i = 0; i < payloadData.length; i++) {
                     imgBase64String += String.fromCharCode(payloadData[i]);
                 }
                 const imgBase64 = btoa(imgBase64String);
-                gameAssets[payloadKey] = {'type': 'image', 'data': "data:image/jpeg;base64," + imgBase64};
+                gameAssets[payloadKey] = {"type": "image", "data": "data:image/jpeg;base64," + imgBase64};
                 i += 6 + payloadLength;
             } else {
                 // audio
@@ -117,10 +116,10 @@ function renderBuf(buf) {
                 const payloadData = buf.slice(i + 6 + 32, i + 6 +  payloadLength);
                 const payloadKey = String.fromCharCode.apply(null, payloadKeyRaw.filter(k => k)); 
                 if (!audioCtx) {
-                    gameAssets[payloadKey] = {'type': 'audio', 'data': payloadData.buffer, 'decoded': false};
+                    gameAssets[payloadKey] = {"type": "audio", "data": payloadData.buffer, "decoded": false};
                 } else {
                     audioCtx.decodeAudioData(payloadData.buffer, (buffer) => {
-                        gameAssets[payloadKey] = {'type': 'audio', 'data': buffer, 'decoded': true};
+                        gameAssets[payloadKey] = {"type": "audio", "data": buffer, "decoded": true};
                     });
                 }
 
@@ -139,7 +138,7 @@ function renderBuf(buf) {
             startY = ((buf[start + 6] / 100) + (buf[start + 7] / 10000)) * verticalScale;
             width = ((buf[start + 8] / 100) + (buf[start + 9] / 10000)) * horizontalScale;
             height = ((buf[start + 10] / 100) + (buf[start + 11] / 10000)) * verticalScale;
-            ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + color[3] + ')';
+            ctx.fillStyle = "rgba(" + color[0] + "," + color[1] + "," + color[2] + "," + color[3] + ")";
             ctx.fillRect(startX, startY, width, height);
             
             // has text
@@ -153,7 +152,7 @@ function renderBuf(buf) {
                     // todo: encode this in the payload
                     ctx.fillStyle = "black";
                     let fontSize = 14 * scaleFactor;
-                    ctx.font = fontSize + 'px sans-serif';
+                    ctx.font = fontSize + "px sans-serif";
                     ctx.textAlign = "center";
                     ctx.textBaseline = "top";
                     ctx.fillText(text, textX, textY);
@@ -170,7 +169,7 @@ function renderBuf(buf) {
                 const assetKeyArray = buf.slice(start + 50, start + 50 + 32);
                 const assetKey = String.fromCharCode.apply(null, assetKeyArray.filter(x => x));
                 
-                if (gameAssets[assetKey]['type'] === 'audio') {
+                if (gameAssets[assetKey]["type"] === "audio") {
                     if (audioCtx) {
                         source = audioCtx.createBufferSource();
                         source.connect(audioCtx.destination);
@@ -184,13 +183,13 @@ function renderBuf(buf) {
                     if (imageCache[assetKey]) {
                         image = imageCache[assetKey];
                         ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
-                            (assetPosY / 100) * verticalScale, image.width, image.height)
+                            (assetPosY / 100) * verticalScale, image.width, image.height);
                     } else {
                         image = new Image(assetSizeX / 100 * horizontalScale, assetSizeY / 100 * verticalScale);
                         imageCache[assetKey] = image;
                         image.onload = () => {
                             ctx.drawImage(image, (assetPosX / 100) * horizontalScale, 
-                                (assetPosY / 100) * verticalScale, image.width, image.height)
+                                (assetPosY / 100) * verticalScale, image.width, image.height);
                         };
 
                         image.src = gameAssets[assetKey].data;
@@ -212,78 +211,78 @@ function req() {
         if (gamepad.axes[2] > 0.2) {
             moving = true;
             keydown("ArrowRight");
-            keysDown['ArrowRight'] = true;
+            keysDown["ArrowRight"] = true;
 
-            if (keysDown['ArrowLeft']) {
-                keyup('ArrowLeft');
-                keysDown['ArrowLeft'] = false;
+            if (keysDown["ArrowLeft"]) {
+                keyup("ArrowLeft");
+                keysDown["ArrowLeft"] = false;
             }
 
-            if (keysDown['ArrowUp']) {
-                keyup('ArrowUp');
-                keysDown['ArrowUp'] = false;
+            if (keysDown["ArrowUp"]) {
+                keyup("ArrowUp");
+                keysDown["ArrowUp"] = false;
             }
 
-            if (keysDown['ArrowDown']) {
-                keyup('ArrowDown');
-                keysDown['ArrowDown'] = false;
+            if (keysDown["ArrowDown"]) {
+                keyup("ArrowDown");
+                keysDown["ArrowDown"] = false;
             }
         } if (gamepad.axes[2] < -0.2) {
             moving = true;
             keydown("ArrowLeft");
-            keysDown['ArrowLeft'] = true;
+            keysDown["ArrowLeft"] = true;
 
-            if (keysDown['ArrowRight']) {
-                keyup('ArrowRight');
-                keysDown['ArrowRight'] = false;
+            if (keysDown["ArrowRight"]) {
+                keyup("ArrowRight");
+                keysDown["ArrowRight"] = false;
             }
 
-            if (keysDown['ArrowUp']) {
-                keyup('ArrowUp');
-                keysDown['ArrowUp'] = false;
+            if (keysDown["ArrowUp"]) {
+                keyup("ArrowUp");
+                keysDown["ArrowUp"] = false;
             }
 
-            if (keysDown['ArrowDown']) {
-                keyup('ArrowDown');
-                keysDown['ArrowDown'] = false;
+            if (keysDown["ArrowDown"]) {
+                keyup("ArrowDown");
+                keysDown["ArrowDown"] = false;
             }
         } if (gamepad.axes[3] > 0.2) {
             moving = true;
             keydown("ArrowDown");
-            keysDown['ArrowDown'] = true;
+            keysDown["ArrowDown"] = true;
 
-            if (keysDown['ArrowLeft']) {
-                keyup('ArrowLeft');
-                keysDown['ArrowLeft'] = false;
+            if (keysDown["ArrowLeft"]) {
+                keyup("ArrowLeft");
+                keysDown["ArrowLeft"] = false;
             }
 
-            if (keysDown['ArrowRight']) {
-                keyup('ArrowRight');
-                keysDown['ArrowRight'] = false;
+            if (keysDown["ArrowRight"]) {
+                keyup("ArrowRight");
+                keysDown["ArrowRight"] = false;
             }
 
-            if (keysDown['ArrowUp']) {
-                keyup('ArrowUp');
-                keysDown['ArrowUp'] = false;
+            if (keysDown["ArrowUp"]) {
+                keyup("ArrowUp");
+                keysDown["ArrowUp"] = false;
             }
         } if (gamepad.axes[3] < -0.2) {
             moving = true;
             keydown("ArrowUp");
-            keysDown['ArrowUp'] = true;
+            keysDown["ArrowUp"] = true;
 
-            if (keysDown['ArrowLeft']) {
-                keyup('ArrowLeft');
-                keysDown['ArrowLeft'] = false;
+            if (keysDown["ArrowLeft"]) {
+                keyup("ArrowLeft");
+                keysDown["ArrowLeft"] = false;
             }
 
-            if (keysDown['ArrowDown']) {
-                keyup('ArrowDown');
-                keysDown['ArrowDown'] = false;
+            if (keysDown["ArrowDown"]) {
+                keyup("ArrowDown");
+                keysDown["ArrowDown"] = false;
             }
 
-            if (keysDown['ArrowRight']) {
-                keyup('ArrowRight');
-                keysDown['ArrowRight'] = false;
+            if (keysDown["ArrowRight"]) {
+                keyup("ArrowRight");
+                keysDown["ArrowRight"] = false;
             }
         } 
 
@@ -291,78 +290,78 @@ function req() {
         if (gamepad.axes[0] > 0.2) {
             moving = true;
             keydown("d");
-            keysDown['d'] = true;
+            keysDown["d"] = true;
 
-            if (keysDown['a']) {
-                keyup('a');
-                keysDown['a'] = false;
+            if (keysDown["a"]) {
+                keyup("a");
+                keysDown["a"] = false;
             }
 
-            if (keysDown['w']) {
-                keyup('w');
-                keysDown['w'] = false;
+            if (keysDown["w"]) {
+                keyup("w");
+                keysDown["w"] = false;
             }
 
-            if (keysDown['s']) {
-                keyup('s');
-                keysDown['s'] = false;
+            if (keysDown["s"]) {
+                keyup("s");
+                keysDown["s"] = false;
             }
         } if (gamepad.axes[0] < -0.2) {
             moving = true;
             keydown("a");
-            keysDown['a'] = true;
+            keysDown["a"] = true;
 
-            if (keysDown['d']) {
-                keyup('d');
-                keysDown['d'] = false;
+            if (keysDown["d"]) {
+                keyup("d");
+                keysDown["d"] = false;
             }
 
-            if (keysDown['w']) {
-                keyup('w');
-                keysDown['w'] = false;
+            if (keysDown["w"]) {
+                keyup("w");
+                keysDown["w"] = false;
             }
 
-            if (keysDown['s']) {
-                keyup('s');
-                keysDown['s'] = false;
+            if (keysDown["s"]) {
+                keyup("s");
+                keysDown["s"] = false;
             }
         } if (gamepad.axes[1] > 0.2) {
             moving = true;
             keydown("s");
-            keysDown['s'] = true;
+            keysDown["s"] = true;
 
-            if (keysDown['a']) {
-                keyup('a');
-                keysDown['a'] = false;
+            if (keysDown["a"]) {
+                keyup("a");
+                keysDown["a"] = false;
             }
 
-            if (keysDown['d']) {
-                keyup('d');
-                keysDown['d'] = false;
+            if (keysDown["d"]) {
+                keyup("d");
+                keysDown["d"] = false;
             }
 
-            if (keysDown['w']) {
-                keyup('w');
-                keysDown['w'] = false;
+            if (keysDown["w"]) {
+                keyup("w");
+                keysDown["w"] = false;
             }
         } if (gamepad.axes[1] < -0.2) {
             moving = true;
             keydown("w");
-            keysDown['w'] = true;
+            keysDown["w"] = true;
 
-            if (keysDown['a']) {
-                keyup('a');
-                keysDown['a'] = false;
+            if (keysDown["a"]) {
+                keyup("a");
+                keysDown["a"] = false;
             }
 
-            if (keysDown['s']) {
-                keyup('s');
-                keysDown['s'] = false;
+            if (keysDown["s"]) {
+                keyup("s");
+                keysDown["s"] = false;
             }
 
-            if (keysDown['d']) {
-                keyup('d');
-                keysDown['d'] = false;
+            if (keysDown["d"]) {
+                keyup("d");
+                keysDown["d"] = false;
             }
         } 
 
@@ -376,44 +375,44 @@ function req() {
     }
         
     if (!moving) {
-        if (keysDown['ArrowLeft']) {
-            keyup('ArrowLeft');
-            keysDown['ArrowLeft'] = false;
+        if (keysDown["ArrowLeft"]) {
+            keyup("ArrowLeft");
+            keysDown["ArrowLeft"] = false;
         }
 
-        if (keysDown['ArrowUp']) {
-            keyup('ArrowUp');
-            keysDown['ArrowUp'] = false;
+        if (keysDown["ArrowUp"]) {
+            keyup("ArrowUp");
+            keysDown["ArrowUp"] = false;
         }
 
-        if (keysDown['ArrowDown']) {
-            keyup('ArrowDown');
-            keysDown['ArrowDown'] = false;
+        if (keysDown["ArrowDown"]) {
+            keyup("ArrowDown");
+            keysDown["ArrowDown"] = false;
         }
 
-        if (keysDown['ArrowRight']) {
-            keyup('ArrowRight');
-            keysDown['ArrowRight'] = false;
+        if (keysDown["ArrowRight"]) {
+            keyup("ArrowRight");
+            keysDown["ArrowRight"] = false;
         }
 
-        if (keysDown['w']) {
-            keyup('w');
-            keysDown['w'] = false;
+        if (keysDown["w"]) {
+            keyup("w");
+            keysDown["w"] = false;
         }
 
-        if (keysDown['a']) {
-            keyup('a');
-            keysDown['a'] = false;
+        if (keysDown["a"]) {
+            keyup("a");
+            keysDown["a"] = false;
         }
 
-        if (keysDown['s']) {
-            keyup('s');
-            keysDown['s'] = false;
+        if (keysDown["s"]) {
+            keyup("s");
+            keysDown["s"] = false;
         }
 
-        if (keysDown['d']) {
-            keyup('d');
-            keysDown['d'] = false;
+        if (keysDown["d"]) {
+            keyup("d");
+            keysDown["d"] = false;
         }
 
     }
@@ -429,21 +428,21 @@ const click = function(x, y) {
         const pixelHeight = canvas.height / window.gameHeight;
         const clickX = Math.floor(x / pixelWidth);
         const clickY = Math.floor(y  / pixelHeight);
-        const payload = {type: 'click',  data: {x: clickX, y: clickY}};
+        const payload = {type: "click",  data: {x: clickX, y: clickY}};
         socket.readyState === 1 && socket.send(JSON.stringify(payload));
     }
 };
 
 const keydown = function(key) {
     if (socket) {
-        const payload = {type: 'keydown',  key: key};
+        const payload = {type: "keydown",  key: key};
         socket.readyState === 1 && socket.send(JSON.stringify(payload));
     }
 };
 
 const keyup = function(key) {
     if (socket) {
-        const payload = {type: 'keyup',  key: key};
+        const payload = {type: "keyup",  key: key};
         socket.readyState === 1 && socket.send(JSON.stringify(payload));
     }
 };
@@ -451,11 +450,11 @@ const keyup = function(key) {
 const unlock = () => {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-        if (audioCtx.state === 'suspended') {
+        if (audioCtx.state === "suspended") {
             audioCtx.resume();
         }
         for (const key in gameAssets) {
-            if (gameAssets[key]['type'] === 'audio' && !gameAssets[key]['decoded']) {
+            if (gameAssets[key]["type"] === "audio" && !gameAssets[key]["decoded"]) {
                 audioCtx.decodeAudioData(gameAssets[key].data, (buffer) => {
                     gameAssets[key].data = buffer;
                     gameAssets[key].decoded = true;
@@ -463,39 +462,39 @@ const unlock = () => {
             }
         }
     }
-}
+};
 
-document.addEventListener('touchstart', unlock, false);
+document.addEventListener("touchstart", unlock, false);
 
-canvas.addEventListener('mousedown', function(e) {
+canvas.addEventListener("mousedown", function() {
     mouseDown = true;
     unlock();
 });
 
-canvas.addEventListener('mouseup', function(e) {
+canvas.addEventListener("mouseup", function(e) {
     click(e.clientX, e.clientY);
     mouseDown = false;
 });
 
-canvas.addEventListener('mousemove', function(e) {
+canvas.addEventListener("mousemove", function(e) {
     if (mouseDown) {
         click(e.clientX, e.clientY);
     }
 });
 
-canvas.addEventListener('touchstart', function(e) {
+canvas.addEventListener("touchstart", function(e) {
     e.preventDefault();
-    click(e.touches['0'].clientX, e.touches['0'].clientY);
+    click(e.touches["0"].clientX, e.touches["0"].clientY);
 });
 
-canvas.addEventListener('touchmove', function(e) {
+canvas.addEventListener("touchmove", function(e) {
     e.preventDefault();
-    click(e.touches['0'].clientX, e.touches['0'].clientY);
+    click(e.touches["0"].clientX, e.touches["0"].clientY);
 });
 
 function keyMatters(event) {
     // Key code values 36-40 are the arrow keys
-    return event.key.length == 1 && event.key >= ' ' && event.key <= 'z' || event.keyCode >= 36 && event.keyCode <= 40 || event.key === 'Meta' || event.key == 'Backspace';
+    return event.key.length == 1 && event.key >= " " && event.key <= "z" || event.keyCode >= 36 && event.keyCode <= 40 || event.key === "Meta" || event.key == "Backspace";
 }
 
 function isMobile() {
@@ -503,23 +502,23 @@ function isMobile() {
 }
 
 if (isMobile()) {
-    document.getElementById('text-hack').addEventListener('input', (e) => {
-        let eventKey = e.data ? e.data.charAt(e.data.length - 1) : 'Backspace';
+    document.getElementById("text-hack").addEventListener("input", (e) => {
+        let eventKey = e.data ? e.data.charAt(e.data.length - 1) : "Backspace";
         e.key = eventKey;
-        if (keyMatters(e) && !keysDown['Meta']) {
+        if (keyMatters(e) && !keysDown["Meta"]) {
             e.preventDefault && e.preventDefault();
             keydown(e.key);
         }
     });
 } else {
-    document.addEventListener('keydown', function(e) {
-        if (keyMatters(e) && !keysDown['Meta']) {
+    document.addEventListener("keydown", function(e) {
+        if (keyMatters(e) && !keysDown["Meta"]) {
             e.preventDefault();
             keydown(e.key);
             keysDown[e.key] = true;
         }
     });
-    document.addEventListener('keyup', function(e) {
+    document.addEventListener("keyup", function(e) {
         if (keyMatters(e)) {
             e.preventDefault();
             keyup(e.key);
@@ -527,8 +526,3 @@ if (isMobile()) {
         }
     });
 }
-
-canvas.addEventListener('mousemove', (e) => {
-    //console.log(e.screenX);
-    //console.log(e.screenY);
-});

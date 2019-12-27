@@ -1,4 +1,4 @@
-const { Asset, gameNode, Colors, Deck } = require('../common');
+const { Asset, gameNode, Colors } = require("../common");
 
 class SpriteTest {
     static metadata() {
@@ -13,12 +13,12 @@ class SpriteTest {
 
     constructor() {
         this.danceFrames = {
-            'dance0':'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_0.png',
-            'dance_left':'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_left.png',
-            'dance_right':'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_right.png',
-            'dance_up':'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_up.png',
-            'dance_down':'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_down.png'
-        }
+            "dance0": "https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_0.png",
+            "dance_left": "https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_left.png",
+            "dance_right": "https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_right.png",
+            "dance_up": "https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_up.png",
+            "dance_down": "https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_down.png"
+        };
 
         this.playerSpots = {};
         
@@ -34,23 +34,23 @@ class SpriteTest {
 
         this.assets = {
             "dance0": new Asset("url", {
-                "location": this.danceFrames['dance0'],
+                "location": this.danceFrames["dance0"],
                 "type": "image"
             }),
             "dance_up": new Asset("url", {
-                "location": this.danceFrames['dance_up'],
+                "location": this.danceFrames["dance_up"],
                 "type": "image"
             }),
             "dance_down": new Asset("url", {
-                "location": this.danceFrames['dance_down'],
+                "location": this.danceFrames["dance_down"],
                 "type": "image"
             }),
             "dance_left": new Asset("url", {
-                "location": this.danceFrames['dance_left'],
+                "location": this.danceFrames["dance_left"],
                 "type": "image"
             }),
             "dance_right": new Asset("url", {
-                "location": this.danceFrames['dance_right'],
+                "location": this.danceFrames["dance_right"],
                 "type": "image"
             })
         };
@@ -62,9 +62,9 @@ class SpriteTest {
             (player, x, y) => {
                 let fakeArrowKey;
                 if (x >= .25 && x <= .75) {
-                    fakeArrowKey = y <= .5 ? 'ArrowUp' : 'ArrowDown';
+                    fakeArrowKey = y <= .5 ? "ArrowUp" : "ArrowDown";
                 } else {
-                    fakeArrowKey = x < .5 ? 'ArrowLeft' : 'ArrowRight';
+                    fakeArrowKey = x < .5 ? "ArrowLeft" : "ArrowRight";
                 }
                 this.handleKeyDown(player, fakeArrowKey);
             },
@@ -91,13 +91,13 @@ class SpriteTest {
 
         let dancer = this.dancers[player.id];
         let frameMap = {
-            'ArrowLeft': 'dance_left',
-            'ArrowRight': 'dance_right',
-            'ArrowUp': 'dance_up',
-            'ArrowDown': 'dance_down'
+            "ArrowLeft": "dance_left",
+            "ArrowRight": "dance_right",
+            "ArrowUp": "dance_up",
+            "ArrowDown": "dance_down"
         };
 
-        let newFrame = frameMap[key] ? (dancer.assets.dance0 ? frameMap[key] : 'dance0') : 'dance0';
+        let newFrame = frameMap[key] ? (dancer.assets.dance0 ? frameMap[key] : "dance0") : "dance0";
         let newAssets = {};
         newAssets[newFrame] = Object.values(this.dancers[player.id].assets)[0];
         dancer.assets = newAssets;
@@ -121,8 +121,8 @@ class SpriteTest {
             null,
             {x: 10, y: 10},
             {x: 0, y: 0},
-            {'text': player.name, x: x + 7, y: y + 1},
-            {'dance0': {pos: {x: x, y: y}, size: {x: 15, y: 15}}}
+            {"text": player.name, x: x + 7, y: y + 1},
+            {"dance0": {pos: {x: x, y: y}, size: {x: 15, y: 15}}}
         );
         this.background.addChild(this.dancers[player.id]);
     }

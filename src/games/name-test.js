@@ -1,11 +1,21 @@
-const { Asset, gameNode, Colors, Deck } = require('../common');
+const { gameNode, Colors } = require("../common");
 
 class NameTest {
+    static metadata() {
+        return {
+            res: {
+                width: 1280,
+                height: 720
+            },
+            author: "Joseph Garcia"
+        };
+    }
+
     constructor() {
         this.playerCount = 0;
         this.players = {};
         this.infoNodes = {};
-        this.base = gameNode(Colors.GREEN, null, {'x': 0, 'y': 0}, {'x': 100, 'y': 100}, {'text': 'Player Test', x: 50, y: 5});
+        this.base = gameNode(Colors.GREEN, null, {"x": 0, "y": 0}, {"x": 100, "y": 100}, {"text": "Player Test", x: 50, y: 5});
     }
 
     tick() {
@@ -14,7 +24,7 @@ class NameTest {
     handleNewPlayer(player) {
         
         this.players[player.id] = player;        
-        let playerName = 'ayy lmao ' + player.id;
+        let playerName = "ayy lmao " + player.id;
         const infoNode = gameNode(Colors.randomColor(), null, {x: 20, y: 20}, {x: 20, y: 20}, {text: playerName, x: 25, y: 25}, null, player.id);
         this.infoNodes[player.id] = infoNode;
         this.base.addChild(infoNode);

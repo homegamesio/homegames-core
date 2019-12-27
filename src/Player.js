@@ -11,7 +11,7 @@ class Player {
     }
 
     handlePlayerInput(msg) {
-        if (msg.charAt(0) == '{') {
+        if (msg.charAt(0) == "{") {
             const data = JSON.parse(msg);
             if (!data.type) {
                 return;

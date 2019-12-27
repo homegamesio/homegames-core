@@ -1,5 +1,4 @@
-const { Asset, gameNode, Colors, Deck } = require('../common');
-const Game = require('../Game');
+const { Asset, gameNode, Colors } = require("../common");
 
 class Draw {
     static metadata() {
@@ -38,17 +37,17 @@ class Draw {
                 "y": 100
             },
             {
-                'text': '',
+                "text": "",
                 x: 0,
                 y: 0
             },
             {
-                'test': {
-                    'pos': {
+                "test": {
+                    "pos": {
                         x: 20,
                         y: 20
                     },
-                    'size': {
+                    "size": {
                         x: 10,
                         y: 10
                     }
@@ -62,9 +61,9 @@ class Draw {
         const randomizeButton = gameNode(Colors.RED, this.randomizeBoardColor.bind(this), {"x": 80, "y": 0}, {"x": 15, "y": 15});
         const resetButton = gameNode(Colors.BLUE, this.initializeBoard.bind(this), {x: 60, y: 0}, {x: 15, y: 15});
 
-        const homeButton = gameNode(Colors.PURPLE, (player, x, y) => {
+        const homeButton = gameNode(Colors.PURPLE, (player) => {
             player.receiveUpdate([5, 70, 0]);
-        }, {"x": 3, "y": 3}, {"x": 8, "y": 10}, {'text': '', 'x': 0, 'y': 0}, {'home-button': {pos: {x: 3, y: 3}, size: {x: 8, y: 10}}});
+        }, {"x": 3, "y": 3}, {"x": 8, "y": 10}, {"text": "", "x": 0, "y": 0}, {"home-button": {pos: {x: 3, y: 3}, size: {x: 8, y: 10}}});
 
         this.board.clearChildren();
         this.homeButton = homeButton;
@@ -75,15 +74,13 @@ class Draw {
     }
 
     logPlayerCount() {
-        console.log("draw");
-        console.log(Object.values(this.players).length);
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer() {
         this.logPlayerCount();
     }
 
-    handlePlayerDisconnect(player) {
+    handlePlayerDisconnect() {
         this.logPlayerCount();
     }
 
@@ -94,7 +91,7 @@ class Draw {
     handleBoardClick(player, x, y) {
         const coloredPixel = gameNode(Colors.randomColor(), () => {}, {"x": (x * 100) - .25, "y": (y * 100) - .25}, {"x": .5, "y": .5}, 
             {
-                'text': '',
+                "text": "",
                 x: 0,
                 y: 0
             });

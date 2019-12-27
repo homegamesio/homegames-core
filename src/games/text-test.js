@@ -1,4 +1,4 @@
-const { Asset, gameNode, Colors, Deck } = require('../common');
+const { gameNode, Colors } = require("../common");
 
 class TextTest {
     constructor() {
@@ -17,7 +17,7 @@ class TextTest {
         this.base.text = this.base.text;
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer() {
         this.updatePlayerCount();
     }
 
@@ -27,7 +27,7 @@ class TextTest {
         this.playerCount.text = this.playerCount.text;
     }
 
-    handlePlayerDisconnect(player) {
+    handlePlayerDisconnect() {
         this.updatePlayerCount();
     }
 

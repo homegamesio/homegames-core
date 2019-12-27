@@ -1,5 +1,6 @@
 const WebSocket = require("ws");
 const http = require("http");
+const assert = require("assert");
 const linkHelper = require("../common/util/link-helper");
 const Player = require("../Player");
 
@@ -31,7 +32,9 @@ const socketServer = (gameSession, port, cb = null) => {
     
     wss.on("connection", (ws) => {
         function messageHandler(msg) {
-            ws.removeListener('message', messageHandler);
+            assert(msg === "ready");
+
+            ws.removeListener("message", messageHandler);
     
             ws.id = generatePlayerId();
 
@@ -48,21 +51,21 @@ const socketServer = (gameSession, port, cb = null) => {
             gameSession.addPlayer(player);
         }
 
-        ws.on('message', messageHandler);
+        ws.on("message", messageHandler);
 
         function closeHandler() {
             playerIds[ws.id] = false;
             gameSession.handlePlayerDisconnect(ws.id);
         }
 
-        ws.on('close', closeHandler);
+        ws.on("close", closeHandler);
 
     });
     
     server.listen(port, null, null, () => {
         cb && cb();
     });
-}
+};
 
 
 module.exports = {

@@ -1,9 +1,9 @@
 const https = require("https");
-const fs = require('fs');
+const fs = require("fs");
 
 // TODO: make this a config thing and simplify paths
-const CACHE_DIR  = './local';
-const DICT_FILE_PATH = CACHE_DIR + '/dictionary.txt';
+const CACHE_DIR  = "./local";
+const DICT_FILE_PATH = CACHE_DIR + "/dictionary.txt";
 
 let words = [];
 
