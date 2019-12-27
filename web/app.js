@@ -169,7 +169,7 @@ function renderBuf(buf) {
                 const assetKeyArray = buf.slice(start + 50, start + 50 + 32);
                 const assetKey = String.fromCharCode.apply(null, assetKeyArray.filter(x => x));
                 
-                if (gameAssets[assetKey]["type"] === "audio") {
+                if (gameAssets[assetKey] && gameAssets[assetKey]["type"] === "audio") {
                     if (audioCtx) {
                         source = audioCtx.createBufferSource();
                         source.connect(audioCtx.destination);
@@ -192,7 +192,9 @@ function renderBuf(buf) {
                                 (assetPosY / 100) * verticalScale, image.width, image.height);
                         };
 
-                        image.src = gameAssets[assetKey].data;
+                        if (gameAssets[assetKey]) {
+                            image.src = gameAssets[assetKey].data;
+                        }
                     }
                 }
             }
@@ -426,8 +428,8 @@ const click = function(x, y) {
     if (socket) {
         const pixelWidth = canvas.width / window.gameWidth;
         const pixelHeight = canvas.height / window.gameHeight;
-        const clickX = Math.floor(x / pixelWidth);
-        const clickY = Math.floor(y  / pixelHeight);
+        const clickX = Math.floor((x + window.scrollX) / pixelWidth);
+        const clickY = Math.floor((y + window.scrollY) / pixelHeight);
         const payload = {type: "click",  data: {x: clickX, y: clickY}};
         socket.readyState === 1 && socket.send(JSON.stringify(payload));
     }

@@ -39,6 +39,7 @@ class GameSession {
     handlePlayerDisconnect(playerId) {
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
         delete this.players[playerId];
+        this.game.playerDidDisconnect && this.game.playerDidDisconnect(playerId);
     }
 
     handlePlayerData(player, data) {
