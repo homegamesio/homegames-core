@@ -89,11 +89,11 @@ class Charades {
     }
 
     getCurrentPlayer() {
-        if (!this.currentPlayerIndex) {
+        if (this.currentPlayerIndex === null || this.currentPlayerIndex === undefined) {
             this.currentPlayerIndex = 0;
         } else {
             let newPlayerIndex = this.currentPlayerIndex + 1;
-            if (newPlayerIndex >= Object.values(this.players).length) {
+            if (newPlayerIndex > Object.values(this.players).length - 1) {
                 newPlayerIndex = 0;
             }
             this.currentPlayerIndex = newPlayerIndex;
@@ -129,16 +129,16 @@ class Charades {
         charadesWord().then(word => {
             this.wordNode = gameNode(Colors.CREAM, null,
                 {
-                    x: 45, y: 5
+                    x: 50, y: 2
                 },
                 {
-                    x: 10,
-                    y: 10
+                    x: 1,
+                    y: 1
                 },
                 {
-                    text: 'ayy lmao',
-                    x: 45,
-                    y: 5
+                    text: word,
+                    x: 50,
+                    y: 2
                 }, null,
                 currentPlayer.id);
             this.base.addChild(this.wordNode);
@@ -166,11 +166,22 @@ class Charades {
             currentPlayer.id
         );
 
+        const doneButton = gameNode(Colors.WHITE, () => {
+                this.countdownInterval && clearInterval(this.countdownInterval);
+                this.wordNode.playerId = 0; 
+                setTimeout(() => {
+                    this.base.clearChildren();
+                    this.renderPlayerList();
+                    this.newRound();
+                }, 5000);
+
+        }, {x: 5, y: 90}, {x: 5, y: 5}, {x: 5, y: 90, text: 'New Round'}, null, currentPlayer.id);
+        this.drawNode.addChild(doneButton);
+
         const colorOptions = [Colors.BLACK, Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.WHITE];
         let optionIndex = 25;
         for (let colorIndex in colorOptions) {
             const color = colorOptions[colorIndex];
-            console.log(color);
             const colorButton = gameNode(color, 
                 (player) => {
                     this.playerColors[player.id] = color;
@@ -179,6 +190,29 @@ class Charades {
             optionIndex += 10;
         }
         this.drawNode.addChild(clearButton);
+
+        const countdownNode = gameNode(Colors.CREAM, null,
+            {x: 50, y: 10}, {x: 1, y: 1}, {text: '60', x: 50, y: 10});
+        this.drawNode.addChild(countdownNode);
+        this.countdownInterval = setInterval(() => {
+            let currentSecs = Number(countdownNode.text.text);
+            let newSecs = currentSecs - 1;
+            countdownNode.text = {
+                text: '' + newSecs,
+                x: 50,
+                y: 10
+            };
+            if (newSecs < 1) {
+                clearInterval(this.countdownInterval);
+                // visible to everyone
+                this.wordNode.playerId = 0; 
+                setTimeout(() => {
+                    this.base.clearChildren();
+                    this.renderPlayerList();
+                    this.newRound();
+                }, 5000);
+            }
+        }, 1000);
     }
 
     getRoot() {
