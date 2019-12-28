@@ -22,7 +22,15 @@ const PATH_MAP = {
 };
 
 http.createServer((req, res) => {
-    const pathMapping = PATH_MAP[req.url];
+    let requestPath = req.url;
+
+    const queryParamIndex = requestPath.indexOf("?");
+
+    if (queryParamIndex > 0) {
+        requestPath = requestPath.substring(0, queryParamIndex);
+    }
+
+    const pathMapping = PATH_MAP[requestPath];
 
     if (pathMapping) {
         res.statusCode = 200;
