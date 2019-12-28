@@ -53,7 +53,6 @@ class PerfTest {
         if (this.guy3.pos.y >= 100) {
             clearInterval(this.guy3Interval);
         }
-        clearInterval(this.guy3Interval);
     }
 
     getRoot() {
