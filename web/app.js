@@ -72,7 +72,7 @@ const initCanvas = (gameWidth, gameHeight) => {
     window.gameWidth = gameWidth;
     window.gameHeight = gameHeight;
     
-    scaleFactor = Math.floor(windowWidth / gameWidth) || Math.floor(gameWidth / windowWidth);
+    scaleFactor = Math.floor(windowWidth / gameWidth) || windowWidth / gameWidth;
 
     horizontalScale = gameWidth * scaleFactor;
     verticalScale = gameHeight * scaleFactor;
@@ -528,3 +528,7 @@ if (isMobile()) {
         }
     });
 }
+
+window.addEventListener('resize', () => {
+    initCanvas(window.gameWidth, window.gameHeight);
+});
