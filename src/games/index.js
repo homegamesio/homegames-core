@@ -1,5 +1,3 @@
-const Test1 = require("./test-1");
-const Test2 = require("./test-2");
 const Draw = require("./draw");
 const MoveTest = require("./move-test");
 const Slaps = require("./slaps");
@@ -13,6 +11,7 @@ const Charades = require("./charades");
 const PerfTest = require("./perf-test");
 
 module.exports = {
+    HomeButtonTest,
     PerfTest,
     Charades,
     WordMatch,
@@ -21,9 +20,6 @@ module.exports = {
     MoveTest,
     SpriteTest,
     LayerTest,
-    HomeButtonTest,
     NameTest,
-    Test1,
-    Test2,
     TextTest,
 };
