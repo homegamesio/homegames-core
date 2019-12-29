@@ -76,7 +76,7 @@ class Squisher {
     }
 
     checkCollisions(node, notify = true) {
-        let collidingNodes = this.collisionHelper(this.root, node);
+        const collidingNodes = this.collisionHelper(this.root, node);
         if (notify && collidingNodes.length > 0) {
             this.game.handleCollision && this.game.handleCollision([node, ...collidingNodes]);
         }
@@ -89,19 +89,19 @@ class Squisher {
 
     findClickHelper(x, y, playerId, node, clicked = null) {
         if (node.handleClick && !node.playerId || playerId == node.playerId) {
-            let beginX = node.pos.x * this.width * .01;
-            let endX = (node.pos.x + node.size.x) * this.width * .01;
-            let beginY = node.pos.y * this.height * .01;
-            let endY = (node.pos.y + node.size.y) * this.height * .01;
-            let x1 = x * this.width;
-            let y1 = y * this.height;
-            let isClicked = (x1 >= beginX && x1 <= endX) && (y1 >= beginY && y1 <= endY);
+            const beginX = node.pos.x * this.width * .01;
+            const endX = (node.pos.x + node.size.x) * this.width * .01;
+            const beginY = node.pos.y * this.height * .01;
+            const endY = (node.pos.y + node.size.y) * this.height * .01;
+            const x1 = x * this.width;
+            const y1 = y * this.height;
+            const isClicked = (x1 >= beginX && x1 <= endX) && (y1 >= beginY && y1 <= endY);
             if (isClicked) {
                 clicked = node;
             }
         }
 
-        for (let i in node.children) {
+        for (const i in node.children) {
             clicked = this.findClickHelper(x, y, playerId, node.children[i], clicked);
         }
 
@@ -110,24 +110,24 @@ class Squisher {
 
     collisionHelper(node, nodeToCheck, collisions = []) {
         if (node.pos && nodeToCheck.pos && node.handleClick && node.id !== nodeToCheck.id) {
-            let node1LeftX = this.width * .01 * (node.pos.x);
-            let node1RightX = this.width * .01 * (node.pos.x + node.size.x);
-            let node2LeftX = this.width * .01 * (nodeToCheck.pos.x);
-            let node2RightX = this.width * .01 * (nodeToCheck.pos.x + nodeToCheck.size.x);
+            const node1LeftX = this.width * .01 * (node.pos.x);
+            const node1RightX = this.width * .01 * (node.pos.x + node.size.x);
+            const node2LeftX = this.width * .01 * (nodeToCheck.pos.x);
+            const node2RightX = this.width * .01 * (nodeToCheck.pos.x + nodeToCheck.size.x);
 
-            let node1TopY = this.height * .01 * (node.pos.y);
-            let node1BottomY = this.height * .01 * (node.pos.y + node.size.y);
-            let node2TopY = this.height * .01 * (nodeToCheck.pos.y);
-            let node2BottomY = this.height * .01 * (nodeToCheck.pos.y + nodeToCheck.size.y);
+            const node1TopY = this.height * .01 * (node.pos.y);
+            const node1BottomY = this.height * .01 * (node.pos.y + node.size.y);
+            const node2TopY = this.height * .01 * (nodeToCheck.pos.y);
+            const node2BottomY = this.height * .01 * (nodeToCheck.pos.y + nodeToCheck.size.y);
 
-            let oneToTheLeft = node2RightX < node1LeftX || node1RightX < node2LeftX;
-            let oneBelow = node1TopY > node2BottomY || node2TopY > node1BottomY;
+            const oneToTheLeft = node2RightX < node1LeftX || node1RightX < node2LeftX;
+            const oneBelow = node1TopY > node2BottomY || node2TopY > node1BottomY;
             if (!(oneToTheLeft || oneBelow)) {
                 collisions.push(node);
             }
         }
 
-        for (let child in node.children) {
+        for (const child in node.children) {
             this.collisionHelper(node.children[child], nodeToCheck, collisions);
         }
 
@@ -161,7 +161,7 @@ class Squisher {
     }
 
     notifyListeners() {
-        for (let listener of this.listeners) {
+        for (const listener of this.listeners) {
             listener.handleUpdate(this.pixelBoard);
         }
     }
@@ -179,7 +179,7 @@ class Squisher {
     }
 
     handleClick(player, click) {
-        let translatedX = (click.x / this.width);
+        const translatedX = (click.x / this.width);
         const translatedY = (click.y / this.height);
         if (translatedX >= 1 || translatedY >= 1) {
             return;
@@ -194,7 +194,7 @@ class Squisher {
     squish(entity) {
         // Type (1) + Player ID (1) + Size (1) + color (4) + pos (4) + size (4) + text position (2) + text (32) + assets (37 * assetCount)
         // TODO: store type in array to stop sending unnecessary data 
-        let squishedSize = 1 + 1 + 1 + 4 + 4 + 4 + (entity.text ? 2 + 32 : 0) + (entity.assets ? 37 * Object.keys(entity.assets).length : 0);
+        const squishedSize = 1 + 1 + 1 + 4 + 4 + 4 + (entity.text ? 2 + 32 : 0) + (entity.assets ? 37 * Object.keys(entity.assets).length : 0);
 
         const squished = new Array(squishedSize);
         let squishedIndex = 0;

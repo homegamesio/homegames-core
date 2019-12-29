@@ -37,7 +37,7 @@ class Slaps {
 
     tick() {
 
-        let playerCount = Object.keys(this.players).length;
+        const playerCount = Object.keys(this.players).length;
 
         if (playerCount < 2 && !this.playerRequirementNode) { 
             this.clearTable();
@@ -68,9 +68,9 @@ class Slaps {
         this.hands = {};
         let index = 0;
         let highestVal, winner;
-        for (let i in this.players) {
+        for (const i in this.players) {
             this.hands[i] = this.deck.drawCard();
-            let player = this.players[i];
+            const player = this.players[i];
             if (!highestVal || this.hands[i].value > highestVal) {
                 highestVal = this.hands[i].value;
                 winner = player;
@@ -81,7 +81,7 @@ class Slaps {
             index += 1;
         }
 
-        let winnerNotification = gameNode(colors.GREEN, null, {x: 35, y: 10}, {x: 35, y: 10}, {text: winner.name + " wins!", x: 50, y: 10});
+        const winnerNotification = gameNode(colors.GREEN, null, {x: 35, y: 10}, {x: 35, y: 10}, {text: winner.name + " wins!", x: 50, y: 10});
         this.base.addChild(winnerNotification);
 
         if (this.canStartNewGame) {
@@ -107,12 +107,12 @@ class Slaps {
 
     updatePlayerCount() {
         let playerYIndex = 0;
-        let playerNodes = Object.values(this.players).map(player => {
-            let yIndex = ++playerYIndex * 10;
+        const playerNodes = Object.values(this.players).map(player => {
+            const yIndex = ++playerYIndex * 10;
             return gameNode(colors.EMERALD, null, {x: 15, y: yIndex}, {x: 10, y: 9}, {text: this.players[player.id].name, x: 15, y: yIndex}, null, null);
         });
 
-        let playerInfoPanel = gameNode(colors.EMERALD, null, {x: 15, y: 5}, {x: 10, y: 1}, {text: "Players", x: 15, y: 5}, null, null);
+        const playerInfoPanel = gameNode(colors.EMERALD, null, {x: 15, y: 5}, {x: 10, y: 1}, {text: "Players", x: 15, y: 5}, null, null);
 
         playerNodes.forEach(player => {
             playerInfoPanel.addChild(player);

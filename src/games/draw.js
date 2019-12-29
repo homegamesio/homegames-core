@@ -100,7 +100,7 @@ class Draw {
     }
 
     randomizeBoardColor() {
-        let color = Colors.randomColor();
+        const color = Colors.randomColor();
         this.board.color = color;
         this.homeButton.color = color;
     }

@@ -24,7 +24,7 @@ class NameTest {
     handleNewPlayer(player) {
         
         this.players[player.id] = player;        
-        let playerName = "ayy lmao " + player.id;
+        const playerName = "ayy lmao " + player.id;
         const infoNode = gameNode(Colors.randomColor(), null, {x: 20, y: 20}, {x: 20, y: 20}, {text: playerName, x: 25, y: 25}, null, player.id);
         this.infoNodes[player.id] = infoNode;
         this.base.addChild(infoNode);

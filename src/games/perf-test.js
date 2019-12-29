@@ -29,7 +29,7 @@ class PerfTest {
     }
 
     moveGuy1() {
-        let newPos = this.guy1.pos;
+        const newPos = this.guy1.pos;
         newPos.y = newPos.y + 1;
         this.guy1.pos = newPos;
         if (this.guy1.pos.y + this.guy1.size.y >= 100) {
@@ -38,7 +38,7 @@ class PerfTest {
     }
 
     moveGuy2() {
-        let newPos = this.guy2.pos;
+        const newPos = this.guy2.pos;
         newPos.y = newPos.y + 1;
         this.guy2.pos = newPos;
         if (this.guy2.pos.y + this.guy2.size.y >= 100) {
@@ -47,7 +47,7 @@ class PerfTest {
     }
 
     moveGuy3() {
-        let newPos = this.guy3.pos;
+        const newPos = this.guy3.pos;
         newPos.y = newPos.y + 1;
         this.guy3.pos = newPos;
         if (this.guy3.pos.y + this.guy3.size.y >= 100) {

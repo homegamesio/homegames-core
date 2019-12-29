@@ -7,14 +7,14 @@ const Player = require("../Player");
 const socketServer = (gameSession, port, cb = null) => {
     linkHelper();
 
-    let playerIds = {};
+    const playerIds = {};
 
     for (let i = 1; i < 256; i++) {
         playerIds[i] = false;
     }
 
     const generatePlayerId = () => {
-        for (let k in playerIds) {
+        for (const k in playerIds) {
             if (playerIds[k] === false) {
                 playerIds[k] = true;
                 return Number(k);
@@ -38,7 +38,7 @@ const socketServer = (gameSession, port, cb = null) => {
     
             ws.id = generatePlayerId();
 
-            let gameMetadata = gameSession.game.constructor.metadata();
+            const gameMetadata = gameSession.game.constructor.metadata();
             const gameWidth1 = gameMetadata.res.width / 100;
             const gameWidth2 = gameMetadata.res.width % 100;
             const gameHeight1 = gameMetadata.res.height / 100;

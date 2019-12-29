@@ -33,7 +33,7 @@ class GameNode {
     }
 
     onStateChange() {
-        for (let listener of this.listeners) {
+        for (const listener of this.listeners) {
             listener.handleStateChange(this);
         }
     }
@@ -42,7 +42,7 @@ class GameNode {
         if (!excludedNodeIds) {
             this.children = new Array();
         } else {
-            let newChildren = this.children.filter(child => {
+            const newChildren = this.children.filter(child => {
                 return excludedNodeIds.includes(child.id);
             });
             this.children = newChildren;

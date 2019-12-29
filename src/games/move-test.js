@@ -76,7 +76,7 @@ class MoveTest {
             }
         } 
 
-        let wouldBeCollisions = this.squisher.checkCollisions({"id": player.id, "pos": {"x": newX, "y": newY}, "size": player.size}, false);
+        const wouldBeCollisions = this.squisher.checkCollisions({"id": player.id, "pos": {"x": newX, "y": newY}, "size": player.size}, false);
 
         if (wouldBeCollisions.length == 0) {
             player.pos = {"x": newX, "y": newY};

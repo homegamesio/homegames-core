@@ -43,7 +43,7 @@ class GameSession {
     }
 
     handleUpdate(update) {
-        for (let playerId in this.players) {
+        for (const playerId in this.players) {
             this.players[playerId].receiveUpdate(update);
         }
     }

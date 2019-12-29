@@ -14,7 +14,7 @@ for (let i = config.GAME_SERVER_PORT_RANGE_MIN; i < config.GAME_SERVER_PORT_RANG
 }
 
 const getServerPort = () => {
-    for (let p in sessions) {
+    for (const p in sessions) {
         if (!sessions[p]) {
             return Number(p);
         }
@@ -49,7 +49,7 @@ class HomegamesDashboard {
         this.gameIds = {};
         this.requestCallbacks = {};
         this.requestIdCounter = 1;
-        setInterval(this.heartbeat.bind(this), 2000);
+        setInterval(this.heartbeat.bind(this), config.CHILD_SESSION_HEARTBEAT_INTERVAL);
 
         this.renderGameList();
     }
@@ -63,12 +63,10 @@ class HomegamesDashboard {
     renderGameList() {
         let xIndex = 5;
         this.base.clearChildren();
-        for (let key in games) {
-            let activeSessions = Object.values(this.sessions).filter(s => {
-                return s.game === key;
-            });
+        for (const key in games) {
+            const activeSessions = Object.values(this.sessions).filter(s => s.game === key);
 
-            let gameOption = gameNode(Colors.WHITE, (player) => {
+            const gameOption = gameNode(Colors.WHITE, (player) => {
 
                 const sessionId = sessionIdCounter++;
                 const port = getServerPort();
@@ -83,7 +81,7 @@ class HomegamesDashboard {
                 }));
 
                 childSession.on("message", (thang) => {
-                    let jsonMessage = JSON.parse(thang);
+                    const jsonMessage = JSON.parse(thang);
                     if (jsonMessage.success) {
                         player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
                     }
@@ -104,7 +102,7 @@ class HomegamesDashboard {
                     sendMessage: () => {
                     },
                     getPlayers: (cb) => {
-                        let requestId = this.requestIdCounter++;
+                        const requestId = this.requestIdCounter++;
                         if (cb) {
                             this.requestCallbacks[requestId] = cb;
                         }
@@ -138,14 +136,14 @@ class HomegamesDashboard {
                 y: 10
             },
             {
-                text: 'by ' + (games[key].metadata && games[key].metadata()['author'] || 'Unknown Author'),
+                text: "by " + (games[key].metadata && games[key].metadata()["author"] || "Unknown Author"),
                 x: xIndex + 5,
                 y: 20
             });
 
-            for (let sessionIndex in activeSessions) {
+            for (const sessionIndex in activeSessions) {
                 const session = activeSessions[sessionIndex];
-                let sessionNode = gameNode(Colors.BLUE, (player) => {
+                const sessionNode = gameNode(Colors.BLUE, (player) => {
                     player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
                 }, {x: xIndex + 3, y: 25 + (sessionIndex * 6)}, {x: 5, y: 5}, {"text": "session", x: xIndex + 3, y: 25 + (sessionIndex * 6)});
                 this.base.addChild(sessionNode);

@@ -23,7 +23,7 @@ const startServer = (sessionInfo) => {
 
 process.on("message", (msg) => {
     lastMessage = new Date();
-    let message = JSON.parse(msg);
+    const message = JSON.parse(msg);
     if (message.key) {
         startServer(message);
     } else {

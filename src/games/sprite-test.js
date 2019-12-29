@@ -22,8 +22,8 @@ class SpriteTest {
 
         this.playerSpots = {};
         
-        let playerRows = 3;
-        let playerCols = 8;
+        const playerRows = 3;
+        const playerCols = 8;
 
         for (let i = 0; i < playerRows * playerCols; i++) {
             this.playerSpots[i] = {
@@ -89,22 +89,22 @@ class SpriteTest {
             delete this.inputCooldowns[player.id];
         }.bind(this), 150);
 
-        let dancer = this.dancers[player.id];
-        let frameMap = {
+        const dancer = this.dancers[player.id];
+        const frameMap = {
             "ArrowLeft": "dance_left",
             "ArrowRight": "dance_right",
             "ArrowUp": "dance_up",
             "ArrowDown": "dance_down"
         };
 
-        let newFrame = frameMap[key] ? (dancer.assets.dance0 ? frameMap[key] : "dance0") : "dance0";
-        let newAssets = {};
+        const newFrame = frameMap[key] ? (dancer.assets.dance0 ? frameMap[key] : "dance0") : "dance0";
+        const newAssets = {};
         newAssets[newFrame] = Object.values(this.dancers[player.id].assets)[0];
         dancer.assets = newAssets;
     }
 
     getPlayerSpot() {
-        for (let i in this.playerSpots) {
+        for (const i in this.playerSpots) {
             if (!this.playerSpots[i].player) {
                 return this.playerSpots[i];
             }
@@ -112,10 +112,10 @@ class SpriteTest {
     }
 
     handleNewPlayer(player) {
-        let spot = this.getPlayerSpot();
+        const spot = this.getPlayerSpot();
         spot.player = player;
-        let x = ((spot.x * 10) + 2);
-        let y = ((spot.y * 30) + 2);
+        const x = ((spot.x * 10) + 2);
+        const y = ((spot.y * 30) + 2);
         this.dancers[player.id] = gameNode(
             Colors.BLACK,
             null,
@@ -129,7 +129,7 @@ class SpriteTest {
 
     handlePlayerDisconnect(playerId) {
         // this is terrible but its working and its so cool
-        for (let i in this.playerSpots) {
+        for (const i in this.playerSpots) {
             if (this.playerSpots[i].playerId == playerId) {
                 this.playerSpots[i].playerId = null;
             }

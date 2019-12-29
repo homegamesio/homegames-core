@@ -6,7 +6,7 @@
   "directories": {
     "lib": "lib"
   },
-  "bin": "app_server",
+  "bin": "app_server.js",
   "pkg": {
     "assets": "web/**/*"
   },

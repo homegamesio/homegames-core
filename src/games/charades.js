@@ -19,7 +19,7 @@ class Charades {
         this.newRoundNode = gameNode(Colors.GREEN, (player) => {
             this.newRound();
         }, {x: 45, y: 5}, {x: 10, y: 10}, {
-            text: 'Start',
+            text: "Start",
             x: 50,
             y: 9
         });
@@ -167,20 +167,20 @@ class Charades {
         );
 
         const doneButton = gameNode(Colors.WHITE, () => {
-                this.countdownInterval && clearInterval(this.countdownInterval);
-                this.wordNode.playerId = 0; 
-                setTimeout(() => {
-                    this.base.clearChildren();
-                    this.renderPlayerList();
-                    this.newRound();
-                }, 5000);
+            this.countdownInterval && clearInterval(this.countdownInterval);
+            this.wordNode.playerId = 0; 
+            setTimeout(() => {
+                this.base.clearChildren();
+                this.renderPlayerList();
+                this.newRound();
+            }, 5000);
 
-        }, {x: 5, y: 90}, {x: 5, y: 5}, {x: 5, y: 90, text: 'New Round'}, null, currentPlayer.id);
+        }, {x: 5, y: 90}, {x: 5, y: 5}, {x: 5, y: 90, text: "New Round"}, null, currentPlayer.id);
         this.drawNode.addChild(doneButton);
 
         const colorOptions = [Colors.BLACK, Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.WHITE];
         let optionIndex = 25;
-        for (let colorIndex in colorOptions) {
+        for (const colorIndex in colorOptions) {
             const color = colorOptions[colorIndex];
             const colorButton = gameNode(color, 
                 (player) => {
@@ -192,13 +192,13 @@ class Charades {
         this.drawNode.addChild(clearButton);
 
         const countdownNode = gameNode(Colors.CREAM, null,
-            {x: 50, y: 10}, {x: 1, y: 1}, {text: '60', x: 50, y: 10});
+            {x: 50, y: 10}, {x: 1, y: 1}, {text: "60", x: 50, y: 10});
         this.drawNode.addChild(countdownNode);
         this.countdownInterval = setInterval(() => {
-            let currentSecs = Number(countdownNode.text.text);
-            let newSecs = currentSecs - 1;
+            const currentSecs = Number(countdownNode.text.text);
+            const newSecs = currentSecs - 1;
             countdownNode.text = {
-                text: '' + newSecs,
+                text: "" + newSecs,
                 x: 50,
                 y: 10
             };

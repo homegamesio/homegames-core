@@ -1,0 +1,7 @@
+module.exports = {
+    GAME_SERVER_HOME_PORT: 7000,
+    GAME_SERVER_PORT_RANGE_MIN: 7001,
+    GAME_SERVER_PORT_RANGE_MAX: 7100,
+    DEFAULT_GAME_THUMBNAIL: "https://d3lgoy70hwd3pc.cloudfront.net/logo.png",
+    CHILD_SESSION_HEARTBEAT_INTERVAL: 2000
+};
