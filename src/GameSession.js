@@ -42,10 +42,6 @@ class GameSession {
         this.game.playerDidDisconnect && this.game.playerDidDisconnect(playerId);
     }
 
-    handlePlayerData(player, data) {
-        this.game.handlePlayerData && this.game.handlePlayerData(player, data);
-    }
-
     handleUpdate(update) {
         for (let playerId in this.players) {
             this.players[playerId].receiveUpdate(update);
