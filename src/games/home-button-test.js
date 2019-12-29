@@ -7,7 +7,8 @@ class HomeButtonTest {
                 width: 1280,
                 height: 720
             },
-            author: "Joseph Garcia"
+            author: "Joseph Garcia",
+            name: "Home Button Test"
         };
     }
 

@@ -7,16 +7,15 @@ const games = require("./games");
 
 const config = require("../config");
 
-const PORTS = {};
+const sessions = {};
 
 for (let i = config.GAME_SERVER_PORT_RANGE_MIN; i < config.GAME_SERVER_PORT_RANGE_MAX; i++) {
-    PORTS[i] = false;
+    sessions[i] = null;
 }
 
-const generateServerPort = () => {
-    for (let p in PORTS) {
-        if (PORTS[p] === false) {
-            PORTS[p] = true;
+const getServerPort = () => {
+    for (let p in sessions) {
+        if (!sessions[p]) {
             return Number(p);
         }
     }
@@ -40,12 +39,12 @@ class HomegamesDashboard {
         Object.keys(games).filter(key => games[key].metadata)
             .forEach(key => {
                 this.assets[key] = new Asset("url", {
-                    "location": games[key].metadata().thumbnail || "https://i0.wp.com/www.palmbeachcountycta.org/wp-content/uploads/2017/10/website-construction-graphic-4.jpg",
+                    "location": games[key].metadata().thumbnail || config.DEFAULT_GAME_THUMBNAIL,
                     "type": "image"
                 });
             });
 
-        this.base = gameNode(Colors.RED, null, {x: 0, y: 0}, {x: 100, y: 100});
+        this.base = gameNode(Colors.WHITE, null, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
         this.gameIds = {};
         this.requestCallbacks = {};
@@ -69,12 +68,14 @@ class HomegamesDashboard {
                 return s.game === key;
             });
 
-            let gameOption = gameNode(Colors.RED, (player) => {
+            let gameOption = gameNode(Colors.WHITE, (player) => {
 
-                let sessionId = sessionIdCounter++;
-                let port = generateServerPort();
+                const sessionId = sessionIdCounter++;
+                const port = getServerPort();
 
                 const childSession = fork(path.join(__dirname, "child_game_server.js"));
+
+                sessions[port] = childSession;
 
                 childSession.send(JSON.stringify({
                     key,
@@ -92,7 +93,7 @@ class HomegamesDashboard {
                 });
 
                 childSession.on("close", () => {
-                    PORTS[port] = false;
+                    sessions[port] = null;
                     delete this.sessions[sessionId];
                     this.renderGameList();  
                 });
@@ -121,14 +122,14 @@ class HomegamesDashboard {
                  
                 this.renderGameList();
 
-            }, {x: xIndex, y: 5}, {x: 10, y: 10}, {"text": key + "", x: xIndex + 5, y: 17}, {
+            }, {x: xIndex, y: 5}, {x: 10, y: 10}, {"text": (games[key].metadata && games[key].metadata().name || key) + "", x: xIndex + 5, y: 17}, {
                 [key]: {
                     pos: {x: xIndex, y: 5},
                     size: {x: 10, y: 10}
                 }
             });
 
-            const authorInfoNode = gameNode(Colors.RED, null, {
+            const authorInfoNode = gameNode(Colors.WHITE, null, {
                 x: xIndex + 5, 
                 y: 20
             },
