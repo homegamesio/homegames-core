@@ -33,11 +33,13 @@ const socketServer = (gameSession, port, cb = null) => {
     
     wss.on("connection", (ws) => {
         function messageHandler(msg) {
-            assert(msg === "ready");
+            const jsonMessage = JSON.parse(msg);
+
+            assert(jsonMessage.type === "ready");
 
             ws.removeListener("message", messageHandler);
     
-            ws.id = generatePlayerId();
+            ws.id = jsonMessage.id || generatePlayerId();
 
             const gameMetadata = gameSession.game.constructor.metadata && gameSession.game.constructor.metadata();
 
@@ -52,7 +54,7 @@ const socketServer = (gameSession, port, cb = null) => {
             // init message
             ws.send([2, ws.id, gameWidth1, gameWidth2, gameHeight1, gameHeight2]);
 
-            const player = new Player(ws);
+            const player = new Player(ws, ws.id);
             gameSession.addPlayer(player);
         }
 

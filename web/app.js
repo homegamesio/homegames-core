@@ -34,7 +34,10 @@ const initSocket = (port) => {
     socket.binaryType = "arraybuffer";
 
     socket.onopen = () => {
-        socket.send("ready");
+        socket.send(JSON.stringify({
+            type: "ready",
+            id: window.playerId || null
+        }));
         window.requestAnimationFrame(req);
     };
 

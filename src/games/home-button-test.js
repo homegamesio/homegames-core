@@ -18,7 +18,10 @@ class HomeButtonTest {
         }, {"x": 0, "y": 0}, {"x": 100, "y": 100}, {"text": "ayy lmao", x: 50, y: 5});
     }
 
-    handleNewPlayer() {
+    handleNewPlayer(player) {
+        let textCopy = this.base.text;
+        textCopy.text = player.name;
+        this.base.text = textCopy;
     }
 
     handlePlayerDisconnect() {

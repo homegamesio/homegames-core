@@ -36,13 +36,15 @@ class HomegamesDashboard {
 
     constructor() {
         this.assets = {};
-        Object.keys(games).filter(key => games[key].metadata)
-            .forEach(key => {
-                this.assets[key] = new Asset("url", {
-                    "location": games[key].metadata().thumbnail || config.DEFAULT_GAME_THUMBNAIL,
-                    "type": "image"
-                });
+        this.playerNodes = {};
+        this.playerEditStates = {};
+        this.keyCoolDowns = {};
+        Object.keys(games).forEach(key => {
+            this.assets[key] = new Asset("url", {
+                "location": games[key].metadata && games[key].metadata().thumbnail || config.DEFAULT_GAME_THUMBNAIL,
+                "type": "image"
             });
+        });
 
         this.base = gameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
@@ -62,7 +64,7 @@ class HomegamesDashboard {
     
     renderGameList() {
         let xIndex = 5;
-        let yIndex = 5;
+        let yIndex = 10;
         this.base.clearChildren();
         for (const key in games) {
             const activeSessions = Object.values(this.sessions).filter(s => s.game === key);
@@ -78,7 +80,11 @@ class HomegamesDashboard {
 
                 childSession.send(JSON.stringify({
                     key,
-                    port
+                    port,
+                    player: {
+                        id: player.id,
+                        name: player.name
+                    }
                 }));
 
                 childSession.on("message", (thang) => {
@@ -162,15 +168,58 @@ class HomegamesDashboard {
         }
     }
 
-    logPlayerCount() {
+    isText(key) {
+        return key.length == 1 && (key >= "A" && key <= "Z") || (key >= "a" && key <= "z") || key === " " || key === "Backspace";
     }
 
-    handleNewPlayer() {
-        this.logPlayerCount();
+    handleKeyDown(player, key) {
+        if (!this.playerEditStates[player.id] || !this.isText(key)) {
+            return;
+        }
+
+        if (!this.keyCoolDowns[player.id] || !this.keyCoolDowns[player.id][key]) {
+            const newText = this.playerNodes[player.id].text;
+            if (newText.text.length > 0 && key === "Backspace") {
+                newText.text = newText.text.substring(0, newText.text.length - 1); 
+            } else if(key !== "Backspace") {
+                newText.text = newText.text + key;
+            }
+            this.playerNodes[player.id].text = newText;
+            this.keyCoolDowns[player.id][key] = setTimeout(() => {
+                clearTimeout(this.keyCoolDowns[player.id][key]);
+                delete this.keyCoolDowns[player.id][key];
+            }, 200);
+        }
     }
 
-    handlePlayerDisconnect() {
-        this.logPlayerCount();
+    handleKeyUp(player, key) {
+        if (this.keyCoolDowns[player.id][key]) {
+            clearTimeout(this.keyCoolDowns[player.id][key]);
+            delete this.keyCoolDowns[player.id][key];
+        }
+    }
+
+    handleNewPlayer(player) {
+        this.keyCoolDowns[player.id] = {};
+        const playerNameNode = gameNode(Colors.CREAM, (player) => {
+            this.playerEditStates[player.id] = !this.playerEditStates[player.id];
+            playerNameNode.color = this.playerEditStates[player.id] ? Colors.WHITE : Colors.CREAM;
+            if (!this.playerEditStates[player.id]) {
+                player.name = this.playerNodes[player.id].text.text;
+                console.log(player.name);
+            }
+        }, {x: 2, y: 2}, {x: 5, y: 5}, {text: player.name, x: 5, y: 5}, null, player.id);
+        this.playerNodes[player.id] = playerNameNode;
+        this.base.addChild(playerNameNode);
+    }
+
+    handlePlayerDisconnect(playerId) {
+        delete this.keyCoolDowns[playerId];
+
+        if (this.playerNodes[playerId]) {
+            this.base.removeChild(this.playerNodes[playerId].id);
+            delete this.playerNodes[playerId];
+        }
     }
 
     getRoot() {

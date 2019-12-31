@@ -12,7 +12,7 @@ const sendProcessMessage = (msg) => {
 const startServer = (sessionInfo) => {
     const gameInstance = new games[sessionInfo.key]();
     
-    gameSession = new GameSession(gameInstance);
+    gameSession = new GameSession(gameInstance, sessionInfo.player);
  
     socketServer(gameSession, sessionInfo.port, () => {
         sendProcessMessage({
