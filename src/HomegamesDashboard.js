@@ -44,7 +44,7 @@ class HomegamesDashboard {
                 });
             });
 
-        this.base = gameNode(Colors.WHITE, null, {x: 0, y: 0}, {x: 100, y: 100});
+        this.base = gameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
         this.gameIds = {};
         this.requestCallbacks = {};
@@ -66,7 +66,7 @@ class HomegamesDashboard {
         for (const key in games) {
             const activeSessions = Object.values(this.sessions).filter(s => s.game === key);
 
-            const gameOption = gameNode(Colors.WHITE, (player) => {
+            const gameOption = gameNode(Colors.CREAM, (player) => {
 
                 const sessionId = sessionIdCounter++;
                 const port = getServerPort();
@@ -127,7 +127,7 @@ class HomegamesDashboard {
                 }
             });
 
-            const authorInfoNode = gameNode(Colors.WHITE, null, {
+            const authorInfoNode = gameNode(Colors.CREAM, null, {
                 x: xIndex + 5, 
                 y: 20
             },

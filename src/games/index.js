@@ -7,13 +7,13 @@ const SpriteTest = require("./sprite-test");
 const TextTest = require("./text-test");
 const WordMatch = require("./word-match");
 const HomeButtonTest = require("./home-button-test");
-const Charades = require("./charades");
+const Clicktionary = require("./clicktionary");
 const PerfTest = require("./perf-test");
 
 module.exports = {
     HomeButtonTest,
     PerfTest,
-    Charades,
+    Clicktionary,
     WordMatch,
     Draw,
     Slaps,

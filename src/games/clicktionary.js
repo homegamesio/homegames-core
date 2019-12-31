@@ -1,7 +1,7 @@
 const { gameNode, Colors } = require("../common");
 const { charadesWord } = require("../common/util/charades-generator");
 
-class Charades {
+class Clicktionary {
     static metadata() {
         return {
             res: {
@@ -221,4 +221,4 @@ class Charades {
 
 }
 
-module.exports = Charades;
+module.exports = Clicktionary;
