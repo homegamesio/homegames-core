@@ -62,6 +62,7 @@ class HomegamesDashboard {
     
     renderGameList() {
         let xIndex = 5;
+        let yIndex = 5;
         this.base.clearChildren();
         for (const key in games) {
             const activeSessions = Object.values(this.sessions).filter(s => s.game === key);
@@ -120,16 +121,16 @@ class HomegamesDashboard {
                  
                 this.renderGameList();
 
-            }, {x: xIndex, y: 5}, {x: 10, y: 10}, {"text": (games[key].metadata && games[key].metadata().name || key) + "", x: xIndex + 5, y: 17}, {
+            }, {x: xIndex, y: yIndex}, {x: 10, y: 10}, {"text": (games[key].metadata && games[key].metadata().name || key) + "", x: xIndex + 5, y: yIndex + 12}, {
                 [key]: {
-                    pos: {x: xIndex, y: 5},
+                    pos: {x: xIndex, y: yIndex},
                     size: {x: 10, y: 10}
                 }
             });
 
             const authorInfoNode = gameNode(Colors.CREAM, null, {
                 x: xIndex + 5, 
-                y: 20
+                y: yIndex + 15
             },
             {
                 x: 10,
@@ -138,7 +139,7 @@ class HomegamesDashboard {
             {
                 text: "by " + (games[key].metadata && games[key].metadata()["author"] || "Unknown Author"),
                 x: xIndex + 5,
-                y: 20
+                y: yIndex + 15
             });
 
             for (const sessionIndex in activeSessions) {
@@ -150,6 +151,12 @@ class HomegamesDashboard {
             }
 
             xIndex += 15;
+
+            if (xIndex + 10 >= 100) {
+                yIndex += 25;
+                xIndex = 5;
+            }
+
             this.base.addChild(gameOption);
             this.base.addChild(authorInfoNode);
         }

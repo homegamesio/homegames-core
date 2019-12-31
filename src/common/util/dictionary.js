@@ -1,16 +1,15 @@
 const https = require("https");
 const fs = require("fs");
+const config = require("../../../config");
 
-// TODO: make this a config thing and simplify paths
-const CACHE_DIR  = "./local";
-const DICT_FILE_PATH = CACHE_DIR + "/dictionary.txt";
+const DICT_FILE_PATH = config.ASSET_PATH + "/dictionary.txt";
 
 let words = [];
 
 const generateList = async () => new Promise((resolve, reject) => {
     let wordList = [];
-    if (!fs.existsSync(CACHE_DIR)){
-        fs.mkdirSync(CACHE_DIR);
+    if (!fs.existsSync(config.ASSET_PATH)){
+        fs.mkdirSync(config.ASSET_PATH);
     }
     if (fs.existsSync(DICT_FILE_PATH)) {
         wordList = fs.readFileSync(DICT_FILE_PATH);

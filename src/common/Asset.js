@@ -1,11 +1,10 @@
 const https = require("https");
 const fs = require("fs");
 const crypto = require("crypto");
+const config = require("../../config");
 
-const CACHE_DIR = "./.asset_cache/";
-
-if (!fs.existsSync(CACHE_DIR)) {
-    fs.mkdirSync(CACHE_DIR);
+if (!fs.existsSync(config.ASSET_PATH)) {
+    fs.mkdirSync(config.ASSET_PATH);
 }
 
 class Asset {
@@ -22,7 +21,7 @@ class Asset {
                 const shasum = crypto.createHash("sha1");
                 shasum.update(uri);
                 const fileHash = shasum.digest("hex");
-                const filePath = CACHE_DIR + fileHash;
+                const filePath = config.ASSET_PATH + "/" + fileHash;
                 if (fs.existsSync(filePath)) {
                     resolve(fs.readFileSync(filePath));
                 } else {
