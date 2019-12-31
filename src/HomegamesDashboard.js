@@ -100,7 +100,7 @@ class HomegamesDashboard {
                 childSession.on("close", () => {
                     sessions[port] = null;
                     delete this.sessions[sessionId];
-//                    this.renderGameList();  
+                    this.renderGameList();  
                 });
                 
                 this.sessions[sessionId] = {
