@@ -157,17 +157,27 @@ class HomegamesDashboard {
                 
                     this.startSession(player, key);
                 
-                }, {x: 42.5, y: 45}, {x: 15, y: 10}, {text: "Create Session", x: 50, y: 49, size: 18}, null, player.id);
+                }, {x: 42.5, y: 25}, {x: 15, y: 10}, {text: "Create Session", x: 50, y: 29, size: 18}, null, player.id);
                 
+                const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
+
+                const orText = gameNode(Colors.ORANGE, null, {x: 45, y: 35}, {x: 0, x: 0}, {x: 50, y: 40, text: otherSessionsText, size: 18}, null, player.id);
+                gameInfoModal.addChild(orText);
                 gameInfoModal.addChild(playButton);
 
                 let sessionOptionXIndex = 20;
-                let sessionOptionYIndex = 20;
+                let sessionOptionYIndex = 50;
                 activeSessions.forEach(s => {
                     const sessionOption = gameNode(Colors.WHITE, (player) => {
                         this.joinSession(player, s);
                     }, {x: sessionOptionXIndex, y: sessionOptionYIndex}, {x: 10, y: 10}, {text: "Session", x: sessionOptionXIndex + 3, y: sessionOptionYIndex + 3}, null, player.id);
                     gameInfoModal.addChild(sessionOption);
+                    sessionOptionXIndex += 15;
+
+                    if (sessionOptionXIndex >= 100) {
+                        sessionOptionXIndex = 20;
+                        sessionYOptionIndex += 15;
+                    }
                 });
                 
                 const closeModalButton = gameNode(Colors.ORANGE, (player) => {
