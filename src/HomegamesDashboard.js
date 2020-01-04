@@ -39,11 +39,16 @@ class HomegamesDashboard {
         this.playerNodes = {};
         this.playerEditStates = {};
         this.keyCoolDowns = {};
-        Object.keys(games).forEach(key => {
+        Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
             this.assets[key] = new Asset("url", {
-                "location": games[key].metadata && games[key].metadata().thumbnail || config.DEFAULT_GAME_THUMBNAIL,
+                "location": games[key].metadata && games[key].metadata().thumbnail,
                 "type": "image"
             });
+        });
+
+        this.assets['default'] = new Asset("url", {
+            "location": config.DEFAULT_GAME_THUMBNAIL,
+            "type": "image"
         });
 
         this.base = gameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 100, y: 100});
@@ -127,10 +132,11 @@ class HomegamesDashboard {
         for (const key in games) {
             const activeSessions = Object.values(this.sessions).filter(s => s.game === key);
 
+            const assetKey = games[key].metadata && games[key].metadata().thumbnail ? key : 'default';
             const gameOption = gameNode(Colors.CREAM, (player) => {
                 this.startSession(player, key);
             }, {x: xIndex, y: yIndex}, {x: 10, y: 10}, {"text": (games[key].metadata && games[key].metadata().name || key) + "", x: xIndex + 5, y: yIndex + 12}, {
-                [key]: {
+                [assetKey]: {
                     pos: {x: xIndex, y: yIndex},
                     size: {x: 10, y: 10}
                 }
