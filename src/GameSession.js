@@ -18,9 +18,6 @@ class GameSession {
     }
 
     async addPlayer(player) {
-        console.log("adding player");
-        console.log(player.id);
-        console.log(this.knownPlayerIds);
         if (this.knownPlayerIds[player.id]) {
             player.name = this.knownPlayerIds[player.id].name;
             delete this.knownPlayerIds[player.id];
@@ -31,7 +28,6 @@ class GameSession {
          
         player.addInputListener(this.squisher);
         player.addStateListener(this);
-        player.addDataListener(this);
         this.players[player.id] = player;
         const gameAssets = this.squisher.getAssets();
         if (gameAssets && gameAssets.length > 0) {
