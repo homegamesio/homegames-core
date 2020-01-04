@@ -148,13 +148,14 @@ function renderBuf(buf) {
             if (frameSize > 15) {
                 const textX = (buf[start + 12] / 100) * horizontalScale;
                 const textY = (buf[start + 13] / 100) * verticalScale;
-                const textArray = buf.slice(start + 14, start + 14 + 32);
+                const textSize = buf[start + 14];
+                const textArray = buf.slice(start + 15, start + 15 + 32);
                 const textStripped = textArray.filter(x => x);
                 const text = String.fromCharCode.apply(null, textStripped);
                 if (text) {
                     // todo: encode this in the payload
                     ctx.fillStyle = "black";
-                    let fontSize = 14 * scaleFactor;
+                    let fontSize = textSize * scaleFactor;
                     ctx.font = fontSize + "px sans-serif";
                     ctx.textAlign = "center";
                     ctx.textBaseline = "top";
@@ -162,14 +163,14 @@ function renderBuf(buf) {
                 }
             }
 
-            if (frameSize > 3 + 46) { 
-                const assetPosX = buf[start + 46];
-                const assetPosY = buf[start + 47];
+            if (frameSize > 1 + 3 + 46) { 
+                const assetPosX = buf[start + 47];
+                const assetPosY = buf[start + 48];
                 
-                const assetSizeX = buf[start + 48];
-                const assetSizeY = buf[start + 49];
+                const assetSizeX = buf[start + 49];
+                const assetSizeY = buf[start + 50];
 
-                const assetKeyArray = buf.slice(start + 50, start + 50 + 32);
+                const assetKeyArray = buf.slice(start + 51, start + 51 + 32);
                 const assetKey = String.fromCharCode.apply(null, assetKeyArray.filter(x => x));
                 
                 if (gameAssets[assetKey] && gameAssets[assetKey]["type"] === "audio") {

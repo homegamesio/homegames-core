@@ -192,9 +192,9 @@ class Squisher {
     }
     
     squish(entity) {
-        // Type (1) + Player ID (1) + Size (1) + color (4) + pos (4) + size (4) + text position (2) + text (32) + assets (37 * assetCount)
+        // Type (1) + Player ID (1) + Size (1) + color (4) + pos (4) + size (4) + text position (2) + text size (1) + text (32) + assets (37 * assetCount)
         // TODO: store type in array to stop sending unnecessary data 
-        const squishedSize = 1 + 1 + 1 + 4 + 4 + 4 + (entity.text ? 2 + 32 : 0) + (entity.assets ? 37 * Object.keys(entity.assets).length : 0);
+        const squishedSize = 1 + 1 + 1 + 4 + 4 + 4 + (entity.text ? 2 + + 1+ 32 : 0) + (entity.assets ? 37 * Object.keys(entity.assets).length : 0);
 
         const squished = new Array(squishedSize);
         let squishedIndex = 0;
@@ -226,6 +226,7 @@ class Squisher {
         if (entity.text) {
             squished[squishedIndex++] = entity.text && entity.text.x;
             squished[squishedIndex++] = entity.text && entity.text.y;
+            squished[squishedIndex++] = entity.text.size || 12;
 
             let textIndex = 0;
             while (entity.text && textIndex < 32) {
