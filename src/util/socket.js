@@ -39,7 +39,7 @@ const socketServer = (gameSession, port, cb = null) => {
 
             ws.removeListener("message", messageHandler);
     
-            ws.id = jsonMessage.id || generatePlayerId();
+            ws.id = generatePlayerId();
 
             const gameMetadata = gameSession.game.constructor.metadata && gameSession.game.constructor.metadata();
 

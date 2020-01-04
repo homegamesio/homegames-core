@@ -7,21 +7,12 @@ class GameSession {
         this.squisher = new Squisher(game);
         this.squisher.addListener(this);
         this.players = {};
-        // idk what im doing
-        this.knownPlayerIds = {};
-        if (player) {
-            this.knownPlayerIds[player.id] = player;
-        }
         this.game.players = this.players;
         this.game.session = this;
         this.game.squisher = this.squisher;
     }
 
     async addPlayer(player) {
-        if (this.knownPlayerIds[player.id]) {
-            player.name = this.knownPlayerIds[player.id].name;
-            delete this.knownPlayerIds[player.id];
-        }
         if (!player.name) {
             player.name = await generateName();
         }

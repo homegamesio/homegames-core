@@ -209,17 +209,11 @@ class HomegamesDashboard {
 
     handleNewPlayer(player) {
         this.keyCoolDowns[player.id] = {};
-        // hacks on hacks on hacks maybachs on backs on backs
-        this.session.knownPlayerIds[player.id] = {
-            id: player.id,
-            name: player.name
-        };
         const playerNameNode = gameNode(Colors.CREAM, (player) => {
             this.playerEditStates[player.id] = !this.playerEditStates[player.id];
             playerNameNode.color = this.playerEditStates[player.id] ? Colors.WHITE : Colors.CREAM;
             if (!this.playerEditStates[player.id]) {
                 player.name = this.playerNodes[player.id].text.text;
-                this.session.knownPlayerIds[player.id].name = player.name;
             }
         }, {x: 2, y: 2}, {x: 5, y: 5}, {text: player.name, x: 5, y: 5}, null, player.id);
         this.playerNodes[player.id] = playerNameNode;
