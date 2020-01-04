@@ -61,6 +61,64 @@ class HomegamesDashboard {
             session.sendHeartbeat();
         });
     }
+
+    startSession(player, gameKey) { 
+        const sessionId = sessionIdCounter++;
+        const port = getServerPort();
+
+        const childSession = fork(path.join(__dirname, "child_game_server.js"));
+
+        sessions[port] = childSession;
+
+        childSession.send(JSON.stringify({
+            key: gameKey,
+            port,
+            player: {
+                id: player.id,
+                name: player.name
+            }
+        }));
+
+        childSession.on("message", (thang) => {
+            const jsonMessage = JSON.parse(thang);
+            if (jsonMessage.success) {
+                player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+            }
+            else if (jsonMessage.requestId) {
+                this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
+            }
+        });
+
+        childSession.on("close", () => {
+            sessions[port] = null;
+            delete this.sessions[sessionId];
+            this.renderGameList();  
+        });
+        
+        this.sessions[sessionId] = {
+            game: gameKey,
+            port: port,
+            sendMessage: () => {
+            },
+            getPlayers: (cb) => {
+                const requestId = this.requestIdCounter++;
+                if (cb) {
+                    this.requestCallbacks[requestId] = cb;
+                }
+                childSession.send(JSON.stringify({
+                    "api": "getPlayers",
+                    "requestId": requestId
+                }));
+            },
+            sendHeartbeat: () => {
+                childSession.send(JSON.stringify({
+                    "type": "heartbeat"
+                }));
+            }
+        };
+         
+        this.renderGameList();
+    }
     
     renderGameList() {
         let xIndex = 5;
@@ -70,63 +128,7 @@ class HomegamesDashboard {
             const activeSessions = Object.values(this.sessions).filter(s => s.game === key);
 
             const gameOption = gameNode(Colors.CREAM, (player) => {
-
-                const sessionId = sessionIdCounter++;
-                const port = getServerPort();
-
-                const childSession = fork(path.join(__dirname, "child_game_server.js"));
-
-                sessions[port] = childSession;
-
-                childSession.send(JSON.stringify({
-                    key,
-                    port,
-                    player: {
-                        id: player.id,
-                        name: player.name
-                    }
-                }));
-
-                childSession.on("message", (thang) => {
-                    const jsonMessage = JSON.parse(thang);
-                    if (jsonMessage.success) {
-                        player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
-                    }
-                    else if (jsonMessage.requestId) {
-                        this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
-                    }
-                });
-
-                childSession.on("close", () => {
-                    sessions[port] = null;
-                    delete this.sessions[sessionId];
-                    this.renderGameList();  
-                });
-                
-                this.sessions[sessionId] = {
-                    game: key,
-                    port: port,
-                    sendMessage: () => {
-                    },
-                    getPlayers: (cb) => {
-                        const requestId = this.requestIdCounter++;
-                        if (cb) {
-                            this.requestCallbacks[requestId] = cb;
-                        }
-                        childSession.send(JSON.stringify({
-                            "api": "getPlayers",
-                            "requestId": requestId
-                        }));
-                    },
-                    sendHeartbeat: () => {
-                        childSession.send(JSON.stringify({
-                            "type": "heartbeat"
-                        }));
-                    }
-                };
-                 
-                this.renderGameList();
-
+                this.startSession(player, key);
             }, {x: xIndex, y: yIndex}, {x: 10, y: 10}, {"text": (games[key].metadata && games[key].metadata().name || key) + "", x: xIndex + 5, y: yIndex + 12}, {
                 [key]: {
                     pos: {x: xIndex, y: yIndex},
