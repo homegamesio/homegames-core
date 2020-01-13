@@ -5,8 +5,20 @@ const { Asset, gameNode, Colors } = require('./src/common');
 const ASSET_TYPE = 1;
 
 const COLOR_SUBTYPE = 42;
+const ID_SUBTYPE = 43;
+const PLAYER_ID_SUBTYPE = 44;
+const POS_SUBTYPE = 45;
 
 const squishSpec = {
+    id: {
+        type: ID_SUBTYPE,
+        squish: (i) => {
+            return [i];
+        },
+        unsquish: (arr) => {
+            return arr[0];
+        }
+    },
     color: {
         type: COLOR_SUBTYPE,
         squish: (c) => {
@@ -15,17 +27,35 @@ const squishSpec = {
         unsquish: (squished) => {
             return [squished[0], squished[1], squished[2], squished[3]];
         }
+    },
+    playerId: {
+        type: PLAYER_ID_SUBTYPE,
+        squish: (i) => {
+            return [i];
+        }, 
+        unsquish: (squished) => {
+            return squished[0];
+        }
+    }, 
+    pos: {
+        type: POS_SUBTYPE,
+        squish: (p) => {
+            return [Math.floor(p.x), Math.round(100 * (p.x - Math.floor(p.x))), Math.floor(p.y), Math.round(100 * (p.y - Math.floor(p.y)))] 
+        },
+        unsquish: (squished) => {
+            return {
+                x: squished[0] + squished[1] / 100,
+                y: squished[2] + squished[3] / 100
+            }
+        }
     }
 };
 
 const typeToSquishMap = {};
+
 for (const key in squishSpec) {
     typeToSquishMap[Number(squishSpec[key]['type'])] = key;
 }
-
-console.log("!YSDF");
-console.log(typeToSquishMap);
-
 
 class Game {
     constructor() {
@@ -197,32 +227,25 @@ class Squisher {
     
         assert(squished.length === squished[1]);
 
-        const frameLengthIndex = 2;
-
-        let squishedIndex = frameLengthIndex;
-
-        let currentFrame = squished;
+        let squishedIndex = 2;
 
         let constructedGameNode = gameNode();
 
         while(squishedIndex < squished.length) {
 
-            currentFrame = currentFrame.slice(frameLengthIndex);
-            const subFrameType = currentFrame[0];
-            const subFrameLength = currentFrame[1];
+            const subFrameType = squished[squishedIndex];
+            const subFrameLength = squished[squishedIndex + 1];
+            const subFrame = squished.slice(squishedIndex + 2, squishedIndex + 2 + subFrameLength);
 
-            console.log("TYPE");
-            console.log(subFrameType);
             if (!typeToSquishMap[subFrameType]) {
                 console.warn("Unknown sub frame type " + subFrameType);
                 break;
             } else {
                 const objField = typeToSquishMap[subFrameType];  
                 const unsquishFun = squishSpec[objField]['unsquish'];
-                const unsquishedVal = unsquishFun(currentFrame.slice(frameLengthIndex, subFrameLength));
+                const unsquishedVal = unsquishFun(subFrame);
                 constructedGameNode[objField] = unsquishedVal;
             }
-
             squishedIndex += subFrameLength;
         }
         
@@ -263,11 +286,11 @@ class Squisher {
         let squishedPieces = [];
 
         for (const key in squishSpec) {
-            if (entity[key]) {
+            if (key in entity) {
                 const attr = entity[key];
                 const squished = squishSpec[key].squish(attr);
                 squishedPieces.push([squishSpec[key]['type'], squished.length + 2, ...squished]);
-            }
+            } 
         }
 
         const squished = squishedPieces.flat();
@@ -677,15 +700,40 @@ class GameSession {
 //
 const testOne = () => {
     const squisher = new Squisher(); 
-    let squished = squisher.squish(gameNode(Colors.RED));
+    const initialGameNode = gameNode(Colors.RED, null, {x: 20.42, y: 20.52});
+
+    let squished = squisher.squish(initialGameNode);
+
     assert(squished.length == squished[1]);
-    console.log("NICE");
 
     const unsquished = squisher.unsquish(squished);
-    console.log("UNSQUISHED");
-    console.log(unsquished);
-    assert(unsquished.onClick == null);
-    assert(unsquished.color === Colors.RED);
+    
+    for (const key in initialGameNode) {
+        if (key == 'handleClick' || key == 'children' || key == 'listeners') {
+            continue;
+        }
+        try {
+            if (initialGameNode[key] === undefined) {
+                assert(unsquished[key] === undefined);
+                continue;
+            }
+            if (Array.isArray(initialGameNode[key])) {
+                const l1 = initialGameNode[key];
+                const l2 = unsquished[key];
+                for (let i = 0; i < l1.length; i++) {
+                    assert(l1[i] === l2[i]);
+                }
+            } else if (initialGameNode[key].constructor === Object) {
+                for (const k in initialGameNode[key]) {
+                    assert(initialGameNode[key][k] === unsquished[key][k]);
+                }
+            } else {
+                assert(initialGameNode[key] === unsquished[key]);
+            }
+        } catch (err) {
+            console.error("Failed: " + key);
+        }
+    }
 };
 
 testOne();
