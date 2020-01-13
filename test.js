@@ -8,6 +8,9 @@ const COLOR_SUBTYPE = 42;
 const ID_SUBTYPE = 43;
 const PLAYER_ID_SUBTYPE = 44;
 const POS_SUBTYPE = 45;
+const SIZE_SUBTYPE = 46;
+const TEXT_SUBTYPE = 47;
+const ASSET_SUBTYPE = 48;
 
 const squishSpec = {
     id: {
@@ -46,6 +49,101 @@ const squishSpec = {
             return {
                 x: squished[0] + squished[1] / 100,
                 y: squished[2] + squished[3] / 100
+            }
+        }
+    },
+    size: {
+        type: SIZE_SUBTYPE,
+        squish: (s) => {
+            return [Math.floor(s.x), Math.round(100 * (s.x - Math.floor(s.x))), Math.floor(s.y), Math.round(100 * (s.y - Math.floor(s.y)))] 
+        },
+        unsquish: (squished) => {
+            return {
+                x: squished[0] + squished[1] / 100,
+                y: squished[2] + squished[3] / 100
+            }
+        }
+    }, 
+    text: {
+        type: TEXT_SUBTYPE,
+        squish: (t) => {
+            const squishedText = new Array(t.text.length + 6);
+            squishedText[0] = Math.floor(t.pos.x);
+            squishedText[1] = Math.round(100 * (t.pos.x - Math.floor(t.pos.x)));
+
+            squishedText[2] = Math.floor(t.pos.y);
+            squishedText[3] = Math.round(100 * (t.pos.y - Math.floor(t.pos.y)));
+            
+            const textSize = t.size || 12;
+            squishedText[4] = Math.floor(textSize);
+            squishedText[5] = Math.round(100 * (textSize - Math.floor(textSize)));
+
+            for (let i = 0; i < t.text.length; i++) {
+                squishedText[6 + i] = t.text.charCodeAt(i);
+            }
+
+            return squishedText;
+        }, 
+        unsquish: (squished) => {
+            const textPosX = squished[0] + squished[1] / 100;
+            const textPosY = squished[2] + squished[3] / 100;
+            const textSize = squished[4] + squished[5] / 100;
+
+            const text = String.fromCharCode.apply(null, squished.slice(6));
+
+            return {
+                pos: {
+                    x: textPosX,
+                    y: textPosY
+                },
+                text: text,
+                size: textSize
+            };
+        }
+    },
+    asset: {
+        type: ASSET_SUBTYPE,
+        squish: (a) => {
+            const assetKey = Object.keys(a)[0];
+            const squishedAssets = new Array(8 + assetKey.length);
+            
+            squishedAssets[0] = Math.floor(a[assetKey].pos.x);
+            squishedAssets[1] = Math.round(100 * (a[assetKey].pos.x - Math.floor(a[assetKey].pos.x)));
+
+            squishedAssets[2] = Math.floor(a[assetKey].pos.y);
+            squishedAssets[3] = Math.round(100 * (a[assetKey].pos.y - Math.floor(a[assetKey].pos.y)));
+
+            squishedAssets[4] = Math.floor(a[assetKey].size.x);
+            squishedAssets[5] = Math.round(100 * (a[assetKey].size.x - Math.floor(a[assetKey].size.x)));
+
+            squishedAssets[6] = Math.floor(a[assetKey].size.y);
+            squishedAssets[7] = Math.round(100 * (a[assetKey].size.y - Math.floor(a[assetKey].size.y)));
+
+            for (let i = 0; i < assetKey.length; i++) {
+                squishedAssets[8 + i] = assetKey.charCodeAt(i);
+            }
+            
+            return squishedAssets;
+        }, 
+        unsquish: (squished) => {
+            const assetPosX = squished[0] + squished[1] / 100;
+            const assetPosY = squished[2] + squished[3] / 100;
+
+            const assetSizeX = squished[4] + squished[5] / 100;
+            const assetSizeY = squished[6] + squished[7] / 100;
+
+            const assetKey = String.fromCharCode.apply(null, squished.slice(8));
+            return {
+                [assetKey]: {
+                    pos: {
+                        x: assetPosX,
+                        y: assetPosY
+                    },
+                    size: {
+                        x: assetSizeX,
+                        y: assetSizeY
+                    }
+                }
             }
         }
     }
@@ -220,9 +318,6 @@ class Squisher {
     }
 
     unsquish(squished) {
-        console.log("UNSQUISHING");
-        console.log(squished);
-
         assert(squished[0] == 3);
     
         assert(squished.length === squished[1]);
@@ -235,7 +330,7 @@ class Squisher {
 
             const subFrameType = squished[squishedIndex];
             const subFrameLength = squished[squishedIndex + 1];
-            const subFrame = squished.slice(squishedIndex + 2, squishedIndex + 2 + subFrameLength);
+            const subFrame = squished.slice(squishedIndex + 2, squishedIndex + subFrameLength);
 
             if (!typeToSquishMap[subFrameType]) {
                 console.warn("Unknown sub frame type " + subFrameType);
@@ -280,16 +375,16 @@ class Squisher {
         // 1 (type) + 1 (size) + (color ? 4 : 0)
         
         const squishedSize = 1 + 1 + (entity.color ? 4 : 0);
-        console.log("SQUISHED SIZE");
-        console.log(squishedSize);
 
         let squishedPieces = [];
 
         for (const key in squishSpec) {
             if (key in entity) {
                 const attr = entity[key];
-                const squished = squishSpec[key].squish(attr);
-                squishedPieces.push([squishSpec[key]['type'], squished.length + 2, ...squished]);
+                if (attr !== undefined) {
+                    const squished = squishSpec[key].squish(attr);
+                    squishedPieces.push([squishSpec[key]['type'], squished.length + 2, ...squished]);
+                }
             } 
         }
 
@@ -700,7 +795,26 @@ class GameSession {
 //
 const testOne = () => {
     const squisher = new Squisher(); 
-    const initialGameNode = gameNode(Colors.RED, null, {x: 20.42, y: 20.52});
+    const initialGameNode = gameNode(Colors.BLUE, null, {x: 20.42, y: 20.52}, {x: 42.42, y: 50.42}, {
+        text: "ayy lmao this works???",
+        pos: {
+            x: 40.20,
+            y: 20.40
+        }, 
+        size: 20.40,
+    },
+    {
+        "test": {
+            size: {
+                x: 10,
+                y: 10
+            },
+            pos: {
+                x: 24.24,
+                y: 42.42
+            }
+        }
+    });
 
     let squished = squisher.squish(initialGameNode);
 
@@ -709,7 +823,7 @@ const testOne = () => {
     const unsquished = squisher.unsquish(squished);
     
     for (const key in initialGameNode) {
-        if (key == 'handleClick' || key == 'children' || key == 'listeners') {
+        if (key == 'handleClick' || key == 'children' || key == 'listeners' || key == 'asset') {
             continue;
         }
         try {
@@ -725,15 +839,24 @@ const testOne = () => {
                 }
             } else if (initialGameNode[key].constructor === Object) {
                 for (const k in initialGameNode[key]) {
-                    assert(initialGameNode[key][k] === unsquished[key][k]);
+                    if (initialGameNode[key][k].constructor === Object) {
+                        for (const j in initialGameNode[key][k]) {
+                            assert(initialGameNode[key][k][j] === unsquished[key][k][j]);
+                        }
+                    } else {
+                        assert(initialGameNode[key][k] === unsquished[key][k]);
+                    }
                 }
             } else {
                 assert(initialGameNode[key] === unsquished[key]);
             }
         } catch (err) {
             console.error("Failed: " + key);
+            console.log(err);
         }
     }
 };
 
 testOne();
+
+console.log("NICe!");
