@@ -1,4 +1,3 @@
-const { socketServer } = require('./src/util/socket');
 const assert = require("assert");
 const { Asset, gameNode, Colors } = require('./src/common');
 
@@ -68,11 +67,13 @@ const squishSpec = {
         type: TEXT_SUBTYPE,
         squish: (t) => {
             const squishedText = new Array(t.text.length + 6);
-            squishedText[0] = Math.floor(t.pos.x);
-            squishedText[1] = Math.round(100 * (t.pos.x - Math.floor(t.pos.x)));
+            console.log("AY AY");
+            console.log(t);
+            squishedText[0] = Math.floor(t.x);
+            squishedText[1] = Math.round(100 * (t.x - Math.floor(t.x)));
 
-            squishedText[2] = Math.floor(t.pos.y);
-            squishedText[3] = Math.round(100 * (t.pos.y - Math.floor(t.pos.y)));
+            squishedText[2] = Math.floor(t.y);
+            squishedText[3] = Math.round(100 * (t.y - Math.floor(t.y)));
             
             const textSize = t.size || 12;
             squishedText[4] = Math.floor(textSize);
@@ -148,6 +149,16 @@ const squishSpec = {
         }
     }
 };
+
+const squishSpecKeys = [
+    'id', 
+    'color', 
+    'playerId', 
+    'pos', 
+    'size', 
+    'text', 
+    'asset' 
+];
 
 const typeToSquishMap = {};
 
@@ -252,6 +263,9 @@ class Squisher {
         this.game = game;
         this.game && this.game.getRoot().addListener(this);
         this.listeners = new Set();
+        console.log("GAME");
+        console.log(game);
+        this.update(this.game.getRoot());
     }
 
     async initialize() {
@@ -306,6 +320,7 @@ class Squisher {
         // todo: fix this
         this.updateHelper(this.game.getRoot(), newSquished);
         this.squished = newSquished.flat();
+        console.log("JUST UPDATED");
     }
 
     updateHelper(node, squished) {
@@ -378,7 +393,8 @@ class Squisher {
 
         let squishedPieces = [];
 
-        for (const key in squishSpec) {
+        for (const keyIndex in squishSpecKeys) {
+            const key = squishSpecKeys[keyIndex];
             if (key in entity) {
                 const attr = entity[key];
                 if (attr !== undefined) {
@@ -762,6 +778,8 @@ class GameSession {
     }
 
     addPlayer(player) {
+        console.log("ASSET BUDN:E");
+        console.log(this.squisher.assetBundle);
         this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
         player.receiveUpdate(this.squisher.squished);
         this.game.addPlayer(player);
@@ -857,6 +875,95 @@ const testOne = () => {
     }
 };
 
-testOne();
+//testOne();
 
-console.log("NICe!");
+const dashboard = new HomegamesDashboard();
+console.log("DASHBOARD");
+console.log(dashboard);
+
+const squisher = new Squisher(dashboard);
+
+const session = new GameSession(squisher);
+
+const WebSocket = require("ws");
+const http = require("http");
+const linkHelper = require("./src/common/util/link-helper");
+const Player = require("./src/Player");
+
+const socketServer = (gameSession, port, cb = null) => {
+    linkHelper();
+
+    const playerIds = {};
+
+    for (let i = 1; i < 256; i++) {
+        playerIds[i] = false;
+    }
+
+    const generatePlayerId = () => {
+        for (const k in playerIds) {
+            if (playerIds[k] === false) {
+                playerIds[k] = true;
+                return Number(k);
+            }
+        }
+
+        throw new Error("no player IDs left in pool");
+    };
+
+    const server = http.createServer();
+
+    const wss = new WebSocket.Server({
+        server
+    });
+    
+    wss.on("connection", (ws) => {
+        function messageHandler(msg) {
+            const jsonMessage = JSON.parse(msg);
+
+            assert(jsonMessage.type === "ready");
+
+            ws.removeListener("message", messageHandler);
+    
+            ws.id = generatePlayerId();
+
+            const gameMetadata = gameSession.game.constructor.metadata && gameSession.game.constructor.metadata();
+
+            const gameResWidth = gameMetadata ? gameMetadata.res.width : config.DEFAULT_GAME_RES_WIDTH;
+            const gameResHeight = gameMetadata ? gameMetadata.res.height : config.DEFAULT_GAME_RES_HEIGHT;
+
+            const gameWidth1 = gameResWidth / 100;
+            const gameWidth2 = gameResWidth % 100;
+            const gameHeight1 = gameResHeight / 100;
+            const gameHeight2 = gameResHeight % 100;
+            
+            // init message
+            ws.send([2, ws.id, gameWidth1, gameWidth2, gameHeight1, gameHeight2]);
+
+            const player = new Player(ws, ws.id);
+            gameSession.addPlayer(player);
+        }
+
+        ws.on("message", messageHandler);
+
+        function closeHandler() {
+            playerIds[ws.id] = false;
+            gameSession.handlePlayerDisconnect(ws.id);
+        }
+
+        ws.on("close", closeHandler);
+
+    });
+    
+    server.listen(port, null, null, () => {
+        cb && cb();
+    });
+};
+
+
+
+session.initialize(() => {
+    socketServer(session, config.GAME_SERVER_HOME_PORT);
+});
+
+console.log('done');
+
