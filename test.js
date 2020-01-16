@@ -1,170 +1,8 @@
 const assert = require("assert");
-const { Asset, gameNode, Colors } = require('./src/common');
+const { GameNode, Colors, squish, unsquish } = require('squishjs');
+const Asset = require('./src/common/Asset');
 
 const ASSET_TYPE = 1;
-
-const COLOR_SUBTYPE = 42;
-const ID_SUBTYPE = 43;
-const PLAYER_ID_SUBTYPE = 44;
-const POS_SUBTYPE = 45;
-const SIZE_SUBTYPE = 46;
-const TEXT_SUBTYPE = 47;
-const ASSET_SUBTYPE = 48;
-
-const squishSpec = {
-    id: {
-        type: ID_SUBTYPE,
-        squish: (i) => {
-            return [i];
-        },
-        unsquish: (arr) => {
-            return arr[0];
-        }
-    },
-    color: {
-        type: COLOR_SUBTYPE,
-        squish: (c) => {
-            return [c[0], c[1], c[2], c[3]];
-        },
-        unsquish: (squished) => {
-            return [squished[0], squished[1], squished[2], squished[3]];
-        }
-    },
-    playerId: {
-        type: PLAYER_ID_SUBTYPE,
-        squish: (i) => {
-            return [i];
-        }, 
-        unsquish: (squished) => {
-            return squished[0];
-        }
-    }, 
-    pos: {
-        type: POS_SUBTYPE,
-        squish: (p) => {
-            return [Math.floor(p.x), Math.round(100 * (p.x - Math.floor(p.x))), Math.floor(p.y), Math.round(100 * (p.y - Math.floor(p.y)))] 
-        },
-        unsquish: (squished) => {
-            return {
-                x: squished[0] + squished[1] / 100,
-                y: squished[2] + squished[3] / 100
-            }
-        }
-    },
-    size: {
-        type: SIZE_SUBTYPE,
-        squish: (s) => {
-            return [Math.floor(s.x), Math.round(100 * (s.x - Math.floor(s.x))), Math.floor(s.y), Math.round(100 * (s.y - Math.floor(s.y)))] 
-        },
-        unsquish: (squished) => {
-            return {
-                x: squished[0] + squished[1] / 100,
-                y: squished[2] + squished[3] / 100
-            }
-        }
-    }, 
-    text: {
-        type: TEXT_SUBTYPE,
-        squish: (t) => {
-            const squishedText = new Array(t.text.length + 6);
-            console.log("AY AY");
-            console.log(t);
-            squishedText[0] = Math.floor(t.x);
-            squishedText[1] = Math.round(100 * (t.x - Math.floor(t.x)));
-
-            squishedText[2] = Math.floor(t.y);
-            squishedText[3] = Math.round(100 * (t.y - Math.floor(t.y)));
-            
-            const textSize = t.size || 12;
-            squishedText[4] = Math.floor(textSize);
-            squishedText[5] = Math.round(100 * (textSize - Math.floor(textSize)));
-
-            for (let i = 0; i < t.text.length; i++) {
-                squishedText[6 + i] = t.text.charCodeAt(i);
-            }
-
-            return squishedText;
-        }, 
-        unsquish: (squished) => {
-            const textPosX = squished[0] + squished[1] / 100;
-            const textPosY = squished[2] + squished[3] / 100;
-            const textSize = squished[4] + squished[5] / 100;
-
-            const text = String.fromCharCode.apply(null, squished.slice(6));
-
-            return {
-                pos: {
-                    x: textPosX,
-                    y: textPosY
-                },
-                text: text,
-                size: textSize
-            };
-        }
-    },
-    asset: {
-        type: ASSET_SUBTYPE,
-        squish: (a) => {
-            const assetKey = Object.keys(a)[0];
-            const squishedAssets = new Array(8 + assetKey.length);
-            
-            squishedAssets[0] = Math.floor(a[assetKey].pos.x);
-            squishedAssets[1] = Math.round(100 * (a[assetKey].pos.x - Math.floor(a[assetKey].pos.x)));
-
-            squishedAssets[2] = Math.floor(a[assetKey].pos.y);
-            squishedAssets[3] = Math.round(100 * (a[assetKey].pos.y - Math.floor(a[assetKey].pos.y)));
-
-            squishedAssets[4] = Math.floor(a[assetKey].size.x);
-            squishedAssets[5] = Math.round(100 * (a[assetKey].size.x - Math.floor(a[assetKey].size.x)));
-
-            squishedAssets[6] = Math.floor(a[assetKey].size.y);
-            squishedAssets[7] = Math.round(100 * (a[assetKey].size.y - Math.floor(a[assetKey].size.y)));
-
-            for (let i = 0; i < assetKey.length; i++) {
-                squishedAssets[8 + i] = assetKey.charCodeAt(i);
-            }
-            
-            return squishedAssets;
-        }, 
-        unsquish: (squished) => {
-            const assetPosX = squished[0] + squished[1] / 100;
-            const assetPosY = squished[2] + squished[3] / 100;
-
-            const assetSizeX = squished[4] + squished[5] / 100;
-            const assetSizeY = squished[6] + squished[7] / 100;
-
-            const assetKey = String.fromCharCode.apply(null, squished.slice(8));
-            return {
-                [assetKey]: {
-                    pos: {
-                        x: assetPosX,
-                        y: assetPosY
-                    },
-                    size: {
-                        x: assetSizeX,
-                        y: assetSizeY
-                    }
-                }
-            }
-        }
-    }
-};
-
-const squishSpecKeys = [
-    'id', 
-    'color', 
-    'playerId', 
-    'pos', 
-    'size', 
-    'text', 
-    'asset' 
-];
-
-const typeToSquishMap = {};
-
-for (const key in squishSpec) {
-    typeToSquishMap[Number(squishSpec[key]['type'])] = key;
-}
 
 class Game {
     constructor() {
@@ -211,10 +49,10 @@ class PerfTest extends Game {
 
     constructor() {
         super();
-        this.base = gameNode(Colors.WHITE, (player) => {
+        this.base = GameNode(Colors.WHITE, (player) => {
         }, {"x": 0, "y": 0}, {"x": 100, "y": 100});
 
-        this.imageTestNode = gameNode(Colors.WHITE, null, {x: 0, y: 0}, {x: 0, y: 0}, {text: "", x: 0, y: 0}, {"test": {pos: {x: 20, y: 20}, size: {x: 20, y: 20}}});
+        this.imageTestNode = GameNode(Colors.WHITE, null, {x: 0, y: 0}, {x: 0, y: 0}, {text: "", x: 0, y: 0}, {"test": {pos: {x: 20, y: 20}, size: {x: 20, y: 20}}});
 
         this.base.addChild(this.imageTestNode);
        // let xCounter = 0;
@@ -324,142 +162,12 @@ class Squisher {
     }
 
     updateHelper(node, squished) {
-        const newSquish = this.squish(node);
+        const newSquish = squish(node);
         squished.push(newSquish);
 
         for (let i = 0; i < node.children.length; i++) {
             this.updateHelper(node.children[i], squished);
         }
-    }
-
-    unsquish(squished) {
-        assert(squished[0] == 3);
-    
-        assert(squished.length === squished[1]);
-
-        let squishedIndex = 2;
-
-        let constructedGameNode = gameNode();
-
-        while(squishedIndex < squished.length) {
-
-            const subFrameType = squished[squishedIndex];
-            const subFrameLength = squished[squishedIndex + 1];
-            const subFrame = squished.slice(squishedIndex + 2, squishedIndex + subFrameLength);
-
-            if (!typeToSquishMap[subFrameType]) {
-                console.warn("Unknown sub frame type " + subFrameType);
-                break;
-            } else {
-                const objField = typeToSquishMap[subFrameType];  
-                const unsquishFun = squishSpec[objField]['unsquish'];
-                const unsquishedVal = unsquishFun(subFrame);
-                constructedGameNode[objField] = unsquishedVal;
-            }
-            squishedIndex += subFrameLength;
-        }
-        
-        //for (const key in squishSpec) {
-        //    if (entity[key]) {
-        //        const attr = entity[key];
-        //        const squished = squishSpec[key].squish(attr);
-        //        squishedPieces.push([squishSpec[key]['type'], squished.length + 2, ...squished]);
-        //    }
-        //}
-
-        //const newSquished = squishedPieces.flat();
-//        return [3, squished.length + 2, ...squished];
-
-        return constructedGameNode;
-    }
-
-    squish(entity) {
-        // Type (1) + Player ID (1) + Size (1) + color (4) + pos (4) + size (4) + text position (2) + text size (1) + text (32) + assets (37 * assetCount)
-        // TODO: store type in array to stop sending unnecessary data 
-        //const squishedSize = 1 + 1 + 1 + 4 + 4 + 4 + (entity.text ? 2 + + 1+ 32 : 0) + (entity.assets ? 37 * Object.keys(entity.assets).length : 0);
-
-        //let squishedIndex = 0;
-        //squished[squishedIndex++] = 3;
-        //squished[squishedIndex++] = entity.playerId;
-        //squished[squishedIndex++] = squishedSize;
- 
-        //if (!(entity.pos && entity.color && entity.size)) {
-        //    console.log("UKSDFHSDF");
-        //    return squished;
-       // }
-        // 1 (type) + 1 (size) + (color ? 4 : 0)
-        
-        const squishedSize = 1 + 1 + (entity.color ? 4 : 0);
-
-        let squishedPieces = [];
-
-        for (const keyIndex in squishSpecKeys) {
-            const key = squishSpecKeys[keyIndex];
-            if (key in entity) {
-                const attr = entity[key];
-                if (attr !== undefined) {
-                    const squished = squishSpec[key].squish(attr);
-                    squishedPieces.push([squishSpec[key]['type'], squished.length + 2, ...squished]);
-                }
-            } 
-        }
-
-        const squished = squishedPieces.flat();
-        return [3, squished.length + 2, ...squished];
-        //cionst squished = new Array(squishedSize);
-//        
-//        squished[squishedIndex++] = entity.color[0];
-//        squished[squishedIndex++] = entity.color[1];
-//        squished[squishedIndex++] = entity.color[2];
-//        squished[squishedIndex++] = entity.color[3];
-//
-//        squished[squishedIndex++] = Math.floor(entity.pos.x);
-//        squished[squishedIndex++] = Math.floor(100 * (entity.pos.x - Math.floor(entity.pos.x)));
-//
-//        squished[squishedIndex++] = Math.floor(entity.pos.y);
-//        squished[squishedIndex++] = Math.floor( 100 * (entity.pos.y - Math.floor(entity.pos.y)));
-//
-//        squished[squishedIndex++] = Math.floor(entity.size.x);
-//        squished[squishedIndex++] = Math.floor(100 * (entity.size.x - Math.floor(entity.size.x)));
-//
-//        squished[squishedIndex++] = Math.floor(entity.size.y);
-//        squished[squishedIndex++] = Math.floor(100 * (entity.size.y - Math.floor(entity.size.y)));
-//
-//        if (entity.text) {
-//            squished[squishedIndex++] = entity.text && entity.text.x;
-//            squished[squishedIndex++] = entity.text && entity.text.y;
-//            squished[squishedIndex++] = entity.text.size || 12;
-//
-//            let textIndex = 0;
-//            while (entity.text && textIndex < 32) {
-//                if (textIndex < entity.text.text.length) {
-//                    squished[squishedIndex++] = entity.text.text.charCodeAt(textIndex);
-//                } else {
-//                    squished[squishedIndex++] = null;
-//                }
-//                textIndex++;
-//            }
-//        }
-//        
-//        if (entity.assets) {
-//            for (const key in entity.assets) {
-//                const asset = entity.assets[key];
-//                squished[squishedIndex++] = asset.pos.x;
-//                squished[squishedIndex++] = asset.pos.y;
-//                squished[squishedIndex++] = asset.size.x;
-//                squished[squishedIndex++] = asset.size.y;
-//                for (let i = 0; i < 32; i++) {
-//                    if (i < key.length) {
-//                        squished[squishedIndex++] = key.charCodeAt(i);
-//                    } else {
-//                        squished[squishedIndex++] = null;
-//                    }
-//                }
-//            }
-//        }
-//
-        return squished;
-
     }
 
     handleStateChange(node) {
@@ -523,7 +231,7 @@ class HomegamesDashboard extends Game {
             "type": "image"
         });
 
-        this.base = gameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 100, y: 100});
+        this.base = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
         this.gameIds = {};
         this.requestCallbacks = {};
@@ -618,13 +326,13 @@ class HomegamesDashboard extends Game {
             const activeSessions = Object.values(this.sessions).filter(s => s.game === key);
 
             const assetKey = games[key].metadata && games[key].metadata().thumbnail ? key : 'default';
-            const gameOption = gameNode(Colors.CREAM, (player) => {
+            const gameOption = GameNode(Colors.CREAM, (player) => {
 
-                const gameInfoModal = gameNode(Colors.ORANGE, (player) => {
+                const gameInfoModal = GameNode(Colors.ORANGE, (player) => {
                 
                 }, {x: 5, y: 5}, {x: 90, y: 90}, {text: key, x: 50, y: 10, size: 20}, null, player.id);
                 
-                const playButton = gameNode(Colors.GREEN, (player) => {
+                const playButton = GameNode(Colors.GREEN, (player) => {
                 
                     this.startSession(player, key);
                 
@@ -632,14 +340,14 @@ class HomegamesDashboard extends Game {
                 
                 const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
 
-                const orText = gameNode(Colors.ORANGE, null, {x: 45, y: 35}, {x: 0, x: 0}, {x: 50, y: 40, text: otherSessionsText, size: 18}, null, player.id);
+                const orText = GameNode(Colors.ORANGE, null, {x: 45, y: 35}, {x: 0, x: 0}, {x: 50, y: 40, text: otherSessionsText, size: 18}, null, player.id);
                 gameInfoModal.addChild(orText);
                 gameInfoModal.addChild(playButton);
 
                 let sessionOptionXIndex = 20;
                 let sessionOptionYIndex = 50;
                 activeSessions.forEach(s => {
-                    const sessionOption = gameNode(Colors.WHITE, (player) => {
+                    const sessionOption = GameNode(Colors.WHITE, (player) => {
                         this.joinSession(player, s);
                     }, {x: sessionOptionXIndex, y: sessionOptionYIndex}, {x: 10, y: 10}, {text: "Session", x: sessionOptionXIndex + 3, y: sessionOptionYIndex + 3}, null, player.id);
                     gameInfoModal.addChild(sessionOption);
@@ -651,7 +359,7 @@ class HomegamesDashboard extends Game {
                     }
                 });
                 
-                const closeModalButton = gameNode(Colors.ORANGE, (player) => {
+                const closeModalButton = GameNode(Colors.ORANGE, (player) => {
                 
                     delete this.modals[player.id];
                     
@@ -672,7 +380,7 @@ class HomegamesDashboard extends Game {
                 }
             });
 
-            const authorInfoNode = gameNode(Colors.CREAM, null, {
+            const authorInfoNode = GameNode(Colors.CREAM, null, {
                 x: xIndex + 5, 
                 y: yIndex + 15
             },
@@ -731,7 +439,7 @@ class HomegamesDashboard extends Game {
 
     handleNewPlayer(player) {
         this.keyCoolDowns[player.id] = {};
-        const playerNameNode = gameNode(Colors.CREAM, (player) => {
+        const playerNameNode = GameNode(Colors.CREAM, (player) => {
             this.playerEditStates[player.id] = !this.playerEditStates[player.id];
             playerNameNode.color = this.playerEditStates[player.id] ? Colors.WHITE : Colors.CREAM;
             if (!this.playerEditStates[player.id]) {
@@ -813,7 +521,7 @@ class GameSession {
 //
 const testOne = () => {
     const squisher = new Squisher(); 
-    const initialGameNode = gameNode(Colors.BLUE, null, {x: 20.42, y: 20.52}, {x: 42.42, y: 50.42}, {
+    const initialGameNode = GameNode(Colors.BLUE, null, {x: 20.42, y: 20.52}, {x: 42.42, y: 50.42}, {
         text: "ayy lmao this works???",
         pos: {
             x: 40.20,
