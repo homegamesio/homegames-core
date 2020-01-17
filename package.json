@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/prosif/homegames#readme",
   "dependencies": {
-    "ws": "^5.2.1"
+    "ws": "^5.2.1",
+    "squishjs": "^0.4.2"
   }
 }

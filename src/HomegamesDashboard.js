@@ -1,9 +1,11 @@
 const { fork } = require("child_process");
 const path = require("path");
+const { GameNode, Colors } = require('squishjs');
 
-const { Asset, gameNode, Colors } = require("./common");
+const Asset = require("./common/Asset");
 
 const games = require("./games");
+const Game = require("./games/Game");
 
 const config = require("../config");
 
@@ -23,7 +25,7 @@ const getServerPort = () => {
 
 let sessionIdCounter = 1;
 
-class HomegamesDashboard {
+class HomegamesDashboard extends Game {
     static metadata() {
         return {
             res: {
@@ -35,6 +37,7 @@ class HomegamesDashboard {
     }
 
     constructor() {
+        super();
         this.assets = {};
         this.playerNodes = {};
         this.playerEditStates = {};
@@ -52,7 +55,7 @@ class HomegamesDashboard {
             "type": "image"
         });
 
-        this.base = gameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 100, y: 100});
+        this.base = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
         this.gameIds = {};
         this.requestCallbacks = {};
@@ -147,13 +150,13 @@ class HomegamesDashboard {
             const activeSessions = Object.values(this.sessions).filter(s => s.game === key);
 
             const assetKey = games[key].metadata && games[key].metadata().thumbnail ? key : 'default';
-            const gameOption = gameNode(Colors.CREAM, (player) => {
+            const gameOption = GameNode(Colors.CREAM, (player) => {
 
-                const gameInfoModal = gameNode(Colors.ORANGE, (player) => {
+                const gameInfoModal = GameNode(Colors.ORANGE, (player) => {
                 
                 }, {x: 5, y: 5}, {x: 90, y: 90}, {text: key, x: 50, y: 10, size: 20}, null, player.id);
                 
-                const playButton = gameNode(Colors.GREEN, (player) => {
+                const playButton = GameNode(Colors.GREEN, (player) => {
                 
                     this.startSession(player, key);
                 
@@ -161,14 +164,14 @@ class HomegamesDashboard {
                 
                 const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
 
-                const orText = gameNode(Colors.ORANGE, null, {x: 45, y: 35}, {x: 0, x: 0}, {x: 50, y: 40, text: otherSessionsText, size: 18}, null, player.id);
+                const orText = GameNode(Colors.ORANGE, null, {x: 45, y: 35}, {x: 0, x: 0}, {x: 50, y: 40, text: otherSessionsText, size: 18}, null, player.id);
                 gameInfoModal.addChild(orText);
                 gameInfoModal.addChild(playButton);
 
                 let sessionOptionXIndex = 20;
                 let sessionOptionYIndex = 50;
                 activeSessions.forEach(s => {
-                    const sessionOption = gameNode(Colors.WHITE, (player) => {
+                    const sessionOption = GameNode(Colors.WHITE, (player) => {
                         this.joinSession(player, s);
                     }, {x: sessionOptionXIndex, y: sessionOptionYIndex}, {x: 10, y: 10}, {text: "Session", x: sessionOptionXIndex + 3, y: sessionOptionYIndex + 3}, null, player.id);
                     gameInfoModal.addChild(sessionOption);
@@ -180,7 +183,7 @@ class HomegamesDashboard {
                     }
                 });
                 
-                const closeModalButton = gameNode(Colors.ORANGE, (player) => {
+                const closeModalButton = GameNode(Colors.ORANGE, (player) => {
                 
                     delete this.modals[player.id];
                     
@@ -201,7 +204,7 @@ class HomegamesDashboard {
                 }
             });
 
-            const authorInfoNode = gameNode(Colors.CREAM, null, {
+            const authorInfoNode = GameNode(Colors.CREAM, null, {
                 x: xIndex + 5, 
                 y: yIndex + 15
             },
@@ -260,7 +263,7 @@ class HomegamesDashboard {
 
     handleNewPlayer(player) {
         this.keyCoolDowns[player.id] = {};
-        const playerNameNode = gameNode(Colors.CREAM, (player) => {
+        const playerNameNode = GameNode(Colors.CREAM, (player) => {
             this.playerEditStates[player.id] = !this.playerEditStates[player.id];
             playerNameNode.color = this.playerEditStates[player.id] ? Colors.WHITE : Colors.CREAM;
             if (!this.playerEditStates[player.id]) {

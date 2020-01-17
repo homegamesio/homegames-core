@@ -1,11 +1,15 @@
 const HomegamesDashboard = require('./src/HomegamesDashboard');
 const GameSession = require("./src/GameSession");
+const Squisher = require("./src/Squisher");
 const { socketServer } = require('./src/util/socket');
 const config = require('./config');
-const games = require('./src/games');
 
 const dashboard = new HomegamesDashboard();
 
-const session = new GameSession(dashboard);
+const squisher = new Squisher(dashboard);
 
-socketServer(session, config.GAME_SERVER_HOME_PORT);
+const session = new GameSession(squisher);
+
+session.initialize(() => {
+    socketServer(session, config.GAME_SERVER_HOME_PORT);
+});

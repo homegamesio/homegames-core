@@ -101,9 +101,7 @@ class Squisher {
         this.game = game;
         this.game && this.game.getRoot().addListener(this);
         this.listeners = new Set();
-        console.log("GAME");
-        console.log(game);
-        this.update(this.game.getRoot());
+        this.game && this.update(this.game.getRoot());
     }
 
     async initialize() {
@@ -158,7 +156,6 @@ class Squisher {
         // todo: fix this
         this.updateHelper(this.game.getRoot(), newSquished);
         this.squished = newSquished.flat();
-        console.log("JUST UPDATED");
     }
 
     updateHelper(node, squished) {
@@ -486,8 +483,6 @@ class GameSession {
     }
 
     addPlayer(player) {
-        console.log("ASSET BUDN:E");
-        console.log(this.squisher.assetBundle);
         this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
         player.receiveUpdate(this.squisher.squished);
         this.game.addPlayer(player);
@@ -523,11 +518,9 @@ const testOne = () => {
     const squisher = new Squisher(); 
     const initialGameNode = GameNode(Colors.BLUE, null, {x: 20.42, y: 20.52}, {x: 42.42, y: 50.42}, {
         text: "ayy lmao this works???",
-        pos: {
-            x: 40.20,
-            y: 20.40
-        }, 
-        size: 20.40,
+        x: 40.22,
+        y: 20.44,
+        size: 20.1,
     },
     {
         "test": {
@@ -542,11 +535,11 @@ const testOne = () => {
         }
     });
 
-    let squished = squisher.squish(initialGameNode);
+    let squished = squish(initialGameNode);
 
     assert(squished.length == squished[1]);
 
-    const unsquished = squisher.unsquish(squished);
+    const unsquished = unsquish(squished);
     
     for (const key in initialGameNode) {
         if (key == 'handleClick' || key == 'children' || key == 'listeners' || key == 'asset') {
@@ -566,6 +559,8 @@ const testOne = () => {
             } else if (initialGameNode[key].constructor === Object) {
                 for (const k in initialGameNode[key]) {
                     if (initialGameNode[key][k].constructor === Object) {
+                        console.log(initialGameNode);
+                        console.log(unsquished);
                         for (const j in initialGameNode[key][k]) {
                             assert(initialGameNode[key][k][j] === unsquished[key][k][j]);
                         }
@@ -583,11 +578,9 @@ const testOne = () => {
     }
 };
 
-//testOne();
+testOne();
 
 const dashboard = new HomegamesDashboard();
-console.log("DASHBOARD");
-console.log(dashboard);
 
 const squisher = new Squisher(dashboard);
 

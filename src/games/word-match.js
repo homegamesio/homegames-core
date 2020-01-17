@@ -1,5 +1,4 @@
-const gameNode = require("../common/GameNode");
-const colors = require("../common/Colors");
+const { Colors, GameNode } = require('squishjs');
 const dictionary = require("../common/util/dictionary");
 
 class WordMatch {
