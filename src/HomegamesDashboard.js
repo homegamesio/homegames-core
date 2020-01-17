@@ -255,6 +255,11 @@ class HomegamesDashboard extends Game {
     }
 
     handleKeyUp(player, key) {
+        console.log("THIS");
+        console.log(this);
+        console.log(player.id);
+        console.log(key);
+        console.log(this.keyCoolDowns);
         if (this.keyCoolDowns[player.id][key]) {
             clearTimeout(this.keyCoolDowns[player.id][key]);
             delete this.keyCoolDowns[player.id][key];
@@ -269,7 +274,7 @@ class HomegamesDashboard extends Game {
             if (!this.playerEditStates[player.id]) {
                 player.name = this.playerNodes[player.id].text.text;
             }
-        }, {x: 2, y: 2}, {x: 5, y: 5}, {text: player.name, x: 5, y: 5}, null, player.id);
+        }, {x: 2, y: 2}, {x: 5, y: 5}, {text: player.name || 'dat boi', x: 5, y: 5}, null, player.id);
         this.playerNodes[player.id] = playerNameNode;
         this.base.addChild(playerNameNode);
     }
