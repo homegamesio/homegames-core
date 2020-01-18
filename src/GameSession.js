@@ -31,7 +31,8 @@ class GameSession {
 
     }
 
-    handlePlayerDisconnect(player) {
+    handlePlayerDisconnect(playerId) {
+        this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
     }
 
     initialize(cb) {
