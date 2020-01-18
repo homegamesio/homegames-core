@@ -26,7 +26,7 @@ class Game {
     }
 
     initialize() {
-        console.log("INITTING");
+        console.log('INITTING');
     }
 }
 

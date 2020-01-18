@@ -1,8 +1,8 @@
-const https = require("https");
-const fs = require("fs");
-const config = require("../../../config");
+const https = require('https');
+const fs = require('fs');
+const config = require('../../../config');
 
-const DICT_FILE_PATH = config.ASSET_PATH + "/dictionary.txt";
+const DICT_FILE_PATH = config.ASSET_PATH + '/dictionary.txt';
 
 let words = [];
 
@@ -15,17 +15,17 @@ const generateList = async () => new Promise((resolve, reject) => {
         wordList = fs.readFileSync(DICT_FILE_PATH);
         resolve(JSON.parse(wordList));
     } else {
-        https.get("https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt", (res) => {
-            res.on("data", (d) => {
+        https.get('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt', (res) => {
+            res.on('data', (d) => {
                 wordList = [ ...wordList, ...d.toString().split(/\r?\n/)];
             });
-            res.on("end", () => {
+            res.on('end', () => {
                 fs.writeFile(DICT_FILE_PATH, JSON.stringify(wordList), (err) => {
                     if (err) console.log(err);
                 });
                 resolve(wordList);
             });
-        }).on("error", error => {
+        }).on('error', error => {
             reject(error);
         });
     }

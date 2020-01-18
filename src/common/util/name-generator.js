@@ -1,7 +1,7 @@
-const dictionary = require("./dictionary");
+const dictionary = require('./dictionary');
 
 const generateName = async () => {
-    let name = "";
+    let name = '';
     const nameLength = 2;
     for (let i = 0; i < nameLength; i++) {
 
@@ -9,7 +9,7 @@ const generateName = async () => {
             name += word;
 
             if (i < nameLength - 1) {
-                name += " ";
+                name += ' ';
             }
         });
     }

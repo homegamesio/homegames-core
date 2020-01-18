@@ -1,9 +1,9 @@
-const https = require("https");
-const fs = require("fs");
+const https = require('https');
+const fs = require('fs');
 
 // TODO: make this a config thing and simplify paths
-const CACHE_DIR  = "./local";
-const DICT_FILE_PATH = CACHE_DIR + "/charades-words.txt";
+const CACHE_DIR  = './local';
+const DICT_FILE_PATH = CACHE_DIR + '/charades-words.txt';
 
 let words = [];
 
@@ -16,17 +16,17 @@ const generateList = async () => new Promise((resolve, reject) => {
         wordList = fs.readFileSync(DICT_FILE_PATH);
         resolve(JSON.parse(wordList));
     } else {
-        https.get("https://homegamesio.s3-us-west-1.amazonaws.com/words.txt", (res) => {
-            res.on("data", (d) => {
+        https.get('https://homegamesio.s3-us-west-1.amazonaws.com/words.txt', (res) => {
+            res.on('data', (d) => {
                 wordList = [ ...wordList, ...d.toString().split(/\r?\n/)];
             });
-            res.on("end", () => {
+            res.on('end', () => {
                 fs.writeFile(DICT_FILE_PATH, JSON.stringify(wordList), (err) => {
                     if (err) console.log(err);
                 });
                 resolve(wordList);
             });
-        }).on("error", error => {
+        }).on('error', error => {
             reject(error);
         });
     }

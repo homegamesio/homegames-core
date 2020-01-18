@@ -1,10 +1,10 @@
-const Squisher = require("./Squisher");
-const { generateName } = require("./common/util/name-generator");
+const Squisher = require('./Squisher');
+const { generateName } = require('./common/util/name-generator');
 
 class GameSession {
-    constructor(squisher) {
-        this.game = squisher.game;
-        this.squisher = squisher;
+    constructor(game) {
+        this.game = game;
+        this.squisher = new Squisher(this.game);
         this.squisher.addListener(this);
         this.keyCoolDowns = {};
         this.renderWidth = this.game.constructor.metadata ? this.game.constructor.metadata().res.width : 1280;
@@ -46,20 +46,20 @@ class GameSession {
     }
 
     handlePlayerInput(player, input) {
-        if (input.type === "click") {
+        if (input.type === 'click') {
             this.handleClick(player, input.data);
-        } else if (input.type === "keydown") { 
+        } else if (input.type === 'keydown') { 
             this.game.handleKeyDown && this.game.handleKeyDown(player, input.key);
-        } else if (input.type === "keyup") {
+        } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
         } else {
-            console.log("Unknown input type: " + input.type);
+            console.log('Unknown input type: ' + input.type);
         }
     }
 
 
     handleClick(player, click) {
-        let translatedX = (click.x / this.renderWidth);
+        const translatedX = (click.x / this.renderWidth);
         const translatedY = (click.y / this.renderHeight);
         if (translatedX >= 1 || translatedY >= 1) {
             return;
@@ -77,19 +77,19 @@ class GameSession {
    
     findClickHelper(x, y, playerId, node, clicked = null) {
         if (node.handleClick && !node.playerId || playerId == node.playerId) {
-            let beginX = node.pos.x * this.renderWidth * .01;
-            let endX = (node.pos.x + node.size.x) * this.renderWidth * .01;
-            let beginY = node.pos.y * this.renderHeight * .01;
-            let endY = (node.pos.y + node.size.y) * this.renderHeight * .01;
-            let x1 = x * this.renderWidth;
-            let y1 = y * this.renderHeight;
-            let isClicked = (x1 >= beginX && x1 <= endX) && (y1 >= beginY && y1 <= endY);
+            const beginX = node.pos.x * this.renderWidth * .01;
+            const endX = (node.pos.x + node.size.x) * this.renderWidth * .01;
+            const beginY = node.pos.y * this.renderHeight * .01;
+            const endY = (node.pos.y + node.size.y) * this.renderHeight * .01;
+            const x1 = x * this.renderWidth;
+            const y1 = y * this.renderHeight;
+            const isClicked = (x1 >= beginX && x1 <= endX) && (y1 >= beginY && y1 <= endY);
             if (isClicked) {
                 clicked = node;
             }
         }
 
-        for (let i in node.children) {
+        for (const i in node.children) {
             clicked = this.findClickHelper(x, y, playerId, node.children[i], clicked);
         }
 

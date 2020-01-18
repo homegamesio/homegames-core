@@ -4,24 +4,24 @@ class Card {
         this.value = value;
 
         const specialCards = new Map([
-            [1, "Ace"],
-            [11, "Jack"],
-            [12, "Queen"],
-            [13, "King"],
+            [1, 'Ace'],
+            [11, 'Jack'],
+            [12, 'Queen'],
+            [13, 'King'],
         ]);
 
         this.name = (specialCards.get(value) ? specialCards.get(value) : value.toString());
     }
 
     toString() {
-        return this.name + " of " + this.suit;
+        return this.name + ' of ' + this.suit;
     }
 
 }
 
 class Deck {
     constructor() {
-        const suits = ["Clubs", "Diamonds", "Hearts", "Spades"];
+        const suits = ['Clubs', 'Diamonds', 'Hearts', 'Spades'];
 
         const cardsInDeck = [];
         for (var i = 0; i < suits.length; i++) {

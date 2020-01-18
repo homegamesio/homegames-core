@@ -1,24 +1,26 @@
 const { Colors, GameNode } = require('squishjs');
-const dictionary = require("../common/util/dictionary");
+const dictionary = require('../common/util/dictionary');
+const Game = require('./Game');
 
-class WordMatch {
+
+class WordMatch extends Game {
     static metadata() {
         return {
             res: {
                 width: 1280,
                 height: 720
             },
-            author: "Joseph Garcia"
+            author: 'Joseph Garcia'
         };
     }
 
     constructor() {
-        this.base = gameNode(colors.CREAM, null, {"x": 0, "y": 0}, {"x": 100, "y": 100});
-        this.savedNodeRoot = gameNode(colors.CREAM, null, {x: 0, y: 0}, {x: 0, y: 0});
-        this.playerList = gameNode(colors.CREAM, null, {x: 0, y: 0}, {x: 0, y: 0});
+        this.base = GameNode(Colors.CREAM, null, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
+        this.savedNodeRoot = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 0, y: 0});
+        this.playerList = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 0, y: 0});
 
-        this.newGameButton = gameNode(colors.CREAM, this.newGame.bind(this), {x: 40, y: 47}, {x: 0, y: 0});
-        this.playerRequirement = gameNode(colors.CREAM, null, {x: 40, y: 3}, {x: 0, y: 0}, null);
+        this.newGameButton = GameNode(Colors.CREAM, this.newGame.bind(this), {x: 40, y: 47}, {x: 0, y: 0});
+        this.playerRequirement = GameNode(Colors.CREAM, null, {x: 40, y: 3}, {x: 0, y: 0}, null);
 
         this.savedNodeRoot.addChild(this.playerRequirement);
         this.savedNodeRoot.addChild(this.newGameButton);
@@ -44,13 +46,13 @@ class WordMatch {
         const playerCount = Object.keys(this.players).length;
         if (playerCount > 1 && this.newGameButton.size.x === 0 && !this.gameInProgress) {
             this.newGameButton.size = {x: 20, y: 20};
-            this.newGameButton.text = {text: "New Game", x: 50, y: 50};
+            this.newGameButton.text = {text: 'New Game', x: 50, y: 50};
             this.playerRequirement.text = null;
         } else if (playerCount < 2 && (this.newGameButton.size.x > 0 || !this.playerRequirement.text)) {
             this.gameInProgress = false;
             this.newGameButton.size = {x: 0, y: 0};
             this.newGameButton.text = null;
-            this.playerRequirement.text = {x: 50, y: 50, text: "At least two players required"};
+            this.playerRequirement.text = {x: 50, y: 50, text: 'At least two players required'};
             this.clearTable();
         } else if (this.gameInProgress && !this.results) {
             const notReadyPlayers = Object.values(this.playerReadyButtons).filter(s => !s.ready);
@@ -85,7 +87,7 @@ class WordMatch {
         this.results = true;
         this.clearTable();
         let countdownInt = 3;
-        const countdownNode = gameNode(colors.CREAM, null, {x: 50, y: 50}, {x: 20, y: 20}, {text: "", x: 50, y: 50});
+        const countdownNode = GameNode(Colors.CREAM, null, {x: 50, y: 50}, {x: 20, y: 20}, {text: '', x: 50, y: 50});
         const votes = {};
 
         const interval = setInterval(() => {
@@ -95,14 +97,14 @@ class WordMatch {
                 const resultOneText = Object.values(this.responseBoxes)[0].text.text;
                 const resultTwoText = Object.values(this.responseBoxes)[1].text.text;
                 
-                const resultOne = gameNode(colors.WHITE, null, {x: 20, y: 30}, {x: 20, y: 20}, {text: resultOneText, x: 25, y: 35});
-                const resultTwo = gameNode(colors.WHITE, null, {x: 60, y: 30}, {x: 20, y: 20}, {text: resultTwoText, x: 65, y: 35});
+                const resultOne = GameNode(Colors.WHITE, null, {x: 20, y: 30}, {x: 20, y: 20}, {text: resultOneText, x: 25, y: 35});
+                const resultTwo = GameNode(Colors.WHITE, null, {x: 60, y: 30}, {x: 20, y: 20}, {text: resultTwoText, x: 65, y: 35});
                 this.base.addChild(resultOne);
                 this.base.addChild(resultTwo);
 
                 const resultsMatch = resultOneText.toLowerCase().trim() === resultTwoText.toLowerCase().trim();
                 if (resultsMatch) {
-                    const results = gameNode(colors.GREEN, null, {x: 50, y: 60}, {x: 20, y: 20}, {text: "Same!", x: 50, y: 60});
+                    const results = GameNode(Colors.GREEN, null, {x: 50, y: 60}, {x: 20, y: 20}, {text: 'Same!', x: 50, y: 60});
                     this.base.addChild(results);
                     this.grantPlayerPoints();
                     setTimeout(this.finishRound.bind(this), 3000);
@@ -123,24 +125,24 @@ class WordMatch {
                             totalVotes += votes[key].size;
                         }
                         if (totalVotes == Object.keys(this.players).length) {
-                            if ((votes["yes"] ? votes["yes"].size : 0) > (votes["no"] ? votes["no"].size : 0)) {
+                            if ((votes['yes'] ? votes['yes'].size : 0) > (votes['no'] ? votes['no'].size : 0)) {
                                 this.grantPlayerPoints(); 
                             } else {
-                                console.log("it's a no from me dog");
+                                console.log('it\'s a no from me dog');
                             }
                             this.finishRound();
                         }
                     };
-                    const closeEnoughText = gameNode(colors.CREAM, null, {x: 50, y: 55}, {x: 10, y: 10}, {"text": "Close Enough?", x: 50, y: 55});
-                    const btn1 = gameNode(colors.BLUE, addPlayerVote("yes").bind(this), {x: 55, y: 65}, {x: 10, y: 10}, {text: "Yes", x: 60, y: 65});
-                    const btn2 = gameNode(colors.RED, addPlayerVote("no").bind(this), {x: 35, y: 65}, {x: 10, y: 10}, {text: "No", x: 40, y: 65});
+                    const closeEnoughText = GameNode(Colors.CREAM, null, {x: 50, y: 55}, {x: 10, y: 10}, {'text': 'Close Enough?', x: 50, y: 55});
+                    const btn1 = GameNode(Colors.BLUE, addPlayerVote('yes').bind(this), {x: 55, y: 65}, {x: 10, y: 10}, {text: 'Yes', x: 60, y: 65});
+                    const btn2 = GameNode(Colors.RED, addPlayerVote('no').bind(this), {x: 35, y: 65}, {x: 10, y: 10}, {text: 'No', x: 40, y: 65});
                     this.base.addChild(closeEnoughText);
                     this.base.addChild(btn1);
                     this.base.addChild(btn2);
                 }
             } else {
                 const newText = countdownNode.text;
-                newText.text = "" + countdownInt--;
+                newText.text = '' + countdownInt--;
                 countdownNode.text = newText;
             }
         }, 1000);
@@ -162,12 +164,12 @@ class WordMatch {
         this.updatePlayerList();
         dictionary.random().then(word1 => {
             dictionary.random().then(word2 => {
-                const word1Node = gameNode(colors.WHITE, null, 
+                const word1Node = GameNode(Colors.WHITE, null, 
                     {x: 10, y: 45},
                     {x: 20, y: 20},
                     {text: word1, x: 20 , y: 53}
                 );
-                const word2Node = gameNode(colors.WHITE, null, 
+                const word2Node = GameNode(Colors.WHITE, null, 
                     {x: 70, y: 45},
                     {x: 20, y: 20},
                     {text: word2, x: 80, y: 53}
@@ -182,30 +184,30 @@ class WordMatch {
                     const toggleEdit = () => {
                         this.responseBoxes[player.id].editing = !this.responseBoxes[player.id].editing;
                         if (this.responseBoxes[player.id].editing) {
-                            this.responseBoxes[player.id].color = colors.WHITE;
+                            this.responseBoxes[player.id].color = Colors.WHITE;
                         } else {
-                            this.responseBoxes[player.id].color = colors.CREAM;
+                            this.responseBoxes[player.id].color = Colors.CREAM;
                         }
                     };
 
                     const toggleReady = () => {
                         this.playerReadyButtons[player.id].ready = !this.playerReadyButtons[player.id].ready;
                         if (!this.playerReadyButtons[player.id].ready) {
-                            this.playerReadyButtons[player.id].color = colors.RED;
+                            this.playerReadyButtons[player.id].color = Colors.RED;
                         } else {
-                            this.playerReadyButtons[player.id].color = colors.GREEN;
+                            this.playerReadyButtons[player.id].color = Colors.GREEN;
                         }
 
                         this.updatePlayerList();
                     };
 
                     const textValue = {
-                        text: "",
+                        text: '',
                         x: 50,
                         y: 50
                     };
-                    this.responseBoxes[player.id] = gameNode(
-                        colors.WHITE,
+                    this.responseBoxes[player.id] = GameNode(
+                        Colors.WHITE,
                         toggleEdit,
                         {x: 40, y: 40},
                         {x: 20, y: 20},
@@ -214,12 +216,12 @@ class WordMatch {
                         player.id
                     );
                     
-                    this.playerReadyButtons[player.id] = gameNode(
-                        colors.RED,
+                    this.playerReadyButtons[player.id] = GameNode(
+                        Colors.RED,
                         toggleReady,
                         {x: 40, y: 70},
                         {x: 20, y: 10},
-                        {text: "Ready", x: 50, y: 73},
+                        {text: 'Ready', x: 50, y: 73},
                         null,
                         player.id
                     );
@@ -235,7 +237,7 @@ class WordMatch {
     }
 
     isText(key) {
-        return key.length == 1 && (key >= "A" && key <= "Z") || (key >= "a" && key <= "z") || key === " " || key === "Backspace";
+        return key.length == 1 && (key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z') || key === ' ' || key === 'Backspace';
     }
 
     handleKeyDown(player, key) {
@@ -245,9 +247,9 @@ class WordMatch {
 
         if (!this.keyCoolDowns[player.id] || !this.keyCoolDowns[player.id][key]) {
             const newText = this.responseBoxes[player.id].text;
-            if (newText.text.length > 0 && key === "Backspace") {
+            if (newText.text.length > 0 && key === 'Backspace') {
                 newText.text = newText.text.substring(0, newText.text.length - 1); 
-            } else if(key !== "Backspace") {
+            } else if(key !== 'Backspace') {
                 newText.text = newText.text + key;
             }
             this.responseBoxes[player.id].text = newText;
@@ -272,10 +274,10 @@ class WordMatch {
             const player = this.players[playerId];
             const yPos = yIndex++;
             const ready = this.playerReadyButtons[player.id] && this.playerReadyButtons[player.id].ready;
-            const readyStatusColor = ready ? colors.GREEN : colors.RED;
-            const statusColor = this.gameInProgress ? readyStatusColor : colors.CREAM;
-            const playerNameText = player.name + ": " + (player.id in this.scores ? this.scores[player.id] : 0);
-            const playerNode = gameNode(statusColor, null, {x: 70, y: 2 + (yPos * 10)}, {x: 5, y: 5}, {x: 85, y: 2 + (yPos * 10), text: playerNameText});
+            const readyStatusColor = ready ? Colors.GREEN : Colors.RED;
+            const statusColor = this.gameInProgress ? readyStatusColor : Colors.CREAM;
+            const playerNameText = player.name + ': ' + (player.id in this.scores ? this.scores[player.id] : 0);
+            const playerNode = GameNode(statusColor, null, {x: 70, y: 2 + (yPos * 10)}, {x: 5, y: 5}, {x: 85, y: 2 + (yPos * 10), text: playerNameText});
             this.playerList.addChild(playerNode);
         }
     }
@@ -283,12 +285,12 @@ class WordMatch {
     handleNewPlayer(player) {
         this.keyCoolDowns[player.id] = {};
         const toggleNameEdit = () => {
-            this.players[player.id].name = "butt";
+            this.players[player.id].name = 'butt';
             this.updatePlayerList();
         };
         
-        const infoNode = gameNode(
-            colors.CREAM,
+        const infoNode = GameNode(
+            Colors.CREAM,
             toggleNameEdit,
             {
                 x: 12,

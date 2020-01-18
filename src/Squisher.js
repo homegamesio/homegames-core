@@ -1,5 +1,5 @@
 const ASSET_TYPE = 1;
-const { GameNode, Colors, squish, unsquish } = require('squishjs');
+const { squish } = require('squishjs');
 
 class Squisher {
     constructor(game) {
@@ -34,7 +34,7 @@ class Squisher {
 
             const encodedLength = (payload.length + assetKeyLength).toString(36);
             
-            const assetType = gameAssets[key].info.type === "image" ? 1 : 2;
+            const assetType = gameAssets[key].info.type === 'image' ? 1 : 2;
 
             this.assets[key] = [ASSET_TYPE, assetType, encodedLength.charCodeAt(0), encodedLength.charCodeAt(1), encodedLength.charCodeAt(2), encodedLength.charCodeAt(3), ...assetKeyArray, ...payload];
             assetBundleSize += this.assets[key].length;
@@ -63,14 +63,16 @@ class Squisher {
     }
 
     update(node) {
-        this.ids = new Set();
-        let newSquished = [];
-        // todo: fix this
-        this.updateHelper(this.game.getRoot(), newSquished);
+        const newSquished = [];
+        this.updateHelper(node, newSquished);
         this.squished = newSquished.flat();
     }
 
     updateHelper(node, squished) {
+        if (!this.ids.has(node.id)) {
+            this.ids.add(node.id);
+            node.addListener(this);
+        }
         const newSquish = squish(node);
         squished.push(newSquish);
 
@@ -80,6 +82,7 @@ class Squisher {
     }
 
     handleStateChange(node) {
+        // todo: fix this
         this.update(this.game.getRoot());
         for (const listener of this.listeners) {
             listener.handleSquisherUpdate(this.squished);

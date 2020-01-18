@@ -1,20 +1,22 @@
-const { gameNode, Colors }  = require('squishjs');
-const Deck = require("../common/Deck");
+const { GameNode, Colors }  = require('squishjs');
+const Game = require('./Game');
+const Deck = require('../common/Deck');
 
-class Slaps {
+class Slaps extends Game {
     static metadata() {
         return {
             res: {
                 width: 1280,
                 height: 720
             },
-            author: "Joseph Garcia"
+            author: 'Joseph Garcia'
         };
     }
 
     constructor() {
+        super();
         this.players = {};
-        this.base = gameNode(Colors.EMERALD, this.handleBackgroundClick.bind(this), {"x": 0, "y": 0}, {"x": 100, "y": 100});
+        this.base = gameNode(Colors.EMERALD, this.handleBackgroundClick.bind(this), {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
         this.infoNodeRoot = gameNode(Colors.EMERALD, null, {x: 0, y: 0}, {x: 0, y: 0});
         this.base.addChild(this.infoNodeRoot);
         this.infoNodes = {};
@@ -40,12 +42,12 @@ class Slaps {
 
         if (playerCount < 2 && !this.playerRequirementNode) { 
             this.clearTable();
-            this.playerRequirementNode = gameNode(Colors.EMERALD, null, {"x": 45, "y": 5}, {"x": 10, "y": 10}, {"text": "Need at least 2 players", x: 45, y: 5});
+            this.playerRequirementNode = gameNode(Colors.EMERALD, null, {'x': 45, 'y': 5}, {'x': 10, 'y': 10}, {'text': 'Need at least 2 players', x: 45, y: 5});
             this.base.addChild(this.playerRequirementNode);
         } else if (playerCount >= 2 && !this.newGameNode) {
 
             this.clearTable();
-            this.newGameNode = gameNode(Colors.GREEN, this.newGame.bind(this), {x: 37.5, y: 37.5}, {x: 25, y: 25}, {text: "New Game", x: 50, y: 47.5}, null);
+            this.newGameNode = gameNode(Colors.GREEN, this.newGame.bind(this), {x: 37.5, y: 37.5}, {x: 25, y: 25}, {text: 'New Game', x: 50, y: 47.5}, null);
             this.base.addChild(this.newGameNode);
         } else if (this.newGameNode && playerCount < 2) {
 
@@ -80,14 +82,14 @@ class Slaps {
             index += 1;
         }
 
-        const winnerNotification = gameNode(Colors.GREEN, null, {x: 35, y: 10}, {x: 35, y: 10}, {text: winner.name + " wins!", x: 50, y: 10});
+        const winnerNotification = gameNode(Colors.GREEN, null, {x: 35, y: 10}, {x: 35, y: 10}, {text: winner.name + ' wins!', x: 50, y: 10});
         this.base.addChild(winnerNotification);
 
         if (this.canStartNewGame) {
             const newGameNode = gameNode(Colors.GREEN, function() {
                 this.base.clearChildren();
                 setTimeout(this.newGame.bind(this), 500);
-            }.bind(this), {x: 80, y: 5}, {x: 15, y: 15}, {text: "New Game", x: 88, y: 10.5}, null, 2);
+            }.bind(this), {x: 80, y: 5}, {x: 15, y: 15}, {text: 'New Game', x: 88, y: 10.5}, null, 2);
 
             this.base.addChild(newGameNode);
         }
@@ -111,7 +113,7 @@ class Slaps {
             return gameNode(Colors.EMERALD, null, {x: 15, y: yIndex}, {x: 10, y: 9}, {text: this.players[player.id].name, x: 15, y: yIndex}, null, null);
         });
 
-        const playerInfoPanel = gameNode(Colors.EMERALD, null, {x: 15, y: 5}, {x: 10, y: 1}, {text: "Players", x: 15, y: 5}, null, null);
+        const playerInfoPanel = gameNode(Colors.EMERALD, null, {x: 15, y: 5}, {x: 10, y: 1}, {text: 'Players', x: 15, y: 5}, null, null);
 
         playerNodes.forEach(player => {
             playerInfoPanel.addChild(player);

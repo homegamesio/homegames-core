@@ -1,4 +1,4 @@
-const Deck = require("./Deck");
+const Deck = require('./Deck');
 
 module.exports = {
     Deck

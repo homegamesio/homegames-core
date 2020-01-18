@@ -1,23 +1,26 @@
-const { Asset, gameNode, Colors } = require("../common");
+const Asset = require('../common/Asset');
+const Game = require('./Game');
+const { GameNode, Colors } = require('squishjs');
 
-class SpriteTest {
+class SpriteTest extends Game {
     static metadata() {
         return {
             res: {
                 width: 1280,
                 height: 720
             },
-            author: "Joseph Garcia"
+            author: 'Joseph Garcia'
         };
     }
 
     constructor() {
+        super();
         this.danceFrames = {
-            "dance0": "https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_0.png",
-            "dance_left": "https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_left.png",
-            "dance_right": "https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_right.png",
-            "dance_up": "https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_up.png",
-            "dance_down": "https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_down.png"
+            'dance0': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_0.png',
+            'dance_left': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_left.png',
+            'dance_right': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_right.png',
+            'dance_up': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_up.png',
+            'dance_down': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_down.png'
         };
 
         this.playerSpots = {};
@@ -33,38 +36,38 @@ class SpriteTest {
         }
 
         this.assets = {
-            "dance0": new Asset("url", {
-                "location": this.danceFrames["dance0"],
-                "type": "image"
+            'dance0': new Asset('url', {
+                'location': this.danceFrames['dance0'],
+                'type': 'image'
             }),
-            "dance_up": new Asset("url", {
-                "location": this.danceFrames["dance_up"],
-                "type": "image"
+            'dance_up': new Asset('url', {
+                'location': this.danceFrames['dance_up'],
+                'type': 'image'
             }),
-            "dance_down": new Asset("url", {
-                "location": this.danceFrames["dance_down"],
-                "type": "image"
+            'dance_down': new Asset('url', {
+                'location': this.danceFrames['dance_down'],
+                'type': 'image'
             }),
-            "dance_left": new Asset("url", {
-                "location": this.danceFrames["dance_left"],
-                "type": "image"
+            'dance_left': new Asset('url', {
+                'location': this.danceFrames['dance_left'],
+                'type': 'image'
             }),
-            "dance_right": new Asset("url", {
-                "location": this.danceFrames["dance_right"],
-                "type": "image"
+            'dance_right': new Asset('url', {
+                'location': this.danceFrames['dance_right'],
+                'type': 'image'
             })
         };
 
         this.inputCooldowns = {};
 
-        this.background = gameNode(
+        this.background = GameNode(
             Colors.CREAM,
             (player, x, y) => {
                 let fakeArrowKey;
                 if (x >= .25 && x <= .75) {
-                    fakeArrowKey = y <= .5 ? "ArrowUp" : "ArrowDown";
+                    fakeArrowKey = y <= .5 ? 'ArrowUp' : 'ArrowDown';
                 } else {
-                    fakeArrowKey = x < .5 ? "ArrowLeft" : "ArrowRight";
+                    fakeArrowKey = x < .5 ? 'ArrowLeft' : 'ArrowRight';
                 }
                 this.handleKeyDown(player, fakeArrowKey);
             },
@@ -91,16 +94,16 @@ class SpriteTest {
 
         const dancer = this.dancers[player.id];
         const frameMap = {
-            "ArrowLeft": "dance_left",
-            "ArrowRight": "dance_right",
-            "ArrowUp": "dance_up",
-            "ArrowDown": "dance_down"
+            'ArrowLeft': 'dance_left',
+            'ArrowRight': 'dance_right',
+            'ArrowUp': 'dance_up',
+            'ArrowDown': 'dance_down'
         };
 
-        const newFrame = frameMap[key] ? (dancer.assets.dance0 ? frameMap[key] : "dance0") : "dance0";
+        const newFrame = frameMap[key] ? (dancer.asset.dance0 ? frameMap[key] : 'dance0') : 'dance0';
         const newAssets = {};
-        newAssets[newFrame] = Object.values(this.dancers[player.id].assets)[0];
-        dancer.assets = newAssets;
+        newAssets[newFrame] = Object.values(this.dancers[player.id].asset)[0];
+        dancer.asset = newAssets;
     }
 
     getPlayerSpot() {
@@ -116,13 +119,13 @@ class SpriteTest {
         spot.player = player;
         const x = ((spot.x * 10) + 2);
         const y = ((spot.y * 30) + 2);
-        this.dancers[player.id] = gameNode(
+        this.dancers[player.id] = GameNode(
             Colors.BLACK,
             null,
             {x: 10, y: 10},
             {x: 0, y: 0},
-            {"text": player.name, x: x + 7, y: y + 1},
-            {"dance0": {pos: {x: x, y: y}, size: {x: 15, y: 15}}}
+            {'text': player.name || 'Unknown Player', x: x + 7, y: y + 1},
+            {'dance0': {pos: {x: x, y: y}, size: {x: 15, y: 15}}}
         );
         this.background.addChild(this.dancers[player.id]);
     }

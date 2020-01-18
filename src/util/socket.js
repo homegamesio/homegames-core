@@ -1,9 +1,9 @@
-const WebSocket = require("ws");
-const http = require("http");
-const assert = require("assert");
-const linkHelper = require("../common/util/link-helper");
-const Player = require("../Player");
-const config = require("../../config");
+const WebSocket = require('ws');
+const http = require('http');
+const assert = require('assert');
+const linkHelper = require('../common/util/link-helper');
+const Player = require('../Player');
+const config = require('../../config');
 
 const socketServer = (gameSession, port, cb = null) => {
     linkHelper();
@@ -22,7 +22,7 @@ const socketServer = (gameSession, port, cb = null) => {
             }
         }
 
-        throw new Error("no player IDs left in pool");
+        throw new Error('no player IDs left in pool');
     };
 
     const server = http.createServer();
@@ -31,13 +31,13 @@ const socketServer = (gameSession, port, cb = null) => {
         server
     });
     
-    wss.on("connection", (ws) => {
+    wss.on('connection', (ws) => {
         function messageHandler(msg) {
             const jsonMessage = JSON.parse(msg);
 
-            assert(jsonMessage.type === "ready");
+            assert(jsonMessage.type === 'ready');
 
-            ws.removeListener("message", messageHandler);
+            ws.removeListener('message', messageHandler);
     
             ws.id = generatePlayerId();
 
@@ -58,14 +58,14 @@ const socketServer = (gameSession, port, cb = null) => {
             gameSession.addPlayer(player);
         }
 
-        ws.on("message", messageHandler);
+        ws.on('message', messageHandler);
 
         function closeHandler() {
             playerIds[ws.id] = false;
             gameSession.handlePlayerDisconnect(ws.id);
         }
 
-        ws.on("close", closeHandler);
+        ws.on('close', closeHandler);
 
     });
     

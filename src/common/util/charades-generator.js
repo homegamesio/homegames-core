@@ -1,7 +1,7 @@
-const dictionary = require("./charades-words");
+const dictionary = require('./charades-words');
 
 const charadesWord = async () => {
-    let name = "";
+    let name = '';
     const nameLength = 1;
     for (let i = 0; i < nameLength; i++) {
 
@@ -9,7 +9,7 @@ const charadesWord = async () => {
             name += word;
 
             if (i < nameLength - 1) {
-                name += " ";
+                name += ' ';
             }
         });
     }

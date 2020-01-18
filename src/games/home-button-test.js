@@ -1,25 +1,27 @@
-const { gameNode, Colors } = require("../common");
+const { GameNode, Colors } = require('squishjs');
+const Game = require('./Game');
 
-class HomeButtonTest {
+class HomeButtonTest extends Game {
     static metadata() {
         return {
             res: {
                 width: 1280,
                 height: 720
             },
-            author: "Joseph Garcia",
-            name: "Home Button Test"
+            author: 'Joseph Garcia',
+            name: 'Home Button Test'
         };
     }
 
     constructor() {
-        this.base = gameNode(Colors.BLUE, (player) => {
+        super();
+        this.base = GameNode(Colors.BLUE, (player) => {
             player.receiveUpdate([5, 70, 0]);
-        }, {"x": 0, "y": 0}, {"x": 100, "y": 100}, {"text": "ayy lmao", x: 50, y: 5});
+        }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100}, {'text': 'ayy lmao', x: 50, y: 5});
     }
 
     handleNewPlayer(player) {
-        let textCopy = this.base.text;
+        const textCopy = this.base.text;
         textCopy.text = player.name;
         this.base.text = textCopy;
     }

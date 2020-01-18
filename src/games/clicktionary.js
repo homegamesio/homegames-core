@@ -1,25 +1,27 @@
-const { gameNode, Colors } = require("../common");
-const { charadesWord } = require("../common/util/charades-generator");
+const { gameNode, Colors } = require('../common');
+const { charadesWord } = require('../common/util/charades-generator');
+const Game = require('./Game');
 
-class Clicktionary {
+class Clicktionary extends Game {
     static metadata() {
         return {
             res: {
                 width: 1920,
                 height: 1080
             },
-            author: "Joseph Garcia"
+            author: 'Joseph Garcia'
         };
     }
 
     constructor() {
+        super()
         this.base = gameNode(Colors.CREAM, (player) => {
-        }, {"x": 0, "y": 0}, {"x": 100, "y": 100});
+        }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
         this.playerInfoNodes = {};
         this.newRoundNode = gameNode(Colors.GREEN, (player) => {
             this.newRound();
         }, {x: 45, y: 5}, {x: 10, y: 10}, {
-            text: "Start",
+            text: 'Start',
             x: 50,
             y: 9
         });
@@ -114,7 +116,7 @@ class Clicktionary {
                     return;
                 }
                 const playerColor = this.playerColors[player.id] || Colors.BLACK;
-                const coloredPixel = gameNode(playerColor, () => {}, {"x": (x * 100) - .25, "y": (y * 100) - .25}, {"x": .5, "y": .5});
+                const coloredPixel = gameNode(playerColor, () => {}, {'x': (x * 100) - .25, 'y': (y * 100) - .25}, {'x': .5, 'y': .5});
                 this.drawNode.addChild(coloredPixel);
             },
             {
@@ -158,7 +160,7 @@ class Clicktionary {
                 y: 5
             },
             {
-                text: "Clear",
+                text: 'Clear',
                 x: 17.5,
                 y: 90
             },
@@ -175,7 +177,7 @@ class Clicktionary {
                 this.newRound();
             }, 5000);
 
-        }, {x: 5, y: 90}, {x: 5, y: 5}, {x: 5, y: 90, text: "New Round"}, null, currentPlayer.id);
+        }, {x: 5, y: 90}, {x: 5, y: 5}, {x: 5, y: 90, text: 'New Round'}, null, currentPlayer.id);
         this.drawNode.addChild(doneButton);
 
         const colorOptions = [Colors.BLACK, Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.WHITE];
@@ -192,13 +194,13 @@ class Clicktionary {
         this.drawNode.addChild(clearButton);
 
         const countdownNode = gameNode(Colors.CREAM, null,
-            {x: 50, y: 10}, {x: 1, y: 1}, {text: "60", x: 50, y: 10});
+            {x: 50, y: 10}, {x: 1, y: 1}, {text: '60', x: 50, y: 10});
         this.drawNode.addChild(countdownNode);
         this.countdownInterval = setInterval(() => {
             const currentSecs = Number(countdownNode.text.text);
             const newSecs = currentSecs - 1;
             countdownNode.text = {
-                text: "" + newSecs,
+                text: '' + newSecs,
                 x: 50,
                 y: 10
             };

@@ -1,13 +1,13 @@
-const { fork } = require("child_process");
-const path = require("path");
+const { fork } = require('child_process');
+const path = require('path');
 const { GameNode, Colors } = require('squishjs');
 
-const Asset = require("./common/Asset");
+const Asset = require('./common/Asset');
 
-const games = require("./games");
-const Game = require("./games/Game");
+const games = require('./games');
+const Game = require('./games/Game');
 
-const config = require("../config");
+const config = require('../config');
 
 const sessions = {};
 
@@ -32,7 +32,7 @@ class HomegamesDashboard extends Game {
                 width: 1280,
                 height: 720
             },
-            author: "Joseph Garcia"
+            author: 'Joseph Garcia'
         };
     }
 
@@ -44,15 +44,15 @@ class HomegamesDashboard extends Game {
         this.keyCoolDowns = {};
         this.modals = {};
         Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
-            this.assets[key] = new Asset("url", {
-                "location": games[key].metadata && games[key].metadata().thumbnail,
-                "type": "image"
+            this.assets[key] = new Asset('url', {
+                'location': games[key].metadata && games[key].metadata().thumbnail,
+                'type': 'image'
             });
         });
 
-        this.assets['default'] = new Asset("url", {
-            "location": config.DEFAULT_GAME_THUMBNAIL,
-            "type": "image"
+        this.assets['default'] = new Asset('url', {
+            'location': config.DEFAULT_GAME_THUMBNAIL,
+            'type': 'image'
         });
 
         this.base = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 100, y: 100});
@@ -73,13 +73,13 @@ class HomegamesDashboard extends Game {
 
     joinSession(player, session) {
         player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
-//            for (const sessionIndex in activeSessions) {
-//                const session = activeSessions[sessionIndex];
-//                const sessionNode = gameNode(Colors.BLUE, (player) => {
-//                    player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
-//                }, {x: xIndex + 3, y: 25 + (sessionIndex * 6)}, {x: 5, y: 5}, {"text": "session", x: xIndex + 3, y: 25 + (sessionIndex * 6)});
-//                this.base.addChild(sessionNode);
-//            }
+        //            for (const sessionIndex in activeSessions) {
+        //                const session = activeSessions[sessionIndex];
+        //                const sessionNode = gameNode(Colors.BLUE, (player) => {
+        //                    player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
+        //                }, {x: xIndex + 3, y: 25 + (sessionIndex * 6)}, {x: 5, y: 5}, {"text": "session", x: xIndex + 3, y: 25 + (sessionIndex * 6)});
+        //                this.base.addChild(sessionNode);
+        //            }
 
 
     }
@@ -88,7 +88,7 @@ class HomegamesDashboard extends Game {
         const sessionId = sessionIdCounter++;
         const port = getServerPort();
 
-        const childSession = fork(path.join(__dirname, "child_game_server.js"));
+        const childSession = fork(path.join(__dirname, 'child_game_server.js'));
 
         sessions[port] = childSession;
 
@@ -101,7 +101,7 @@ class HomegamesDashboard extends Game {
             }
         }));
 
-        childSession.on("message", (thang) => {
+        childSession.on('message', (thang) => {
             const jsonMessage = JSON.parse(thang);
             if (jsonMessage.success) {
                 player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
@@ -111,7 +111,7 @@ class HomegamesDashboard extends Game {
             }
         });
 
-        childSession.on("close", () => {
+        childSession.on('close', () => {
             sessions[port] = null;
             delete this.sessions[sessionId];
             this.renderGameList();  
@@ -128,13 +128,13 @@ class HomegamesDashboard extends Game {
                     this.requestCallbacks[requestId] = cb;
                 }
                 childSession.send(JSON.stringify({
-                    "api": "getPlayers",
-                    "requestId": requestId
+                    'api': 'getPlayers',
+                    'requestId': requestId
                 }));
             },
             sendHeartbeat: () => {
                 childSession.send(JSON.stringify({
-                    "type": "heartbeat"
+                    'type': 'heartbeat'
                 }));
             }
         };
@@ -160,7 +160,7 @@ class HomegamesDashboard extends Game {
                 
                     this.startSession(player, key);
                 
-                }, {x: 42.5, y: 25}, {x: 15, y: 10}, {text: "Create Session", x: 50, y: 29, size: 18}, null, player.id);
+                }, {x: 42.5, y: 25}, {x: 15, y: 10}, {text: 'Create Session', x: 50, y: 29, size: 18}, null, player.id);
                 
                 const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
 
@@ -169,11 +169,11 @@ class HomegamesDashboard extends Game {
                 gameInfoModal.addChild(playButton);
 
                 let sessionOptionXIndex = 20;
-                let sessionOptionYIndex = 50;
+                const sessionOptionYIndex = 50;
                 activeSessions.forEach(s => {
                     const sessionOption = GameNode(Colors.WHITE, (player) => {
                         this.joinSession(player, s);
-                    }, {x: sessionOptionXIndex, y: sessionOptionYIndex}, {x: 10, y: 10}, {text: "Session", x: sessionOptionXIndex + 3, y: sessionOptionYIndex + 3}, null, player.id);
+                    }, {x: sessionOptionXIndex, y: sessionOptionYIndex}, {x: 10, y: 10}, {text: 'Session', x: sessionOptionXIndex + 3, y: sessionOptionYIndex + 3}, null, player.id);
                     gameInfoModal.addChild(sessionOption);
                     sessionOptionXIndex += 15;
 
@@ -189,7 +189,7 @@ class HomegamesDashboard extends Game {
                     
                     this.base.removeChild(gameInfoModal.id);
                 
-                }, {x: 6, y: 7}, {x: 4, y: 8}, {text: "X", x: 8, y: 8, size: 60}, null, player.id);
+                }, {x: 6, y: 7}, {x: 4, y: 8}, {text: 'X', x: 8, y: 8, size: 60}, null, player.id);
                 
                 this.modals[player.id] = gameInfoModal;
                 
@@ -197,7 +197,7 @@ class HomegamesDashboard extends Game {
                 
                 this.base.addChild(gameInfoModal);
 
-            }, {x: xIndex, y: yIndex}, {x: 10, y: 10}, {"text": (games[key].metadata && games[key].metadata().name || key) + "", x: xIndex + 5, y: yIndex + 12}, {
+            }, {x: xIndex, y: yIndex}, {x: 10, y: 10}, {'text': (games[key].metadata && games[key].metadata().name || key) + '', x: xIndex + 5, y: yIndex + 12}, {
                 [assetKey]: {
                     pos: {x: xIndex, y: yIndex},
                     size: {x: 10, y: 10}
@@ -213,7 +213,7 @@ class HomegamesDashboard extends Game {
                 y: 10
             },
             {
-                text: "by " + (games[key].metadata && games[key].metadata()["author"] || "Unknown Author"),
+                text: 'by ' + (games[key].metadata && games[key].metadata()['author'] || 'Unknown Author'),
                 x: xIndex + 5,
                 y: yIndex + 15
             });
@@ -231,7 +231,7 @@ class HomegamesDashboard extends Game {
     }
 
     isText(key) {
-        return key.length == 1 && (key >= "A" && key <= "Z") || (key >= "a" && key <= "z") || key === " " || key === "Backspace";
+        return key.length == 1 && (key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z') || key === ' ' || key === 'Backspace';
     }
 
     handleKeyDown(player, key) {
@@ -241,9 +241,9 @@ class HomegamesDashboard extends Game {
 
         if (!this.keyCoolDowns[player.id] || !this.keyCoolDowns[player.id][key]) {
             const newText = this.playerNodes[player.id].text;
-            if (newText.text.length > 0 && key === "Backspace") {
+            if (newText.text.length > 0 && key === 'Backspace') {
                 newText.text = newText.text.substring(0, newText.text.length - 1); 
-            } else if(key !== "Backspace") {
+            } else if(key !== 'Backspace') {
                 newText.text = newText.text + key;
             }
             this.playerNodes[player.id].text = newText;
@@ -255,11 +255,6 @@ class HomegamesDashboard extends Game {
     }
 
     handleKeyUp(player, key) {
-        console.log("THIS");
-        console.log(this);
-        console.log(player.id);
-        console.log(key);
-        console.log(this.keyCoolDowns);
         if (this.keyCoolDowns[player.id][key]) {
             clearTimeout(this.keyCoolDowns[player.id][key]);
             delete this.keyCoolDowns[player.id][key];

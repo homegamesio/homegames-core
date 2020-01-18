@@ -1,4 +1,4 @@
-const WebSocket = require("ws");
+const WebSocket = require('ws');
 
 class Player {
     constructor(ws) {
@@ -6,7 +6,7 @@ class Player {
         this.stateListeners = new Set();
         this.ws = ws;
         this.id = ws.id;
-        this.ws.on("message", this.handlePlayerInput.bind(this));
+        this.ws.on('message', this.handlePlayerInput.bind(this));
     }
 
     handlePlayerInput(msg) {
