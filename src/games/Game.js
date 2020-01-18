@@ -24,10 +24,6 @@ class Game {
     getRoot() {
         return this.root;
     }
-
-    initialize() {
-        console.log('INITTING');
-    }
 }
 
 module.exports = Game;
