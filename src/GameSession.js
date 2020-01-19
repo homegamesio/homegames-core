@@ -6,7 +6,6 @@ class GameSession {
         this.game = game;
         this.squisher = new Squisher(this.game);
         this.squisher.addListener(this);
-        this.keyCoolDowns = {};
         this.renderWidth = this.game.constructor.metadata ? this.game.constructor.metadata().res.width : 1280;
         this.renderHeight = this.game.constructor.metadata ? this.game.constructor.metadata().res.height : 720;
     }
@@ -20,8 +19,8 @@ class GameSession {
     addPlayer(player) {
         generateName().then(playerName => {
             player.name = playerName;
-            this.keyCoolDowns[player.id] = {};
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+
             player.receiveUpdate(this.squisher.squished);
             this.game.addPlayer(player);
             this.game.handleNewPlayer && this.game.handleNewPlayer(player);
