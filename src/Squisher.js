@@ -14,6 +14,11 @@ class Squisher {
         this.game && this.game.getRoot().addListener(this);
         this.listeners = new Set();
         this.game && this.update(this.game.getRoot());
+
+        if (this.game.tick) {
+            // TODO get this from metadata
+            setInterval(this.game.tick.bind(this.game), 20);
+        }
     }
 
     async initialize() {
