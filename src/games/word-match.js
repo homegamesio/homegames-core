@@ -2,7 +2,6 @@ const { Colors, GameNode } = require('squishjs');
 const dictionary = require('../common/util/dictionary');
 const Game = require('./Game');
 
-
 class WordMatch extends Game {
     static metadata() {
         return {
@@ -15,6 +14,7 @@ class WordMatch extends Game {
     }
 
     constructor() {
+        super();
         this.base = GameNode(Colors.CREAM, null, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
         this.savedNodeRoot = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 0, y: 0});
         this.playerList = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 0, y: 0});
