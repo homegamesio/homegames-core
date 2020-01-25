@@ -14,16 +14,16 @@ class MoveTest extends Game {
 
     constructor() {
         super();
-        this.base = gameNode(Colors.randomColor(), null, 
+        this.base = GameNode(Colors.randomColor(), null, 
             {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
 
         this.keysDown = {};
 
-        this.mover1 = gameNode(Colors.randomColor(), function() {
+        this.mover1 = GameNode(Colors.randomColor(), function() {
         }, {'x': 45, 'y': 43.5}, {'x': 10, 'y': 17});
 
         
-        this.mover2 = gameNode(Colors.randomColor(), function() {
+        this.mover2 = GameNode(Colors.randomColor(), function() {
         }, {'x': 20, 'y': 23.5}, {'x': 10, 'y': 17});
 
         this.base.addChild(this.mover1);

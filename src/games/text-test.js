@@ -1,12 +1,14 @@
-const { gameNode, Colors } = require('../common');
+const { GameNode, Colors } = require('squishjs');
+const Game = require('./Game');
 
-class TextTest {
+class TextTest extends Game {
     constructor() {
+        super();
         this.baseText = 'Hello, World!';
         this.count = 0;
-        this.base = gameNode(Colors.randomColor(), this.handleLayerClick.bind(this), 
+        this.base = GameNode(Colors.randomColor(), this.handleLayerClick.bind(this), 
             {'x': 0, 'y': 0}, {'x': 100, 'y': 100}, {'x': 50, 'y': 50, 'text': this.baseText});
-        this.playerCount = gameNode(Colors.BLACK, null, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 50, 'y': 25, 'text': ''});
+        this.playerCount = GameNode(Colors.BLACK, null, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 50, 'y': 25, 'text': ''});
         this.base.addChild(this.playerCount);
     }
 
