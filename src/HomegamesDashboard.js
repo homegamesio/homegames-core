@@ -164,12 +164,12 @@ class HomegamesDashboard extends Game {
                 
                 const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
 
-                const orText = GameNode(Colors.ORANGE, null, {x: 45, y: 35}, {x: 0, x: 0}, {x: 50, y: 40, text: otherSessionsText, size: 18}, null, player.id);
+                const orText = GameNode(Colors.ORANGE, null, {x: 45, y: 35}, {x: 0, y: 0}, {x: 50, y: 40, text: otherSessionsText, size: 18}, null, player.id);
                 gameInfoModal.addChild(orText);
                 gameInfoModal.addChild(playButton);
 
                 let sessionOptionXIndex = 20;
-                const sessionOptionYIndex = 50;
+                let sessionOptionYIndex = 50;
                 activeSessions.forEach(s => {
                     const sessionOption = GameNode(Colors.WHITE, (player) => {
                         this.joinSession(player, s);
@@ -179,7 +179,7 @@ class HomegamesDashboard extends Game {
 
                     if (sessionOptionXIndex >= 100) {
                         sessionOptionXIndex = 20;
-                        sessionYOptionIndex += 15;
+                        sessionOptionYIndex += 15;
                     }
                 });
                 
