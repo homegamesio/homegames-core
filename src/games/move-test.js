@@ -1,6 +1,6 @@
 const { GameNode, Colors } = require('squishjs');
 const Game = require('./Game');
-const collisions = require('../common/util/collision');
+const { checkCollisions } = require('../common/util');
 
 class MoveTest extends Game {
     static metadata() {
@@ -30,7 +30,6 @@ class MoveTest extends Game {
         this.base.addChild(this.mover1);
         this.base.addChild(this.mover2);
         this.activeMover = null;
-        this.collisions = {};
     }
 
     moveGuy(player, x, y) {
@@ -79,7 +78,7 @@ class MoveTest extends Game {
             }
         } 
 
-        const wouldBeCollisions = collisions.wouldCollide(this.base, {pos: {x: newX, y: newY}, size: player.size}, (node) => {
+        const wouldBeCollisions = checkCollisions(this.base, {pos: {x: newX, y: newY}, size: player.size}, (node) => {
             return node.id !== this.base.id && node.id !== player.id;
         });
 

@@ -1,5 +1,5 @@
 const { GameNode, Colors } = require('squishjs');
-const { charadesWord } = require('../common/util/charades-generator');
+const { charadesWord } = require('../common/util');
 const Game = require('./Game');
 
 class Clicktionary extends Game {

@@ -1,7 +1,7 @@
 const WebSocket = require('ws');
 const http = require('http');
 const assert = require('assert');
-const linkHelper = require('../common/util/link-helper');
+const linkHelper = require('./link-helper');
 const Player = require('../Player');
 const config = require('../../config');
 

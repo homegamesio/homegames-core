@@ -24,8 +24,8 @@ const collisionHelper = (node, nodeToCheck, filter, collisions = []) => {
    return collisions;
 };
 
-const wouldCollide = (root, node, filter = null) => {
+const checkCollisions = (root, node, filter = null) => {
     return collisionHelper(root, node, filter);
 }
 
-module.exports = { wouldCollide };
+module.exports = { checkCollisions };
