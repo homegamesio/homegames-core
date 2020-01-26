@@ -32,7 +32,7 @@ process.on('message', (msg) => {
         if (message.api) {
             if (message.api === 'getPlayers') {
                 process.send(JSON.stringify({
-                    'payload': Object.values(gameSession.game.players).map(p => { return {'ayy': p.id}; }),
+                    'payload': Object.values(gameSession.game.players).map(p => { return {'id': p.id, 'name': p.name}; }),
                     'requestId': message.requestId
                 }));
             }

@@ -57,7 +57,6 @@ class HomegamesDashboard extends Game {
 
         this.base = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 100, y: 100});
         this.sessions = {};
-        this.gameIds = {};
         this.requestCallbacks = {};
         this.requestIdCounter = 1;
         setInterval(this.heartbeat.bind(this), config.CHILD_SESSION_HEARTBEAT_INTERVAL);
@@ -73,15 +72,12 @@ class HomegamesDashboard extends Game {
 
     joinSession(player, session) {
         player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
-        //            for (const sessionIndex in activeSessions) {
-        //                const session = activeSessions[sessionIndex];
-        //                const sessionNode = gameNode(Colors.BLUE, (player) => {
-        //                    player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
-        //                }, {x: xIndex + 3, y: 25 + (sessionIndex * 6)}, {x: 5, y: 5}, {"text": "session", x: xIndex + 3, y: 25 + (sessionIndex * 6)});
-        //                this.base.addChild(sessionNode);
-        //            }
+    }
 
-
+    updateSessionInfo(sessionId) {
+        this.sessions[sessionId].getPlayers((players) => { 
+            this.sessions[sessionId].players = players;
+        });
     }
 
     startSession(player, gameKey) { 
@@ -111,13 +107,21 @@ class HomegamesDashboard extends Game {
             }
         });
 
+        const updateSessionInfo = () => {
+            this.updateSessionInfo(sessionId);
+        }
+
+        const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
+
         childSession.on('close', () => {
+            clearInterval(sesionInfoUpdateInterval);
             sessions[port] = null;
             delete this.sessions[sessionId];
             this.renderGameList();  
         });
         
         this.sessions[sessionId] = {
+            id: sessionId,
             game: gameKey,
             port: port,
             sendMessage: () => {
@@ -136,9 +140,10 @@ class HomegamesDashboard extends Game {
                 childSession.send(JSON.stringify({
                     'type': 'heartbeat'
                 }));
-            }
+            },
+            players: []
         };
-         
+
         this.renderGameList();
     }
     
@@ -173,7 +178,7 @@ class HomegamesDashboard extends Game {
                 activeSessions.forEach(s => {
                     const sessionOption = GameNode(Colors.WHITE, (player) => {
                         this.joinSession(player, s);
-                    }, {x: sessionOptionXIndex, y: sessionOptionYIndex}, {x: 10, y: 10}, {text: 'Session', x: sessionOptionXIndex + 3, y: sessionOptionYIndex + 3}, null, player.id);
+                    }, {x: sessionOptionXIndex, y: sessionOptionYIndex}, {x: 10, y: 10}, {text: 'Session ' + s.id + ': ' + s.players.length + ' players', x: sessionOptionXIndex + 3, y: sessionOptionYIndex + 3}, null, player.id);
                     gameInfoModal.addChild(sessionOption);
                     sessionOptionXIndex += 15;
 
