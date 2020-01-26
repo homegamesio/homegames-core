@@ -69,7 +69,7 @@ class WordMatch {
             if (!this.scores[player.id]) {
                 this.scores[player.id] = 0;
             }
-            this.scores[player.id] = this.scores[player.id] + 1; 
+            this.scores[player.id] = this.scores[player.id] + 1;
         }
     }
 
@@ -86,7 +86,7 @@ class WordMatch {
                 this.clearTable();
                 let resultOneText = Object.values(this.responseBoxes)[0].text.text;
                 let resultTwoText = Object.values(this.responseBoxes)[1].text.text;
-                
+
                 let resultOne = gameNode(colors.WHITE, null, {x: 20, y: 30}, {x: 20, y: 20}, {text: resultOneText, x: 25, y: 35});
                 let resultTwo = gameNode(colors.WHITE, null, {x: 60, y: 30}, {x: 20, y: 20}, {text: resultTwoText, x: 65, y: 35});
                 this.base.addChild(resultOne);
@@ -116,7 +116,7 @@ class WordMatch {
                         }
                         if (totalVotes == Object.keys(this.players).length) {
                             if ((votes['yes'] ? votes['yes'].size : 0) > (votes['no'] ? votes['no'].size : 0)) {
-                                this.grantPlayerPoints(); 
+                                this.grantPlayerPoints();
                             } else {
                                 console.log("it's a no from me dog");
                             }
@@ -154,12 +154,12 @@ class WordMatch {
         this.updatePlayerList();
         dictionary.random().then(word1 => {
             dictionary.random().then(word2 => {
-                let word1Node = gameNode(colors.WHITE, null, 
+                let word1Node = gameNode(colors.WHITE, null,
                     {x: 10, y: 45},
                     {x: 20, y: 20},
                     {text: word1, x: 20 , y: 53}
                 );
-                let word2Node = gameNode(colors.WHITE, null, 
+                let word2Node = gameNode(colors.WHITE, null,
                     {x: 70, y: 45},
                     {x: 20, y: 20},
                     {text: word2, x: 80, y: 53}
@@ -205,7 +205,7 @@ class WordMatch {
                         null,
                         player.id
                     );
-                    
+
                     this.playerReadyButtons[player.id] = gameNode(
                         colors.RED,
                         toggleReady,
@@ -218,7 +218,7 @@ class WordMatch {
 
                     this.responseBoxes[player.id].editing = true;
                     this.playerReadyButtons[player.id].ready = false;
-    
+
                     this.base.addChild(this.playerReadyButtons[player.id]);
                     this.base.addChild(this.responseBoxes[player.id]);
                 }
@@ -238,7 +238,7 @@ class WordMatch {
         if (!this.keyCoolDowns[player.id] || !this.keyCoolDowns[player.id][key]) {
             let newText = this.responseBoxes[player.id].text;
             if (newText.text.length > 0 && key === 'Backspace') {
-                newText.text = newText.text.substring(0, newText.text.length - 1); 
+                newText.text = newText.text.substring(0, newText.text.length - 1);
             } else if(key !== 'Backspace') {
                 newText.text = newText.text + key;
             }
@@ -278,7 +278,7 @@ class WordMatch {
             this.players[player.id].name = 'butt';
             this.updatePlayerList();
         };
-        
+
         let infoNode = gameNode(
             colors.CREAM,
             toggleNameEdit,
