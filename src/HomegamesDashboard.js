@@ -114,7 +114,7 @@ class HomegamesDashboard extends Game {
         const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
 
         childSession.on('close', () => {
-            clearInterval(sesionInfoUpdateInterval);
+            clearInterval(sessionInfoUpdateInterval);
             sessions[port] = null;
             delete this.sessions[sessionId];
             this.renderGameList();  
