@@ -76,15 +76,10 @@ class Draw extends Game {
         this.board.addChild(resetButton);
     }
 
-    logPlayerCount() {
-    }
-
     handleNewPlayer() {
-        this.logPlayerCount();
     }
 
     handlePlayerDisconnect() {
-        this.logPlayerCount();
     }
 
     getAssets() {

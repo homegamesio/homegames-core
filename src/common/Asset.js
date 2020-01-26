@@ -12,7 +12,6 @@ class Asset {
         this.sourceType = sourceType;
         this.info = info;
         this.data = data;
-        this.done = false;
     }
 
     download(uri) {
@@ -44,14 +43,8 @@ class Asset {
         });
     }
 
-    saveBinaryFile(path, data) {
-        fs.writeFileSync(path, data, 'binary');
-        this.done = true;
-        this.data = fs.readFileSync(path);
-    }
-
     getData() {
-        if (this.done) {
+        if (this.data) {
             return this.data;
         }
 
@@ -61,10 +54,7 @@ class Asset {
                 this.done = true;
                 return payload;
             });
-        } else if (this.sourceType === 'file') {
-            this.saveBinaryFile('testthing', this.data);
-            return this.data;
-        }
+        } 
     }
 }
 

@@ -26,8 +26,7 @@ class NameTest extends Game {
     handleNewPlayer(player) {
         
         this.players[player.id] = player;        
-        const playerName = 'ayy lmao ' + player.id;
-        const infoNode = GameNode(Colors.randomColor(), null, {x: 20, y: 20}, {x: 20, y: 20}, {text: playerName, x: 25, y: 25}, null, player.id);
+        const infoNode = GameNode(Colors.randomColor(), null, {x: 20, y: 20}, {x: 20, y: 20}, {text: player.name || 'Unknown', x: 25, y: 25}, null, player.id);
         this.infoNodes[player.id] = infoNode;
         this.base.addChild(infoNode);
     }
