@@ -7,6 +7,8 @@ const Asset = require('./common/Asset');
 const games = require('./games');
 const Game = require('./games/Game');
 
+const { ExpiringSet } = require('./common/util');
+
 const config = require('../config');
 
 const sessions = {};
@@ -41,7 +43,7 @@ class HomegamesDashboard extends Game {
         this.assets = {};
         this.playerNodes = {};
         this.playerEditStates = {};
-        this.keyCoolDowns = {};
+        this.keyCoolDowns = new ExpiringSet();
         this.modals = {};
         Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
             this.assets[key] = new Asset('url', {
@@ -146,63 +148,63 @@ class HomegamesDashboard extends Game {
 
         this.renderGameList();
     }
+
+    onGameOptionClick(player, gameKey) {
+        const activeSessions = Object.values(this.sessions).filter(s => s.game === gameKey);
+        const gameInfoModal = GameNode(Colors.ORANGE, (player) => {
+                
+        }, {x: 5, y: 5}, {x: 90, y: 90}, {text: gameKey, x: 50, y: 10, size: 20}, null, player.id);
+                
+        const playButton = GameNode(Colors.GREEN, (player) => {
+        
+            this.startSession(player, gameKey);
+        
+        }, {x: 42.5, y: 25}, {x: 15, y: 10}, {text: 'Create Session', x: 50, y: 29, size: 18}, null, player.id);
+        
+        const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
+
+        const orText = GameNode(Colors.ORANGE, null, {x: 45, y: 35}, {x: 0, y: 0}, {x: 50, y: 40, text: otherSessionsText, size: 18}, null, player.id);
+        gameInfoModal.addChild(orText);
+        gameInfoModal.addChild(playButton);
+
+        let sessionOptionXIndex = 20;
+        let sessionOptionYIndex = 50;
+        activeSessions.forEach(s => {
+            const sessionOption = GameNode(Colors.WHITE, (player) => {
+                this.joinSession(player, s);
+            }, {x: sessionOptionXIndex, y: sessionOptionYIndex}, {x: 10, y: 10}, {text: 'Session ' + s.id + ': ' + s.players.length + ' players', x: sessionOptionXIndex + 3, y: sessionOptionYIndex + 3}, null, player.id);
+            gameInfoModal.addChild(sessionOption);
+            sessionOptionXIndex += 15;
+
+            if (sessionOptionXIndex >= 100) {
+                sessionOptionXIndex = 20;
+                sessionOptionYIndex += 15;
+            }
+        });
+        
+        const closeModalButton = GameNode(Colors.ORANGE, (player) => {
+        
+            delete this.modals[player.id];
+            
+            this.base.removeChild(gameInfoModal.id);
+        
+        }, {x: 6, y: 7}, {x: 4, y: 8}, {text: 'X', x: 8, y: 8, size: 60}, null, player.id);
+        
+        this.modals[player.id] = gameInfoModal;
+        
+        gameInfoModal.addChild(closeModalButton);
+        
+        this.base.addChild(gameInfoModal);
+    }
     
     renderGameList() {
         let xIndex = 5;
         let yIndex = 10;
         this.base.clearChildren();
         for (const key in games) {
-            const activeSessions = Object.values(this.sessions).filter(s => s.game === key);
-
             const assetKey = games[key].metadata && games[key].metadata().thumbnail ? key : 'default';
-            const gameOption = GameNode(Colors.CREAM, (player) => {
-
-                const gameInfoModal = GameNode(Colors.ORANGE, (player) => {
-                
-                }, {x: 5, y: 5}, {x: 90, y: 90}, {text: key, x: 50, y: 10, size: 20}, null, player.id);
-                
-                const playButton = GameNode(Colors.GREEN, (player) => {
-                
-                    this.startSession(player, key);
-                
-                }, {x: 42.5, y: 25}, {x: 15, y: 10}, {text: 'Create Session', x: 50, y: 29, size: 18}, null, player.id);
-                
-                const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
-
-                const orText = GameNode(Colors.ORANGE, null, {x: 45, y: 35}, {x: 0, y: 0}, {x: 50, y: 40, text: otherSessionsText, size: 18}, null, player.id);
-                gameInfoModal.addChild(orText);
-                gameInfoModal.addChild(playButton);
-
-                let sessionOptionXIndex = 20;
-                let sessionOptionYIndex = 50;
-                activeSessions.forEach(s => {
-                    const sessionOption = GameNode(Colors.WHITE, (player) => {
-                        this.joinSession(player, s);
-                    }, {x: sessionOptionXIndex, y: sessionOptionYIndex}, {x: 10, y: 10}, {text: 'Session ' + s.id + ': ' + s.players.length + ' players', x: sessionOptionXIndex + 3, y: sessionOptionYIndex + 3}, null, player.id);
-                    gameInfoModal.addChild(sessionOption);
-                    sessionOptionXIndex += 15;
-
-                    if (sessionOptionXIndex >= 100) {
-                        sessionOptionXIndex = 20;
-                        sessionOptionYIndex += 15;
-                    }
-                });
-                
-                const closeModalButton = GameNode(Colors.ORANGE, (player) => {
-                
-                    delete this.modals[player.id];
-                    
-                    this.base.removeChild(gameInfoModal.id);
-                
-                }, {x: 6, y: 7}, {x: 4, y: 8}, {text: 'X', x: 8, y: 8, size: 60}, null, player.id);
-                
-                this.modals[player.id] = gameInfoModal;
-                
-                gameInfoModal.addChild(closeModalButton);
-                
-                this.base.addChild(gameInfoModal);
-
-            }, {x: xIndex, y: yIndex}, {x: 10, y: 10}, {'text': (games[key].metadata && games[key].metadata().name || key) + '', x: xIndex + 5, y: yIndex + 12}, {
+            const gameOption = GameNode(Colors.CREAM, (player) => this.onGameOptionClick(player, key), {x: xIndex, y: yIndex}, 
+                {x: 10, y: 10}, {'text': (games[key].metadata && games[key].metadata().name || key) + '', x: xIndex + 5, y: yIndex + 12}, {
                 [assetKey]: {
                     pos: {x: xIndex, y: yIndex},
                     size: {x: 10, y: 10}
@@ -244,7 +246,9 @@ class HomegamesDashboard extends Game {
             return;
         }
 
-        if (!this.keyCoolDowns[player.id] || !this.keyCoolDowns[player.id][key]) {
+        const keyCacheId = this.generateKeyCacheId(player, key);
+
+        if (!this.keyCoolDowns.has(keyCacheId)) {
             const newText = this.playerNodes[player.id].text;
             if (newText.text.length > 0 && key === 'Backspace') {
                 newText.text = newText.text.substring(0, newText.text.length - 1); 
@@ -252,17 +256,19 @@ class HomegamesDashboard extends Game {
                 newText.text = newText.text + key;
             }
             this.playerNodes[player.id].text = newText;
-            this.keyCoolDowns[player.id][key] = setTimeout(() => {
-                clearTimeout(this.keyCoolDowns[player.id][key]);
-                delete this.keyCoolDowns[player.id][key];
-            }, 200);
+            this.keyCoolDowns.put(keyCacheId, 200);
         }
     }
 
+    generateKeyCacheId(player, key) {
+        return player.id + ' ' + key;
+    }
+
     handleKeyUp(player, key) {
-        if (this.keyCoolDowns[player.id][key]) {
-            clearTimeout(this.keyCoolDowns[player.id][key]);
-            delete this.keyCoolDowns[player.id][key];
+        const keyCacheId = this.generateKeyCacheId(player, key);
+
+        if (this.keyCoolDowns.has(keyCacheId)) {
+            this.keyCoolDowns.remove(keyCacheId);
         }
     }
 
