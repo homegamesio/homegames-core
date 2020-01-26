@@ -1,5 +1,7 @@
-const ASSET_TYPE = 1;
 const { squish } = require('squishjs');
+const config = require('../config');
+
+const ASSET_TYPE = 1;
 
 class Squisher {
     constructor(game) {
@@ -16,8 +18,8 @@ class Squisher {
         this.game && this.update(this.game.getRoot());
 
         if (this.game.tick) {
-            // TODO get this from metadata
-            setInterval(this.game.tick.bind(this.game), 20);
+            const tickRate = this.gameMetadata && this.gameMetadata.tickRate ? this.gameMetadata.tickRate : config.DEFAULT_TICK_RATE;
+            setInterval(this.game.tick.bind(this.game), 1000 / tickRate);
         }
     }
 
