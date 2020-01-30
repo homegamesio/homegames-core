@@ -90,7 +90,7 @@ class SpriteTest extends Game {
         this.inputCooldowns[player.id] = setTimeout(function() {
             clearTimeout(this.inputCooldowns[player.id]);
             delete this.inputCooldowns[player.id];
-        }.bind(this), 150);
+        }.bind(this), 50);
 
         const dancer = this.dancers[player.id];
         const frameMap = {
