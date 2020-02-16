@@ -17,8 +17,13 @@ class GameThing extends Game {
 
     constructor() {
         super();
-        this.base = GameNode(Colors.BLUE, (player) => {
-
+        this.base = GameNode(Colors.BLUE, (player, x, y) => {
+            x *= 100;
+            y *= 100;
+            const newThing = GameNode(Colors.BLUE, (player) => {
+                console.log('activate super');
+            }, {x, y}, {x: 10, y: 10}, null, {triangle: {pos: {x, y}, size: {x: 10, y: 10}}});
+            this.base.addChild(newThing);
         }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
         
         this.misterSticksFrames = {
@@ -27,7 +32,10 @@ class GameThing extends Game {
         };
 
         this.npcFrames = {
-            walker: 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/walkerthing.png'
+            walker: 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/walkerthing.png',
+            square: 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/square.png',
+            triangle: 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/triangle.png',
+            hexagon: 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/hexagon.png'
         };
         
         const allAssets = Object.assign(this.misterSticksFrames, this.npcFrames);
@@ -44,7 +52,7 @@ class GameThing extends Game {
 
         this.walkerGuy = GameNode(null, (player) => {
 
-        }, {x: 5, y: 5}, {x: 10, y: 10}, null, {walker: {pos: {x: 5, y: 5}, size: {x: 10, y: 10}}});
+        }, {x: 5, y: 5}, {x: 10, y: 10}, null, {hexagon: {pos: {x: 5, y: 5}, size: {x: 10, y: 10}}});
         this.base.addChild(this.walkerGuy);
         this.base.addChild(this.misterSticks);
     }
@@ -53,14 +61,10 @@ class GameThing extends Game {
         const guyCollisions = checkCollisions(this.base, this.misterSticks, (node) => node.id !== this.misterSticks.id && node.id !== this.base.id);
         if (guyCollisions.length > 0) {
             if (this.misterSticks.isKickin) {
-                const currentWalkerAsset = Object.values(this.walkerGuy.asset)[0];
-                const newPos = this.walkerGuy.pos;
-                
-                currentWalkerAsset.pos.x = (currentWalkerAsset.pos.x + 40) % 100;
-                newPos.x = (newPos.x + 40) % 100;
-
-                this.walkerGuy.pos = newPos;
-//                this.walkerGuy.asset = currentWalkerAsset;
+                for (let nodeIndex in guyCollisions) {
+                    const node = guyCollisions[nodeIndex];
+                    this.base.removeChild(node.id);
+                }
             } else {
                 Object.values(this.misterSticks.asset)[0].pos = {
                     x: 40,
@@ -68,6 +72,44 @@ class GameThing extends Game {
                 };
                 this.misterSticks.pos = {x: 40, y: 40};
             }
+        }
+
+        const walkerVelocity = .2;
+        const xDiff = this.misterSticks.pos.x - this.walkerGuy.pos.x;
+        const yDiff = this.misterSticks.pos.y - this.walkerGuy.pos.y;
+
+        // player to the right
+        if (xDiff > 0) {
+            const newPos = this.walkerGuy.pos;
+            newPos.x += walkerVelocity;
+            const newAsset = this.walkerGuy.asset;
+            Object.values(newAsset)[0].pos.x += walkerVelocity;
+            this.walkerGuy.pos = newPos;
+            this.walkerGuy.asset = newAsset;
+        } else {
+            const newPos = this.walkerGuy.pos;
+            newPos.x -= walkerVelocity;
+            const newAsset = this.walkerGuy.asset;
+            Object.values(newAsset)[0].pos.x -= walkerVelocity;
+            this.walkerGuy.pos = newPos;
+            this.walkerGuy.asset = newAsset;
+        }
+
+        // player below
+        if (yDiff > 0) {
+            const newPos = this.walkerGuy.pos;
+            newPos.y += walkerVelocity;
+            const newAsset = this.walkerGuy.asset;
+            Object.values(newAsset)[0].pos.y += walkerVelocity;
+            this.walkerGuy.pos = newPos;
+            this.walkerGuy.asset = newAsset;
+        } else {
+            const newPos = this.walkerGuy.pos;
+            newPos.y -= walkerVelocity;
+            const newAsset = this.walkerGuy.asset;
+            Object.values(newAsset)[0].pos.y -= walkerVelocity;
+            this.walkerGuy.pos = newPos;
+            this.walkerGuy.asset = newAsset;
         }
     }
 
@@ -97,16 +139,16 @@ class GameThing extends Game {
 
         if (key == 'd' || key == 'ArrowRight') {
             moveDir = 'x';
-            moveDis = .1;
+            moveDis = .5;
         } else if (key == 'w' || key == 'ArrowUp') {
             moveDir = 'y';
-            moveDis = -.1;
+            moveDis = -.5;
         } else if (key == 'a' || key == 'ArrowLeft') {
             moveDir = 'x';
-            moveDis = -.1;
+            moveDis = -.5;
         } else if (key == 's' || key == 'ArrowDown') {
             moveDir = 'y';
-            moveDis = .1;
+            moveDis = .5;
         } else if (key == ' ') {
             const currentAsset = Object.values(this.misterSticks.asset)[0];
             const newAsset = {
