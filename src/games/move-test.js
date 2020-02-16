@@ -90,7 +90,7 @@ class MoveTest extends Game {
     handleKeyDown(player, key) {
         this.keysDown[key] = true;
 
-        if (key == 'ArrowUp') {
+        if (key === 'ArrowUp') {
             this.movePlayer(this.mover1, 'up', .2);
         }
         
