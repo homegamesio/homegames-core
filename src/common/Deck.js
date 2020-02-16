@@ -14,7 +14,7 @@ class Card {
     }
 
     toString() {
-        return this.name + ' of ' + this.suit;
+        return `${this.name}  of ${this.suit}`;
     }
 
 }
