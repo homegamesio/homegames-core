@@ -76,12 +76,6 @@ class Draw extends Game {
         this.board.addChild(resetButton);
     }
 
-    handleNewPlayer() {
-    }
-
-    handlePlayerDisconnect() {
-    }
-
     getAssets() {
         return this.assets;
     }
