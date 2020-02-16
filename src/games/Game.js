@@ -5,11 +5,11 @@ class Game {
         this.root = null;
     }
 
-    addPlayer(player) {
+    _hgAddPlayer(player) {
         this.players[player.id] = player;
     }
 
-    removePlayer(playerId) {
+    _hgRemovePlayer(playerId) {
         delete this.players[playerId];
     }
 

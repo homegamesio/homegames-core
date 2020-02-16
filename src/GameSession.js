@@ -22,7 +22,7 @@ class GameSession {
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
             player.receiveUpdate(this.squisher.squished);
-            this.game.addPlayer(player);
+            this.game._hgAddPlayer(player);
             this.game.handleNewPlayer && this.game.handleNewPlayer(player);
             player.addInputListener(this);
         });
@@ -31,7 +31,7 @@ class GameSession {
 
     handlePlayerDisconnect(playerId) {
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
-        this.game.removePlayer(playerId);
+        this.game._hgRemovePlayer(playerId);
     }
 
     initialize(cb) {
