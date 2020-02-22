@@ -1,7 +1,19 @@
-const { Asset, GameNode, Colors, Deck } = require('../common');
+const { GameNode, Colors } = require('squishjs');
+const Game = require('./Game');
 
-class NameTest {
+class NameTest extends Game {
+    static metadata() {
+        return {
+            res: {
+                width: 1280,
+                height: 720
+            },
+            author: 'Joseph Garcia'
+        };
+    }
+
     constructor() {
+        super();
         this.playerCount = 0;
         this.players = {};
         this.infoNodes = {};
@@ -14,8 +26,7 @@ class NameTest {
     handleNewPlayer(player) {
         
         this.players[player.id] = player;        
-        let playerName = 'ayy lmao ' + player.id;
-        const infoNode = GameNode(Colors.randomColor(), null, {x: 20, y: 20}, {x: 20, y: 20}, {text: playerName, x: 25, y: 25}, null, player.id);
+        const infoNode = GameNode(Colors.randomColor(), null, {x: 20, y: 20}, {x: 20, y: 20}, {text: player.name || 'Unknown', x: 25, y: 25}, null, player.id);
         this.infoNodes[player.id] = infoNode;
         this.base.addChild(infoNode);
     }

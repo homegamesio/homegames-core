@@ -2,7 +2,7 @@ const https = require('https');
 const fs = require('fs');
 const config = require('../../../config');
 
-const DICT_FILE_PATH = config.ASSET_PATH + '/dictionary.txt';
+const DICT_FILE_PATH = config.ASSET_PATH + '/charades-words.txt';
 
 let words = [];
 
@@ -15,7 +15,7 @@ const generateList = async () => new Promise((resolve, reject) => {
         wordList = fs.readFileSync(DICT_FILE_PATH);
         resolve(JSON.parse(wordList));
     } else {
-        https.get('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt', (res) => {
+        https.get('https://homegamesio.s3-us-west-1.amazonaws.com/words.txt', (res) => {
             res.on('data', (d) => {
                 wordList = [ ...wordList, ...d.toString().split(/\r?\n/)];
             });
@@ -31,7 +31,7 @@ const generateList = async () => new Promise((resolve, reject) => {
     }
 });
 
-const dictionary = {
+const charadesWords = {
 
     init: async () => {
         if (words.length > 0) {
@@ -43,19 +43,19 @@ const dictionary = {
     },
     
     length: async () => {
-        const words = await dictionary.init();
+        const words = await charadesWords.init();
         return words.length;
     },
 
     get: async (index) => {
-        const words = await dictionary.init();
+        const words = await charadesWords.init();
         return words[index];
     },
 
     random: async () => {
-        const length = await dictionary.length();
-        return dictionary.get(Math.floor(Math.random() * length));
+        const length = await charadesWords.length();
+        return charadesWords.get(Math.floor(Math.random() * length));
     }
 };
 
-module.exports = dictionary;
+module.exports = charadesWords;

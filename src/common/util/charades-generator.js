@@ -1,8 +1,8 @@
-const dictionary = require('./dictionary');
+const dictionary = require('./charades-words');
 
-const generateName = async () => {
+const charadesWord = async () => {
     let name = '';
-    const nameLength = 2;
+    const nameLength = 1;
     for (let i = 0; i < nameLength; i++) {
 
         await dictionary.random().then(word => {
@@ -17,5 +17,5 @@ const generateName = async () => {
 };
 
 module.exports = {
-    generateName
+    charadesWord
 };

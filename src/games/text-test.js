@@ -1,36 +1,34 @@
-const gameNode = require("../GameNode");
-const { colors, randomColor } = require("../Colors");
+const { GameNode, Colors } = require('squishjs');
+const Game = require('./Game');
 
-class TextTest {
+class TextTest extends Game {
     constructor() {
-        this.baseText = "Hello, World!";
+        super();
+        this.baseText = 'Hello, World!';
         this.count = 0;
-        this.players = new Set();
-        this.base = gameNode(randomColor(), this.handleLayerClick.bind(this), 
-            {"x": 0, "y": 0}, {"x": 100, "y": 100}, {"x": 50, "y": 50, "text": this.baseText});
-        this.playerCount = gameNode(colors.BLACK, null, {"x": 0, "y": 0}, {"x": 0, "y": 0}, {"x": 50, "y": 25, "text": this.players.size + " players"});
+        this.base = GameNode(Colors.randomColor(), this.handleLayerClick.bind(this), 
+            {'x': 0, 'y': 0}, {'x': 100, 'y': 100}, {'x': 50, 'y': 50, 'text': this.baseText});
+        this.playerCount = GameNode(Colors.BLACK, null, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 50, 'y': 25, 'text': ''});
         this.base.addChild(this.playerCount);
     }
 
     handleLayerClick() {
-        this.base.color = randomColor();
-        this.base.text.text = this.baseText + " " + ++this.count;
+        this.base.color = Colors.randomColor();
+        this.base.text.text = this.baseText + ' ' + ++this.count;
         this.base.text = this.base.text;
     }
 
-    handleNewPlayer(player) {
-        this.players.add(player);
+    handleNewPlayer() {
         this.updatePlayerCount();
     }
 
     updatePlayerCount() {
-        const playerText = this.players.size == 1 ? "player" : "players";
-        this.playerCount.text.text = this.players.size + " " + playerText;
+        const playerText = Object.values(this.players).length == 1 ? 'player' : 'players';
+        this.playerCount.text.text = Object.values(this.players).length + ' ' + playerText;
         this.playerCount.text = this.playerCount.text;
     }
 
-    handlePlayerDisconnect(player) {
-        this.players.delete(player);
+    handlePlayerDisconnect() {
         this.updatePlayerCount();
     }
 

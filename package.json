@@ -2,17 +2,20 @@
   "name": "homegames",
   "version": "0.4.20",
   "description": "Play games at home",
-  "main": "App.js",
   "directories": {
     "lib": "lib"
   },
+  "bin": "game_server.js",
+  "pkg": {
+    "assets": "src/**/*"
+  },
   "scripts": {
     "test": "npm run-script test",
-    "start": "node game_server.js& node app_server.js"
+    "start": "node game_server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/prosif/homegames.git"
+    "url": "git+https://github.com/homegamesio/homegames.git"
   },
   "keywords": [
     "homegames"
@@ -20,10 +23,11 @@
   "author": "Joseph Garcia",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/prosif/homegames/issues"
+    "url": "https://github.com/homegamesio/homegames/issues"
   },
-  "homepage": "https://github.com/prosif/homegames#readme",
+  "homepage": "https://github.com/homegamesio/homegames#readme",
   "dependencies": {
-    "ws": "^5.2.1"
+    "ws": "^5.2.1",
+    "squishjs": "^0.4.2"
   }
 }

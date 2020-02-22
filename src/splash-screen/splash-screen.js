@@ -1,21 +1,21 @@
-const gameNode = require("../GameNode");
-const Asset = require("../Asset");
-const { colors } = require("../Colors");
+const gameNode = require('../GameNode');
+const Asset = require('../Asset');
+const { colors } = require('../Colors');
 
 class SplashScreen {
     constructor() {
         this.assets = {
-            "splashScreen": new Asset("url", {
-                "location": "https://s3-us-west-1.amazonaws.com/homegamesio/images/splash_screen.png",
-                "type": "image"
+            'splashScreen': new Asset('url', {
+                'location': 'https://s3-us-west-1.amazonaws.com/homegamesio/images/splash_screen.png',
+                'type': 'image'
             }),
-            "logo": new Asset("url", {
-                "location": "https://s3-us-west-1.amazonaws.com/homegamesio/images/logo.png",
-                "type": "image"
+            'logo': new Asset('url', {
+                'location': 'https://s3-us-west-1.amazonaws.com/homegamesio/images/logo.png',
+                'type': 'image'
             }),
-            "clickSound": new Asset("url", {
-                "location": "http://www.noiseaddicts.com/samples_1w72b820/3740.mp3",
-                "type": "audio"
+            'clickSound': new Asset('url', {
+                'location': 'http://www.noiseaddicts.com/samples_1w72b820/3740.mp3',
+                'type': 'audio'
             })
         };
         
@@ -25,20 +25,20 @@ class SplashScreen {
             colors.PERRYWINKLE, 
             this.handleLayerClick.bind(this), 
             {
-                "x": 0, 
-                "y": 0
+                'x': 0, 
+                'y': 0
             }, 
             {
-                "x": 100, 
-                "y": 100
+                'x': 100, 
+                'y': 100
             },
             {
-                "x": 80,
-                "y": 10,
-                "text": this.clickCount
+                'x': 80,
+                'y': 10,
+                'text': this.clickCount
             },
             {
-                "splashScreen": {
+                'splashScreen': {
                     size: {
                         x: 45,
                         y: 45
@@ -55,16 +55,16 @@ class SplashScreen {
             colors.PERRYWINKLE, 
             this.handleLayerClick.bind(this), 
             {
-                "x": 0, 
-                "y": 0
+                'x': 0, 
+                'y': 0
             }, 
             {
-                "x": 20, 
-                "y": 20
+                'x': 20, 
+                'y': 20
             },
             null,
             {
-                "logo": {
+                'logo': {
                     size: {
                         x: 10,
                         y: 10
@@ -81,16 +81,16 @@ class SplashScreen {
             colors.PERRYWINKLE,
             null,
             {
-                "x": 0,
-                "y": 0
+                'x': 0,
+                'y': 0
             },
             {
-                "x": 0,
-                "y": 0
+                'x': 0,
+                'y': 0
             }, 
             null,
             {
-                "clickSound": {
+                'clickSound': {
                     size: {
                         x: 0,
                         y: 0
@@ -109,7 +109,7 @@ class SplashScreen {
 
     handleLayerClick() {
         this.clickCount++;
-        this.base.text = {"x": this.base.text.x, "y": this.base.text.y, text: this.clickCount + ""}; 
+        this.base.text = {'x': this.base.text.x, 'y': this.base.text.y, text: this.clickCount + ''}; 
     }
     
     getRoot() {

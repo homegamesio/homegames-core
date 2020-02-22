@@ -1,5 +1,5 @@
-const WebSocket = require("ws");
-const os = require("os");
+const WebSocket = require('ws');
+const os = require('os');
 
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();
@@ -7,7 +7,7 @@ const getLocalIP = () => {
 
     Object.keys(ifaces).forEach((ifname) => {
         ifaces[ifname].forEach((iface) => {
-            if ("IPv4" !== iface.family || iface.internal) {
+            if ('IPv4' !== iface.family || iface.internal) {
                 return;
             }
             localIP = localIP || iface.address;
@@ -18,18 +18,18 @@ const getLocalIP = () => {
 };
 
 const linkConnect = () => {
-    const client = new WebSocket("ws://www.homegames.link:7080");
+    const client = new WebSocket('ws://www.homegames.link:7080');
     
-    client.on("open", () => {
+    client.on('open', () => {
         const localIP = getLocalIP();
         client.send(localIP);
     });
     
-    client.on("error", (e) => {
+    client.on('error', (e) => {
         console.error(e);
     });
 
-    client.on("close", () => {
+    client.on('close', () => {
         clearTimeout(this.pingTimeout);
     });
 
