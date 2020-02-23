@@ -17,14 +17,24 @@ class GameThing extends Game {
 
     constructor() {
         super();
-        this.base = GameNode(Colors.BLUE, (player, x, y) => {
+        this.base1 = GameNode(Colors.BLUE, (player, x, y) => {
             x *= 100;
             y *= 100;
             const newThing = GameNode(Colors.BLUE, (player) => {
                 console.log('activate super');
             }, {x, y}, {x: 10, y: 10}, null, {triangle: {pos: {x, y}, size: {x: 10, y: 10}}});
-            this.base.addChild(newThing);
+            this.base1.addChild(newThing);
         }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
+
+        this.base2 = GameNode(Colors.GREEN, (player, x, y) => {
+            x *= 100;
+            y *= 100;
+            const newThing = GameNode(Colors.BLUE, (player) => {
+                console.log('activate super');
+            }, {x, y}, {x: 10, y: 10}, null, {square: {pos: {x, y}, size: {x: 10, y: 10}}});
+            this.base2.addChild(newThing);
+        }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
+ 
         
         this.misterSticksFrames = {
             idleLeft: 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/test1.png',
@@ -53,8 +63,9 @@ class GameThing extends Game {
         this.walkerGuy = GameNode(null, (player) => {
 
         }, {x: 5, y: 5}, {x: 10, y: 10}, null, {hexagon: {pos: {x: 5, y: 5}, size: {x: 10, y: 10}}});
-        this.base.addChild(this.walkerGuy);
-        this.base.addChild(this.misterSticks);
+        this.base1.addChild(this.walkerGuy);
+        this.base1.addChild(this.misterSticks);
+        this.base = this.base1;
     }
 
     tick() {
@@ -65,6 +76,7 @@ class GameThing extends Game {
                     const node = guyCollisions[nodeIndex];
                     this.base.removeChild(node.id);
                 }
+                this.base = this.base2;
             } else {
                 Object.values(this.misterSticks.asset)[0].pos = {
                     x: 40,
