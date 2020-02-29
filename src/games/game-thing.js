@@ -26,6 +26,45 @@ class GameThing extends Game {
             this.base1.addChild(newThing);
         }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
 
+        const getListHelper = (node, stuff) => {
+            stuff.push(node);
+            for (let childIndex in node.children) {
+                getListHelper(node.children[childIndex], stuff);
+            }
+        };
+
+        const getList = () => {
+            let stuff = [];
+            getListHelper(this.base1, stuff);
+            return stuff;
+        };
+
+        for (let i = 0; i < 5; i++) {
+            const list = getList();
+            const baseRoomIndex = Math.floor(Math.random() * list.length);
+
+            const room = GameNode(Colors.randomColor(), (player, x, y) => {
+                console.log('clicked');
+            }, {x: 0, y: 0}, {x: 100, y: 100}, null);
+            console.log(list[baseRoomIndex])
+            list[baseRoomIndex].addChild(room);
+
+            const directions = [['left', 'right'], ['right', 'left'], ['top', 'bottom'], ['bottom', 'top']];
+            const baseDirIndex = Math.floor(Math.random() * directions.length);
+            const dir = directions[baseDirIndex];
+            list[baseRoomIndex][dir[0]] = room;
+            room[dir[1]] = list[baseRoomIndex];
+        }
+
+//        this.map = {
+//            [this.base1.id]: {
+//                left: GameNode(Colors.randomColor(), null, {x: 0, y: 0}, {x: 100, y: 100}),
+//                right: 'idk right',
+//                up: 'idk up',
+//                down: 'idk down',
+//            }
+//        };
+
         this.base2 = GameNode(Colors.GREEN, (player, x, y) => {
             x *= 100;
             y *= 100;
@@ -35,7 +74,6 @@ class GameThing extends Game {
             this.base2.addChild(newThing);
         }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
  
-        
         this.misterSticksFrames = {
             idleLeft: 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/test1.png',
             kickRight: 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/test2.png'
@@ -70,13 +108,57 @@ class GameThing extends Game {
 
     tick() {
         const guyCollisions = checkCollisions(this.base, this.misterSticks, (node) => node.id !== this.misterSticks.id && node.id !== this.base.id);
+        let posX = this.misterSticks.pos.x;
+        let posY = this.misterSticks.pos.y;
+        if (posX <= 0 || posX >= 100 || posY <= 0 || posY >= 100) {
+            if (posX <= 0 && this.base.left) {
+                this.base = this.base.left;
+                this.base.addChild(this.misterSticks);
+                this.misterSticks.pos = {x: 50, y: 50};
+                const assetCopy = this.misterSticks.asset;
+                Object.values(assetCopy)[0].pos.x = 50;
+                Object.values(assetCopy)[0].pos.y = 50;
+                this.misterSticks.asset = assetCopy;
+            }
+            else if (posX >= 100 && this.base.right) {
+                this.base = this.base.right;
+                this.base.addChild(this.misterSticks);
+                this.misterSticks.pos = {x: 50, y: 50};
+                const assetCopy = this.misterSticks.asset;
+                Object.values(assetCopy)[0].pos.x = 50;
+                Object.values(assetCopy)[0].pos.y = 50;
+                this.misterSticks.asset = assetCopy;
+            }
+
+            else if (posY <= 0 && this.base.top) {
+                this.base = this.base.top;
+                this.base.addChild(this.misterSticks);
+                this.misterSticks.pos = {x: 50, y: 50};
+                const assetCopy = this.misterSticks.asset;
+                Object.values(assetCopy)[0].pos.x = 50;
+                Object.values(assetCopy)[0].pos.y = 50;
+                this.misterSticks.asset = assetCopy;
+            }
+            else if (posY >= 100 && this.base.bottom) {
+                this.base = this.base.bottom;
+                this.base.addChild(this.misterSticks);
+                this.misterSticks.pos = {x: 50, y: 50};
+                const assetCopy = this.misterSticks.asset;
+                Object.values(assetCopy)[0].pos.x = 50;
+                Object.values(assetCopy)[0].pos.y = 50;
+                this.misterSticks.asset = assetCopy;
+            }
+        }
+
+//        console.log(this.misterSticks.pos.x);
+//        console.log(this.misterSticks.pos.y);
         if (guyCollisions.length > 0) {
             if (this.misterSticks.isKickin) {
                 for (let nodeIndex in guyCollisions) {
                     const node = guyCollisions[nodeIndex];
                     this.base.removeChild(node.id);
                 }
-                this.base = this.base2;
+//                this.base = this.base2;
             } else {
                 Object.values(this.misterSticks.asset)[0].pos = {
                     x: 40,
