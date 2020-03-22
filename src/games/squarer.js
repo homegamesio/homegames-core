@@ -83,7 +83,8 @@ class Squarer extends Game {
         const color = randomColor(this.usedColors);
         this.usedColors.push(color);
         const defaultX = (this.playerArray.length * 10) + 5;
-        const square = GameNode(color, null, { x: defaultX, y: 95 }, this.defaultSize, null, null, player.id);
+        const square = GameNode(color, null, { x: defaultX, y: 95 }, this.defaultSize, null, null);
+        square.controllerID = player.id;
         square.defaultX = defaultX;
         square.score = 0;
         this.playerArray.push(square);
@@ -91,7 +92,7 @@ class Squarer extends Game {
     }
 
     handleKeyDown(player, key) {
-        const index = this.playerArray.findIndex(elem => elem.playerId === player.id );
+        const index = this.playerArray.findIndex(elem => elem.controllerID === player.id );
         const square = this.playerArray[index];
         if (!this.keyCoolDowns[player.id] || !this.keyCoolDowns[player.id][key]) {
             if (key === "ArrowUp" || key === "w") {
