@@ -19,7 +19,7 @@ class GameSession {
     addPlayer(player) {
         generateName().then(playerName => {
             player.name = playerName;
-            this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+            this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle, true);
 
             player.receiveUpdate(this.squisher.squished);
             this.game._hgAddPlayer(player);
