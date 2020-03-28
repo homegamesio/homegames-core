@@ -17,6 +17,8 @@ class GameThing extends Game {
 
     constructor() {
         super();
+        this.inputs = [];
+
         this.base1 = GameNode(Colors.BLUE, (player, x, y) => {
             x *= 100;
             y *= 100;
@@ -228,6 +230,11 @@ class GameThing extends Game {
     }
 
     handleKeyDown(player, key) {
+//        this.inputs.push(Date.now());
+//        if (this.inputs.length % 100 == 0) {
+//            console.log('got a hundy');
+//            console.log(this.inputs[this.inputs.length - 1] - this.inputs[this.inputs.length - 101]);
+//        }
         let moveDir;
         let moveDis;
 
