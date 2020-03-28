@@ -35,7 +35,7 @@ class Player {
     }
 
     receiveUpdate(update, forceSocket) {
-        if (!forceSocket && this.channel && update.length < 16 * 1000) {
+        if (!forceSocket && this.channel && update.length < 16 * 1000 && this.channel.readyState && this.channel.readyState === 'open') {
             this.channel.send(new Uint8ClampedArray(update));
         } else {
             this.ws.readyState === WebSocket.OPEN && this.ws.send(update);
