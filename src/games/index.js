@@ -10,7 +10,8 @@ const HomeButtonTest = require('./home-button-test');
 const Clicktionary = require('./clicktionary');
 const PerfTest = require('./perf-test');
 const Squarer = require('./squarer');
-const QuarantineSpecial = require('./quarantine');
+const QuarantineQuestions = require('./quarantine');
+const InputTest = require('./input-test');
 
 module.exports = {
     HomeButtonTest,
@@ -25,5 +26,6 @@ module.exports = {
     NameTest,
     TextTest,
     Squarer,
-    QuarantineSpecial
+    QuarantineQuestions,
+    InputTest
 };
