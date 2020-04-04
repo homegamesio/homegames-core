@@ -40,7 +40,12 @@ class Quarantine extends Game {
         const question = GameNode(Colors.RED, null, {x: 40, y: 10}, {x: 80, y: 10}, {text: 'This is a question', x: 50, y: 15, size: 50});
         const cardOne = GameNode(Colors.randomColor(), (player, x, y) => {
             this.answers[player.id] = cardOne.id;
-        }, {x: 5, y: 35}, {x: 40, y: 40}, {text: 'Option A', x: 25, y: 52, size: 36});
+        }, {x: 5, y: 35}, {x: 40, y: 40}, {text: 'Option A', x: 25, y: 52, size: 36}, null, null, {
+            shadow: {
+                color: Colors.BLACK,
+                blur: 12
+            }
+        });
 
         const cardTwo = GameNode(Colors.WHITE, (player, x, y) => {
             this.answers[player.id] = cardTwo.id;
