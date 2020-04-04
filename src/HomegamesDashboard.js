@@ -151,9 +151,7 @@ class HomegamesDashboard extends Game {
 
     onGameOptionClick(player, gameKey) {
         const activeSessions = Object.values(this.sessions).filter(s => s.game === gameKey);
-        const gameInfoModal = GameNode(Colors.ORANGE, (player) => {
-                
-        }, {x: 5, y: 5}, {x: 90, y: 90}, {text: gameKey, x: 50, y: 10, size: 20}, null, player.id);
+        const gameInfoModal = GameNode(Colors.ORANGE, null, {x: 5, y: 5}, {x: 90, y: 90}, {text: gameKey, x: 50, y: 10, size: 20}, null, player.id);
                 
         const playButton = GameNode(Colors.GREEN, (player) => {
         
