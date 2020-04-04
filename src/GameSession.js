@@ -4,6 +4,8 @@ const { generateName } = require('./common/util');
 class GameSession {
     constructor(game) {
         this.game = game;
+        // this is a hack
+        this.game.session = this;
         this.squisher = new Squisher(this.game);
         this.squisher.addListener(this);
         this.renderWidth = this.game.constructor.metadata ? this.game.constructor.metadata().res.width : 1280;
@@ -52,6 +54,16 @@ class GameSession {
             this.game.handleKeyDown && this.game.handleKeyDown(player, input.key);
         } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
+        } else if (input.type === 'input') {
+            const node = this.findNode(input.nodeId);
+            if (node && node.input) {
+                // hilarious
+                if (node.input.type === 'file') {
+                    node.input.oninput(Object.values(input.input));
+                } else {
+                    node.input.oninput(input.input);
+                }
+            }
         } else {
             console.log('Unknown input type: ' + input.type);
         }
@@ -69,6 +81,22 @@ class GameSession {
         if (clickedNode) {
             clickedNode.handleClick && clickedNode.handleClick(player, translatedX, translatedY);
         }
+    }
+
+    findNode(nodeId) {
+        return this.findNodeHelper(nodeId, this.game.getRoot());
+    }
+
+    findNodeHelper(nodeId, node, found = null) {
+        if (node.id === nodeId) {
+            found = node;
+        }
+
+        for (const i in node.children) {
+            found = this.findNodeHelper(nodeId, node.children[i], found);
+        }
+        
+        return found;
     }
 
     findClick(x, y, playerId = 0) {

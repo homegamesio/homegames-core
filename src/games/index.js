@@ -9,7 +9,8 @@ const WordMatch = require('./word-match');
 const HomeButtonTest = require('./home-button-test');
 const Clicktionary = require('./clicktionary');
 const PerfTest = require('./perf-test');
-const QuarantineSpecial = require('./quarantine');
+const QuarantineQuestions = require('./quarantine');
+const InputTest = require('./input-test');
 
 module.exports = {
     HomeButtonTest,
@@ -23,5 +24,6 @@ module.exports = {
     LayerTest,
     NameTest,
     TextTest,
-    QuarantineSpecial
+    QuarantineQuestions,
+    InputTest
 };
