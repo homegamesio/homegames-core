@@ -64,7 +64,7 @@ class Squarer extends Game {
             }
         }
 
-        for( let i = 55; i > 50 && i < 95; i+=5) {
+        for( let i = 55; i < 95; i+=5) {
             const tickRate = Math.ceil(250 + Math.random() * 100);
             let color = i % 2 ? GOLD : GREEN;
             for (let l = 0; l < this.level && l <= 9; l++) {
@@ -214,6 +214,18 @@ class Squarer extends Game {
             elem.defaultX = (i * 10) + 5
             elem.pos = {x: elem.defaultX, y: 95};
         });
+    }
+
+    close() {
+        this.playerArray.forEach(player => {
+            this.base.removeChild(player.id);
+        });
+        this.playerArray = [];
+        this.npc.forEach(npc => {
+            clearInterval(npc.interval);
+            this.base.removeChild(npc.id);
+        });
+        this.npc = [];
     }
 }
 
