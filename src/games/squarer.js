@@ -227,6 +227,13 @@ class Squarer extends Game {
         });
         this.npc = [];
     }
+
+    canAddPlayer() {
+        if (this.playerArray.length > 8) {
+            return false;
+        }
+        return true;
+    }
 }
 
 module.exports = Squarer;
