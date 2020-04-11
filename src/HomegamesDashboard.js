@@ -41,6 +41,8 @@ class HomegamesDashboard extends Game {
     constructor() {
         super();
         this.assets = {};
+        this.playerPositions = {};
+        this.gameListRoots = {};
         this.playerNodes = {};
         this.playerEditStates = {};
         this.keyCoolDowns = new ExpiringSet();
@@ -51,19 +53,37 @@ class HomegamesDashboard extends Game {
                 'type': 'image'
             });
         });
+        this.gameList = Object.values(games);
 
         this.assets['default'] = new Asset('url', {
             'location': config.DEFAULT_GAME_THUMBNAIL,
             'type': 'image'
         });
 
-        this.base = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 100, y: 100});
+        this.assets['logo'] = new Asset('url', {
+            'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
+            'type': 'image'
+        });
+
+        this.baseColor = [45, 88, 173, 255];
+        this.optionColor = [255, 149, 10, 255];
+        this.base = GameNode(this.baseColor, null, {x: 0, y: 0}, {x: 100, y: 100});
+        this.logoAsset = GameNode(this.baseColor, null, {x: 45, y: 5}, {x: 10, y: 10 * (16/9)}, null, {
+            'logo': {
+                pos: {
+                    x: 45, y: 3.5
+                },
+                size: {
+                    x: 10, y: 10 * 16/9
+                }
+            }
+        });
+ 
+        this.base.addChild(this.logoAsset);
         this.sessions = {};
         this.requestCallbacks = {};
         this.requestIdCounter = 1;
         setInterval(this.heartbeat.bind(this), config.CHILD_SESSION_HEARTBEAT_INTERVAL);
-
-        this.renderGameList();
     }
 
     heartbeat() {
@@ -119,7 +139,7 @@ class HomegamesDashboard extends Game {
             clearInterval(sessionInfoUpdateInterval);
             sessions[port] = null;
             delete this.sessions[sessionId];
-            this.renderGameList();  
+//            this.renderGameList();  
         });
         
         this.sessions[sessionId] = {
@@ -146,7 +166,7 @@ class HomegamesDashboard extends Game {
             players: []
         };
 
-        this.renderGameList();
+//        this.renderGameList();
     }
 
     onGameOptionClick(player, gameKey) {
@@ -195,48 +215,88 @@ class HomegamesDashboard extends Game {
         this.base.addChild(gameInfoModal);
     }
     
-    renderGameList() {
+    renderGameList(playerId) {
+        this.gameListRoots[playerId].clearChildren();
+        const barThing = GameNode(Colors.BLACK, (player, x, y) => {
+            if (y >= .50) {
+                if (this.playerPositions[playerId] < Object.values(games).length / 3) {
+                    this.playerPositions[playerId]++;
+                    this.renderGameList(playerId);
+                }
+            } else {
+                if (this.playerPositions[playerId] > 0) {
+                    this.playerPositions[playerId]--;
+                    this.renderGameList(playerId);
+                }
+            }
+        }, {x: 97, y: 2}, {x: 3.2, y: 96}, null, null, playerId);
+        this.gameListRoots[playerId].addChild(barThing);
         let xIndex = 5;
-        let yIndex = 10;
-        this.base.clearChildren();
+        let yIndex = 25;
+        const optionWidth = 26;
+        const optionHeight = 26;//# * (9/16);
+        const optionPaddingX = 6;
+        const optionPaddingY = 10;
+
+        const startGameIndex = this.playerPositions[playerId] * 3;
+
+        let gameIndex = 0;
         for (const key in games) {
+            if (gameIndex < startGameIndex) {
+                gameIndex++;
+                continue;
+            }
             const assetKey = games[key].metadata && games[key].metadata().thumbnail ? key : 'default';
-            const gameOption = GameNode(Colors.CREAM, (player) => this.onGameOptionClick(player, key), {x: xIndex, y: yIndex}, 
-                {x: 10, y: 10}, {'text': (games[key].metadata && games[key].metadata().name || key) + '', x: xIndex + 5, y: yIndex + 12}, {
-                [assetKey]: {
-                    pos: {x: xIndex, y: yIndex},
-                    size: {x: 10, y: 10}
+
+            const gameOption = GameNode(
+                this.optionColor, 
+                (player) => this.onGameOptionClick(player, key), 
+                {x: xIndex, y: yIndex}, 
+                {x: optionWidth, y: optionHeight}, 
+                {'text': (games[key].metadata && games[key].metadata().name || key) + '', x: xIndex + optionPaddingX, y: yIndex + optionPaddingY}, 
+                //{
+                 //   [assetKey]: {
+                 //       pos: {x: xIndex, y: yIndex},
+                 //       size: {x: optionWidth, y: optionHeight}
+                 //   }
+                //}, 
+                null,
+                playerId, 
+                {
+                    shadow: {
+                        color: Colors.BLACK,
+                        blur: 4
+                    }
                 }
-            }, null, {
-                shadow: {
-                    color: Colors.BLACK,
-                    blur: 4
-                }
-            });
+            );
 
-            const authorInfoNode = GameNode(Colors.CREAM, null, {
-                x: xIndex + 5, 
-                y: yIndex + 15
-            },
-            {
-                x: 10,
-                y: 10
-            },
-            {
-                text: 'by ' + (games[key].metadata && games[key].metadata()['author'] || 'Unknown Author'),
-                x: xIndex + 5,
-                y: yIndex + 15
-            });
+//            const authorInfoNode = GameNode(
+//                this.baseColor, 
+//                null, 
+//                {
+//                    x: xIndex + 5, 
+//                    y: yIndex + 15
+//                },
+//                {
+//                    x: 10,
+//                    y: 10
+//                },
+//                {
+//                    text: 'by ' + (games[key].metadata && games[key].metadata()['author'] || 'Unknown Author'),
+//                    x: xIndex + 5,
+//                    y: yIndex + 15
+//                }
+//            );
+//
+            xIndex += optionWidth + optionPaddingX;
 
-            xIndex += 15;
-
-            if (xIndex + 10 >= 100) {
-                yIndex += 25;
+            if (xIndex + optionWidth >= 100) {
+                yIndex += optionHeight + optionPaddingY;
                 xIndex = 5;
             }
 
-            this.base.addChild(gameOption);
-            this.base.addChild(authorInfoNode);
+            this.gameListRoots[playerId].addChild(gameOption);
+//            this.base.addChild(authorInfoNode);
         }
     }
 
@@ -277,15 +337,19 @@ class HomegamesDashboard extends Game {
 
     handleNewPlayer(player) {
         this.keyCoolDowns[player.id] = {};
-        const playerNameNode = GameNode(Colors.CREAM, (player) => {
-            this.playerEditStates[player.id] = !this.playerEditStates[player.id];
-            playerNameNode.color = this.playerEditStates[player.id] ? Colors.WHITE : Colors.CREAM;
-            if (!this.playerEditStates[player.id]) {
-                player.name = this.playerNodes[player.id].text.text;
-            }
-        }, {x: 2, y: 2}, {x: 5, y: 5}, {text: player.name || 'dat boi', x: 5, y: 5}, null, player.id);
-        this.playerNodes[player.id] = playerNameNode;
-        this.base.addChild(playerNameNode);
+//        const playerNameNode = GameNode(this.baseColor, (player) => {
+//            this.playerEditStates[player.id] = !this.playerEditStates[player.id];
+//            playerNameNode.color = this.playerEditStates[player.id] ? Colors.WHITE : this.baseColor;
+//            if (!this.playerEditStates[player.id]) {
+//                player.name = this.playerNodes[player.id].text.text;
+//            }
+//        }, {x: 2, y: 2}, {x: 5, y: 5}, {text: player.name || 'dat boi', x: 5, y: 5}, null, player.id);
+//        this.playerNodes[player.id] = playerNameNode;
+//        this.base.addChild(playerNameNode);
+        this.gameListRoots[player.id] = GameNode(this.baseColor, null, {x: 0, y: 0}, {x: 0, y: 0});
+        this.base.addChild(this.gameListRoots[player.id]);
+        this.playerPositions[player.id] = 0;
+        this.renderGameList(player.id);
     }
 
     handlePlayerDisconnect(playerId) {
