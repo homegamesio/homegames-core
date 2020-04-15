@@ -93,9 +93,9 @@ class InputTest extends Game {
         return this.base;
     }
 
-    getAssets() {
-        return this.assets;
-    }
+//    getAssets() {
+//        return this.assets;
+//    }
 }
 
 module.exports = InputTest;

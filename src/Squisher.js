@@ -1,5 +1,6 @@
 const { squish } = require('squishjs');
 const config = require('../config');
+const HomegamesRoot = require('./HomegamesRoot');
 
 const ASSET_TYPE = 1;
 
@@ -11,11 +12,12 @@ class Squisher {
         this.height = this.gameMetadata ? this.gameMetadata.res.height : 720;
 
         this.ids = new Set();
-
+        this.hgRoot = new HomegamesRoot(game);
         this.game = game;
-        this.game && this.game.getRoot().addListener(this);
         this.listeners = new Set();
-        this.game && this.update(this.game.getRoot());
+        this.hgRoot.getRoot().addListener(this);
+        this.game && this.game.getRoot().addListener(this);
+        this.game && this.update(this.hgRoot.getRoot());
 
         if (this.game.tick) {
             const tickRate = this.gameMetadata && this.gameMetadata.tickRate ? this.gameMetadata.tickRate : config.DEFAULT_TICK_RATE;
@@ -24,7 +26,10 @@ class Squisher {
     }
 
     async initialize() {
-        const gameAssets = this.game.getAssets ? this.game.getAssets() : [];
+        const gameAssets = this.game.getAssets ? this.game.getAssets() || {} : {};
+        if (this.hgRoot.getAssets()) {
+            Object.assign(gameAssets, this.hgRoot.getAssets());
+        }
         
         let assetBundleSize = 0;
 
@@ -90,7 +95,8 @@ class Squisher {
 
     handleStateChange(node) {
         // todo: fix this
-        this.update(this.game.getRoot());
+        console.log('this is happening bruv');
+        this.update(this.hgRoot.getRoot());//game.getRoot());
         for (const listener of this.listeners) {
             listener.handleSquisherUpdate(this.squished);
         }
