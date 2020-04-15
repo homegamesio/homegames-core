@@ -68,10 +68,10 @@ class HomegamesDashboard extends Game {
         this.baseColor = [45, 88, 173, 255];
         this.optionColor = [255, 149, 10, 255];
         this.base = GameNode(this.baseColor, null, {x: 0, y: 0}, {x: 100, y: 100});
-        this.logoAsset = GameNode(this.baseColor, null, {x: 45, y: 5}, {x: 10, y: 10 * (16/9)}, null, {
+        this.logoAsset = GameNode(this.baseColor, null, {x: 43, y: 5}, {x: 10, y: 10 * (16/9)}, null, {
             'logo': {
                 pos: {
-                    x: 45, y: 3.5
+                    x: 44, y: 3.5
                 },
                 size: {
                     x: 10, y: 10 * 16/9
@@ -170,37 +170,115 @@ class HomegamesDashboard extends Game {
     }
 
     onGameOptionClick(player, gameKey) {
+        const modalColor = [12, 176, 80, 255];
         const activeSessions = Object.values(this.sessions).filter(s => s.game === gameKey);
-        const gameInfoModal = GameNode(Colors.ORANGE, null, {x: 5, y: 5}, {x: 90, y: 90}, {text: games[gameKey].metadata && games[gameKey].metadata().name || gameKey, x: 50, y: 10, size: 20}, null, player.id);
+        const gameInfoModal = GameNode(
+            modalColor, 
+            null, 
+            {x: 5, y: 5}, 
+            {x: 90, y: 90}, 
+            {text: games[gameKey].metadata && games[gameKey].metadata().name || gameKey, x: 50, y: 10, size: 20}, 
+            null, 
+            player.id, 
+            {
+                shadow: {
+                    color: Colors.BLACK,
+                    blur: 6
+                }
+            }
+        );
                 
-        const playButton = GameNode(Colors.GREEN, (player) => {
-        
-            this.startSession(player, gameKey);
-        
-        }, {x: 42.5, y: 25}, {x: 15, y: 10}, {text: 'Create Session', x: 50, y: 29, size: 18}, null, player.id);
+        const playButton = GameNode(
+            [251, 255, 3, 255], 
+            (player) => {
+                this.startSession(player, gameKey);
+            }, 
+            {x: 15, y: 50}, 
+            {x: 20, y: 20}, 
+            {text: 'Create Session', x: 25, y: 58.5, size: 18}, 
+            null, 
+            player.id, 
+            {
+                shadow: {
+                    color: Colors.BLACK,
+                    blur: 6
+                }
+            }
+        );
         
         const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
 
-        const orText = GameNode(Colors.ORANGE, null, {x: 45, y: 35}, {x: 0, y: 0}, {x: 50, y: 40, text: otherSessionsText, size: 18}, null, player.id);
+        const orText = GameNode(modalColor, null, {x: 65, y: 35}, {x: 0, y: 0}, {x: 70, y: 45, text: otherSessionsText, size: 18}, null, player.id);
+
+        const authorInfoNode = GameNode(
+            modalColor, 
+            null, 
+            {
+                x: 50, 
+                y: 20 
+            },
+            {
+                x: 10,
+                y: 10
+            },
+            {
+                text: 'by ' + (games[gameKey].metadata && games[gameKey].metadata()['author'] || 'Unknown Author'),
+                x: 50,
+                y: 16,
+                size: 18
+            }
+        );
+
+        const descriptionNode = GameNode(
+            modalColor, 
+            null, 
+            {
+                x: 50, 
+                y: 30 
+            },
+            {
+                x: 10,
+                y: 10
+            },
+            {
+                text: (games[gameKey].metadata && games[gameKey].metadata()['description'] || 'A description goes here'),
+                x: 50,
+                y: 25,
+                size: 18
+            }
+        )
+
+        gameInfoModal.addChild(authorInfoNode);
+        gameInfoModal.addChild(descriptionNode);
+
         gameInfoModal.addChild(orText);
         gameInfoModal.addChild(playButton);
 
-        let sessionOptionXIndex = 20;
+        let sessionOptionXIndex = 57;
         let sessionOptionYIndex = 50;
         activeSessions.forEach(s => {
-            const sessionOption = GameNode(Colors.WHITE, (player) => {
-                this.joinSession(player, s);
-            }, {x: sessionOptionXIndex, y: sessionOptionYIndex}, {x: 10, y: 10}, {text: 'Session ' + s.id + ': ' + s.players.length + ' players', x: sessionOptionXIndex + 3, y: sessionOptionYIndex + 3}, null, player.id);
+            const sessionOption = GameNode(
+                [48, 183, 255, 255], 
+                (player) => {
+                    this.joinSession(player, s);
+                }, 
+                {x: sessionOptionXIndex, y: sessionOptionYIndex}, 
+                {x: 25, y: 10}, 
+                {text: 'Session ' + s.id + ': ' + s.players.length + ' players', x: sessionOptionXIndex * 1.2, y: sessionOptionYIndex + 3, size: 14}, 
+                null, 
+                player.id
+            );
+
             gameInfoModal.addChild(sessionOption);
             sessionOptionXIndex += 15;
 
             if (sessionOptionXIndex >= 100) {
-                sessionOptionXIndex = 20;
+                sessionOptionXIndex = 70;
                 sessionOptionYIndex += 15;
             }
         });
         
-        const closeModalButton = GameNode(Colors.ORANGE, (player) => {
+        const closeModalButton = GameNode(modalColor, (player) => {
         
             delete this.modals[player.id];
             
@@ -217,7 +295,11 @@ class HomegamesDashboard extends Game {
     
     renderGameList(playerId) {
         this.gameListRoots[playerId].clearChildren();
-        const barThing = GameNode(Colors.BLACK, (player, x, y) => {
+        const barWrapper = GameNode(Colors.BLACK, null,
+            {x: 94, y: 2},
+            {x: 5, y: 96}, null, null, playerId);
+
+        const barThing = GameNode(this.baseColor, (player, x, y) => {
             if (y >= .50) {
                 if (this.playerPositions[playerId] < Object.values(games).length / 3) {
                     this.playerPositions[playerId]++;
@@ -229,16 +311,26 @@ class HomegamesDashboard extends Game {
                     this.renderGameList(playerId);
                 }
             }
-        }, {x: 97, y: 2}, {x: 3.2, y: 96}, null, null, playerId);
-        this.gameListRoots[playerId].addChild(barThing);
+        }, {x: 94.5, y: 2.6}, {x: 4.1, y: 94.6}, null, null, playerId);
+
+        const pageSize = 6;
+        const barSize = pageSize / Object.values(games).length;
+
+        const statusThing = GameNode(Colors.BLACK, null,
+            {x: 95, y: 3 + Math.min((this.playerPositions[playerId] * barSize) * 94, 94.6 - (barSize * 94.6))},
+            {x: 3, y: (barSize * 94.6)}, null, null, playerId);
+
+        barThing.addChild(statusThing);
+        barWrapper.addChild(barThing);
+        this.gameListRoots[playerId].addChild(barWrapper);
         let xIndex = 5;
         let yIndex = 25;
-        const optionWidth = 26;
-        const optionHeight = 26;//# * (9/16);
+        const optionWidth = 25;
+        const optionHeight = 25;//# * (9/16);
         const optionPaddingX = 6;
         const optionPaddingY = 10;
 
-        const startGameIndex = this.playerPositions[playerId] * 3;
+        const startGameIndex = this.playerPositions[playerId] * 6;
 
         let gameIndex = 0;
         for (const key in games) {
@@ -253,41 +345,22 @@ class HomegamesDashboard extends Game {
                 (player) => this.onGameOptionClick(player, key), 
                 {x: xIndex, y: yIndex}, 
                 {x: optionWidth, y: optionHeight}, 
-                {'text': (games[key].metadata && games[key].metadata().name || key) + '', x: xIndex + optionPaddingX, y: yIndex + optionPaddingY}, 
-                //{
-                 //   [assetKey]: {
-                 //       pos: {x: xIndex, y: yIndex},
-                 //       size: {x: optionWidth, y: optionHeight}
-                 //   }
-                //}, 
-                null,
+                {'text': (games[key].metadata && games[key].metadata().name || key) + '', x: xIndex + (optionWidth / 2), y: yIndex + optionHeight + 2, size: 20}, 
+                {
+                    [assetKey]: {
+                        pos: {x: xIndex + (.02 * optionWidth), y: yIndex + (.02 * optionHeight)},
+                        size: {x: optionWidth * .96, y: optionHeight * .96}
+                    }
+                }, 
                 playerId, 
                 {
                     shadow: {
                         color: Colors.BLACK,
-                        blur: 4
+                        blur: 6
                     }
                 }
             );
 
-//            const authorInfoNode = GameNode(
-//                this.baseColor, 
-//                null, 
-//                {
-//                    x: xIndex + 5, 
-//                    y: yIndex + 15
-//                },
-//                {
-//                    x: 10,
-//                    y: 10
-//                },
-//                {
-//                    text: 'by ' + (games[key].metadata && games[key].metadata()['author'] || 'Unknown Author'),
-//                    x: xIndex + 5,
-//                    y: yIndex + 15
-//                }
-//            );
-//
             xIndex += optionWidth + optionPaddingX;
 
             if (xIndex + optionWidth >= 100) {
@@ -362,6 +435,10 @@ class HomegamesDashboard extends Game {
         if (this.modals[playerId]) {
             this.base.removeChild(this.modals[playerId].id);
             delete this.modals[playerId];
+        }
+        if (this.gameListRoots[playerId]) {
+            this.base.removeChild(this.gameListRoots[playerId].id);
+            delete this.gameListRoots[playerId];
         }
     }
 
