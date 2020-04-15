@@ -84,7 +84,7 @@ class GameSession {
     }
 
     findNode(nodeId) {
-        return this.findNodeHelper(nodeId, this.game.getRoot());
+        return this.findNodeHelper(nodeId, this.squisher.hgRoot.getRoot());//this.game.getRoot());
     }
 
     findNodeHelper(nodeId, node, found = null) {
@@ -100,7 +100,7 @@ class GameSession {
     }
 
     findClick(x, y, playerId = 0) {
-        return this.findClickHelper(x, y, playerId, this.game.getRoot());
+        return this.findClickHelper(x, y, playerId, this.squisher.hgRoot.getRoot());
     }
    
     findClickHelper(x, y, playerId, node, clicked = null) {
