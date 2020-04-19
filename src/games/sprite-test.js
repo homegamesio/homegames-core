@@ -1,6 +1,5 @@
 const Asset = require('../common/Asset');
-const Game = require('./Game');
-const { GameNode, Colors } = require('squishjs');
+const { Game, GameNode, Colors } = require('squishjs');
 
 class SpriteTest extends Game {
     static metadata() {

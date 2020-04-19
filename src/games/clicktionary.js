@@ -1,6 +1,5 @@
-const { GameNode, Colors } = require('squishjs');
+const { Game, GameNode, Colors } = require('squishjs');
 const { charadesWord } = require('../common/util');
-const Game = require('./Game');
 
 class Clicktionary extends Game {
     static metadata() {
