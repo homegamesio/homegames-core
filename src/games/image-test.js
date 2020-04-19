@@ -40,7 +40,7 @@ class ImageTest extends Game {
             this.base.asset = newAsset;
         }, {x: 55, y: 6}, {x: 5, y: 5}, {text: '+', x: 57.5, y: 5, size: 50});
 
-        this.widthText = GameNode(Colors.WHITE, null, {x: 0, y: 0}, {x: 0, y: 0}, {text: 'Width', x: 46, y: 6, size: 40});
+        this.widthText = GameNode(Colors.WHITE, null, {x: 0, y: 0}, {x: 0, y: 0}, {text: 'Width', x: 46, y: 6, size: 40, color: Colors.BLUE});
 
         this.decreaseHeightButton = GameNode(Colors.WHITE, (player, x, y) => {
             const newAsset = this.base.asset;
