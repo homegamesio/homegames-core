@@ -8,8 +8,8 @@ class GameSession {
         this.game.session = this;
         this.squisher = new Squisher(this.game);
         this.squisher.addListener(this);
-        this.renderWidth = this.game.constructor.metadata ? this.game.constructor.metadata().res.width : 1280;
-        this.renderHeight = this.game.constructor.metadata ? this.game.constructor.metadata().res.height : 720;
+        this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
+        this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
     }
 
     handleSquisherUpdate(squished) {
@@ -73,15 +73,14 @@ class GameSession {
 
 
     handleClick(player, click) {
-        const translatedX = (click.x / this.renderWidth);
-        const translatedY = (click.y / this.renderHeight);
-        if (translatedX >= 1 || translatedY >= 1) {
+        if (click.x >= 100 || click.y >= 100) {
             return;
         }
-        const clickedNode = this.findClick(translatedX, translatedY, player.id);
+
+        const clickedNode = this.findClick(click.x, click.y, player.id);
 
         if (clickedNode) {
-            clickedNode.handleClick && clickedNode.handleClick(player, translatedX, translatedY);
+            clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);
         }
     }
 
@@ -107,13 +106,13 @@ class GameSession {
 
     findClickHelper(x, y, playerId, node, clicked = null) {
         if (node.handleClick && !node.playerId || playerId == node.playerId) {
-            const beginX = node.pos.x * this.renderWidth * .01;
-            const endX = (node.pos.x + node.size.x) * this.renderWidth * .01;
-            const beginY = node.pos.y * this.renderHeight * .01;
-            const endY = (node.pos.y + node.size.y) * this.renderHeight * .01;
-            const x1 = x * this.renderWidth;
-            const y1 = y * this.renderHeight;
-            const isClicked = (x1 >= beginX && x1 <= endX) && (y1 >= beginY && y1 <= endY);
+            const beginX = node.pos.x;
+            const endX = node.pos.x + node.size.x;
+
+            const beginY = node.pos.y;
+            const endY = node.pos.y + node.size.y;
+
+            const isClicked = (x >= beginX && x <= endX) && (y >= beginY && y <= endY);
             if (isClicked) {
                 clicked = node;
             }
