@@ -8,9 +8,6 @@ class Squisher {
     constructor(game) {
         this.assets = {};
         this.gameMetadata = game && game.constructor.metadata ? game.constructor.metadata() : null;
-        this.width = this.gameMetadata ? this.gameMetadata.res.width : 1280;
-        this.height = this.gameMetadata ? this.gameMetadata.res.height : 720;
-
         this.ids = new Set();
         this.hgRoot = new HomegamesRoot(game);
         this.game = game;
@@ -95,8 +92,7 @@ class Squisher {
 
     handleStateChange(node) {
         // todo: fix this
-        console.log('this is happening bruv');
-        this.update(this.hgRoot.getRoot());//game.getRoot());
+        this.update(this.hgRoot.getRoot());
         for (const listener of this.listeners) {
             listener.handleSquisherUpdate(this.squished);
         }
