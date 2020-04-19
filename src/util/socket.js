@@ -41,18 +41,10 @@ const socketServer = (gameSession, port, cb = null) => {
     
             ws.id = generatePlayerId();
 
-            const gameMetadata = gameSession.game.constructor.metadata && gameSession.game.constructor.metadata();
+            const aspectRatio = gameSession.aspectRatio;
 
-            const gameResWidth = gameMetadata ? gameMetadata.res.width : config.DEFAULT_GAME_RES_WIDTH;
-            const gameResHeight = gameMetadata ? gameMetadata.res.height : config.DEFAULT_GAME_RES_HEIGHT;
-
-            const gameWidth1 = gameResWidth / 100;
-            const gameWidth2 = gameResWidth % 100;
-            const gameHeight1 = gameResHeight / 100;
-            const gameHeight2 = gameResHeight % 100;
-            
             // init message
-            ws.send([2, ws.id, gameWidth1, gameWidth2, gameHeight1, gameHeight2]);
+            ws.send([2, ws.id, aspectRatio.x, aspectRatio.y]);
 
             const player = new Player(ws, ws.id);
             gameSession.addPlayer(player);
