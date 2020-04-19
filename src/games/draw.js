@@ -1,6 +1,5 @@
-const { GameNode, Colors } = require('squishjs');
+const { Game, GameNode, Colors } = require('squishjs');
 const Asset = require('../common/Asset');
-const Game = require('./Game');
 
 class Draw extends Game {
     static metadata() {
@@ -19,10 +18,6 @@ class Draw extends Game {
         this.assets = {
             'test': new Asset('url', {
                 'location': 'https://www.nicepng.com/png/full/323-3239506_kanye-west-shrug-transparent.png',
-                'type': 'image'
-            }),
-            'home-button': new Asset('url', {
-                'location': 'https://d3lgoy70hwd3pc.cloudfront.net/home.png', 
                 'type': 'image'
             })
         };
@@ -64,14 +59,8 @@ class Draw extends Game {
         const randomizeButton = GameNode(Colors.RED, this.randomizeBoardColor.bind(this), {'x': 80, 'y': 0}, {'x': 15, 'y': 15});
         const resetButton = GameNode(Colors.BLUE, this.initializeBoard.bind(this), {x: 60, y: 0}, {x: 15, y: 15});
 
-        const homeButton = GameNode(Colors.PURPLE, (player) => {
-            player.receiveUpdate([5, 70, 0]);
-        }, {'x': 3, 'y': 3}, {'x': 8, 'y': 10}, {'text': '', 'x': 0, 'y': 0}, {'home-button': {pos: {x: 3, y: 3}, size: {x: 8, y: 10}}});
-
         this.board.clearChildren();
-        this.homeButton = homeButton;
 
-        this.board.addChild(homeButton);
         this.board.addChild(randomizeButton);
         this.board.addChild(resetButton);
     }
@@ -81,7 +70,7 @@ class Draw extends Game {
     }
 
     handleBoardClick(player, x, y) {
-        const coloredPixel = GameNode(Colors.randomColor(), () => {}, {'x': (x * 100) - .25, 'y': (y * 100) - .25}, {'x': .5, 'y': .5}, 
+        const coloredPixel = GameNode(Colors.randomColor(), () => {}, {'x': (x) - .25, 'y': (y) - .25}, {'x': .5, 'y': .5}, 
             {
                 'text': '',
                 x: 0,
@@ -94,7 +83,6 @@ class Draw extends Game {
     randomizeBoardColor() {
         const color = Colors.randomColor();
         this.board.color = color;
-        this.homeButton.color = color;
     }
 
     getRoot() {

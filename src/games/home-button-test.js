@@ -1,5 +1,4 @@
-const { GameNode, Colors } = require('squishjs');
-const Game = require('./Game');
+const { Game, GameNode, Colors } = require('squishjs');
 
 class HomeButtonTest extends Game {
     static metadata() {
