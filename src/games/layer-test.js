@@ -1,6 +1,4 @@
-const { Colors, GameNode } = require('squishjs');
-const Game = require('./Game');
-const { randomColor } = Colors;
+const { Game, GameNode, Colors, Shapes } = require('squishjs');
 
 class LayerTest extends Game {
     static metadata() {
@@ -15,14 +13,43 @@ class LayerTest extends Game {
 
     constructor() {
         super();
-        this.base = GameNode(randomColor(), this.handleLayerClick,
-            {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
+        const baseColor = Colors.randomColor();
+        this.base = new GameNode.Shape(
+            baseColor,
+            Shapes.POLYGON,
+            {
+                coordinates2d: [
+                    [0, 0],
+                    [100, 0],
+                    [100, 100],
+                    [0, 100],
+                    [0, 0]
+                ],
+                fill: baseColor
+            },
+            null,
+            this.handleLayerClick);
 
         const increment = 1;
         let prev = this.base;
         for (let i = increment; i < 50; i+= 2 * increment) {
-            const child = GameNode(randomColor(), this.handleLayerClick,
-                {'x': i, 'y': i}, {'x': 100 - (2 * i), 'y': 100 - (2 * i)});
+            const childColor = Colors.randomColor();
+            const child = new GameNode.Shape(
+                childColor,
+                Shapes.POLYGON,
+                {
+                    coordinates2d: [
+                        [i, i],
+                        [i + 100 - (2 * i), i],
+                        [i + 100 - (2 * i), i + 100 - (2 * i)],
+                        [i, i + 100 - (2 * i)],
+                        [i, i]
+                    ],
+                    fill: childColor
+                },
+                null,
+                this.handleLayerClick
+            );
             prev.addChild(child);
             prev = child;
         }
@@ -35,7 +62,9 @@ class LayerTest extends Game {
     }
 
     handleLayerClick() {
-        this.color = randomColor();
+        const newColor = Colors.randomColor();
+        this.color = newColor;
+        this.fill = newColor;
     }
 
     getRoot() {
