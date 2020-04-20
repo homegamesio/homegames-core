@@ -24,7 +24,7 @@ class HomegamesRoot {
             });
             const closeThing = GameNode(Colors.BLACK, () => {
                 this.homeButton.removeChild(thing.id);
-            }, {x: 40, y: 40}, {x: 15, y: 15});
+            }, {x: 80, y: 10}, {x: 10, y: 10}, {text: 'Close', x: 85, y: 13, size: 50, color: Colors.WHITE}, null, player.id);
             const name = GameNode([255, 255, 255, 0], null, {x: 12, y: 38}, {x: 17, y: 10}, {text: `Name: ${player.name}`, x: 20, y: 40, size: 40}, null, player.id, 
             null,
             {
