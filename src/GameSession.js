@@ -7,6 +7,7 @@ class GameSession {
         // this is a hack
         this.game.session = this;
         this.squisher = new Squisher(this.game);
+        this.squisher.hgRoot.players = this.game.players;
         this.squisher.addListener(this);
         this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
         this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
@@ -20,7 +21,7 @@ class GameSession {
 
     addPlayer(player) {
         generateName().then(playerName => {
-            player.name = playerName;
+            player.name = player.name || playerName;
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
             player.receiveUpdate(this.squisher.squished);
@@ -33,7 +34,8 @@ class GameSession {
 
     handlePlayerDisconnect(playerId) {
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
-        this.game._hgRemovePlayer(playerId);
+//        this.game._hgRemovePlayer(playerId);
+        this.squisher.hgRoot.handlePlayerDisconnect(playerId);
     }
 
     initialize(cb) {
@@ -59,9 +61,9 @@ class GameSession {
             if (node && node.input) {
                 // hilarious
                 if (node.input.type === 'file') {
-                    node.input.oninput(Object.values(input.input));
+                    node.input.oninput(player, Object.values(input.input));
                 } else {
-                    node.input.oninput(input.input);
+                    node.input.oninput(player, input.input);
                 }
             }
         } else {

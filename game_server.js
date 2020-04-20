@@ -1,16 +1,16 @@
 const HomegamesDashboard = require('./src/HomegamesDashboard');
-const PerfTest = require('./src/games/perf-test');
 const GameSession = require("./src/GameSession");
 const { socketServer } = require('./src/util/socket');
 const config = require('./config');
-const Quarantine = require('./src/games/quarantine');
-const InputTest = require('./src/games/input-test');
+const ImageTest = require('./src/games/image-test');
+const Homenames = require('./src/Homenames');
 
-//const dashboard = new InputTest();
+//const dashboard = new ImageTest();
 const dashboard = new HomegamesDashboard();
-//const dashboard = new Quarantine();
 
 const session = new GameSession(dashboard);
+
+const homeNames = new Homenames(config.GAME_SERVER_HOME_PORT + 99);
 
 session.initialize(() => {
     socketServer(session, config.GAME_SERVER_HOME_PORT);

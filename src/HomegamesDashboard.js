@@ -73,7 +73,7 @@ class HomegamesDashboard extends Game {
                     x: 43, y: 2.5
                 },
                 size: {
-                    x: 13, y: 13 * 1.42//(10 / 1.4) / 100
+                    x: 14, y: 13 * 1.42//(10 / 1.4) / 100
                 }
             }
         });
