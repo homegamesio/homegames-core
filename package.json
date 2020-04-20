@@ -28,6 +28,6 @@
   "homepage": "https://github.com/homegamesio/homegames#readme",
   "dependencies": {
     "ws": "^5.2.1",
-    "squishjs": "^0.4.2"
+    "squishjs": "0.4.23"
   }
 }
