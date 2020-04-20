@@ -170,13 +170,15 @@ class HomegamesDashboard extends Game {
  
     onGameOptionClick(player, gameKey) {
         const modalColor = [12, 176, 80, 255];
+        const fadeStart = [modalColor[0], modalColor[1], modalColor[2], 0];
+
         const activeSessions = Object.values(this.sessions).filter(s => s.game === gameKey);
         const gameInfoModal = GameNode(
-            [12, 176, 80, 0],
+            fadeStart,
             null, 
-            {x: 5, y: 5}, 
-            {x: 90, y: 90}, 
-            {text: games[gameKey].metadata && games[gameKey].metadata().name || gameKey, x: 50, y: 10, size: 20}, 
+            {x: 15, y: 15}, 
+            {x: 70, y: 70}, 
+            {text: games[gameKey].metadata && games[gameKey].metadata().name || gameKey, x: 50, y: 18, size: 60}, 
             null, 
             player.id, 
             {
@@ -187,16 +189,14 @@ class HomegamesDashboard extends Game {
             }
         );
 
-        animations.fadeIn(gameInfoModal, .6, 20);
-
         const playButton = GameNode(
-            [251, 255, 3, 255], 
+            [251, 255, 3, 0], 
             (player) => {
                 this.startSession(player, gameKey);
             }, 
-            {x: 15, y: 50}, 
-            {x: 20, y: 20}, 
-            {text: 'Create Session', x: 25, y: 58.5, size: 18}, 
+            {x: 20, y: 50}, 
+            {x: 15, y: 15}, 
+            {text: 'Create Session', x: 27.5, y: 56.5, size: 24}, 
             null, 
             player.id, 
             {
@@ -206,50 +206,48 @@ class HomegamesDashboard extends Game {
                 }
             }
         );
-
-        animations.fadeIn(playButton, .8, 30);
-        
+ 
         const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
 
-        const orText = GameNode(modalColor, null, {x: 65, y: 35}, {x: 0, y: 0}, {x: 70, y: 45, text: otherSessionsText, size: 18}, null, player.id);
+        const orText = GameNode(fadeStart, null, {x: 65, y: 35}, {x: 0, y: 0}, {x: 70, y: 45, text: otherSessionsText, size: 18}, null, player.id);
 
         const authorInfoNode = GameNode(
-            modalColor, 
+            fadeStart, 
             null, 
             {
                 x: 50, 
                 y: 20 
             },
             {
-                x: 10,
-                y: 10
+                x: 0,
+                y: 0
             },
             {
                 text: 'by ' + (games[gameKey].metadata && games[gameKey].metadata()['author'] || 'Unknown Author'),
                 x: 50,
-                y: 16,
-                size: 18
+                y: 25,
+                size: 40
             },
             null, 
             player.id
         );
 
         const descriptionNode = GameNode(
-            modalColor, 
+            fadeStart, 
             null, 
             {
                 x: 50, 
                 y: 30 
             },
             {
-                x: 10,
-                y: 10
+                x: 0,
+                y: 0
             },
             {
                 text: (games[gameKey].metadata && games[gameKey].metadata()['description'] || 'A description goes here'),
                 x: 50,
-                y: 25,
-                size: 18
+                y: 35,
+                size: 32
             },
             null, player.id
         )
@@ -284,18 +282,25 @@ class HomegamesDashboard extends Game {
             }
         });
         
-        const closeModalButton = GameNode(modalColor, (player) => {
+        const closeModalButton = GameNode([255, 255, 255, 0], (player) => {
         
             delete this.modals[player.id];
             
             this.base.removeChild(gameInfoModal.id);
         
-        }, {x: 6, y: 7}, {x: 4, y: 8}, {text: 'X', x: 8, y: 8, size: 60}, null, player.id);
+        }, {x: 72, y: 17}, {x: 10, y: 10}, {text: 'Close', x: 77, y: 20, size: 50, color: Colors.BLACK}, null, player.id);
         
         this.modals[player.id] = gameInfoModal;
-        
+
         gameInfoModal.addChild(closeModalButton);
-        
+
+        animations.fadeIn(closeModalButton, .8, 20);
+        animations.fadeIn(descriptionNode, .8, 20);
+        animations.fadeIn(authorInfoNode, .8, 20);
+        animations.fadeIn(orText, .8, 20);
+        animations.fadeIn(playButton, .8, 20);
+        animations.fadeIn(gameInfoModal, .8, 20);
+         
         this.base.addChild(gameInfoModal);
     }
     
