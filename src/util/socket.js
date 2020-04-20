@@ -5,6 +5,29 @@ const linkHelper = require('./link-helper');
 const Player = require('../Player');
 const config = require('../../config');
 
+const listenable = function(obj, onChange) {
+    const handler = {
+        get(target, property, receiver) {
+            return Reflect.get(target, property, receiver);
+        },
+        defineProperty(target, property, descriptor) {
+            console.log("THE HELL");
+            const change = Reflect.defineProperty(target, property, descriptor);
+            onChange && onChange();
+            return change;
+        },
+        deleteProperty(target, property) {
+            const change = Reflect.deleteProperty(target, property);
+            onChange && onChange();
+            return change;
+        }
+    };
+
+    return new Proxy(obj, handler);
+};
+
+
+
 const socketServer = (gameSession, port, cb = null) => {
     linkHelper();
 
@@ -38,16 +61,61 @@ const socketServer = (gameSession, port, cb = null) => {
             assert(jsonMessage.type === 'ready');
 
             ws.removeListener('message', messageHandler);
-    
-            ws.id = generatePlayerId();
 
-            const aspectRatio = gameSession.aspectRatio;
+            ws.id = Number(jsonMessage.id || generatePlayerId());
 
-            // init message
-            ws.send([2, ws.id, aspectRatio.x, aspectRatio.y]);
+            const updatePlayerInfo = (_player) => {
 
-            const player = new Player(ws, ws.id);
-            gameSession.addPlayer(player);
+                const data = JSON.stringify({
+                    'name': _player.name 
+                });
+
+                const req = http.request({hostname: 'localhost', port: 7099, path: '/' + ws.id, method: 'POST', headers: {'Content-Type': 'application/json', 'Content-Length': data.length}}, res => {
+           //         if (!added) {
+          //              added = true;
+           //             console.log('what');
+            //        }    
+                    console.log('updated');
+                    console.log(_player.id);
+                });
+                req.write(data);
+                req.end();
+            }
+
+            if (true || jsonMessage.id) {// && playerNames[jsonMessage.id]) {
+                console.log("AYYY");
+                console.log(jsonMessage.id);
+                const req = http.request({
+                    hostname: 'localhost',
+                    port: 7099,
+                    path: `/${ws.id}`,
+                    method: 'GET'
+                }, res => {
+                    res.on('data', d => {
+                        console.log("GOT RESPONSE");
+                        const playerInfo = JSON.parse(d);
+                        const player = new Player(ws, ws.id);
+                        
+                        if (jsonMessage.id && playerInfo.name) {
+                            player.name = playerInfo.name;
+                        }
+                        const aspectRatio = gameSession.aspectRatio;
+                        // init message
+                        ws.send([2, ws.id, aspectRatio.x, aspectRatio.y]);
+                        const _player = listenable(player, () => {
+                            updatePlayerInfo(_player);
+                        });
+
+                        gameSession.addPlayer(_player);
+
+                    });
+                });
+                req.end();
+            }
+           //playerNames[Number(ws.id)] = player;
+            //console.log("ADDED");
+            //console.log(playerNames);
+
         }
 
         ws.on('message', messageHandler);

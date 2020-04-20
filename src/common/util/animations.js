@@ -12,6 +12,8 @@ const fadeIn = (node, secondsToFinish, increment) => {
             clearInterval(thing);
         }
     }, secondsToFinish / (255 / increment));
+
+    return thing;
 };
 
 const animations = {
