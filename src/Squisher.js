@@ -1,6 +1,7 @@
 const { squish } = require('squishjs');
 const config = require('../config');
 const HomegamesRoot = require('./HomegamesRoot');
+const HomegamesDashboard = require('./HomegamesDashboard');
 
 const ASSET_TYPE = 1;
 
@@ -9,7 +10,8 @@ class Squisher {
         this.assets = {};
         this.gameMetadata = game && game.constructor.metadata ? game.constructor.metadata() : null;
         this.ids = new Set();
-        this.hgRoot = new HomegamesRoot(game);
+        const isDashboard = game instanceof HomegamesDashboard;
+        this.hgRoot = new HomegamesRoot(game, isDashboard);
         this.game = game;
         this.listeners = new Set();
         this.hgRoot.getRoot().addListener(this);
