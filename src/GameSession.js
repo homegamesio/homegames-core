@@ -17,6 +17,9 @@ class GameSession {
     }
 
     addPlayer(player) {
+        if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
+            player.receiveUpdate([5, 70, 0]);
+        }
         generateName().then(playerName => {
             player.name = playerName;
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
@@ -26,7 +29,6 @@ class GameSession {
             this.game.handleNewPlayer && this.game.handleNewPlayer(player);
             player.addInputListener(this);
         });
-
     }
 
     handlePlayerDisconnect(playerId) {
@@ -48,7 +50,7 @@ class GameSession {
     handlePlayerInput(player, input) {
         if (input.type === 'click') {
             this.handleClick(player, input.data);
-        } else if (input.type === 'keydown') { 
+        } else if (input.type === 'keydown') {
             this.game.handleKeyDown && this.game.handleKeyDown(player, input.key);
         } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
@@ -74,7 +76,7 @@ class GameSession {
     findClick(x, y, playerId = 0) {
         return this.findClickHelper(x, y, playerId, this.game.getRoot());
     }
-   
+
     findClickHelper(x, y, playerId, node, clicked = null) {
         if (node.handleClick && !node.playerId || playerId == node.playerId) {
             const beginX = node.pos.x * this.renderWidth * .01;
