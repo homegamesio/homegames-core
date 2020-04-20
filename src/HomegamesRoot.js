@@ -2,26 +2,34 @@ const { GameNode, Colors } = require('squishjs');
 const Asset = require('./common/Asset');
 
 class HomegamesRoot {
-    constructor(game) {
+    constructor(game, isDashboard) {
         this.root = GameNode(
             Colors.WHITE,
             null,
             {x: 0, y: 0},
             {x: 0, y: 0}
         );
+
+        const onDashHomeClick = (player, x, y) => {
+            const thing = GameNode(Colors.WHITE, null, {x: 10, y: 10}, {x: 80, y: 80}, {text: 'What up', x: 50, y: 50, size: 100}, null, player.id);
+            this.homeButton.addChild(thing);
+        };
+
+        const onGameHomeClick = (player) => {
+            player.receiveUpdate([5, 70, 0]);
+        };
+
         this.homeButton= GameNode(
             Colors.WHITE,
-            (player) => {
-                player.receiveUpdate([5, 70, 0]);
-            },
-            {x: 2, y: 2},
-            {x: 8, y: 8 * 16 / 9},
+            isDashboard ? onDashHomeClick : onGameHomeClick,
+            {x: 2.25, y: 2.25},
+            {x: 7.6, y: 7.6 * 16 / 9},
             null,
             {
                 'home-button': {
                     pos: {x: 2, y: 2},
                     size: {
-                        x: 8, y: 8 * 16 / 9
+                        x: 8.1, y: 8.1 * 16 / 9
                     }
                 }
             }

@@ -115,7 +115,7 @@ class Clicktionary extends Game {
                     return;
                 }
                 const playerColor = this.playerColors[player.id] || Colors.BLACK;
-                const coloredPixel = GameNode(playerColor, () => {}, {'x': (x * 100) - .25, 'y': (y * 100) - .25}, {'x': .5, 'y': .5});
+                const coloredPixel = GameNode(playerColor, () => {}, {'x': (x) - .25, 'y': (y) - .25}, {'x': .5, 'y': .5});
                 this.drawNode.addChild(coloredPixel);
             },
             {

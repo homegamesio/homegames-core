@@ -6,7 +6,7 @@ const Asset = require('./common/Asset');
 
 const games = require('./games');
 
-const { ExpiringSet } = require('./common/util');
+const { ExpiringSet, animations } = require('./common/util');
 
 const config = require('../config');
 
@@ -68,12 +68,12 @@ class HomegamesDashboard extends Game {
         this.optionColor = [255, 149, 10, 255];
         this.base = GameNode(this.baseColor, null, {x: 0, y: 0}, {x: 100, y: 100});
         this.logoAsset = GameNode(this.baseColor, null, {x: 43, y: 5}, {x: 10, y: 10 * (16/9)}, null, {
-            'logo': {
+            'default': {
                 pos: {
-                    x: 44, y: 3.5
+                    x: 43, y: 2.5
                 },
                 size: {
-                    x: 10, y: 10 * 16/9
+                    x: 13, y: 13 * 1.42//(10 / 1.4) / 100
                 }
             }
         });
@@ -167,12 +167,12 @@ class HomegamesDashboard extends Game {
 
 //        this.renderGameList();
     }
-
+ 
     onGameOptionClick(player, gameKey) {
         const modalColor = [12, 176, 80, 255];
         const activeSessions = Object.values(this.sessions).filter(s => s.game === gameKey);
         const gameInfoModal = GameNode(
-            modalColor, 
+            [12, 176, 80, 0],
             null, 
             {x: 5, y: 5}, 
             {x: 90, y: 90}, 
@@ -186,7 +186,9 @@ class HomegamesDashboard extends Game {
                 }
             }
         );
-                
+
+        animations.fadeIn(gameInfoModal, .6, 20);
+
         const playButton = GameNode(
             [251, 255, 3, 255], 
             (player) => {
@@ -204,6 +206,8 @@ class HomegamesDashboard extends Game {
                 }
             }
         );
+
+        animations.fadeIn(playButton, .8, 30);
         
         const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
 
@@ -225,7 +229,9 @@ class HomegamesDashboard extends Game {
                 x: 50,
                 y: 16,
                 size: 18
-            }
+            },
+            null, 
+            player.id
         );
 
         const descriptionNode = GameNode(
@@ -244,7 +250,8 @@ class HomegamesDashboard extends Game {
                 x: 50,
                 y: 25,
                 size: 18
-            }
+            },
+            null, player.id
         )
 
         gameInfoModal.addChild(authorInfoNode);
@@ -299,7 +306,7 @@ class HomegamesDashboard extends Game {
             {x: 5, y: 96}, null, null, playerId);
 
         const barThing = GameNode(this.baseColor, (player, x, y) => {
-            if (y >= .50) {
+            if (y >= (statusThing.pos.y + (.5 * statusThing.size.y))) {
                 if (this.playerPositions[playerId] < Object.values(games).length / 3) {
                     this.playerPositions[playerId]++;
                     this.renderGameList(playerId);
@@ -344,7 +351,7 @@ class HomegamesDashboard extends Game {
                 (player) => this.onGameOptionClick(player, key), 
                 {x: xIndex, y: yIndex}, 
                 {x: optionWidth, y: optionHeight}, 
-                {'text': (games[key].metadata && games[key].metadata().name || key) + '', x: xIndex + (optionWidth / 2), y: yIndex + optionHeight + 2, size: 20}, 
+                {'text': (games[key].metadata && games[key].metadata().name || key) + '', x: xIndex + (optionWidth / 2), y: yIndex + optionHeight + 2, size: 40}, 
                 {
                     [assetKey]: {
                         pos: {x: xIndex + (.02 * optionWidth), y: yIndex + (.02 * optionHeight)},

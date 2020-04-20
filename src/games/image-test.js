@@ -20,7 +20,7 @@ class ImageTest extends Game {
         };
 
         const defaultImageSize = {x: 10, y: 10 * 16/9};
-        const defaultImagePos = {x: 40, y: 40};
+        const defaultImagePos = {x: 45, y: 40};
 
         this.base = GameNode(Colors.WHITE, (player, x, y) => {
             const newAsset = this.base.asset;
@@ -29,30 +29,45 @@ class ImageTest extends Game {
         }, {x: 0, y: 0}, {x: 100, y: 100}, null, {'image': {pos: Object.assign({}, defaultImagePos), size: Object.assign({}, defaultImageSize)}});
 
         this.decreaseWidthButton = GameNode(Colors.WHITE, (player, x, y) => {
+            if (this.base.asset.image.size.x < 1) {
+                return;
+            }
             const newAsset = this.base.asset;
             newAsset.image.size.x -= 1;
             this.base.asset = newAsset;
-        }, {x: 30, y: 6}, {x: 5, y: 5}, {text: '-', x: 32.5, y: 5, size: 50});
+        }, {x: 29.5, y: 2}, {x: 6, y: 6 * 16 / 9}, {text: '-', x: 32.5, y: 5, size: 50, color: Colors.RED});
 
         this.increaseWidthButton = GameNode(Colors.WHITE, (player, x, y) => {
+            if (this.base.asset.image.size.x > 80) {
+                return;
+            }
+
             const newAsset = this.base.asset;
             newAsset.image.size.x += 1;
             this.base.asset = newAsset;
-        }, {x: 55, y: 6}, {x: 5, y: 5}, {text: '+', x: 57.5, y: 5, size: 50});
+        }, {x: 54.5, y: 2}, {x: 6, y: 6 * 16 / 9}, {text: '+', x: 57.5, y: 5, size: 50, color: Colors.BLUE});
 
-        this.widthText = GameNode(Colors.WHITE, null, {x: 0, y: 0}, {x: 0, y: 0}, {text: 'Width', x: 46, y: 6, size: 40, color: Colors.BLUE});
+        this.widthText = GameNode(Colors.WHITE, null, {x: 0, y: 0}, {x: 0, y: 0}, {text: 'Width', x: 46, y: 6, size: 40});
 
         this.decreaseHeightButton = GameNode(Colors.WHITE, (player, x, y) => {
+            if (this.base.asset.image.size.y < 1) {
+                return;
+            }
+
             const newAsset = this.base.asset;
             newAsset.image.size.y -= 1;
             this.base.asset = newAsset;
-        }, {x: 30, y: 16}, {x: 5, y: 5}, {text: '-', x: 32.5, y: 15, size: 50});
+        }, {x: 29.5, y: 13}, {x: 6, y: 6 * 16 / 9}, {text: '-', x: 32.5, y: 15, size: 50, color: Colors.RED});
 
         this.increaseHeightButton = GameNode(Colors.WHITE, (player, x, y) => {
+            if (this.base.asset.image.size.y > 80) {
+                return;
+            }
+
             const newAsset = this.base.asset;
             newAsset.image.size.y += 1;
             this.base.asset = newAsset;
-        }, {x: 55, y: 16}, {x: 5, y: 5}, {text: '+', x: 57.5, y: 15, size: 50});
+        }, {x: 54.5, y: 13}, {x: 6, y: 6 *  16 / 9}, {text: '+', x: 57.5, y: 15, size: 50, color: Colors.BLUE});
 
         this.heightText = GameNode(Colors.WHITE, null, {x: 0, y: 0}, {x: 0, y: 0}, {text: 'Height', x: 46, y: 16, size: 40});
         
@@ -61,7 +76,7 @@ class ImageTest extends Game {
             newAsset.image.pos = Object.assign({}, defaultImagePos);
             newAsset.image.size = Object.assign({}, defaultImageSize);
             this.base.asset = newAsset;
-        }, {x: 90, y: 0}, {x: 10, y: 10}, {text: 'Reset', x: 95, y: 2.5, size: 30});
+        }, {x: 90, y: 0}, {x: 10, y: 10}, {text: 'Reset', x: 95, y: 2.5, size: 50});
 
         this.base.addChild(this.widthText);
         this.base.addChild(this.decreaseWidthButton);
