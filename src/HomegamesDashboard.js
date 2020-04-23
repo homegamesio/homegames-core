@@ -294,12 +294,12 @@ class HomegamesDashboard extends Game {
 
         gameInfoModal.addChild(closeModalButton);
 
-        animations.fadeIn(closeModalButton, .8, 20);
-        animations.fadeIn(descriptionNode, .8, 20);
-        animations.fadeIn(authorInfoNode, .8, 20);
-        animations.fadeIn(orText, .8, 20);
-        animations.fadeIn(playButton, .8, 20);
-        animations.fadeIn(gameInfoModal, .8, 20);
+        animations.fadeIn(closeModalButton, 5, 10);
+        animations.fadeIn(descriptionNode, 5, 10);
+        animations.fadeIn(authorInfoNode, 5, 10);
+        animations.fadeIn(orText, 5, 10);
+        animations.fadeIn(playButton, 5, 10);
+        animations.fadeIn(gameInfoModal, 5, 10);
          
         this.base.addChild(gameInfoModal);
     }
