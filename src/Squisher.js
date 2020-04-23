@@ -47,7 +47,19 @@ class Squisher {
             
             const assetType = gameAssets[key].info.type === 'image' ? 1 : 2;
 
-            this.assets[key] = [ASSET_TYPE, assetType, encodedLength.charCodeAt(0), encodedLength.charCodeAt(1), encodedLength.charCodeAt(2), encodedLength.charCodeAt(3), ...assetKeyArray, ...payload];
+            const encodedMaxLength = 10;
+            let encodedLengthString = '';
+            for (let i = 0; i < (encodedMaxLength - encodedLength.length); i++) {
+                encodedLengthString += '0';
+            }
+            for (let j = encodedLength.length; j < encodedMaxLength; j++) {
+                encodedLengthString +=  encodedLength.charAt(j - encodedLength.length);
+            }
+            const encodedLengthArray = new Array(encodedMaxLength);
+            for (let i = 0; i < encodedMaxLength; i++) {
+                encodedLengthArray[i] = encodedLength.charCodeAt(i);
+            }
+            this.assets[key] = [ASSET_TYPE, assetType, ...encodedLengthArray, ...assetKeyArray, ...payload];
             assetBundleSize += this.assets[key].length;
         }
 
