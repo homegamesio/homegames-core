@@ -60,12 +60,12 @@ class GameSession {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
         } else if (input.type === 'input') {
             const node = this.findNode(input.nodeId);
-            if (node && node.input) {
+            if (node && node.node.input) {
                 // hilarious
-                if (node.input.type === 'file') {
-                    node.input.oninput(player, Object.values(input.input));
+                if (node.node.input.type === 'file') {
+                    node.node.input.oninput(player, Object.values(input.input));
                 } else {
-                    node.input.oninput(player, input.input);
+                    node.node.input.oninput(player, input.input);
                 }
             }
         } else {
@@ -91,37 +91,57 @@ class GameSession {
     }
 
     findNodeHelper(nodeId, node, found = null) {
-        if (node.id === nodeId) {
+        if (node.node.id === nodeId) {
             found = node;
         }
 
-        for (const i in node.children) {
-            found = this.findNodeHelper(nodeId, node.children[i], found);
+        for (const i in node.node.children) {
+            found = this.findNodeHelper(nodeId, node.node.children[i], found);
         }
         
         return found;
     }
 
     findClick(x, y, playerId = 0) {
-        return this.findClickHelper(x, y, playerId, this.squisher.hgRoot.getRoot());
+        return this.findClickHelper(x, y, playerId, this.squisher.hgRoot.getRoot().node);
     }
 
     findClickHelper(x, y, playerId, node, clicked = null) {
-        if (node.handleClick && !node.playerId || playerId == node.playerId) {
-            const beginX = node.pos.x;
-            const endX = node.pos.x + node.size.x;
+        if ((node.handleClick && !node.playerId || playerId == node.playerId ) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+            const verticesLength = node.coordinates2d.length;
+            const vertices = node.coordinates2d;
+            let isInside = false;
+            let minX = vertices[0][0];
+            let maxX = vertices[0][0];
+            let minY = vertices[0][1];
+            let maxY = vertices[0][1];
+            for (let i = 1; i < verticesLength; i++) {
+                const vert = vertices[i];
+                minX = Math.min(vert[0], minX);
+                maxX = Math.max(vert[0], maxX);
+                minY = Math.min(vert[1], minY);
+                maxY = Math.max(vert[1], maxY);
+            }
 
-            const beginY = node.pos.y;
-            const endY = node.pos.y + node.size.y;
-
-            const isClicked = (x >= beginX && x <= endX) && (y >= beginY && y <= endY);
-            if (isClicked) {
+            if (!(x < minX || x > maxX || y < minY || y > maxY)) {
+                let i = 0;
+                let j = vertices.length - 1;
+                for (i, j; i < vertices.length; j=i++) {
+                    if ((vertices[i][1] > y) != (vertices[j][1] > y) &&
+                            x < (vertices[j][0] - vertices[i][0]) * (y - vertices[i][1]) / (vertices[j][1] - vertices[i][1]) + vertices[i][0]) {
+                            isInside = !isInside;
+                    }
+                }
+            }
+            
+            if (isInside) {
                 clicked = node;
             }
+
         }
 
         for (const i in node.children) {
-            clicked = this.findClickHelper(x, y, playerId, node.children[i], clicked);
+            clicked = this.findClickHelper(x, y, playerId, node.children[i].node, clicked);
         }
 
         return clicked;

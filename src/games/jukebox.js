@@ -30,7 +30,6 @@ class Jukebox extends Game {
             setTimeout(() => {
                 this.base.removeChild(soundThing.id);
             }, 500);
-            console.log('iuj');
         }, {x: 0, y: 0}, {x: 100, y: 100});
     }
 
