@@ -92,15 +92,15 @@ class Squisher {
     }
 
     updateHelper(node, squished) {
-        if (!this.ids.has(node.id)) {
-            this.ids.add(node.id);
+        if (!this.ids.has(node.node.id)) {
+            this.ids.add(node.node.id);
             node.addListener(this);
         }
-        const newSquish = squish(node);
+        const newSquish = squish(node.node);
         squished.push(newSquish);
 
-        for (let i = 0; i < node.children.length; i++) {
-            this.updateHelper(node.children[i], squished);
+        for (let i = 0; i < node.node.children.length; i++) {
+            this.updateHelper(node.node.children[i], squished);
         }
     }
 

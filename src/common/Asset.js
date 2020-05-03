@@ -33,8 +33,6 @@ class Asset {
                         });
                         res.on('end', () => {
                             writeStream.end();
-                            console.log("RETURNING");
-                            console.log(filePath);
                             resolve(fs.readFileSync(filePath));
                         });
                     }).on('error', error => {
@@ -49,7 +47,6 @@ class Asset {
 
     getData() {
         if (this.data) {
-            console.log("what");
             return this.data;
         }
 
@@ -57,8 +54,6 @@ class Asset {
             return this.download(this.info.location).then(payload => {
                 this.data = payload;
                 this.done = true;
-                console.log("RETURNING");
-                console.log(payload);
                 return payload;
             });
         } 
