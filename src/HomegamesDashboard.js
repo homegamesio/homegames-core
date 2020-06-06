@@ -86,14 +86,13 @@ class HomegamesDashboard extends Game {
             Shapes.POLYGON, 
             {
                 coordinates2d: [
-                    [10, 10],
-                    [90, 10],
-                    [90, 90],
-                    [10, 90],
-                    [10, 10]
+                    [12.5, 2.5],
+                    [87.5, 2.5],
+                    [87.5, 97.5],
+                    [12.5, 97.5],
+                    [12.5, 2.5]
                 ],
-                fill: Colors.HG_BLACK,
-                border: 25
+                fill: Colors.HG_BLUE
             }
         );
         
@@ -109,7 +108,7 @@ class HomegamesDashboard extends Game {
             {
             'logo_horizontal': {
                 pos: {
-                    x: 40, y: 0
+                    x: 40, y: 2
                 },
                 size: {
                     x: 20, y: 9 //(10 / 1.4) / 100
@@ -232,7 +231,7 @@ class HomegamesDashboard extends Game {
 //            {text: games[gameKey].metadata && games[gameKey].metadata().name || gameKey, x: 50, y: 18, size: 60}, 
             {
                 shadow: {
-                    color: Colors.BLACK,
+                    color: Colors.HG_BLACK,
                     blur: 6
                 }
             }
@@ -264,7 +263,6 @@ class HomegamesDashboard extends Game {
             }
         );
 
-        console.log('wot');
         const createSessionText = new GameNode.Text({
             text: 'Create Session',
             x: 27.5, 
@@ -377,11 +375,11 @@ class HomegamesDashboard extends Game {
             Shapes.POLYGON,
             {
                 coordinates2d: [
-                    [84, 12],
-                    [88, 12],
-                    [88, 84],
-                    [84, 84],
-                    [84, 12]
+                    [83, 5],
+                    [86, 5],
+                    [86, 95],
+                    [83, 95],
+                    [83, 5]
                 ],
                 fill: Colors.HG_BLUE,
                 border: 6
@@ -389,9 +387,24 @@ class HomegamesDashboard extends Game {
             playerId
         );
 
-//        const bar = new GameNode.Shape(
-//            Colors
-//        );
+        const bar = new GameNode.Shape(
+            Colors.HG_BLACK,
+            Shapes.POLYGON,
+            {
+                coordinates2d: [
+                    [83.4, 5.6],
+                    [85.6, 5.6],
+                    [85.6, 94.4],
+                    [83.4, 94.4],
+                    [83.4, 5.6]
+                ],
+                fill: Colors.HG_BLACK
+            },
+            playerId
+        );
+
+        barWrapper.addChild(bar);
+
 //        const barThing = GameNode(this.baseColor, (player, x, y) => {
 //            if (y >= (statusThing.pos.y + (.5 * statusThing.size.y))) {
 //                if (this.playerPositions[playerId] < Object.values(games).length / 3) {
@@ -433,6 +446,75 @@ class HomegamesDashboard extends Game {
             }
             const assetKey = games[key].metadata && games[key].metadata().thumbnail ? key : 'default';
 
+            const gameOptionSize = {
+                x: 10,
+                y: 5
+            };
+
+            const gameOptionMargin = {
+                x: 5,
+                y: 5
+            }
+
+            const perRow = Math.floor(80 / (gameOptionSize.x + gameOptionMargin.x));
+            const perCol = Math.floor(80 / (gameOptionSize.y + gameOptionMargin.y));
+
+            const rowHeight = (gameOptionSize.y + gameOptionMargin.y);
+            const colWidth = (gameOptionSize.x + gameOptionMargin.x);
+
+            const rowsPerScreen = Math.floor(80 / rowHeight);
+
+            console.log("Based on this I can fit " + rowsPerScreen + " rows per screen");
+            
+            // todo: screens
+            const indexToPos = (index) => {
+                const rowNum = Math.floor(index / perRow);
+                const colNum = index % perRow;
+                console.log("ROW HEIGHT");
+                console.log(rowHeight);
+                return [rowNum * rowHeight, colNum * colWidth];
+            };
+
+            const gamePos = indexToPos(gameIndex);
+
+            const gameOption = new GameNode.Asset(
+                (player) => {
+                    this.onGameOptionClick(player, key);
+                },
+                [
+                    [gamePos[0], gamePos[1]],
+                    [gamePos[0] + colWidth, gamePos[1]],
+                    [gamePos[0] + colWidth, gamePos[1] + rowHeight],
+                    [gamePos[0], gamePos[1] + rowHeight],
+                    [gamePos[0], gamePos[1]]
+                ],
+                {
+                    [assetKey]: {
+                        pos: {
+                            x: gamePos[0],
+                            y: gamePos[1]
+                        },
+                        size: {
+                            x: colWidth,
+                            y: rowHeight
+                        }
+                    }
+                }
+            );
+
+            gameIndex++;
+
+            const textThing = (games[key].metadata && games[key].metadata().name || key) + '';
+            console.log(textThing);
+            const gameOptionTitle = new GameNode.Text({
+                text: textThing, 
+                x: 25, 
+                y: 20,
+                size: 24
+            });
+
+            gameOption.addChild(gameOptionTitle);
+
 //            const gameOption = GameNode(
 //                this.optionColor, 
 //                (player) => this.onGameOptionClick(player, key), 
@@ -461,7 +543,7 @@ class HomegamesDashboard extends Game {
                 xIndex = 5;
             }
 
- //           this.gameListRoots[playerId].addChild(gameOption);
+            this.gameListRoots[playerId].addChild(gameOption);
 //            this.base.addChild(authorInfoNode);
         }
     }
@@ -532,15 +614,15 @@ class HomegamesDashboard extends Game {
         delete this.keyCoolDowns[playerId];
 
         if (this.playerNodes[playerId]) {
-            this.base.removeChild(this.playerNodes[playerId].id);
+            this.base.removeChild(this.playerNodes[playerId].node.id);
             delete this.playerNodes[playerId];
         }
         if (this.modals[playerId]) {
-            this.base.removeChild(this.modals[playerId].id);
+            this.base.removeChild(this.modals[playerId].node.id);
             delete this.modals[playerId];
         }
         if (this.gameListRoots[playerId]) {
-            this.base.removeChild(this.gameListRoots[playerId].id);
+            this.base.removeChild(this.gameListRoots[playerId].node.id);
             delete this.gameListRoots[playerId];
         }
     }
