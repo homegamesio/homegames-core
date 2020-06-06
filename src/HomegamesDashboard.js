@@ -6,6 +6,8 @@ const Asset = require('./common/Asset');
 
 const games = require('./games');
 
+const sortedGameKeys = Object.keys(games).sort();
+
 const { ExpiringSet, animations } = require('./common/util');
 
 const config = require('../config');
@@ -37,7 +39,7 @@ class HomegamesDashboard extends Game {
     constructor() {
         super();
         this.assets = {};
-        this.playerPositions = {};
+        this.playerStates = {};
         this.gameListRoots = {};
         this.playerNodes = {};
         this.playerEditStates = {};
@@ -362,14 +364,47 @@ class HomegamesDashboard extends Game {
 //        animations.fadeIn(descriptionNode, 5, 10);
 //        animations.fadeIn(authorInfoNode, 5, 10);
 //        animations.fadeIn(orText, 5, 10);
-        animations.fadeIn(playButton, 5, 10);
-        animations.fadeIn(gameInfoModal, 5, 10);
+        animations.fadeIn(playButton.node, 5, 10);
+        animations.fadeIn(gameInfoModal.node, 5, 10);
          
         this.base.addChild(gameInfoModal);
     }
     
     renderGameList(playerId) {
         this.gameListRoots[playerId].clearChildren();
+
+        const gameOptionSize = {
+            x: 18,
+            y: 20
+        };
+
+        const gameOptionMargin = {
+            x: 5,
+            y: 16
+        }
+        const startX = 15;
+        const startY = 20;
+
+        const endX = 85;
+        const endY = 95;
+
+        const perRow = Math.floor((endX - startX) / (gameOptionSize.x + gameOptionMargin.x));
+        const perCol = Math.floor((endY - startY) / (gameOptionSize.y + gameOptionMargin.y));
+
+        const rowHeight = (gameOptionSize.y + gameOptionMargin.y);
+        const colWidth = (gameOptionSize.x + gameOptionMargin.x);
+
+        const indexToPos = (index) => {
+            const rowNum = Math.floor(index / perRow);
+            const colNum = index % perRow;
+            return [startX + (colNum * colWidth), startY + (rowNum * rowHeight)];
+        };
+
+        const gamesPerScreen = perCol * perRow;
+
+        const screens = Math.ceil(Object.keys(games).length / gamesPerScreen);
+        const barHeight = 90 / screens;
+
         const barWrapper = new GameNode.Shape(
             Colors.HG_BLACK,
             Shapes.POLYGON,
@@ -384,19 +419,40 @@ class HomegamesDashboard extends Game {
                 fill: Colors.HG_BLUE,
                 border: 6
             },
-            playerId
+            playerId,
+            (player, x, y) => {
+                const barTopY = bar.node.coordinates2d[0][1];
+                if (y > barTopY && y < barTopY + barHeight) {
+                    return;
+                }
+                else if (y < barTopY) {
+                    this.playerStates[player.id].screen = this.playerStates[player.id].screen - 1;
+                    this.renderGameList(player.id);
+                } else {
+                    this.playerStates[player.id].screen = this.playerStates[player.id].screen + 1;
+                    this.renderGameList(player.id);
+                }
+            }
         );
+
+        const currentScreen = this.playerStates[playerId].screen || 0;
+
+        const startGameIndex = (gamesPerScreen * currentScreen);
+        const endGameIndex = startGameIndex + gamesPerScreen;
+
+        const barTopPadding = 5.6;
+        const barStartY = (barHeight * currentScreen) + barTopPadding;
 
         const bar = new GameNode.Shape(
             Colors.HG_BLACK,
             Shapes.POLYGON,
             {
                 coordinates2d: [
-                    [83.4, 5.6],
-                    [85.6, 5.6],
-                    [85.6, 94.4],
-                    [83.4, 94.4],
-                    [83.4, 5.6]
+                    [83.4, barStartY],
+                    [85.6, barStartY],
+                    [85.6, barStartY + barHeight],
+                    [83.4, barStartY + barHeight],
+                    [83.4, barStartY]
                 ],
                 fill: Colors.HG_BLACK
             },
@@ -405,76 +461,15 @@ class HomegamesDashboard extends Game {
 
         barWrapper.addChild(bar);
 
-//        const barThing = GameNode(this.baseColor, (player, x, y) => {
-//            if (y >= (statusThing.pos.y + (.5 * statusThing.size.y))) {
-//                if (this.playerPositions[playerId] < Object.values(games).length / 3) {
-//                    this.playerPositions[playerId]++;
-//                    this.renderGameList(playerId);
-//                }
-//            } else {
-//                if (this.playerPositions[playerId] > 0) {
-//                    this.playerPositions[playerId]--;
-//                    this.renderGameList(playerId);
-//                }
-//            }
-//        }, {x: 94.5, y: 2.6}, {x: 4.1, y: 94.6}, null, null, playerId);
-//
-//        const pageSize = 6;
-//        const barSize = pageSize / Object.values(games).length;
-//
-////        const statusThing = GameNode(Colors.BLACK, null,
-////            {x: 95, y: 3 + Math.min((this.playerPositions[playerId] * barSize) * 94, 94.6 - (barSize * 94.6))},
-////            {x: 3, y: (barSize * 94.6)}, null, null, playerId);
-////
-////        barThing.addChild(statusThing);
-//        barWrapper.addChild(barThing);
         this.gameListRoots[playerId].addChild(barWrapper);
-        let xIndex = 5;
-        let yIndex = 25;
-        const optionWidth = 25;
-        const optionHeight = 25;//# * (9/16);
-        const optionPaddingX = 6;
-        const optionPaddingY = 10;
-
-        const startGameIndex = this.playerPositions[playerId] * 6;
 
         let gameIndex = 0;
-        for (const key in games) {
-            if (gameIndex < startGameIndex) {
-                gameIndex++;
-                continue;
-            }
+
+        const gameKeys = sortedGameKeys.slice(startGameIndex, endGameIndex);
+        for (const keyIndex in gameKeys) {
+            const key = gameKeys[keyIndex];
+
             const assetKey = games[key].metadata && games[key].metadata().thumbnail ? key : 'default';
-
-            const gameOptionSize = {
-                x: 10,
-                y: 5
-            };
-
-            const gameOptionMargin = {
-                x: 5,
-                y: 5
-            }
-
-            const perRow = Math.floor(80 / (gameOptionSize.x + gameOptionMargin.x));
-            const perCol = Math.floor(80 / (gameOptionSize.y + gameOptionMargin.y));
-
-            const rowHeight = (gameOptionSize.y + gameOptionMargin.y);
-            const colWidth = (gameOptionSize.x + gameOptionMargin.x);
-
-            const rowsPerScreen = Math.floor(80 / rowHeight);
-
-            console.log("Based on this I can fit " + rowsPerScreen + " rows per screen");
-            
-            // todo: screens
-            const indexToPos = (index) => {
-                const rowNum = Math.floor(index / perRow);
-                const colNum = index % perRow;
-                console.log("ROW HEIGHT");
-                console.log(rowHeight);
-                return [rowNum * rowHeight, colNum * colWidth];
-            };
-
             const gamePos = indexToPos(gameIndex);
 
             const gameOption = new GameNode.Asset(
@@ -483,9 +478,9 @@ class HomegamesDashboard extends Game {
                 },
                 [
                     [gamePos[0], gamePos[1]],
-                    [gamePos[0] + colWidth, gamePos[1]],
-                    [gamePos[0] + colWidth, gamePos[1] + rowHeight],
-                    [gamePos[0], gamePos[1] + rowHeight],
+                    [gamePos[0] + gameOptionSize.x, gamePos[1]],
+                    [gamePos[0] + gameOptionSize.x, gamePos[1] + gameOptionSize.y],
+                    [gamePos[0], gamePos[1] + gameOptionSize.y],
                     [gamePos[0], gamePos[1]]
                 ],
                 {
@@ -495,8 +490,8 @@ class HomegamesDashboard extends Game {
                             y: gamePos[1]
                         },
                         size: {
-                            x: colWidth,
-                            y: rowHeight
+                            x: gameOptionSize.x,
+                            y: gameOptionSize.y 
                         }
                     }
                 }
@@ -505,11 +500,10 @@ class HomegamesDashboard extends Game {
             gameIndex++;
 
             const textThing = (games[key].metadata && games[key].metadata().name || key) + '';
-            console.log(textThing);
             const gameOptionTitle = new GameNode.Text({
                 text: textThing, 
-                x: 25, 
-                y: 20,
+                x: gamePos[0] + (gameOptionSize.x / 2), 
+                y: gamePos[1] + (1.1 * gameOptionSize.y),
                 size: 24
             });
 
@@ -535,13 +529,6 @@ class HomegamesDashboard extends Game {
 //                    }
 //                }
 //            );
-
-            xIndex += optionWidth + optionPaddingX;
-
-            if (xIndex + optionWidth >= 100) {
-                yIndex += optionHeight + optionPaddingY;
-                xIndex = 5;
-            }
 
             this.gameListRoots[playerId].addChild(gameOption);
 //            this.base.addChild(authorInfoNode);
@@ -606,7 +593,9 @@ class HomegamesDashboard extends Game {
             ]
         );
         this.base.addChild(this.gameListRoots[player.id]);
-        this.playerPositions[player.id] = 0;
+        this.playerStates[player.id] = {
+            screen: 0
+        };
         this.renderGameList(player.id);
     }
 
