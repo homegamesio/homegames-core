@@ -1,5 +1,4 @@
-const { Colors, GameNode } =  require('squishjs');
-const Game = require('./Game');
+const { Colors, Game, GameNode } =  require('squishjs');
 const { randomColor, BLACK, GRAY, GOLD, GREEN } = Colors;
 
 class Squarer extends Game {
