@@ -1,4 +1,4 @@
-const { GameNode, Colors, Shapes } = require('squishjs');
+const { GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 const Asset = require('./common/Asset');
 const { animations } = require('./common/util');
 
@@ -22,22 +22,23 @@ class HomegamesRoot {
         this.playerDashboards = {};
 
         const onDashHomeClick = (player, x, y) => {
-
             if (this.playerDashboards[player.id] && this.playerDashboards[player.id].dashboard) {
                 return;
             };
 
-            const thingShape = Shapes.RECTANGLE(5, 5, 90, 90);
+            const modalShape = ShapeUtils.rectangle(5, 5, 90, 90);
             const settingsText = new GameNode.Text({
                 text: 'Settings (and other stuff)',
                 x: 50,
                 y: 10,
-                size: 100
+                size: 5,
+                align: 'center'
             }, player.id);
-            const thing = new GameNode.Shape(Colors.WHITE, 
+
+            const modal = new GameNode.Shape(Colors.WHITE, 
                 Shapes.POLYGON,
                 {
-                    coordinates2d: thingShape,
+                    coordinates2d: modalShape,
                     fill: Colors.WHITE
                 },
                 player.id,
@@ -50,64 +51,43 @@ class HomegamesRoot {
                 }
             );
 
+            const closeButton = new GameNode.Shape(
+                Colors.HG_RED,
+                Shapes.POLYGON,
+                {
+                    coordinates2d: ShapeUtils.rectangle(5, 5, 10, 10),
+                    fill: Colors.HG_RED
+                },
+                player.id,
+                (player) => {
+                    this.playerDashboards[player.id] = null;
+                    this.homeButton.removeChild(modal.node.id);
+                }
+            );
+
             const playerName = new GameNode.Text({
                 text: `Name: ${player.name}`,
-                x: 20,
-                y: 40,
-                size: 40
+                x: 8,
+                y: 35,
+                size: 2,
+                align: 'left'
             }, player.id, {
                 type: 'text',
                 oninput: (player, text) => {
-                    console.log('player said');
-                    console.log(text);
+                    player.name = text;
                 }
             });
-
-            thing.addChildren(settingsText, playerName);
-//            const closeThing = GameNode(Colors.BLACK, () => {
-//                this.homeButton.removeChild(thing.id);
-//            }, {x: 80, y: 10}, {x: 10, y: 10}, {text: 'Close', x: 85, y: 13, size: 50, color: Colors.WHITE}, null, player.id);
-//            const name = GameNode([255, 255, 255, 0], null, {x: 12, y: 38}, {x: 17, y: 10}, {text: `Name: ${player.name}`, x: 20, y: 40, size: 40}, null, player.id, 
-//            null,
-//            {
-//                type: 'text',
-//                oninput: (player, text) => {
-//                    if (!text) {
-//                        return;
-//                    }
-//                    this.players[player.id].name = text;
-//                    const newName = name.text;
-//                    newName.text = `Name: ${player.name}`;
-//                    name.text = newName;
-//                }
-//            });
-//
-//            const version = new GameNode.Text([255, 255, 255, 0], null, 
-//                {
-//                    x: 20,
-//                    y: 30
-//                },
-//                {
-//                    x: 10,
-//                    y: 10
-//                },
-//                {
-//                    text: `Version: TODO`,
-//                    x: 20,
-//                    y: 30,
-//                    size: 40
-//                },
-//                null,
-//                player.id
-//            );
-//            thing.addChild(closeThing);
-//            thing.addChild(version);
-//            thing.addChild(name);
-            this.homeButton.addChild(thing);
-            //const int1 = animations.fadeIn(version, .8, 20);
-            //const int2 = animations.fadeIn(thing, .8, 20);
-            //const int3 = animations.fadeIn(name, .8, 20);
-            this.playerDashboards[player.id] = {dashboard: thing, intervals: []};//: [int1, int2, int3]};
+            
+            const version = new GameNode.Text({
+                text: 'Version: TODO',
+                x: 20,
+                y: 27,
+                size: 2,
+                align: 'left'
+            }, player.id);
+            modal.addChildren(settingsText, playerName, closeButton, version);
+            this.homeButton.addChild(modal);
+            this.playerDashboards[player.id] = {dashboard: modal, intervals: []};
         };
 
         const onGameHomeClick = (player) => {

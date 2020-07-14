@@ -2,10 +2,9 @@ const HomegamesDashboard = require('./src/HomegamesDashboard');
 const GameSession = require("./src/GameSession");
 const { socketServer } = require('./src/util/socket');
 const config = require('./config');
-const ImageTest = require('./src/games/image-test');
 const Homenames = require('./src/Homenames');
+const Draw = require('./src/games/clicktionary');
 
-//const dashboard = new ImageTest();
 const dashboard = new HomegamesDashboard();
 
 const session = new GameSession(dashboard);
