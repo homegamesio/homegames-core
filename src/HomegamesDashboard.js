@@ -1,6 +1,6 @@
 const { fork } = require('child_process');
 const path = require('path');
-const { Game, GameNode, Colors, Shapes } = require('squishjs');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 
 const Asset = require('./common/Asset');
 
@@ -28,6 +28,9 @@ const getServerPort = () => {
 
 let sessionIdCounter = 1;
 
+const DASHBOARD_COLOR = [69, 100, 150, 255];
+const orangeish = [246, 99, 4, 255];
+
 class HomegamesDashboard extends Game {
     static metadata() {
         return {
@@ -40,9 +43,7 @@ class HomegamesDashboard extends Game {
         super();
         this.assets = {};
         this.playerStates = {};
-        this.gameListRoots = {};
-        this.playerNodes = {};
-        this.playerEditStates = {};
+
         this.keyCoolDowns = new ExpiringSet();
         this.modals = {};
         Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
@@ -58,7 +59,7 @@ class HomegamesDashboard extends Game {
             'type': 'image'
         });
 
-        this.assets['logo_horizontal'] = new Asset('url', {
+        this.assets['logo-horizontal'] = new Asset('url', {
             'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/logo_horizontal.png',
             'type': 'image'
         });
@@ -68,9 +69,14 @@ class HomegamesDashboard extends Game {
             'type': 'image'
         });
 
+        this.assets['settings-gear'] = new Asset('url', {
+            'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/settings_gear.png',
+            'type': 'image'
+        });
+
         this.optionColor = [255, 149, 10, 255];
         this.base = new GameNode.Shape(
-            Colors.HG_YELLOW, 
+            Colors.HG_BLACK, 
             Shapes.POLYGON, 
             {
                 coordinates2d: [
@@ -79,12 +85,13 @@ class HomegamesDashboard extends Game {
                     [100, 100],
                     [0, 100],
                     [0, 0]
-                ]
+                ],
+                fill: Colors.HG_BLACK
             }
         );
 
         this.screen = new GameNode.Shape(
-            [247, 247, 247, 255],
+            DASHBOARD_COLOR,
             Shapes.POLYGON, 
             {
                 coordinates2d: [
@@ -94,7 +101,7 @@ class HomegamesDashboard extends Game {
                     [12.5, 97.5],
                     [12.5, 2.5]
                 ],
-                fill: Colors.HG_BLUE
+                fill: DASHBOARD_COLOR
             }
         );
         
@@ -108,9 +115,9 @@ class HomegamesDashboard extends Game {
                 [43, 2.5],
             ],
             {
-            'logo_horizontal': {
+            'logo-horizontal': {
                 pos: {
-                    x: 40, y: 2
+                    x: 40, y: 5
                 },
                 size: {
                     x: 20, y: 9 //(10 / 1.4) / 100
@@ -211,7 +218,7 @@ class HomegamesDashboard extends Game {
     }
  
     onGameOptionClick(player, gameKey) {
-        const modalColor = [12, 176, 80, 255];
+        const modalColor = Colors.HG_BLACK;//[12, 176, 80, 255];
         const fadeStart = [modalColor[0], modalColor[1], modalColor[2], 0];
 
         const activeSessions = Object.values(this.sessions).filter(s => s.game === gameKey);
@@ -220,17 +227,16 @@ class HomegamesDashboard extends Game {
             Shapes.POLYGON,
             {
                 coordinates2d: [
-                    [15, 15],
-                    [70, 15],
-                    [70, 70],
-                    [15, 70],
-                    [15, 15]
+                    [20, 16],
+                    [80, 16],
+                    [80, 84],
+                    [20, 84],
+                    [20, 16]
                 ],
                 fill: fadeStart
             },
             player.id,
             null,
-//            {text: games[gameKey].metadata && games[gameKey].metadata().name || gameKey, x: 50, y: 18, size: 60}, 
             {
                 shadow: {
                     color: Colors.HG_BLACK,
@@ -239,139 +245,136 @@ class HomegamesDashboard extends Game {
             }
         );
 
-        const playButton = new GameNode.Shape(
-            [251, 255, 3, 0],
+        const gameMetadata = games[gameKey].metadata && games[gameKey].metadata() || {};
+
+        const title = gameMetadata.title || gameKey;
+        const author = gameMetadata.author || 'Unknown Author';
+        const description = gameMetadata.description || 'No description available';
+
+        const titleNode = new GameNode.Text({
+            text: title,
+            x: 50, 
+            y: 18.5,
+            size: 3,
+            align: 'center',
+            color: orangeish, 
+        }, player.id);
+
+        const authorNode = new GameNode.Text({
+            text: `by ${author}`,
+            x: 50, 
+            y: 26,
+            size: 2,
+            align: 'center',
+            color: orangeish, 
+        }, player.id);
+
+        const descriptionNode = new GameNode.Text({
+            text: description,
+            x: 50, 
+            y: 32,
+            size: 1,
+            align: 'center',
+            color: Colors.WHITE, 
+        }, player.id);
+
+        const createText = new GameNode.Text({
+            text: 'Create a new session',
+            x: 35,
+            y: 54,
+            size: 1,
+            align: 'center',
+            color: Colors.BLACK
+        }, player.id);
+ 
+        const createButton = new GameNode.Shape(
+            Colors.HG_BLUE,
             Shapes.POLYGON,
             {
                 coordinates2d: [
-
+                    [25, 50],
+                    [45, 50],
+                    [45, 60],
+                    [25, 60],
+                    [25, 50]
                 ],
-                fill: [251, 255, 3, 0]
+                fill: Colors.HG_BLUE
             },
             player.id,
             (player) => {
+                this.playerStates[player.id].root.removeChild(gameInfoModal.id);
                 this.startSession(player, gameKey);
-            },
-            //{x: 20, y: 50}, 
-            //{x: 15, y: 15}, 
-            //{text: 'Create Session', x: 27.5, y: 56.5, size: 24}, 
-            //null, 
-            //player.id, 
-            {
-                shadow: {
-                    color: Colors.BLACK,
-                    blur: 6
-                }
             }
         );
 
-        const createSessionText = new GameNode.Text({
-            text: 'Create Session',
-            x: 27.5, 
-            y: 56.5,
-            size: 24
-        });
- 
-        const otherSessionsText = activeSessions.length > 0 ? 'or join an existing session' : 'No current sessions';
-
-//        const orText = GameNode(fadeStart, null, {x: 65, y: 35}, {x: 0, y: 0}, {x: 70, y: 45, text: otherSessionsText, size: 18}, null, player.id);
-//
-//        const authorInfoNode = GameNode(
-//            fadeStart, 
-//            null, 
-//            {
-//                x: 50, 
-//                y: 20 
-//            },
-//            {
-//                x: 0,
-//                y: 0
-//            },
-//            {
-//                text: 'by ' + (games[gameKey].metadata && games[gameKey].metadata()['author'] || 'Unknown Author'),
-//                x: 50,
-//                y: 25,
-//                size: 40
-//            },
-//            null, 
-//            player.id
-//        );
-//
-//        const descriptionNode = GameNode(
-//            fadeStart, 
-//            null, 
-//            {
-//                x: 50, 
-//                y: 30 
-//            },
-//            {
-//                x: 0,
-//                y: 0
-//            },
-//            {
-//                text: (games[gameKey].metadata && games[gameKey].metadata()['description'] || 'A description goes here'),
-//                x: 50,
-//                y: 35,
-//                size: 32
-//            },
-//            null, player.id
-//        )
-
-//        gameInfoModal.addChild(authorInfoNode);
-//        gameInfoModal.addChild(descriptionNode);
-
-//        gameInfoModal.addChild(orText);
-        gameInfoModal.addChild(playButton);
-        gameInfoModal.addChild(createSessionText);
+        gameInfoModal.addChildren(createButton, titleNode, authorNode, descriptionNode, createText);
 
         let sessionOptionXIndex = 57;
         let sessionOptionYIndex = 50;
+
+        let sessionButtonY = 40;
+        let sessionButtonX = 55;
+
+        const sessionButtonHeight = 10;
+        const sessionButtonWidth = 20;
+
         activeSessions.forEach(s => {
-//            const sessionOption = GameNode(
-//                [48, 183, 255, 255], 
-//                (player) => {
-//                    this.joinSession(player, s);
-//                }, 
-//                {x: sessionOptionXIndex, y: sessionOptionYIndex}, 
-//                {x: 25, y: 10}, 
-//                {text: 'Session ' + s.id + ': ' + s.players.length + ' players', x: sessionOptionXIndex * 1.2, y: sessionOptionYIndex + 3, size: 14}, 
-//                null, 
-//                player.id
-//            );
-//
-//            gameInfoModal.addChild(sessionOption);
-//            sessionOptionXIndex += 15;
-//
-//            if (sessionOptionXIndex >= 100) {
-//                sessionOptionXIndex = 70;
-//                sessionOptionYIndex += 15;
-//            }
+            const sessionButton = new GameNode.Shape(
+                Colors.WHITE,
+                Shapes.POLYGON,
+                {
+                    coordinates2d: [
+                        [55, 50],
+                        [75, 50],
+                        [75, 60],
+                        [55, 60],
+                        [55, 50]
+                    ],
+                    fill: Colors.WHITE
+                },
+                player.id,
+                (player) => {
+                    this.joinSession(player, s);
+                }
+            );
+
+            const sessionText = new GameNode.Text({
+                text: `Session ${s.id}`, 
+                align: 'center',
+                x: 65,
+                y:  55,
+                size: 2
+            }, player.id);
+
+            sessionButton.addChild(sessionText);
+
+            gameInfoModal.addChild(sessionButton);
         });
-        
-//        const closeModalButton = GameNode([255, 255, 255, 0], (player) => {
-        
-//            delete this.modals[player.id];
-//            
-//            this.base.removeChild(gameInfoModal.id);
-//        
-//        }, {x: 72, y: 17}, {x: 10, y: 10}, {text: 'Close', x: 77, y: 20, size: 50, color: Colors.BLACK}, null, player.id);
-        
-        this.modals[player.id] = gameInfoModal;
 
-//        gameInfoModal.addChild(closeModalButton);
+        const closeModalButton = new GameNode.Shape(
+            Colors.HG_RED,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(20, 16, 5, 5),
+                fill: Colors.HG_RED
+            },
+            player.id,
+            (player) => {
+                delete this.modals[player.id];
+                this.playerStates[player.id].root.removeChild(gameInfoModal.id);
+            }
+        );
 
-//        animations.fadeIn(closeModalButton, 5, 10);
-//        animations.fadeIn(descriptionNode, 5, 10);
-//        animations.fadeIn(authorInfoNode, 5, 10);
-//        animations.fadeIn(orText, 5, 10);
-        animations.fadeIn(playButton.node, 5, 10);
-        animations.fadeIn(gameInfoModal.node, 5, 10);
+        gameInfoModal.addChild(closeModalButton);
+
+        animations.fadeIn(gameInfoModal, .6);
          
-        this.base.addChild(gameInfoModal);
+        this.playerStates[player.id].root.addChild(gameInfoModal);
     }
     
     renderGameList(playerId) {
-        this.gameListRoots[playerId].clearChildren();
+        const playerRoot = this.playerStates[playerId].root;
+        playerRoot.clearChildren();
 
         const gameOptionSize = {
             x: 18,
@@ -416,7 +419,7 @@ class HomegamesDashboard extends Game {
                     [83, 95],
                     [83, 5]
                 ],
-                fill: Colors.HG_BLUE,
+                fill: DASHBOARD_COLOR,
                 border: 6
             },
             playerId,
@@ -461,7 +464,7 @@ class HomegamesDashboard extends Game {
 
         barWrapper.addChild(bar);
 
-        this.gameListRoots[playerId].addChild(barWrapper);
+        playerRoot.addChild(barWrapper);
 
         let gameIndex = 0;
 
@@ -472,40 +475,66 @@ class HomegamesDashboard extends Game {
             const assetKey = games[key].metadata && games[key].metadata().thumbnail ? key : 'default';
             const gamePos = indexToPos(gameIndex);
 
+            const gameOptionWrapper = new GameNode.Shape(
+                orangeish,
+                Shapes.POLYGON,
+                {
+                    coordinates2d: [
+                        [gamePos[0], gamePos[1]],
+                        [gamePos[0] + gameOptionSize.x, gamePos[1]],
+                        [gamePos[0] + gameOptionSize.x, gamePos[1] + gameOptionSize.y],
+                        [gamePos[0], gamePos[1] + gameOptionSize.y],
+                        [gamePos[0], gamePos[1]]
+                    ],
+                    fill: Colors.HG_BLACK
+                },
+                playerId,
+                (player) => {
+                    this.onGameOptionClick(player, key);
+                },
+            );
+
+            const optionMarginX = gameOptionSize.x * .05;
+            const optionMarginY = gameOptionSize.y * .05;
+
             const gameOption = new GameNode.Asset(
                 (player) => {
                     this.onGameOptionClick(player, key);
                 },
                 [
-                    [gamePos[0], gamePos[1]],
-                    [gamePos[0] + gameOptionSize.x, gamePos[1]],
-                    [gamePos[0] + gameOptionSize.x, gamePos[1] + gameOptionSize.y],
-                    [gamePos[0], gamePos[1] + gameOptionSize.y],
-                    [gamePos[0], gamePos[1]]
+                    [gamePos[0] + optionMarginX, gamePos[1] + optionMarginY],
+                    [gamePos[0] - optionMarginX + gameOptionSize.x, gamePos[1] + optionMarginY],
+                    [gamePos[0] - optionMarginX + gameOptionSize.x, gamePos[1] + gameOptionSize.y - optionMarginY],
+                    [gamePos[0] + optionMarginX, gamePos[1] + gameOptionSize.y - optionMarginY],
+                    [gamePos[0] + optionMarginX, gamePos[1] + optionMarginY]
                 ],
                 {
                     [assetKey]: {
                         pos: {
-                            x: gamePos[0],
-                            y: gamePos[1]
+                            x: gamePos[0] + optionMarginX,
+                            y: gamePos[1] + optionMarginY
                         },
                         size: {
-                            x: gameOptionSize.x,
-                            y: gameOptionSize.y 
+                            x: (.9 * gameOptionSize.x),
+                            y: (.9 * gameOptionSize.y)
                         }
                     }
-                }
+                },
+                playerId
             );
+
+            gameOptionWrapper.addChild(gameOption);
 
             gameIndex++;
 
             const textThing = (games[key].metadata && games[key].metadata().name || key) + '';
             const gameOptionTitle = new GameNode.Text({
                 text: textThing, 
+                align: 'center',
                 x: gamePos[0] + (gameOptionSize.x / 2), 
                 y: gamePos[1] + (1.1 * gameOptionSize.y),
-                size: 24
-            });
+                size: 2
+            }, playerId);
 
             gameOption.addChild(gameOptionTitle);
 
@@ -530,7 +559,7 @@ class HomegamesDashboard extends Game {
 //                }
 //            );
 
-            this.gameListRoots[playerId].addChild(gameOption);
+            playerRoot.addChild(gameOptionWrapper);
 //            this.base.addChild(authorInfoNode);
         }
     }
@@ -540,6 +569,7 @@ class HomegamesDashboard extends Game {
     }
 
     handleKeyDown(player, key) {
+        return;
         if (!this.playerEditStates[player.id] || !this.isText(key)) {
             return;
         }
@@ -572,48 +602,34 @@ class HomegamesDashboard extends Game {
 
     handleNewPlayer(player) {
         this.keyCoolDowns[player.id] = {};
-//        const playerNameNode = GameNode(this.baseColor, (player) => {
-//            this.playerEditStates[player.id] = !this.playerEditStates[player.id];
-//            playerNameNode.color = this.playerEditStates[player.id] ? Colors.WHITE : this.baseColor;
-//            if (!this.playerEditStates[player.id]) {
-//                player.name = this.playerNodes[player.id].text.text;
-//            }
-//        }, {x: 2, y: 2}, {x: 5, y: 5}, {text: player.name || 'dat boi', x: 5, y: 5}, null, player.id);
-//        this.playerNodes[player.id] = playerNameNode;
-//        this.base.addChild(playerNameNode);
-        this.gameListRoots[player.id] = new GameNode.Shape(
+        const playerRootNode = new GameNode.Shape(
             Colors.HG_BLACK,
             Shapes.POLYGON,
-            [
-                [0, 0],
-                [0, 0],
-                [0, 0],
-                [0, 0],
-                [0, 0]
-            ]
+            {
+                coordinates2d: [
+                    [0, 0],
+                    [0, 0],
+                    [0, 0],
+                    [0, 0],
+                    [0, 0]
+                ]
+            },
+            player.id
         );
-        this.base.addChild(this.gameListRoots[player.id]);
+        this.base.addChild(playerRootNode);
+
         this.playerStates[player.id] = {
-            screen: 0
+            screen: 0,
+            root: playerRootNode
         };
+
         this.renderGameList(player.id);
     }
 
     handlePlayerDisconnect(playerId) {
         delete this.keyCoolDowns[playerId];
-
-        if (this.playerNodes[playerId]) {
-            this.base.removeChild(this.playerNodes[playerId].node.id);
-            delete this.playerNodes[playerId];
-        }
-        if (this.modals[playerId]) {
-            this.base.removeChild(this.modals[playerId].node.id);
-            delete this.modals[playerId];
-        }
-        if (this.gameListRoots[playerId]) {
-            this.base.removeChild(this.gameListRoots[playerId].node.id);
-            delete this.gameListRoots[playerId];
-        }
+        const playerRoot = this.playerStates[playerId].root;
+        this.base.removeChild(playerRoot.node.id);
     }
 
     getRoot() {
