@@ -19,17 +19,19 @@ class ShapeTest extends Game {
             Shapes.POLYGON,
             {
                 coordinates2d: [
-                    [90, 90],
-                    [95, 90],
-                    [95, 95],
-                    [90, 95],
-                    [90, 90]
+                    [50, 10],
+                    [55, 15],
+                    [60, 10],
+                    [60, 30],
+                    [70, 50],
+                    [60, 40],
+                    [50, 10]
                 ],
                 fill: Colors.PURPLE
             },
             null, 
             (player, x, y) => {
-                console.log('I am a base and i have neen clicked');
+                console.log('I have neen clicked');
             });
     }
 
