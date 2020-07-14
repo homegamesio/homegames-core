@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors } = require('squishjs');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 
 class PerfTest extends Game {
     static metadata() {
@@ -13,14 +13,29 @@ class PerfTest extends Game {
 
     constructor() {
         super();
-        this.base = GameNode(Colors.WHITE, (player) => {
-        }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
+        this.base = new GameNode.Shape(
+            Colors.WHITE, 
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+                fill: Colors.WHITE
+            }
+        );
 
         let xCounter = 0;
         let yCounter = 0;
 
         const filler = setInterval(() => {
-            const dot = GameNode(Colors.randomColor(), null, {x: xCounter, y: yCounter}, {x: 1, y: 1});
+            const dotColor = Colors.randomColor();
+            const dot = new GameNode.Shape(
+                dotColor,
+                Shapes.POLYGON,
+                {
+                    coordinates2d: ShapeUtils.rectangle(xCounter, yCounter, 1, 1),
+                    fill: dotColor
+                }
+            );
+
             this.base.addChild(dot);
             xCounter += 1;
             if (xCounter >= 100) {
@@ -32,7 +47,7 @@ class PerfTest extends Game {
                 clearInterval(filler);
             }
 
-        }, 14);
+        }, 20);
     }
 
     getRoot() {

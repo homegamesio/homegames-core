@@ -13,6 +13,7 @@ class Clicktionary extends Game {
     }
 
     constructor() {
+        console.log("UHHHH");
         super();
         this.base = new GameNode.Shape(Colors.CREAM,
             Shapes.POLYGON,
@@ -88,6 +89,8 @@ class Clicktionary extends Game {
     }
 
     handleNewPlayer(player) {
+        console.log("PLAYER");
+        console.log(this.players);
         this.updateGameState();
     }
 

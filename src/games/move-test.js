@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors } = require('squishjs');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 const { checkCollisions } = require('../common/util');
 
 class MoveTest extends Game {
@@ -14,27 +14,41 @@ class MoveTest extends Game {
 
     constructor() {
         super();
-        this.base = GameNode(Colors.randomColor(), null, 
-            {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
+        const baseColor = Colors.randomColor();
+        this.base = new GameNode.Shape(
+            baseColor,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+                fill: baseColor
+            }
+        );
 
         this.keysDown = {};
 
-        this.mover1 = GameNode(Colors.randomColor(), function() {
-        }, {'x': 45, 'y': 43.5}, {'x': 10, 'y': 17});
+        const mover1Color = Colors.randomColor();
+        const mover2Color = Colors.randomColor();
 
+        this.mover1 = new GameNode.Shape(
+            mover1Color,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(43, 43.5, 10, 17),
+                fill: mover1Color
+            }
+        );
         
-        this.mover2 = GameNode(Colors.randomColor(), function() {
-        }, {'x': 20, 'y': 23.5}, {'x': 10, 'y': 17});
+        this.mover2 = new GameNode.Shape(
+            mover2Color,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(20, 23.5, 10, 17),
+                fill: mover1Color
+            }
+        );
 
         this.base.addChild(this.mover1);
         this.base.addChild(this.mover2);
-        this.activeMover = null;
-    }
-
-    moveGuy(player, x, y) {
-        if (this.activeMover) {
-            this.activeMover.pos = {x: x * 100, y: y * 100};
-        }
     }
 
     handleKeyUp(player, key) {
@@ -42,47 +56,48 @@ class MoveTest extends Game {
     }
 
     movePlayer(player, dir, dist = .1) {
-        let newY = player.pos.y;
-        let newX = player.pos.x;
+        let newX = player.node.coordinates2d[0][0];
+        let newY = player.node.coordinates2d[0][1];
 
         if (dir === 'up') {
-            if (player.pos.y - dist < 0) {
+            if (newY - dist < 0) {
                 newY = 0;
             } else {
-                newY = player.pos.y - dist;
+                newY -= dist;
             }
         } 
 
         if (dir === 'down') {
-            if (player.pos.y + player.size.y + dist <= 100) {
-                newY = player.pos.y + dist;
+            if (newY + 17 + dist <= 100) {
+                newY += dist;
             } else {
-                newY = 100 - player.size.y;
+                newY = 100 - 17;//player.size.y;
             }
         } 
 
         if (dir === 'left') {
-            if (player.pos.x - dist < 0) {
+            if (newX - dist < 0) {
                 newX = 0;
             } else {
-                newX = player.pos.x - dist;
+                newX -= dist;
             }
         } 
 
         if (dir === 'right') {
-            if (player.pos.x + player.size.x + dist <= 100) {
-                newX = player.pos.x + dist;
+            if (newX + 10 + dist <= 100) {
+                newX += dist;
             } else {
-                newX = 100 - player.size.x;
+                newX = 100 - 10;//player.size.x;
             }
         } 
 
-        const wouldBeCollisions = checkCollisions(this.base, {pos: {x: newX, y: newY}, size: player.size}, (node) => {
-            return node.id !== this.base.id && node.id !== player.id;
+        const wouldBeCollisions = checkCollisions(this.base, {node: {coordinates2d: ShapeUtils.rectangle(newX, newY, 10, 17)}}, (node) => {
+            return node.node.id !== this.base.node.id && node.node.id !== player.node.id;
         });
 
         if (wouldBeCollisions.length == 0) {
-            player.pos = {'x': newX, 'y': newY};
+            const newCoords = ShapeUtils.rectangle(newX, newY, 10, 17);
+            player.node.coordinates2d = newCoords;
         }
     }
 

@@ -106,7 +106,7 @@ const socketServer = (gameSession, port, cb = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
-            playerIds[ws.id] = false;
+//            playerIds[ws.id] = false;
             gameSession.handlePlayerDisconnect(ws.id);
             
         }
