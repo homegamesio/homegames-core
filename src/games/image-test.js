@@ -39,7 +39,8 @@ class ImageTest extends Game {
                 const newAsset = this.imageNode.node.asset;
                 newAsset.image.pos = {x, y};
                 this.imageNode.node.asset = newAsset;
-            });
+            }
+        );
         
         this.imageNode = new GameNode.Asset(
             null,
