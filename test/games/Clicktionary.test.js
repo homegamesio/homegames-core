@@ -1,4 +1,4 @@
-const Squarer = require("../../src/games/squarer");
+const Clicktionary = require("../../src/games/Clicktionary");
 const assert = require("assert");
 const {
 	testMetaData,
@@ -8,9 +8,9 @@ const {
 	testHasClose
 } = require("./gameTestHelper");
 
-test("Run basic game tests for Squarer", () => {
-	let gameInstance = new Squarer();
-	testMetaData(Squarer);
+test("Run basic game tests for Clicktionary", () => {
+	let gameInstance = new Clicktionary();
+	testMetaData(Clicktionary);
 	testGetRoot(gameInstance);
 	testHandleNewPlayer(gameInstance);
 	testHandlePlayerDisconnect(gameInstance);

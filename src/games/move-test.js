@@ -1,6 +1,7 @@
 const { GameNode, Colors } = require('squishjs');
 const Game = require('./Game');
 const { checkCollisions } = require('../common/util');
+const { randomColor } = Colors;
 
 class MoveTest extends Game {
     static metadata() {
@@ -15,16 +16,16 @@ class MoveTest extends Game {
 
     constructor() {
         super();
-        this.base = GameNode(Colors.randomColor(), null, 
+        this.base = GameNode(randomColor(), null,
             {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
 
         this.keysDown = {};
 
-        this.mover1 = GameNode(Colors.randomColor(), function() {
+        this.mover1 = GameNode(randomColor(), function() {
         }, {'x': 45, 'y': 43.5}, {'x': 10, 'y': 17});
 
-        
-        this.mover2 = GameNode(Colors.randomColor(), function() {
+
+        this.mover2 = GameNode(randomColor(), function() {
         }, {'x': 20, 'y': 23.5}, {'x': 10, 'y': 17});
 
         this.base.addChild(this.mover1);
@@ -52,7 +53,7 @@ class MoveTest extends Game {
             } else {
                 newY = player.pos.y - dist;
             }
-        } 
+        }
 
         if (dir === 'down') {
             if (player.pos.y + player.size.y + dist <= 100) {
@@ -60,7 +61,7 @@ class MoveTest extends Game {
             } else {
                 newY = 100 - player.size.y;
             }
-        } 
+        }
 
         if (dir === 'left') {
             if (player.pos.x - dist < 0) {
@@ -68,7 +69,7 @@ class MoveTest extends Game {
             } else {
                 newX = player.pos.x - dist;
             }
-        } 
+        }
 
         if (dir === 'right') {
             if (player.pos.x + player.size.x + dist <= 100) {
@@ -76,7 +77,7 @@ class MoveTest extends Game {
             } else {
                 newX = 100 - player.size.x;
             }
-        } 
+        }
 
         const wouldBeCollisions = checkCollisions(this.base, {pos: {x: newX, y: newY}, size: player.size}, (node) => {
             return node.id !== this.base.id && node.id !== player.id;
@@ -93,11 +94,11 @@ class MoveTest extends Game {
         if (key === 'ArrowUp') {
             this.movePlayer(this.mover1, 'up', .2);
         }
-        
+
         if (key == 'ArrowDown') {
             this.movePlayer(this.mover1, 'down', .2);
         }
-        
+
         if (key == 'ArrowLeft') {
             this.movePlayer(this.mover1, 'left', .2);
         }
@@ -109,11 +110,11 @@ class MoveTest extends Game {
         if (key == 'w') {
             this.movePlayer(this.mover2, 'up', .2);
         }
-        
+
         if (key == 's') {
             this.movePlayer(this.mover2, 'down', .2);
         }
-        
+
         if (key == 'a') {
             this.movePlayer(this.mover2, 'left', .2);
         }
@@ -125,7 +126,7 @@ class MoveTest extends Game {
 
     handleLayerClick() {
         // todo: squisher needs to update pos after original
-        this.color = Colors.randomColor();
+        this.color = randomColor();
     }
 
     getRoot() {
