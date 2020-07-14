@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors } = require('squishjs');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 const config = require('../../config');
 const Asset = require('../common/Asset');
 const fs = require('fs');
@@ -20,26 +20,49 @@ class Quarantine extends Game {
         super();
         this.defaultQuestionUrl = 'https://homegamesio.s3-us-west-1.amazonaws.com/assets/questions.json';
         this.baseColor = [245, 126, 66, 255];
-        this.base = GameNode(this.baseColor, null, {x: 0, y: 0}, {x: 100, y: 100});
-        this.playerNameRoot = GameNode(this.baseColor, null, {x: 0, y: 0}, {x: 0, y: 0});
-        this.base.addChild(this.playerNameRoot);
-        this.newQuestionButton = GameNode(
+        this.base = new GameNode.Shape(
+            this.baseColor,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+                fill: this.baseColor
+            }
+        );
+
+        this.excludedNodeRoot = new GameNode.Shape(
+            this.baseColor,
+            Shapes.POLYGON,
+            {
+                fill: this.baseColor,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+            }
+        );
+        
+        this.newQuestionButton = new GameNode.Shape(
             [53, 196, 91, 255],
-            null, 
-            {x: 80, y: 3.8}, 
-            {x: 15, y: 5}, 
-            {text: 'Upload Custom Questions', x: 87.7, y: 5.2, size: 20}, 
-            null, 
-            0, 
-            {shadow: {color: Colors.BLACK, blur: 5}}, 
+            Shapes.POLYGON,
+            {
+                fill: [53, 196, 91, 255],
+                coordinates2d: ShapeUtils.rectangle(80, 3.8, 15, 10)
+            },
+            null,
+            null,
+            {
+                shadow: {
+                    color: Colors.BLACK,
+                    blur: 5
+                }
+            },
             {
                 type: 'file',
                 oninput: (data) => {
                     this.initQuestions(null, data)
                 }
-            });
+            }
+        );
 
-        this.playerNameRoot.addChild(this.newQuestionButton);
+        this.excludedNodeRoot.addChild(this.newQuestionButton);
+        this.base.addChild(this.excludedNodeRoot);
         this.activeGame = false;
         this.currentPlayerId = null;
         this.answers = {};
@@ -50,13 +73,14 @@ class Quarantine extends Game {
     initQuestions(url, data) {
         const initCounter = () => {
             if (!this.questionCounter) {
-                this.questionCounter = GameNode(
-                    this.baseColor, 
-                    null, 
-                    {x: 5, y: 15}, 
-                    {x: 10, y: 10}, 
-                    {text: `Question ${this.questionIndex + 1} of ${Object.values(this.questions).length}`, x: 6, y: 15, size: 26});
-                this.playerNameRoot.addChild(this.questionCounter);
+                this.questionCounter = new GameNode.Text({
+                    text: `Question ${this.questionIndex + 1} of ${Object.values(this.questions).length}`, 
+                    x: 50, 
+                    y: 6, 
+                    size: 2,
+                    align: 'center'
+                });
+                this.excludedNodeRoot.addChild(this.questionCounter);
             } else {
                 this.updateQuestionCounter();
             }
@@ -86,14 +110,14 @@ class Quarantine extends Game {
     }
 
     updateQuestionCounter() {
-        const currentText = this.questionCounter.text;
+        const currentText = this.questionCounter.node.text;
         currentText.text = `Question ${this.questionIndex + 1} of ${Object.values(this.questions).length}`;
-        this.questionCounter.text = currentText;
+        this.questionCounter.node.text = currentText;
     }
 
     newTurn() {
         this.waitingForTransition = false;
-        this.base.clearChildren([this.playerNameRoot.id]);
+        this.base.clearChildren([this.excludedNodeRoot.id]);
         if (!this.currentPlayerId) {
             this.currentPlayerId = 1;
         } else {
@@ -107,102 +131,188 @@ class Quarantine extends Game {
 
         this.nonCurrentPlayerId = this.currentPlayerId === 1 ? 2 : 1;
 
-        const nonCurrentPlayerInfoNode = GameNode(
-            this.baseColor, 
-            null, 
-            {x: 42.5, y: 10}, 
-            {x: 0, y: 0}, 
-            {text: `How would player ${this.currentPlayerId} respond to:`, x: 50, y: 10, size: 36}, null, this.nonCurrentPlayerId);
+        const nonCurrentPlayerInfoNode = new GameNode.Text({
+            text: `How would player ${this.currentPlayerId} respond to:`, 
+            x: 50, 
+            y: 15, 
+            size: 1,
+            align: 'center'
+        }, this.nonCurrentPlayerId);
 
         const currentQuestion = this.questions[this.questionIndex];
 
-        const question = GameNode(
-            this.baseColor, 
-            null, 
-            {x: 40, y: 10}, 
-            {x: 0, y: 0}, 
-            {text: currentQuestion.question, x: 50, y: 22, size: 50});
+        const question = new GameNode.Text({
+            text: currentQuestion.question, 
+            x: 50, 
+            y: 22, 
+            size: 1,
+            align: 'center'
+        });
 
         const createWaitingNode = (playerId) => {
             if (this.answers[1] === null || this.answers[2] === null) {
-                const waitingInfo = GameNode(this.baseColor, null,
-                    {x: 50, y: 50}, {x: 0, y:0},
-                    {text: 'Waiting for other player...', x: 50, y: 80, size: 30}, null, playerId);
+                const waitingInfo = new GameNode.Text({
+                    text: 'Waiting for other player...', 
+                    x: 50, 
+                    y: 80, 
+                    size: 3,
+                    align: 'center'
+                }, playerId);
                 this.base.addChild(waitingInfo);
             }
         }
         
-        const cardOnePlayerOne = GameNode(Colors.WHITE, (player, x, y) => {
-            this.answers[player.id] = 1;
-            cardOnePlayerOne.handleClick = null;
-            cardTwoPlayerOne.handleClick = null;
-            cardOnePlayerOne.effects = {
-                shadow: {
-                    color: Colors.GREEN,
-                    blur: 12
+        const cardOnePlayerOne = new GameNode.Shape(
+            Colors.WHITE,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(5, 35, 40, 40),
+                fill: Colors.WHITE
+            },
+            1,
+            (player, x, y) => {
+                this.answers[player.id] = 1;
+                cardOnePlayerOne.node.handleClick = null;
+                cardTwoPlayerOne.node.handleClick = null;
+                cardOnePlayerOne.node.effects = {
+                    shadow: {
+                        color: Colors.GREEN,
+                        blur: 12
+                    }
                 }
+                createWaitingNode(player.id)
+            },
+            {
+                shadow: {
+                    color: Colors.BLACK,
+                    blur: 12
+               }
             }
-            createWaitingNode(player.id);
-        }, {x: 5, y: 35}, {x: 40, y: 40}, {text: currentQuestion.answerA, x: 25, y: 52, size: 36}, null, 1, {
-            shadow: {
-                color: Colors.BLACK,
-                blur: 12
-            }
-        });
+        );
 
-        const cardTwoPlayerOne = GameNode(Colors.WHITE, (player, x, y) => {
-            this.answers[player.id] = 2;
-            cardTwoPlayerOne.handleClick = null;
-            cardOnePlayerOne.handleClick = null;
-            cardTwoPlayerOne.effects = {
-                shadow: {
-                    color: Colors.GREEN,
-                    blur: 12
-                }
-            }
-            createWaitingNode(player.id);
-        }, {x: 55, y: 35}, {x: 40, y: 40}, {text: currentQuestion.answerB, x: 75, y: 52, size: 36}, null, 1, {
-            shadow: {
-                color: Colors.BLACK,
-                blur: 12
-            }
-        });
+        const cardOneP1Text = new GameNode.Text({
+            text: currentQuestion.answerA,
+            x: 25,
+            y: 55,
+            align: 'center',
+            size: 1
+        }, 1);
 
-        const cardOnePlayerTwo = GameNode(Colors.WHITE, (player, x, y) => {
-            this.answers[player.id] = 1;
-            cardOnePlayerTwo.handleClick = null;
-            cardTwoPlayerTwo.handleClick = null;
-            cardOnePlayerTwo.effects = {
-                shadow: {
-                    color: Colors.GREEN,
-                    blur: 12
-                }
-            }
-            createWaitingNode(player.id);
-        }, {x: 5, y: 35}, {x: 40, y: 40}, {text: currentQuestion.answerA, x: 25, y: 52, size: 36}, null, 2, {
-            shadow: {
-                color: Colors.BLACK,
-                blur: 12
-            }
-        });
+        cardOnePlayerOne.addChild(cardOneP1Text);
 
-        const cardTwoPlayerTwo = GameNode(Colors.WHITE, (player, x, y) => {
-            this.answers[player.id] = 2;
-            cardTwoPlayerTwo.handleClick = null;
-            cardOnePlayerTwo.handleClick = null;
-            cardTwoPlayerTwo.effects = {
-                shadow: {
-                    color: Colors.GREEN,
-                    blur: 12
+        const cardTwoPlayerOne = new GameNode.Shape(
+            Colors.WHITE,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(55, 35, 40, 40),
+                fill: Colors.WHITE
+            },
+            1,
+            (player, x, y) => {
+                this.answers[player.id] = 2;
+                cardOnePlayerOne.node.handleClick = null;
+                cardTwoPlayerOne.node.handleClick = null;
+                cardTwoPlayerOne.node.effects = {
+                    shadow: {
+                        color: Colors.GREEN,
+                        blur: 12
+                    }
                 }
+                createWaitingNode(player.id)
+            },
+            {
+                shadow: {
+                    color: Colors.BLACK,
+                    blur: 12
+               }
             }
-            createWaitingNode(player.id);
-        }, {x: 55, y: 35}, {x: 40, y: 40}, {text: currentQuestion.answerB, x: 75, y: 52, size: 36}, null, 2, {
-            shadow: {
-                color: Colors.BLACK,
-                blur: 12
+        );
+
+        const cardTwoP1Text = new GameNode.Text({
+            text: currentQuestion.answerB,
+            x: 75,
+            y: 55,
+            align: 'center',
+            size: 1
+        }, 1);
+
+        cardTwoPlayerOne.addChild(cardTwoP1Text);
+        
+        const cardOnePlayerTwo = new GameNode.Shape(
+            Colors.WHITE,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(5, 35, 40, 40),
+                fill: Colors.WHITE
+            },
+            2,
+            (player, x, y) => {
+                this.answers[player.id] = 1;
+                cardOnePlayerTwo.node.handleClick = null;
+                cardTwoPlayerTwo.node.handleClick = null;
+                cardOnePlayerTwo.node.effects = {
+                    shadow: {
+                        color: Colors.GREEN,
+                        blur: 12
+                    }
+                }
+                createWaitingNode(player.id)
+            },
+            {
+                shadow: {
+                    color: Colors.BLACK,
+                    blur: 12
+               }
             }
-        });
+        );
+
+        const cardOneP2Text = new GameNode.Text({
+            text: currentQuestion.answerA,
+            x: 25,
+            y: 55,
+            align: 'center',
+            size: 1
+        }, 2);
+
+        cardOnePlayerTwo.addChild(cardOneP2Text);
+
+        const cardTwoPlayerTwo = new GameNode.Shape(
+            Colors.WHITE,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(55, 35, 40, 40),
+                fill: Colors.WHITE
+            },
+            2,
+            (player, x, y) => {
+                this.answers[player.id] = 2;
+                cardOnePlayerTwo.node.handleClick = null;
+                cardTwoPlayerTwo.node.handleClick = null;
+                cardTwoPlayerTwo.node.effects = {
+                    shadow: {
+                        color: Colors.GREEN,
+                        blur: 12
+                    }
+                }
+                createWaitingNode(player.id)
+            },
+            {
+                shadow: {
+                    color: Colors.BLACK,
+                    blur: 12
+               }
+            }
+        );
+
+        const cardTwoP2Text = new GameNode.Text({
+            text: currentQuestion.answerB,
+            x: 75,
+            y: 55,
+            align: 'center',
+            size: 1
+        }, 2);
+
+        cardTwoPlayerTwo.addChild(cardTwoP2Text);
 
         this.base.addChild(nonCurrentPlayerInfoNode);
         this.base.addChild(question);
@@ -213,15 +323,16 @@ class Quarantine extends Game {
     }
 
     handleNewPlayer(player) {
-        const playerName = `Player ${player.id}`;
-        const playerNode = GameNode(
-            this.baseColor, 
-            null, 
-            {x: 1, y: 4}, 
-            {x: 8, y: 6}, 
-            {text: playerName, x: 5, y: 5, size: 36}, 
-            null, player.id);
-        this.playerNameRoot.addChild(playerNode);
+        const playerName = new GameNode.Text({
+            text: player.name,
+            x: 1,
+            y: 4,
+            size: 2,
+            align: 'center',
+            color: Colors.BLACK
+        }, player.id);
+
+        this.excludedNodeRoot.addChild(playerName);
     }
 
     tick() {
@@ -230,20 +341,28 @@ class Quarantine extends Game {
             this.newTurn();
         } else if (Object.keys(this.players).length == 1 && !this.waiting) {
             this.waiting = true;
-            const waitingNode = GameNode(
-                this.baseColor, 
-                null, 
-                {x: 37.5, y: 38}, 
-                {x: 25, y: 10}, 
-                {text: 'Waiting for another player', x: 50, y: 40, size: 40});
+            const waitingNode = new GameNode.Text({
+                text: 'Waiting for another player',
+                x: 50, 
+                y: 40,
+                size: 4,
+                align: 'center',
+                color: Colors.BLACK, 
+            });
             this.base.addChild(waitingNode);
         } else if (this.activeGame && !this.waitingForTransition) {
             if (this.answers[1] && this.answers[2]) {
                 this.waitingForTransition = true;
-                this.base.clearChildren([this.playerNameRoot.id]);
+                this.base.clearChildren([this.excludedNodeRoot.id]);
                 if (this.answers[1] == this.answers[2]) {
-                    const sameAnswerNode = GameNode(this.baseColor, null, {
-                        x: 50, y: 40}, {x: 10, y: 10}, {text: `Player ${this.nonCurrentPlayerId} got it right!`, x: 50, y: 40, size: 80});
+                    const sameAnswerNode = new GameNode.Text({
+                        text: `Player ${this.nonCurrentPlayerId} got it!`, 
+                        x: 50, 
+                        y: 40, 
+                        size: 3,
+                        align: 'center',
+                        color: Colors.BLACK
+                    });
                     this.base.addChild(sameAnswerNode);
                     this.questionIndex++;
                     if (this.questionIndex >= Object.values(this.questions).length) {
@@ -252,8 +371,14 @@ class Quarantine extends Game {
                     this.updateQuestionCounter();
                     setTimeout(this.newTurn.bind(this), 2250);
                 } else {
-                    const notSameAnswerNode = GameNode(this.baseColor, null, {
-                        x: 50, y: 40}, {x: 10, y: 10}, {text: `Player ${this.nonCurrentPlayerId} was wrong`, x: 50, y: 40, size: 80});
+                    const notSameAnswerNode = new GameNode.Text({
+                        text: `Player ${this.nonCurrentPlayerId} was wrong`,
+                        x: 50, 
+                        y: 40,
+                        size: 3,
+                        align: 'center'
+                    });
+
                     this.base.addChild(notSameAnswerNode);
                     this.questionIndex++;
                     if (this.questionIndex >= Object.values(this.questions).length) {
