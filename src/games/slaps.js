@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors } = require('squishjs');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 const Deck = require('../common/Deck');
 
 class Slaps extends Game {
@@ -15,8 +15,25 @@ class Slaps extends Game {
     constructor() {
         super();
         this.players = {};
-        this.base = GameNode(Colors.EMERALD, this.handleBackgroundClick.bind(this), {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
-        this.infoNodeRoot = GameNode(Colors.EMERALD, null, {x: 0, y: 0}, {x: 0, y: 0});
+        this.base = new GameNode.Shape(
+            Colors.EMERALD, 
+            Shapes.POLYGON,
+            {
+                fill: Colors.EMERALD,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+            },
+            null, 
+            this.handleBackgroundClick.bind(this)
+        );
+
+        this.infoNodeRoot = new GameNode.Shape(
+            Colors.EMERALD,
+            Shapes.POLYGON,
+            {
+                fill: Colors.EMERALD,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+            }
+        );
         this.base.addChild(this.infoNodeRoot);
         this.infoNodes = {};
     }
@@ -41,12 +58,34 @@ class Slaps extends Game {
 
         if (playerCount < 2 && !this.playerRequirementNode) { 
             this.clearTable();
-            this.playerRequirementNode = GameNode(Colors.EMERALD, null, {'x': 45, 'y': 5}, {'x': 10, 'y': 10}, {'text': 'Need at least 2 players', x: 45, y: 5});
+            this.playerRequirementNode = new GameNode.Text({
+                'text': 'Need at least 2 players', 
+                x: 45, 
+                y: 5,
+                size: 3
+            });
             this.base.addChild(this.playerRequirementNode);
         } else if (playerCount >= 2 && !this.newGameNode) {
 
             this.clearTable();
-            this.newGameNode = GameNode(Colors.GREEN, this.newGame.bind(this), {x: 37.5, y: 37.5}, {x: 25, y: 25}, {text: 'New Game', x: 50, y: 47.5}, null);
+            const newGameText = new GameNode.Text({
+                text: 'New Game',
+                x: 50,
+                y: 47.5,
+                align: 'center',
+                size: 2
+            });
+            this.newGameNode = new GameNode.Shape(
+                Colors.GREEN, 
+                Shapes.POLYGON,
+                {
+                    fill: Colors.GREEN,
+                    coordinates2d: ShapeUtils.rectangle(37.5, 37.5, 25, 25)
+                },
+                null,
+                this.newGame.bind(this)
+            );
+            this.newGameNode.addChild(newGameText);
             this.base.addChild(this.newGameNode);
         } else if (this.newGameNode && playerCount < 2) {
 
@@ -75,20 +114,58 @@ class Slaps extends Game {
                 highestVal = this.hands[i].value;
                 winner = player;
             }
-            const cardNode = GameNode(Colors.WHITE, null, {x: (index * 16) + 20, y: 35}, {x: 15, y: 15}, {text: this.hands[i].toString(), x: (index * 16) + 26, y: 35}); 
+
+            const cardNode = new GameNode.Shape(
+                Colors.WHITE,
+                Shapes.POLYGON,
+                {
+                    fill: Colors.WHITE,
+                    coordinates2d: ShapeUtils.rectangle((index * 16) + 20, 35, 15, 15)
+                }
+            );
+
+            const cardText = new GameNode.Text({
+                text: this.hands[i].toString(), 
+                x: (index * 16) + 26, 
+                y: 35
+            }); 
+
+            cardNode.addChild(cardText);
 
             this.base.addChild(cardNode);
             index += 1;
         }
 
-        const winnerNotification = GameNode(Colors.GREEN, null, {x: 35, y: 10}, {x: 35, y: 10}, {text: winner.name + ' wins!', x: 50, y: 10});
+        const winnerNotification = new GameNode.Text({
+            text: winner.name + ' wins!', 
+            x: 50, 
+            y: 10
+        });
+
         this.base.addChild(winnerNotification);
 
         if (this.canStartNewGame) {
-            const newGameNode = GameNode(Colors.GREEN, function() {
-                this.base.clearChildren();
-                setTimeout(this.newGame.bind(this), 500);
-            }.bind(this), {x: 80, y: 5}, {x: 15, y: 15}, {text: 'New Game', x: 88, y: 10.5}, null, 2);
+            const newGameNode = new GameNode.Shape(
+                Colors.GREEN,
+                Shapes.POLYGON,
+                {
+                    fill: Colors.GREEN,
+                    coordinates2d: ShapeUtils.rectangle(80, 5, 15, 15)
+                },
+                null,
+                () => {
+                    this.base.clearChildren();
+                    setTimeout(this.newGame.bind(this), 500);
+                }
+            );
+
+            const newGameText = new GameNode.Text({
+                text: 'New Game',
+                x: 88,
+                y: 10.5,
+                align: 'center',
+                size: 2
+            });
 
             this.base.addChild(newGameNode);
         }
@@ -98,7 +175,13 @@ class Slaps extends Game {
     handleNewPlayer(player) {
         this.players[player.id] = player;        
         this.updatePlayerCount();
-        const infoNode = GameNode(Colors.EMERALD, null, {x: 80, y: 5}, {x: 20, y: 20}, {text: player.name, x: 80, y: 5}, null, player.id);
+        const infoNode = new GameNode.Text({
+            text: player.name, 
+            x: 80, 
+            y: 5,
+            size: 3
+        }, player.id);
+
         this.infoNodes[player.id] = infoNode;
         this.infoNodeRoot.addChild(infoNode);
 
@@ -109,10 +192,20 @@ class Slaps extends Game {
         let playerYIndex = 0;
         const playerNodes = Object.values(this.players).map(player => {
             const yIndex = ++playerYIndex * 10;
-            return GameNode(Colors.EMERALD, null, {x: 15, y: yIndex}, {x: 10, y: 9}, {text: this.players[player.id].name, x: 15, y: yIndex}, null, null);
+            return new GameNode.Text({
+                text: this.players[player.id].name, 
+                x: 15, 
+                y: yIndex,
+                size: 2
+            });
         });
 
-        const playerInfoPanel = GameNode(Colors.EMERALD, null, {x: 15, y: 5}, {x: 10, y: 1}, {text: 'Players', x: 15, y: 5}, null, null);
+        const playerInfoPanel = new GameNode.Text({
+            text: 'Players', 
+            x: 15, 
+            y: 5,
+            size: 3
+        });
 
         playerNodes.forEach(player => {
             playerInfoPanel.addChild(player);
