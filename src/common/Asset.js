@@ -22,7 +22,7 @@ class Asset {
                 shasum.update(uri);
                 const fileHash = shasum.digest('hex');
                 const filePath = config.ASSET_PATH + '/' + fileHash;
-                if (true && fs.existsSync(filePath)) {
+                if (fs.existsSync(filePath)) {
                     resolve(fs.readFileSync(filePath));
                 } else {
                     const writeStream = fs.createWriteStream(filePath);
