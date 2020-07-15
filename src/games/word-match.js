@@ -14,7 +14,15 @@ class WordMatch extends Game {
 
     constructor() {
         super();
-        this.base = GameNode(Colors.CREAM, null, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
+        this.base = new GameNode.Shape(
+            Colors.CREAM, 
+            Shapes.POLYGON,
+            {
+                fill: Colors.CREAM,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+            }
+        );
+
         this.savedNodeRoot = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 0, y: 0});
         this.playerList = GameNode(Colors.CREAM, null, {x: 0, y: 0}, {x: 0, y: 0});
 
