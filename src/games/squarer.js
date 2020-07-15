@@ -1,6 +1,5 @@
-const { Colors, GameNode } =  require('squishjs');
-const Game = require('./Game');
-const { randomColor, COLORS: { BLACK, GRAY, GOLD, GREEN }} = Colors;
+const { Colors, Game, GameNode, Shapes, ShapeUtils } =  require('squishjs');
+const { randomColor, BLACK, GRAY, GOLD, GREEN } = Colors;
 
 class Squarer extends Game {
 	static metadata() {
@@ -16,14 +15,42 @@ class Squarer extends Game {
 	constructor() {
         super();
         this.defaultSize = { x: 5, y: 5 };
-		this.base = GameNode(BLACK, null, {x: 0, y: 0}, {x: 100, y: 100});
-        this.startLine = GameNode(GRAY, null, {x: 0, y: 95}, {x: 100, y: 5});
-        this.finishLine = GameNode(GRAY, null, {x: 0, y: 0}, {x: 100, y: 5});
+	this.base = new GameNode.Shape(
+            BLACK, 
+            Shapes.POLYGON,
+            {
+                fill: BLACK,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+            }
+        );
+        this.startLine = new GameNode.Shape(
+            GRAY, 
+            Shapes.POLYGON,
+            {
+                fill: GRAY,
+                coordinates2d: ShapeUtils.rectangle(0, 95, 100, 5)
+            }
+        );
+        this.finishLine = new GameNode.Shape(
+            GRAY, 
+            Shapes.POLYGON,
+            {
+                fill: GRAY,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 5)
+            }
+        );
         this.base.addChild(this.startLine);
         this.base.addChild(this.finishLine);
 
         const destinationColor = randomColor([BLACK, GRAY, GOLD, GREEN]);
-        this.destination = GameNode(destinationColor, null, {x: 40, y: 0}, this.defaultSize);
+        this.destination = new GameNode.Shape(
+            destinationColor, 
+            Shapes.POLYGON,
+            {
+                fill: destinationColor,
+                coordinates2d: ShapeUtils.rectangle(40, 0, this.defaultSize.x, this.defaultSize.y)
+            }
+        );
         this.base.addChild(this.destination);
 
         this.keyCoolDowns = {};
@@ -55,7 +82,14 @@ class Squarer extends Game {
             const tickRate = Math.ceil(250 + Math.random() * 100);
             let color = i % 2 ? GOLD : GREEN;
             for (let l = 0; l < this.level && l <= 9; l++) {
-                const temp = GameNode(color, null, {x: (10 * l) + 5, y: i}, this.defaultSize);
+                const temp = new GameNode.Shape(
+                    color, 
+                    Shapes.POLYGON,
+                    {
+                        fill: color,
+                        coordinates2d: ShapeUtils.rectangle((10 * l) + 5, i, this.defaultSize.x, this.defaultSize.y)
+                    }
+                );
                 temp.interval = setInterval(() => {
                     this.movementQueue.push({ npc: true, node: temp, direction: 'left' });
                 }, tickRate);
@@ -68,7 +102,14 @@ class Squarer extends Game {
             const tickRate = Math.ceil(250 + Math.random() * 100);
             let color = i % 2 ? GOLD : GREEN;
             for (let l = 0; l < this.level && l <= 9; l++) {
-                const temp = GameNode(color, null, {x: (10 * l) + 5, y: i}, this.defaultSize);
+                const temp = new GameNode.Shape(
+                    color, 
+                    Shapes.POLYGON,
+                    {
+                        fill: color,
+                        coordinates2d: ShapeUtils.rectangle((10 * l) + 5, i, this.defaultSize.x, this.defaultSize.y)
+                    }
+                );
                 temp.interval = setInterval(() => {
                     this.movementQueue.push({ npc: true, node: temp, direction: 'right' });
                 }, tickRate);
@@ -83,7 +124,15 @@ class Squarer extends Game {
         const color = randomColor(this.usedColors);
         this.usedColors.push(color);
         const defaultX = (this.playerArray.length * 10) + 5;
-        const square = GameNode(color, null, { x: defaultX, y: 95 }, this.defaultSize, null, null);
+        const square = new GameNode.Shape(
+            color, 
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(defaultX, 95, this.defaultSize.x, this.defaultSize.y),
+                fill: color
+            }
+        );
+
         square.controllerID = player.id;
         square.defaultX = defaultX;
         square.score = 0;
@@ -131,53 +180,60 @@ class Squarer extends Game {
     tick() {
         while(this.movementQueue.length) {
             const { npc, node, direction } = this.movementQueue.shift();
-            let newX = node.pos.x;
-            let newY = node.pos.y;
+            let nodePosX = node.node.coordinates2d[0][0];
+            let nodePosY = node.node.coordinates2d[0][1];
+
+            const nodeSizeX = node.node.coordinates2d[1][0] - nodePosX;
+            const nodeSizeY = node.node.coordinates2d[2][1] - nodePosY;
+
+            let newX = nodePosX;
+            let newY = nodePosY;
+
             if (npc) {
                 if (direction === 'right') {
-                    if (node.pos.x + node.size.x + 5 <= 100) {
-                        newX = node.pos.x + 5;
+                    if (nodePosX + nodeSizeX + 5 <= 100) {
+                        newX = nodePosX + 5;
                     } else {
                         newX = 0;
                     }
                 } else {
-                    if (node.pos.x - 5 >= 0) {
-                        newX = node.pos.x - 5;
+                    if (nodePosX - 5 >= 0) {
+                        newX = nodePosX - 5;
                     } else {
                         newX = 100;
                     }
                 }
-                node.pos = {x: newX, y: newY};
+                node.node.coordinates2d = ShapeUtils.rectangle(newX, newY, nodeSizeX, nodeSizeY);
                 this.checkForCollisions( node, this.playerArray, true);
             } else {
                 if (direction === 'up') {
-                    if (node.pos.y - 5 < 0) {
+                    if (nodePosY - 5 < 0) {
                         newY = 0;
                     } else {
-                        newY = node.pos.y - 5;
+                        newY = nodePosY - 5;
                     }
                 } else if (direction === 'down') {
-                    if (node.pos.y + node.size.y + 5 <= 100) {
-                        newY = node.pos.y + 5;
+                    if (nodePosY + nodeSizeY + 5 <= 100) {
+                        newY = nodePosY + 5;
                     } else {
-                        newY = 100 - node.size.y;
+                        newY = 100 - nodeSizeY;
                     }
                 } else if (direction === 'left') {
-                    if (node.pos.x - 5 < 0) {
+                    if (nodePosX - 5 < 0) {
                         newX = 0;
                     } else {
-                        newX = node.pos.x - 5;
+                        newX = nodePosX - 5;
                     }
                 } else if (direction === 'right') {
-                    if (node.pos.x + node.size.x + 5 <= 100) {
-                        newX = node.pos.x + 5;
+                    if (nodePosX + nodeSizeX + 5 <= 100) {
+                        newX = nodePosX + 5;
                     } else {
-                        newX = 100 - node.size.x;
+                        newX = 100 - nodeSizeX;
                     }
                 }
-                node.pos = {x: newX, y: newY};
+                node.node.coordinates2d = ShapeUtils.rectangle(newX, newY, nodeSizeX, nodeSizeY);
                 if (this.checkForCollisions(node, this.npc)) {
-                    node.pos = {x: node.defaultX, y: 95};
+                    node.node.coordinates2d = ShapeUtils.rectangle(node.node.defaultX, 95, nodeSizeX, nodeSizeY);
                 } else if (this.checkForCollisions(node, [this.destination])) {
                     this.level++;
                     node.score++;
@@ -189,19 +245,37 @@ class Squarer extends Game {
         }
     }
 
-    checkForCollisions(node, toCheck = [], bounceFound = false) {
+    checkForCollisions(node, toCheck = [], bounceFound = false) { 
+        const nodePosX = node.node.coordinates2d[0][0];
+        const nodePosY = node.node.coordinates2d[0][1];
+
+        const nodeSizeX = node.node.coordinates2d[1][0] - nodePosX;
+        const nodeSizeY = node.node.coordinates2d[2][1] - nodePosY;
+
         if (bounceFound) {
             toCheck.forEach(elem => {
-                if (node.pos.x === elem.pos.x && (node.pos.x + node.size.x) === (elem.pos.x + elem.size.x)) {
-                    if (node.pos.y === elem.pos.y && (node.pos.y + node.size.y) === (elem.pos.y + elem.size.y)) {
-                        elem.pos = {x: elem.defaultX, y: 95};
+                const elemPosX = elem.node.coordinates2d[0][0];
+                const elemPosY = elem.node.coordinates2d[0][1];
+                
+                const elemSizeX = elem.node.coordinates2d[1][0] - elemPosX;
+                const elemSizeY = elem.node.coordinates2d[2][1] - elemPosY;
+
+                if (nodePosX === elemPosX && (nodePosX + nodeSizeX) === (elemPosX + elemSizeX)) {
+                    if (nodePosY === elemPosY && (nodePosY + nodeSizeY) === (elemPosY + elemSizeY)) {
+                        elem.node.coordinates2d = ShapeUtils.rectangle(elem.defaultX, 95, elemSizeX, elemSizeY);
                     }
                 }
             });
         }
         return toCheck.some(elem => {
-            if (node.pos.x === elem.pos.x && (node.pos.x + node.size.x) === (elem.pos.x + elem.size.x)) {
-                if (node.pos.y === elem.pos.y && (node.pos.y + node.size.y) === (elem.pos.y + elem.size.y)) {
+            const elemPosX = elem.node.coordinates2d[0][0];
+            const elemPosY = elem.node.coordinates2d[0][1];
+            
+            const elemSizeX = elem.node.coordinates2d[1][0] - elemPosX;
+            const elemSizeY = elem.node.coordinates2d[2][1] - elemPosY;
+
+            if (nodePosX === elemPosX && (nodePosX + nodeSizeX) === (elemPosX + elemSizeX)) {
+                if (nodePosY === elemPosY && (nodePosY + nodeSizeY) === (elemPosY + elemSizeY)) {
                     return true;
                 }
             }
@@ -211,8 +285,14 @@ class Squarer extends Game {
 
     bounceAllPlayersBack() {
         this.playerArray.forEach((elem, i) => {
+            const elemPosX = elem.node.coordinates2d[0][0];
+            const elemPosY = elem.node.coordinates2d[0][1];
+
+            const elemSizeX = elem.node.coordinates2d[1][0] - elemPosX;
+            const elemSizeY = elem.node.coordinates2d[2][1] - elemPosY;
+
             elem.defaultX = (i * 10) + 5
-            elem.pos = {x: elem.defaultX, y: 95};
+            elem.node.coordinates2d = ShapeUtils.rectangle(elem.defaultX, 95, elemSizeX, elemSizeY);
         });
     }
 
