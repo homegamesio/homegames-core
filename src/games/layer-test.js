@@ -1,5 +1,6 @@
 const { Colors, GameNode } = require('squishjs');
 const Game = require('./Game');
+const { randomColor } = Colors;
 
 class LayerTest extends Game {
     static metadata() {
@@ -14,13 +15,13 @@ class LayerTest extends Game {
 
     constructor() {
         super();
-        this.base = GameNode(Colors.randomColor(), this.handleLayerClick, 
+        this.base = GameNode(randomColor(), this.handleLayerClick,
             {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
 
         const increment = 1;
         let prev = this.base;
         for (let i = increment; i < 50; i+= 2 * increment) {
-            const child = GameNode(Colors.randomColor(), this.handleLayerClick,
+            const child = GameNode(randomColor(), this.handleLayerClick,
                 {'x': i, 'y': i}, {'x': 100 - (2 * i), 'y': 100 - (2 * i)});
             prev.addChild(child);
             prev = child;
@@ -34,7 +35,7 @@ class LayerTest extends Game {
     }
 
     handleLayerClick() {
-        this.color = Colors.randomColor();
+        this.color = randomColor();
     }
 
     getRoot() {

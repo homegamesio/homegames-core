@@ -1,5 +1,6 @@
 const { GameNode, Colors } = require('squishjs');
 const Game = require('./Game');
+const { COLORS: { WHITE }, randomColor } = Colors;
 
 class PerfTest extends Game {
     static metadata() {
@@ -14,14 +15,14 @@ class PerfTest extends Game {
 
     constructor() {
         super();
-        this.base = GameNode(Colors.WHITE, (player) => {
+        this.base = GameNode(WHITE, (player) => {
         }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
 
         let xCounter = 0;
         let yCounter = 0;
 
-        const filler = setInterval(() => {
-            const dot = GameNode(Colors.randomColor(), null, {x: xCounter, y: yCounter}, {x: 1, y: 1});
+        this.filler = setInterval(() => {
+            const dot = GameNode(randomColor(), null, {x: xCounter, y: yCounter}, {x: 1, y: 1});
             this.base.addChild(dot);
             xCounter += 1;
             if (xCounter >= 100) {
@@ -30,7 +31,7 @@ class PerfTest extends Game {
             }
 
             if (yCounter == 100 && xCounter == 100) {
-                clearInterval(filler);
+                clearInterval(this.filler);
             }
 
         }, 14);
@@ -38,6 +39,10 @@ class PerfTest extends Game {
 
     getRoot() {
         return this.base;
+    }
+
+    close() {
+        clearInterval(this.filler);
     }
 
 }

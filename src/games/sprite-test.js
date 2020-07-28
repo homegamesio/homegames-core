@@ -1,6 +1,7 @@
 const Asset = require('../common/Asset');
 const Game = require('./Game');
 const { GameNode, Colors } = require('squishjs');
+const { COLORS: { BLACK, CREAM } } = Colors;
 
 class SpriteTest extends Game {
     static metadata() {
@@ -24,7 +25,7 @@ class SpriteTest extends Game {
         };
 
         this.playerSpots = {};
-        
+
         const playerRows = 3;
         const playerCols = 8;
 
@@ -61,7 +62,7 @@ class SpriteTest extends Game {
         this.inputCooldowns = {};
 
         this.background = GameNode(
-            Colors.CREAM,
+            CREAM,
             (player, x, y) => {
                 let fakeArrowKey;
                 if (x >= .25 && x <= .75) {
@@ -120,7 +121,7 @@ class SpriteTest extends Game {
         const x = ((spot.x * 10) + 2);
         const y = ((spot.y * 30) + 2);
         this.dancers[player.id] = GameNode(
-            Colors.BLACK,
+            BLACK,
             null,
             {x: 10, y: 10},
             {x: 0, y: 0},

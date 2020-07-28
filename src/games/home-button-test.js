@@ -1,5 +1,6 @@
 const { GameNode, Colors } = require('squishjs');
 const Game = require('./Game');
+const { COLORS: BLUE } = Colors;
 
 class HomeButtonTest extends Game {
     static metadata() {
@@ -15,7 +16,7 @@ class HomeButtonTest extends Game {
 
     constructor() {
         super();
-        this.base = GameNode(Colors.BLUE, (player) => {
+        this.base = GameNode(BLUE, (player) => {
             player.receiveUpdate([5, 70, 0]);
         }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100}, {'text': 'ayy lmao', x: 50, y: 5});
     }

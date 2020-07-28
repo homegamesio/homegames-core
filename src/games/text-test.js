@@ -1,19 +1,30 @@
 const { GameNode, Colors } = require('squishjs');
 const Game = require('./Game');
+const { randomColor, COLORS: { BLACK }} = Colors;
 
 class TextTest extends Game {
+    static metadata() {
+        return {
+            res: {
+                width: 1920,
+                height: 1080
+            },
+            author: 'Joseph Garcia'
+        };
+    }
+
     constructor() {
         super();
         this.baseText = 'Hello, World!';
         this.count = 0;
-        this.base = GameNode(Colors.randomColor(), this.handleLayerClick.bind(this), 
+        this.base = GameNode(randomColor(), this.handleLayerClick.bind(this),
             {'x': 0, 'y': 0}, {'x': 100, 'y': 100}, {'x': 50, 'y': 50, 'text': this.baseText});
-        this.playerCount = GameNode(Colors.BLACK, null, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 50, 'y': 25, 'text': ''});
+        this.playerCount = GameNode(BLACK, null, {'x': 0, 'y': 0}, {'x': 0, 'y': 0}, {'x': 50, 'y': 25, 'text': ''});
         this.base.addChild(this.playerCount);
     }
 
     handleLayerClick() {
-        this.base.color = Colors.randomColor();
+        this.base.color = randomColor();
         this.base.text.text = this.baseText + ' ' + ++this.count;
         this.base.text = this.base.text;
     }
