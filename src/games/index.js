@@ -10,7 +10,6 @@ const HomeButtonTest = require('./home-button-test');
 const Clicktionary = require('./clicktionary');
 const PerfTest = require('./perf-test');
 const Squarer = require('./squarer');
-const WhoTweetedThatTweet = require('./whoTweetedThatTweet');
 
 module.exports = {
     HomeButtonTest,
@@ -24,6 +23,5 @@ module.exports = {
     LayerTest,
     NameTest,
     TextTest,
-    Squarer,
-    WhoTweetedThatTweet,
+    Squarer
 };
