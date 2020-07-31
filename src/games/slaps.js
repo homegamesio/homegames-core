@@ -1,6 +1,7 @@
 const { GameNode, Colors }  = require('squishjs');
 const Game = require('./Game');
 const Deck = require('../common/Deck');
+const { COLORS: { EMERALD, GREEN, WHITE } } = Colors;
 
 class Slaps extends Game {
     static metadata() {
@@ -16,8 +17,8 @@ class Slaps extends Game {
     constructor() {
         super();
         this.players = {};
-        this.base = GameNode(Colors.EMERALD, this.handleBackgroundClick.bind(this), {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
-        this.infoNodeRoot = GameNode(Colors.EMERALD, null, {x: 0, y: 0}, {x: 0, y: 0});
+        this.base = GameNode(EMERALD, this.handleBackgroundClick.bind(this), {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
+        this.infoNodeRoot = GameNode(EMERALD, null, {x: 0, y: 0}, {x: 0, y: 0});
         this.base.addChild(this.infoNodeRoot);
         this.infoNodes = {};
     }
@@ -40,14 +41,14 @@ class Slaps extends Game {
 
         const playerCount = Object.keys(this.players).length;
 
-        if (playerCount < 2 && !this.playerRequirementNode) { 
+        if (playerCount < 2 && !this.playerRequirementNode) {
             this.clearTable();
-            this.playerRequirementNode = GameNode(Colors.EMERALD, null, {'x': 45, 'y': 5}, {'x': 10, 'y': 10}, {'text': 'Need at least 2 players', x: 45, y: 5});
+            this.playerRequirementNode = GameNode(EMERALD, null, {'x': 45, 'y': 5}, {'x': 10, 'y': 10}, {'text': 'Need at least 2 players', x: 45, y: 5});
             this.base.addChild(this.playerRequirementNode);
         } else if (playerCount >= 2 && !this.newGameNode) {
 
             this.clearTable();
-            this.newGameNode = GameNode(Colors.GREEN, this.newGame.bind(this), {x: 37.5, y: 37.5}, {x: 25, y: 25}, {text: 'New Game', x: 50, y: 47.5}, null);
+            this.newGameNode = GameNode(GREEN, this.newGame.bind(this), {x: 37.5, y: 37.5}, {x: 25, y: 25}, {text: 'New Game', x: 50, y: 47.5}, null);
             this.base.addChild(this.newGameNode);
         } else if (this.newGameNode && playerCount < 2) {
 
@@ -65,7 +66,7 @@ class Slaps extends Game {
         this.base.removeChild(this.newGameNode.id);
         this.clearTable();
         this.initializeCards();
-        
+
         this.hands = {};
         let index = 0;
         let highestVal, winner;
@@ -76,17 +77,17 @@ class Slaps extends Game {
                 highestVal = this.hands[i].value;
                 winner = player;
             }
-            const cardNode = GameNode(Colors.WHITE, null, {x: (index * 16) + 20, y: 35}, {x: 15, y: 15}, {text: this.hands[i].toString(), x: (index * 16) + 26, y: 35}); 
+            const cardNode = GameNode(WHITE, null, {x: (index * 16) + 20, y: 35}, {x: 15, y: 15}, {text: this.hands[i].toString(), x: (index * 16) + 26, y: 35});
 
             this.base.addChild(cardNode);
             index += 1;
         }
 
-        const winnerNotification = GameNode(Colors.GREEN, null, {x: 35, y: 10}, {x: 35, y: 10}, {text: winner.name + ' wins!', x: 50, y: 10});
+        const winnerNotification = GameNode(GREEN, null, {x: 35, y: 10}, {x: 35, y: 10}, {text: winner.name + ' wins!', x: 50, y: 10});
         this.base.addChild(winnerNotification);
 
         if (this.canStartNewGame) {
-            const newGameNode = GameNode(Colors.GREEN, function() {
+            const newGameNode = GameNode(GREEN, function() {
                 this.base.clearChildren();
                 setTimeout(this.newGame.bind(this), 500);
             }.bind(this), {x: 80, y: 5}, {x: 15, y: 15}, {text: 'New Game', x: 88, y: 10.5}, null, 2);
@@ -97,9 +98,9 @@ class Slaps extends Game {
     }
 
     handleNewPlayer(player) {
-        this.players[player.id] = player;        
+        this.players[player.id] = player;
         this.updatePlayerCount();
-        const infoNode = GameNode(Colors.EMERALD, null, {x: 80, y: 5}, {x: 20, y: 20}, {text: player.name, x: 80, y: 5}, null, player.id);
+        const infoNode = GameNode(EMERALD, null, {x: 80, y: 5}, {x: 20, y: 20}, {text: player.name, x: 80, y: 5}, null, player.id);
         this.infoNodes[player.id] = infoNode;
         this.infoNodeRoot.addChild(infoNode);
 
@@ -110,10 +111,10 @@ class Slaps extends Game {
         let playerYIndex = 0;
         const playerNodes = Object.values(this.players).map(player => {
             const yIndex = ++playerYIndex * 10;
-            return GameNode(Colors.EMERALD, null, {x: 15, y: yIndex}, {x: 10, y: 9}, {text: this.players[player.id].name, x: 15, y: yIndex}, null, null);
+            return GameNode(EMERALD, null, {x: 15, y: yIndex}, {x: 10, y: 9}, {text: this.players[player.id].name, x: 15, y: yIndex}, null, null);
         });
 
-        const playerInfoPanel = GameNode(Colors.EMERALD, null, {x: 15, y: 5}, {x: 10, y: 1}, {text: 'Players', x: 15, y: 5}, null, null);
+        const playerInfoPanel = GameNode(EMERALD, null, {x: 15, y: 5}, {x: 10, y: 1}, {text: 'Players', x: 15, y: 5}, null, null);
 
         playerNodes.forEach(player => {
             playerInfoPanel.addChild(player);
@@ -130,7 +131,7 @@ class Slaps extends Game {
     }
 
     handlePlayerDisconnect(player) {
-        if (this.infoNodes[player.id]) { 
+        if (this.infoNodes[player.id]) {
             this.infoNodeRoot.removeChild(this.infoNodes[player.id].id);
         }
         delete this.players[player.id];

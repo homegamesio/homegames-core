@@ -1,6 +1,6 @@
 {
   "name": "homegames",
-  "version": "0.4.20",
+  "version": "0.4.24",
   "description": "Play games at home",
   "directories": {
     "lib": "lib"
@@ -10,7 +10,7 @@
     "assets": "src/**/*"
   },
   "scripts": {
-    "test": "npm run-script test",
+    "test": "node testRunner.js",
     "start": "node game_server.js"
   },
   "repository": {

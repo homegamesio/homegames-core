@@ -1,6 +1,7 @@
 const { GameNode, Colors } = require('squishjs');
 const Asset = require('../common/Asset');
 const Game = require('./Game');
+const { COLORS: { RED, BLUE, PURPLE }, randomColor } = Colors;
 
 class Draw extends Game {
     static metadata() {
@@ -22,21 +23,21 @@ class Draw extends Game {
                 'type': 'image'
             }),
             'home-button': new Asset('url', {
-                'location': 'https://d3lgoy70hwd3pc.cloudfront.net/home.png', 
+                'location': 'https://d3lgoy70hwd3pc.cloudfront.net/home.png',
                 'type': 'image'
             })
         };
 
         this.playerColorMap = {};
         this.board = GameNode(
-            Colors.PURPLE, 
-            this.handleBoardClick.bind(this), 
+            PURPLE,
+            this.handleBoardClick.bind(this),
             {
-                'x': 0, 
+                'x': 0,
                 'y': 0
-            }, 
+            },
             {
-                'x': 100, 
+                'x': 100,
                 'y': 100
             },
             {
@@ -61,10 +62,10 @@ class Draw extends Game {
     }
 
     initializeBoard() {
-        const randomizeButton = GameNode(Colors.RED, this.randomizeBoardColor.bind(this), {'x': 80, 'y': 0}, {'x': 15, 'y': 15});
-        const resetButton = GameNode(Colors.BLUE, this.initializeBoard.bind(this), {x: 60, y: 0}, {x: 15, y: 15});
+        const randomizeButton = GameNode(RED, this.randomizeBoardColor.bind(this), {'x': 80, 'y': 0}, {'x': 15, 'y': 15});
+        const resetButton = GameNode(BLUE, this.initializeBoard.bind(this), {x: 60, y: 0}, {x: 15, y: 15});
 
-        const homeButton = GameNode(Colors.PURPLE, (player) => {
+        const homeButton = GameNode(PURPLE, (player) => {
             player.receiveUpdate([5, 70, 0]);
         }, {'x': 3, 'y': 3}, {'x': 8, 'y': 10}, {'text': '', 'x': 0, 'y': 0}, {'home-button': {pos: {x: 3, y: 3}, size: {x: 8, y: 10}}});
 
@@ -81,18 +82,18 @@ class Draw extends Game {
     }
 
     handleBoardClick(player, x, y) {
-        const coloredPixel = GameNode(Colors.randomColor(), () => {}, {'x': (x * 100) - .25, 'y': (y * 100) - .25}, {'x': .5, 'y': .5}, 
+        const coloredPixel = GameNode(randomColor(), () => {}, {'x': (x * 100) - .25, 'y': (y * 100) - .25}, {'x': .5, 'y': .5},
             {
                 'text': '',
                 x: 0,
                 y: 0
             });
- 
+
         this.board.addChild(coloredPixel);
     }
 
     randomizeBoardColor() {
-        const color = Colors.randomColor();
+        const color = randomColor();
         this.board.color = color;
         this.homeButton.color = color;
     }

@@ -1,6 +1,7 @@
 const gameNode = require('../GameNode');
 const Asset = require('../Asset');
-const { colors } = require('../Colors');
+const { Colors } = require('squishjs');
+const { COLORS: { PERRYWINKLE, }} = Colors;
 
 class SplashScreen {
     constructor() {
@@ -18,18 +19,18 @@ class SplashScreen {
                 'type': 'audio'
             })
         };
-        
+
         this.clickCount = 0;
-        
+
         this.base = gameNode(
-            colors.PERRYWINKLE, 
-            this.handleLayerClick.bind(this), 
+            PERRYWINKLE,
+            this.handleLayerClick.bind(this),
             {
-                'x': 0, 
+                'x': 0,
                 'y': 0
-            }, 
+            },
             {
-                'x': 100, 
+                'x': 100,
                 'y': 100
             },
             {
@@ -50,16 +51,16 @@ class SplashScreen {
                 }
             }
         );
- 
+
         this.logo = gameNode(
-            colors.PERRYWINKLE, 
-            this.handleLayerClick.bind(this), 
+            PERRYWINKLE,
+            this.handleLayerClick.bind(this),
             {
-                'x': 0, 
+                'x': 0,
                 'y': 0
-            }, 
+            },
             {
-                'x': 20, 
+                'x': 20,
                 'y': 20
             },
             null,
@@ -78,7 +79,7 @@ class SplashScreen {
         );
 
         this.soundPlayer = gameNode(
-            colors.PERRYWINKLE,
+            PERRYWINKLE,
             null,
             {
                 'x': 0,
@@ -87,7 +88,7 @@ class SplashScreen {
             {
                 'x': 0,
                 'y': 0
-            }, 
+            },
             null,
             {
                 'clickSound': {
@@ -109,9 +110,9 @@ class SplashScreen {
 
     handleLayerClick() {
         this.clickCount++;
-        this.base.text = {'x': this.base.text.x, 'y': this.base.text.y, text: this.clickCount + ''}; 
+        this.base.text = {'x': this.base.text.x, 'y': this.base.text.y, text: this.clickCount + ''};
     }
-    
+
     getRoot() {
         return this.base;
     }

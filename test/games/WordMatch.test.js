@@ -1,4 +1,4 @@
-const Squarer = require("../../src/games/squarer");
+const WordMatch = require("../../src/games/word-match");
 const assert = require("assert");
 const {
 	testMetaData,
@@ -8,9 +8,9 @@ const {
 	testHasClose
 } = require("./gameTestHelper");
 
-test("Run basic game tests for Squarer", () => {
-	let gameInstance = new Squarer();
-	testMetaData(Squarer);
+test("Run basic game tests for WordMatch", () => {
+	let gameInstance = new WordMatch();
+	testMetaData(WordMatch);
 	testGetRoot(gameInstance);
 	testHandleNewPlayer(gameInstance);
 	testHandlePlayerDisconnect(gameInstance);
