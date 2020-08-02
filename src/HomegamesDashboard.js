@@ -1,6 +1,12 @@
 const { fork } = require('child_process');
 const path = require('path');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
+let { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
+
+// gross
+Colors = Colors.COLORS;
+
+console.log("COLORS");
+console.log(Colors);
 
 const Asset = require('./common/Asset');
 
@@ -343,7 +349,8 @@ class HomegamesDashboard extends Game {
                 align: 'center',
                 x: 65,
                 y:  55,
-                size: 2
+                size: 2,
+                color: Colors.BLACK
             }, player.id);
 
             sessionButton.addChild(sessionText);
@@ -533,7 +540,8 @@ class HomegamesDashboard extends Game {
                 align: 'center',
                 x: gamePos[0] + (gameOptionSize.x / 2), 
                 y: gamePos[1] + (1.1 * gameOptionSize.y),
-                size: 2
+                size: 2,
+                color: Colors.BLACK
             }, playerId);
 
             gameOption.addChild(gameOptionTitle);
