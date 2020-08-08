@@ -1,4 +1,5 @@
 let { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
+const Asset = require('../common/Asset');
 
 Colors = Colors.COLORS;
 
@@ -14,6 +15,9 @@ class ClickCity extends Game {
     constructor() {
         super();
 
+        this.atkPow = 10;
+        this.score = 0;
+
         this.base = new GameNode.Shape(
             Colors.WHITE,
             Shapes.POLYGON,
@@ -21,6 +25,76 @@ class ClickCity extends Game {
                 coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
             }
         );
+
+        let ting = this;
+        this.enemyMap = {
+            'dude1': () => {
+                const thing = {
+                    points: 420,
+                    node: new GameNode.Asset(
+                        () => {
+                            thing.health -= this.atkPow;
+                            if (thing.health <= 0) {
+                                ting.base.removeChild(thing.node.id);                                
+                                ting.dude = null;
+                                ting.score += thing.points;
+                                ting.updatePlayerView(1);
+                            }
+                        },
+                        ShapeUtils.rectangle(40, 40, 20, 20),
+                        {
+                            'triangle-dude': {
+                                pos: {
+                                    x: 40,
+                                    y: 40
+                                },
+                                size: {
+                                    x: 20,
+                                    y: 20
+                                }
+                            }
+                        }
+                    ),
+                    health: 400,
+                    attack: 2,
+                    attackRate: .2
+                }
+                return thing;
+            },
+            'dude2': () => {
+                const thing = {
+                    points: 200,
+                    node: new GameNode.Asset(
+                        () => {
+                            thing.health -= this.atkPow;
+                            if (thing.health <= 0) {
+                                ting.base.removeChild(thing.node.id);                                
+                                ting.dude = null;
+                                ting.score += thing.points;
+                                ting.updatePlayerView(1);
+                            }
+                        },
+                        ShapeUtils.rectangle(40, 40, 20, 20),
+                        {
+                            'hexagon-dude': {
+                                pos: {
+                                    x: 40,
+                                    y: 40
+                                },
+                                size: {
+                                    x: 20,
+                                    y: 20
+                                }
+                            }
+                        }
+                    ),
+                    health: 200,
+                    attack: 2,
+                    attackRate: .2
+                }
+                return thing;
+            }
+        }
 
         this.viewRoot = new GameNode.Shape(
             Colors.WHITE,
@@ -36,7 +110,17 @@ class ClickCity extends Game {
     }
 
     tick() {
-        this.runPlayerStuff();
+        if (this.dude) {
+            return;
+        } 
+        const ran = Math.random();
+        const enemyType = ran > .5 ? 'dude1' : 'dude2';
+        const dudeNode = this.enemyMap[enemyType]();
+        console.log(dudeNode);
+        this.dude = dudeNode;
+        this.base.addChild(this.dude.node);
+    //    console.log("hello!");
+//        this.runPlayerStuff();
     }
 
     runPlayerStuff() {
@@ -66,6 +150,15 @@ class ClickCity extends Game {
             playerId
         );
 
+        const scoreText = new GameNode.Text({
+            text: this.score + '',
+            x: 25, 
+            y: 1,
+            align: 'center',
+            color: Colors.GREEN,
+            size: 5
+        });
+
         const menu = new GameNode.Shape(
             Colors.BLACK,
             Shapes.POLYGON,
@@ -85,6 +178,8 @@ class ClickCity extends Game {
             },
             playerId,
             (player, x, y) => {
+                console.log(x);
+                console.log(y);
                 // todo: player views
                 this.playerStates[player.id] = {
                     view: 'city'
@@ -161,6 +256,7 @@ class ClickCity extends Game {
         menu.addChild(clickerButton);
         
         playerRoot.addChild(menu);
+        playerRoot.addChild(scoreText);
         
         this.viewRoot.addChild(playerRoot);
     }
@@ -170,6 +266,19 @@ class ClickCity extends Game {
             view: 'clicker'
         };
         this.updatePlayerView(player.id);
+    }
+
+    getAssets() {
+        return {
+            'triangle-dude': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/triangle.png',
+                'type': 'image'
+            }),
+            'hexagon-dude': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/hexagon.png',
+                'type': 'image'
+            })
+        }
     }
 
 }
