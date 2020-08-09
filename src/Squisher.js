@@ -1,4 +1,4 @@
-const { squish } = require('squishjs');
+const { squish } = require('squishjs49');
 const config = require('../config');
 
 const ASSET_TYPE = 1;

@@ -1,5 +1,6 @@
-const HomegamesDashboard = require('./src/HomegamesDashboard');
-const PerfTest = require('./src/games/perf-test');
+//const HomegamesDashboard = require('./src/HomegamesDashboard');
+const HomegamesDashboard = require('./src/games/draw');
+//const PerfTest = require('./src/games/perf-test');
 const GameSession = require("./src/GameSession");
 const { socketServer } = require('./src/util/socket');
 const config = require('./config');

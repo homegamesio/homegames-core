@@ -1,6 +1,6 @@
 const { fork } = require('child_process');
 const path = require('path');
-const { GameNode, Colors } = require('squishjs');
+const { GameNode, Colors } = require('squishjs49');
 const { COLORS: { CREAM, ORANGE, GREEN, WHITE }} = Colors;
 
 const Asset = require('./common/Asset');
