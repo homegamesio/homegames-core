@@ -1,5 +1,7 @@
-const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squishjs');
+let { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squishjs');
 const Asset = require('../common/Asset');
+
+Colors = Colors.COLORS;
 
 class Draw extends Game {
     static metadata() {
