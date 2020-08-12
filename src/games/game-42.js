@@ -19,6 +19,7 @@ class Game42 extends Game {
 
     constructor() {
         super();
+        this.turns = 0;
         this.defaultQuestionUrl = 'https://homegamesio.s3-us-west-1.amazonaws.com/assets/test_questions_1.json';
         this.baseColor = [245, 126, 66, 255];
         this.base = new GameNode.Shape(
@@ -93,6 +94,11 @@ class Game42 extends Game {
     }
 
     newTurn() {
+        this.turns++;
+        if (this.turns != 1 && this.turns % 2 == 1) {
+            this.questionIndex++;
+            this.updateQuestionCounter();
+        }
         // hack
         let toRemove = [];
         for (let i in this.excludedNodeRoot.node.children) {
@@ -230,7 +236,8 @@ class Game42 extends Game {
                 color: Colors.BLACK, 
             });
             this.base.addChild(waitingNode);
-        } else if (this.activeGame && !this.waitingForTransition) {
+        } else if (false && this.activeGame && !this.waitingForTransition) {
+            console.log("THIS HAPPENS");
             if (this.answers[1] && this.answers[2]) {
                 this.waitingForTransition = true;
                 this.base.clearChildren([this.excludedNodeRoot.id]);
