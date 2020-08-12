@@ -133,7 +133,7 @@ class Game42 extends Game {
         const currentQuestion = this.questions[this.currentPlayerId][this.questionIndex];
 
         const question = new GameNode.Text({
-            text: currentQuestion.question, 
+            text: `Player ${this.currentPlayerId}'s question: ${currentQuestion.question}`, 
             x: 50, 
             y: 22, 
             size: 1,
@@ -146,7 +146,7 @@ class Game42 extends Game {
             Shapes.POLYGON,
             {
                 fill: Colors.HG_BLUE,
-                coordinates2d: ShapeUtils.rectangle(50, 50, 10, 10)
+                coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20)
             },
             this.nonCurrentPlayerId,
             null,
@@ -154,30 +154,42 @@ class Game42 extends Game {
             {
                 type: 'text',
                 oninput: (player, data) => {
+                    this.base.removeChild(answerButton.node.id);
                     const playerAnswerNode = new GameNode.Text({
-                        text: data,
+                        text: `Player ${this.nonCurrentPlayerId}'s answer: ${data}`,
                         x: 50,
                         y: 40,
-                        size: 1,
+                        size: 2,
                         color: Colors.BLACK,
                         align: 'center'
                     });
                     this.base.addChild(playerAnswerNode);
                     
                     const realAnswerNode = new GameNode.Text({
-                        text: currentQuestion.answer,
+                        text: `Correct answer: ${currentQuestion.answer}`,
                         x: 50,
-                        y: 70,
-                        size: 1,
+                        y: 65,
+                        size: 2,
                         color: Colors.BLACK,
                         align: 'center'
                     });
                     this.base.addChild(realAnswerNode);
 
-                    setTimeout(this.newTurn.bind(this), 5000);
+                    setTimeout(this.newTurn.bind(this), 7500);
                 }
             }
         );
+
+        const answerButtonText = new GameNode.Text({
+            text: 'Answer',
+            x: 50,
+            y: 48,
+            align: 'center',
+            color: Colors.BLACK,
+            size: 1
+        }, this.nonCurrentPlayerId);
+        
+        answerButton.addChild(answerButtonText);
 
         this.base.addChild(answerButton);
         this.base.addChild(question);
@@ -210,7 +222,7 @@ class Game42 extends Game {
         const waitingNode = new GameNode.Text({
             text: 'Upload questions',
             x: 50, 
-            y: 40,
+            y: 48,
             size: 2,
             align: 'center',
             color: Colors.BLACK, 
