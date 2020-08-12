@@ -39,43 +39,18 @@ class Game42 extends Game {
             }
         );
         
-        this.newQuestionButton = new GameNode.Shape(
-            [53, 196, 91, 255],
-            Shapes.POLYGON,
-            {
-                fill: [53, 196, 91, 255],
-                coordinates2d: ShapeUtils.rectangle(80, 3.8, 15, 10)
-            },
-            null,
-            null,
-            {
-                shadow: {
-                    color: Colors.BLACK,
-                    blur: 5
-                }
-            },
-            {
-                type: 'file',
-                oninput: (player, data) => {
-                    this.initQuestions(null, data, player.id)
-                }
-            }
-        );
-
-        this.excludedNodeRoot.addChild(this.newQuestionButton);
         this.base.addChild(this.excludedNodeRoot);
         this.activeGame = false;
         this.currentPlayerId = null;
         this.answers = {};
         this.questions = {};
-        this.initQuestions(this.defaultQuestionUrl);
     }
 
     initQuestions(url, data, playerId) {
         const initCounter = () => {
             if (!this.questionCounter) {
                 this.questionCounter = new GameNode.Text({
-                    text: `Question ${this.questionIndex + 1} of ${Object.values(this.questions[1]).length}`, 
+                    text: `Question ${this.questionIndex + 1} of ${Object.values(this.questions[Object.keys(this.questions)[0]]).length}`, 
                     color: Colors.BLACK,
                     x: 50, 
                     y: 6, 
@@ -113,11 +88,23 @@ class Game42 extends Game {
 
     updateQuestionCounter() {
         const currentText = this.questionCounter.node.text;
-        currentText.text = `Question ${this.questionIndex + 1} of ${Object.values(this.questions[1]).length}`;
+        currentText.text = `Question ${this.questionIndex + 1} of ${Object.values(this.questions[Object.keys(this.questions)[0]]).length}`;
         this.questionCounter.node.text = currentText;
     }
 
     newTurn() {
+        // hack
+        let toRemove = [];
+        for (let i in this.excludedNodeRoot.node.children) {
+            const child = this.excludedNodeRoot.node.children[i];
+            if (child.node.input) {
+                toRemove.push(child.node.id);
+            } 
+        }
+        for (let i in toRemove) {
+            this.excludedNodeRoot.removeChild(toRemove[i]);
+        }
+
         this.waitingForTransition = false;
 
         const player1Id = Math.min(...Object.keys(this.players).map(k => Number(k)));
@@ -137,7 +124,6 @@ class Game42 extends Game {
 
         this.nonCurrentPlayerId = this.currentPlayerId === player1Id ? player2Id : player1Id;
 
-        console.log('hello');
         const currentQuestion = this.questions[this.currentPlayerId][this.questionIndex];
 
         const question = new GameNode.Text({
@@ -192,29 +178,54 @@ class Game42 extends Game {
     }
 
     handleNewPlayer(player) {
-        const playerName = new GameNode.Text({
-            text: player.name,
-            x: 1,
-            y: 4,
+        const newQuestionButton = new GameNode.Shape(
+            [53, 196, 91, 255],
+            Shapes.POLYGON,
+            {
+                fill: [53, 196, 91, 255],
+                coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20)
+            },
+            player.id,
+            null,
+            {
+                shadow: {
+                    color: Colors.BLACK,
+                    blur: 5
+                }
+            },
+            {
+                type: 'file',
+                oninput: (player, data) => {
+                    this.initQuestions(null, data, player.id)
+                }
+            }
+        );
+
+        const waitingNode = new GameNode.Text({
+            text: 'Upload questions',
+            x: 50, 
+            y: 40,
             size: 2,
             align: 'center',
-            color: Colors.BLACK
-        }, player.id);
+            color: Colors.BLACK, 
+        });
 
-        this.excludedNodeRoot.addChild(playerName);
+        newQuestionButton.addChild(waitingNode);
+ 
+        this.excludedNodeRoot.addChild(newQuestionButton);
     }
 
     tick() {
-        if (Object.keys(this.players).length == 2 && !this.activeGame) {
+        if (Object.keys(this.questions).length == 2 && !this.activeGame) {
             this.activeGame = true;
             this.newTurn();
-        } else if (Object.keys(this.players).length == 1 && !this.waiting) {
+        } else if (!this.waiting) {
             this.waiting = true;
             const waitingNode = new GameNode.Text({
-                text: 'Waiting for another player',
+                text: 'Waiting for all players to upload questions',
                 x: 50, 
-                y: 40,
-                size: 4,
+                y: 25,
+                size: 3,
                 align: 'center',
                 color: Colors.BLACK, 
             });
