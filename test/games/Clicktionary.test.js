@@ -1,8 +1,8 @@
 const path = require('path');
 const gamePath = path.resolve('src/games/clicktionary.js');
 const Clicktionary = require(gamePath);
-
 const assert = require("assert");
+
 const {
 	testMetaData,
 	testGetRoot,

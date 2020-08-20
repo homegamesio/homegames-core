@@ -1,5 +1,8 @@
-const SpriteTest = require("../../src/games/sprite-test");
+const path = require('path');
+const gamePath = path.resolve('src/games/sprite-test.js');
+const SpriteTest = require(gamePath);
 const assert = require("assert");
+
 const {
 	testMetaData,
 	testGetRoot,

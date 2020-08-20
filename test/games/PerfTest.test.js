@@ -1,5 +1,8 @@
-const PerfTest = require("../../src/games/perf-test");
+const path = require('path');
+const gamePath = path.resolve('src/games/perf-test.js');
+const PerfTest = require(gamePath);
 const assert = require("assert");
+
 const {
 	testMetaData,
 	testGetRoot,

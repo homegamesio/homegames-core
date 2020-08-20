@@ -1,5 +1,8 @@
-const LayerTest = require("../../src/games/layer-test");
+const path = require('path');
+const gamePath = path.resolve('src/games/layer-test.js');
+const LayerTest = require(gamePath);
 const assert = require("assert");
+
 const {
 	testMetaData,
 	testGetRoot,

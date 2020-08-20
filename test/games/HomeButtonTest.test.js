@@ -1,5 +1,8 @@
-const HomeButtonTest = require("../../src/games/home-button-test");
+const path = require('path');
+const gamePath = path.resolve('src/games/home-button-test.js');
+const HomeButtonTest = require(gamePath);
 const assert = require("assert");
+
 const {
 	testMetaData,
 	testGetRoot,

@@ -1,5 +1,8 @@
-const TextTest = require("../../src/games/text-test");
+const path = require('path');
+const gamePath = path.resolve('src/games/text-test.js');
+const TextTest = require(gamePath);
 const assert = require("assert");
+
 const {
 	testMetaData,
 	testGetRoot,
