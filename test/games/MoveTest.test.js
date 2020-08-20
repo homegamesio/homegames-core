@@ -1,5 +1,8 @@
-const MoveTest = require("../../src/games/move-test");
+const path = require('path');
+const gamePath = path.resolve('src/games/move-test.js');
+const MoveTest = require(gamePath);
 const assert = require("assert");
+
 const {
 	testMetaData,
 	testGetRoot,

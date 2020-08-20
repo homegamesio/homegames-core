@@ -1,5 +1,8 @@
-const WordMatch = require("../../src/games/word-match");
+const path = require('path');
+const gamePath = path.resolve('src/games/word-match.js');
+const WordMatch = require(gamePath);
 const assert = require("assert");
+
 const {
 	testMetaData,
 	testGetRoot,

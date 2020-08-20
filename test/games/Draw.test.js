@@ -1,5 +1,8 @@
-const Draw = require("../../src/games/draw");
+const path = require('path');
+const gamePath = path.resolve('src/games/draw.js');
+const Draw = require(gamePath);
 const assert = require("assert");
+
 const {
 	testMetaData,
 	testGetRoot,

@@ -1,5 +1,8 @@
-const Slaps = require("../../src/games/slaps");
+const path = require('path');
+const gamePath = path.resolve('src/games/slaps.js');
+const Slaps = require(gamePath);
 const assert = require("assert");
+
 const {
 	testMetaData,
 	testGetRoot,

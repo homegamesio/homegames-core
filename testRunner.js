@@ -28,10 +28,11 @@ function searchForFiles(startPath, filter) {
 	const files = fs.readdirSync(startPath);
 	files.forEach(file => {
 		const filename = path.join(startPath,file);
+                const filenamePieces = filename.split('/');
 		if (fs.lstatSync(filename).isDirectory()) {
 			const values = searchForFiles(filename, filter);
 			toReturn = toReturn.concat(values);
-		} else if (filename.indexOf(filter) > -1) {
+		} else if (filenamePieces[filenamePieces.length - 1].charAt(0) != '.' && filename.indexOf(filter) > -1) {
 			toReturn.push(`./${filename}`);
 		}
 	});
