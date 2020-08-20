@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/homegamesio/homegames#readme",
   "dependencies": {
-    "squishjs": "0.4.9",
+    "squishjs": "0.5.0",
     "ws": "5.2.1"
   }
 }
