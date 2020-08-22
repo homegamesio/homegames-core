@@ -107,15 +107,26 @@ class GameSession {
     }
 
     findClickHelper(x, y, playerId, node, clicked = null) {
-        if ((node.handleClick && !node.playerId || playerId == node.playerId ) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
-            const verticesLength = node.coordinates2d.length;
-            const vertices = node.coordinates2d;
+        if ((node.handleClick && node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+            const _vertices = node.coordinates2d;
+            let vertices2d = [];
+            // TODO: fix this
+            if (_vertices[0].length) {
+                vertices2d = _vertices;
+            } else {
+                for (let i = 0; i < _vertices.length; i+=2) {
+                    vertices2d.push([_vertices[i], _vertices[i + 1]]); 
+                }
+            }
+
+            const vertices = vertices2d;
+
             let isInside = false;
             let minX = vertices[0][0];
             let maxX = vertices[0][0];
             let minY = vertices[0][1];
             let maxY = vertices[0][1];
-            for (let i = 1; i < verticesLength; i++) {
+            for (let i = 1; i < vertices.length; i++) {
                 const vert = vertices[i];
                 minX = Math.min(vert[0], minX);
                 maxX = Math.max(vert[0], maxX);

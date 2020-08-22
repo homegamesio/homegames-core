@@ -15,8 +15,7 @@ class HomegamesRoot {
                     [0, 0],
                     [0, 0]
                 ]
-            },
-            null
+            }
         );
 
         this.playerDashboards = {};

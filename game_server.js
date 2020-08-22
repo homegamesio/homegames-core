@@ -4,8 +4,11 @@ const { socketServer } = require('./src/util/socket');
 const config = require('./config');
 const Homenames = require('./src/Homenames');
 const PerfTest = require('./src/games/perf-test');
+const PlayerVisibilityTest = require('./src/games/player-vis-test');
+const ClickCity = require('./src/games/click-city');
 
-const dashboard = new PerfTest();//HomegamesDashboard();
+const dashboard = new ClickCity();//HomegamesDashboard();
+//const dashboard = new PlayerVisibilityTest();//HomegamesDashboard();
 
 const session = new GameSession(dashboard);
 
