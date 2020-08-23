@@ -114,7 +114,6 @@ class Squisher {
     }
 
     updateHelper(node, playerFrames) {
-        console.log("update");
         if (!this.ids.has(node.node.id)) {
             this.ids.add(node.node.id);
             node.addListener(this);
@@ -130,7 +129,6 @@ class Squisher {
             // invisible node
         } else {
             for (const i in node.node.playerIds) {
-                console.log(node.node);
                 playerFrames[node.node.playerIds[i]].push(squished);
             }
         }
