@@ -86,29 +86,66 @@ class Squisher {
     }
 
     update(node) {
-        const newSquished = [];
-        this.updateHelper(node, newSquished);
-        this.squished = newSquished.flat();
+        const playerFrames = {};
+        const playerIds = new Set(Object.keys(this.game.players));
+        for (const playerId of playerIds) {
+            playerFrames[playerId] = [];
+        }
+        this.updateHelper(node, playerFrames);
+        for (const playerId in playerFrames) {
+            playerFrames[playerId] = playerFrames[playerId].flat();
+        }
+        this.playerFrames = playerFrames;
+    //    const newSquished = [];
+    //    this.updateHelper(node, newSquished);
+    //    this.squished = newSquished.flat();
     }
 
-    updateHelper(node, squished) {
+    getPlayerIds(node, ids) {
+        for (const i in node.node.playerIds) {
+            if (node.node.playerIds[i] !== 0) {
+                ids.add(node.node.playerIds[i]);
+            }
+        }
+
+        for (let i = 0; i < node.node.children.length; i++) {
+            this.getPlayerIds(node.node.children[i], ids);
+        }
+    }
+
+    updateHelper(node, playerFrames) {
+        console.log("update");
         if (!this.ids.has(node.node.id)) {
             this.ids.add(node.node.id);
             node.addListener(this);
         }
-        const newSquish = squish(node.node);
-        squished.push(newSquish);
+
+        const squished = squish(node.node);
+        // public node
+        if (node.node.playerIds.length === 0) {
+            for (const playerId in playerFrames) {
+                playerFrames[playerId].push(squished);
+            }
+        } else if (node.node.playerIds[0] === 0) {
+            // invisible node
+        } else {
+            for (const i in node.node.playerIds) {
+                console.log(node.node);
+                playerFrames[node.node.playerIds[i]].push(squished);
+            }
+        }
 
         for (let i = 0; i < node.node.children.length; i++) {
-            this.updateHelper(node.node.children[i], squished);
+            this.updateHelper(node.node.children[i], playerFrames);
         }
     }
 
     handleStateChange(node) {
         // todo: fix this
         this.update(this.hgRoot.getRoot());
+        //this.update(this.hgRoot.getRoot());
         for (const listener of this.listeners) {
-            listener.handleSquisherUpdate(this.squished);
+            listener.handleSquisherUpdate(this.playerFrames);
         }
     }
 }
