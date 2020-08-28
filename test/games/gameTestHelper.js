@@ -9,7 +9,7 @@ const testMetaData = (game) => {
 
 const testGetRoot = (game) => {
 	const res = game.getRoot();
-	assert(typeof res === typeof GameNode());
+	assert(typeof res === typeof GameNode);
 };
 
 const testHandleNewPlayer = (game) => {

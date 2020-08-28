@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors } = require('squishjs');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 const dictionary = require('../common/util/dictionary');
 
 class WordMatch extends Game {
