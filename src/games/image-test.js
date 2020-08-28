@@ -1,5 +1,6 @@
 const Asset = require('../common/Asset');
 const { Game, GameNode, Colors, Shapes } = require('squishjs');
+const COLORS = Colors.COLORS;
 
 class ImageTest extends Game {
     static metadata() {
@@ -22,7 +23,7 @@ class ImageTest extends Game {
         const defaultImageSize = {x: 10, y: 10 * 16/9};
         const defaultImagePos = {x: 45, y: 40};
 
-        this.base = new GameNode.Shape(Colors.WHITE, 
+        this.base = new GameNode.Shape(COLORS.WHITE, 
             Shapes.POLYGON,
             {
                 coordinates2d: [
@@ -32,7 +33,7 @@ class ImageTest extends Game {
                     [0, 100],
                     [0, 0]
                 ],
-                fill: Colors.WHITE
+                fill: COLORS.WHITE
             },
             null,
             (player, x, y) => {
@@ -62,7 +63,7 @@ class ImageTest extends Game {
         this.base.addChild(this.imageNode);
 
         this.decreaseWidthButton = new GameNode.Shape(
-            Colors.RED,
+            COLORS.RED,
             Shapes.POLYGON,
             {
                 coordinates2d: [
@@ -72,7 +73,7 @@ class ImageTest extends Game {
                     [29.5, 2 + (6 * 16 / 9)],
                     [29.5, 2],
                 ],
-                fill: Colors.RED
+                fill: COLORS.RED
             },
             null,
             (player, x, y) => {
@@ -86,7 +87,7 @@ class ImageTest extends Game {
         );
         
         this.increaseWidthButton = new GameNode.Shape(
-            Colors.GREEN,
+            COLORS.GREEN,
             Shapes.POLYGON,
             {
                 coordinates2d: [
@@ -96,7 +97,7 @@ class ImageTest extends Game {
                     [49.5, 2 + (6 * 16 / 9)],
                     [49.5, 2],
                 ],
-                fill: Colors.GREEN
+                fill: COLORS.GREEN
             },
             null,
             (player, x, y) => {
@@ -110,7 +111,7 @@ class ImageTest extends Game {
         );
 
         this.decreaseHeightButton = new GameNode.Shape(
-            Colors.RED,
+            COLORS.RED,
             Shapes.POLYGON,
             {
                 coordinates2d: [
@@ -120,7 +121,7 @@ class ImageTest extends Game {
                     [29.5, 22 + (6 * 16 / 9)],
                     [29.5, 22],
                 ],
-                fill: Colors.RED
+                fill: COLORS.RED
             },
             null,
             (player, x, y) => {
@@ -134,7 +135,7 @@ class ImageTest extends Game {
         );
         
         this.increaseHeightButton = new GameNode.Shape(
-            Colors.GREEN,
+            COLORS.GREEN,
             Shapes.POLYGON,
             {
                 coordinates2d: [
@@ -144,7 +145,7 @@ class ImageTest extends Game {
                     [49.5, 22 + (6 * 16 / 9)],
                     [49.5, 22],
                 ],
-                fill: Colors.GREEN
+                fill: COLORS.GREEN
             },
             null,
             (player, x, y) => {
@@ -158,7 +159,7 @@ class ImageTest extends Game {
         );
         
         this.resetButton = new GameNode.Shape(
-            Colors.WHITE,
+            COLORS.WHITE,
             Shapes.POLYGON,
             {
                 coordinates2d: [
@@ -168,7 +169,7 @@ class ImageTest extends Game {
                     [79.5, 22 + (6 * 16 / 9)],
                     [79.5, 22],
                 ],
-                fill: Colors.HG_YELLOW
+                fill: COLORS.HG_YELLOW
             },
             null,
             (player, x, y) => {

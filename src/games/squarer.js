@@ -1,5 +1,5 @@
 const { Colors, Game, GameNode, Shapes, ShapeUtils } =  require('squishjs');
-const { randomColor, BLACK, GRAY, GOLD, GREEN } = Colors;
+const { BLACK, GRAY, GOLD, GREEN } = Colors.COLORS;
 
 class Squarer extends Game {
 	static metadata() {
@@ -42,7 +42,7 @@ class Squarer extends Game {
         this.base.addChild(this.startLine);
         this.base.addChild(this.finishLine);
 
-        const destinationColor = randomColor([BLACK, GRAY, GOLD, GREEN]);
+        const destinationColor = Colors.randomColor([BLACK, GRAY, GOLD, GREEN]);
         this.destination = new GameNode.Shape(
             destinationColor, 
             Shapes.POLYGON,
@@ -121,7 +121,7 @@ class Squarer extends Game {
 
     handleNewPlayer(player) {
         this.keyCoolDowns[player.id] = {};
-        const color = randomColor(this.usedColors);
+        const color = Colors.randomColor(this.usedColors);
         this.usedColors.push(color);
         const defaultX = (this.playerArray.length * 10) + 5;
         const square = new GameNode.Shape(

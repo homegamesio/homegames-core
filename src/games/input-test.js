@@ -3,6 +3,8 @@ const { dictionary } = require('../common/util');
 const fs = require('fs');
 const Asset = require('../common/Asset');
 
+const COLORS = Colors.COLORS;
+
 class InputTest extends Game {
     static metadata() {
         return {
@@ -18,11 +20,11 @@ class InputTest extends Game {
     constructor() {
         super();
         this.base = new GameNode.Shape(
-            Colors.CREAM, 
+            COLORS.CREAM, 
             Shapes.POLYGON, 
             {
                 coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                fill: Colors.CREAM
+                fill: COLORS.CREAM
             }
         );
 
@@ -34,17 +36,17 @@ class InputTest extends Game {
             y: 50,
             size: 4,
             align: 'center',
-            color: Colors.BLACK
+            color: COLORS.BLACK
         });
 
         const textInputShape = ShapeUtils.rectangle(20, 10, 20, 20);
         
         this.textInputNode = new GameNode.Shape(
-            Colors.HG_BLUE,
+            COLORS.HG_BLUE,
             Shapes.POLYGON,
             {
                 coordinates2d: textInputShape,
-                fill: Colors.HG_BLUE
+                fill: COLORS.HG_BLUE
             },
             null,
             null,
@@ -65,11 +67,11 @@ class InputTest extends Game {
         let image;
 
         this.fileInputNode = new GameNode.Shape(
-            Colors.HG_BLUE,
+            COLORS.HG_BLUE,
             Shapes.POLYGON,
             {
                 coordinates2d: fileInputShape,
-                fill: Colors.HG_BLUE
+                fill: COLORS.HG_BLUE
             },
             null,
             null,

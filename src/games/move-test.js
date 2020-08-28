@@ -1,5 +1,6 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 const { checkCollisions } = require('../common/util');
+const COLORS = Colors.COLORS;
 
 class MoveTest extends Game {
     static metadata() {
@@ -56,8 +57,10 @@ class MoveTest extends Game {
     }
 
     movePlayer(player, dir, dist = .1) {
-        let newX = player.node.coordinates2d[0][0];
-        let newY = player.node.coordinates2d[0][1];
+        console.log("MOVING");
+        console.log(player.node);
+        let newX = player.node.coordinates2d[0]//[0];
+        let newY = player.node.coordinates2d[1]//[1];
 
         if (dir === 'up') {
             if (newY - dist < 0) {
