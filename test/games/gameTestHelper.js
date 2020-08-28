@@ -8,8 +8,8 @@ const testMetaData = (game) => {
 };
 
 const testGetRoot = (game) => {
-	const res = game.getRoot();
-	assert(typeof res === typeof GameNode);
+    const res = game.getRoot();
+    assert((res instanceof GameNode.Shape) || (res instanceof GameNode.Text) || (res instanceof GameNode.Asset));
 };
 
 const testHandleNewPlayer = (game) => {
