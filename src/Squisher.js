@@ -1,5 +1,7 @@
 const { squish } = require('squishjs');
 const config = require('../config');
+const HomegamesRoot = require('./HomegamesRoot');
+const HomegamesDashboard = require('./HomegamesDashboard');
 
 const ASSET_TYPE = 1;
 
@@ -7,15 +9,14 @@ class Squisher {
     constructor(game) {
         this.assets = {};
         this.gameMetadata = game && game.constructor.metadata ? game.constructor.metadata() : null;
-        this.width = this.gameMetadata ? this.gameMetadata.res.width : 1280;
-        this.height = this.gameMetadata ? this.gameMetadata.res.height : 720;
-
         this.ids = new Set();
-
+        const isDashboard = game instanceof HomegamesDashboard;
+        this.hgRoot = new HomegamesRoot(game, isDashboard);
         this.game = game;
-        this.game && this.game.getRoot().addListener(this);
         this.listeners = new Set();
-        this.game && this.update(this.game.getRoot());
+        this.hgRoot.getRoot().addListener(this);
+        this.game && this.game.getRoot().addListener(this);
+        this.game && this.update(this.hgRoot.getRoot());
 
         if (this.game.tick) {
             const tickRate = this.gameMetadata && this.gameMetadata.tickRate ? this.gameMetadata.tickRate : config.DEFAULT_TICK_RATE;
@@ -24,7 +25,10 @@ class Squisher {
     }
 
     async initialize() {
-        const gameAssets = this.game.getAssets ? this.game.getAssets() : [];
+        const gameAssets = this.game.getAssets ? this.game.getAssets() || {} : {};
+        if (this.hgRoot.getAssets()) {
+            Object.assign(gameAssets, this.hgRoot.getAssets());
+        }
         
         let assetBundleSize = 0;
 
@@ -43,7 +47,19 @@ class Squisher {
             
             const assetType = gameAssets[key].info.type === 'image' ? 1 : 2;
 
-            this.assets[key] = [ASSET_TYPE, assetType, encodedLength.charCodeAt(0), encodedLength.charCodeAt(1), encodedLength.charCodeAt(2), encodedLength.charCodeAt(3), ...assetKeyArray, ...payload];
+            const encodedMaxLength = 10;
+            let encodedLengthString = '';
+            for (let i = 0; i < (encodedMaxLength - encodedLength.length); i++) {
+                encodedLengthString += '0';
+            }
+            for (let j = encodedLength.length; j < encodedMaxLength; j++) {
+                encodedLengthString +=  encodedLength.charAt(j - encodedLength.length);
+            }
+            const encodedLengthArray = new Array(encodedMaxLength);
+            for (let i = 0; i < encodedMaxLength; i++) {
+                encodedLengthArray[i] = encodedLength.charCodeAt(i);
+            }
+            this.assets[key] = [ASSET_TYPE, assetType, ...encodedLengthArray, ...assetKeyArray, ...payload];
             assetBundleSize += this.assets[key].length;
         }
 
@@ -76,21 +92,21 @@ class Squisher {
     }
 
     updateHelper(node, squished) {
-        if (!this.ids.has(node.id)) {
-            this.ids.add(node.id);
+        if (!this.ids.has(node.node.id)) {
+            this.ids.add(node.node.id);
             node.addListener(this);
         }
-        const newSquish = squish(node);
+        const newSquish = squish(node.node);
         squished.push(newSquish);
 
-        for (let i = 0; i < node.children.length; i++) {
-            this.updateHelper(node.children[i], squished);
+        for (let i = 0; i < node.node.children.length; i++) {
+            this.updateHelper(node.node.children[i], squished);
         }
     }
 
     handleStateChange(node) {
         // todo: fix this
-        this.update(this.game.getRoot());
+        this.update(this.hgRoot.getRoot());
         for (const listener of this.listeners) {
             listener.handleSquisherUpdate(this.squished);
         }

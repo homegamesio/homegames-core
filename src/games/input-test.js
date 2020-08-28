@@ -1,0 +1,136 @@
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
+const { dictionary } = require('../common/util');
+const fs = require('fs');
+const Asset = require('../common/Asset');
+
+class InputTest extends Game {
+    static metadata() {
+        return {
+            res: {
+                width: 1280,
+                height: 720
+            },
+            author: 'Joseph Garcia',
+            name: 'Input Test'
+        };
+    }
+
+    constructor() {
+        super();
+        this.base = new GameNode.Shape(
+            Colors.CREAM, 
+            Shapes.POLYGON, 
+            {
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+                fill: Colors.CREAM
+            }
+        );
+
+        this.assets = {};
+
+        this.textNode = new GameNode.Text({
+            text: 'I am text',
+            x: 30,
+            y: 50,
+            size: 4,
+            align: 'center',
+            color: Colors.BLACK
+        });
+
+        const textInputShape = ShapeUtils.rectangle(20, 10, 20, 20);
+        
+        this.textInputNode = new GameNode.Shape(
+            Colors.HG_BLUE,
+            Shapes.POLYGON,
+            {
+                coordinates2d: textInputShape,
+                fill: Colors.HG_BLUE
+            },
+            null,
+            null,
+            null,
+            {
+                type: 'text',
+                oninput: (player, text) => {
+                    const newText = this.textNode.node.text;
+                    newText.text = text;
+                    this.textNode.node.textInfo = newText;
+                }
+            }
+        );
+
+        const fileInputShape = ShapeUtils.rectangle(60, 10, 20, 20);
+        let imageNum = 1;
+
+        let image;
+
+        this.fileInputNode = new GameNode.Shape(
+            Colors.HG_BLUE,
+            Shapes.POLYGON,
+            {
+                coordinates2d: fileInputShape,
+                fill: Colors.HG_BLUE
+            },
+            null,
+            null,
+            null,
+            {
+                type: 'file',
+                oninput: (player, data) => {
+                    let imageKey = 'image' + imageNum;
+                    this.assets[imageKey] = new Asset('data', {type: 'image'}, Buffer.from(data));
+
+                    // HACK
+                    this.session.squisher.initialize().then(() => {
+                        Object.values(this.players).forEach(player => {
+                            player.receiveUpdate(this.session.squisher.assetBundle);
+                        });
+                        setTimeout(() => {
+                            if (image) {
+                                this.base.removeChild(image.id);
+                            }
+                            image = new GameNode.Asset(
+                                null,
+                                ShapeUtils.rectangle(40, 40, 30, 30),
+                                {
+                                    [imageKey]: {
+                                        pos: {
+                                            x: 40,
+                                            y: 40
+                                        },
+                                        size: {
+                                            x: 30,
+                                            y: 30
+                                        }
+                                    }
+                                }
+                            );
+                            this.base.addChild(image);
+                        }, 500);
+                
+                    });
+
+                    imageNum++;
+                }
+            }
+        );
+
+        this.base.addChild(this.textNode);
+        this.base.addChild(this.textInputNode);
+        this.base.addChild(this.fileInputNode);
+    }
+
+    isText(key) {
+        return key.length == 1 && (key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z') || key === ' ' || key === 'Backspace';
+    }
+
+    getRoot() {
+        return this.base;
+    }
+
+    getAssets() {
+        return this.assets;
+    }
+}
+
+module.exports = InputTest;

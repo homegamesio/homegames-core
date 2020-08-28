@@ -1,14 +1,18 @@
 const collisionHelper = (node, nodeToCheck, filter, collisions = []) => {
-    if (!filter || (filter(node) && node.id !== nodeToCheck.id)) {
-        const node1LeftX = node.pos.x;
-        const node1RightX = node.pos.x + node.size.x;
-        const node2LeftX = nodeToCheck.pos.x;
-        const node2RightX = nodeToCheck.pos.x + nodeToCheck.size.x;
+    // assume rectangles for now
 
-        const node1TopY = node.pos.y;
-        const node1BottomY = node.pos.y + node.size.y;
-        const node2TopY = nodeToCheck.pos.y;
-        const node2BottomY = nodeToCheck.pos.y + nodeToCheck.size.y;
+
+    // TODO: fix perf (check bounds before filter)
+    if (!filter || (filter(node) && node.node.id !== nodeToCheck.node.id)) {
+        const node1LeftX = node.node.coordinates2d[0][0];//node.pos.x;
+        const node1RightX = node.node.coordinates2d[1][0];//node.pos.x + node.size.x;
+        const node2LeftX = nodeToCheck.node.coordinates2d[0][0]//nodeToCheck.pos.x;
+        const node2RightX = nodeToCheck.node.coordinates2d[1][0];//nodeToCheck.pos.x + nodeToCheck.size.x;
+
+        const node1TopY = node.node.coordinates2d[0][1];//node.pos.y;
+        const node1BottomY = node.node.coordinates2d[2][1];//node.pos.y + node.size.y;
+        const node2TopY = nodeToCheck.node.coordinates2d[0][1];//nodeToCheck.pos.y;
+        const node2BottomY = nodeToCheck.node.coordinates2d[2][1];//nodeToCheck.pos.y + nodeToCheck.size.y;
 
         const oneToTheLeft = node2RightX < node1LeftX || node1RightX < node2LeftX;
         const oneBelow = node1TopY > node2BottomY || node2TopY > node1BottomY;
@@ -17,8 +21,8 @@ const collisionHelper = (node, nodeToCheck, filter, collisions = []) => {
         }
     }
 
-   for (let child in node.children) {
-       collisionHelper(node.children[child], nodeToCheck, filter, collisions);
+   for (let child in node.node.children) {
+       collisionHelper(node.node.children[child], nodeToCheck, filter, collisions);
    }
 
    return collisions;

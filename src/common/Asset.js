@@ -1,4 +1,5 @@
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const crypto = require('crypto');
 const config = require('../../config');
@@ -25,7 +26,8 @@ class Asset {
                     resolve(fs.readFileSync(filePath));
                 } else {
                     const writeStream = fs.createWriteStream(filePath);
-                    https.get(uri, (res) => {
+                    const getModule = uri.startsWith('https') ? https : http;
+                    getModule.get(uri, (res) => {
                         res.on('data', (chunk) => {
                             writeStream.write(chunk);
                         });

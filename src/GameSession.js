@@ -4,10 +4,13 @@ const { generateName } = require('./common/util');
 class GameSession {
     constructor(game) {
         this.game = game;
+        // this is a hack
+        this.game.session = this;
         this.squisher = new Squisher(this.game);
+        this.squisher.hgRoot.players = this.game.players;
         this.squisher.addListener(this);
-        this.renderWidth = this.game.constructor.metadata ? this.game.constructor.metadata().res.width : 1280;
-        this.renderHeight = this.game.constructor.metadata ? this.game.constructor.metadata().res.height : 720;
+        this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
+        this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
     }
 
     handleSquisherUpdate(squished) {
@@ -21,7 +24,7 @@ class GameSession {
             player.receiveUpdate([5, 70, 0]);
         }
         generateName().then(playerName => {
-            player.name = playerName;
+            player.name = player.name || playerName;
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
             player.receiveUpdate(this.squisher.squished);
@@ -33,7 +36,8 @@ class GameSession {
 
     handlePlayerDisconnect(playerId) {
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
-        this.game._hgRemovePlayer(playerId);
+//        this.game._hgRemovePlayer(playerId);
+        this.squisher.hgRoot.handlePlayerDisconnect(playerId);
     }
 
     initialize(cb) {
@@ -54,6 +58,16 @@ class GameSession {
             this.game.handleKeyDown && this.game.handleKeyDown(player, input.key);
         } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
+        } else if (input.type === 'input') {
+            const node = this.findNode(input.nodeId);
+            if (node && node.node.input) {
+                // hilarious
+                if (node.node.input.type === 'file') {
+                    node.node.input.oninput(player, Object.values(input.input));
+                } else {
+                    node.node.input.oninput(player, input.input);
+                }
+            }
         } else {
             console.log('Unknown input type: ' + input.type);
         }
@@ -61,38 +75,73 @@ class GameSession {
 
 
     handleClick(player, click) {
-        const translatedX = (click.x / this.renderWidth);
-        const translatedY = (click.y / this.renderHeight);
-        if (translatedX >= 1 || translatedY >= 1) {
+        if (click.x >= 100 || click.y >= 100) {
             return;
         }
-        const clickedNode = this.findClick(translatedX, translatedY, player.id);
+
+        const clickedNode = this.findClick(click.x, click.y, player.id);
 
         if (clickedNode) {
-            clickedNode.handleClick && clickedNode.handleClick(player, translatedX, translatedY);
+            clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);
         }
+    }
+
+    findNode(nodeId) {
+        return this.findNodeHelper(nodeId, this.squisher.hgRoot.getRoot());//this.game.getRoot());
+    }
+
+    findNodeHelper(nodeId, node, found = null) {
+        if (node.node.id === nodeId) {
+            found = node;
+        }
+
+        for (const i in node.node.children) {
+            found = this.findNodeHelper(nodeId, node.node.children[i], found);
+        }
+        
+        return found;
     }
 
     findClick(x, y, playerId = 0) {
-        return this.findClickHelper(x, y, playerId, this.game.getRoot());
+        return this.findClickHelper(x, y, playerId, this.squisher.hgRoot.getRoot().node);
     }
 
     findClickHelper(x, y, playerId, node, clicked = null) {
-        if (node.handleClick && !node.playerId || playerId == node.playerId) {
-            const beginX = node.pos.x * this.renderWidth * .01;
-            const endX = (node.pos.x + node.size.x) * this.renderWidth * .01;
-            const beginY = node.pos.y * this.renderHeight * .01;
-            const endY = (node.pos.y + node.size.y) * this.renderHeight * .01;
-            const x1 = x * this.renderWidth;
-            const y1 = y * this.renderHeight;
-            const isClicked = (x1 >= beginX && x1 <= endX) && (y1 >= beginY && y1 <= endY);
-            if (isClicked) {
+        if ((node.handleClick && !node.playerId || playerId == node.playerId ) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+            const verticesLength = node.coordinates2d.length;
+            const vertices = node.coordinates2d;
+            let isInside = false;
+            let minX = vertices[0][0];
+            let maxX = vertices[0][0];
+            let minY = vertices[0][1];
+            let maxY = vertices[0][1];
+            for (let i = 1; i < verticesLength; i++) {
+                const vert = vertices[i];
+                minX = Math.min(vert[0], minX);
+                maxX = Math.max(vert[0], maxX);
+                minY = Math.min(vert[1], minY);
+                maxY = Math.max(vert[1], maxY);
+            }
+
+            if (!(x < minX || x > maxX || y < minY || y > maxY)) {
+                let i = 0;
+                let j = vertices.length - 1;
+                for (i, j; i < vertices.length; j=i++) {
+                    if ((vertices[i][1] > y) != (vertices[j][1] > y) &&
+                            x < (vertices[j][0] - vertices[i][0]) * (y - vertices[i][1]) / (vertices[j][1] - vertices[i][1]) + vertices[i][0]) {
+                            isInside = !isInside;
+                    }
+                }
+            }
+            
+            if (isInside) {
                 clicked = node;
             }
+
         }
 
         for (const i in node.children) {
-            clicked = this.findClickHelper(x, y, playerId, node.children[i], clicked);
+            clicked = this.findClickHelper(x, y, playerId, node.children[i].node, clicked);
         }
 
         return clicked;

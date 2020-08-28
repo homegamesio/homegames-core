@@ -1,7 +1,5 @@
-const { GameNode, Colors } = require('squishjs');
 const { charadesWord } = require('../common/util');
-const Game = require('./Game');
-const { COLORS: { CREAM, GREEN, WHITE, BLACK, RED, BLUE, YELLOW } } = Colors;
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 
 class Clicktionary extends Game {
     static metadata() {
@@ -15,73 +13,114 @@ class Clicktionary extends Game {
     }
 
     constructor() {
+        console.log("UHHHH");
         super();
-        this.base = GameNode(CREAM, (player) => {
-        }, {'x': 0, 'y': 0}, {'x': 100, 'y': 100});
+        this.base = new GameNode.Shape(Colors.CREAM,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+                fill: Colors.CREAM
+            }
+        );
+
+        this.excludedNodeRoot = new GameNode.Shape(
+            Colors.CREAM,
+            Shapes.POLYGON,
+            {
+                coordinates: [
+                    [0, 0],
+                    [0, 0]
+                ]
+            }
+        );
+
+        this.base.addChild(this.excludedNodeRoot);
+
         this.playerInfoNodes = {};
-        this.newRoundNode = GameNode(GREEN, (player) => {
-            this.newRound();
-        }, {x: 45, y: 5}, {x: 10, y: 10}, {
-            text: 'Start',
-            x: 50,
-            y: 9
-        });
-        this.base.addChild(this.newRoundNode);
         this.playerColors = {};
+
+        this.updateGameState();
+    }
+
+    updateGameState() {
+
+        if (Object.keys(this.players).length > 1) {
+            if (this.notEnoughPlayersText) {
+                this.excludedNodeRoot.removeChild(this.notEnoughPlayersText.id);
+                this.notEnoughPlayersText = null;
+            }
+            this.newRoundNode = new GameNode.Shape(
+                Colors.HG_RED, 
+                Shapes.RECTANGLE, 
+                {
+                    coordinates2d: ShapeUtils.rectangle(45, 4, 10, 10),
+                    fill: Colors.HG_RED
+                }, 
+                null, 
+                (player) => {
+                    this.excludedNodeRoot.removeChild(this.newRoundNode.id);
+                    this.newRound();
+                }
+            );
+
+            const newRoundLabel = new GameNode.Text({
+                text: 'Start',
+                x: 50,
+                y: 7.5,
+                align: 'center',
+                size: 2,
+                color: Colors.WHITE
+            });
+
+            this.newRoundNode.addChild(newRoundLabel);
+            this.excludedNodeRoot.addChild(this.newRoundNode);
+        } else if (!this.notEnoughPlayersText) {
+            this.notEnoughPlayersText = new GameNode.Text({
+                text: 'At least 2 players required',
+                x: 50,
+                y: 50,
+                align: 'center',
+                size: 1,
+                color: Colors.HG_BLACK
+            });
+            
+            this.excludedNodeRoot.addChild(this.notEnoughPlayersText);
+        }
     }
 
     handleNewPlayer(player) {
-        this.renderPlayerList();
+        console.log("PLAYER");
+        console.log(this.players);
+        this.updateGameState();
     }
 
     renderPlayerList() {
-        this.base.clearChildren([this.newRoundNode.id, this.drawNode && this.drawNode.id, this.wordNode && this.wordNode.id]);
+        this.base.clearChildren([this.excludedNodeRoot.id]);
         let yIndex = 0;
         for (const playerId in this.players) {
             const player = this.players[playerId];
 
-            const playerInfoNode = GameNode(
-                CREAM,
-                (player) => {
-
-                },
+            const playerInfoNode = new GameNode.Shape(
+                Colors.CREAM,
+                Shapes.POLYGON,
                 {
-                    x: 10,
-                    y: yIndex * 8 + 2
-                },
-                {
-                    x: 1,
-                    y: 1
-                },
-                {
-                    text: player.name,
-                    x: 10,
-                    y: yIndex * 8 + 2
+                    coordinates2d: ShapeUtils.rectangle(10, 10, yIndex * 8 + 2, 1, 1),
+                    fill: Colors.CREAM
                 }
             );
+
+            const playerNameNode = new GameNode.Text({
+                text: player.name,
+                x: 10,
+                y: yIndex * 8 + 2,
+                size: 2
+            });
+
+            playerInfoNode.addChild(playerNameNode);
+            
             this.playerInfoNodes[player.id] = playerInfoNode;
             this.base.addChild(playerInfoNode);
 
-            const playerNameNode = GameNode(
-                CREAM,
-                null,
-                {
-                    x: 85,
-                    y: 5
-                },
-                {
-                    x: 10,
-                    y: 10
-                },
-                {
-                    text: player.name,
-                    x: 85,
-                    y: 5
-                },
-                null,
-                playerId
-            );
-            this.base.addChild(playerNameNode);
             yIndex++;
         }
     }
@@ -110,112 +149,175 @@ class Clicktionary extends Game {
         this.newRoundNode.size = {x: 0, y: 0};
         this.newRoundNode.text = null;
         const currentPlayer = this.getCurrentPlayer();
-        this.drawNode = GameNode(
-            WHITE,
-            (player, x, y) => {
-                if (!this.currentPlayerId || this.currentPlayerId != player.id) {
-                    return;
-                }
-                const playerColor = this.playerColors[player.id] || BLACK;
-                const coloredPixel = GameNode(playerColor, () => {}, {'x': (x * 100) - .25, 'y': (y * 100) - .25}, {'x': .5, 'y': .5});
-                this.drawNode.addChild(coloredPixel);
-            },
+        this.canvas = new GameNode.Shape(
+            Colors.WHITE,
+            Shapes.POLYGON,
             {
-                x: 15,
-                y: 15
-            },
-            {
-                x: 70,
-                y: 70
-            });
-        this.base.addChild(this.drawNode);
-        charadesWord().then(word => {
-            this.wordNode = GameNode(CREAM, null,
-                {
-                    x: 50, y: 2
-                },
-                {
-                    x: 1,
-                    y: 1
-                },
-                {
-                    text: word,
-                    x: 50,
-                    y: 2
-                }, null,
-                currentPlayer.id);
-            this.base.addChild(this.wordNode);
-        });
-
-        const clearButton = GameNode(
-            WHITE,
-            (player) => {
-                this.drawNode.clearChildren([clearButton.id]);
-            },
-            {
-                x: 15,
-                y: 90
-            },
-            {
-                x: 5,
-                y: 5
-            },
-            {
-                text: 'Clear',
-                x: 17.5,
-                y: 90
+                coordinates2d: [
+                    [15, 15],
+                    [85, 15],
+                    [85, 85],
+                    [15, 85],
+                    [15, 15]
+                ],
+                fill: Colors.WHITE
             },
             null,
-            currentPlayer.id
+            (player, x, y) => {
+                
+                if (!currentPlayer || currentPlayer.id != player.id) {
+                    return;
+                }
+
+                const playerColor = this.playerColors[player.id] || Colors.BLACK;
+
+                const coloredPixel = new GameNode.Shape(
+                    playerColor, 
+                    Shapes.POLYGON,
+                    {
+                        coordinates2d: [
+                            x - .25, y - .25,
+                            x + .25, y - .25,
+                            x + .25, y + .25,
+                            x - .25, y + .25, 
+                            x - .25, y - .25
+                        ],
+                        fill: playerColor
+                    });
+                this.canvas.addChild(coloredPixel);
+            }
         );
 
-        const doneButton = GameNode(WHITE, () => {
-            this.countdownInterval && clearInterval(this.countdownInterval);
-            this.wordNode.playerId = 0;
-            setTimeout(() => {
-                this.base.clearChildren();
-                this.renderPlayerList();
-                this.newRound();
-            }, 5000);
+        this.base.addChild(this.canvas);
+        
+        charadesWord().then(word => {
+            this.wordNode = new GameNode.Text({
+                text: word,
+                align: 'center',
+                x: 50,
+                y: 5,
+                size: 2
+            }, currentPlayer.id);
 
-        }, {x: 5, y: 90}, {x: 5, y: 5}, {x: 5, y: 90, text: 'New Round'}, null, currentPlayer.id);
-        this.drawNode.addChild(doneButton);
+            this.base.addChild(this.wordNode);
 
-        const colorOptions = [BLACK, RED, BLUE, GREEN, YELLOW, WHITE];
-        let optionIndex = 25;
+        });
+    
+        const clearButton = new GameNode.Shape(
+            Colors.HG_RED,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(2, 70, 10, 10),
+                fill: Colors.HG_RED
+            },
+            currentPlayer.id,
+            (player) => {
+                this.canvas.clearChildren([clearButton.id]);
+            }
+        );
+
+        const clearText = new GameNode.Text({
+            text: 'Clear',
+            x: 7,
+            y: 73,
+            align: 'center',
+            size: 2,
+            color: Colors.WHITE
+        }, currentPlayer.id);
+    
+        clearButton.addChild(clearText);
+
+        let doneCountdown;
+
+        const doneButton = new GameNode.Shape(
+            Colors.HG_BLUE,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(88, 4, 10, 10),
+                fill: Colors.HG_BLUE
+            },
+            currentPlayer.id,
+            () => {
+                if (!doneCountdown) {
+                    this.wordNode.node.playerId = null;
+                    doneCountdown = setTimeout(() => {
+                        doneCountdown = null;
+                        this.base.clearChildren([this.excludedNodeRoot.id]);
+                        this.newRound();
+                    }, 5000);
+                }
+            }
+        );
+
+        const doneText = new GameNode.Text({
+            text: 'Done',
+            x: 93.3,
+            y: 7,
+            align: 'center',
+            size: 2,
+            color: Colors.WHITE
+        }, currentPlayer.id);
+
+        doneButton.addChild(doneText);
+
+        clearButton.addChild(doneButton);
+
+        this.canvas.addChild(clearButton);
+
+        const colorOptions = [Colors.BLACK, Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.WHITE];
+
+        let optionX = 25;
         for (const colorIndex in colorOptions) {
             const color = colorOptions[colorIndex];
-            const colorButton = GameNode(color,
+            const colorButton = new GameNode.Shape(
+                color,
+                Shapes.POLYGON,
+                {
+                    coordinates2d: ShapeUtils.rectangle(optionX, 90, 5, 5),
+                    fill: color
+                },
+                currentPlayer.id,
                 (player) => {
                     this.playerColors[player.id] = color;
-                }, {x: optionIndex, y: 90}, {x: 5, y: 5}, null, null, currentPlayer.id);
+                }
+            );
             clearButton.addChild(colorButton);
-            optionIndex += 10;
-        }
-        this.drawNode.addChild(clearButton);
 
-        const countdownNode = GameNode(CREAM, null,
-            {x: 50, y: 10}, {x: 1, y: 1}, {text: '60', x: 50, y: 10});
-        this.drawNode.addChild(countdownNode);
-        this.countdownInterval = setInterval(() => {
-            const currentSecs = Number(countdownNode.text.text);
-            const newSecs = currentSecs - 1;
-            countdownNode.text = {
-                text: '' + newSecs,
-                x: 50,
-                y: 10
-            };
-            if (newSecs < 1) {
-                clearInterval(this.countdownInterval);
-                // visible to everyone
-                this.wordNode.playerId = 0;
+            optionX += 10;
+        }
+
+        const answerTime = 60;
+
+        let currentTime = answerTime;
+        let textInfo = {
+            text: '' + currentTime,
+            x: 80,
+            y: 5,
+            align: 'center',
+            size: 5,
+            color: Colors.WHITE
+        };
+
+        const countdownNode = new GameNode.Text(Object.assign({}, textInfo));
+
+        let countdown = setInterval(() => {
+            if (currentTime <= 1) {
+                clearInterval(countdown);
+                this.wordNode.node.playerId = null;
                 setTimeout(() => {
-                    this.base.clearChildren();
-                    this.renderPlayerList();
+                    this.base.clearChildren([this.excludedNodeRoot.id]);
                     this.newRound();
                 }, 5000);
             }
+
+            currentTime--;
+            
+            const newText = Object.assign({}, textInfo);
+            newText.text = '' + currentTime;
+            countdownNode.node.text = newText;
         }, 1000);
+
+        clearButton.addChild(countdownNode)
     }
 
     getRoot() {
