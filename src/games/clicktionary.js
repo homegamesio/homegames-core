@@ -1,6 +1,8 @@
 const { charadesWord } = require('../common/util');
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 
+const COLORS = Colors.COLORS;
+
 class Clicktionary extends Game {
     static metadata() {
         return {
@@ -15,16 +17,16 @@ class Clicktionary extends Game {
     constructor() {
         console.log("UHHHH");
         super();
-        this.base = new GameNode.Shape(Colors.CREAM,
+        this.base = new GameNode.Shape(COLORS.CREAM,
             Shapes.POLYGON,
             {
                 coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                fill: Colors.CREAM
+                fill: COLORS.CREAM
             }
         );
 
         this.excludedNodeRoot = new GameNode.Shape(
-            Colors.CREAM,
+            COLORS.CREAM,
             Shapes.POLYGON,
             {
                 coordinates: [
@@ -37,7 +39,7 @@ class Clicktionary extends Game {
         this.base.addChild(this.excludedNodeRoot);
 
         this.playerInfoNodes = {};
-        this.playerColors = {};
+        this.playerCOLORS = {};
 
         this.updateGameState();
     }
@@ -50,11 +52,11 @@ class Clicktionary extends Game {
                 this.notEnoughPlayersText = null;
             }
             this.newRoundNode = new GameNode.Shape(
-                Colors.HG_RED, 
+                COLORS.HG_RED, 
                 Shapes.RECTANGLE, 
                 {
                     coordinates2d: ShapeUtils.rectangle(45, 4, 10, 10),
-                    fill: Colors.HG_RED
+                    fill: COLORS.HG_RED
                 }, 
                 null, 
                 (player) => {
@@ -69,7 +71,7 @@ class Clicktionary extends Game {
                 y: 7.5,
                 align: 'center',
                 size: 2,
-                color: Colors.WHITE
+                color: COLORS.WHITE
             });
 
             this.newRoundNode.addChild(newRoundLabel);
@@ -81,7 +83,7 @@ class Clicktionary extends Game {
                 y: 50,
                 align: 'center',
                 size: 1,
-                color: Colors.HG_BLACK
+                color: COLORS.HG_BLACK
             });
             
             this.excludedNodeRoot.addChild(this.notEnoughPlayersText);
@@ -101,11 +103,11 @@ class Clicktionary extends Game {
             const player = this.players[playerId];
 
             const playerInfoNode = new GameNode.Shape(
-                Colors.CREAM,
+                COLORS.CREAM,
                 Shapes.POLYGON,
                 {
                     coordinates2d: ShapeUtils.rectangle(10, 10, yIndex * 8 + 2, 1, 1),
-                    fill: Colors.CREAM
+                    fill: COLORS.CREAM
                 }
             );
 
@@ -150,7 +152,7 @@ class Clicktionary extends Game {
         this.newRoundNode.text = null;
         const currentPlayer = this.getCurrentPlayer();
         this.canvas = new GameNode.Shape(
-            Colors.WHITE,
+            COLORS.WHITE,
             Shapes.POLYGON,
             {
                 coordinates2d: [
@@ -160,7 +162,7 @@ class Clicktionary extends Game {
                     [15, 85],
                     [15, 15]
                 ],
-                fill: Colors.WHITE
+                fill: COLORS.WHITE
             },
             null,
             (player, x, y) => {
@@ -169,7 +171,7 @@ class Clicktionary extends Game {
                     return;
                 }
 
-                const playerColor = this.playerColors[player.id] || Colors.BLACK;
+                const playerColor = this.playerCOLORS[player.id] || Colors.BLACK;
 
                 const coloredPixel = new GameNode.Shape(
                     playerColor, 
@@ -204,11 +206,11 @@ class Clicktionary extends Game {
         });
     
         const clearButton = new GameNode.Shape(
-            Colors.HG_RED,
+            COLORS.HG_RED,
             Shapes.POLYGON,
             {
                 coordinates2d: ShapeUtils.rectangle(2, 70, 10, 10),
-                fill: Colors.HG_RED
+                fill: COLORS.HG_RED
             },
             currentPlayer.id,
             (player) => {
@@ -222,7 +224,7 @@ class Clicktionary extends Game {
             y: 73,
             align: 'center',
             size: 2,
-            color: Colors.WHITE
+            color: COLORS.WHITE
         }, currentPlayer.id);
     
         clearButton.addChild(clearText);
@@ -230,11 +232,11 @@ class Clicktionary extends Game {
         let doneCountdown;
 
         const doneButton = new GameNode.Shape(
-            Colors.HG_BLUE,
+            COLORS.HG_BLUE,
             Shapes.POLYGON,
             {
                 coordinates2d: ShapeUtils.rectangle(88, 4, 10, 10),
-                fill: Colors.HG_BLUE
+                fill: COLORS.HG_BLUE
             },
             currentPlayer.id,
             () => {
@@ -255,7 +257,7 @@ class Clicktionary extends Game {
             y: 7,
             align: 'center',
             size: 2,
-            color: Colors.WHITE
+            color: COLORS.WHITE
         }, currentPlayer.id);
 
         doneButton.addChild(doneText);
@@ -264,7 +266,7 @@ class Clicktionary extends Game {
 
         this.canvas.addChild(clearButton);
 
-        const colorOptions = [Colors.BLACK, Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.WHITE];
+        const colorOptions = [COLORS.BLACK, Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.WHITE];
 
         let optionX = 25;
         for (const colorIndex in colorOptions) {
@@ -278,7 +280,7 @@ class Clicktionary extends Game {
                 },
                 currentPlayer.id,
                 (player) => {
-                    this.playerColors[player.id] = color;
+                    this.playerCOLORS[player.id] = color;
                 }
             );
             clearButton.addChild(colorButton);
@@ -295,7 +297,7 @@ class Clicktionary extends Game {
             y: 5,
             align: 'center',
             size: 5,
-            color: Colors.WHITE
+            color: COLORS.WHITE
         };
 
         const countdownNode = new GameNode.Text(Object.assign({}, textInfo));

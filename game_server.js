@@ -3,9 +3,8 @@ const GameSession = require("./src/GameSession");
 const { socketServer } = require('./src/util/socket');
 const config = require('./config');
 const Homenames = require('./src/Homenames');
-const PerfTest = require('./src/games/perf-test');
 
-const dashboard = new PerfTest();//HomegamesDashboard();
+const dashboard = new HomegamesDashboard();
 
 const session = new GameSession(dashboard);
 
