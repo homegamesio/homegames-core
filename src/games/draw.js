@@ -1,6 +1,8 @@
 const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squishjs');
 const Asset = require('../common/Asset');
 
+const COLORS = Colors.COLORS;
+
 class Draw extends Game {
     static metadata() {
         return {
@@ -26,11 +28,11 @@ class Draw extends Game {
         const boardShape = ShapeUtils.rectangle(5, 5, 90, 90);
 
         this.board = new GameNode.Shape(
-            Colors.PURPLE,
+            COLORS.PURPLE,
             Shapes.POLYGON,
             {
                 coordinates2d: boardShape,
-                fill: Colors.PURPLE
+                fill: COLORS.PURPLE
             },
             null,
             this.handleBoardClick.bind(this)
@@ -42,22 +44,22 @@ class Draw extends Game {
     initializeBoard() {
         const randomizeButtonShape = ShapeUtils.rectangle(80, 0, 15, 15);
         const randomizeButton = new GameNode.Shape(
-            Colors.RED, 
+            COLORS.RED, 
             Shapes.POLYGON,
             {
                 coordinates2d: randomizeButtonShape,
-                fill: Colors.RED
+                fill: COLORS.RED
             },
             null,
             this.randomizeBoardColor.bind(this));
 
         const resetButtonShape = ShapeUtils.rectangle(60, 0, 15, 15);
         const resetButton = new GameNode.Shape(
-            Colors.BLUE, 
+            COLORS.BLUE, 
             Shapes.POLYGON,
             {
                 coordinates2d: resetButtonShape,
-                fill: Colors.BLUE
+                fill: COLORS.BLUE
             },
             null,
             this.initializeBoard.bind(this));
@@ -73,7 +75,7 @@ class Draw extends Game {
     }
 
     handleBoardClick(player, x, y) {
-        const pixelColor = Colors.BLACK;
+        const pixelColor = COLORS.BLACK;
         const pixelShape = ShapeUtils.rectangle(x - .25, y - .25, .5, .5);
         const coloredPixel = new GameNode.Shape(
             pixelColor,

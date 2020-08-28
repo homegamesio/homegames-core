@@ -91,8 +91,6 @@ class Clicktionary extends Game {
     }
 
     handleNewPlayer(player) {
-        console.log("PLAYER");
-        console.log(this.players);
         this.updateGameState();
     }
 
@@ -115,7 +113,8 @@ class Clicktionary extends Game {
                 text: player.name,
                 x: 10,
                 y: yIndex * 8 + 2,
-                size: 2
+                size: 2,
+                color: COLORS.BLACK
             });
 
             playerInfoNode.addChild(playerNameNode);
@@ -171,7 +170,7 @@ class Clicktionary extends Game {
                     return;
                 }
 
-                const playerColor = this.playerCOLORS[player.id] || Colors.BLACK;
+                const playerColor = this.playerCOLORS[player.id] || COLORS.BLACK;
 
                 const coloredPixel = new GameNode.Shape(
                     playerColor, 
@@ -198,7 +197,8 @@ class Clicktionary extends Game {
                 align: 'center',
                 x: 50,
                 y: 5,
-                size: 2
+                size: 2,
+                color: COLORS.BLACK
             }, currentPlayer.id);
 
             this.base.addChild(this.wordNode);
@@ -266,7 +266,7 @@ class Clicktionary extends Game {
 
         this.canvas.addChild(clearButton);
 
-        const colorOptions = [COLORS.BLACK, Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.WHITE];
+        const colorOptions = [COLORS.BLACK, COLORS.RED, COLORS.BLUE, COLORS.GREEN, COLORS.YELLOW, COLORS.WHITE];
 
         let optionX = 25;
         for (const colorIndex in colorOptions) {
