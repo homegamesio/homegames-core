@@ -5,6 +5,28 @@ const linkHelper = require('./link-helper');
 const Player = require('../Player');
 const config = require('../../config');
 
+const listenable = function(obj, onChange) {
+    const handler = {
+        get(target, property, receiver) {
+            return Reflect.get(target, property, receiver);
+        },
+        defineProperty(target, property, descriptor) {
+            const change = Reflect.defineProperty(target, property, descriptor);
+            onChange && onChange();
+            return change;
+        },
+        deleteProperty(target, property) {
+            const change = Reflect.deleteProperty(target, property);
+            onChange && onChange();
+            return change;
+        }
+    };
+
+    return new Proxy(obj, handler);
+};
+
+
+
 const socketServer = (gameSession, port, cb = null) => {
     linkHelper();
 
@@ -38,31 +60,55 @@ const socketServer = (gameSession, port, cb = null) => {
             assert(jsonMessage.type === 'ready');
 
             ws.removeListener('message', messageHandler);
-    
-            ws.id = generatePlayerId();
 
-            const gameMetadata = gameSession.game.constructor.metadata && gameSession.game.constructor.metadata();
+            ws.id = Number(jsonMessage.id || generatePlayerId());
 
-            const gameResWidth = gameMetadata ? gameMetadata.res.width : config.DEFAULT_GAME_RES_WIDTH;
-            const gameResHeight = gameMetadata ? gameMetadata.res.height : config.DEFAULT_GAME_RES_HEIGHT;
+            const updatePlayerInfo = (_player) => {
 
-            const gameWidth1 = gameResWidth / 100;
-            const gameWidth2 = gameResWidth % 100;
-            const gameHeight1 = gameResHeight / 100;
-            const gameHeight2 = gameResHeight % 100;
-            
-            // init message
-            ws.send([2, ws.id, gameWidth1, gameWidth2, gameHeight1, gameHeight2]);
+                const data = JSON.stringify({
+                    'name': _player.name 
+                });
 
-            const player = new Player(ws, ws.id);
-            gameSession.addPlayer(player);
+                const req = http.request({hostname: 'localhost', port: config.HOMENAMES_PORT, path: '/' + ws.id, method: 'POST', headers: {'Content-Type': 'application/json', 'Content-Length': data.length}}, res => {
+                });
+                req.write(data);
+                req.end();
+            }
+
+            const req = http.request({
+                hostname: 'localhost',
+                port: config.HOMENAMES_PORT,
+                path: `/${ws.id}`,
+                method: 'GET'
+            }, res => {
+                res.on('data', d => {
+                    const playerInfo = JSON.parse(d);
+                    const player = new Player(ws, ws.id);
+                    
+                    if (jsonMessage.id && playerInfo.name) {
+                        player.name = playerInfo.name;
+                    }
+                    const aspectRatio = gameSession.aspectRatio;
+
+                    // init message
+                    ws.send([2, ws.id, aspectRatio.x, aspectRatio.y]);
+                    const _player = listenable(player, () => {
+                        updatePlayerInfo(_player);
+                    });
+
+                    gameSession.addPlayer(_player);
+
+                });
+            });
+            req.end();
         }
 
         ws.on('message', messageHandler);
 
         function closeHandler() {
-            playerIds[ws.id] = false;
+//            playerIds[ws.id] = false;
             gameSession.handlePlayerDisconnect(ws.id);
+            
         }
 
         ws.on('close', closeHandler);

@@ -1,7 +1,6 @@
 const Asset = require('../common/Asset');
-const Game = require('./Game');
-const { GameNode, Colors } = require('squishjs');
-const { COLORS: { BLACK, CREAM } } = Colors;
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
+const COLORS = Colors.COLORS;
 
 class SpriteTest extends Game {
     static metadata() {
@@ -10,7 +9,8 @@ class SpriteTest extends Game {
                 width: 1280,
                 height: 720
             },
-            author: 'Joseph Garcia'
+            author: 'Joseph Garcia',
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/sprite-test.png'
         };
     }
 
@@ -25,7 +25,7 @@ class SpriteTest extends Game {
         };
 
         this.playerSpots = {};
-
+        
         const playerRows = 3;
         const playerCols = 8;
 
@@ -61,25 +61,24 @@ class SpriteTest extends Game {
 
         this.inputCooldowns = {};
 
-        this.background = GameNode(
-            CREAM,
+        this.background = new GameNode.Shape(
+            COLORS.CREAM,
+            Shapes.POLYGON,
+            {
+                fill: COLORS.CREAM,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+            },
+            null,
             (player, x, y) => {
                 let fakeArrowKey;
-                if (x >= .25 && x <= .75) {
-                    fakeArrowKey = y <= .5 ? 'ArrowUp' : 'ArrowDown';
+                if (x >= 25 && x <= 75) {
+                    fakeArrowKey = y <= 50 ? 'ArrowUp' : 'ArrowDown';
                 } else {
-                    fakeArrowKey = x < .5 ? 'ArrowLeft' : 'ArrowRight';
+                    fakeArrowKey = x < 50 ? 'ArrowLeft' : 'ArrowRight';
                 }
                 this.handleKeyDown(player, fakeArrowKey);
-            },
-            {
-                x: 0,
-                y: 0
-            },
-            {
-                x: 100,
-                y: 100
-            });
+            }
+        );
 
         this.dancers = {};
     }
@@ -101,10 +100,10 @@ class SpriteTest extends Game {
             'ArrowDown': 'dance_down'
         };
 
-        const newFrame = frameMap[key] ? (dancer.asset.dance0 ? frameMap[key] : 'dance0') : 'dance0';
+        const newFrame = frameMap[key] ? (dancer.node.asset.dance0 ? frameMap[key] : 'dance0') : 'dance0';
         const newAssets = {};
-        newAssets[newFrame] = Object.values(this.dancers[player.id].asset)[0];
-        dancer.asset = newAssets;
+        newAssets[newFrame] = Object.values(this.dancers[player.id].node.asset)[0];
+        dancer.node.asset = newAssets;
     }
 
     getPlayerSpot() {
@@ -120,14 +119,19 @@ class SpriteTest extends Game {
         spot.player = player;
         const x = ((spot.x * 10) + 2);
         const y = ((spot.y * 30) + 2);
-        this.dancers[player.id] = GameNode(
-            BLACK,
+        const dancer = new GameNode.Asset(
             null,
-            {x: 10, y: 10},
-            {x: 0, y: 0},
-            {'text': player.name || 'Unknown Player', x: x + 7, y: y + 1},
-            {'dance0': {pos: {x: x, y: y}, size: {x: 15, y: 15}}}
+            ShapeUtils.rectangle(x, y, 15, 15),
+            {
+                'dance0': {
+                    pos: {x, y},
+                    size: {x: 15, y: 15}
+                }
+            }
         );
+
+        this.dancers[player.id] = dancer;
+
         this.background.addChild(this.dancers[player.id]);
     }
 
