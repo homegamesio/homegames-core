@@ -15,7 +15,6 @@ class Clicktionary extends Game {
     }
 
     constructor() {
-        console.log("UHHHH");
         super();
         this.base = new GameNode.Shape(COLORS.CREAM,
             Shapes.POLYGON,
