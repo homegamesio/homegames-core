@@ -3,6 +3,8 @@ const config = require('../../config');
 const Asset = require('../common/Asset');
 const fs = require('fs');
 
+const COLORS = Colors.COLORS;
+
 class Quarantine extends Game {
     static metadata() {
         return {
@@ -12,7 +14,8 @@ class Quarantine extends Game {
             },
             author: 'Joseph Garcia',
             players: 2,
-            name: 'Quarantine Questions'
+            name: 'Quarantine Questions',
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/quarantine-questions.png'
         };
     }
 
@@ -49,13 +52,15 @@ class Quarantine extends Game {
             null,
             {
                 shadow: {
-                    color: Colors.BLACK,
+                    color: COLORS.BLACK,
                     blur: 5
                 }
             },
             {
                 type: 'file',
-                oninput: (data) => {
+                oninput: (player, data) => {
+                    console.log("HUH");
+                    console.log(data);
                     this.initQuestions(null, data)
                 }
             }
@@ -78,7 +83,8 @@ class Quarantine extends Game {
                     x: 50, 
                     y: 6, 
                     size: 2,
-                    align: 'center'
+                    align: 'center',
+                    color: COLORS.BLACK
                 });
                 this.excludedNodeRoot.addChild(this.questionCounter);
             } else {
@@ -93,7 +99,7 @@ class Quarantine extends Game {
             if (this.activeGame) {
                 this.newTurn();
             }
-        } else {
+        } else if (url) {
             this.questionUrl = new Asset('url', {location: url});
             const initWords = async() => {
                 const questionData = await this.questionUrl.getData();
@@ -136,7 +142,8 @@ class Quarantine extends Game {
             x: 50, 
             y: 15, 
             size: 1,
-            align: 'center'
+            align: 'center',
+            color: COLORS.BLACK
         }, this.nonCurrentPlayerId);
 
         const currentQuestion = this.questions[this.questionIndex];
@@ -146,7 +153,8 @@ class Quarantine extends Game {
             x: 50, 
             y: 22, 
             size: 1,
-            align: 'center'
+            align: 'center',
+            color: COLORS.BLACK
         });
 
         const createWaitingNode = (playerId) => {
@@ -156,18 +164,19 @@ class Quarantine extends Game {
                     x: 50, 
                     y: 80, 
                     size: 3,
-                    align: 'center'
+                    align: 'center',
+                    color: COLORS.BLACK
                 }, playerId);
                 this.base.addChild(waitingInfo);
             }
         }
         
         const cardOnePlayerOne = new GameNode.Shape(
-            Colors.WHITE,
+            COLORS.WHITE,
             Shapes.POLYGON,
             {
                 coordinates2d: ShapeUtils.rectangle(5, 35, 40, 40),
-                fill: Colors.WHITE
+                fill: COLORS.WHITE
             },
             1,
             (player, x, y) => {
@@ -176,7 +185,7 @@ class Quarantine extends Game {
                 cardTwoPlayerOne.node.handleClick = null;
                 cardOnePlayerOne.node.effects = {
                     shadow: {
-                        color: Colors.GREEN,
+                        color: COLORS.GREEN,
                         blur: 12
                     }
                 }
@@ -184,7 +193,7 @@ class Quarantine extends Game {
             },
             {
                 shadow: {
-                    color: Colors.BLACK,
+                    color: COLORS.BLACK,
                     blur: 12
                }
             }
@@ -195,17 +204,18 @@ class Quarantine extends Game {
             x: 25,
             y: 55,
             align: 'center',
-            size: 1
+            size: 1,
+            color: COLORS.BLACK
         }, 1);
 
         cardOnePlayerOne.addChild(cardOneP1Text);
 
         const cardTwoPlayerOne = new GameNode.Shape(
-            Colors.WHITE,
+            COLORS.WHITE,
             Shapes.POLYGON,
             {
                 coordinates2d: ShapeUtils.rectangle(55, 35, 40, 40),
-                fill: Colors.WHITE
+                fill: COLORS.WHITE
             },
             1,
             (player, x, y) => {
@@ -214,7 +224,7 @@ class Quarantine extends Game {
                 cardTwoPlayerOne.node.handleClick = null;
                 cardTwoPlayerOne.node.effects = {
                     shadow: {
-                        color: Colors.GREEN,
+                        color: COLORS.GREEN,
                         blur: 12
                     }
                 }
@@ -222,7 +232,7 @@ class Quarantine extends Game {
             },
             {
                 shadow: {
-                    color: Colors.BLACK,
+                    color: COLORS.BLACK,
                     blur: 12
                }
             }
@@ -233,17 +243,18 @@ class Quarantine extends Game {
             x: 75,
             y: 55,
             align: 'center',
-            size: 1
+            size: 1,
+            color: COLORS.BLACK
         }, 1);
 
         cardTwoPlayerOne.addChild(cardTwoP1Text);
         
         const cardOnePlayerTwo = new GameNode.Shape(
-            Colors.WHITE,
+            COLORS.WHITE,
             Shapes.POLYGON,
             {
                 coordinates2d: ShapeUtils.rectangle(5, 35, 40, 40),
-                fill: Colors.WHITE
+                fill: COLORS.WHITE
             },
             2,
             (player, x, y) => {
@@ -252,7 +263,7 @@ class Quarantine extends Game {
                 cardTwoPlayerTwo.node.handleClick = null;
                 cardOnePlayerTwo.node.effects = {
                     shadow: {
-                        color: Colors.GREEN,
+                        color: COLORS.GREEN,
                         blur: 12
                     }
                 }
@@ -260,7 +271,7 @@ class Quarantine extends Game {
             },
             {
                 shadow: {
-                    color: Colors.BLACK,
+                    color: COLORS.BLACK,
                     blur: 12
                }
             }
@@ -271,17 +282,18 @@ class Quarantine extends Game {
             x: 25,
             y: 55,
             align: 'center',
-            size: 1
+            size: 1,
+            color: COLORS.BLACK
         }, 2);
 
         cardOnePlayerTwo.addChild(cardOneP2Text);
 
         const cardTwoPlayerTwo = new GameNode.Shape(
-            Colors.WHITE,
+            COLORS.WHITE,
             Shapes.POLYGON,
             {
                 coordinates2d: ShapeUtils.rectangle(55, 35, 40, 40),
-                fill: Colors.WHITE
+                fill: COLORS.WHITE
             },
             2,
             (player, x, y) => {
@@ -290,7 +302,7 @@ class Quarantine extends Game {
                 cardTwoPlayerTwo.node.handleClick = null;
                 cardTwoPlayerTwo.node.effects = {
                     shadow: {
-                        color: Colors.GREEN,
+                        color: COLORS.GREEN,
                         blur: 12
                     }
                 }
@@ -298,7 +310,7 @@ class Quarantine extends Game {
             },
             {
                 shadow: {
-                    color: Colors.BLACK,
+                    color: COLORS.BLACK,
                     blur: 12
                }
             }
@@ -309,7 +321,8 @@ class Quarantine extends Game {
             x: 75,
             y: 55,
             align: 'center',
-            size: 1
+            size: 1,
+            color: COLORS.BLACK
         }, 2);
 
         cardTwoPlayerTwo.addChild(cardTwoP2Text);
@@ -329,7 +342,7 @@ class Quarantine extends Game {
             y: 4,
             size: 2,
             align: 'center',
-            color: Colors.BLACK
+            color: COLORS.BLACK
         }, player.id);
 
         this.excludedNodeRoot.addChild(playerName);
@@ -347,7 +360,7 @@ class Quarantine extends Game {
                 y: 40,
                 size: 4,
                 align: 'center',
-                color: Colors.BLACK, 
+                color: COLORS.BLACK, 
             });
             this.base.addChild(waitingNode);
         } else if (this.activeGame && !this.waitingForTransition) {
@@ -361,7 +374,7 @@ class Quarantine extends Game {
                         y: 40, 
                         size: 3,
                         align: 'center',
-                        color: Colors.BLACK
+                        color: COLORS.BLACK
                     });
                     this.base.addChild(sameAnswerNode);
                     this.questionIndex++;
@@ -376,7 +389,8 @@ class Quarantine extends Game {
                         x: 50, 
                         y: 40,
                         size: 3,
-                        align: 'center'
+                        align: 'center',
+                        color: COLORS.BLACK, 
                     });
 
                     this.base.addChild(notSameAnswerNode);

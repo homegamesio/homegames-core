@@ -8,7 +8,8 @@ class Squarer extends Game {
                 width: 1920,
                 height: 1080
             },
-            author: 'Yazeed Loonat'
+            author: 'Yazeed Loonat',
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/squarer.png'
         };
     }
 

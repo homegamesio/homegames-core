@@ -7,7 +7,8 @@ class LayerTest extends Game {
                 width: 1280,
                 height: 720
             },
-            author: 'Joseph Garcia'
+            author: 'Joseph Garcia',
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/layer-test.png'
         };
     }
 

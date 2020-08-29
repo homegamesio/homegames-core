@@ -7,7 +7,7 @@ class ImageTest extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/draw_thumbnail.jpg'
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/image-test.png'
         };
     }
 

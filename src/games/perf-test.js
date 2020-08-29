@@ -7,7 +7,8 @@ class PerfTest extends Game {
                 width: 1920,
                 height: 1080
             },
-            author: 'Joseph Garcia'
+            author: 'Joseph Garcia',
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/layer-test.png'
         };
     }
 

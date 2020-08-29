@@ -1,4 +1,5 @@
 const { Colors, Game, GameNode, Shapes } = require('squishjs');
+const COLORS = Colors.COLORS;
 
 class ShapeTest extends Game {
     static metadata() {
@@ -8,14 +9,15 @@ class ShapeTest extends Game {
                 y: 9
             },
             author: 'Joseph Garcia',
-            name: 'Shape Test'
+            name: 'Shape Test',
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/shape-test.png'
         };
     }
 
     constructor() {
         super();
         this.base = new GameNode.Shape(
-            Colors.PURPLE, 
+            COLORS.PURPLE, 
             Shapes.POLYGON,
             {
                 coordinates2d: [
@@ -27,7 +29,7 @@ class ShapeTest extends Game {
                     [60, 40],
                     [50, 10]
                 ],
-                fill: Colors.PURPLE
+                fill: COLORS.PURPLE
             },
             null, 
             (player, x, y) => {

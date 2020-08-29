@@ -45,7 +45,7 @@ class Asset {
         });
     }
 
-    getData() {
+    async getData() {
         if (this.data) {
             return this.data;
         }

@@ -9,7 +9,8 @@ class MoveTest extends Game {
                 width: 1280,
                 height: 720
             },
-            author: 'Joseph Garcia'
+            author: 'Joseph Garcia',
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/move-test.png'
         };
     }
 
@@ -57,10 +58,8 @@ class MoveTest extends Game {
     }
 
     movePlayer(player, dir, dist = .1) {
-        console.log("MOVING");
-        console.log(player.node);
-        let newX = player.node.coordinates2d[0]//[0];
-        let newY = player.node.coordinates2d[1]//[1];
+        let newX = player.node.coordinates2d[0][0];
+        let newY = player.node.coordinates2d[0][1];
 
         if (dir === 'up') {
             if (newY - dist < 0) {

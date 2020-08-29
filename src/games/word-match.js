@@ -24,7 +24,6 @@ class WordMatch extends Game {
                 coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
             }
         );
-        return;
 
         this.savedNodeRoot = new GameNode.Shape(
             COLORS.CREAM, 

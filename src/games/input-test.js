@@ -13,7 +13,8 @@ class InputTest extends Game {
                 height: 720
             },
             author: 'Joseph Garcia',
-            name: 'Input Test'
+            name: 'Input Test',
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/input-test.png'
         };
     }
 

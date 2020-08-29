@@ -1,11 +1,12 @@
 const { GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 const Asset = require('./common/Asset');
 const { animations } = require('./common/util');
+const COLORS = Colors.COLORS;
 
 class HomegamesRoot {
     constructor(game, isDashboard) {
         this.root = new GameNode.Shape(
-            Colors.WHITE,
+            COLORS.WHITE,
             Shapes.POLYGON,
             {
                 coordinates2d: [
@@ -32,31 +33,32 @@ class HomegamesRoot {
                 x: 50,
                 y: 10,
                 size: 5,
-                align: 'center'
+                align: 'center',
+                color: COLORS.BLACK
             }, player.id);
 
-            const modal = new GameNode.Shape(Colors.WHITE, 
+            const modal = new GameNode.Shape(COLORS.WHITE, 
                 Shapes.POLYGON,
                 {
                     coordinates2d: modalShape,
-                    fill: Colors.WHITE
+                    fill: COLORS.WHITE
                 },
                 player.id,
                 null,
                 {
                     shadow: {
-                        color: Colors.BLACK,
+                        color: COLORS.BLACK,
                         blur: 6
                     }
                 }
             );
 
             const closeButton = new GameNode.Shape(
-                Colors.HG_RED,
+                COLORS.HG_RED,
                 Shapes.POLYGON,
                 {
                     coordinates2d: ShapeUtils.rectangle(5, 5, 10, 10),
-                    fill: Colors.HG_RED
+                    fill: COLORS.HG_RED
                 },
                 player.id,
                 (player) => {
@@ -70,7 +72,8 @@ class HomegamesRoot {
                 x: 8,
                 y: 35,
                 size: 2,
-                align: 'left'
+                align: 'left',
+                color: COLORS.BLACK
             }, player.id, {
                 type: 'text',
                 oninput: (player, text) => {
@@ -83,7 +86,8 @@ class HomegamesRoot {
                 x: 20,
                 y: 27,
                 size: 2,
-                align: 'left'
+                align: 'left',
+                color: COLORS.BLACK
             }, player.id);
             modal.addChildren(settingsText, playerName, closeButton, version);
             this.homeButton.addChild(modal);

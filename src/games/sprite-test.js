@@ -1,5 +1,6 @@
 const Asset = require('../common/Asset');
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
+const COLORS = Colors.COLORS;
 
 class SpriteTest extends Game {
     static metadata() {
@@ -8,7 +9,8 @@ class SpriteTest extends Game {
                 width: 1280,
                 height: 720
             },
-            author: 'Joseph Garcia'
+            author: 'Joseph Garcia',
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/sprite-test.png'
         };
     }
 
@@ -60,10 +62,10 @@ class SpriteTest extends Game {
         this.inputCooldowns = {};
 
         this.background = new GameNode.Shape(
-            Colors.CREAM,
+            COLORS.CREAM,
             Shapes.POLYGON,
             {
-                fill: Colors.CREAM,
+                fill: COLORS.CREAM,
                 coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
             },
             null,
