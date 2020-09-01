@@ -5,8 +5,7 @@ const config = require('./config');
 const Homenames = require('./src/Homenames');
 const visTest = require('./src/games/player-vis-test.js');
 
-//const dashboard = new HomegamesDashboard();
-const dashboard = new visTest();
+const dashboard = new HomegamesDashboard();
 
 const session = new GameSession(dashboard);
 
