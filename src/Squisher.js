@@ -11,12 +11,12 @@ class Squisher {
         this.gameMetadata = game && game.constructor.metadata ? game.constructor.metadata() : null;
         this.ids = new Set();
         const isDashboard = game instanceof HomegamesDashboard;
-        this.hgRoot = new HomegamesRoot(game, isDashboard);
+//        this.hgRoot = new HomegamesRoot(game, isDashboard);
         this.game = game;
         this.listeners = new Set();
-        this.hgRoot.getRoot().addListener(this);
+//        this.hgRoot.getRoot().addListener(this);
         this.game && this.game.getRoot().addListener(this);
-        this.game && this.update(this.hgRoot.getRoot());
+//        this.game && this.update(this.hgRoot.getRoot());
 
         if (this.game.tick) {
             const tickRate = this.gameMetadata && this.gameMetadata.tickRate ? this.gameMetadata.tickRate : config.DEFAULT_TICK_RATE;
@@ -26,9 +26,9 @@ class Squisher {
 
     async initialize() {
         const gameAssets = this.game.getAssets ? this.game.getAssets() || {} : {};
-        if (this.hgRoot.getAssets()) {
-            Object.assign(gameAssets, this.hgRoot.getAssets());
-        }
+//        if (this.hgRoot.getAssets()) {
+//            Object.assign(gameAssets, this.hgRoot.getAssets());
+//        }
         
         let assetBundleSize = 0;
 
@@ -91,14 +91,11 @@ class Squisher {
         for (const playerId of playerIds) {
             playerFrames[playerId] = [];
         }
-        this.updateHelper(node, playerFrames);
+        this.updateHelper(node, playerFrames, new Set([]));
         for (const playerId in playerFrames) {
             playerFrames[playerId] = playerFrames[playerId].flat();
         }
         this.playerFrames = playerFrames;
-    //    const newSquished = [];
-    //    this.updateHelper(node, newSquished);
-    //    this.squished = newSquished.flat();
     }
 
     getPlayerIds(node, ids) {
@@ -113,35 +110,47 @@ class Squisher {
         }
     }
 
-    updateHelper(node, playerFrames) {
+    updateHelper(node, playerFrames, whitelist) {
         if (!this.ids.has(node.node.id)) {
             this.ids.add(node.node.id);
             node.addListener(this);
         }
 
         const squished = squish(node.node);
+        for (const i in node.node.playerIds) {
+            whitelist.add(node.node.playerIds[i]);
+        }
         // public node
-        if (node.node.playerIds.length === 0) {
+        if (node.node.playerIds.length === 0 && whitelist.size == 0) {
             for (const playerId in playerFrames) {
                 playerFrames[playerId].push(squished);
             }
         } else if (node.node.playerIds[0] === 0) {
             // invisible node
-        } else {
-            for (const i in node.node.playerIds) {
-                playerFrames[node.node.playerIds[i]].push(squished);
+        } else if (!(whitelist.has(0))) {
+            const _thing = Array.from(new Set([Array.from(whitelist), node.node.playerIds])).flat();
+            for (const i in _thing) {
+                playerFrames[_thing[i]].push(squished);
             }
         }
 
         for (let i = 0; i < node.node.children.length; i++) {
-            this.updateHelper(node.node.children[i], playerFrames);
+            this.updateHelper(node.node.children[i], playerFrames, whitelist);
         }
+
+        for (const i in node.node.playerIds) {
+            if (node.node.playerIds[i] !== 0) {
+                whitelist.delete(node.node.playerIds[i]);
+            }
+        }
+
     }
 
     handleStateChange(node) {
         // todo: fix this
-        this.update(this.hgRoot.getRoot());
+//        this.update(this.hgRoot.getRoot());
         //this.update(this.hgRoot.getRoot());
+        this.update(this.game.getRoot());
         for (const listener of this.listeners) {
             listener.handleSquisherUpdate(this.playerFrames);
         }

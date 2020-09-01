@@ -19,7 +19,18 @@ class PlayerVisibilityTest extends Game {
             x: 50,
             y: 50
         }, [0]);
+
+        this.lilThing = new GameNode.Shape(
+            COLORS.RED,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(10, 20, 5, 5),
+                fill: COLORS.RED
+            }
+        );
         
+        this.secretMessage.addChild(this.lilThing);
+
         this.base = new GameNode.Shape(
             COLORS.WHITE, 
             Shapes.POLYGON,
@@ -40,8 +51,6 @@ class PlayerVisibilityTest extends Game {
             (player) => {
                 const playerIdIndex = this.secretMessage.node.playerIds.indexOf(player.id);
                 const zeroIndex = this.secretMessage.node.playerIds.indexOf(0);
-                console.lo
-                console.log(zeroIndex);
                 if (zeroIndex >= 0) {
                     let newPlayerIds = this.secretMessage.node.playerIds;
                     newPlayerIds.splice(zeroIndex, 1);
@@ -53,17 +62,18 @@ class PlayerVisibilityTest extends Game {
                     this.secretMessage.node.playerIds = newPlayerIds;
                 }
 
-                console.log(this.secretMessage.node.playerIds);
+                if (this.secretMessage.node.playerIds.length > 0 && this.secretMessage.node.playerIds[0] !== 0) {
+                }
             }
 
         );
 
         this.hideButton = new GameNode.Shape(
-            COLORS.RED,
+            COLORS.PURPLE,
             Shapes.POLYGON,
             {
                 coordinates2d: ShapeUtils.rectangle(40, 70, 20, 20),
-                fill: COLORS.RED
+                fill: COLORS.PURPLE
             },
             null,
             (player) => {
@@ -76,7 +86,9 @@ class PlayerVisibilityTest extends Game {
                     }
                     this.secretMessage.node.playerIds = newPlayerIds;
                 }
-                console.log(this.secretMessage.node.playerIds);
+                if (this.secretMessage.node.playerIds.length > 0 && this.secretMessage.node.playerIds[0] !== 0) {
+                }
+ 
             }
         );
         
