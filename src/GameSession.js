@@ -15,7 +15,7 @@ class GameSession {
 
     handleSquisherUpdate(squished) {
         for (const playerId in this.game.players) {
-            this.game.players[playerId].receiveUpdate(squished);
+            this.game.players[playerId].receiveUpdate(squished[playerId]);
         }
     }
 
@@ -27,8 +27,10 @@ class GameSession {
             player.name = player.name || playerName;
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
-            player.receiveUpdate(this.squisher.squished);
+            // todo: clean up
             this.game._hgAddPlayer(player);
+            this.squisher.handleStateChange();
+            player.receiveUpdate(this.squisher.playerFrames[player.id]);
             this.game.handleNewPlayer && this.game.handleNewPlayer(player);
             player.addInputListener(this);
         });
@@ -107,18 +109,20 @@ class GameSession {
     }
 
     findClickHelper(x, y, playerId, node, clicked = null) {
-        if ((node.handleClick && !node.playerId || playerId == node.playerId ) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+        if ((node.handleClick && node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
             const _vertices = node.coordinates2d;
-            let vertices;
-            // hack
-            if (!_vertices[0].length) {
-                vertices = [];
-                for (let c = 0; c < _vertices.length; c+=2) {
-                    vertices.push([_vertices[c], _vertices[c+1]]);
-                }
+            let vertices2d = [];
+            // TODO: fix this
+            if (_vertices[0].length) {
+                vertices2d = _vertices;
             } else {
-                vertices = _vertices;
+                for (let i = 0; i < _vertices.length; i+=2) {
+                    vertices2d.push([_vertices[i], _vertices[i + 1]]); 
+                }
             }
+
+            const vertices = vertices2d;
+
             let isInside = false;
             let minX = vertices[0][0];
             let maxX = vertices[0][0];
