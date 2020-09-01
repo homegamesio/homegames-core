@@ -4,7 +4,7 @@ const COLORS = Colors.COLORS;
 class PlayerVisibilityTest extends Game {
     static metadata() {
         return {
-            title: 'Fuk you',
+            name: 'Visibility test',
             author: 'Joseph Garcia'
         };
     }

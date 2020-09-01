@@ -7,7 +7,7 @@ class GameSession {
         // this is a hack
         this.game.session = this;
         this.squisher = new Squisher(this.game);
-//        this.squisher.hgRoot.players = this.game.players;
+        this.squisher.hgRoot.players = this.game.players;
         this.squisher.addListener(this);
         this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
         this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
@@ -39,7 +39,7 @@ class GameSession {
     handlePlayerDisconnect(playerId) {
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
 //        this.game._hgRemovePlayer(playerId);
-//        this.squisher.hgRoot.handlePlayerDisconnect(playerId);
+        this.squisher.hgRoot.handlePlayerDisconnect(playerId);
     }
 
     initialize(cb) {
@@ -89,7 +89,7 @@ class GameSession {
     }
 
     findNode(nodeId) {
-        return this.findNodeHelper(nodeId, this.game.getRoot());//this.game.getRoot());
+        return this.findNodeHelper(nodeId, this.squisher.hgRoot.getRoot());//this.game.getRoot());
     }
 
     findNodeHelper(nodeId, node, found = null) {
@@ -105,7 +105,7 @@ class GameSession {
     }
 
     findClick(x, y, playerId = 0) {
-        return this.findClickHelper(x, y, playerId, this.game.getRoot().node);
+        return this.findClickHelper(x, y, playerId, this.squisher.hgRoot.getRoot().node);
     }
 
     findClickHelper(x, y, playerId, node, clicked = null) {

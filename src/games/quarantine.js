@@ -59,8 +59,6 @@ class Quarantine extends Game {
             {
                 type: 'file',
                 oninput: (player, data) => {
-                    console.log("HUH");
-                    console.log(data);
                     this.initQuestions(null, data)
                 }
             }

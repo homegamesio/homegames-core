@@ -11,12 +11,12 @@ class Squisher {
         this.gameMetadata = game && game.constructor.metadata ? game.constructor.metadata() : null;
         this.ids = new Set();
         const isDashboard = game instanceof HomegamesDashboard;
-//        this.hgRoot = new HomegamesRoot(game, isDashboard);
+        this.hgRoot = new HomegamesRoot(game, isDashboard);
         this.game = game;
         this.listeners = new Set();
-//        this.hgRoot.getRoot().addListener(this);
+        this.hgRoot.getRoot().addListener(this);
         this.game && this.game.getRoot().addListener(this);
-//        this.game && this.update(this.hgRoot.getRoot());
+        this.game && this.update(this.hgRoot.getRoot());
 
         if (this.game.tick) {
             const tickRate = this.gameMetadata && this.gameMetadata.tickRate ? this.gameMetadata.tickRate : config.DEFAULT_TICK_RATE;
@@ -26,9 +26,9 @@ class Squisher {
 
     async initialize() {
         const gameAssets = this.game.getAssets ? this.game.getAssets() || {} : {};
-//        if (this.hgRoot.getAssets()) {
-//            Object.assign(gameAssets, this.hgRoot.getAssets());
-//        }
+        if (this.hgRoot.getAssets()) {
+            Object.assign(gameAssets, this.hgRoot.getAssets());
+        }
         
         let assetBundleSize = 0;
 
@@ -117,11 +117,13 @@ class Squisher {
         }
 
         const squished = squish(node.node);
+
         for (const i in node.node.playerIds) {
             whitelist.add(node.node.playerIds[i]);
         }
         // public node
         if (node.node.playerIds.length === 0 && whitelist.size == 0) {
+
             for (const playerId in playerFrames) {
                 playerFrames[playerId].push(squished);
             }
@@ -139,18 +141,16 @@ class Squisher {
         }
 
         for (const i in node.node.playerIds) {
-            if (node.node.playerIds[i] !== 0) {
-                whitelist.delete(node.node.playerIds[i]);
-            }
+            whitelist.delete(node.node.playerIds[i]);
         }
 
     }
 
     handleStateChange(node) {
         // todo: fix this
-//        this.update(this.hgRoot.getRoot());
+        this.update(this.hgRoot.getRoot());
         //this.update(this.hgRoot.getRoot());
-        this.update(this.game.getRoot());
+//        this.update(this.game.getRoot());
         for (const listener of this.listeners) {
             listener.handleSquisherUpdate(this.playerFrames);
         }

@@ -22,7 +22,6 @@ const collisionHelper = (node, nodeToCheck, filter, collisions = []) => {
  
     // assume rectangles for now
 
-    console.log(vertices);
     // TODO: fix perf (check bounds before filter)
     if (!filter || (filter(node) && node.node.id !== nodeToCheck.node.id)) {
         const node1LeftX = vertices[0][0];//node.node.coordinates2d[0][0];//node.pos.x;
