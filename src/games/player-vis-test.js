@@ -5,7 +5,8 @@ class PlayerVisibilityTest extends Game {
     static metadata() {
         return {
             name: 'Visibility test',
-            author: 'Joseph Garcia'
+            author: 'Joseph Garcia',
+            description: 'Test that multiple players can view/hide game nodes'
         };
     }
 
@@ -20,7 +21,7 @@ class PlayerVisibilityTest extends Game {
             y: 50
         }, [0]);
 
-        this.lilThing = new GameNode.Shape(
+        this.secretChild = new GameNode.Shape(
             COLORS.RED,
             Shapes.POLYGON,
             {
@@ -29,7 +30,7 @@ class PlayerVisibilityTest extends Game {
             }
         );
         
-        this.secretMessage.addChild(this.lilThing);
+        this.secretMessage.addChild(this.secretChild);
 
         this.base = new GameNode.Shape(
             COLORS.WHITE, 
@@ -61,9 +62,6 @@ class PlayerVisibilityTest extends Game {
                     newPlayerIds.push(player.id);
                     this.secretMessage.node.playerIds = newPlayerIds;
                 }
-
-                if (this.secretMessage.node.playerIds.length > 0 && this.secretMessage.node.playerIds[0] !== 0) {
-                }
             }
 
         );
@@ -86,9 +84,6 @@ class PlayerVisibilityTest extends Game {
                     }
                     this.secretMessage.node.playerIds = newPlayerIds;
                 }
-                if (this.secretMessage.node.playerIds.length > 0 && this.secretMessage.node.playerIds[0] !== 0) {
-                }
- 
             }
         );
         
