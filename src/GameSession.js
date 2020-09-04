@@ -23,12 +23,14 @@ class GameSession {
         if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
             player.receiveUpdate([5, 70, 0]);
         }
+
         generateName().then(playerName => {
             player.name = player.name || playerName;
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
-            // todo: clean up
             this.game._hgAddPlayer(player);
+
+            // ensure the squisher has game data for the new player
             this.squisher.handleStateChange();
             player.receiveUpdate(this.squisher.playerFrames[player.id]);
             this.game.handleNewPlayer && this.game.handleNewPlayer(player);
