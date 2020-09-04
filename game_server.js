@@ -3,7 +3,6 @@ const GameSession = require("./src/GameSession");
 const { socketServer } = require('./src/util/socket');
 const config = require('./config');
 const Homenames = require('./src/Homenames');
-const visTest = require('./src/games/player-vis-test.js');
 
 const dashboard = new HomegamesDashboard();
 

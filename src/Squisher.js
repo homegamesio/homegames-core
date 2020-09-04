@@ -5,6 +5,8 @@ const HomegamesDashboard = require('./HomegamesDashboard');
 
 const ASSET_TYPE = 1;
 
+const INVISIBLE_NODE_PLAYER_ID = 0;
+
 class Squisher {
     constructor(game) {
         this.assets = {};
@@ -96,6 +98,8 @@ class Squisher {
             playerFrames[playerId] = playerFrames[playerId].flat();
         }
         this.playerFrames = playerFrames;
+
+        return this.playerFrames;
     }
 
     getPlayerIds(node, ids) {
@@ -121,18 +125,18 @@ class Squisher {
         for (const i in node.node.playerIds) {
             whitelist.add(node.node.playerIds[i]);
         }
+
+        const nodeIsInvisible = node.node.playerIds.length > 0 && 
+            node.node.playerIds[0] === INVISIBLE_NODE_PLAYER_ID;
+
         // public node
         if (node.node.playerIds.length === 0 && whitelist.size == 0) {
-
             for (const playerId in playerFrames) {
                 playerFrames[playerId].push(squished);
             }
-        } else if (node.node.playerIds[0] === 0) {
-            // invisible node
-        } else if (!(whitelist.has(0))) {
-            const _thing = Array.from(new Set([Array.from(whitelist), node.node.playerIds])).flat();
-            for (const i in _thing) {
-                playerFrames[_thing[i]].push(squished);
+        } else if (!nodeIsInvisible && !(whitelist.has(INVISIBLE_NODE_PLAYER_ID))) {
+            for (const playerId of whitelist) {
+                playerFrames[playerId].push(squished);
             }
         }
 
@@ -147,12 +151,10 @@ class Squisher {
     }
 
     handleStateChange(node) {
-        // todo: fix this
-        this.update(this.hgRoot.getRoot());
-        //this.update(this.hgRoot.getRoot());
-//        this.update(this.game.getRoot());
+        const playerFrames = this.update(this.hgRoot.getRoot());
+
         for (const listener of this.listeners) {
-            listener.handleSquisherUpdate(this.playerFrames);
+            listener.handleSquisherUpdate(playerFrames);
         }
     }
 }
