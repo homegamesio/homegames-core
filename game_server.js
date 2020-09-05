@@ -4,7 +4,10 @@ const { socketServer } = require('./src/util/socket');
 const config = require('./config');
 const Homenames = require('./src/Homenames');
 
-const dashboard = new HomegamesDashboard();
+const VisTest = require('./src/games/player-vis-test');
+
+//const dashboard = new HomegamesDashboard();
+const dashboard = new VisTest();
 
 const session = new GameSession(dashboard);
 

@@ -114,13 +114,37 @@ class Squisher {
         }
     }
 
-    updateHelper(node, playerFrames, whitelist) {
+    updateHelper(node, playerFrames, whitelist, scale) {
+        if (this.game.getRoot() === node) {
+            scale = {x: .9, y: .9};
+        }
+
         if (!this.ids.has(node.node.id)) {
             this.ids.add(node.node.id);
             node.addListener(this);
         }
 
-        const squished = squish(node.node);
+        let squished;
+        if (scale) {
+            const scaledNode = {
+                color: node.node.color,
+                coordinates2d: Object.assign([], node.node.coordinates2d),
+                fill: node.node.fill,
+                playerIds: node.node.playerIds
+            };//Object.assign({}, node.node);
+            for (const i in scaledNode.coordinates2d) {
+                scaledNode.coordinates2d[i][0] *= scale.x;//scaled.x * scaledNode.coordinates2d[i][0];
+                scaledNode.coordinates2d[i][0] += (1 - scale.x) * 100 / 2;
+                scaledNode.coordinates2d[i][1] *= scale.y;//scaled.x * scaledNode.coordinates2d[i][0];
+                scaledNode.coordinates2d[i][1] += (1 - scale.y) * 100 / 2;
+            }
+            console.log(node.node);
+            console.log("SCALED");
+            console.log(scaledNode);
+            squished = squish(scaledNode);
+        } else {
+            squished = squish(node.node);
+        }
 
         for (const i in node.node.playerIds) {
             whitelist.add(node.node.playerIds[i]);
@@ -141,7 +165,7 @@ class Squisher {
         }
 
         for (let i = 0; i < node.node.children.length; i++) {
-            this.updateHelper(node.node.children[i], playerFrames, whitelist);
+            this.updateHelper(node.node.children[i], playerFrames, whitelist, scale);
         }
 
         for (const i in node.node.playerIds) {

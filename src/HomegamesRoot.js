@@ -98,7 +98,14 @@ class HomegamesRoot {
         };
 
         // todo: get default aspect ratio from config
-        const aspectRatio = game.constructor.metadata && game.constructor.metadata().aspectRatio || {x: 16, y: 9};
+        const gameAspectRatio = game.constructor.metadata && game.constructor.metadata().aspectRatio;
+        let aspectRatio;
+        if (gameAspectRatio) {
+            console.log("game aspect");
+            aspectRatio = {x: 16, y: 9};
+        } else {
+            aspectRatio = {x: 16, y: 9};
+        }
 
         this.homeButton = new GameNode.Asset(
             isDashboard ? onDashHomeClick : onGameHomeClick,
@@ -119,8 +126,18 @@ class HomegamesRoot {
             }
         );
 
-        this.root.addChild(game.getRoot());
+        const baseThing = new GameNode.Shape(
+            COLORS.RED,
+            Shapes.POLYGON,
+            {
+                fill: COLORS.RED,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+            }
+        );
+
+        this.root.addChild(baseThing);
         this.root.addChild(this.homeButton);
+        this.root.addChild(game.getRoot());
     }
 
     getRoot() {
