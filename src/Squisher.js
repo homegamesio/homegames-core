@@ -1,4 +1,4 @@
-const { squish } = require('squishjs');
+const { squish, unsquish } = require('squishjs');
 const config = require('../config');
 const HomegamesRoot = require('./HomegamesRoot');
 const HomegamesDashboard = require('./HomegamesDashboard');
@@ -116,7 +116,7 @@ class Squisher {
 
     updateHelper(node, playerFrames, whitelist, scale) {
         if (this.game.getRoot() === node) {
-            scale = {x: .9, y: .9};
+            scale = {x: .85, y: .85};
         }
 
         if (!this.ids.has(node.node.id)) {
@@ -126,21 +126,22 @@ class Squisher {
 
         let squished;
         if (scale) {
-            const scaledNode = {
-                color: node.node.color,
-                coordinates2d: Object.assign([], node.node.coordinates2d),
-                fill: node.node.fill,
-                playerIds: node.node.playerIds
-            };//Object.assign({}, node.node);
+            //const scaledNode = {
+            //    color: node.node.color,
+            //    coordinates2d: Object.assign([], node.node.coordinates2d),
+            //    fill: node.node.fill,
+            //    playerIds: node.node.playerIds
+            const scaledNode = unsquish(squish(node.node));//.copy();// Object.assign({}, node.node);
+
             for (const i in scaledNode.coordinates2d) {
-                scaledNode.coordinates2d[i][0] *= scale.x;//scaled.x * scaledNode.coordinates2d[i][0];
-                scaledNode.coordinates2d[i][0] += (1 - scale.x) * 100 / 2;
-                scaledNode.coordinates2d[i][1] *= scale.y;//scaled.x * scaledNode.coordinates2d[i][0];
-                scaledNode.coordinates2d[i][1] += (1 - scale.y) * 100 / 2;
+                if (i % 2 == 0) {
+                    scaledNode.coordinates2d[i] *= scale.x;// * node.node.coordinates2d[i][0];
+                    scaledNode.coordinates2d[i] += (1 - scale.x) * 100 / 2;
+                } else {
+                    scaledNode.coordinates2d[i] *= scale.y;// * node.node.coordinates2d[i][1];
+                    scaledNode.coordinates2d[i] += (1 - scale.y) * 100 / 2;
+                }
             }
-            console.log(node.node);
-            console.log("SCALED");
-            console.log(scaledNode);
             squished = squish(scaledNode);
         } else {
             squished = squish(node.node);
