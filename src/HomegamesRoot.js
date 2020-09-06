@@ -22,6 +22,8 @@ class HomegamesRoot {
         this.playerDashboards = {};
 
         const onDashHomeClick = (player, x, y) => {
+            console.log("FSDFDSFSD");
+            console.log(x);
             if (this.playerDashboards[player.id] && this.playerDashboards[player.id].dashboard) {
                 return;
             };
@@ -101,41 +103,46 @@ class HomegamesRoot {
         const gameAspectRatio = game.constructor.metadata && game.constructor.metadata().aspectRatio;
         let aspectRatio;
         if (gameAspectRatio) {
-            console.log("game aspect");
-            aspectRatio = {x: 16, y: 9};
+            aspectRatio = gameAspectRatio;
         } else {
             aspectRatio = {x: 16, y: 9};
         }
 
+        // todo: get scale value from squisher
+        const logoSizeX = 7.5 * (aspectRatio.y / aspectRatio.x);
+        const logoSizeY = 7.5;
+        const logoStartY = 0;
+        const logoStartX = 50 - (logoSizeX / 2);
+
         this.homeButton = new GameNode.Asset(
             isDashboard ? onDashHomeClick : onGameHomeClick,
-            [
-                [2, 2],
-                [10.1, 2],
-                [10.1, 2 + (8.1 * (aspectRatio.x / aspectRatio.y))],
-                [2, 2 + (8.1 * (aspectRatio.x / aspectRatio.y))],
-                [2, 2]
-            ],
+            ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
             {
                 'home-button': {
-                    pos: {x: 2, y: 2},
+                    pos: {x: logoStartX, y: logoStartY},
                     size: {
-                        x: 8.1, y: 8.1 * (aspectRatio.x / aspectRatio.y)
+                        x: logoSizeX, 
+                        y: logoSizeY
                     }
                 }
             }
         );
 
-        const baseThing = new GameNode.Shape(
-            COLORS.RED,
-            Shapes.POLYGON,
+        this.baseThing = new GameNode.Asset(
+            null,
+            ShapeUtils.rectangle(0, 0, 100, 100),
             {
-                fill: COLORS.RED,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+                'frame': {
+                    pos: {x: 0, y: 0},
+                    size: {
+                        x: 100,
+                        y: 100
+                    }
+                }
             }
         );
 
-        this.root.addChild(baseThing);
+        this.root.addChild(this.baseThing);
         this.root.addChild(this.homeButton);
         this.root.addChild(game.getRoot());
     }
@@ -158,6 +165,10 @@ class HomegamesRoot {
         return {
             'home-button': new Asset('url', {
                 'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
+                'type': 'image'
+            }),
+            'frame': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/frame.jpg',
                 'type': 'image'
             })
         }

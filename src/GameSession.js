@@ -86,7 +86,8 @@ class GameSession {
         const clickedNode = this.findClick(click.x, click.y, player.id);
 
         if (clickedNode) {
-            clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);
+            // todo: get scale value from squisher
+            clickedNode.handleClick && clickedNode.handleClick(player, click.x - 7.5, click.y - 7.5);
         }
     }
 
@@ -107,12 +108,32 @@ class GameSession {
     }
 
     findClick(x, y, playerId = 0) {
+        // TODO: get scale (bezel size) from squisher
         return this.findClickHelper(x, y, playerId, this.squisher.hgRoot.getRoot().node);
     }
 
-    findClickHelper(x, y, playerId, node, clicked = null) {
+    findClickHelper(x, y, playerId, node, clicked = null, inGame) {
+        if (node == this.game.getRoot().node) {
+            inGame = true;
+        }
+
         if ((node.handleClick && node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
-            const vertices = node.coordinates2d;
+            const vertices = [];
+ 
+            // todo: get scale values from squisher
+            for (let i in node.coordinates2d) {
+                if (inGame) {
+                    vertices.push(
+                        [node.coordinates2d[i][0] * .85 + 7.5,
+                        node.coordinates2d[i][1] * .85 + 7.5]
+                    );
+                } else {
+                    vertices.push(
+                        [node.coordinates2d[i][0],
+                        node.coordinates2d[i][1]]
+                    );
+                }
+            }
 
             let isInside = false;
             let minX = vertices[0][0];
@@ -145,7 +166,7 @@ class GameSession {
         }
 
         for (const i in node.children) {
-            clicked = this.findClickHelper(x, y, playerId, node.children[i].node, clicked);
+            clicked = this.findClickHelper(x, y, playerId, node.children[i].node, clicked, inGame);
         }
 
         return clicked;

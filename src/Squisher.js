@@ -126,19 +126,32 @@ class Squisher {
 
         let squished;
         if (scale) {
-            //const scaledNode = {
-            //    color: node.node.color,
-            //    coordinates2d: Object.assign([], node.node.coordinates2d),
-            //    fill: node.node.fill,
-            //    playerIds: node.node.playerIds
-            const scaledNode = unsquish(squish(node.node));//.copy();// Object.assign({}, node.node);
+            const scaledNode = unsquish(squish(node.node));
 
+            if (scaledNode.asset) {
+                const nodeAsset = Object.values(scaledNode.asset)[0];
+                nodeAsset.size.x *= scale.x;
+                nodeAsset.size.y *= scale.y;
+//                nodeAsset.pos.x *= scale.x;
+                nodeAsset.pos.x += 7.5;
+//                nodeAsset.pos.y *= scale.y;
+                nodeAsset.pos.y += 7.5;
+//                console.log(nodeAsset);
+//                console.log(nodeAsset.pos);
+//
+////                40/100 = x/85 100x = 40*85
+//                const xScale = (nodeAsset.pos.x * (1 - scale.x));
+//                console.log(xScale);
+//                nodeAsset.pos.x += xScale;
+//                nodeAsset.pos.x += (1 - scale.x) * 100 / 2;
+//                nodeAsset.pos.y += (1 - scale.y) * 100 / 2;
+            }
             for (const i in scaledNode.coordinates2d) {
                 if (i % 2 == 0) {
-                    scaledNode.coordinates2d[i] *= scale.x;// * node.node.coordinates2d[i][0];
+                    scaledNode.coordinates2d[i] *= scale.x;
                     scaledNode.coordinates2d[i] += (1 - scale.x) * 100 / 2;
                 } else {
-                    scaledNode.coordinates2d[i] *= scale.y;// * node.node.coordinates2d[i][1];
+                    scaledNode.coordinates2d[i] *= scale.y;
                     scaledNode.coordinates2d[i] += (1 - scale.y) * 100 / 2;
                 }
             }

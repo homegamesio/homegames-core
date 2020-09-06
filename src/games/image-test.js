@@ -20,7 +20,8 @@ class ImageTest extends Game {
             })
         };
 
-        const defaultImageSize = {x: 10, y: 10 * 16/9};
+        const aspectRatio = this.constructor.metadata().aspectRatio;
+        const defaultImageSize = {x: 10 * (aspectRatio.y/aspectRatio.x), y: 10};// * (aspectRatio.y / aspectRatio.x)};
         const defaultImagePos = {x: 45, y: 40};
 
         this.base = new GameNode.Shape(COLORS.WHITE, 
