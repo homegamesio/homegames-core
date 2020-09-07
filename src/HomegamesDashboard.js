@@ -348,18 +348,18 @@ class HomegamesDashboard extends Game {
         playerRoot.clearChildren();
 
         const gameOptionSize = {
-            x: 18,
-            y: 20
+            x: 20,
+            y: 18
         };
 
         const gameOptionMargin = {
-            x: 5,
-            y: 16
+            x: 10,
+            y: 10
         }
-        const startX = 15;
-        const startY = 20;
+        const startX = 5;
+        const startY = 5;
 
-        const endX = 85;
+        const endX = 95;
         const endY = 95;
 
         const perRow = Math.floor((endX - startX) / (gameOptionSize.x + gameOptionMargin.x));
@@ -383,13 +383,7 @@ class HomegamesDashboard extends Game {
             COLORS.HG_BLACK,
             Shapes.POLYGON,
             {
-                coordinates2d: [
-                    [83, 5],
-                    [86, 5],
-                    [86, 95],
-                    [83, 95],
-                    [83, 5]
-                ],
+                coordinates2d: ShapeUtils.rectangle(95, 5, 3, 90),
                 fill: DASHBOARD_COLOR,
                 border: 6
             },
@@ -421,13 +415,7 @@ class HomegamesDashboard extends Game {
             COLORS.HG_BLACK,
             Shapes.POLYGON,
             {
-                coordinates2d: [
-                    [83.4, barStartY],
-                    [85.6, barStartY],
-                    [85.6, barStartY + barHeight],
-                    [83.4, barStartY + barHeight],
-                    [83.4, barStartY]
-                ],
+                coordinates2d: ShapeUtils.rectangle(95.4, barStartY, 2.2, barHeight),
                 fill: COLORS.HG_BLACK
             },
             playerId
@@ -465,7 +453,7 @@ class HomegamesDashboard extends Game {
                 },
             );
 
-            const optionMarginX = gameOptionSize.x * .05;
+            const optionMarginX = gameOptionSize.x * .1;
             const optionMarginY = gameOptionSize.y * .05;
 
             const gameOption = new GameNode.Asset(
@@ -486,8 +474,8 @@ class HomegamesDashboard extends Game {
                             y: gamePos[1] + optionMarginY
                         },
                         size: {
-                            x: (.9 * gameOptionSize.x),
-                            y: (.9 * gameOptionSize.y)
+                            x: (.8 * gameOptionSize.x),
+                            y: (.8 * gameOptionSize.y)
                         }
                     }
                 },
