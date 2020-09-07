@@ -128,6 +128,13 @@ class Squisher {
         if (scale) {
             const scaledNode = unsquish(squish(node.node));
 
+            if (scaledNode.text) {
+                scaledNode.text.x *= scale.x;
+                scaledNode.text.x += (1 - scale.x) * 100 / 2;
+                scaledNode.text.y *= scale.y;
+                scaledNode.text.y += (1 - scale.y) * 100 / 2;
+            }
+
             if (scaledNode.asset) {
                 const nodeAsset = Object.values(scaledNode.asset)[0];
                 nodeAsset.size.x *= scale.x;
@@ -136,6 +143,7 @@ class Squisher {
                 nodeAsset.pos.y *= scale.y;
                 nodeAsset.pos.y += (1 - scale.y) * 100 / 2;
             }
+
             for (const i in scaledNode.coordinates2d) {
                 if (i % 2 == 0) {
                     scaledNode.coordinates2d[i] *= scale.x;
@@ -145,6 +153,7 @@ class Squisher {
                     scaledNode.coordinates2d[i] += (1 - scale.y) * 100 / 2;
                 }
             }
+
             squished = squish(scaledNode);
         } else {
             squished = squish(node.node);
