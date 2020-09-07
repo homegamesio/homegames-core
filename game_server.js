@@ -6,10 +6,12 @@ const Homenames = require('./src/Homenames');
 
 const VisTest = require('./src/games/player-vis-test');
 const ImageTest = require('./src/games/image-test');
+const ScaleTest = require('./src/games/scale-test');
 
+const dashboard = new ScaleTest();
 //const dashboard = new HomegamesDashboard();
 //const dashboard = new VisTest();
-const dashboard = new ImageTest();
+//const dashboard = new ImageTest();
 
 const session = new GameSession(dashboard);
 

@@ -37,7 +37,8 @@ class HomegamesDashboard extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            author: 'Joseph Garcia'
+            author: 'Joseph Garcia',
+            tickRate: 10
         };
     }
 
@@ -58,11 +59,6 @@ class HomegamesDashboard extends Game {
 
         this.assets['default'] = new Asset('url', {
             'location': config.DEFAULT_GAME_THUMBNAIL,
-            'type': 'image'
-        });
-
-        this.assets['logo-horizontal'] = new Asset('url', {
-            'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/logo_horizontal.png',
             'type': 'image'
         });
 
@@ -96,39 +92,11 @@ class HomegamesDashboard extends Game {
             DASHBOARD_COLOR,
             Shapes.POLYGON, 
             {
-                coordinates2d: [
-                    [12.5, 2.5],
-                    [87.5, 2.5],
-                    [87.5, 97.5],
-                    [12.5, 97.5],
-                    [12.5, 2.5]
-                ],
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
                 fill: DASHBOARD_COLOR
             }
         );
         
-        this.logoAsset = new GameNode.Asset(
-            null,
-            [
-                [43, 2.5],
-                [57, 2.5],
-                [57, 2.5 + (13 * 1.42)],
-                [43, 2.5 + (13 * 1.42)],
-                [43, 2.5],
-            ],
-            {
-            'logo-horizontal': {
-                pos: {
-                    x: 40, y: 5
-                },
-                size: {
-                    x: 20, y: 9 //(10 / 1.4) / 100
-                }
-                }
-            }
-        );
- 
-        this.screen.addChild(this.logoAsset);
         this.base.addChild(this.screen);
         this.sessions = {};
         this.requestCallbacks = {};

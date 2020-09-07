@@ -109,16 +109,16 @@ class HomegamesRoot {
         }
 
         // todo: get scale value from squisher
-        const logoSizeX = 7.5 * (aspectRatio.y / aspectRatio.x);
-        const logoSizeY = 7.5;
-        const logoStartY = 0;
+        const logoSizeX = 17 * (aspectRatio.y / aspectRatio.x);
+        const logoSizeY = 5;
+        const logoStartY = 94.5;
         const logoStartX = 50 - (logoSizeX / 2);
 
         this.homeButton = new GameNode.Asset(
             isDashboard ? onDashHomeClick : onGameHomeClick,
             ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
             {
-                'home-button': {
+                'logo-horizontal': {
                     pos: {x: logoStartX, y: logoStartY},
                     size: {
                         x: logoSizeX, 
@@ -169,6 +169,10 @@ class HomegamesRoot {
             }),
             'frame': new Asset('url', {
                 'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/frame.jpg',
+                'type': 'image'
+            }),
+            'logo-horizontal': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/logo_horizontal.png',
                 'type': 'image'
             })
         }

@@ -6,7 +6,7 @@ class PlayerVisibilityTest extends Game {
         return {
             name: 'Visibility test',
             author: 'Joseph Garcia',
-            aspectRatio: {x: 4, y: 3},
+            aspectRatio: {x: 1, y: 2},
             description: 'Test that multiple players can view/hide game nodes'
         };
     }
