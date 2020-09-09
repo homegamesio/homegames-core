@@ -5,6 +5,8 @@ const HomegamesDashboard = require('./HomegamesDashboard');
 
 const ASSET_TYPE = 1;
 
+const INVISIBLE_NODE_PLAYER_ID = 0;
+
 class Squisher {
     constructor(game) {
         this.assets = {};
@@ -86,29 +88,73 @@ class Squisher {
     }
 
     update(node) {
-        const newSquished = [];
-        this.updateHelper(node, newSquished);
-        this.squished = newSquished.flat();
+        const playerFrames = {};
+        const playerIds = new Set(Object.keys(this.game.players));
+        for (const playerId of playerIds) {
+            playerFrames[playerId] = [];
+        }
+        this.updateHelper(node, playerFrames, new Set([]));
+        for (const playerId in playerFrames) {
+            playerFrames[playerId] = playerFrames[playerId].flat();
+        }
+        this.playerFrames = playerFrames;
+
+        return this.playerFrames;
     }
 
-    updateHelper(node, squished) {
+    getPlayerIds(node, ids) {
+        for (const i in node.node.playerIds) {
+            if (node.node.playerIds[i] !== 0) {
+                ids.add(node.node.playerIds[i]);
+            }
+        }
+
+        for (let i = 0; i < node.node.children.length; i++) {
+            this.getPlayerIds(node.node.children[i], ids);
+        }
+    }
+
+    updateHelper(node, playerFrames, whitelist) {
         if (!this.ids.has(node.node.id)) {
             this.ids.add(node.node.id);
             node.addListener(this);
         }
-        const newSquish = squish(node.node);
-        squished.push(newSquish);
+
+        const squished = squish(node.node);
+
+        for (const i in node.node.playerIds) {
+            whitelist.add(node.node.playerIds[i]);
+        }
+
+        const nodeIsInvisible = node.node.playerIds.length > 0 && 
+            node.node.playerIds[0] === INVISIBLE_NODE_PLAYER_ID;
+
+        // public node
+        if (node.node.playerIds.length === 0 && whitelist.size == 0) {
+            for (const playerId in playerFrames) {
+                playerFrames[playerId].push(squished);
+            }
+        } else if (!nodeIsInvisible && !(whitelist.has(INVISIBLE_NODE_PLAYER_ID))) {
+            for (const playerId of whitelist) {
+                playerFrames[playerId].push(squished);
+            }
+        }
 
         for (let i = 0; i < node.node.children.length; i++) {
-            this.updateHelper(node.node.children[i], squished);
+            this.updateHelper(node.node.children[i], playerFrames, whitelist);
         }
+
+        for (const i in node.node.playerIds) {
+            whitelist.delete(node.node.playerIds[i]);
+        }
+
     }
 
     handleStateChange(node) {
-        // todo: fix this
-        this.update(this.hgRoot.getRoot());
+        const playerFrames = this.update(this.hgRoot.getRoot());
+
         for (const listener of this.listeners) {
-            listener.handleSquisherUpdate(this.squished);
+            listener.handleSquisherUpdate(playerFrames);
         }
     }
 }

@@ -15,7 +15,7 @@ class GameSession {
 
     handleSquisherUpdate(squished) {
         for (const playerId in this.game.players) {
-            this.game.players[playerId].receiveUpdate(squished);
+            this.game.players[playerId].receiveUpdate(squished[playerId]);
         }
     }
 
@@ -23,12 +23,16 @@ class GameSession {
         if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
             player.receiveUpdate([5, 70, 0]);
         }
+
         generateName().then(playerName => {
             player.name = player.name || playerName;
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
-            player.receiveUpdate(this.squisher.squished);
             this.game._hgAddPlayer(player);
+
+            // ensure the squisher has game data for the new player
+            this.squisher.handleStateChange();
+            player.receiveUpdate(this.squisher.playerFrames[player.id]);
             this.game.handleNewPlayer && this.game.handleNewPlayer(player);
             player.addInputListener(this);
         });
@@ -107,18 +111,9 @@ class GameSession {
     }
 
     findClickHelper(x, y, playerId, node, clicked = null) {
-        if ((node.handleClick && !node.playerId || playerId == node.playerId ) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
-            const _vertices = node.coordinates2d;
-            let vertices;
-            // hack
-            if (!_vertices[0].length) {
-                vertices = [];
-                for (let c = 0; c < _vertices.length; c+=2) {
-                    vertices.push([_vertices[c], _vertices[c+1]]);
-                }
-            } else {
-                vertices = _vertices;
-            }
+        if ((node.handleClick && node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+            const vertices = node.coordinates2d;
+
             let isInside = false;
             let minX = vertices[0][0];
             let maxX = vertices[0][0];
