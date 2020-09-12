@@ -87,7 +87,9 @@ class GameSession {
 
         if (clickedNode) {
             // todo: get scale value from squisher
-            clickedNode.handleClick && clickedNode.handleClick(player, click.x - 7.5, click.y - 7.5);
+            const scaleX = 100 / 85;
+            const scaleY = 100 / 85;
+            clickedNode.handleClick && clickedNode.handleClick(player, (click.x * scaleX) - (7.5 * scaleX), (click.y * scaleY) - (7.5 * scaleY));
         }
     }
 

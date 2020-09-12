@@ -6,10 +6,6 @@ const COLORS = Colors.COLORS;
 class Draw extends Game {
     static metadata() {
         return {
-            res: {
-                width: 1920,
-                height: 1080
-            },
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/draw_thumbnail.jpg'
         };
@@ -25,7 +21,7 @@ class Draw extends Game {
         };
 
         this.playerColorMap = {};
-        const boardShape = ShapeUtils.rectangle(5, 5, 90, 90);
+        const boardShape = ShapeUtils.rectangle(0, 0, 100, 100);
 
         this.board = new GameNode.Shape(
             COLORS.PURPLE,
