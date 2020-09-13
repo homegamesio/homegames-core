@@ -4,16 +4,7 @@ const { socketServer } = require('./src/util/socket');
 const config = require('./config');
 const Homenames = require('./src/Homenames');
 
-const VisTest = require('./src/games/player-vis-test');
-const ImageTest = require('./src/games/image-test');
-const ScaleTest = require('./src/games/scale-test');
-const Draw = require('./src/games/draw');
-
-const dashboard = new Draw();
-//const dashboard = new ScaleTest();
-//const dashboard = new HomegamesDashboard();
-//const dashboard = new VisTest();
-//const dashboard = new ImageTest();
+const dashboard = new HomegamesDashboard();
 
 const session = new GameSession(dashboard);
 
