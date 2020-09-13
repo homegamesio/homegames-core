@@ -116,7 +116,10 @@ class Squisher {
 
     updateHelper(node, playerFrames, whitelist, scale) {
         if (this.game.getRoot() === node) {
-            scale = {x: .85, y: .85};
+            scale = {
+                x: (100 - config.BEZEL_SIZE.x) / 100,
+                y: (100 - config.BEZEL_SIZE.y) / 100
+            }
         }
 
         if (!this.ids.has(node.node.id)) {

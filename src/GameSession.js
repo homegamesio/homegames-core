@@ -1,4 +1,5 @@
 const Squisher = require('./Squisher');
+const config = require('../config');
 const { generateName } = require('./common/util');
 
 class GameSession {
@@ -86,10 +87,13 @@ class GameSession {
         const clickedNode = this.findClick(click.x, click.y, player.id);
 
         if (clickedNode) {
-            // todo: get scale value from squisher
-            const scaleX = 100 / 85;
-            const scaleY = 100 / 85;
-            clickedNode.handleClick && clickedNode.handleClick(player, (click.x * scaleX) - (7.5 * scaleX), (click.y * scaleY) - (7.5 * scaleY));
+            const gameWidth = 100 - config.BEZEL_SIZE.x;
+            const gameHeight = 100 - config.BEZEL_SIZE.y;
+
+            const scaleX = 100 / gameWidth;
+            const scaleY = 100 / gameHeight;
+
+            clickedNode.handleClick && clickedNode.handleClick(player, (click.x  - (config.BEZEL_SIZE.x / 2)) * scaleX, (click.y  - (config.BEZEL_SIZE.y / 2) * scaleY));
         }
     }
 
@@ -110,7 +114,6 @@ class GameSession {
     }
 
     findClick(x, y, playerId = 0) {
-        // TODO: get scale (bezel size) from squisher
         return this.findClickHelper(x, y, playerId, this.squisher.hgRoot.getRoot().node);
     }
 
@@ -122,12 +125,16 @@ class GameSession {
         if ((node.handleClick && node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
             const vertices = [];
  
-            // todo: get scale values from squisher
             for (let i in node.coordinates2d) {
                 if (inGame) {
+                    const clickScaleX = (100 - config.BEZEL_SIZE.x) / 100;
+                    const clickScaleY = (100 - config.BEZEL_SIZE.y) / 100;
+
                     vertices.push(
-                        [node.coordinates2d[i][0] * .85 + 7.5,
-                        node.coordinates2d[i][1] * .85 + 7.5]
+                        [
+                            (node.coordinates2d[i][0] * clickScaleX) + (config.BEZEL_SIZE.x / 2),
+                            (node.coordinates2d[i][1] * clickScaleY) + (config.BEZEL_SIZE.y / 2)
+                        ]
                     );
                 } else {
                     vertices.push(

@@ -76,7 +76,6 @@ class PlayerVisibilityTest extends Game {
             },
             null,
             (player) => {
-                console.log("clicked hide");
                 const playerIdIndex = this.secretMessage.node.playerIds.indexOf(player.id);
                 if (playerIdIndex >= 0) {
                     let newPlayerIds = this.secretMessage.node.playerIds;

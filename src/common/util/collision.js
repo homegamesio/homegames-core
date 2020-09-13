@@ -1,28 +1,8 @@
 const collisionHelper = (node, nodeToCheck, filter, collisions = []) => {
-    const _vertices = node.node.coordinates2d;
-    const _verticesToCheck = nodeToCheck.node.coordinates2d;
-    let vertices;
-    let verticesToCheck;
-    
-    // hack
-    if (!_vertices[0].length) {
-        vertices = [];
-        verticesToCheck = [];
-        for (let c = 0; c < _vertices.length; c+=2) {
-            vertices.push([_vertices[c], _vertices[c+1]]);
-        }
-        for (let c = 0; c < _verticesToCheck.length; c+=2) {
-            verticesToCheck.push([_verticesToCheck[c], _verticesToCheck[c+1]]);
-        }
-
-    } else {
-        vertices = _vertices;
-        verticesToCheck = _verticesToCheck;
-    }
- 
+    const vertices = node.node.coordinates2d;
+    const verticesToCheck = nodeToCheck.node.coordinates2d;
     // assume rectangles for now
 
-    // TODO: fix perf (check bounds before filter)
     if (!filter || (filter(node) && node.node.id !== nodeToCheck.node.id)) {
         const node1LeftX = vertices[0][0];//node.node.coordinates2d[0][0];//node.pos.x;
         const node1RightX = vertices[1][0];//node.node.coordinates2d[1][0];//node.pos.x + node.size.x;

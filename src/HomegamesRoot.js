@@ -22,8 +22,6 @@ class HomegamesRoot {
         this.playerDashboards = {};
 
         const onDashHomeClick = (player, x, y) => {
-            console.log("FSDFDSFSD");
-            console.log(x);
             if (this.playerDashboards[player.id] && this.playerDashboards[player.id].dashboard) {
                 return;
             };
@@ -99,7 +97,6 @@ class HomegamesRoot {
             player.receiveUpdate([5, 70, 0]);
         };
 
-        // todo: get default aspect ratio from config
         const gameAspectRatio = game.constructor.metadata && game.constructor.metadata().aspectRatio;
         let aspectRatio;
         if (gameAspectRatio) {
@@ -108,7 +105,6 @@ class HomegamesRoot {
             aspectRatio = {x: 16, y: 9};
         }
 
-        // todo: get scale value from squisher
         const logoSizeX = 17 * (aspectRatio.y / aspectRatio.x);
         const logoSizeY = 5;
         const logoStartY = 94.5;
