@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 
 const getAllFiles = (dirPath, arrayOfFiles) => {
   files = fs.readdirSync(dirPath)
@@ -22,9 +22,16 @@ const getAllFiles = (dirPath, arrayOfFiles) => {
 };
 
 const fileData = {};
-let child = exec("node game_server", (err, stdout, stderr) => {
-    console.log(stdout);
-});
+let child = spawn("node", ["game_server"],
+    {
+        cwd: process.cwd(),
+        detached: true,
+        stdio: "inherit"
+    }
+);
+    //, (err, stdout, stderr) => {
+//    console.log(stdout);
+//});
 
 setInterval(() => {
     const filePaths = getAllFiles('./src/');
@@ -38,10 +45,18 @@ setInterval(() => {
             if (child) {
                 child.kill();
             }
-            child = exec("node game_server", (err, stdout, stderr) => {
-                console.log(stdout);
-                console.error(stderr);
-            });
+            child = spawn("node", ["game_server"],
+                {
+                    cwd: process.cwd(),
+                    detached: true,
+                    stdio: "inherit"
+                }
+            );
+
+            //child = exec("node game_server", (err, stdout, stderr) => {
+            //    console.log(stdout);
+            //    console.error(stderr);
+            //});
         }
 //        console.log(fileName);
     }
