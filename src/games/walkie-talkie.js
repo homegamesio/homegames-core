@@ -34,9 +34,29 @@ class WalkieTalkie extends Game {
             },
             null);//,
 //            this.activateMic.bind(this));
+
     }
 
     handleNewPlayer() {
+        console.log('new player');
+        const fs = require('fs');
+        fs.readFile('/Users/josephgarcia/test.mp3', (err, data) => {
+            console.log("hello");
+            console.log(err);
+            console.log(data[0]);
+            console.log(data.length);
+            const thing = new Uint8Array(data);
+            console.log(thing.length);
+
+            this.speaker = new GameNode.Audio(
+                null,
+                thing
+            );
+
+            console.log(this.speaker);
+
+            this.base.addChild(this.speaker);
+        });
     }
 
     handleKeyDown(player, key) {
