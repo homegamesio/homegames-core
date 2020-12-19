@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes } = require('squishjs');
+const { Game, GameNode, Colors, Shapes, StateSignals } = require('squishjs');
 
 class WalkieTalkie extends Game {
     static metadata() {
@@ -37,26 +37,31 @@ class WalkieTalkie extends Game {
 
     }
 
+    handleStream(player, data) {
+        const ting = new GameNode.Audio(null, Object.values(data));
+        this.base.clearChildren();
+        this.base.addChild(ting);
+    }
+
     handleNewPlayer() {
-        console.log('new player');
-        const fs = require('fs');
-        fs.readFile('/Users/josephgarcia/test.mp3', (err, data) => {
-            console.log("hello");
-            console.log(err);
-            console.log(data[0]);
-            console.log(data.length);
-            const thing = new Uint8Array(data);
-            console.log(thing.length);
-
-            this.speaker = new GameNode.Audio(
-                null,
-                thing
-            );
-
-            console.log(this.speaker);
-
-            this.base.addChild(this.speaker);
-        });
+//        const fs = require('fs');
+//        fs.readFile('/Users/josephgarcia/test.mp3', (err, data) => {
+//            console.log("hello");
+//            console.log(err);
+//            console.log(data[0]);
+//            console.log(data.length);
+//            const thing = new Uint8Array(data);
+//            console.log(thing.length);
+//
+//            this.speaker = new GameNode.Audio(
+//                null,
+//                thing
+//            );
+//
+//            console.log(this.speaker);
+//
+//            this.base.addChild(this.speaker);
+//        });
     }
 
     handleKeyDown(player, key) {
@@ -84,6 +89,8 @@ class WalkieTalkie extends Game {
             console.log('someone already has the mic');
         } else {
             this.microphone.player = player;
+            const stateSignal = new GameNode.State(StateSignals.START_RECORDING_AUDIO, [player.id]);
+            this.base.node.addChild(stateSignal);
             this.base.node.text = {
                 text: 'Player ' + player.id + ' has the mic',
                 size: 3,

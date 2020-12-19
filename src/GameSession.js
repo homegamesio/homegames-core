@@ -72,6 +72,8 @@ class GameSession {
                     node.node.input.oninput(player, input.input);
                 }
             }
+        } else if (input.type === 'stream') {
+            this.game.handleStream(player, input.input);
         } else {
             console.log('Unknown input type: ' + input.type);
         }
