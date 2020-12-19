@@ -1,4 +1,6 @@
-const { Game, GameNode, Colors, Shapes, StateSignals } = require('squishjs');
+const { ShapeUtils, Game, GameNode, Colors, Shapes, StateSignals } = require('squishjs');
+
+const COLORS = Colors.COLORS;
 
 class WalkieTalkie extends Game {
     static metadata() {
@@ -14,10 +16,8 @@ class WalkieTalkie extends Game {
 
     constructor() {
         super();
-        const baseColor = Colors.COLORS.RED;//randomColor();
-        this.microphone = {
-
-        };
+        const baseColor = COLORS.RED;//randomColor();
+        this.microphone = {};
 
         this.base = new GameNode.Shape(
             baseColor,
@@ -31,15 +31,54 @@ class WalkieTalkie extends Game {
                     [0, 0]
                 ],
                 fill: baseColor
-            },
-            null);//,
-//            this.activateMic.bind(this));
+            });
 
+        this.button = new GameNode.Shape(
+            COLORS.BLUE,
+            Shapes.POLYGON,
+            {
+                coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
+                fill: COLORS.BLUE
+            },
+            null, 
+            () => {
+            },
+            null,
+            null,
+            {
+                onHold: (player, x, y) => {
+                    this.button.node.fill = COLORS.WHITE;
+                    this.activateMic(player);
+                },
+                offHold: (player, x, y) => {
+                    this.button.node.fill = COLORS.BLUE;
+                    this.killMic(player);
+                }
+            }
+        );
+
+        this.stateSignal = new GameNode.State(StateSignals.STOP_RECORDING_AUDIO);
+
+        this.base.addChild(this.stateSignal);
+        this.base.addChild(this.button);
+        this.currentAudioNode = null;
     }
 
     handleStream(player, data) {
-        const ting = new GameNode.Audio(null, Object.values(data));
-        this.base.clearChildren();
+        if (!this.microphone.player || player.id !== this.microphone.player.id) {
+            return;
+        }
+        
+        const playerIds = Object.keys(this.players);
+        const filteredIds = playerIds.filter(x => Number(x) !== player.id);
+
+        const ting = new GameNode.Audio(filteredIds, Object.values(data));
+        if (this.currentAudioNode) {
+            this.base.removeChild(this.currentAudioNode.node.id);
+        }
+
+        this.currentAudioNode = ting;
+
         this.base.addChild(ting);
     }
 
@@ -65,21 +104,24 @@ class WalkieTalkie extends Game {
     }
 
     handleKeyDown(player, key) {
-        if (key === ' ') {
+        if (key === ' ' && !this.microphone.player) {
             this.activateMic(player);
         }
     }
 
     handleKeyUp(player, key) {
-        if (key === ' ') {
-            if (this.microphone.player && this.microphone.player.id === player.id) {
-                this.microphone.player = null;
-                this.base.node.text = null;
-            }
+        if (key === ' ' && this.microphone.player && this.microphone.player.id === player.id) {
+            this.killMic(player);
         }
     }
 
     handlePlayerDisconnect() {
+    }
+
+    killMic(player) {
+        this.microphone = {};
+        this.base.clearChildren([this.stateSignal.node.id, this.button.node.id]);
+        this.stateSignal.node.playerIds = [];
     }
 
     activateMic(player) {
@@ -89,15 +131,26 @@ class WalkieTalkie extends Game {
             console.log('someone already has the mic');
         } else {
             this.microphone.player = player;
-            const stateSignal = new GameNode.State(StateSignals.START_RECORDING_AUDIO, [player.id]);
-            this.base.node.addChild(stateSignal);
-            this.base.node.text = {
-                text: 'Player ' + player.id + ' has the mic',
-                size: 3,
+            
+            const playerIds = Object.keys(this.players);
+            const filteredIds = playerIds.filter(x => Number(x) !== player.id);
+            this.stateSignal.node.playerIds = filteredIds;
+
+            if (this.microphone.node) {
+                this.base.removeChild(this.microphone.node.id);
+            }
+            
+            this.microphone.node = new GameNode.State(StateSignals.START_RECORDING_AUDIO, [player.id]);
+            
+            this.stateSignal.node.playerIds = filteredIds;
+            this.base.node.addChild(this.microphone.node);
+            this.microphone.node.node.text = {
+                text: player.name + ' has the mic',
+                size: 4,
                 align: 'center',
                 color: Colors.COLORS.BLACK,
                 x: 50,
-                y: 50
+                y: 65
             };
         }
     }

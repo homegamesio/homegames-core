@@ -58,6 +58,16 @@ class GameSession {
     handlePlayerInput(player, input) {
         if (input.type === 'click') {
             this.handleClick(player, input.data);
+        } else if (input.type === 'onHold') {
+            const node = this.findNode(input.nodeId);
+            if (node && node.node.holdHandlers) {
+                node.node.holdHandlers.onHold && node.node.holdHandlers.onHold(player, input.data)
+            }
+        } else if (input.type === 'offHold') {
+            const node = this.findNode(input.nodeId);
+            if (node && node.node.holdHandlers) {
+                node.node.holdHandlers.offHold && node.node.holdHandlers.offHold(player, input.data)
+            }
         } else if (input.type === 'keydown') {
             this.game.handleKeyDown && this.game.handleKeyDown(player, input.key);
         } else if (input.type === 'keyup') {
