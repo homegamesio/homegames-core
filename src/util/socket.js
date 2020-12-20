@@ -172,7 +172,16 @@ const getServer = () => new Promise((resolve, reject) => {
             });
 
         });
-    } else {
+    } else if (config.CERT_DATA_PATH) {
+        const options = {
+            key: fs.readFileSync(config.CERT_DATA_PATH + '/key.pem').toString(),
+            cert: fs.readFileSync(config.CERT_DATA_PATH + '/cert.pem').toString()
+        };
+
+        server = https.createServer(options);
+        resolve(server);
+    }
+    else {
         server = http.createServer();
         resolve(server);
     }
