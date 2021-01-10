@@ -24,3 +24,5 @@ Want to run homegames core easily with docker? Well here ya go bud:
 3. Run `docker run -dp 7000-7100:7000-7100 homegames`
 
 4. That's it! The docker container should be up and running, and exposed/published on ports 7000-7100 on whatever machine you ran the above commands on
+
+test update
