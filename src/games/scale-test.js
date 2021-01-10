@@ -7,20 +7,17 @@ class ScaleTest extends Game {
         return {
             name: 'Scale test',
             author: 'Joseph Garcia',
-            aspectRatio: {x: 16, y: 9}
+            aspectRatio: {x: 1, y: 2}
         };
     }
 
     constructor() {
         super();
-        this.base = new GameNode.Shape(
-            COLORS.HG_BLUE,
-            Shapes.POLYGON,
-            {
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                fill: COLORS.HG_BLUE
-            }
-        );
+        this.base = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: COLORS.HG_BLUE
+        });
 
         this.assets = {
             'image': new Asset('url', {
@@ -29,27 +26,24 @@ class ScaleTest extends Game {
             })
         };
 
-        this.testBox = new GameNode.Shape(
-            COLORS.BLACK,
-            Shapes.POLYGON,
-            {
-                coordinates2d: ShapeUtils.rectangle(20, 20, 60, 20),
-                fill: COLORS.BLACK
-            }
-        );
+        this.testBox = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(20, 20, 60, 20),
+            fill: COLORS.BLACK
+        });
 
-        this.testAsset = new GameNode.Asset(
-            (player, x, y) => {
+        this.testAsset = new GameNode.Asset({
+            onClick: (player, x, y) => {
                 console.log('clicked that thang');
             },
-            ShapeUtils.rectangle(20, 60, 60, 20),
-            {
+            coordinates2d: ShapeUtils.rectangle(20, 60, 60, 20),
+            assetInfo: {
                 'image': {
                     pos: {x: 20, y: 60},
                     size: {x: 60, y: 20}
                 }
             }
-        );
+        });
 
         this.base.addChild(this.testBox);
         this.base.addChild(this.testAsset);
