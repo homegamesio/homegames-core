@@ -5,19 +5,16 @@ const COLORS = Colors.COLORS;
 
 class HomegamesRoot {
     constructor(game, isDashboard) {
-        this.root = new GameNode.Shape(
-            COLORS.WHITE,
-            Shapes.POLYGON,
-            {
-                coordinates2d: [
-                    [0, 0],
-                    [0, 0],
-                    [0, 0],
-                    [0, 0],
-                    [0, 0]
-                ]
-            }
-        );
+        this.root = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: [
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0],
+                [0, 0]
+            ]
+        });
 
         this.playerDashboards = {};
 
@@ -28,43 +25,39 @@ class HomegamesRoot {
 
             const modalShape = ShapeUtils.rectangle(5, 5, 90, 90);
             const settingsText = new GameNode.Text({
-                text: 'Settings (and other stuff)',
-                x: 50,
-                y: 10,
-                size: 5,
-                align: 'center',
-                color: COLORS.BLACK
+                textInfo: {
+                    text: 'Settings (and other stuff)',
+                    x: 50,
+                    y: 10,
+                    size: 5,
+                    align: 'center',
+                    color: COLORS.BLACK
+                }
             }, player.id);
 
-            const modal = new GameNode.Shape(COLORS.WHITE, 
-                Shapes.POLYGON,
-                {
-                    coordinates2d: modalShape,
-                    fill: COLORS.WHITE
-                },
-                player.id,
-                null,
-                {
+            const modal = new GameNode.Shape({ 
+                shapeType: Shapes.POLYGON,
+                coordinates2d: modalShape,
+                fill: COLORS.WHITE,
+                playerIds: [player.id],
+                effect: {
                     shadow: {
                         color: COLORS.BLACK,
                         blur: 6
                     }
                 }
-            );
+            });
 
-            const closeButton = new GameNode.Shape(
-                COLORS.HG_RED,
-                Shapes.POLYGON,
-                {
-                    coordinates2d: ShapeUtils.rectangle(5, 5, 10, 10),
-                    fill: COLORS.HG_RED
-                },
-                player.id,
-                (player) => {
+            const closeButton = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(5, 5, 10, 10),
+                fill: COLORS.HG_RED,
+                playerIds: [player.id],
+                onClick: (player) => {
                     this.playerDashboards[player.id] = null;
                     this.homeButton.removeChild(modal.node.id);
                 }
-            );
+            });
 
             const playerName = new GameNode.Text({
                 text: `Name: ${player.name}`,
@@ -110,10 +103,10 @@ class HomegamesRoot {
         const logoStartY = 94.5;
         const logoStartX = 50 - (logoSizeX / 2);
 
-        this.homeButton = new GameNode.Asset(
-            isDashboard ? onDashHomeClick : onGameHomeClick,
-            ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
-            {
+        this.homeButton = new GameNode.Asset({
+            onClick: isDashboard ? onDashHomeClick : onGameHomeClick,
+            coordinates2d: ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
+            assetInfo: {
                 'logo-horizontal': {
                     pos: {x: logoStartX, y: logoStartY},
                     size: {
@@ -122,12 +115,11 @@ class HomegamesRoot {
                     }
                 }
             }
-        );
+        });
 
-        this.baseThing = new GameNode.Asset(
-            null,
-            ShapeUtils.rectangle(0, 0, 100, 100),
-            {
+        this.baseThing = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            assetInfo: {
                 'frame': {
                     pos: {x: 0, y: 0},
                     size: {
@@ -136,7 +128,7 @@ class HomegamesRoot {
                     }
                 }
             }
-        );
+        });
 
         this.root.addChild(this.baseThing);
         this.root.addChild(this.homeButton);
