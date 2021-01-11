@@ -87,13 +87,21 @@ class GameSession {
         const clickedNode = this.findClick(click.x, click.y, player.id);
 
         if (clickedNode) {
-            const gameWidth = 100 - config.BEZEL_SIZE.x;
-            const gameHeight = 100 - config.BEZEL_SIZE.y;
+            if (click.x <= (config.BEZEL_SIZE.x / 2) || click.x >= (100 - config.BEZEL_SIZE.x / 2) || click.y <= config.BEZEL_SIZE.y / 2 || click.y >= (100 - config.BEZEL_SIZE / 2)) {
+                    
+                    clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (config.BEZEL_SIZE.x / 2)) * scaleX, (click.y  - (config.BEZEL_SIZE.y / 2) * scaleY));
+            } else {
+                    const bezelX = config.BEZEL_SIZE.x;
+                    const bezelY = config.BEZEL_SIZE.y;
 
-            const scaleX = 100 / gameWidth;
-            const scaleY = 100 / gameHeight;
+                    const shiftedX = click.x - (bezelX / 2);
+                    const shiftedY = click.y - (bezelY / 2);
 
-            clickedNode.handleClick && clickedNode.handleClick(player, (click.x  - (config.BEZEL_SIZE.x / 2)) * scaleX, (click.y  - (config.BEZEL_SIZE.y / 2) * scaleY));
+                    const scaledX = shiftedX * ( 1 / ((100 - bezelX) / 100));
+                    const scaledY = shiftedY * ( 1 / ((100 - bezelY) / 100));
+
+            clickedNode.handleClick && clickedNode.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (config.BEZEL_SIZE.x / 2)) * scaleX, (click.y  - (config.BEZEL_SIZE.y / 2) * scaleY));
+            }
         }
     }
 
@@ -127,13 +135,16 @@ class GameSession {
  
             for (let i in node.coordinates2d) {
                 if (inGame) {
-                    const clickScaleX = (100 - config.BEZEL_SIZE.x) / 100;
-                    const clickScaleY = (100 - config.BEZEL_SIZE.y) / 100;
+                    const bezelX = config.BEZEL_SIZE.x;
+                    const bezelY = config.BEZEL_SIZE.y;
+
+                    const scaledX = node.coordinates2d[i][0] * ((100 - bezelX) / 100) + (bezelX / 2);
+                    const scaledY = node.coordinates2d[i][1] * ((100 - bezelY) / 100) + (bezelY / 2);
 
                     vertices.push(
                         [
-                            (node.coordinates2d[i][0] * clickScaleX) + (config.BEZEL_SIZE.x / 2),
-                            (node.coordinates2d[i][1] * clickScaleY) + (config.BEZEL_SIZE.y / 2)
+                            scaledX,// * 100,//(node.coordinates2d[i][0]),// * clickScaleX) + Math.round(100 * (1 - clickScaleX) / 2),
+                            scaledY// * 100//(node.coordinates2d[i][1])// * clickScaleY) + Math.round(100 * (1 - clickScaleY) / 2)//100 - config.BEZEL_SIZE.y / 2)
                         ]
                     );
                 } else {
