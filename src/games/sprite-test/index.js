@@ -61,15 +61,11 @@ class SpriteTest extends Game {
 
         this.inputCooldowns = {};
 
-        this.background = new GameNode.Shape(
-            COLORS.CREAM,
-            Shapes.POLYGON,
-            {
-                fill: COLORS.CREAM,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
-            },
-            null,
-            (player, x, y) => {
+        this.background = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: COLORS.CREAM,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            onClick: (player, x, y) => {
                 let fakeArrowKey;
                 if (x >= 25 && x <= 75) {
                     fakeArrowKey = y <= 50 ? 'ArrowUp' : 'ArrowDown';
@@ -78,7 +74,7 @@ class SpriteTest extends Game {
                 }
                 this.handleKeyDown(player, fakeArrowKey);
             }
-        );
+        });
 
         this.dancers = {};
     }
@@ -119,16 +115,15 @@ class SpriteTest extends Game {
         spot.player = player;
         const x = ((spot.x * 10) + 2);
         const y = ((spot.y * 30) + 2);
-        const dancer = new GameNode.Asset(
-            null,
-            ShapeUtils.rectangle(x, y, 15, 15),
-            {
+        const dancer = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(x, y, 15, 15),
+            assetInfo: {
                 'dance0': {
                     pos: {x, y},
                     size: {x: 15, y: 15}
                 }
             }
-        );
+        });
 
         this.dancers[player.id] = dancer;
 

@@ -32,8 +32,9 @@ class HomegamesRoot {
                     size: 5,
                     align: 'center',
                     color: COLORS.BLACK
-                }
-            }, player.id);
+                },
+                playerIds: [player.id]
+            });
 
             const modal = new GameNode.Shape({ 
                 shapeType: Shapes.POLYGON,
@@ -60,27 +61,34 @@ class HomegamesRoot {
             });
 
             const playerName = new GameNode.Text({
-                text: `Name: ${player.name}`,
-                x: 8,
-                y: 35,
-                size: 2,
-                align: 'left',
-                color: COLORS.BLACK
-            }, player.id, {
-                type: 'text',
-                oninput: (player, text) => {
-                    player.name = text;
+                textInfo: {
+                    text: `Name: ${player.name}`,
+                    x: 8,
+                    y: 35,
+                    size: 2,
+                    align: 'left',
+                    color: COLORS.BLACK
+                }, 
+                playerIds: [player.id], 
+                input: {
+                    type: 'text',
+                    oninput: (player, text) => {
+                        player.name = text;
+                    }
                 }
             });
             
             const version = new GameNode.Text({
-                text: 'Version: TODO',
-                x: 20,
-                y: 27,
-                size: 2,
-                align: 'left',
-                color: COLORS.BLACK
-            }, player.id);
+                textInfo: {
+                    text: 'Version: TODO',
+                    x: 20,
+                    y: 27,
+                    size: 2,
+                    align: 'left',
+                    color: COLORS.BLACK
+                }, 
+                playerIds: [player.id]
+            });
             modal.addChildren(settingsText, playerName, closeButton, version);
             this.homeButton.addChild(modal);
             this.playerDashboards[player.id] = {dashboard: modal, intervals: []};

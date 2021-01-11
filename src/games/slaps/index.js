@@ -17,25 +17,18 @@ class Slaps extends Game {
     constructor() {
         super();
         this.players = {};
-        this.base = new GameNode.Shape(
-            COLORS.EMERALD, 
-            Shapes.POLYGON,
-            {
-                fill: COLORS.EMERALD,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
-            },
-            null, 
-            this.handleBackgroundClick.bind(this)
-        );
+        this.base = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: COLORS.EMERALD,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            onClick: this.handleBackgroundClick.bind(this)
+        });
 
-        this.infoNodeRoot = new GameNode.Shape(
-            COLORS.EMERALD,
-            Shapes.POLYGON,
-            {
-                fill: COLORS.EMERALD,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
-            }
-        );
+        this.infoNodeRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: COLORS.EMERALD,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+        });
         this.base.addChild(this.infoNodeRoot);
         this.infoNodes = {};
     }
@@ -61,35 +54,35 @@ class Slaps extends Game {
         if (playerCount < 2 && !this.playerRequirementNode) { 
             this.clearTable();
             this.playerRequirementNode = new GameNode.Text({
-                'text': 'Need at least 2 players', 
-                x: 45, 
-                y: 5,
-                size: 3,
-                align: 'center',
-                color: COLORS.BLACK
+                textInfo: {
+                    'text': 'Need at least 2 players', 
+                    x: 45, 
+                    y: 5,
+                    size: 3,
+                    align: 'center',
+                    color: COLORS.BLACK
+                }
             });
             this.base.addChild(this.playerRequirementNode);
         } else if (playerCount >= 2 && !this.newGameNode) {
 
             this.clearTable();
             const newGameText = new GameNode.Text({
-                text: 'New Game',
-                x: 50,
-                y: 47.5,
-                align: 'center',
-                size: 2,
-                color: COLORS.BLACK
+                textInfo: {
+                    text: 'New Game',
+                    x: 50,
+                    y: 47.5,
+                    align: 'center',
+                    size: 2,
+                    color: COLORS.BLACK
+                }
             });
-            this.newGameNode = new GameNode.Shape(
-                COLORS.GREEN, 
-                Shapes.POLYGON,
-                {
-                    fill: COLORS.GREEN,
-                    coordinates2d: ShapeUtils.rectangle(37.5, 37.5, 25, 25)
-                },
-                null,
-                this.newGame.bind(this)
-            );
+            this.newGameNode = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                fill: COLORS.GREEN,
+                coordinates2d: ShapeUtils.rectangle(37.5, 37.5, 25, 25),
+                onClick: this.newGame.bind(this)
+            });
             this.newGameNode.addChild(newGameText);
             this.base.addChild(this.newGameNode);
         } else if (this.newGameNode && playerCount < 2) {
@@ -120,22 +113,21 @@ class Slaps extends Game {
                 winner = player;
             }
 
-            const cardNode = new GameNode.Shape(
-                COLORS.WHITE,
-                Shapes.POLYGON,
-                {
-                    fill: COLORS.WHITE,
-                    coordinates2d: ShapeUtils.rectangle((index * 16) + 20, 35, 15, 15)
-                }
-            );
+            const cardNode = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                fill: COLORS.WHITE,
+                coordinates2d: ShapeUtils.rectangle((index * 16) + 20, 35, 15, 15)
+            });
 
             const cardText = new GameNode.Text({
-                text: this.hands[i].toString(), 
-                x: (index * 16) + 26, 
-                y: 35,
-                size: 1,
-                align: 'center',
-                color: COLORS.BLACK
+                textInfo: {
+                    text: this.hands[i].toString(), 
+                    x: (index * 16) + 26, 
+                    y: 35,
+                    size: 1,
+                    align: 'center',
+                    color: COLORS.BLACK
+                }
             }); 
 
             cardNode.addChild(cardText);
@@ -145,38 +137,38 @@ class Slaps extends Game {
         }
 
         const winnerNotification = new GameNode.Text({
-            text: winner.name + ' wins!', 
-            x: 50, 
-            y: 10,
-            size: 1,
-            align: 'center',
-            color: COLORS.BLACK
+            textInfo: {
+                text: winner.name + ' wins!', 
+                x: 50, 
+                y: 10,
+                size: 1,
+                align: 'center',
+                color: COLORS.BLACK
+            }
         });
 
         this.base.addChild(winnerNotification);
 
         if (this.canStartNewGame) {
-            const newGameNode = new GameNode.Shape(
-                COLORS.GREEN,
-                Shapes.POLYGON,
-                {
-                    fill: COLORS.GREEN,
-                    coordinates2d: ShapeUtils.rectangle(80, 5, 15, 15)
-                },
-                null,
-                () => {
+            const newGameNode = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                fill: COLORS.GREEN,
+                coordinates2d: ShapeUtils.rectangle(80, 5, 15, 15),
+                onClick: () => {
                     this.base.clearChildren();
                     setTimeout(this.newGame.bind(this), 500);
                 }
-            );
+            });
 
             const newGameText = new GameNode.Text({
-                text: 'New Game',
-                x: 88,
-                y: 10.5,
-                align: 'center',
-                size: 2,
-                color: COLORS.BLACK
+                textInfo: {
+                    text: 'New Game',
+                    x: 88,
+                    y: 10.5,
+                    align: 'center',
+                    size: 2,
+                    color: COLORS.BLACK
+                }
             });
 
             this.base.addChild(newGameNode);
@@ -188,13 +180,16 @@ class Slaps extends Game {
         this.players[player.id] = player;        
         this.updatePlayerCount();
         const infoNode = new GameNode.Text({
-            text: player.name, 
-            x: 80, 
-            y: 5,
-            size: 3,
-            align: 'center',
-            color: COLORS.BLACK
-        }, player.id);
+            textInfo: {
+                text: player.name, 
+                x: 80, 
+                y: 5,
+                size: 3,
+                align: 'center',
+                color: COLORS.BLACK
+            }, 
+            playerIds: [player.id]
+        });
 
         this.infoNodes[player.id] = infoNode;
         this.infoNodeRoot.addChild(infoNode);
@@ -207,22 +202,26 @@ class Slaps extends Game {
         const playerNodes = Object.values(this.players).map(player => {
             const yIndex = ++playerYIndex * 10;
             return new GameNode.Text({
-                text: this.players[player.id].name, 
-                x: 15, 
-                y: yIndex,
-                size: 2,
-                align: 'center',
-                color: COLORS.BLACK
+                textInfo: {
+                    text: this.players[player.id].name, 
+                    x: 15, 
+                    y: yIndex,
+                    size: 2,
+                    align: 'center',
+                    color: COLORS.BLACK
+                }
             });
         });
 
         const playerInfoPanel = new GameNode.Text({
-            text: 'Players', 
-            x: 15, 
-            y: 5,
-            size: 3,
-            align: 'center',
-            color: COLORS.BLACK
+            textInfo: {
+                text: 'Players', 
+                x: 15, 
+                y: 5,
+                size: 3,
+                align: 'center',
+                color: COLORS.BLACK
+            }
         });
 
         playerNodes.forEach(player => {

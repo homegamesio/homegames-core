@@ -13,45 +13,33 @@ class Squarer extends Game {
         };
     }
 
-	constructor() {
+    constructor() {
         super();
         this.defaultSize = { x: 5, y: 5 };
-	this.base = new GameNode.Shape(
-            BLACK, 
-            Shapes.POLYGON,
-            {
-                fill: BLACK,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
-            }
-        );
-        this.startLine = new GameNode.Shape(
-            GRAY, 
-            Shapes.POLYGON,
-            {
-                fill: GRAY,
-                coordinates2d: ShapeUtils.rectangle(0, 95, 100, 5)
-            }
-        );
-        this.finishLine = new GameNode.Shape(
-            GRAY, 
-            Shapes.POLYGON,
-            {
-                fill: GRAY,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 5)
-            }
-        );
+	this.base = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: BLACK,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+        });
+        this.startLine = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: GRAY,
+            coordinates2d: ShapeUtils.rectangle(0, 95, 100, 5)
+        });
+        this.finishLine = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: GRAY,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 5)
+        });
         this.base.addChild(this.startLine);
         this.base.addChild(this.finishLine);
 
         const destinationColor = Colors.randomColor([BLACK, GRAY, GOLD, GREEN]);
-        this.destination = new GameNode.Shape(
-            destinationColor, 
-            Shapes.POLYGON,
-            {
-                fill: destinationColor,
-                coordinates2d: ShapeUtils.rectangle(40, 0, this.defaultSize.x, this.defaultSize.y)
-            }
-        );
+        this.destination = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: destinationColor,
+            coordinates2d: ShapeUtils.rectangle(40, 0, this.defaultSize.x, this.defaultSize.y)
+        });
         this.base.addChild(this.destination);
 
         this.keyCoolDowns = {};
@@ -83,14 +71,11 @@ class Squarer extends Game {
             const tickRate = Math.ceil(250 + Math.random() * 100);
             let color = i % 2 ? GOLD : GREEN;
             for (let l = 0; l < this.level && l <= 9; l++) {
-                const temp = new GameNode.Shape(
-                    color, 
-                    Shapes.POLYGON,
-                    {
-                        fill: color,
-                        coordinates2d: ShapeUtils.rectangle((10 * l) + 5, i, this.defaultSize.x, this.defaultSize.y)
-                    }
-                );
+                const temp = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    fill: color,
+                    coordinates2d: ShapeUtils.rectangle((10 * l) + 5, i, this.defaultSize.x, this.defaultSize.y)
+                });
                 temp.interval = setInterval(() => {
                     this.movementQueue.push({ npc: true, node: temp, direction: 'left' });
                 }, tickRate);
@@ -103,14 +88,11 @@ class Squarer extends Game {
             const tickRate = Math.ceil(250 + Math.random() * 100);
             let color = i % 2 ? GOLD : GREEN;
             for (let l = 0; l < this.level && l <= 9; l++) {
-                const temp = new GameNode.Shape(
-                    color, 
-                    Shapes.POLYGON,
-                    {
-                        fill: color,
-                        coordinates2d: ShapeUtils.rectangle((10 * l) + 5, i, this.defaultSize.x, this.defaultSize.y)
-                    }
-                );
+                const temp = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    fill: color,
+                    coordinates2d: ShapeUtils.rectangle((10 * l) + 5, i, this.defaultSize.x, this.defaultSize.y)
+                });
                 temp.interval = setInterval(() => {
                     this.movementQueue.push({ npc: true, node: temp, direction: 'right' });
                 }, tickRate);
@@ -125,14 +107,11 @@ class Squarer extends Game {
         const color = Colors.randomColor(this.usedColors);
         this.usedColors.push(color);
         const defaultX = (this.playerArray.length * 10) + 5;
-        const square = new GameNode.Shape(
-            color, 
-            Shapes.POLYGON,
-            {
-                coordinates2d: ShapeUtils.rectangle(defaultX, 95, this.defaultSize.x, this.defaultSize.y),
-                fill: color
-            }
-        );
+        const square = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(defaultX, 95, this.defaultSize.x, this.defaultSize.y),
+            fill: color
+        });
 
         square.controllerID = player.id;
         square.defaultX = defaultX;
