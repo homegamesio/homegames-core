@@ -1,7 +1,7 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
-const { dictionary } = require('../common/util');
+const { dictionary } = require('../../common/util');
 const fs = require('fs');
-const Asset = require('../common/Asset');
+const Asset = require('../../common/Asset');
 
 const COLORS = Colors.COLORS;
 

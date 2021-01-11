@@ -1,5 +1,5 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
-const Deck = require('../common/Deck');
+const Deck = require('../../common/Deck');
 const COLORS = Colors.COLORS;
 
 class Slaps extends Game {

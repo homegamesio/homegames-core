@@ -1,5 +1,5 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
-const { checkCollisions } = require('../common/util');
+const { checkCollisions } = require('../../common/util');
 const COLORS = Colors.COLORS;
 
 class MoveTest extends Game {

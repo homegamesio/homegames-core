@@ -1,4 +1,4 @@
-const { charadesWord } = require('../common/util');
+const { charadesWord } = require('../../common/util');
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 
 const COLORS = Colors.COLORS;

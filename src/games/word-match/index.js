@@ -1,5 +1,5 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
-const dictionary = require('../common/util/dictionary');
+const dictionary = require('../../common/util/dictionary');
 
 let COLORS = Colors.COLORS;
 
