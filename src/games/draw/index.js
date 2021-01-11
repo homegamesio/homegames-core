@@ -1,15 +1,11 @@
 const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squishjs');
-const Asset = require('../common/Asset');
+const Asset = require('../../common/Asset');
 
 const COLORS = Colors.COLORS;
 
 class Draw extends Game {
     static metadata() {
         return {
-            res: {
-                width: 1920,
-                height: 1080
-            },
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/draw_thumbnail.jpg'
         };
@@ -25,44 +21,34 @@ class Draw extends Game {
         };
 
         this.playerColorMap = {};
-        const boardShape = ShapeUtils.rectangle(5, 5, 90, 90);
+        const boardShape = ShapeUtils.rectangle(0, 0, 100, 100);
 
-        this.board = new GameNode.Shape(
-            COLORS.PURPLE,
-            Shapes.POLYGON,
-            {
-                coordinates2d: boardShape,
-                fill: COLORS.PURPLE
-            },
-            null,
-            this.handleBoardClick.bind(this)
-        );
+        this.board = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: boardShape,
+            fill: COLORS.PURPLE,
+            onClick: this.handleBoardClick.bind(this)
+        });
 
         this.initializeBoard();
     }
 
     initializeBoard() {
         const randomizeButtonShape = ShapeUtils.rectangle(80, 0, 15, 15);
-        const randomizeButton = new GameNode.Shape(
-            COLORS.RED, 
-            Shapes.POLYGON,
-            {
-                coordinates2d: randomizeButtonShape,
-                fill: COLORS.RED
-            },
-            null,
-            this.randomizeBoardColor.bind(this));
+        const randomizeButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: randomizeButtonShape,
+            fill: COLORS.RED,
+            onClick: this.randomizeBoardColor.bind(this)
+        });
 
         const resetButtonShape = ShapeUtils.rectangle(60, 0, 15, 15);
-        const resetButton = new GameNode.Shape(
-            COLORS.BLUE, 
-            Shapes.POLYGON,
-            {
-                coordinates2d: resetButtonShape,
-                fill: COLORS.BLUE
-            },
-            null,
-            this.initializeBoard.bind(this));
+        const resetButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: resetButtonShape,
+            fill: COLORS.BLUE,
+            onClick: this.initializeBoard.bind(this)
+        });
 
         this.board.clearChildren();
 
@@ -77,14 +63,11 @@ class Draw extends Game {
     handleBoardClick(player, x, y) {
         const pixelColor = COLORS.BLACK;
         const pixelShape = ShapeUtils.rectangle(x - .25, y - .25, .5, .5);
-        const coloredPixel = new GameNode.Shape(
-            pixelColor,
-            Shapes.POLYGON,
-            {
-                coordinates2d: pixelShape,
-                fill: pixelColor
-            }
-        );
+        const coloredPixel = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: pixelShape,
+            fill: pixelColor
+        });
  
         this.board.addChild(coloredPixel);
     }

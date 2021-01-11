@@ -1,4 +1,4 @@
-const { squish } = require('squishjs');
+const { squish, unsquish } = require('squishjs');
 const config = require('../config');
 const HomegamesRoot = require('./HomegamesRoot');
 const HomegamesDashboard = require('./HomegamesDashboard');
@@ -114,13 +114,20 @@ class Squisher {
         }
     }
 
-    updateHelper(node, playerFrames, whitelist) {
+    updateHelper(node, playerFrames, whitelist, scale) {
+        if (this.game.getRoot() === node) {
+            scale = {
+                x: (100 - config.BEZEL_SIZE.x) / 100,
+                y: (100 - config.BEZEL_SIZE.y) / 100
+            }
+        }
+
         if (!this.ids.has(node.node.id)) {
             this.ids.add(node.node.id);
             node.addListener(this);
         }
 
-        const squished = squish(node.node);
+        const squished = squish(node.node, scale);
 
         for (const i in node.node.playerIds) {
             whitelist.add(node.node.playerIds[i]);
@@ -141,7 +148,7 @@ class Squisher {
         }
 
         for (let i = 0; i < node.node.children.length; i++) {
-            this.updateHelper(node.node.children[i], playerFrames, whitelist);
+            this.updateHelper(node.node.children[i], playerFrames, whitelist, scale);
         }
 
         for (const i in node.node.playerIds) {

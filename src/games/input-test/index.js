@@ -1,7 +1,7 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
-const { dictionary } = require('../common/util');
+const { dictionary } = require('../../common/util');
 const fs = require('fs');
-const Asset = require('../common/Asset');
+const Asset = require('../../common/Asset');
 
 const COLORS = Colors.COLORS;
 
@@ -20,64 +20,53 @@ class InputTest extends Game {
 
     constructor() {
         super();
-        this.base = new GameNode.Shape(
-            COLORS.CREAM, 
-            Shapes.POLYGON, 
-            {
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                fill: COLORS.CREAM
-            }
-        );
+        this.base = new GameNode.Shape({
+            shapeType: Shapes.POLYGON, 
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: COLORS.CREAM
+        });
 
         this.assets = {};
 
         this.textNode = new GameNode.Text({
-            text: 'I am text',
-            x: 30,
-            y: 50,
-            size: 4,
-            align: 'center',
-            color: COLORS.BLACK
+            textInfo: {
+                text: 'I am text',
+                x: 30,
+                y: 50,
+                size: 4,
+                align: 'center',
+                color: COLORS.BLACK
+            }
         });
 
         const textInputShape = ShapeUtils.rectangle(20, 10, 20, 20);
         
-        this.textInputNode = new GameNode.Shape(
-            COLORS.HG_BLUE,
-            Shapes.POLYGON,
-            {
-                coordinates2d: textInputShape,
-                fill: COLORS.HG_BLUE
-            },
-            null,
-            null,
-            null,
-            {
+        this.textInputNode = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: textInputShape,
+            fill: COLORS.HG_BLUE,
+            input: {
                 type: 'text',
                 oninput: (player, text) => {
-                    const newText = this.textNode.node.text;
-                    newText.text = text;
-                    this.textNode.node.textInfo = newText;
+                    if (text) {
+                        const newText = this.textNode.node.text;
+                        newText.text = text;
+                        this.textNode.node.textInfo = newText;
+                    }
                 }
             }
-        );
+        });
 
         const fileInputShape = ShapeUtils.rectangle(60, 10, 20, 20);
         let imageNum = 1;
 
         let image;
 
-        this.fileInputNode = new GameNode.Shape(
-            COLORS.HG_BLUE,
-            Shapes.POLYGON,
-            {
-                coordinates2d: fileInputShape,
-                fill: COLORS.HG_BLUE
-            },
-            null,
-            null,
-            null,
-            {
+        this.fileInputNode = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: fileInputShape,
+            fill: COLORS.HG_BLUE,
+            input: {
                 type: 'file',
                 oninput: (player, data) => {
                     let imageKey = 'image' + imageNum;
@@ -92,10 +81,9 @@ class InputTest extends Game {
                             if (image) {
                                 this.base.removeChild(image.id);
                             }
-                            image = new GameNode.Asset(
-                                null,
-                                ShapeUtils.rectangle(40, 40, 30, 30),
-                                {
+                            image = new GameNode.Asset({
+                                shapeType: ShapeUtils.rectangle(40, 40, 30, 30),
+                                assetInfo: {
                                     [imageKey]: {
                                         pos: {
                                             x: 40,
@@ -107,7 +95,7 @@ class InputTest extends Game {
                                         }
                                     }
                                 }
-                            );
+                            });
                             this.base.addChild(image);
                         }, 500);
                 
@@ -116,7 +104,7 @@ class InputTest extends Game {
                     imageNum++;
                 }
             }
-        );
+        });
 
         this.base.addChild(this.textNode);
         this.base.addChild(this.textInputNode);

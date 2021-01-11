@@ -1,4 +1,5 @@
 const Squisher = require('./Squisher');
+const config = require('../config');
 const { generateName } = require('./common/util');
 
 class GameSession {
@@ -86,7 +87,21 @@ class GameSession {
         const clickedNode = this.findClick(click.x, click.y, player.id);
 
         if (clickedNode) {
-            clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);
+            if (click.x <= (config.BEZEL_SIZE.x / 2) || click.x >= (100 - config.BEZEL_SIZE.x / 2) || click.y <= config.BEZEL_SIZE.y / 2 || click.y >= (100 - config.BEZEL_SIZE / 2)) {
+                    
+                    clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (config.BEZEL_SIZE.x / 2)) * scaleX, (click.y  - (config.BEZEL_SIZE.y / 2) * scaleY));
+            } else {
+                    const bezelX = config.BEZEL_SIZE.x;
+                    const bezelY = config.BEZEL_SIZE.y;
+
+                    const shiftedX = click.x - (bezelX / 2);
+                    const shiftedY = click.y - (bezelY / 2);
+
+                    const scaledX = shiftedX * ( 1 / ((100 - bezelX) / 100));
+                    const scaledY = shiftedY * ( 1 / ((100 - bezelY) / 100));
+
+            clickedNode.handleClick && clickedNode.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (config.BEZEL_SIZE.x / 2)) * scaleX, (click.y  - (config.BEZEL_SIZE.y / 2) * scaleY));
+            }
         }
     }
 
@@ -110,9 +125,35 @@ class GameSession {
         return this.findClickHelper(x, y, playerId, this.squisher.hgRoot.getRoot().node);
     }
 
-    findClickHelper(x, y, playerId, node, clicked = null) {
+    findClickHelper(x, y, playerId, node, clicked = null, inGame) {
+        if (node == this.game.getRoot().node) {
+            inGame = true;
+        }
+
         if ((node.handleClick && node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
-            const vertices = node.coordinates2d;
+            const vertices = [];
+ 
+            for (let i in node.coordinates2d) {
+                if (inGame) {
+                    const bezelX = config.BEZEL_SIZE.x;
+                    const bezelY = config.BEZEL_SIZE.y;
+
+                    const scaledX = node.coordinates2d[i][0] * ((100 - bezelX) / 100) + (bezelX / 2);
+                    const scaledY = node.coordinates2d[i][1] * ((100 - bezelY) / 100) + (bezelY / 2);
+
+                    vertices.push(
+                        [
+                            scaledX,// * 100,//(node.coordinates2d[i][0]),// * clickScaleX) + Math.round(100 * (1 - clickScaleX) / 2),
+                            scaledY// * 100//(node.coordinates2d[i][1])// * clickScaleY) + Math.round(100 * (1 - clickScaleY) / 2)//100 - config.BEZEL_SIZE.y / 2)
+                        ]
+                    );
+                } else {
+                    vertices.push(
+                        [node.coordinates2d[i][0],
+                        node.coordinates2d[i][1]]
+                    );
+                }
+            }
 
             let isInside = false;
             let minX = vertices[0][0];
@@ -145,7 +186,7 @@ class GameSession {
         }
 
         for (const i in node.children) {
-            clicked = this.findClickHelper(x, y, playerId, node.children[i].node, clicked);
+            clicked = this.findClickHelper(x, y, playerId, node.children[i].node, clicked, inGame);
         }
 
         return clicked;

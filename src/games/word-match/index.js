@@ -1,5 +1,5 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
-const dictionary = require('../common/util/dictionary');
+const dictionary = require('../../common/util/dictionary');
 
 let COLORS = Colors.COLORS;
 
@@ -16,30 +16,21 @@ class WordMatch extends Game {
 
     constructor() {
         super();
-        this.base = new GameNode.Shape(
-            COLORS.CREAM, 
-            Shapes.POLYGON,
-            {
-                fill: COLORS.CREAM,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
-            }
-        );
+        this.base = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: COLORS.CREAM,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+        });
 
-        this.savedNodeRoot = new GameNode.Shape(
-            COLORS.CREAM, 
-            Shapes.POLYGON,
-            {
-                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
-            }
-        );
+        this.savedNodeRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+        });
 
-        this.playerList = new GameNode.Shape(
-            COLORS.CREAM, 
-            Shapes.POLYGON,
-            {
-                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
-            }
-        );
+        this.playerList = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+        });
 
         this.base.addChild(this.savedNodeRoot);
         this.base.addChild(this.playerList);
@@ -66,14 +57,11 @@ class WordMatch extends Game {
             this.playerRequirement.text = null;
         } else if (playerCount < 2 && !this.playerRequirement) {
             this.gameInProgress = false;
-            this.newGameButton = new GameNode.Shape(
-                COLORS.HG_GREEN,
-                Shapes.POLYGON,
-                {
-                    coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
-                    fill: COLORS.HG_GREEN
-                }
-            );
+            this.newGameButton = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
+                fill: COLORS.HG_GREEN
+            });
             this.savedNodeRoot.addChild(this.newGameButton);
             //this.newGameButton.size = {x: 0, y: 0};
             //tis.newGameButton.text = null;

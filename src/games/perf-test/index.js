@@ -8,34 +8,28 @@ class PerfTest extends Game {
                 height: 1080
             },
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/layer-test.png'
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/perf-test.png'
         };
     }
 
     constructor() {
         super();
-        this.base = new GameNode.Shape(
-            Colors.WHITE, 
-            Shapes.POLYGON,
-            {
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                fill: Colors.WHITE
-            }
-        );
+        this.base = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: Colors.WHITE
+        });
 
         let xCounter = 0;
         let yCounter = 0;
 
         const filler = setInterval(() => {
             const dotColor = Colors.randomColor();
-            const dot = new GameNode.Shape(
-                dotColor,
-                Shapes.POLYGON,
-                {
-                    coordinates2d: ShapeUtils.rectangle(xCounter, yCounter, 1, 1),
-                    fill: dotColor
-                }
-            );
+            const dot = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(xCounter, yCounter, 1, 1),
+                fill: dotColor
+            });
 
             this.base.addChild(dot);
             xCounter += 1;
