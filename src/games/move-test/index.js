@@ -17,37 +17,28 @@ class MoveTest extends Game {
     constructor() {
         super();
         const baseColor = Colors.randomColor();
-        this.base = new GameNode.Shape(
-            baseColor,
-            Shapes.POLYGON,
-            {
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                fill: baseColor
-            }
-        );
+        this.base = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: baseColor
+        });
 
         this.keysDown = {};
 
         const mover1Color = Colors.randomColor();
         const mover2Color = Colors.randomColor();
 
-        this.mover1 = new GameNode.Shape(
-            mover1Color,
-            Shapes.POLYGON,
-            {
-                coordinates2d: ShapeUtils.rectangle(43, 43.5, 10, 17),
-                fill: mover1Color
-            }
-        );
+        this.mover1 = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(43, 43.5, 10, 17),
+            fill: mover1Color
+        });
         
-        this.mover2 = new GameNode.Shape(
-            mover2Color,
-            Shapes.POLYGON,
-            {
-                coordinates2d: ShapeUtils.rectangle(20, 23.5, 10, 17),
-                fill: mover1Color
-            }
-        );
+        this.mover2 = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(20, 23.5, 10, 17),
+            fill: mover2Color
+        });
 
         this.base.addChild(this.mover1);
         this.base.addChild(this.mover2);
