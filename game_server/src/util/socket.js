@@ -3,7 +3,7 @@ const http = require('http');
 const assert = require('assert');
 const linkHelper = require('./link-helper');
 const Player = require('../Player');
-const config = require('../../config');
+const config = require('../../../config');
 
 const listenable = function(obj, onChange) {
     const handler = {

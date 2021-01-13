@@ -1,7 +1,7 @@
 const HomegamesDashboard = require('./src/HomegamesDashboard');
 const GameSession = require("./src/GameSession");
 const { socketServer } = require('./src/util/socket');
-const config = require('./config');
+const config = require('../config');
 const Homenames = require('./src/Homenames');
 
 const dashboard = new HomegamesDashboard();

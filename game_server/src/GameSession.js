@@ -1,5 +1,5 @@
 const Squisher = require('./Squisher');
-const config = require('../config');
+const config = require('../../config');
 const { generateName } = require('./common/util');
 
 class GameSession {

@@ -12,7 +12,7 @@ const sortedGameKeys = Object.keys(games).sort();
 
 const { ExpiringSet, animations } = require('./common/util');
 
-const config = require('../config');
+const config = require('../../config');
 
 const sessions = {};
 

@@ -2,7 +2,7 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 const crypto = require('crypto');
-const config = require('../../config');
+const config = require('../../../config');
 
 if (!fs.existsSync(config.ASSET_PATH)) {
     fs.mkdirSync(config.ASSET_PATH);

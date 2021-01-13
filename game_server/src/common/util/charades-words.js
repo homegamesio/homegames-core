@@ -1,6 +1,6 @@
 const https = require('https');
 const fs = require('fs');
-const config = require('../../../config');
+const config = require('../../../../config');
 
 const DICT_FILE_PATH = config.ASSET_PATH + '/charades-words.txt';
 

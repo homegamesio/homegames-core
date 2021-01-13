@@ -1,5 +1,5 @@
 const { squish, unsquish } = require('squishjs');
-const config = require('../config');
+const config = require('../../config');
 const HomegamesRoot = require('./HomegamesRoot');
 const HomegamesDashboard = require('./HomegamesDashboard');
 
