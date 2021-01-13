@@ -1,3 +1,4 @@
 node_modules
 .asset_cache
 local
+app_server/web/bundle.js
