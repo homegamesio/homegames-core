@@ -4,10 +4,7 @@ const { BLACK, GRAY, GOLD, GREEN } = Colors.COLORS;
 class Squarer extends Game {
 	static metadata() {
         return {
-            res: {
-                width: 1920,
-                height: 1080
-            },
+            aspectRatio: {x: 16, y: 9},
             author: 'Yazeed Loonat',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/squarer.png'
         };
@@ -76,7 +73,7 @@ class Squarer extends Game {
                     fill: color,
                     coordinates2d: ShapeUtils.rectangle((10 * l) + 5, i, this.defaultSize.x, this.defaultSize.y)
                 });
-                temp.interval = setInterval(() => {
+                temp.interval = this.setInterval(() => {
                     this.movementQueue.push({ npc: true, node: temp, direction: 'left' });
                 }, tickRate);
                 this.npc.push(temp);
@@ -93,7 +90,7 @@ class Squarer extends Game {
                     fill: color,
                     coordinates2d: ShapeUtils.rectangle((10 * l) + 5, i, this.defaultSize.x, this.defaultSize.y)
                 });
-                temp.interval = setInterval(() => {
+                temp.interval = this.setInterval(() => {
                     this.movementQueue.push({ npc: true, node: temp, direction: 'right' });
                 }, tickRate);
                 this.npc.push(temp);
@@ -135,7 +132,7 @@ class Squarer extends Game {
             } else {
                 return;
             }
-            this.keyCoolDowns[player.id][key] = setTimeout(() => {
+            this.keyCoolDowns[player.id][key] = this.setTimeout(() => {
                 clearTimeout(this.keyCoolDowns[player.id][key]);
                 delete this.keyCoolDowns[player.id][key];
             }, 250);

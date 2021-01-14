@@ -3,7 +3,9 @@ const { GameNode } =  require('squishjs');
 
 const testMetaData = (game) => {
 	const metaData = game.metadata();
-	assert(metaData.res);
+	assert(metaData.aspectRatio);
+	assert(metaData.aspectRatio.x);
+	assert(metaData.aspectRatio.y);
 	assert(metaData.author);
 };
 
@@ -34,14 +36,9 @@ const testHandlePlayerDisconnect = (game) => {
 	assert(succeeded);
 };
 
-const testHasClose = (game) => {
-	game.close && assert(game.close);
-};
-
 module.exports = {
 	testMetaData,
 	testGetRoot,
 	testHandleNewPlayer,
-	testHandlePlayerDisconnect,
-	testHasClose
+	testHandlePlayerDisconnect
 };

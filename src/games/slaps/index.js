@@ -5,10 +5,7 @@ const COLORS = Colors.COLORS;
 class Slaps extends Game {
     static metadata() {
         return {
-            res: {
-                width: 1280,
-                height: 720
-            },
+            aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/slaps.png'
         };
@@ -156,7 +153,7 @@ class Slaps extends Game {
                 coordinates2d: ShapeUtils.rectangle(80, 5, 15, 15),
                 onClick: () => {
                     this.base.clearChildren();
-                    setTimeout(this.newGame.bind(this), 500);
+                    this.setTimeout(this.newGame.bind(this), 500);
                 }
             });
 

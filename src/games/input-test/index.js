@@ -8,10 +8,7 @@ const COLORS = Colors.COLORS;
 class InputTest extends Game {
     static metadata() {
         return {
-            res: {
-                width: 1280,
-                height: 720
-            },
+            aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             name: 'Input Test',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/input-test.png'
@@ -77,7 +74,7 @@ class InputTest extends Game {
                         Object.values(this.players).forEach(player => {
                             player.receiveUpdate(this.session.squisher.assetBundle);
                         });
-                        setTimeout(() => {
+                        this.setTimeout(() => {
                             if (image) {
                                 this.base.removeChild(image.id);
                             }

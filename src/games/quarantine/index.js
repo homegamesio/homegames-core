@@ -8,10 +8,7 @@ const COLORS = Colors.COLORS;
 class Quarantine extends Game {
     static metadata() {
         return {
-            res: {
-                width: 1920,
-                height: 1080
-            },
+            aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             players: 2,
             name: 'Quarantine Questions',
@@ -387,7 +384,7 @@ class Quarantine extends Game {
                         this.questionIndex = 0;
                     }
                     this.updateQuestionCounter();
-                    setTimeout(this.newTurn.bind(this), 2250);
+                    this.setTimeout(this.newTurn.bind(this), 2250);
                 } else {
                     const notSameAnswerNode = new GameNode.Text({
                         textInfo: {
@@ -406,7 +403,7 @@ class Quarantine extends Game {
                         this.questionIndex = 0;
                     }
                     this.updateQuestionCounter();
-                    setTimeout(this.newTurn.bind(this), 2250);
+                    this.setTimeout(this.newTurn.bind(this), 2250);
                 }
             }
         }

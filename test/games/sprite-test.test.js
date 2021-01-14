@@ -1,5 +1,5 @@
 const path = require('path');
-const gamePath = path.resolve('src/games/sprite-test.js');
+const gamePath = `${gameRoot}/sprite-test/index.js`;
 const SpriteTest = require(gamePath);
 const assert = require("assert");
 
@@ -7,8 +7,7 @@ const {
 	testMetaData,
 	testGetRoot,
 	testHandleNewPlayer,
-	testHandlePlayerDisconnect,
-	testHasClose
+	testHandlePlayerDisconnect
 } = require("./gameTestHelper");
 
 test("Run basic game tests for SpriteTest", () => {
@@ -17,6 +16,5 @@ test("Run basic game tests for SpriteTest", () => {
 	testGetRoot(gameInstance);
 	testHandleNewPlayer(gameInstance);
 	testHandlePlayerDisconnect(gameInstance);
-	testHasClose(gameInstance);
-	gameInstance.close && gameInstance.close();
+	gameInstance.close();
 });

@@ -4,12 +4,17 @@ const { socketServer } = require('./src/util/socket');
 const config = require('./config');
 const Homenames = require('./src/Homenames');
 
-const dashboard = new HomegamesDashboard();
+const server = () => {
 
-const session = new GameSession(dashboard);
+    const dashboard = new HomegamesDashboard();
+    
+    const session = new GameSession(dashboard);
+    
+    const homeNames = new Homenames(config.HOMENAMES_PORT);
+    
+    session.initialize(() => {
+        socketServer(session, config.GAME_SERVER_HOME_PORT);
+    });
+};
 
-const homeNames = new Homenames(config.HOMENAMES_PORT);
-
-session.initialize(() => {
-    socketServer(session, config.GAME_SERVER_HOME_PORT);
-});
+module.exports = server;

@@ -1,6 +1,6 @@
 {
-  "name": "homegames",
-  "version": "0.4.24",
+  "name": "homegames-core",
+  "version": "0.5.0",
   "description": "Play games at home",
   "directories": {
     "lib": "lib"
@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "node testRunner.js",
-    "start": "node game_server.js"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/homegamesio/homegames#readme",
   "dependencies": {
-    "squishjs": "0.6.2",
+    "squishjs": "0.6.3",
     "ws": "5.2.1"
   }
 }

@@ -3,10 +3,7 @@ const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 class PerfTest extends Game {
     static metadata() {
         return {
-            res: {
-                width: 1920,
-                height: 1080
-            },
+            aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/perf-test.png'
         };
@@ -23,7 +20,7 @@ class PerfTest extends Game {
         let xCounter = 0;
         let yCounter = 0;
 
-        const filler = setInterval(() => {
+        const filler = this.setInterval(() => {
             const dotColor = Colors.randomColor();
             const dot = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,

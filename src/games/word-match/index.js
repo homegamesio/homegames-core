@@ -6,10 +6,7 @@ let COLORS = Colors.COLORS;
 class WordMatch extends Game {
     static metadata() {
         return {
-            res: {
-                width: 1280,
-                height: 720
-            },
+            aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia'
         };
     }
@@ -103,7 +100,7 @@ class WordMatch extends Game {
         const countdownNode = GameNode(COLORS.CREAM, null, {x: 50, y: 50}, {x: 20, y: 20}, {text: '', x: 50, y: 50});
         const votes = {};
 
-        const interval = setInterval(() => {
+        const interval = this.setInterval(() => {
             if (countdownInt == 0) {
                 clearInterval(interval);
                 this.clearTable();
@@ -120,7 +117,7 @@ class WordMatch extends Game {
                     const results = GameNode(COLORS.GREEN, null, {x: 50, y: 60}, {x: 20, y: 20}, {text: 'Same!', x: 50, y: 60});
                     this.base.addChild(results);
                     this.grantPlayerPoints();
-                    setTimeout(this.finishRound.bind(this), 3000);
+                    this.setTimeout(this.finishRound.bind(this), 3000);
                 } else {
                     const addPlayerVote = (voteType) => (player) => {
                         if (!votes[voteType]) {
@@ -266,7 +263,7 @@ class WordMatch extends Game {
                 newText.text = newText.text + key;
             }
             this.responseBoxes[player.id].text = newText;
-            this.keyCoolDowns[player.id][key] = setTimeout(() => {
+            this.keyCoolDowns[player.id][key] = this.setTimeout(() => {
                 clearTimeout(this.keyCoolDowns[player.id][key]);
                 delete this.keyCoolDowns[player.id][key];
             }, 250);
@@ -317,7 +314,7 @@ class WordMatch extends Game {
         //    null,
         //    player.id
         //);
-        //this.infoNodes[player.id] = infoNode;
+        this.infoNodes[player.id] = {};//infoNode;
         //this.savedNodeRoot.addChild(infoNode);
         //this.updatePlayerList();
     }

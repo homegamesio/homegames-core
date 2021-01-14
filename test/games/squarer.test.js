@@ -1,5 +1,5 @@
 const path = require('path');
-const gamePath = path.resolve('src/games/squarer.js');
+const gamePath = `${gameRoot}/squarer/index.js`;
 const Squarer = require(gamePath);
 const assert = require("assert");
 
@@ -7,8 +7,7 @@ const {
 	testMetaData,
 	testGetRoot,
 	testHandleNewPlayer,
-	testHandlePlayerDisconnect,
-	testHasClose
+	testHandlePlayerDisconnect
 } = require("./gameTestHelper");
 
 test("Run basic game tests for Squarer", () => {
@@ -17,6 +16,5 @@ test("Run basic game tests for Squarer", () => {
 	testGetRoot(gameInstance);
 	testHandleNewPlayer(gameInstance);
 	testHandlePlayerDisconnect(gameInstance);
-	testHasClose(gameInstance);
-	gameInstance.close && gameInstance.close();
+	gameInstance.close();
 });

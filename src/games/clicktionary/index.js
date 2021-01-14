@@ -6,10 +6,7 @@ const COLORS = Colors.COLORS;
 class Clicktionary extends Game {
     static metadata() {
         return {
-            res: {
-                width: 1920,
-                height: 1080
-            },
+            aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/clicktionary.png'
         };
@@ -229,7 +226,7 @@ class Clicktionary extends Game {
             onClick: () => {
                 if (!doneCountdown) {
                     this.wordNode.node.playerId = null;
-                    doneCountdown = setTimeout(() => {
+                    doneCountdown = this.setTimeout(() => {
                         doneCountdown = null;
                         this.base.clearChildren([this.excludedNodeRoot.id]);
                         this.newRound();
@@ -289,11 +286,11 @@ class Clicktionary extends Game {
 
         const countdownNode = new GameNode.Text({textInfo: Object.assign({}, textInfo)});
 
-        let countdown = setInterval(() => {
+        let countdown = this.setInterval(() => {
             if (currentTime <= 1) {
                 clearInterval(countdown);
                 this.wordNode.node.playerId = null;
-                setTimeout(() => {
+                this.setTimeout(() => {
                     this.base.clearChildren([this.excludedNodeRoot.id]);
                     this.newRound();
                 }, 5000);

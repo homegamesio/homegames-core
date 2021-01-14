@@ -1,6 +1,6 @@
 const path = require('path');
-const gamePath = path.resolve('src/games/squarer.js');
-const Squarer = require(gamePath);
+const gamePath = `${gameRoot}/word-match/index.js`;
+const WordMatch = require(gamePath);
 const assert = require("assert");
 
 const {
@@ -8,15 +8,13 @@ const {
 	testGetRoot,
 	testHandleNewPlayer,
 	testHandlePlayerDisconnect,
-	testHasClose
 } = require("./gameTestHelper");
 
-test("Run basic game tests for Squarer", () => {
-	let gameInstance = new Squarer();
-	testMetaData(Squarer);
+test("Run basic game tests for WordMatch", () => {
+	let gameInstance = new WordMatch();
+	testMetaData(WordMatch);
 	testGetRoot(gameInstance);
 	testHandleNewPlayer(gameInstance);
 	testHandlePlayerDisconnect(gameInstance);
-	testHasClose(gameInstance);
-	gameInstance.close && gameInstance.close();
+	gameInstance.close();
 });

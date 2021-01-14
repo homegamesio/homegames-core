@@ -5,10 +5,7 @@ const COLORS = Colors.COLORS;
 class SpriteTest extends Game {
     static metadata() {
         return {
-            res: {
-                width: 1280,
-                height: 720
-            },
+            aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/sprite-test.png'
         };
@@ -83,7 +80,7 @@ class SpriteTest extends Game {
         if (this.inputCooldowns[player.id]) {
             return;
         }
-        this.inputCooldowns[player.id] = setTimeout(function() {
+        this.inputCooldowns[player.id] = this.setTimeout(function() {
             clearTimeout(this.inputCooldowns[player.id]);
             delete this.inputCooldowns[player.id];
         }.bind(this), 50);

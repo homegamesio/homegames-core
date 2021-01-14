@@ -1,6 +1,13 @@
 // this came from: https://www.sohamkamani.com/blog/javascript/making-a-node-js-test-runner/
 const path = require('path');
 const fs = require('fs');
+
+const packageRoot = path.dirname(require.main.filename);
+
+global.gameRoot = `${packageRoot}/src/games`;
+
+//global.hg = require(`${packageRoot}/hg`);
+
 let tests = [];
 
 function test(name, fn) {
