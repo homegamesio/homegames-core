@@ -1,8 +1,9 @@
 const server = require('./game_server');
 const config = require('./config');
 const linkHelper = require('./src/util/link-helper');
+const process = require('process');
 
-if (config.LINK_ENABLED) {
+if (process.env.LINK_ENABLED) {
     linkHelper.linkConnect().then(() => {
         console.log("Established connection to homegames.link");
     }).catch(err => {
