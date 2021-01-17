@@ -3,7 +3,7 @@ const config = require('./config');
 const linkHelper = require('./src/util/link-helper');
 const process = require('process');
 
-if (process.env.LINK_ENABLED) {
+if (process.env.LINK_ENABLED === 'true') {
     linkHelper.linkConnect().then(() => {
         console.log("Established connection to homegames.link");
     }).catch(err => {
