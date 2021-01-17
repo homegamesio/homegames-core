@@ -1,7 +1,6 @@
 const WebSocket = require('ws');
 const http = require('http');
 const assert = require('assert');
-const linkHelper = require('./link-helper');
 const Player = require('../Player');
 const config = require('../../config');
 
@@ -28,8 +27,6 @@ const listenable = function(obj, onChange) {
 
 
 const socketServer = (gameSession, port, cb = null) => {
-    linkHelper();
-
     const playerIds = {};
 
     for (let i = 1; i < 256; i++) {

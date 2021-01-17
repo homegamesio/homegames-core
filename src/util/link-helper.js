@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
 const os = require('os');
+const config = require('../../config');
 
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();
@@ -17,12 +18,24 @@ const getLocalIP = () => {
     return localIP;
 };
 
-const linkConnect = () => {
-    const client = new WebSocket('ws://www.homegames.link:7080');
+const getClientInfo = () => {
+    const localIP = getLocalIP();
+
+    return {
+        ip: localIP,
+        https: config.HTTPS_ENABLED
+    }
+};
+
+const linkConnect = () => new Promise((resolve, reject) => {
+    const client = new WebSocket('wss://www.homegames.link:7080');
     
     client.on('open', () => {
-        const localIP = getLocalIP();
-        client.send(localIP);
+        const clientInfo = getClientInfo();
+
+        client.send(JSON.stringify(clientInfo));
+
+        resolve();
     });
     
     client.on('error', (e) => {
@@ -33,15 +46,6 @@ const linkConnect = () => {
         clearTimeout(this.pingTimeout);
     });
 
-    return client;
-};
+});
 
-const init = () => {
-    try {
-        linkConnect();
-    } catch(err) {
-        console.error(err);
-    }
-};
-
-module.exports = init;
+module.exports = { linkConnect, getClientInfo };
