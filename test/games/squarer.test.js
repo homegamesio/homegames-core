@@ -16,5 +16,5 @@ test("Run basic game tests for Squarer", () => {
 	testGetRoot(gameInstance);
 	testHandleNewPlayer(gameInstance);
 	testHandlePlayerDisconnect(gameInstance);
-	gameInstance.close();
+        gameInstance.close();
 });

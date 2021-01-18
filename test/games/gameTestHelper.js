@@ -1,5 +1,6 @@
 const assert = require("assert");
-const { GameNode } =  require('squishjs');
+const squishMap = require('../../src/common/squish-map');
+let { GameNode } = squishMap['0633'];
 
 const testMetaData = (game) => {
 	const metaData = game.metadata();
@@ -11,6 +12,10 @@ const testMetaData = (game) => {
 
 const testGetRoot = (game) => {
     const res = game.getRoot();
+    const metadata = game.constructor.metadata();
+    const squishVersion = metadata.squishVersion;
+    const squishLib = squishMap[squishVersion];
+    GameNode = squishLib.GameNode;
     assert((res instanceof GameNode.Shape) || (res instanceof GameNode.Text) || (res instanceof GameNode.Asset));
 };
 
