@@ -35,6 +35,10 @@ const linkConnect = () => new Promise((resolve, reject) => {
 
         client.send(JSON.stringify(clientInfo));
 
+        setInterval(() => {
+            client.send(JSON.stringify({type: 'heartbeat'}));
+        }, 2 * 1000 * 60);
+
         resolve();
     });
     
