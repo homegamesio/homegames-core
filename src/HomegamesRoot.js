@@ -1,10 +1,21 @@
-const { GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
+const squishMap = require('./common/squish-map');
+
+let { GameNode, Colors, Shapes, ShapeUtils } = squishMap['063'];
+
 const Asset = require('./common/Asset');
 const { animations } = require('./common/util');
 const COLORS = Colors.COLORS;
 
 class HomegamesRoot {
     constructor(game, isDashboard) {
+        if (game.constructor.metadata() && game.constructor.metadata().squishVersion) {
+            const squishVersion = squishMap[game.constructor.metadata().squishVersion];
+            GameNode = squishVersion.GameNode;
+            Colors = squishVersion.Colors;
+            Shapes = squishVersion.Shapes;
+            ShapeUtils = squishVersion.ShapeUtils;
+        }
+  
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: [

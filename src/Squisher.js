@@ -1,4 +1,6 @@
-const { squish, unsquish } = require('squishjs');
+const squishMap = require('./common/squish-map');
+let { squish, unsquish } = squishMap['063'];
+
 const config = require('../config');
 const HomegamesRoot = require('./HomegamesRoot');
 const HomegamesDashboard = require('./HomegamesDashboard');
@@ -9,8 +11,19 @@ const INVISIBLE_NODE_PLAYER_ID = 0;
 
 class Squisher {
     constructor(game) {
-        this.assets = {};
         this.gameMetadata = game && game.constructor.metadata ? game.constructor.metadata() : null;
+        if (this.gameMetadata && this.gameMetadata.squishVersion) {
+            let squishVersion = squishMap[this.gameMetadata.squishVersion];
+            squish = squishVersion.squish;
+            unsquish = squishVersion.unsquish;
+
+        } else {
+            let squishVersion = squishMap['063'];
+            squish = squishVersion.squish;
+            unsquish = squishVersion.unsquish;
+        }
+        this.assets = {};
+
         this.ids = new Set();
         const isDashboard = game instanceof HomegamesDashboard;
         this.hgRoot = new HomegamesRoot(game, isDashboard);

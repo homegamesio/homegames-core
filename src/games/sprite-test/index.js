@@ -1,11 +1,12 @@
 const Asset = require('../../common/Asset');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-061');
 const COLORS = Colors.COLORS;
 
 class SpriteTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
+            squishVersion: '061',
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/sprite-test.png'
         };

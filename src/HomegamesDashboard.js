@@ -1,6 +1,7 @@
 const { fork } = require('child_process');
 const path = require('path');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
+const squishMap = require('./common/squish-map');
+let { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['063'];
 
 const COLORS = Colors.COLORS;
 
@@ -37,6 +38,7 @@ class HomegamesDashboard extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
+            squishVersion: '063',
             author: 'Joseph Garcia',
             tickRate: 10
         };

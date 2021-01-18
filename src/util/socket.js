@@ -86,9 +86,21 @@ const socketServer = (gameSession, port, cb = null) => {
                         player.name = playerInfo.name;
                     }
                     const aspectRatio = gameSession.aspectRatio;
+                    const gameMetadata = gameSession.gameMetadata;
+
+                    let squishVersion = 'latest';
+                    if (gameMetadata && gameMetadata.squishVersion) {
+                        squishVersion = gameMetadata.squishVersion;
+                    }
+
+                    const squishVersionArray = [];
+                    squishVersionArray[0] = squishVersion.length;
+                    for (let i = 0; i < squishVersion.length; i++) {
+                        squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
+                    }
 
                     // init message
-                    ws.send([2, ws.id, aspectRatio.x, aspectRatio.y]);
+                    ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, ...squishVersionArray]);
                     const _player = listenable(player, () => {
                         updatePlayerInfo(_player);
                     });
