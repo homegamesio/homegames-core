@@ -19,10 +19,10 @@ const getLocalIP = () => {
 };
 
 const getClientInfo = () => {
-    const localIP = getLocalIP();
+    const localIp = getLocalIP();
 
     return {
-        ip: localIP,
+        localIp: localIp,
         https: config.HTTPS_ENABLED
     }
 };
@@ -33,7 +33,7 @@ const linkConnect = () => new Promise((resolve, reject) => {
     client.on('open', () => {
         const clientInfo = getClientInfo();
 
-        client.send(JSON.stringify(clientInfo));
+        client.send(JSON.stringify({data: clientInfo, type: 'register'}));
 
         setInterval(() => {
             client.send(JSON.stringify({type: 'heartbeat'}));

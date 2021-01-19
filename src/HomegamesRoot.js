@@ -139,8 +139,8 @@ class HomegamesRoot {
         });
 
         this.root.addChild(this.baseThing);
-        this.root.addChild(this.homeButton);
         this.root.addChild(game.getRoot());
+        this.root.addChild(this.homeButton);
     }
 
     getRoot() {
