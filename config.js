@@ -1,5 +1,6 @@
 module.exports = {
     ASSET_PATH: ".asset_cache",
+    AUTH_DIR: "/path/to/auth",
     BEZEL_SIZE: {
         x: 15,
         y: 15
@@ -12,6 +13,7 @@ module.exports = {
     HTTPS_ENABLED: false,
     GAME_SERVER_PORT_RANGE_MIN: 7001,
     GAME_SERVER_PORT_RANGE_MAX: 7100,
-    LINK_ENABLED: true,
+    LINK_DNS_ENABLED: false,
+    LINK_ENABLED: false,
     SQUISHER_HEARTBEAT_INTERVAL: 5000
 };

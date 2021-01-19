@@ -22,25 +22,30 @@ const getClientInfo = () => {
     const localIp = getLocalIP();
 
     return {
-        localIp: localIp,
+        localIp,
         https: config.HTTPS_ENABLED
     }
 };
 
-const linkConnect = () => new Promise((resolve, reject) => {
+const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
     const client = new WebSocket('wss://www.homegames.link:7080');
     
     client.on('open', () => {
         const clientInfo = getClientInfo();
 
-        client.send(JSON.stringify({data: clientInfo, type: 'register'}));
+        client.send(JSON.stringify({
+            type: 'register',
+            data: clientInfo
+        }));
 
         setInterval(() => {
             client.send(JSON.stringify({type: 'heartbeat'}));
         }, 2 * 1000 * 60);
 
-        resolve();
+        resolve(client);
     });
+
+    client.on('message', msgHandler);
     
     client.on('error', (e) => {
         console.error(e);
@@ -52,4 +57,19 @@ const linkConnect = () => new Promise((resolve, reject) => {
 
 });
 
-module.exports = { linkConnect, getClientInfo };
+let msgId = 0;
+const verifyDNS = (client, username, accessToken, localIp) => new Promise((resolve, reject) => {
+    msgId++;
+
+    client.send(JSON.stringify({
+        type: 'verify-dns',
+        localIp,
+        username,
+        accessToken,
+        msgId
+    }));
+
+    resolve(msgId); 
+});
+
+module.exports = { linkConnect, getClientInfo, verifyDNS };
