@@ -10,9 +10,10 @@ const getConfigValue = (key, _default = undefined) => {
     console.log(envValue);
     if (envValue !== undefined) {
         if (envValue === 'true') {
-            envValue = true;
+            console.log('hhhhhhhhh brotjher');
+            //envValue = true;
         } else if (envValue === 'false') {
-            envValue = false;
+            //envValue = false;
         }
         console.log(`Using environment value: ${envValue} for key: ${key}`);
         return envValue;
