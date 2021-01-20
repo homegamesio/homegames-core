@@ -33,7 +33,6 @@
     "squish-0631": "npm:squishjs@0.6.31",
     "squish-0632": "npm:squishjs@0.6.32",
     "squish-0633": "npm:squishjs@0.6.33",
-    "squish-latest": "npm:squishjs@0.6.3",
     "ws": "5.2.1"
   }
 }
