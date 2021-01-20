@@ -1,7 +1,10 @@
 const WebSocket = require('ws');
 const http = require('http');
+const https = require('https');
 const assert = require('assert');
 const Player = require('../Player');
+
+const fs = require('fs');
 
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
@@ -36,7 +39,7 @@ const listenable = function(obj, onChange) {
 
 
 
-const socketServer = (gameSession, port, cb = null) => {
+const socketServer = (gameSession, port, cb = null, certPath = null) => {
     const playerIds = {};
 
     for (let i = 1; i < 256; i++) {
@@ -54,7 +57,16 @@ const socketServer = (gameSession, port, cb = null) => {
         throw new Error('no player IDs left in pool');
     };
 
-    const server = http.createServer();
+    let server;
+
+    if (certPath) {
+        server = https.createServer({
+            key: fs.readFileSync(certPath.keyPath).toString(),
+            cert: fs.readFileSync(certPath.certPath).toString()
+        });
+    } else { 
+        server = http.createServer();
+    }
 
     const wss = new WebSocket.Server({
         server

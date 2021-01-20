@@ -7,11 +7,30 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const linkHelper = require('./src/util/link-helper');
 const process = require('process');
-const { getLoginInfo, promptLogin, login, storeTokens, verifyAccessToken } = require('homegames-common');
+const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAccessToken } = require('homegames-common');
 
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
 const AUTH_DIR = getConfigValue('HG_AUTH_DIR', `${process.cwd()}/.hg_auth`);
 const LINK_DNS_ENABLED = getConfigValue('LINK_DNS_ENABLED', false);
+const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
+const CERT_PATH = getConfigValue('HG_CERT_PATH', `${process.cwd()}/.hg_certs`);
+
+const doLogin = () => new Promise((resolve, reject) => {
+    promptLogin().then(info => {
+        login(info.username, info.password).then(tokens => {
+            storeTokens(`${AUTH_DIR}/tokens.json`, info.username, tokens).then(() => {
+                verifyAccessToken(info.username, tokens.accessToken).then(() => {
+                    resolve({tokens, username: info.username});
+
+                });
+            });
+        }).catch(err => {
+            console.error('Failed to login');
+            console.error(err);
+        });
+    });
+});
+
 
 if (LINK_ENABLED) {
     let verifyDnsRequest;
@@ -26,22 +45,6 @@ if (LINK_ENABLED) {
 
     linkHelper.linkConnect(linkMessageHandler).then((wsClient) => {
         console.log("Established connection to homegames.link");
-        const doLogin = () => new Promise((resolve, reject) => {
-            promptLogin().then(info => {
-                login(info.username, info.password).then(tokens => {
-                    storeTokens(`${AUTH_DIR}/tokens.json`, info.username, tokens).then(() => {
-                        verifyAccessToken(info.username, tokens.accessToken).then(() => {
-                            resolve({tokens, username: info.username});
-
-                        });
-                    });
-                }).catch(err => {
-                    console.error('Failed to login');
-                    console.error(err);
-                });
-            });
-        });
-
         if (LINK_DNS_ENABLED) {
             console.log(`DNS requires login.`); 
             if (!AUTH_DIR) {
@@ -88,4 +91,16 @@ if (LINK_ENABLED) {
     });
 }
 
-server();
+if (HTTPS_ENABLED) {
+    setTimeout(() => {
+        console.log(`\n\nHTTPS is enabled! Verifying cert + key are available at ${CERT_PATH}`);
+        doLogin().then(info => {
+            guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
+                server(certPaths);
+            });
+        });
+    }, 1000);
+} else {
+    console.log("Starting server without HTTPS");
+    server();
+}
