@@ -1,11 +1,19 @@
 const server = require('./game_server');
-const config = require('./config');
+
+const path = require('path');
+const baseDir = path.dirname(require.main.filename);
+
+const { getConfigValue } = require(`${baseDir}/src/util/config`);
+
 const linkHelper = require('./src/util/link-helper');
 const process = require('process');
 const { getLoginInfo, promptLogin, login, storeTokens, verifyAccessToken } = require('homegames-common');
 
-if (process.env.LINK_ENABLED === 'true') {
-    const AUTH_DIR = process.env.AUTH_DIR;
+const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
+const AUTH_DIR = getConfigValue('HG_AUTH_DIR', `${baseDir}/.hg_auth`);
+const LINK_DNS_ENABLED = getConfigValue('LINK_DNS_ENABLED', false);
+
+if (LINK_ENABLED) {
     let verifyDnsRequest;
     const linkMessageHandler = (_msg) => {
         const msg = JSON.parse(_msg);
@@ -34,7 +42,7 @@ if (process.env.LINK_ENABLED === 'true') {
             });
         });
 
-        if (process.env.LINK_DNS_ENABLED === 'true') {
+        if (LINK_DNS_ENABLED) {
             console.log(`DNS requires login.`); 
             if (!AUTH_DIR) {
                 console.error('Failed to verify DNS record: no authentication directory found. Set process.env.AUTH_DIR or set AUTH_DIR = true in your config file');

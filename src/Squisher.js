@@ -1,13 +1,25 @@
 const squishMap = require('./common/squish-map');
 let { squish, unsquish } = squishMap['063'];
 
-const config = require('../config');
 const HomegamesRoot = require('./HomegamesRoot');
 const HomegamesDashboard = require('./HomegamesDashboard');
 
 const ASSET_TYPE = 1;
 
 const INVISIBLE_NODE_PLAYER_ID = 0;
+
+const path = require('path');
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
+
+const { getConfigValue } = require(`${baseDir}/src/util/config`);
+
+const DEFAULT_TICK_RATE = getConfigValue('DEFAULT_TICK_RATE', 60);
+const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
+const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
 class Squisher {
     constructor(game) {
@@ -34,7 +46,7 @@ class Squisher {
         this.game && this.update(this.hgRoot.getRoot());
 
         if (this.game.tick) {
-            const tickRate = this.gameMetadata && this.gameMetadata.tickRate ? this.gameMetadata.tickRate : config.DEFAULT_TICK_RATE;
+            const tickRate = this.gameMetadata && this.gameMetadata.tickRate ? this.gameMetadata.tickRate : DEFAULT_TICK_RATE;
             setInterval(this.game.tick.bind(this.game), 1000 / tickRate);
         }
     }
@@ -130,8 +142,8 @@ class Squisher {
     updateHelper(node, playerFrames, whitelist, scale) {
         if (this.game.getRoot() === node) {
             scale = {
-                x: (100 - config.BEZEL_SIZE.x) / 100,
-                y: (100 - config.BEZEL_SIZE.y) / 100
+                x: (100 - BEZEL_SIZE_X) / 100,
+                y: (100 - BEZEL_SIZE_Y) / 100
             }
         }
 

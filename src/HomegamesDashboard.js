@@ -13,11 +13,20 @@ const sortedGameKeys = Object.keys(games).sort();
 
 const { ExpiringSet, animations } = require('./common/util');
 
-const config = require('../config');
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
+
+const { getConfigValue } = require(`${baseDir}/src/util/config`);
+
+const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7001);
+const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
 
 const sessions = {};
 
-for (let i = config.GAME_SERVER_PORT_RANGE_MIN; i < config.GAME_SERVER_PORT_RANGE_MAX; i++) {
+for (let i = serverPortMin; i <= serverPortMax; i++) {
     sessions[i] = null;
 }
 
@@ -33,6 +42,9 @@ let sessionIdCounter = 1;
 
 const DASHBOARD_COLOR = [69, 100, 150, 255];
 const orangeish = [246, 99, 4, 255];
+
+const DEFAULT_GAME_THUMBNAIL = getConfigValue('DEFAULT_GAME_THUMBNAIL', "https://d3lgoy70hwd3pc.cloudfront.net/logo.png");
+const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 2000);
 
 class HomegamesDashboard extends Game {
     static metadata() {
@@ -60,7 +72,7 @@ class HomegamesDashboard extends Game {
         this.gameList = Object.values(games);
 
         this.assets['default'] = new Asset('url', {
-            'location': config.DEFAULT_GAME_THUMBNAIL,
+            'location': DEFAULT_GAME_THUMBNAIL,
             'type': 'image'
         });
 
@@ -97,7 +109,7 @@ class HomegamesDashboard extends Game {
         this.sessions = {};
         this.requestCallbacks = {};
         this.requestIdCounter = 1;
-        setInterval(this.heartbeat.bind(this), config.CHILD_SESSION_HEARTBEAT_INTERVAL);
+        setInterval(this.heartbeat.bind(this), CHILD_SESSION_HEARTBEAT_INTERVAL);
     }
 
     heartbeat() {
