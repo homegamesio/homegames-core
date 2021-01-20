@@ -16,10 +16,11 @@ const getConfigValue = (key, _default = undefined) => {
     }
     try {
         const _config = require(`${process.cwd()}/config`);
-        console.log(`Using config at ${process.cwd()}/config`);
-        if (!_config[key]) {
+        console.log(`Using config at ${process.cwd()}/config for ${key}`);
+        if (_config[key] === undefined) {
             throw new Error(`No value for ${key} found in ${process.cwd()}/config`);
         }
+        console.log(`Found value ${_config[key]} in config`);
         return _config[key];
     } catch(err) {
         if (_default === undefined) {
