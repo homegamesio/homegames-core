@@ -13,7 +13,7 @@ if (baseDir.endsWith('src')) {
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
-const HG_ASSET_PATH = getConfigValue('HG_ASSET_PATH', `${baseDir}/.asset_cache`);
+const HG_ASSET_PATH = getConfigValue('HG_ASSET_PATH', `${process.cwd()}/.asset_cache`);
 
 if (!fs.existsSync(HG_ASSET_PATH)) {
     fs.mkdirSync(HG_ASSET_PATH);

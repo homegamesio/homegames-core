@@ -10,7 +10,7 @@ const process = require('process');
 const { getLoginInfo, promptLogin, login, storeTokens, verifyAccessToken } = require('homegames-common');
 
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
-const AUTH_DIR = getConfigValue('HG_AUTH_DIR', `${baseDir}/.hg_auth`);
+const AUTH_DIR = getConfigValue('HG_AUTH_DIR', `${process.cwd()}/.hg_auth`);
 const LINK_DNS_ENABLED = getConfigValue('LINK_DNS_ENABLED', false);
 
 if (LINK_ENABLED) {
