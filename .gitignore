@@ -1,3 +1,4 @@
 node_modules
 .asset_cache
 local
+config.js
