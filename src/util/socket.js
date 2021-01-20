@@ -65,6 +65,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             cert: fs.readFileSync(certPath.certPath).toString()
         });
     } else { 
+        console.log('uhhhhh its not secure');
         server = http.createServer();
     }
 

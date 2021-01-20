@@ -1,7 +1,11 @@
 const server = require('./game_server');
 
 const path = require('path');
-const baseDir = path.dirname(require.main.filename);
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
@@ -39,6 +43,12 @@ if (LINK_ENABLED) {
         if (verifyDnsRequest && msg.msgId === verifyDnsRequest) {
             if (msg.success) {
                 console.log('Verified DNS record for ' + msg.url);
+                if (HTTPS_ENABLED) {
+                    guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
+                        console.log("GUARANTEED CERTS");
+                        server(certPaths);
+                    });
+                }
             }
         }
     };
@@ -91,12 +101,18 @@ if (LINK_ENABLED) {
     });
 }
 
-if (HTTPS_ENABLED) {
+else if (HTTPS_ENABLED) {
     setTimeout(() => {
         console.log(`\n\nHTTPS is enabled! Verifying cert + key are available at ${CERT_PATH}`);
-        doLogin().then(info => {
+        getLoginInfo(`${AUTH_DIR}/tokens.json`).then((loginInfo) => {
             guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
                 server(certPaths);
+            });
+        }).catch(err => {
+            doLogin().then(loginInfo => {
+                guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
+                    server(certPaths);
+                });
             });
         });
     }, 1000);
