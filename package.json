@@ -5,10 +5,6 @@
   "directories": {
     "lib": "lib"
   },
-  "bin": "game_server.js",
-  "pkg": {
-    "assets": "src/**/*"
-  },
   "scripts": {
     "test": "node testRunner.js",
     "start": "node index.js"

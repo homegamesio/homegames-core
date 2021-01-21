@@ -4,7 +4,7 @@ const fs = require('fs');
 let words = [];
 
 const generateList = async () => new Promise((resolve, reject) => {
-    resolve(['to', 'do'])
+    resolve(['to', 'do']);
 });
 
 const charadesWords = {

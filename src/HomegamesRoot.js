@@ -32,7 +32,7 @@ class HomegamesRoot {
         const onDashHomeClick = (player, x, y) => {
             if (this.playerDashboards[player.id] && this.playerDashboards[player.id].dashboard) {
                 return;
-            };
+            }
 
             const modalShape = ShapeUtils.rectangle(5, 5, 90, 90);
             const settingsText = new GameNode.Text({
@@ -182,7 +182,7 @@ class HomegamesRoot {
                 'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/logo_horizontal.png',
                 'type': 'image'
             })
-        }
+        };
     }
 }
 

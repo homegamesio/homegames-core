@@ -1,12 +1,12 @@
 module.exports = {
-    ASSET_PATH: "/path/to/asset/cache/",
-    AUTH_DIR: "/path/to/auth/tokens",
+    ASSET_PATH: '/path/to/asset/cache/',
+    AUTH_DIR: '/path/to/auth/tokens',
     BEZEL_SIZE: {
         x: 15,
         y: 15
     },
     CHILD_SESSION_HEARTBEAT_INTERVAL: 2000,
-    DEFAULT_GAME_THUMBNAIL: "https://d3lgoy70hwd3pc.cloudfront.net/logo.png",
+    DEFAULT_GAME_THUMBNAIL: 'https://d3lgoy70hwd3pc.cloudfront.net/logo.png',
     DEFAULT_TICK_RATE: 60,
     GAME_SERVER_HOME_PORT: 7000,
     HOMENAMES_PORT: 7099,

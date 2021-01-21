@@ -2,7 +2,7 @@ const { Colors, Game, GameNode, Shapes, ShapeUtils } =  require('squish-063');
 const { BLACK, GRAY, GOLD, GREEN } = Colors.COLORS;
 
 class Squarer extends Game {
-	static metadata() {
+    static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '063',
@@ -14,7 +14,7 @@ class Squarer extends Game {
     constructor() {
         super();
         this.defaultSize = { x: 5, y: 5 };
-	this.base = new GameNode.Shape({
+        this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: BLACK,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
@@ -61,13 +61,13 @@ class Squarer extends Game {
         });
         this.npc = [];
         if (this.level > 9) {
-            console.log("good job");
-            this.base.removeChild(this.destination.id)
+            console.log('good job');
+            this.base.removeChild(this.destination.id);
             return;
         }
         for( let i = 5; i < 50; i+=5) {
             const tickRate = Math.ceil(250 + Math.random() * 100);
-            let color = i % 2 ? GOLD : GREEN;
+            const color = i % 2 ? GOLD : GREEN;
             for (let l = 0; l < this.level && l <= 9; l++) {
                 const temp = new GameNode.Shape({
                     shapeType: Shapes.POLYGON,
@@ -84,7 +84,7 @@ class Squarer extends Game {
 
         for( let i = 55; i < 95; i+=5) {
             const tickRate = Math.ceil(250 + Math.random() * 100);
-            let color = i % 2 ? GOLD : GREEN;
+            const color = i % 2 ? GOLD : GREEN;
             for (let l = 0; l < this.level && l <= 9; l++) {
                 const temp = new GameNode.Shape({
                     shapeType: Shapes.POLYGON,
@@ -122,13 +122,13 @@ class Squarer extends Game {
         const index = this.playerArray.findIndex(elem => elem.controllerID === player.id );
         const square = this.playerArray[index];
         if (!this.keyCoolDowns[player.id] || !this.keyCoolDowns[player.id][key]) {
-            if (key === "ArrowUp" || key === "w") {
+            if (key === 'ArrowUp' || key === 'w') {
                 this.movementQueue.push({ node: square, direction: 'up' });
-            } else if (key === "ArrowDown" || key === "s") {
+            } else if (key === 'ArrowDown' || key === 's') {
                 this.movementQueue.push({ node: square, direction: 'down' });
-            } else if (key === "ArrowLeft" || key === "a") {
+            } else if (key === 'ArrowLeft' || key === 'a') {
                 this.movementQueue.push({ node: square, direction: 'left' });
-            } else if (key === "ArrowRight" || key === "d") {
+            } else if (key === 'ArrowRight' || key === 'd') {
                 this.movementQueue.push({ node: square, direction: 'right' });
             } else {
                 return;
@@ -158,8 +158,8 @@ class Squarer extends Game {
     tick() {
         while(this.movementQueue.length) {
             const { npc, node, direction } = this.movementQueue.shift();
-            let nodePosX = node.node.coordinates2d[0][0];
-            let nodePosY = node.node.coordinates2d[0][1];
+            const nodePosX = node.node.coordinates2d[0][0];
+            const nodePosY = node.node.coordinates2d[0][1];
 
             const nodeSizeX = node.node.coordinates2d[1][0] - nodePosX;
             const nodeSizeY = node.node.coordinates2d[2][1] - nodePosY;
@@ -269,7 +269,7 @@ class Squarer extends Game {
             const elemSizeX = elem.node.coordinates2d[1][0] - elemPosX;
             const elemSizeY = elem.node.coordinates2d[2][1] - elemPosY;
 
-            elem.defaultX = (i * 10) + 5
+            elem.defaultX = (i * 10) + 5;
             elem.node.coordinates2d = ShapeUtils.rectangle(elem.defaultX, 95, elemSizeX, elemSizeY);
         });
     }

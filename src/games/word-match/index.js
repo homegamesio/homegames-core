@@ -1,7 +1,7 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-061');
 const dictionary = require('../../common/util/dictionary');
 
-let COLORS = Colors.COLORS;
+const COLORS = Colors.COLORS;
 
 class WordMatch extends Game {
     static metadata() {

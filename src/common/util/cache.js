@@ -5,7 +5,7 @@ class ExpiringSet {
 
     put(value, ttl) {
         if (ttl === null || ttl === undefined || Number(ttl) < 1) {
-            throw new Error("put() requires a TTL");
+            throw new Error('put() requires a TTL');
         }
 
         this.cache[value] = setTimeout(() => {

@@ -27,7 +27,7 @@ const getClientInfo = () => {
     return {
         localIp,
         https: getConfigValue('HTTPS_ENABLED', false)
-    }
+    };
 };
 
 const linkConnect = (msgHandler) => new Promise((resolve, reject) => {

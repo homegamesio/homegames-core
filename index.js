@@ -45,7 +45,7 @@ if (LINK_ENABLED) {
                 console.log('Verified DNS record for ' + msg.url);
                 if (HTTPS_ENABLED) {
                     guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
-                        console.log("GUARANTEED CERTS");
+                        console.log('GUARANTEED CERTS');
                         server(certPaths);
                     });
                 }
@@ -54,9 +54,9 @@ if (LINK_ENABLED) {
     };
 
     linkHelper.linkConnect(linkMessageHandler).then((wsClient) => {
-        console.log("Established connection to homegames.link");
+        console.log('Established connection to homegames.link');
         if (LINK_DNS_ENABLED) {
-            console.log(`DNS requires login.`); 
+            console.log('DNS requires login.'); 
             if (!AUTH_DIR) {
                 console.error('Failed to verify DNS record: no authentication directory found. Set process.env.AUTH_DIR or set AUTH_DIR = true in your config file');
             } else {
@@ -96,7 +96,7 @@ if (LINK_ENABLED) {
             }
         }
     }).catch(err => {
-        console.error("Failed to connect to homegames.link");
+        console.error('Failed to connect to homegames.link');
         console.error(err);
     });
 }
@@ -117,6 +117,6 @@ else if (HTTPS_ENABLED) {
         });
     }, 1000);
 } else {
-    console.log("Starting server without HTTPS");
+    console.log('Starting server without HTTPS');
     server();
 }

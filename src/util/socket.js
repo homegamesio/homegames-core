@@ -93,7 +93,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 });
                 req.write(data);
                 req.end();
-            }
+            };
 
             const req = http.request({
                 hostname: 'localhost',
@@ -138,7 +138,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
-//            playerIds[ws.id] = false;
+            //            playerIds[ws.id] = false;
             gameSession.handlePlayerDisconnect(ws.id);
             
         }

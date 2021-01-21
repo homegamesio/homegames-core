@@ -52,7 +52,7 @@ class GameSession {
 
     handlePlayerDisconnect(playerId) {
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
-//        this.game._hgRemovePlayer(playerId);
+        //        this.game._hgRemovePlayer(playerId);
         this.squisher.hgRoot.handlePlayerDisconnect(playerId);
     }
 
@@ -100,18 +100,18 @@ class GameSession {
         if (clickedNode) {
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
                     
-                    clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             } else {
-                    const bezelX = BEZEL_SIZE_X;
-                    const bezelY = BEZEL_SIZE_Y;
+                const bezelX = BEZEL_SIZE_X;
+                const bezelY = BEZEL_SIZE_Y;
 
-                    const shiftedX = click.x - (bezelX / 2);
-                    const shiftedY = click.y - (bezelY / 2);
+                const shiftedX = click.x - (bezelX / 2);
+                const shiftedY = click.y - (bezelY / 2);
 
-                    const scaledX = shiftedX * ( 1 / ((100 - bezelX) / 100));
-                    const scaledY = shiftedY * ( 1 / ((100 - bezelY) / 100));
+                const scaledX = shiftedX * ( 1 / ((100 - bezelX) / 100));
+                const scaledY = shiftedY * ( 1 / ((100 - bezelY) / 100));
 
-            clickedNode.handleClick && clickedNode.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                clickedNode.handleClick && clickedNode.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             }
         }
     }
@@ -144,7 +144,7 @@ class GameSession {
         if ((node.handleClick && node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
             const vertices = [];
  
-            for (let i in node.coordinates2d) {
+            for (const i in node.coordinates2d) {
                 if (inGame) {
                     const bezelX = BEZEL_SIZE_X;
                     const bezelY = BEZEL_SIZE_Y;
@@ -161,7 +161,7 @@ class GameSession {
                 } else {
                     vertices.push(
                         [node.coordinates2d[i][0],
-                        node.coordinates2d[i][1]]
+                            node.coordinates2d[i][1]]
                     );
                 }
             }
@@ -185,7 +185,7 @@ class GameSession {
                 for (i, j; i < vertices.length; j=i++) {
                     if ((vertices[i][1] > y) != (vertices[j][1] > y) &&
                             x < (vertices[j][0] - vertices[i][0]) * (y - vertices[i][1]) / (vertices[j][1] - vertices[i][1]) + vertices[i][0]) {
-                            isInside = !isInside;
+                        isInside = !isInside;
                     }
                 }
             }

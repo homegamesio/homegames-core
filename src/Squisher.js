@@ -25,12 +25,12 @@ class Squisher {
     constructor(game) {
         this.gameMetadata = game && game.constructor.metadata ? game.constructor.metadata() : null;
         if (this.gameMetadata && this.gameMetadata.squishVersion) {
-            let squishVersion = squishMap[this.gameMetadata.squishVersion];
+            const squishVersion = squishMap[this.gameMetadata.squishVersion];
             squish = squishVersion.squish;
             unsquish = squishVersion.unsquish;
 
         } else {
-            let squishVersion = squishMap['063'];
+            const squishVersion = squishMap['063'];
             squish = squishVersion.squish;
             unsquish = squishVersion.unsquish;
         }
@@ -144,7 +144,7 @@ class Squisher {
             scale = {
                 x: (100 - BEZEL_SIZE_X) / 100,
                 y: (100 - BEZEL_SIZE_Y) / 100
-            }
+            };
         }
 
         if (!this.ids.has(node.node.id)) {
