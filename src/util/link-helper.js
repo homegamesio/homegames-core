@@ -48,7 +48,7 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
         resolve(client);
     });
 
-    client.on('message', msgHandler);
+    client.on('message', msgHandler ? msgHandler : () => {});
     
     client.on('error', (e) => {
         console.error(e);

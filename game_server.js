@@ -11,6 +11,7 @@ const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const GAME_SERVER_HOME_PORT = getConfigValue('GAME_SERVER_HOME_PORT', 7000);
 
 const server = (certPath) => {
+    console.log('running server');
 
     const dashboard = new HomegamesDashboard();
     

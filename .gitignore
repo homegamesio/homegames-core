@@ -2,3 +2,5 @@ node_modules
 .asset_cache
 local
 ./config.js
+.hg_auth
+.hg_certs

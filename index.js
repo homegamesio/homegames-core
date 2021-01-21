@@ -11,7 +11,8 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const linkHelper = require('./src/util/link-helper');
 const process = require('process');
-const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAccessToken } = require('homegames-common');
+
+const { guaranteeCerts, guaranteeDir, authWorkflow } = require('homegames-common');
 
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
 const AUTH_DIR = getConfigValue('HG_AUTH_DIR', `${process.cwd()}/.hg_auth`);
@@ -19,104 +20,96 @@ const LINK_DNS_ENABLED = getConfigValue('LINK_DNS_ENABLED', false);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const CERT_PATH = getConfigValue('HG_CERT_PATH', `${process.cwd()}/.hg_certs`);
 
-const doLogin = () => new Promise((resolve, reject) => {
-    promptLogin().then(info => {
-        login(info.username, info.password).then(tokens => {
-            storeTokens(`${AUTH_DIR}/tokens.json`, info.username, tokens).then(() => {
-                verifyAccessToken(info.username, tokens.accessToken).then(() => {
-                    resolve({tokens, username: info.username});
+const actions = [];
 
-                });
-            });
-        }).catch(err => {
-            console.error('Failed to login');
-            console.error(err);
+const linkInit = () => new Promise((resolve, reject) => {
+    linkHelper.linkConnect().then((wsClient) => {
+        resolve();
+    });
+});
+
+const httpsInit = () => new Promise((resolve, reject) => {
+    guaranteeDir(AUTH_DIR).then(() => {
+        guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
+            resolve(certPaths);
         });
     });
 });
 
-
-if (LINK_ENABLED) {
-    let verifyDnsRequest;
-    const linkMessageHandler = (_msg) => {
+const linkDNSInit = () => new Promise((resolve, reject) => {
+    let requestId;
+    const dnsMessageHandler = (_msg) => {
+        console.log(_msg);
         const msg = JSON.parse(_msg);
-        if (verifyDnsRequest && msg.msgId === verifyDnsRequest) {
+        if (requestId && msg.msgId === requestId) {
             if (msg.success) {
-                console.log('Verified DNS record for ' + msg.url);
-                if (HTTPS_ENABLED) {
-                    guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
-                        console.log('GUARANTEED CERTS');
-                        server(certPaths);
-                    });
-                }
+                console.log('Verified DNS record');
+                resolve(msg.url);
+            } else {
+                console.log("failed to verify");
+                reject();
             }
         }
     };
 
-    linkHelper.linkConnect(linkMessageHandler).then((wsClient) => {
-        console.log('Established connection to homegames.link');
-        if (LINK_DNS_ENABLED) {
-            console.log('DNS requires login.'); 
-            if (!AUTH_DIR) {
-                console.error('Failed to verify DNS record: no authentication directory found. Set process.env.AUTH_DIR or set AUTH_DIR = true in your config file');
-            } else {
-                console.log(`Verifying credentials at ${AUTH_DIR}`);
-                getLoginInfo(`${AUTH_DIR}/tokens.json`).then((loginInfo) => {
-                    verifyAccessToken(loginInfo.username, loginInfo.tokens.accessToken).then(() => {
-                        const clientInfo = linkHelper.getClientInfo();
-                        linkHelper.verifyDNS(wsClient, loginInfo.username, loginInfo.tokens.accessToken, clientInfo.localIp).then((requestId) => {
-                            verifyDnsRequest = requestId;
-                        });
-                    }).catch(err => {
-                        console.error('Failed to verify access token. Please log in');
-                        doLogin().then(loginInfo => {
-                            const clientInfo = linkHelper.getClientInfo();
-                            linkHelper.verifyDNS(wsClient, loginInfo.username, loginInfo.tokens.accessToken, clientInfo.localIp).then((requestId) => {
-                                verifyDnsRequest = requestId;
-                            });
-                        });
-                    });
-                }).catch(err => {
-                    if (err.type === 'DATA_NOT_FOUND') {
-                        console.log(`No credential data found at ${AUTH_DIR}. Please log in with your homegames account (to register, go to https://homegames.io)`);
-                        doLogin().then(loginInfo => {
-                            const clientInfo = linkHelper.getClientInfo();
-                            linkHelper.verifyDNS(wsClient, loginInfo.username, loginInfo.tokens.accessToken, clientInfo.localIp).then((requestId) => {
-                                verifyDnsRequest = requestId;
-                            });
-                        }).catch(err => {
-                            console.error('Failed to login');
-                            console.error(err);
-                        });
-                    } else {
-                        console.error('Failed to get login info');
-                        console.error(err);
-                    }
-                });
-            }
-        }
-    }).catch(err => {
-        console.error('Failed to connect to homegames.link');
-        console.error(err);
-    });
-}
-
-else if (HTTPS_ENABLED) {
-    setTimeout(() => {
-        console.log(`\n\nHTTPS is enabled! Verifying cert + key are available at ${CERT_PATH}`);
-        getLoginInfo(`${AUTH_DIR}/tokens.json`).then((loginInfo) => {
-            guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
-                server(certPaths);
-            });
-        }).catch(err => {
-            doLogin().then(loginInfo => {
-                guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
-                    server(certPaths);
+    linkHelper.linkConnect(dnsMessageHandler).then((wsClient) => {
+        guaranteeDir(AUTH_DIR).then(() => {
+            authWorkflow(`${AUTH_DIR}/tokens.json`).then(authInfo => {
+                const clientInfo = linkHelper.getClientInfo();
+                linkHelper.verifyDNS(wsClient, authInfo.username, authInfo.tokens.accessToken, clientInfo.localIp).then(_requestId => {
+                    requestId = _requestId;
                 });
             });
         });
-    }, 1000);
+    });
+
+});
+
+if (LINK_DNS_ENABLED) {
+    actions.push(linkDNSInit);
+    if (HTTPS_ENABLED) {
+        actions.push(httpsInit);
+    }
+} else if (LINK_ENABLED) {
+    actions.push(linkInit);
+} else if (HTTPS_ENABLED) {
+    actions.push(() => new Promise((resolve, reject) => {
+        console.log("One day: custom certs");
+        resolve();
+    }));
 } else {
-    console.log('Starting server without HTTPS');
-    server();
+    console.log('you want nothing');
 }
+
+actions.push((_out) => new Promise((resolve, reject) => {
+    if (!_out || !_out.certPath) {
+        console.log('regular server');
+        server();
+        resolve();
+    } else {
+        console.log('secure server');
+        server(_out);
+        resolve();
+    }
+}));
+
+// trash workflow
+const doWork = () => new Promise((resolve, reject) => {
+    let i = 0;
+    let _result;
+    const _doWork = (cb) => {
+        if (!actions[i]) {
+            cb();
+        } else {
+            actions[i](_result).then((result) => {
+                i++;
+                _result = result;
+                _doWork(cb);
+            });
+        }
+    }
+
+    _doWork(resolve)
+});
+
+doWork();
