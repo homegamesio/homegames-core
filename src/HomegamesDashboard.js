@@ -1,7 +1,7 @@
 const { fork } = require('child_process');
 const path = require('path');
 const squishMap = require('./common/squish-map');
-let { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['063'];
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['063'];
 
 const COLORS = Colors.COLORS;
 
@@ -13,11 +13,20 @@ const sortedGameKeys = Object.keys(games).sort();
 
 const { ExpiringSet, animations } = require('./common/util');
 
-const config = require('../config');
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
+
+const { getConfigValue } = require(`${baseDir}/src/util/config`);
+
+const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7001);
+const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
 
 const sessions = {};
 
-for (let i = config.GAME_SERVER_PORT_RANGE_MIN; i < config.GAME_SERVER_PORT_RANGE_MAX; i++) {
+for (let i = serverPortMin; i <= serverPortMax; i++) {
     sessions[i] = null;
 }
 
@@ -33,6 +42,9 @@ let sessionIdCounter = 1;
 
 const DASHBOARD_COLOR = [69, 100, 150, 255];
 const orangeish = [246, 99, 4, 255];
+
+const DEFAULT_GAME_THUMBNAIL = getConfigValue('DEFAULT_GAME_THUMBNAIL', 'https://d3lgoy70hwd3pc.cloudfront.net/logo.png');
+const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 2000);
 
 class HomegamesDashboard extends Game {
     static metadata() {
@@ -60,7 +72,7 @@ class HomegamesDashboard extends Game {
         this.gameList = Object.values(games);
 
         this.assets['default'] = new Asset('url', {
-            'location': config.DEFAULT_GAME_THUMBNAIL,
+            'location': DEFAULT_GAME_THUMBNAIL,
             'type': 'image'
         });
 
@@ -97,7 +109,7 @@ class HomegamesDashboard extends Game {
         this.sessions = {};
         this.requestCallbacks = {};
         this.requestIdCounter = 1;
-        setInterval(this.heartbeat.bind(this), config.CHILD_SESSION_HEARTBEAT_INTERVAL);
+        setInterval(this.heartbeat.bind(this), CHILD_SESSION_HEARTBEAT_INTERVAL);
     }
 
     heartbeat() {
@@ -145,7 +157,7 @@ class HomegamesDashboard extends Game {
 
         const updateSessionInfo = () => {
             this.updateSessionInfo(sessionId);
-        }
+        };
 
         const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
 
@@ -153,7 +165,7 @@ class HomegamesDashboard extends Game {
             clearInterval(sessionInfoUpdateInterval);
             sessions[port] = null;
             delete this.sessions[sessionId];
-//            this.renderGameList();  
+            //            this.renderGameList();  
         });
         
         this.sessions[sessionId] = {
@@ -180,7 +192,7 @@ class HomegamesDashboard extends Game {
             players: []
         };
 
-//        this.renderGameList();
+        //        this.renderGameList();
     }
  
     onGameOptionClick(player, gameKey) {
@@ -281,11 +293,11 @@ class HomegamesDashboard extends Game {
 
         gameInfoModal.addChildren(createButton, titleNode, authorNode, descriptionNode, createText);
 
-        let sessionOptionXIndex = 57;
-        let sessionOptionYIndex = 50;
+        const sessionOptionXIndex = 57;
+        const sessionOptionYIndex = 50;
 
-        let sessionButtonY = 40;
-        let sessionButtonX = 55;
+        const sessionButtonY = 40;
+        const sessionButtonX = 55;
 
         const sessionButtonHeight = 10;
         const sessionButtonWidth = 20;
@@ -354,7 +366,7 @@ class HomegamesDashboard extends Game {
         const gameOptionMargin = {
             x: 10,
             y: 10
-        }
+        };
         const startX = 5;
         const startY = 5;
 
@@ -487,7 +499,7 @@ class HomegamesDashboard extends Game {
             gameOption.addChild(gameOptionTitle);
 
             playerRoot.addChild(gameOptionWrapper);
-//            this.base.addChild(authorInfoNode);
+            //            this.base.addChild(authorInfoNode);
         }
     }
 

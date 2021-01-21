@@ -276,7 +276,7 @@ class Clicktionary extends Game {
         const answerTime = 60;
 
         let currentTime = answerTime;
-        let textInfo = {
+        const textInfo = {
             text: '' + currentTime,
             x: 80,
             y: 5,
@@ -287,7 +287,7 @@ class Clicktionary extends Game {
 
         const countdownNode = new GameNode.Text({textInfo: Object.assign({}, textInfo)});
 
-        let countdown = this.setInterval(() => {
+        const countdown = this.setInterval(() => {
             if (currentTime <= 1) {
                 clearInterval(countdown);
                 this.wordNode.node.playerId = null;
@@ -304,7 +304,7 @@ class Clicktionary extends Game {
             countdownNode.node.text = newText;
         }, 1000);
 
-        clearButton.addChild(countdownNode)
+        clearButton.addChild(countdownNode);
     }
 
     getRoot() {

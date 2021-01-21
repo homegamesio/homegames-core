@@ -67,7 +67,7 @@ class InputTest extends Game {
             input: {
                 type: 'file',
                 oninput: (player, data) => {
-                    let imageKey = 'image' + imageNum;
+                    const imageKey = 'image' + imageNum;
                     this.assets[imageKey] = new Asset('data', {type: 'image'}, Buffer.from(data));
 
                     // HACK

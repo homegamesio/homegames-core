@@ -1,6 +1,9 @@
 const WebSocket = require('ws');
 const os = require('os');
-const config = require('../../config');
+const path = require('path');
+const baseDir = path.dirname(require.main.filename);
+
+const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();
@@ -23,8 +26,8 @@ const getClientInfo = () => {
 
     return {
         localIp,
-        https: config.HTTPS_ENABLED
-    }
+        https: getConfigValue('HTTPS_ENABLED', false)
+    };
 };
 
 const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
@@ -45,7 +48,7 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
         resolve(client);
     });
 
-    client.on('message', msgHandler);
+    client.on('message', msgHandler ? msgHandler : () => {});
     
     client.on('error', (e) => {
         console.error(e);

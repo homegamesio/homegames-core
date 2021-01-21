@@ -1,8 +1,21 @@
 const WebSocket = require('ws');
 const http = require('http');
+const https = require('https');
 const assert = require('assert');
 const Player = require('../Player');
-const config = require('../../config');
+
+const fs = require('fs');
+
+const path = require('path');
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
+
+const { getConfigValue } = require(`${baseDir}/src/util/config`);
+
+const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 
 const listenable = function(obj, onChange) {
     const handler = {
@@ -26,7 +39,7 @@ const listenable = function(obj, onChange) {
 
 
 
-const socketServer = (gameSession, port, cb = null) => {
+const socketServer = (gameSession, port, cb = null, certPath = null) => {
     const playerIds = {};
 
     for (let i = 1; i < 256; i++) {
@@ -44,7 +57,17 @@ const socketServer = (gameSession, port, cb = null) => {
         throw new Error('no player IDs left in pool');
     };
 
-    const server = http.createServer();
+    let server;
+
+    if (certPath) {
+        server = https.createServer({
+            key: fs.readFileSync(certPath.keyPath).toString(),
+            cert: fs.readFileSync(certPath.certPath).toString()
+        });
+    } else { 
+        console.log('uhhhhh its not secure');
+        server = http.createServer();
+    }
 
     const wss = new WebSocket.Server({
         server
@@ -66,15 +89,15 @@ const socketServer = (gameSession, port, cb = null) => {
                     'name': _player.name 
                 });
 
-                const req = http.request({hostname: 'localhost', port: config.HOMENAMES_PORT, path: '/' + ws.id, method: 'POST', headers: {'Content-Type': 'application/json', 'Content-Length': data.length}}, res => {
+                const req = http.request({hostname: 'localhost', port: HOMENAMES_PORT, path: '/' + ws.id, method: 'POST', headers: {'Content-Type': 'application/json', 'Content-Length': data.length}}, res => {
                 });
                 req.write(data);
                 req.end();
-            }
+            };
 
             const req = http.request({
                 hostname: 'localhost',
-                port: config.HOMENAMES_PORT,
+                port: HOMENAMES_PORT,
                 path: `/${ws.id}`,
                 method: 'GET'
             }, res => {
@@ -115,7 +138,7 @@ const socketServer = (gameSession, port, cb = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
-//            playerIds[ws.id] = false;
+            //            playerIds[ws.id] = false;
             gameSession.handlePlayerDisconnect(ws.id);
             
         }

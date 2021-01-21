@@ -48,12 +48,12 @@ class PlayerVisibilityTest extends Game {
                 const playerIdIndex = this.secretMessage.node.playerIds.indexOf(player.id);
                 const zeroIndex = this.secretMessage.node.playerIds.indexOf(0);
                 if (zeroIndex >= 0) {
-                    let newPlayerIds = this.secretMessage.node.playerIds;
+                    const newPlayerIds = this.secretMessage.node.playerIds;
                     newPlayerIds.splice(zeroIndex, 1);
                     this.secretMessage.node.playerIds = newPlayerIds;
                 }
                 if (playerIdIndex < 0) {
-                    let newPlayerIds = this.secretMessage.node.playerIds;
+                    const newPlayerIds = this.secretMessage.node.playerIds;
                     newPlayerIds.push(player.id);
                     this.secretMessage.node.playerIds = newPlayerIds;
                 }

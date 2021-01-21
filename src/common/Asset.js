@@ -2,10 +2,21 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 const crypto = require('crypto');
-const config = require('../../config');
+const path = require('path');
+const process = require('process');
 
-if (!fs.existsSync(config.ASSET_PATH)) {
-    fs.mkdirSync(config.ASSET_PATH);
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
+
+const { getConfigValue } = require(`${baseDir}/src/util/config`);
+
+const HG_ASSET_PATH = getConfigValue('HG_ASSET_PATH', `${process.cwd()}/.asset_cache`);
+
+if (!fs.existsSync(HG_ASSET_PATH)) {
+    fs.mkdirSync(HG_ASSET_PATH);
 }
 
 class Asset {
@@ -21,7 +32,7 @@ class Asset {
                 const shasum = crypto.createHash('sha1');
                 shasum.update(uri);
                 const fileHash = shasum.digest('hex');
-                const filePath = config.ASSET_PATH + '/' + fileHash;
+                const filePath = `${HG_ASSET_PATH}/${fileHash}`;
                 if (fs.existsSync(filePath)) {
                     resolve(fs.readFileSync(filePath));
                 } else {

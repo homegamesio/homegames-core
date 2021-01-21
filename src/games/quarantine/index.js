@@ -1,5 +1,4 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-063');
-const config = require('../../../config');
 const Asset = require('../../common/Asset');
 const fs = require('fs');
 
@@ -47,7 +46,7 @@ class Quarantine extends Game {
             input: {
                 type: 'file',
                 oninput: (player, data) => {
-                    this.initQuestions(null, data)
+                    this.initQuestions(null, data);
                 }
             }
         });
@@ -78,7 +77,7 @@ class Quarantine extends Game {
             } else {
                 this.updateQuestionCounter();
             }
-        }
+        };
 
         if (data) {
             this.questions = JSON.parse(Buffer.from(data));
@@ -147,7 +146,7 @@ class Quarantine extends Game {
                 size: 1,
                 align: 'center',
                 color: COLORS.BLACK
-           }
+            }
         });
 
         const createWaitingNode = (playerId) => {
@@ -165,7 +164,7 @@ class Quarantine extends Game {
                 });
                 this.base.addChild(waitingInfo);
             }
-        }
+        };
         
         const cardOnePlayerOne = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -181,14 +180,14 @@ class Quarantine extends Game {
                         color: COLORS.GREEN,
                         blur: 12
                     }
-                }
-                createWaitingNode(player.id)
+                };
+                createWaitingNode(player.id);
             },
             effect: {
                 shadow: {
                     color: COLORS.BLACK,
                     blur: 12
-               }
+                }
             }
         });
 
@@ -220,14 +219,14 @@ class Quarantine extends Game {
                         color: COLORS.GREEN,
                         blur: 12
                     }
-                }
-                createWaitingNode(player.id)
+                };
+                createWaitingNode(player.id);
             },
             effect: {
                 shadow: {
                     color: COLORS.BLACK,
                     blur: 12
-               }
+                }
             }
         });
 
@@ -259,14 +258,14 @@ class Quarantine extends Game {
                         color: COLORS.GREEN,
                         blur: 12
                     }
-                }
-                createWaitingNode(player.id)
+                };
+                createWaitingNode(player.id);
             },
             effect: {
                 shadow: {
                     color: COLORS.BLACK,
                     blur: 12
-               }
+                }
             }
         });
 
@@ -298,14 +297,14 @@ class Quarantine extends Game {
                         color: COLORS.GREEN,
                         blur: 12
                     }
-                }
-                createWaitingNode(player.id)
+                };
+                createWaitingNode(player.id);
             },
             effect: {
                 shadow: {
                     color: COLORS.BLACK,
                     blur: 12
-               }
+                }
             }
         });
 

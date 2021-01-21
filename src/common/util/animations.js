@@ -1,8 +1,8 @@
 const fadeIn = (_node, secondsToFinish) => {
     const node = _node.node;
-    let startingOpacity = node.color[3];
+    const startingOpacity = node.color[3];
     const ticks = 10;
-    let increment = (255 - startingOpacity) / ticks;
+    const increment = (255 - startingOpacity) / ticks;
 
     const thing = setInterval(() => {
         if (node.color[3] + increment <= 255 || node.color[3] < 255) {
