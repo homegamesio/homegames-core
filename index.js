@@ -112,4 +112,11 @@ const doWork = () => new Promise((resolve, reject) => {
     _doWork(resolve)
 });
 
-doWork();
+if (process.env.BYPASS_CERT_CHECK) {
+    server({
+        certPath: process.env.HG_CERT_PATH,
+        keyPath: process.env.HG_KEY_PATH
+    })
+} else {
+    doWork();
+}
