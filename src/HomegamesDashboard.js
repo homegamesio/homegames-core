@@ -225,6 +225,7 @@ class HomegamesDashboard extends Game {
         const title = gameMetadata.title || gameKey;
         const author = gameMetadata.author || 'Unknown Author';
         const description = gameMetadata.description || 'No description available';
+        const version = gameMetadata.version || 'Unkown version';
 
         const titleNode = new GameNode.Text({
             textInfo: {
@@ -273,6 +274,18 @@ class HomegamesDashboard extends Game {
             }, 
             playerIds: [player.id]
         });
+
+        const versionText = new GameNode.Text({
+            textInfo: {
+                text: version,
+                x: 50,
+                y: 40,
+                size: 1,
+                align: 'center',
+                color: orangeish
+            },
+            playerIds: [player.id]
+        });
  
         const createButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -291,7 +304,7 @@ class HomegamesDashboard extends Game {
             }
         });
 
-        gameInfoModal.addChildren(createButton, titleNode, authorNode, descriptionNode, createText);
+        gameInfoModal.addChildren(createButton, titleNode, authorNode, descriptionNode, createText, versionText);
 
         const sessionOptionXIndex = 57;
         const sessionOptionYIndex = 50;

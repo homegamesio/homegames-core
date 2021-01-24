@@ -25,6 +25,10 @@ const actions = [];
 const linkInit = () => new Promise((resolve, reject) => {
     linkHelper.linkConnect().then((wsClient) => {
         resolve();
+    }).catch(err => {
+        console.log("Failed to initialize link.");
+        console.log(err);
+        reject();
     });
 });
 
@@ -104,6 +108,12 @@ const doWork = () => new Promise((resolve, reject) => {
             actions[i](_result).then((result) => {
                 i++;
                 _result = result;
+                _doWork(cb);
+            }).catch(err => {
+                console.log("Failed to perform action");
+                console.log(err);
+                i++;
+                _result = null;
                 _doWork(cb);
             });
         }

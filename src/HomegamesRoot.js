@@ -91,7 +91,7 @@ class HomegamesRoot {
             
             const version = new GameNode.Text({
                 textInfo: {
-                    text: 'Version: TODO',
+                    text: `Version: ${process.env.npm_package_version}`,
                     x: 20,
                     y: 27,
                     size: 2,
