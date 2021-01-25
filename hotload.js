@@ -53,7 +53,7 @@ setInterval(() => {
 
         }
     }
-}, 1000);
+}, 500);
 
 process.on('exit', () => child && child.kill());
 process.on('SIGINT', () => child && child.kill());
