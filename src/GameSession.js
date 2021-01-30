@@ -31,6 +31,12 @@ class GameSession {
         }
     }
 
+    addSpectator(spectator) {
+        console.log('you want this person to spectate');
+        this.squisher.assetBundle && spectator.receiveUpdate(this.squisher.assetBundle);
+        spectator.receiveUpdate(this.squisher.playerFrames['public']);
+    }
+
     addPlayer(player) {
         if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
             player.receiveUpdate([5, 70, 0]);
@@ -52,7 +58,7 @@ class GameSession {
 
     handlePlayerDisconnect(playerId) {
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
-        //        this.game._hgRemovePlayer(playerId);
+        this.game._hgRemovePlayer(playerId);
         this.squisher.hgRoot.handlePlayerDisconnect(playerId);
     }
 

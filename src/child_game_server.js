@@ -71,9 +71,9 @@ process.on('message', (msg) => {
 });
 
 const checkPulse = () => {
-    if (!gameSession || Object.values(gameSession.game.players).length == 0 || !lastMessage || new Date() - lastMessage > 5000) {
+    if (!gameSession || Object.values(gameSession.game.players).length == 0 || !lastMessage || new Date() - lastMessage > 1000) {
         process.exit(0);
     }
 };
 
-setInterval(checkPulse, 5000);
+setInterval(checkPulse, 500);

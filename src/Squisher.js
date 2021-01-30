@@ -113,7 +113,7 @@ class Squisher {
     }
 
     update(node) {
-        const playerFrames = {};
+        const playerFrames = {'public': []};
         const playerIds = new Set(Object.keys(this.game.players));
         for (const playerId of playerIds) {
             playerFrames[playerId] = [];
@@ -163,6 +163,7 @@ class Squisher {
 
         // public node
         if (node.node.playerIds.length === 0 && whitelist.size == 0) {
+            playerFrames['public'].push(squished);
             for (const playerId in playerFrames) {
                 playerFrames[playerId].push(squished);
             }

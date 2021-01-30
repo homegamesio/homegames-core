@@ -76,6 +76,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
     wss.on('connection', (ws) => {
         function messageHandler(msg) {
             const jsonMessage = JSON.parse(msg);
+            console.log(jsonMessage);
 
             assert(jsonMessage.type === 'ready');
 
@@ -128,7 +129,11 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                         updatePlayerInfo(_player);
                     });
 
-                    gameSession.addPlayer(_player);
+                    if (jsonMessage.spectating) {
+                        gameSession.addSpectator(_player);
+                    } else {
+                        gameSession.addPlayer(_player);
+                    }
 
                 });
             });

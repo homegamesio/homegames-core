@@ -1,6 +1,6 @@
 const squishMap = require('./common/squish-map');
 
-let { GameNode, Colors, Shapes, ShapeUtils } = squishMap['063'];
+let { GameNode, Colors, Shapes, ShapeUtils } = squishMap['064'];
 
 const Asset = require('./common/Asset');
 const { animations } = require('./common/util');
@@ -146,8 +146,17 @@ class HomegamesRoot {
                         y: 100
                     }
                 }
+            },
+            effects: {
+                shadow: {
+                    color: COLORS.HG_BLACK,
+                    blur: 5
+                }
             }
+
         });
+
+        console.log(this.baseThing);
 
         this.root.addChild(this.baseThing);
         this.root.addChild(game.getRoot());
