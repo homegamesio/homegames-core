@@ -15,6 +15,8 @@ class HomegamesRoot {
             Shapes = squishVersion.Shapes;
             ShapeUtils = squishVersion.ShapeUtils;
         }
+
+        this.frameStates = {};
   
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -136,7 +138,22 @@ class HomegamesRoot {
             }
         });
 
-        this.baseThing = new GameNode.Asset({
+        this.baseThing = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+        });
+
+        this.root.addChild(this.baseThing);
+        this.root.addChild(game.getRoot());
+        this.root.addChild(this.homeButton);
+    }
+
+    getRoot() {
+        return this.root;
+    }
+
+    handleNewPlayer(player) {
+        const playerFrame = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             assetInfo: {
                 'frame': {
@@ -152,19 +169,41 @@ class HomegamesRoot {
                     color: COLORS.HG_BLACK,
                     blur: 5
                 }
-            }
-
+            },
+            playerIds: [player.id]
         });
 
-        console.log(this.baseThing);
-
-        this.root.addChild(this.baseThing);
-        this.root.addChild(game.getRoot());
-        this.root.addChild(this.homeButton);
+        this.frameStates[player.id] = playerFrame;
+        this.baseThing.addChild(playerFrame);
     }
 
-    getRoot() {
-        return this.root;
+    handleNewSpectator(spectator) {
+        console.log("SPECTATOR");
+        console.log(spectator);
+        const spectatorFrame = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            assetInfo: {
+                'frame': {
+                    pos: {x: 0, y: 0},
+                    size: {
+                        x: 100,
+                        y: 100
+                    }
+                }
+            },
+            effects: {
+                shadow: {
+                    color: COLORS.HG_BLACK,
+                    blur: 5
+                }
+            },
+            playerIds: [spectator.id]
+        });
+
+        this.frameStates[spectator.id] = spectatorFrame;
+        console.log('adding this');
+        console.log(spectatorFrame);
+        this.baseThing.addChild(spectatorFrame);
     }
 
     handlePlayerDisconnect(playerId) {
@@ -174,6 +213,18 @@ class HomegamesRoot {
             });
             this.homeButton.removeChild(this.playerDashboards[playerId].dashboard.id);
             delete this.playerDashboards[playerId];
+        }
+        if (this.frameStates[playerId]) {
+            console.log("need to delete frame state for " + playerId);
+            this.baseThing.removeChild(this.frameStates[playerId].node.id);
+            delete this.frameStates[playerId];
+        }
+    }
+
+    handleSpectatorDisconnect(spectatorId) {
+        if (this.frameStates[spectatorId]) {
+            this.baseThing.removeChild(this.frameStates[spectatorId].node.id);
+            delete this.frameStates[spectatorId];
         }
     }
 

@@ -193,6 +193,11 @@ class HomegamesDashboard extends Game {
             sessions[port] = null;
             delete this.sessions[sessionId];
         });
+
+        childSession.on('error', (err) => {
+            console.log('child session error');
+            console.log(err);
+        });
         
         this.sessions[sessionId] = {
             id: sessionId,
@@ -367,10 +372,6 @@ class HomegamesDashboard extends Game {
     }
     
     renderGameList(playerId) {
-        console.log("HUH");
-        console.log(playerId);
-        console.log(this.playerStates);
-        console.log(this.playerStates[playerId]);
         const playerRoot = this.playerStates[playerId].root;
         playerRoot.clearChildren();
 
