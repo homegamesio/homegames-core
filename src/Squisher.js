@@ -1,5 +1,5 @@
 const squishMap = require('./common/squish-map');
-let { squish, unsquish } = squishMap['063'];
+let { squish, unsquish } = squishMap['0633'];
 
 const HomegamesRoot = require('./HomegamesRoot');
 const HomegamesDashboard = require('./HomegamesDashboard');
@@ -30,7 +30,7 @@ class Squisher {
             unsquish = squishVersion.unsquish;
 
         } else {
-            const squishVersion = squishMap['063'];
+            const squishVersion = squishMap['0633'];
             squish = squishVersion.squish;
             unsquish = squishVersion.unsquish;
         }
@@ -174,7 +174,11 @@ class Squisher {
             }
         } else if (!nodeIsInvisible && !(whitelist.has(INVISIBLE_NODE_PLAYER_ID))) {
             for (const playerId of whitelist) {
-                playerFrames[playerId].push(squished);
+                if (!playerFrames[playerId]) {
+                    console.warn('got frame for unknown player ' + playerId);
+                } else {
+                    playerFrames[playerId].push(squished);
+                }
             }
         }
 

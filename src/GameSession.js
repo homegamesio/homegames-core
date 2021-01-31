@@ -14,13 +14,15 @@ const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
 class GameSession {
-    constructor(game) {
+    constructor(game, port) {
         this.game = game;
+        this.port = port;
         this.spectators = {};
         // this is a hack
         this.game.session = this;
         this.squisher = new Squisher(this.game);
         this.squisher.hgRoot.players = this.game.players;
+        this.squisher.hgRoot.spectators = this.spectators;
         this.squisher.addListener(this);
         this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
         this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
@@ -45,6 +47,7 @@ class GameSession {
     }
 
     addPlayer(player) {
+        console.log('got a player in session');
         if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
             player.receiveUpdate([5, 70, 0]);
         }
@@ -55,11 +58,12 @@ class GameSession {
 
             this.game._hgAddPlayer(player);
 
-            // ensure the squisher has game data for the new player
-            this.squisher.handleStateChange();
-            player.receiveUpdate(this.squisher.playerFrames[player.id]);
-            this.squisher.hgRoot.handleNewPlayer(player);
             this.game.handleNewPlayer && this.game.handleNewPlayer(player);
+            this.squisher.hgRoot.handleNewPlayer(player);
+            this.squisher.handleStateChange();
+            
+            // ensure the squisher has game data for the new player
+            player.receiveUpdate(this.squisher.playerFrames[player.id]);
             player.addInputListener(this);
         });
     }
