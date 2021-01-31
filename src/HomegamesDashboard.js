@@ -58,7 +58,12 @@ class HomegamesDashboard extends Game {
 
     constructor() {
         super();
-        this.assets = {};
+        this.assets = {
+            'dashboardSong': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/assets/testsong.mp3',
+                type: 'audio'
+            })
+        };
         this.playerStates = {};
 
         this.keyCoolDowns = new ExpiringSet();
@@ -98,6 +103,24 @@ class HomegamesDashboard extends Game {
             ],
             fill: COLORS.HG_BLACK 
         });
+
+        this.speaker = new GameNode.Asset({
+            assetInfo: {
+                'dashboardSong': {
+                    size: {
+                        x: 0,
+                        y: 0
+                    },
+                    pos: {
+                        x: 0,
+                        y: 0
+                    }
+                }
+            },
+            coordinates2d: []
+        });
+
+        this.base.addChild(this.speaker);
 
         this.screen = new GameNode.Shape({
             shapeType: Shapes.POLYGON, 
