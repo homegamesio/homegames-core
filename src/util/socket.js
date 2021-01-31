@@ -3,7 +3,6 @@ const http = require('http');
 const https = require('https');
 const assert = require('assert');
 const Player = require('../Player');
-
 const fs = require('fs');
 
 const path = require('path');
@@ -16,6 +15,8 @@ if (baseDir.endsWith('src')) {
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
+const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
+const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
 const listenable = function(obj, onChange) {
     const handler = {
@@ -81,6 +82,9 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
             ws.removeListener('message', messageHandler);
 
+            console.log("MESSAGE");
+            console.log(jsonMessage);
+
             ws.id = Number(jsonMessage.id || generatePlayerId());
 
             const updatePlayerInfo = (_player) => {
@@ -103,7 +107,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             }, res => {
                 res.on('data', d => {
                     const playerInfo = JSON.parse(d);
-                    const player = new Player(ws, ws.id);
+                    const player = new Player(ws, jsonMessage.spectating);
+                    ws.spectating = jsonMessage.spectating;
                     
                     if (jsonMessage.id && playerInfo.name) {
                         player.name = playerInfo.name;
@@ -121,14 +126,17 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     for (let i = 0; i < squishVersion.length; i++) {
                         squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
                     }
-
                     // init message
-                    ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, ...squishVersionArray]);
+                    ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
                     const _player = listenable(player, () => {
                         updatePlayerInfo(_player);
                     });
 
-                    gameSession.addPlayer(_player);
+                    if (jsonMessage.spectating) {
+                        gameSession.addSpectator(_player);
+                    } else {
+                        gameSession.addPlayer(_player);
+                    }
 
                 });
             });
@@ -138,8 +146,13 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
+            console.log('socket closed');
             //            playerIds[ws.id] = false;
-            gameSession.handlePlayerDisconnect(ws.id);
+            if (ws.spectating) {
+                gameSession.handleSpectatorDisconnect(ws.id);
+            } else {
+                gameSession.handlePlayerDisconnect(ws.id);
+            }
             
         }
 

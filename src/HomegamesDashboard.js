@@ -1,7 +1,7 @@
 const { fork } = require('child_process');
 const path = require('path');
 const squishMap = require('./common/squish-map');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['063'];
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['0633'];
 
 const COLORS = Colors.COLORS;
 
@@ -44,13 +44,13 @@ const DASHBOARD_COLOR = [69, 100, 150, 255];
 const orangeish = [246, 99, 4, 255];
 
 const DEFAULT_GAME_THUMBNAIL = getConfigValue('DEFAULT_GAME_THUMBNAIL', 'https://d3lgoy70hwd3pc.cloudfront.net/logo.png');
-const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 2000);
+const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 250);
 
 class HomegamesDashboard extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '063',
+            squishVersion: '0633',
             author: 'Joseph Garcia',
             tickRate: 10
         };
@@ -145,6 +145,10 @@ class HomegamesDashboard extends Game {
         player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
     }
 
+    spectateSession(player, session) {
+        player.receiveUpdate([6, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
+    }
+
     updateSessionInfo(sessionId) {
         this.sessions[sessionId].getPlayers((players) => { 
             this.sessions[sessionId].players = players;
@@ -188,7 +192,11 @@ class HomegamesDashboard extends Game {
             clearInterval(sessionInfoUpdateInterval);
             sessions[port] = null;
             delete this.sessions[sessionId];
-            //            this.renderGameList();  
+        });
+
+        childSession.on('error', (err) => {
+            console.log('child session error');
+            console.log(err);
         });
         
         this.sessions[sessionId] = {
@@ -222,16 +230,14 @@ class HomegamesDashboard extends Game {
         const modalColor = COLORS.HG_BLACK;//[12, 176, 80, 255];
         const fadeStart = [modalColor[0], modalColor[1], modalColor[2], 0];
 
+        const createTextInfo = (text, x, y, size, align, color) => { 
+            return {text, x, y, size, align, color };
+        };
+
         const activeSessions = Object.values(this.sessions).filter(s => s.game === gameKey);
         const gameInfoModal = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: [
-                [20, 16],
-                [80, 16],
-                [80, 84],
-                [20, 84],
-                [20, 16]
-            ],
+            coordinates2d: ShapeUtils.rectangle(10, 10, 80, 80),
             color: fadeStart,
             fill: fadeStart,
             playerIds: [player.id],
@@ -248,77 +254,36 @@ class HomegamesDashboard extends Game {
         const title = gameMetadata.title || gameKey;
         const author = gameMetadata.author || 'Unknown Author';
         const description = gameMetadata.description || 'No description available';
-        const version = gameMetadata.version || 'Unkown version';
+        const version = gameMetadata.version ? `Version ${gameMetadata.version}` : 'Unkown version';
 
         const titleNode = new GameNode.Text({
-            textInfo: {
-                text: title,
-                x: 50, 
-                y: 18.5,
-                size: 3,
-                align: 'center',
-                color: orangeish, 
-            }, 
+            textInfo: createTextInfo(title, 50, 12, 2.5, 'center', orangeish),
             playerIds: [player.id]
         });
 
         const authorNode = new GameNode.Text({
-            textInfo: {
-                text: `by ${author}`,
-                x: 50, 
-                y: 26,
-                size: 2,
-                align: 'center',
-                color: orangeish, 
-            }, 
+            textInfo: createTextInfo(`by ${author}`, 50, 20, 1.2, 'center', COLORS.WHITE),
             playerIds: [player.id]
         });
 
         const descriptionNode = new GameNode.Text({
-            textInfo: {
-                text: description,
-                x: 50, 
-                y: 32,
-                size: 1,
-                align: 'center',
-                color: COLORS.WHITE, 
-            }, 
-            playerIds: [player.id]
-        });
-
-        const createText = new GameNode.Text({
-            textInfo: {
-                text: 'Create a new session',
-                x: 35,
-                y: 54,
-                size: 1,
-                align: 'center',
-                color: COLORS.BLACK
-            }, 
+            textInfo: createTextInfo(description, 50, 32, .8, 'center', COLORS.WHITE),
             playerIds: [player.id]
         });
 
         const versionText = new GameNode.Text({
-            textInfo: {
-                text: version,
-                x: 50,
-                y: 40,
-                size: 1,
-                align: 'center',
-                color: orangeish
-            },
+            textInfo: createTextInfo(version, 50, 26, 1, 'center', COLORS.HG_YELLOW),
             playerIds: [player.id]
         });
  
+        const createText = new GameNode.Text({
+            textInfo: createTextInfo('Create a new session', 30, 61, 1.3, 'center', COLORS.BLACK),
+            playerIds: [player.id]
+        });
+
         const createButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: [
-                [25, 50],
-                [45, 50],
-                [45, 60],
-                [25, 60],
-                [25, 50]
-            ],
+            coordinates2d: ShapeUtils.rectangle(17.5, 45, 25, 35),
             fill: COLORS.HG_BLUE,
             playerIds: [player.id],
             onClick: (player) => {
@@ -329,25 +294,25 @@ class HomegamesDashboard extends Game {
 
         gameInfoModal.addChildren(createButton, titleNode, authorNode, descriptionNode, createText, versionText);
 
-        const sessionOptionXIndex = 57;
-        const sessionOptionYIndex = 50;
+        let sessionOptionY = 48;
+        const sessionOptionX = 58;
 
-        const sessionButtonY = 40;
-        const sessionButtonX = 55;
+        const sessionButtonHeight = 4;
+        const sessionButtonWidth = 10;
+        
+        if (activeSessions.length > 0) {
+            const joinText = new GameNode.Text({
+                textInfo: createTextInfo('Current sessions', 70, 40, 1.3, 'center', COLORS.WHITE),
+                playerIds: [player.id]
+            });
 
-        const sessionButtonHeight = 10;
-        const sessionButtonWidth = 20;
+            gameInfoModal.addChild(joinText);
+        }
 
         activeSessions.forEach(s => {
-            const sessionButton = new GameNode.Shape({
+            const joinSessionButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
-                coordinates2d: [
-                    [55, 50],
-                    [75, 50],
-                    [75, 60],
-                    [55, 60],
-                    [55, 50]
-                ],
+                coordinates2d: ShapeUtils.rectangle(sessionOptionX + 5, sessionOptionY - 1, sessionButtonWidth, sessionButtonHeight),
                 fill: COLORS.WHITE,
                 playerIds: [player.id],
                 onClick: (player) => {
@@ -355,26 +320,42 @@ class HomegamesDashboard extends Game {
                 }
             });
 
-            const sessionText = new GameNode.Text({
-                textInfo: {
-                    text: `Session ${s.id}`, 
-                    align: 'center',
-                    color: COLORS.BLACK,
-                    x: 65,
-                    y:  55,
-                    size: 2
-                },
-                playerId: [player.id]
+            const joinLabel = new GameNode.Text({
+                textInfo: createTextInfo('Join', sessionOptionX + 5 + (sessionButtonWidth / 2), sessionOptionY - 1.6 + (sessionButtonHeight / 2), .9, 'center', COLORS.BLACK),
+                playerIds: [player.id]
             });
 
-            sessionButton.addChild(sessionText);
+            const spectateSessionButton = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(sessionOptionX + sessionButtonWidth + 2 + 5, sessionOptionY - 1, sessionButtonWidth, sessionButtonHeight),
+                fill: COLORS.WHITE,
+                playerIds: [player.id],
+                onClick: (player) => {
+                    this.spectateSession(player, s);
+                }
+            });
 
-            gameInfoModal.addChild(sessionButton);
+            const spectateLabel = new GameNode.Text({
+                textInfo: createTextInfo('Spectate', sessionOptionX + 5 + sessionButtonWidth + 2 + (sessionButtonWidth / 2), sessionOptionY - 1.6 + (sessionButtonHeight / 2), .9, 'center', COLORS.BLACK),
+                playerIds: [player.id]
+            });
+
+            const sessionText = new GameNode.Text({
+                textInfo: createTextInfo(`Session ${s.id}`, sessionOptionX, sessionOptionY, 1, 'center', orangeish),
+                playerIds: [player.id]
+            });
+
+            joinSessionButton.addChild(joinLabel);
+            spectateSessionButton.addChild(spectateLabel);
+
+            gameInfoModal.addChildren(sessionText, joinSessionButton, spectateSessionButton);
+
+            sessionOptionY += sessionButtonHeight + 3;
         });
 
         const closeModalButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(20, 16, 5, 5),
+            coordinates2d: ShapeUtils.rectangle(11, 11, 6, 6),
             fill: COLORS.HG_RED,
             playerIds: [player.id],
             onClick: (player) => {

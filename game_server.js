@@ -15,7 +15,7 @@ const server = (certPath) => {
 
     const dashboard = new HomegamesDashboard();
     
-    const session = new GameSession(dashboard);
+    const session = new GameSession(dashboard, GAME_SERVER_HOME_PORT);
     
     const homeNames = new Homenames(HOMENAMES_PORT);
     

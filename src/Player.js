@@ -1,11 +1,13 @@
 const WebSocket = require('ws');
 
 class Player {
-    constructor(ws) {
+    constructor(ws, spectating) {
+        console.log("MY ID IS " + ws.id);
         this.inputListeners = new Set();
         this.stateListeners = new Set();
         this.ws = ws;
         this.id = ws.id;
+        this.spectating = spectating;
         this.ws.on('message', this.handlePlayerInput.bind(this));
     }
 

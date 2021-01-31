@@ -29,7 +29,7 @@ const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAcc
 const startServer = (sessionInfo) => {
     const gameInstance = new games[sessionInfo.key]();
     
-    gameSession = new GameSession(gameInstance);
+    gameSession = new GameSession(gameInstance, sessionInfo.port);
 
     if (HTTPS_ENABLED) {
         guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
@@ -71,9 +71,9 @@ process.on('message', (msg) => {
 });
 
 const checkPulse = () => {
-    if (!gameSession || Object.values(gameSession.game.players).length == 0 || !lastMessage || new Date() - lastMessage > 5000) {
+    if (!gameSession || (Object.values(gameSession.game.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 1000) {
         process.exit(0);
     }
 };
 
-setInterval(checkPulse, 5000);
+setInterval(checkPulse, 500);
