@@ -50,8 +50,8 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
 
     client.on('message', msgHandler ? msgHandler : () => {});
     
-    client.on('error', (e) => {
-        console.error(e);
+    client.on('error', (err) => {
+        reject(err);
     });
 
     client.on('close', () => {
