@@ -12,6 +12,7 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 
 class GameSession {
     constructor(game, port) {
@@ -26,9 +27,33 @@ class GameSession {
         this.squisher.addListener(this);
         this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
         this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
+        this.performanceData = {
+            'squisherUpdates': []
+        };
+    }
+
+    getPerformanceData(seconds) {
+        console.log(`You want ${seconds} seconds of performance data`);
+        const squisherUpdates = this.performanceData['squisherUpdates'];
+        let index = squisherUpdates.length - 1;
+        const now = Date.now();
+        const minDiff = seconds * 1000;
+        console.log('what up ' + minDiff);
+        for (index; index >= 0; index--) {
+            if (now - squisherUpdates[index] >= minDiff) {
+                console.log('foudn a second');
+                return 'cool';
+            }
+        }
+
+        return `dont have a second of updates. ran through ${squisherUpdates.length}`;
     }
 
     handleSquisherUpdate(squished) {
+        if (PERFORMANCE_PROFILING) {
+            this.performanceData['squisherUpdates'].push(Date.now());
+        }
+
         for (const playerId in this.game.players) {
             this.game.players[playerId].receiveUpdate(squished[playerId]);
         }
@@ -47,10 +72,16 @@ class GameSession {
     }
 
     addPlayer(player) {
-        console.log('got a player in session');
         if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
             player.receiveUpdate([5, 70, 0]);
         }
+
+        if (PERFORMANCE_PROFILING) {
+            player.receiveUpdate([7]);
+            setInterval(() => {
+                console.log(this.getPerformanceData(1));
+            }, 1000);
+        }   
 
         generateName().then(playerName => {
             player.name = player.name || playerName;

@@ -52,7 +52,7 @@ class HomegamesDashboard extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0633',
             author: 'Joseph Garcia',
-            tickRate: 10
+            tickRate: 100
         };
     }
 
@@ -578,6 +578,29 @@ class HomegamesDashboard extends Game {
         };
 
         this.renderGameList(player.id);
+    }
+
+    tick() {
+        if (this.lastMessageNode) {
+            const now = Date.now();
+            this.lastMessageNode.node.text.text = `Last message: ${now - this.lastMessage}ms ago`;
+
+            this.lastMessage = now;
+            this.lastMessageNode.node.id = this.lastMessageNode.node.id;
+        } else {
+            this.lastMessage = Date.now();
+            this.lastMessageNode = new GameNode.Text({
+                textInfo: {
+                    text: `Last message: ${Date.now()}`,
+                    size: 1,
+                    x: 12, 
+                    y: 1.5,
+                    color: COLORS.WHITE,
+                    align: 'center'
+                }
+            });
+            this.base.addChild(this.lastMessageNode);
+        }
     }
 
     handlePlayerDisconnect(playerId) {

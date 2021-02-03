@@ -42,7 +42,7 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
         }));
 
         setInterval(() => {
-            client.send(JSON.stringify({type: 'heartbeat'}));
+            client.readyState === WebSocket.OPEN && client.send(JSON.stringify({type: 'heartbeat'}));
         }, 2 * 1000 * 60);
 
         resolve(client);
