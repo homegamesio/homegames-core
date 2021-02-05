@@ -7,10 +7,9 @@ const { animations } = require('./common/util');
 const COLORS = Colors.COLORS;
 
 class HomegamesRoot {
-    constructor(game, isDashboard, profiling, squisher) {
+    constructor(game, isDashboard) {
         this.isDashboard = isDashboard;
         this.game = game;
-
         if (game.constructor.metadata() && game.constructor.metadata().squishVersion) {
             const squishVersion = squishMap[game.constructor.metadata().squishVersion];
             GameNode = squishVersion.GameNode;
@@ -150,40 +149,6 @@ class HomegamesRoot {
         this.root.addChild(this.baseThing);
         this.root.addChild(game.getRoot());
         this.root.addChild(this.homeButton);
-        if (profiling) {
-            const profilingNode = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 10),
-                fill: COLORS.RED,
-                onClick: (player, x, y) => {
-                    console.log('player clicked me');
-                }
-            });
-
-            const text = new GameNode.Text({
-                textInfo: {
-                    text: 'Last state update: ' + squisher.lastStateChange,
-                    x: 15, 
-                    y: 5,
-                    color: COLORS.WHITE,
-                    align: 'center'
-                }
-            });
-
-            // hack
-            profilingNode.profilingNode = true;
-
-            setInterval(() => {
-                const copy = text.node.text;
-                copy.text = 'Last state update: ' + squisher.lastStateChange;
-                text.node.text = copy;
-            }, 10);
-
-            profilingNode.addChild(text);
-
-            this.root.addChild(profilingNode);
-        }
-
     }
 
     getRoot() {

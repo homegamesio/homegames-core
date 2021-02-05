@@ -5,7 +5,6 @@ class LayerTest extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0633',
-            tickRate: 100,
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/layer-test.png'
         };
@@ -45,29 +44,6 @@ class LayerTest extends Game {
             });
             prev.addChild(child);
             prev = child;
-        }
-    }
-
-    tick() {
-        if (this.lastMessageNode) {
-            const now = Date.now();
-            this.lastMessageNode.node.text.text = `Last message: ${now - this.lastMessage}ms ago`;
-
-            this.lastMessage = now;
-            this.lastMessageNode.node.id = this.lastMessageNode.node.id;
-        } else {
-            this.lastMessage = Date.now();
-            this.lastMessageNode = new GameNode.Text({
-                textInfo: {
-                    text: `Last message: ${Date.now()}`,
-                    size: 1,
-                    x: 12, 
-                    y: 1.5,
-                    color: [255, 255, 255, 255],
-                    align: 'center'
-                }
-            });
-            this.base.addChild(this.lastMessageNode);
         }
     }
 

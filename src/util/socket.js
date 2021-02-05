@@ -16,8 +16,7 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
-let BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
-const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
+const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
 const listenable = function(obj, onChange) {
     const handler = {
@@ -126,10 +125,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     squishVersionArray[0] = squishVersion.length;
                     for (let i = 0; i < squishVersion.length; i++) {
                         squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
-                    }
-
-                    if (PERFORMANCE_PROFILING) {
-                        BEZEL_SIZE_Y = BEZEL_SIZE_Y - 20;
                     }
                     // init message
                     ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);

@@ -22,11 +22,9 @@ const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
 class Squisher {
-    constructor(game, profiling) {
-        this.profiling = profiling;
+    constructor(game) {
         this.gameMetadata = game && game.constructor.metadata ? game.constructor.metadata() : null;
         if (this.gameMetadata && this.gameMetadata.squishVersion) {
-
             const squishVersion = squishMap[this.gameMetadata.squishVersion];
             squish = squishVersion.squish;
             unsquish = squishVersion.unsquish;
@@ -39,10 +37,10 @@ class Squisher {
         this.assets = {};
 
         this.ids = new Set();
-        this.listeners = new Set();
         const isDashboard = game instanceof HomegamesDashboard;
-        this.hgRoot = new HomegamesRoot(game, isDashboard, profiling, this);
+        this.hgRoot = new HomegamesRoot(game, isDashboard);
         this.game = game;
+        this.listeners = new Set();
         this.hgRoot.getRoot().addListener(this);
         this.game && this.game.getRoot().addListener(this);
         this.game && this.update(this.hgRoot.getRoot());
@@ -148,49 +146,11 @@ class Squisher {
     }
 
     updateHelper(node, playerFrames, whitelist, scale) {
-        if (false && this.profiling) {
+        if (this.game.getRoot() === node) {
             scale = {
-                x: (100 - 5) / 100,
-                y: (100 - 10) / 100
-            }
-
-        }
-
-        if (this.hgRoot.getRoot() === node) {
-            if (this.profiling) {
-                scale = {
-                    x: 1,//(100 - BEZEL_SIZE_X) / 100,
-                    y: .8//(100 - BEZEL_SIZE_Y - 20) / 100
-                }
-            } else {
-                scale = {
-                    x: .85,//(100 - BEZEL_SIZE_X) / 100,
-                    y: .85//(100 - BEZEL_SIZE_Y) / 100
-                };
-            }
-            
-        } else if (this.game.getRoot() === node) {
-            if (this.profiling) {
-                scale = {
-                    x: (100 - BEZEL_SIZE_X) / 100,
-                    y: (100 - BEZEL_SIZE_Y - 20) / 100
-                }
-            } else {
-                scale = {
-                    x: .85,//(100 - BEZEL_SIZE_X) / 100,
-                    y: .85//(100 - BEZEL_SIZE_Y) / 100
-                };
-            }
-        } else if (node.profilingNode) {
-            scale = {
-                x: 1,
-                y: 1
-            }
-        } else if (!scale && this.profiling) {
-//            scale = {
-//                x: .8,//(100 - BEZEL_SIZE_X - 5) / 100,
-//                y: .8//(100 - BEZEL_SIZE_Y - 10) / 100
-//            }
+                x: (100 - BEZEL_SIZE_X) / 100,
+                y: (100 - BEZEL_SIZE_Y) / 100
+            };
         }
 
         if (!this.ids.has(node.node.id)) {
@@ -233,10 +193,6 @@ class Squisher {
     }
 
     handleStateChange(node) {
-        if (this.profiling) {
-            this.lastStateChange = Date.now();
-        }
-
         const playerFrames = this.update(this.hgRoot.getRoot());
 
         for (const listener of this.listeners) {
