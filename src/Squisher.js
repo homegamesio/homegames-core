@@ -20,6 +20,7 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 const DEFAULT_TICK_RATE = getConfigValue('DEFAULT_TICK_RATE', 60);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 
 class Squisher {
     constructor(game) {
@@ -38,7 +39,7 @@ class Squisher {
 
         this.ids = new Set();
         const isDashboard = game instanceof HomegamesDashboard;
-        this.hgRoot = new HomegamesRoot(game, isDashboard);
+        this.hgRoot = new HomegamesRoot(game, isDashboard, PERFORMANCE_PROFILING);
         this.game = game;
         this.listeners = new Set();
         this.hgRoot.getRoot().addListener(this);
@@ -146,15 +147,21 @@ class Squisher {
     }
 
     updateHelper(node, playerFrames, whitelist, scale) {
+        const yScale = PERFORMANCE_PROFILING ? .8 : 1;
         if (this.game.getRoot() === node) {
             scale = {
                 x: (100 - BEZEL_SIZE_X) / 100,
-                y: .8 * ((100 - BEZEL_SIZE_Y) / 100)
+                y: yScale * ((100 - BEZEL_SIZE_Y) / 100)
             };
-        } else if (this.hgRoot.getRoot() == node) {
+        } else if (this.hgRoot.getRoot() == node || this.hgRoot.baseThing == node) {
             scale = {
                 x: 1,//(100 - BEZEL_SIZE_X) / 100,
-                y: .8 * 1//(100 - BEZEL_SIZE_Y - 20) / 100
+                y: yScale * 1//(100 - BEZEL_SIZE_Y - 20) / 100
+            }
+        } else if (this.hgRoot.perfThing == node) {
+            scale = {
+                x: 1,
+                y: 1
             }
         }
 

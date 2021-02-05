@@ -5,10 +5,14 @@ let { GameNode, Colors, Shapes, ShapeUtils } = squishMap['0633'];
 const Asset = require('./common/Asset');
 const { animations } = require('./common/util');
 const COLORS = Colors.COLORS;
+const path = require('path');
+let baseDir = path.dirname(require.main.filename);
+
 
 class HomegamesRoot {
-    constructor(game, isDashboard) {
+    constructor(game, isDashboard, profiling) {
         this.isDashboard = isDashboard;
+        this.profiling = profiling;
         this.game = game;
         if (game.constructor.metadata() && game.constructor.metadata().squishVersion) {
             const squishVersion = squishMap[game.constructor.metadata().squishVersion];
@@ -146,6 +150,18 @@ class HomegamesRoot {
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
+        if (this.profiling) {
+            this.perfThing = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                fill: COLORS.RED,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 10),
+                onClick: (player, x, y) => {
+                    console.log('I have been clicked');
+                }
+            });
+
+            this.root.addChild(this.perfThing);
+        }
         this.root.addChild(this.baseThing);
         this.root.addChild(game.getRoot());
         this.root.addChild(this.homeButton);

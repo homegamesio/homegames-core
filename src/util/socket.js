@@ -16,6 +16,10 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
+const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
+
+
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
 const listenable = function(obj, onChange) {
