@@ -10,8 +10,8 @@ if (baseDir.endsWith('src')) {
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
-const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
-const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+const _BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
+const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 
 class GameSession {
@@ -21,7 +21,7 @@ class GameSession {
         this.spectators = {};
         // this is a hack
         this.game.session = this;
-        this.squisher = new Squisher(this.game);
+        this.squisher = new Squisher(this.game, PERFORMANCE_PROFILING);
         this.squisher.hgRoot.players = this.game.players;
         this.squisher.hgRoot.spectators = this.spectators;
         this.squisher.addListener(this);
@@ -33,15 +33,12 @@ class GameSession {
     }
 
     getPerformanceData(seconds) {
-        console.log(`You want ${seconds} seconds of performance data`);
         const squisherUpdates = this.performanceData['squisherUpdates'];
         let index = squisherUpdates.length - 1;
         const now = Date.now();
         const minDiff = seconds * 1000;
-        console.log('what up ' + minDiff);
         for (index; index >= 0; index--) {
             if (now - squisherUpdates[index] >= minDiff) {
-                console.log('foudn a second');
                 return 'cool';
             }
         }
@@ -79,7 +76,6 @@ class GameSession {
         if (PERFORMANCE_PROFILING) {
             player.receiveUpdate([7]);
             setInterval(() => {
-                console.log(this.getPerformanceData(1));
             }, 1000);
         }   
 
@@ -145,12 +141,16 @@ class GameSession {
 
 
     handleClick(player, click) {
+        console.log(`${click.x}, ${click.y}`);
         if (click.x >= 100 || click.y >= 100) {
             return;
         }
 
         const clickedNode = this.findClick(click.x, click.y, player.spectating, player.id);
 
+        let BEZEL_SIZE_X = _BEZEL_SIZE_X;
+        let BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y;
+        console.log(`bezzy y ${BEZEL_SIZE_Y}`);
         if (clickedNode) {
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
                     
@@ -204,6 +204,9 @@ class GameSession {
  
                 for (const i in node.coordinates2d) {
                     if (inGame) {
+                        let BEZEL_SIZE_X = _BEZEL_SIZE_X;
+                        let BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y;
+
                         const bezelX = BEZEL_SIZE_X;
                         const bezelY = BEZEL_SIZE_Y;
 
