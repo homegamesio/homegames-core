@@ -13,7 +13,7 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
-const BEZEL_SIZE_Y = _BEZEL_SIZE_Y;//PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y; 
+const BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y; 
 
 class GameSession {
     constructor(game, port) {
@@ -166,7 +166,7 @@ class GameSession {
             inGame = true;
         }
 
-        if (node === this.hgRoot.perfThing.node) {
+        if (this.hgRoot.perfThing && node === this.hgRoot.perfThing.node) {
             inPerfThing = true;
         } 
 

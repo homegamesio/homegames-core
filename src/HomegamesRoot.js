@@ -8,6 +8,8 @@ const COLORS = Colors.COLORS;
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
 
+const process = require('process');
+const procStats = require('process-stats')();
 
 class HomegamesRoot {
     constructor(game, isDashboard, profiling) {
@@ -26,13 +28,7 @@ class HomegamesRoot {
   
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: [
-                [0, 0],
-                [0, 0],
-                [0, 0],
-                [0, 0],
-                [0, 0]
-            ]
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
         this.playerDashboards = {};
@@ -159,6 +155,174 @@ class HomegamesRoot {
                     console.log('I have been clicked');
                 }
             });
+
+            const cpuLabel = new GameNode.Text({
+                textInfo: {
+                    text: 'CPU',
+                    x: 3,
+                    y: 4.2,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: 1
+                }
+            });
+
+            const cpuPercentageLabel1 = new GameNode.Text({
+                textInfo: {
+                    text: '0%',
+                    x: 7,
+                    y: 8,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: .5
+                }
+            });
+
+            const cpuPercentageLabel2 = new GameNode.Text({
+                textInfo: {
+                    text: '50%',
+                    x: 7,
+                    y: 4.5,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: .5
+                }
+            });
+
+            const cpuPercentageLabel3 = new GameNode.Text({
+                textInfo: {
+                    text: '100%',
+                    x: 7,
+                    y: 1,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: .5
+                }
+            });
+
+            const cpuPerfGraph = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(8, 1, 16, 8),
+                fill: COLORS.WHITE
+            });
+
+            const memLabel = new GameNode.Text({
+                textInfo: {
+                    text: 'Mem.',
+                    x: 30,
+                    y: 4.2,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: 1
+                }
+            });
+
+            const memPercentageLabel1 = new GameNode.Text({
+                textInfo: {
+                    text: '0%',
+                    x: 33,
+                    y: 8,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: .5
+                }
+            });
+
+            const memPercentageLabel2 = new GameNode.Text({
+                textInfo: {
+                    text: '50%',
+                    x: 33,
+                    y: 4.5,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: .5
+                }
+            });
+
+            const memPercentageLabel3 = new GameNode.Text({
+                textInfo: {
+                    text: '100%',
+                    x: 33,
+                    y: 1,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: .5
+                }
+            });
+
+            const memGraph = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(34, 1, 16, 8),
+                fill: COLORS.WHITE
+            });
+
+
+            let startX = 8;
+            let startY = 1;
+            let endX = 24.5;
+            let endY = 8.5;
+            let memStartX = 34;
+ 
+            let cpuData = [];
+
+            cpuData.push(procStats());
+
+            setInterval(() => {
+
+                const getVisibleData = () => {
+                    const dotWidth = .5;
+                    const padding = .5;
+                    const graphWidth = endX - startX;
+                    const graphHeight = endY - startY;
+                    const count = Math.floor(graphWidth / (padding + dotWidth));
+
+                    let _data = [];
+                    for (let i = cpuData.length - 1; i >= 0; i--) {
+                        _data.push(cpuData[i]);
+                        if (_data.length >= count) {
+                            break;
+                        }
+                    }
+                    return _data;
+                };
+
+                const dataToShow = getVisibleData().reverse();
+
+                cpuPerfGraph.clearChildren();
+                memGraph.clearChildren();
+
+                let dotX = startX;
+                let memDotX = memStartX;
+                for (const i in dataToShow) {
+                    const cpuPercentage = dataToShow[i].cpu.value;
+                    const memPercentage = dataToShow[i].memUsed.percent;
+
+                    const memYVal = endY - (memPercentage / 100 * (endY - startY));
+                    const memDot = new GameNode.Shape({
+                        shapeType: Shapes.POLYGON,
+                        coordinates2d: ShapeUtils.rectangle(memDotX, memYVal, .5, .5),
+                        fill: COLORS.BLACK
+                    });
+
+                    const graphVal = endY - (cpuPercentage/100 * (endY - startY));
+                    const dot = new GameNode.Shape({
+                        shapeType: Shapes.POLYGON,
+                        coordinates2d: ShapeUtils.rectangle(dotX, graphVal, .5, .5),
+                        fill: COLORS.BLUE
+                    });
+                    dotX += 1;
+                    memDotX += 1;
+
+                    cpuPerfGraph.addChild(dot);
+                    memGraph.addChild(memDot);
+                }
+                cpuData.push(procStats());
+//                const result = 100 * (newUsage.user + newUsage.system) / ((Date.now() - startTime) * 1000)
+//                console.log(result);
+            }, 500);
+
+            this.perfThing.addChildren(memLabel, memPercentageLabel1, memPercentageLabel2, memPercentageLabel3, memGraph);
+            this.perfThing.addChildren(cpuLabel, cpuPercentageLabel1, cpuPercentageLabel2, cpuPercentageLabel3, cpuPerfGraph);
 
             this.root.addChild(this.perfThing);
         }
