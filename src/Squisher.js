@@ -149,8 +149,13 @@ class Squisher {
         if (this.game.getRoot() === node) {
             scale = {
                 x: (100 - BEZEL_SIZE_X) / 100,
-                y: (100 - BEZEL_SIZE_Y) / 100
+                y: .8 * ((100 - BEZEL_SIZE_Y) / 100)
             };
+        } else if (this.hgRoot.getRoot() == node) {
+            scale = {
+                x: 1,//(100 - BEZEL_SIZE_X) / 100,
+                y: .8 * 1//(100 - BEZEL_SIZE_Y - 20) / 100
+            }
         }
 
         if (!this.ids.has(node.node.id)) {

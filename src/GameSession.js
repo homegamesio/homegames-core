@@ -11,7 +11,7 @@ if (baseDir.endsWith('src')) {
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
-const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15) + 20;
 
 class GameSession {
     constructor(game, port) {
@@ -120,6 +120,8 @@ class GameSession {
 
         const clickedNode = this.findClick(click.x, click.y, player.spectating, player.id);
 
+        console.log('clicked');
+        console.log(clickedNode);
         if (clickedNode) {
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
                     
@@ -186,9 +188,11 @@ class GameSession {
                             ]
                         );
                     } else {
+                        const profilingHeaderSize = 20;//BEZEL_SIZE_Y;
+                        const scaledY = node.coordinates2d[i][1] * ((100 - profilingHeaderSize) / 100) + (profilingHeaderSize / 2);
                         vertices.push(
                             [node.coordinates2d[i][0],
-                                node.coordinates2d[i][1]]
+                                scaledY]
                         );
                     }
                 }
