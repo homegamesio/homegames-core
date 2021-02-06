@@ -222,10 +222,24 @@ class Squisher {
     }
 
     handleStateChange(node) {
+        if (PERFORMANCE_PROFILING) {
+            this.hgRoot.handleSquisherMessage({
+                type: 'renderStart',
+                time: Date.now()
+            });
+        }
+
         const playerFrames = this.update(this.hgRoot.getRoot());
 
         for (const listener of this.listeners) {
             listener.handleSquisherUpdate(playerFrames);
+        }
+
+        if (PERFORMANCE_PROFILING) {
+            this.hgRoot.handleSquisherMessage({
+                type: 'renderEnd',
+                time: Date.now()
+            });
         }
     }
 }

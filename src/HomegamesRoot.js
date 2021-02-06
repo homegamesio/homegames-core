@@ -15,6 +15,7 @@ class HomegamesRoot {
     constructor(game, isDashboard, profiling) {
         this.isDashboard = isDashboard;
         this.profiling = profiling;
+        this.renderTimes = [];
         this.game = game;
         if (game.constructor.metadata() && game.constructor.metadata().squishVersion) {
             const squishVersion = squishMap[game.constructor.metadata().squishVersion];
@@ -160,7 +161,7 @@ class HomegamesRoot {
                 textInfo: {
                     text: 'CPU',
                     x: 3,
-                    y: 4.2,
+                    y: 2,
                     color: COLORS.WHITE,
                     align: 'center',
                     size: 1
@@ -210,7 +211,7 @@ class HomegamesRoot {
                 textInfo: {
                     text: 'Mem.',
                     x: 30,
-                    y: 4.2,
+                    y: 2,
                     color: COLORS.WHITE,
                     align: 'center',
                     size: 1
@@ -256,6 +257,45 @@ class HomegamesRoot {
                 fill: COLORS.WHITE
             });
 
+            const ttsLabel1 = new GameNode.Text({
+                textInfo: {
+                    text: '0ms',
+                    x: 59,
+                    y: 8,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: .5
+                }
+            });
+
+            const ttsLabel2 = new GameNode.Text({
+                textInfo: {
+                    text: '50ms',
+                    x: 59,
+                    y: 4.5,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: .5
+                }
+            });
+
+            const ttsLabel3 = new GameNode.Text({
+                textInfo: {
+                    text: '100ms',
+                    x: 59,
+                    y: 1,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: .5
+                }
+            });
+
+            const squishGraph = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(60, 1, 16, 8),
+                fill: COLORS.WHITE
+            });
+
 
             let startX = 8;
             let startY = 1;
@@ -283,16 +323,77 @@ class HomegamesRoot {
                             break;
                         }
                     }
-                    return _data;
+
+                    let _renderData = [];
+                    for (let i = this.renderTimes.length - 1; i >= 0; i--) {
+                        _renderData.push(this.renderTimes[i]);
+                        if (_renderData.length >= count) {
+                            break;
+                        }
+                    }
+
+                    return {renderData: _renderData, resourceData: _data};
                 };
 
-                const dataToShow = getVisibleData().reverse();
+                const visibleData = getVisibleData();
+                const dataToShow = visibleData.resourceData.reverse();
+                const squishDataToShow = visibleData.renderData.reverse();
 
                 cpuPerfGraph.clearChildren();
                 memGraph.clearChildren();
+                squishGraph.clearChildren();
 
                 let dotX = startX;
                 let memDotX = memStartX;
+
+                let squishDotX = 60;
+
+                let renderSum = 0;
+                for (const s in squishDataToShow) {
+                    const squishData = squishDataToShow[s];
+                    const renderTime = squishData.end - squishData.start;
+                    const renderVal = endY - (renderTime / 100 * (endY - startY));
+                    const renderDot = new GameNode.Shape({
+                        shapeType: Shapes.POLYGON,
+                        coordinates2d: ShapeUtils.rectangle(squishDotX, renderVal, .5, .5),
+                        fill: COLORS.PURPLE
+                    });
+
+                    renderSum += renderTime;
+                    squishDotX += 1;
+                    squishGraph.addChild(renderDot);
+                }
+
+                if (squishDataToShow.length > 0) {
+                    const avgRenderTime = renderSum / squishDataToShow.length;
+                    const timeline = squishDataToShow[squishDataToShow.length - 1].end - squishDataToShow[0].start;
+                    const renderCount = squishDataToShow.length;
+                    const factorThing = (1000 / timeline);
+                    const avgRenderLabel = new GameNode.Text({
+                        textInfo: {
+                            text: `Avg: ${avgRenderTime.toFixed(2)}ms/render`,
+                            x: 85,
+                            y: 3,
+                            align: 'center',
+                            size: 1,
+                            color: COLORS.WHITE
+                        }
+                    });
+
+                    const perSecondLabel = new GameNode.Text({
+                        textInfo: {
+                            text: `${(renderCount * factorThing).toFixed(2)} renders/sec`,
+                            x: 85,
+                            y: 6,
+                            align: 'center',
+                            size: 1,
+                            color: COLORS.WHITE
+                        }
+                    });
+
+                    squishGraph.addChildren(avgRenderLabel, perSecondLabel);
+                }
+
                 for (const i in dataToShow) {
                     const cpuPercentage = dataToShow[i].cpu.value;
                     const memPercentage = dataToShow[i].memUsed.percent;
@@ -316,13 +417,50 @@ class HomegamesRoot {
                     cpuPerfGraph.addChild(dot);
                     memGraph.addChild(memDot);
                 }
+                
+                const cpuValue = new GameNode.Text({
+                    textInfo: {
+                        text: `${dataToShow.length && Math.floor(dataToShow[dataToShow.length - 1].cpu.value) + '%' || 'No data available'}`,
+                        x: 3.2,
+                        y: 5.5,
+                        color: COLORS.GREEN,
+                        align: 'center',
+                        size: .9
+                    }
+                });
+                
+                const memValue = new GameNode.Text({
+                    textInfo: {
+                        text: `${dataToShow.length && Math.floor(dataToShow[dataToShow.length - 1].memUsed.percent) + '%' || 'No data available'}`,
+                        x: 30,
+                        y: 5.5,
+                        color: COLORS.GREEN,
+                        align: 'center',
+                        size: .9
+                    }
+                });
+
+                cpuPerfGraph.addChild(cpuValue);
+                memGraph.addChild(memValue);
+
                 cpuData.push(procStats());
-//                const result = 100 * (newUsage.user + newUsage.system) / ((Date.now() - startTime) * 1000)
-//                console.log(result);
             }, 500);
+
+            const ttsLabel = new GameNode.Text({
+                textInfo: {
+                    text: `TTS`,
+                    x: 56.5,
+                    y: 3,
+                    size: 1,
+                    align: 'center',
+                    color: COLORS.WHITE
+                }
+            });
+
 
             this.perfThing.addChildren(memLabel, memPercentageLabel1, memPercentageLabel2, memPercentageLabel3, memGraph);
             this.perfThing.addChildren(cpuLabel, cpuPercentageLabel1, cpuPercentageLabel2, cpuPercentageLabel3, cpuPerfGraph);
+            this.perfThing.addChildren(ttsLabel, ttsLabel1, ttsLabel2, ttsLabel3, squishGraph);
 
             this.root.addChild(this.perfThing);
         }
@@ -364,7 +502,6 @@ class HomegamesRoot {
     }
 
     handleNewSpectator(spectator) {
-        console.log('sogsg');
         const spectatorFrame = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             assetInfo: {
@@ -504,6 +641,15 @@ class HomegamesRoot {
         }
 
         this.updateLabels();
+    }
+
+    handleSquisherMessage(msg) {
+        if (msg.type === 'renderStart') {
+            this.renderTimes.push({start: msg.time});
+        } else if (msg.type === 'renderEnd') {
+            this.renderTimes[this.renderTimes.length - 1].end = msg.time;
+//            console.log(`Rendered ${this.renderTimes.length} frames`);
+        }
     }
 
     getAssets() {
