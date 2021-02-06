@@ -115,21 +115,30 @@ class Squisher {
 
     update(node) {
         const playerFrames = {};
+        const spectatorFrames = {};
         const playerIds = new Set(Object.keys(this.game.players));
         const spectatorIds = new Set(Object.keys(this.game.session.spectators));
+        const spectatorFrameId = this.gameMetadata && this.gameMetadata.spectatorId || null;
         for (const playerId of playerIds) {
             playerFrames[playerId] = [];
         }
         
+//        playerFrames['spectator'] = [];
         for (const spectatorId of spectatorIds) {
-            playerFrames[spectatorId] = [];
+            spectatorFrames[spectatorId] = [];
         }
 
-        this.updateHelper(node, playerFrames, new Set([]));
+        this.updateHelper(node, playerFrames, spectatorFrames, new Set([]), null, spectatorFrameId);
         for (const playerId in playerFrames) {
             playerFrames[playerId] = playerFrames[playerId].flat();
         }
-        this.playerFrames = playerFrames;
+        for (const spectatorId in spectatorFrames) {
+            spectatorFrames[spectatorId] = spectatorFrames[spectatorId].flat();
+        }
+        this.spectatorFrames = spectatorFrames;
+        this.playerFrames = Object.assign(playerFrames, spectatorFrames);//playerFrames;
+        console.log('player frames now');
+        console.log(Object.keys(this.playerFrames));
 
         return this.playerFrames;
     }
@@ -146,7 +155,7 @@ class Squisher {
         }
     }
 
-    updateHelper(node, playerFrames, whitelist, scale) {
+    updateHelper(node, playerFrames, spectatorFrames, whitelist, scale, spectatorFrameId) {
         const yScale = PERFORMANCE_PROFILING ? .8 : 1;
         if (this.game.getRoot() === node) {
             scale = {
@@ -184,9 +193,19 @@ class Squisher {
             for (const playerId in playerFrames) {
                 playerFrames[playerId].push(squished);
             }
+
+            for (const spectatorId in spectatorFrames) {
+                spectatorFrames[spectatorId].push(squished);
+            }
         } else if (!nodeIsInvisible && !(whitelist.has(INVISIBLE_NODE_PLAYER_ID))) {
             for (const playerId of whitelist) {
-                if (!playerFrames[playerId]) {
+                if (playerId === spectatorFrameId) {
+                    for (const spectatorId in spectatorFrames) {
+                        spectatorFrames[spectatorId].push(squished);
+                    }
+                } else if (spectatorFrames[playerId]) {
+                    spectatorFrames[playerId].push(squished);
+                } else if (!playerFrames[playerId]) {
                     console.warn('got frame for unknown player ' + playerId);
                 } else {
                     playerFrames[playerId].push(squished);
@@ -195,7 +214,7 @@ class Squisher {
         }
 
         for (let i = 0; i < node.node.children.length; i++) {
-            this.updateHelper(node.node.children[i], playerFrames, whitelist, scale);
+            this.updateHelper(node.node.children[i], playerFrames, spectatorFrames, whitelist, scale, spectatorFrameId);
         }
 
         for (const i in node.node.playerIds) {

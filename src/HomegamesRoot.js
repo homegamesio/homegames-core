@@ -326,6 +326,7 @@ class HomegamesRoot {
 
             this.root.addChild(this.perfThing);
         }
+
         this.root.addChild(this.baseThing);
         this.root.addChild(game.getRoot());
         this.root.addChild(this.homeButton);
@@ -363,6 +364,7 @@ class HomegamesRoot {
     }
 
     handleNewSpectator(spectator) {
+        console.log('sogsg');
         const spectatorFrame = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             assetInfo: {

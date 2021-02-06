@@ -8,7 +8,8 @@ class PlayerVisibilityTest extends Game {
             squishVersion: '061',
             author: 'Joseph Garcia',
             aspectRatio: {x: 1, y: 2},
-            description: 'Test that multiple players can view/hide game nodes'
+            description: 'Test that multiple players can view/hide game nodes',
+            spectatorId: 40
         };
     }
 
@@ -31,7 +32,19 @@ class PlayerVisibilityTest extends Game {
             coordinates2d: ShapeUtils.rectangle(10, 20, 5, 5),
             fill: COLORS.RED
         });
-        
+
+        this.spectatorNode = new GameNode.Text({
+            textInfo: {
+                text: 'Hello, spectator',
+                x: 50,
+                y: 50,
+                size: 2,
+                align: 'center',
+                color: COLORS.BLACK
+            },
+            playerIds: [40]
+        });
+ 
         this.secretMessage.addChild(this.secretChild);
 
         this.base = new GameNode.Shape({
@@ -80,6 +93,7 @@ class PlayerVisibilityTest extends Game {
         this.base.addChild(this.showButton);
         this.base.addChild(this.hideButton);
         this.base.addChild(this.secretMessage);
+        this.base.addChild(this.spectatorNode);
     }
 
     getRoot() {
