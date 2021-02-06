@@ -130,8 +130,13 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     for (let i = 0; i < squishVersion.length; i++) {
                         squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
                     }
+
                     // init message
                     ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+
+                    if (true) {//HOTLOAD_ENABLED
+                        ws.send([8, 71, 01]);
+                    }
                     const _player = listenable(player, () => {
                         updatePlayerInfo(_player);
                     });
