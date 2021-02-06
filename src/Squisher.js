@@ -137,8 +137,6 @@ class Squisher {
         }
         this.spectatorFrames = spectatorFrames;
         this.playerFrames = Object.assign(playerFrames, spectatorFrames);//playerFrames;
-        console.log('player frames now');
-        console.log(Object.keys(this.playerFrames));
 
         return this.playerFrames;
     }

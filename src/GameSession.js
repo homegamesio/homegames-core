@@ -59,8 +59,17 @@ class GameSession {
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
             this.game._hgAddPlayer(player);
-
             this.game.handleNewPlayer && this.game.handleNewPlayer(player);
+            if (this.game.deviceRules && player.clientInfo) {
+                const deviceRules = this.game.deviceRules();
+                if (deviceRules.aspectRatio) {
+                    deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+                }
+                if (deviceRules.deviceType) {
+                    deviceRules.deviceType(player, player.clientInfo.deviceType)
+                }
+            }
+
             this.squisher.hgRoot.handleNewPlayer(player);
             this.squisher.handleStateChange();
             
@@ -108,6 +117,14 @@ class GameSession {
                 } else {
                     node.node.input.oninput(player, input.input);
                 }
+            }
+        } else if (input.type === 'clientInfo') {
+            if (this.game && this.game.deviceRules) {
+                const deviceRules = this.game.deviceRules();
+                if (deviceRules.aspectRatio) {
+                    deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+                }
+                
             }
         } else {
             console.log('Unknown input type: ' + input.type);

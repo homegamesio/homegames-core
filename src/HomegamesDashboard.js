@@ -51,9 +51,9 @@ class HomegamesDashboard extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0633',
-            author: 'Joseph Garcia',
+            author: 'Joseph Garcia', 
             tickRate: 10
-        };
+       };
     }
 
     constructor() {
@@ -585,7 +585,7 @@ class HomegamesDashboard extends Game {
         const playerRoot = this.playerStates[playerId].root;
         this.base.removeChild(playerRoot.node.id);
     }
-
+    
     getRoot() {
         return this.base;
     }

@@ -16,11 +16,14 @@ const getAllFiles = (dirPath, arrayOfFiles) => {
     files.forEach((file) => {
         if (file.charAt(0) === '.') {
             return;
-        }
+        } 
+
         if (fs.statSync(dirPath + "/" + file).isDirectory()) {
             arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
         } else {
-            arrayOfFiles.push(path.join(__dirname, dirPath, "/", file))
+            if (file.substring(file.length - 3, file.length) === '.js') {
+                arrayOfFiles.push(path.join(__dirname, dirPath, "/", file))
+            }
         }
     });
 
@@ -58,10 +61,8 @@ setInterval(() => {
             );
             // todo: get ready state from new one
 
-            console.log("DID HAD CHILD");
             if (hadChild) {
                 setTimeout(() => {
-                    console.log("HAD CHILD");
                     for (const wsId in hotloadClients) {
                         hotloadClients[wsId].send('reload');
                     }

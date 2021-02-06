@@ -86,9 +86,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
             ws.removeListener('message', messageHandler);
 
-            console.log("MESSAGE");
-            console.log(jsonMessage);
-
             ws.id = Number(jsonMessage.id || generatePlayerId());
 
             const updatePlayerInfo = (_player) => {
@@ -111,7 +108,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             }, res => {
                 res.on('data', d => {
                     const playerInfo = JSON.parse(d);
-                    const player = new Player(ws, jsonMessage.spectating);
+                    const player = new Player(ws, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo);
                     ws.spectating = jsonMessage.spectating;
                     
                     if (jsonMessage.id && playerInfo.name) {
@@ -135,6 +132,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
                     if (true) {//HOTLOAD_ENABLED
+                        console.log("SENDING HOTLOAD");
                         ws.send([8, 71, 01]);
                     }
                     const _player = listenable(player, () => {
@@ -155,7 +153,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
-            console.log('socket closed');
             //            playerIds[ws.id] = false;
             if (ws.spectating) {
                 gameSession.handleSpectatorDisconnect(ws.id);

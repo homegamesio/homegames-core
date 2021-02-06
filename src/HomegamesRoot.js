@@ -38,13 +38,13 @@ class HomegamesRoot {
                 return;
             }
 
-            const modalShape = ShapeUtils.rectangle(5, 5, 90, 90);
+            const modalShape = ShapeUtils.rectangle(10, 10, 80, 80);
             const settingsText = new GameNode.Text({
                 textInfo: {
                     text: 'Settings (and other stuff)',
                     x: 50,
                     y: 10,
-                    size: 5,
+                    size: 2.5,
                     align: 'center',
                     color: COLORS.BLACK
                 },
@@ -66,7 +66,7 @@ class HomegamesRoot {
 
             const closeButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(5, 5, 10, 10),
+                coordinates2d: ShapeUtils.rectangle(10, 10, 10, 10),
                 fill: COLORS.HG_RED,
                 playerIds: [player.id],
                 onClick: (player) => {
@@ -78,9 +78,9 @@ class HomegamesRoot {
             const playerName = new GameNode.Text({
                 textInfo: {
                     text: `Name: ${player.name}`,
-                    x: 8,
+                    x: 20,
                     y: 35,
-                    size: 2,
+                    size: 1.6,
                     align: 'left',
                     color: COLORS.BLACK
                 }, 
@@ -98,7 +98,7 @@ class HomegamesRoot {
                     text: `Version: ${process.env.npm_package_version}`,
                     x: 20,
                     y: 27,
-                    size: 2,
+                    size: 1.6,
                     align: 'left',
                     color: COLORS.BLACK
                 }, 
