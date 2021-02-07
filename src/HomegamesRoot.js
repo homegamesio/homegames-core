@@ -215,12 +215,10 @@ class HomegamesRoot {
                 input: {
                     type: 'text',
                     oninput: (player, text) => {
-                        // player.name = text;
                         player.info.name = text;
                         player.updatePlayerInfo().then(() => {
                             playerName.node.text.text = `Name: ${player.info.name}`;
                             playerName.node.text = playerName.node.text;
-                            console.log('updated info');
                         })
                     }
                 }
