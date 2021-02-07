@@ -84,7 +84,7 @@ class HomegamesRoot {
             const modalShape = ShapeUtils.rectangle(10, 10, 80, 80);
             const settingsText = new GameNode.Text({
                 textInfo: {
-                    text: 'Settings (and other stuff updated 5)',
+                    text: 'Settings (and other stuff)',
                     x: 50,
                     y: 12,
                     size: 2.1,

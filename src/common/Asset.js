@@ -69,8 +69,6 @@ class Asset {
     }
 
     download(force) {
-//        console.log('you want me to download ' + uri + ' to ' + HG_ASSET_PATH);
-
         return new Promise((resolve, reject) => {
             this.existsLocally(this.info.location).then(fileLocation => {
                 if (fileLocation && !force) {
@@ -84,40 +82,6 @@ class Asset {
                 }
             });
         });
-//            console.log('downloading');
-//            if (this.data && !force) {
-//                console.log("NICE JOB B");
-//                resolve(this.data)
-//            }
-//            try {
-//                const shasum = crypto.createHash('sha1');
-//                shasum.update(uri);
-//                const fileHash = shasum.digest('hex');
-//                const filePath = `${HG_ASSET_PATH}/${fileHash}`;
-//                if (fs.existsSync(filePath)) {
-//                    console.log('says you have it');
-//                    this.data = fs.readFileSync(filePath);
-//                    resolve(this.data);
-//                } else {
-//                    const writeStream = fs.createWriteStream(filePath);
-//                    const getModule = uri.startsWith('https') ? https : http;
-//                    getModule.get(uri, (res) => {
-//                        res.on('data', (chunk) => {
-//                            writeStream.write(chunk);
-//                        });
-//                        res.on('end', () => {
-//                            writeStream.end();
-//                            this.data = fs.readFileSync(filePath);
-//                            resolve(this.data);
-//                        });
-//                    }).on('error', error => {
-//                        reject(error);
-//                    });
-//                }    
-//            } catch(err) {
-//                reject(err);
-//            }
-//        });
     }
 
     getData() {

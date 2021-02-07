@@ -58,31 +58,6 @@ class DeviceTest extends Game {
     deviceRules() {
         return {
             aspectRatio: (player, x) => {
-//                if (player.clientInfo.aspectRatio < 1.5) {
-//                    const playerNode = new GameNode.Shape({
-//                        shapeType: Shapes.POLYGON,
-//                        fill: COLORS.RED,
-//                        coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-//                        playerIds: [player.id]
-//                    });
-//
-//                    if (this.playerStates[player.id]) {
-//                        this.playerStates[player.id].root.clearChildren();
-//                        this.playerStates[player.id].root.addChild(playerNode);
-//                    }
-//                } else {
-//                    const playerNode = new GameNode.Shape({
-//                        shapeType: Shapes.POLYGON,
-//                        fill: COLORS.GREEN,
-//                        coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-//                        playerIds: [player.id]
-//                    });
-//
-//                    if (this.playerStates[player.id]) {
-//                        this.playerStates[player.id].root.clearChildren();
-//                        this.playerStates[player.id].root.addChild(playerNode);
-//                    }
-//                }
             },
             deviceType: (player, type) => {
                 console.log('player is using ' + type);
