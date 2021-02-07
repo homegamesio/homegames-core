@@ -8,10 +8,35 @@ const COLORS = Colors.COLORS;
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
 
+const games = require('./games');
+
 const process = require('process');
 const procStats = require('process-stats')();
 
 class HomegamesRoot {
+    static metadata() {
+        return {
+            assets: {
+                'settings-gear': new Asset('url', {
+                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/assets/settings_gear.png',
+                    'type': 'image'
+                }),
+                'home-button': new Asset('url', {
+                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
+                    'type': 'image'
+                }),
+                'frame': new Asset('url', {
+                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/frame.jpg',
+                    'type': 'image'
+                }),
+                'logo-horizontal': new Asset('url', {
+                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/logo_horizontal.png',
+                    'type': 'image'
+                })
+            }
+        }
+    }
+
     constructor(game, isDashboard, profiling) {
         this.isDashboard = isDashboard;
         this.profiling = profiling;
@@ -23,6 +48,23 @@ class HomegamesRoot {
             Colors = squishVersion.Colors;
             Shapes = squishVersion.Shapes;
             ShapeUtils = squishVersion.ShapeUtils;
+        }
+
+        this.gameAssets = {};
+
+        for (let gameIndex in games) {
+            const game = games[gameIndex];
+            const gameMetadata = game.metadata && game.metadata();
+            if (gameMetadata && gameMetadata.assets) {
+                if (!this.gameAssets[game.name]) {
+                    this.gameAssets[game.name] = {};
+                }
+
+                for (const key in gameMetadata.assets) {
+                    this.gameAssets[game.name][key] = gameMetadata.assets[key];
+                }
+
+            }
         }
 
         this.frameStates = {};
@@ -44,13 +86,18 @@ class HomegamesRoot {
                 textInfo: {
                     text: 'Settings (and other stuff)',
                     x: 50,
-                    y: 10,
-                    size: 2.5,
+                    y: 12,
+                    size: 2.1,
                     align: 'center',
                     color: COLORS.BLACK
                 },
                 playerIds: [player.id]
             });
+
+            let totalAssetCount = 0;
+            for (const key in this.gameAssets) {
+                totalAssetCount += Object.values(this.gameAssets[key]).length;
+            }
 
             const modal = new GameNode.Shape({ 
                 shapeType: Shapes.POLYGON,
@@ -64,6 +111,85 @@ class HomegamesRoot {
                     }
                 }
             });
+
+            this.getLocalAssetInfo().then(info => {
+                const totalAssetText = new GameNode.Text({
+                    textInfo: {
+                        text: `${info.downloadedCount} of ${totalAssetCount} assets`,
+                        x: 26,
+                        y: 70,
+                        size: 1.6,
+                        color: COLORS.BLUE,
+                        align: 'center'
+                    },
+                    playerIds: [player.id]
+                });
+
+                if (info.downloadedCount < info.totalCount) {
+                    const downloadButton = new GameNode.Shape({
+                        onClick: () => {
+                            this.downloadAssets().then(() => {
+                                this.getLocalAssetInfo().then(info => {
+                                    totalAssetText.node.text.text = `${info.downloadedCount} of ${info.totalCount} assets`;
+                                    totalAssetText.node.text = totalAssetText.node.text;
+                                    const allDownloadedLabel = new GameNode.Text({
+                                        textInfo: {
+                                            text: 'All assets downloaded!',
+                                            x: 45,
+                                            y: 72,
+                                            color: COLORS.BLACK,
+                                            size: .8,
+                                            align: 'center'
+                                        },
+                                        playerIds: [player.id]
+                                    });
+                
+                                    modal.addChild(allDownloadedLabel);
+                                    modal.removeChild(downloadButton.node.id);
+                                });
+                            });
+                        },
+                        fill: COLORS.GREEN,
+                        coordinates2d: ShapeUtils.rectangle(40, 70, 10, 5),
+                        shapeType: Shapes.POLYGON,
+                        playerIds: [player.id]
+                    });
+
+                    const downloadLabel = new GameNode.Text({
+                        textInfo: {
+                            text: 'Download all assets',
+                            x: 45,
+                            y: 72,
+                            color: COLORS.BLACK,
+                            size: .6,
+                            align: 'center'
+                        },
+                        playerIds: [player.id]
+                    });
+
+                    downloadButton.addChild(downloadLabel);
+
+                    modal.addChild(downloadButton);
+                } else {
+                    const allDownloadedLabel = new GameNode.Text({
+                        textInfo: {
+                            text: 'All assets downloaded!',
+                            x: 45,
+                            y: 72,
+                            color: COLORS.BLACK,
+                            size: .8,
+                            align: 'center'
+                        },
+                        playerIds: [player.id]
+                    });
+
+                    modal.addChild(allDownloadedLabel);
+                }
+
+                modal.addChild(totalAssetText);
+
+            });
+
 
             const closeButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
@@ -129,7 +255,7 @@ class HomegamesRoot {
         const logoStartX = 50 - (logoSizeX / 2);
 
         this.homeButton = new GameNode.Asset({
-            onClick: isDashboard ? onDashHomeClick : onGameHomeClick,
+            onClick: isDashboard ? null : onGameHomeClick,
             coordinates2d: ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
             assetInfo: {
                 'logo-horizontal': {
@@ -137,6 +263,23 @@ class HomegamesRoot {
                     size: {
                         x: logoSizeX, 
                         y: logoSizeY
+                    }
+                }
+            }
+        });
+
+        this.settingsButton = new GameNode.Asset({
+            onClick: onDashHomeClick,
+            coordinates2d: ShapeUtils.rectangle(50, .1, 4.5, 7),
+            assetInfo: {
+                'settings-gear': {
+                    pos: {
+                        x: 50,
+                        y: .1
+                    },
+                    size: {
+                        x: 4.5,
+                        y: 7
                     }
                 }
             }
@@ -468,6 +611,7 @@ class HomegamesRoot {
         this.root.addChild(this.baseThing);
         this.root.addChild(game.getRoot());
         this.root.addChild(this.homeButton);
+        this.root.addChild(this.settingsButton);
     }
 
     getRoot() {
@@ -643,6 +787,80 @@ class HomegamesRoot {
         this.updateLabels();
     }
 
+    downloadAssets() {
+        return new Promise((resolve, reject) => {
+            let downloadedCount = 0;
+            let checkedCount = 0;
+            let totalCount = 0;
+            let seenCount = 0;
+
+            for (const gameKey in this.gameAssets) {
+                for (const assetKey in this.gameAssets[gameKey]) {
+                    totalCount += 1;
+                }
+            }
+            for (const gameKey in this.gameAssets) {
+                for (const assetKey in this.gameAssets[gameKey]) {
+                    const asset = this.gameAssets[gameKey][assetKey];
+                    asset.existsLocally().then(exists => {
+                        if (exists) {
+                            downloadedCount += 1;
+                        } else {
+                            asset.download().then(() => {
+                                console.log('downloaded dddd');
+                                downloadedCount += 1;
+                                if (downloadedCount == totalCount) {
+                                    resolve();
+                                }
+                            });
+                        }
+
+                        if (downloadedCount == totalCount) {
+                            resolve();
+                        }
+                    });
+                }
+            }
+
+
+        });
+    }
+
+    getLocalAssetInfo() {
+        return new Promise((resolve, reject) => {
+            let downloadedCount = 0;
+            let checkedCount = 0;
+            let totalCount = 0;
+            let seenCount = 0;
+
+            for (const gameKey in this.gameAssets) {
+                for (const assetKey in this.gameAssets[gameKey]) {
+                    totalCount += 1;
+                }
+            }
+            for (const gameKey in this.gameAssets) {
+                for (const assetKey in this.gameAssets[gameKey]) {
+                    const asset = this.gameAssets[gameKey][assetKey];
+                    asset.existsLocally().then(exists => {
+                        if (exists) {
+                            downloadedCount += 1;
+                        }
+
+                        seenCount += 1;
+
+                        if (seenCount == totalCount) {
+                            resolve({
+                                totalCount,
+                                downloadedCount
+                            })
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
     handleSquisherMessage(msg) {
         if (msg.type === 'renderStart') {
             this.renderTimes.push({start: msg.time});
@@ -652,22 +870,6 @@ class HomegamesRoot {
         }
     }
 
-    getAssets() {
-        return {
-            'home-button': new Asset('url', {
-                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
-                'type': 'image'
-            }),
-            'frame': new Asset('url', {
-                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/frame.jpg',
-                'type': 'image'
-            }),
-            'logo-horizontal': new Asset('url', {
-                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/logo_horizontal.png',
-                'type': 'image'
-            })
-        };
-    }
 }
 
 module.exports = HomegamesRoot;

@@ -48,48 +48,51 @@ const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT
 
 class HomegamesDashboard extends Game {
     static metadata() {
+
+        const _assets = {
+            'default': new Asset('url', {
+                'location': DEFAULT_GAME_THUMBNAIL,
+                'type': 'image'
+            }),
+            'dashboardSong': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/assets/testsong.mp3',
+                type: 'audio'
+            }),
+            'logo': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
+                'type': 'image'
+            }),
+            'settings-gear': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/settings_gear.png',
+                'type': 'image'
+            })
+        };
+
+        Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
+            _assets[key] = new Asset('url', {
+                'location': games[key].metadata && games[key].metadata().thumbnail,
+                'type': 'image'
+            });
+        });
+
         return {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0633',
             author: 'Joseph Garcia', 
-            tickRate: 10
+            tickRate: 10,
+            assets: _assets
        };
     }
 
     constructor() {
         super();
-        this.assets = {
-            'dashboardSong': new Asset('url', {
-                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/assets/testsong.mp3',
-                type: 'audio'
-            })
-        };
+        
         this.playerStates = {};
 
         this.keyCoolDowns = new ExpiringSet();
         this.modals = {};
-        Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
-            this.assets[key] = new Asset('url', {
-                'location': games[key].metadata && games[key].metadata().thumbnail,
-                'type': 'image'
-            });
-        });
+
         this.gameList = Object.values(games);
-
-        this.assets['default'] = new Asset('url', {
-            'location': DEFAULT_GAME_THUMBNAIL,
-            'type': 'image'
-        });
-
-        this.assets['logo'] = new Asset('url', {
-            'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
-            'type': 'image'
-        });
-
-        this.assets['settings-gear'] = new Asset('url', {
-            'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/settings_gear.png',
-            'type': 'image'
-        });
 
         this.optionColor = [255, 149, 10, 255];
         this.base = new GameNode.Shape({
@@ -585,13 +588,19 @@ class HomegamesDashboard extends Game {
         const playerRoot = this.playerStates[playerId].root;
         this.base.removeChild(playerRoot.node.id);
     }
-    
-    getRoot() {
-        return this.base;
+    deviceRules() {
+        return {
+            deviceType: (player, type) => {
+                if (type == 'mobile') {
+                    // 1:2 ratio for mobile
+                    player.receiveUpdate([9, 1, 2]);
+                }
+            }
+        }
     }
 
-    getAssets() {
-        return this.assets;
+    getRoot() {
+        return this.base;
     }
 }
 

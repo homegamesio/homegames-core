@@ -8,19 +8,18 @@ class ImageTest extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0631',
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/image-test.png'
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/image-test.png',
+            assets: {
+                'image': new Asset('url', {
+                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
+                    'type': 'image'
+                })
+            }
         };
     }
 
     constructor() {
         super();
-        this.assets = {
-            'image': new Asset('url', {
-                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
-                'type': 'image'
-            })
-        };
-
         const aspectRatio = this.constructor.metadata().aspectRatio;
         const defaultImageSize = {x: 10 * (aspectRatio.y/aspectRatio.x), y: 10};// * (aspectRatio.y / aspectRatio.x)};
         const defaultImagePos = {x: 45, y: 40};
@@ -175,10 +174,6 @@ class ImageTest extends Game {
         this.base.addChild(this.increaseHeightButton);
 
         this.base.addChild(this.resetButton);
-    }
-
-    getAssets() {
-        return this.assets;
     }
 
     getRoot() {

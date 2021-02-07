@@ -249,9 +249,6 @@ class Slaps extends Game {
         return this.base;
     }
 
-    getAssets() {
-        return this.assets;
-    }
 }
 
 module.exports = Slaps;

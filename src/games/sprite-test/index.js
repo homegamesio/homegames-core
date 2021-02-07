@@ -4,17 +4,7 @@ const COLORS = Colors.COLORS;
 
 class SpriteTest extends Game {
     static metadata() {
-        return {
-            aspectRatio: {x: 16, y: 9},
-            squishVersion: '063',
-            author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/sprite-test.png'
-        };
-    }
-
-    constructor() {
-        super();
-        this.danceFrames = {
+        const danceFrames = {
             'dance0': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_0.png',
             'dance_left': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_left.png',
             'dance_right': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_right.png',
@@ -22,6 +12,38 @@ class SpriteTest extends Game {
             'dance_down': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_down.png'
         };
 
+        return {
+            aspectRatio: {x: 16, y: 9},
+            squishVersion: '063',
+            author: 'Joseph Garcia',
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/sprite-test.png',
+            assets: {
+                'dance0': new Asset('url', {
+                    'location': danceFrames['dance0'],
+                    'type': 'image'
+                }),
+                'dance_up': new Asset('url', {
+                    'location': danceFrames['dance_up'],
+                    'type': 'image'
+                }),
+                'dance_down': new Asset('url', {
+                    'location': danceFrames['dance_down'],
+                    'type': 'image'
+                }),
+                'dance_left': new Asset('url', {
+                    'location': danceFrames['dance_left'],
+                    'type': 'image'
+                }),
+                'dance_right': new Asset('url', {
+                    'location': danceFrames['dance_right'],
+                    'type': 'image'
+                })
+            }
+        };
+    }
+
+    constructor() {
+        super();
         this.playerSpots = {};
         
         const playerRows = 3;
@@ -33,29 +55,6 @@ class SpriteTest extends Game {
                 y: i % playerRows
             };
         }
-
-        this.assets = {
-            'dance0': new Asset('url', {
-                'location': this.danceFrames['dance0'],
-                'type': 'image'
-            }),
-            'dance_up': new Asset('url', {
-                'location': this.danceFrames['dance_up'],
-                'type': 'image'
-            }),
-            'dance_down': new Asset('url', {
-                'location': this.danceFrames['dance_down'],
-                'type': 'image'
-            }),
-            'dance_left': new Asset('url', {
-                'location': this.danceFrames['dance_left'],
-                'type': 'image'
-            }),
-            'dance_right': new Asset('url', {
-                'location': this.danceFrames['dance_right'],
-                'type': 'image'
-            })
-        };
 
         this.inputCooldowns = {};
 
@@ -137,10 +136,6 @@ class SpriteTest extends Game {
         }
         this.background.removeChild(this.dancers[playerId].id);
         delete this.dancers[playerId];
-    }
-
-    getAssets() {
-        return this.assets;
     }
 
     getRoot() {

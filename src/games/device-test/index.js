@@ -106,6 +106,9 @@ class DeviceTest extends Game {
                         playerIds: [player.id]
                     });
 
+                    // 1:2 ratio for mobile
+                    player.receiveUpdate([9, 1, 2]);
+
                     if (this.playerStates[player.id]) {
                         this.playerStates[player.id].root.clearChildren();
                         this.playerStates[player.id].root.addChild(playerNode);
