@@ -19,7 +19,6 @@ const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 
-
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
 const listenable = function(obj, onChange) {
@@ -131,6 +130,9 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     // init message
                     ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
+                    if (PERFORMANCE_PROFILING) {
+                        ws.send([7]);
+                    }
                     if (true) {//HOTLOAD_ENABLED
                         console.log("SENDING HOTLOAD");
                         ws.send([8, 71, 01]);

@@ -444,7 +444,7 @@ class HomegamesRoot {
                 memGraph.addChild(memValue);
 
                 cpuData.push(procStats());
-            }, 500);
+            }, 1000);
 
             const ttsLabel = new GameNode.Text({
                 textInfo: {
