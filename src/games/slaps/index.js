@@ -136,7 +136,7 @@ class Slaps extends Game {
 
         const winnerNotification = new GameNode.Text({
             textInfo: {
-                text: winner.name + ' wins!', 
+                text: winner.info.name + ' wins!', 
                 x: 50, 
                 y: 10,
                 size: 1,
@@ -179,7 +179,7 @@ class Slaps extends Game {
         this.updatePlayerCount();
         const infoNode = new GameNode.Text({
             textInfo: {
-                text: player.name, 
+                text: player.info.name, 
                 x: 80, 
                 y: 5,
                 size: 3,
@@ -201,7 +201,7 @@ class Slaps extends Game {
             const yIndex = ++playerYIndex * 10;
             return new GameNode.Text({
                 textInfo: {
-                    text: this.players[player.id].name, 
+                    text: this.players[player.id].info.name, 
                     x: 15, 
                     y: yIndex,
                     size: 2,

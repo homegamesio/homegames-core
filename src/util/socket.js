@@ -18,6 +18,7 @@ const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
+const HOTLOAD_ENABLED = getConfigValue('HOTLOAD_ENABLED', false);
 
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
@@ -87,17 +88,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
             ws.id = Number(jsonMessage.id || generatePlayerId());
 
-            const updatePlayerInfo = (_player) => {
-
-                const data = JSON.stringify({
-                    'name': _player.name 
-                });
-
-                const req = http.request({hostname: 'localhost', port: HOMENAMES_PORT, path: '/' + ws.id, method: 'POST', headers: {'Content-Type': 'application/json', 'Content-Length': data.length}}, res => {
-                });
-                req.write(data);
-                req.end();
-            };
 
             const req = http.request({
                 hostname: 'localhost',
@@ -133,12 +123,12 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     if (PERFORMANCE_PROFILING) {
                         ws.send([7]);
                     }
-                    if (true) {//HOTLOAD_ENABLED
+                    if (HOTLOAD_ENABLED) {
                         console.log("SENDING HOTLOAD");
                         ws.send([8, 71, 01]);
                     }
                     const _player = listenable(player, () => {
-                        updatePlayerInfo(_player);
+                        player.updatePlayerInfo();
                     });
 
                     if (jsonMessage.spectating) {

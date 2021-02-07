@@ -84,7 +84,7 @@ class HomegamesRoot {
             const modalShape = ShapeUtils.rectangle(10, 10, 80, 80);
             const settingsText = new GameNode.Text({
                 textInfo: {
-                    text: 'Settings (and other stuff)',
+                    text: 'Settings (and other stuff updated 5)',
                     x: 50,
                     y: 12,
                     size: 2.1,
@@ -204,7 +204,7 @@ class HomegamesRoot {
 
             const playerName = new GameNode.Text({
                 textInfo: {
-                    text: `Name: ${player.name}`,
+                    text: `Name: ${player.info.name}`,
                     x: 20,
                     y: 35,
                     size: 1.6,
@@ -215,7 +215,13 @@ class HomegamesRoot {
                 input: {
                     type: 'text',
                     oninput: (player, text) => {
-                        player.name = text;
+                        // player.name = text;
+                        player.info.name = text;
+                        player.updatePlayerInfo().then(() => {
+                            playerName.node.text.text = `Name: ${player.info.name}`;
+                            playerName.node.text = playerName.node.text;
+                            console.log('updated info');
+                        })
                     }
                 }
             });
@@ -684,7 +690,7 @@ class HomegamesRoot {
 
             const labelText = new GameNode.Text({
                 textInfo: {
-                    text: player.name,
+                    text: player.info.name,
                     x: 5,
                     y: 1,
                     size: 0.7,
