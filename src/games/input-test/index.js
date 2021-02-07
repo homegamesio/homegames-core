@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-061');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-063');
 const { dictionary } = require('../../common/util');
 const fs = require('fs');
 const Asset = require('../../common/Asset');
@@ -60,6 +60,8 @@ class InputTest extends Game {
 
         let image;
 
+        let _that = this;
+
         this.fileInputNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: fileInputShape,
@@ -75,7 +77,7 @@ class InputTest extends Game {
                         Object.values(this.players).forEach(player => {
                             player.receiveUpdate(this.session.squisher.assetBundle);
                         });
-                        this.setTimeout(() => {
+                        _that.setTimeout(() => {
                             if (image) {
                                 this.base.removeChild(image.id);
                             }

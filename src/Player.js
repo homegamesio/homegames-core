@@ -1,14 +1,44 @@
 const WebSocket = require('ws');
+const http = require('http');
 
+const path = require('path');
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
+
+const { getConfigValue } = require(`${baseDir}/src/util/config`);
+
+const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 class Player {
-    constructor(ws, spectating) {
-        console.log("MY ID IS " + ws.id);
+    constructor(ws, spectating, clientInfo) {
         this.inputListeners = new Set();
         this.stateListeners = new Set();
+        this.clientInfo = clientInfo;
         this.ws = ws;
         this.id = ws.id;
+        this.info = {};
         this.spectating = spectating;
-        this.ws.on('message', this.handlePlayerInput.bind(this));
+
+        this.ws.on('message', (input) => {
+            try {
+                const _input = JSON.parse(input);
+                if (_input.clientInfo) {
+                    this.clientInfo = _input.clientInfo;
+                    this.handlePlayerInput(JSON.stringify({
+                        type: 'clientInfo',
+                        data: _input.clientInfo
+                    }));
+                } else {
+                    this.handlePlayerInput(input);
+                }
+            } catch (err) {
+                console.log('nope');
+                console.log(err);
+                this.handlePlayerInput(input);
+            }
+        });
     }
 
     handlePlayerInput(msg) {
@@ -27,6 +57,35 @@ class Player {
             listener.handlePlayerDisconnect(this);
         }
     }
+
+    updatePlayerInfo() {
+        return new Promise((resolve, reject) => {
+            const data = JSON.stringify({
+                info: this.info
+            });
+                // 'name': _player.name.
+                // clientInfo,
+                // id: _player.id
+            // });
+
+            const req = http.request({
+                hostname: 'localhost', 
+                port: HOMENAMES_PORT, 
+                path: '/' + this.id, 
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Content-Length': data.length
+                }
+            }, 
+            res => {
+                resolve();
+            });
+
+            req.write(data);
+            req.end();
+        });
+    };
 
     addStateListener(listener) {
         this.stateListeners.add(listener);

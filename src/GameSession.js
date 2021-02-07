@@ -11,7 +11,9 @@ if (baseDir.endsWith('src')) {
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
-const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
+const BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y; 
 
 class GameSession {
     constructor(game, port) {
@@ -23,6 +25,7 @@ class GameSession {
         this.squisher = new Squisher(this.game);
         this.squisher.hgRoot.players = this.game.players;
         this.squisher.hgRoot.spectators = this.spectators;
+        this.hgRoot = this.squisher.hgRoot;
         this.squisher.addListener(this);
         this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
         this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
@@ -47,18 +50,26 @@ class GameSession {
     }
 
     addPlayer(player) {
-        console.log('got a player in session');
         if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
             player.receiveUpdate([5, 70, 0]);
         }
 
         generateName().then(playerName => {
-            player.name = player.name || playerName;
+            player.info.name = player.info.name || playerName;
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
             this.game._hgAddPlayer(player);
-
             this.game.handleNewPlayer && this.game.handleNewPlayer(player);
+            if (this.game.deviceRules && player.clientInfo) {
+                const deviceRules = this.game.deviceRules();
+                if (deviceRules.aspectRatio) {
+                    deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+                }
+                if (deviceRules.deviceType) {
+                    deviceRules.deviceType(player, player.clientInfo.deviceType)
+                }
+            }
+
             this.squisher.hgRoot.handleNewPlayer(player);
             this.squisher.handleStateChange();
             
@@ -106,6 +117,14 @@ class GameSession {
                 } else {
                     node.node.input.oninput(player, input.input);
                 }
+            }
+        } else if (input.type === 'clientInfo') {
+            if (this.game && this.game.deviceRules) {
+                const deviceRules = this.game.deviceRules();
+                if (deviceRules.aspectRatio) {
+                    deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+                }
+                
             }
         } else {
             console.log('Unknown input type: ' + input.type);
@@ -159,9 +178,17 @@ class GameSession {
         return this.findClickHelper(x, y, spectating, playerId, this.squisher.hgRoot.getRoot().node);
     }
 
-    findClickHelper(x, y, spectating, playerId, node, clicked = null, inGame) {
+    findClickHelper(x, y, spectating, playerId, node, clicked = null, inGame, inPerfThing) {
         if (node == this.game.getRoot().node) {
             inGame = true;
+        }
+
+        if (this.hgRoot.perfThing && node === this.hgRoot.perfThing.node) {
+            inPerfThing = true;
+        } 
+
+        if (node === this.hgRoot.baseThing.node) {
+            inPerfThing = false;
         }
 
         if (inGame && spectating) {
@@ -172,7 +199,13 @@ class GameSession {
                 const vertices = [];
  
                 for (const i in node.coordinates2d) {
-                    if (inGame) {
+                    if (inPerfThing) {
+                        vertices.push(
+                            [node.coordinates2d[i][0],
+                                node.coordinates2d[i][1]]
+                        )
+
+                    } else if (inGame) {
                         const bezelX = BEZEL_SIZE_X;
                         const bezelY = BEZEL_SIZE_Y;
 
@@ -186,9 +219,13 @@ class GameSession {
                             ]
                         );
                     } else {
+                        const profilingHeaderSize = 20;//BEZEL_SIZE_Y;
+                        const scaledY = node.coordinates2d[i][1] * ((100 - profilingHeaderSize) / 100) + (profilingHeaderSize / 2);
+
+                        const _y = PERFORMANCE_PROFILING ? scaledY : node.coordinates2d[i][1];
                         vertices.push(
                             [node.coordinates2d[i][0],
-                                node.coordinates2d[i][1]]
+                                _y]
                         );
                     }
                 }
@@ -225,7 +262,7 @@ class GameSession {
         }
 
         for (const i in node.children) {
-            clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, inGame);
+            clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, inGame, inPerfThing);
         }
 
         return clicked;

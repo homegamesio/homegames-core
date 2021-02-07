@@ -20,6 +20,7 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 const DEFAULT_TICK_RATE = getConfigValue('DEFAULT_TICK_RATE', 60);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 
 class Squisher {
     constructor(game) {
@@ -38,7 +39,7 @@ class Squisher {
 
         this.ids = new Set();
         const isDashboard = game instanceof HomegamesDashboard;
-        this.hgRoot = new HomegamesRoot(game, isDashboard);
+        this.hgRoot = new HomegamesRoot(game, isDashboard, PERFORMANCE_PROFILING);
         this.game = game;
         this.listeners = new Set();
         this.hgRoot.getRoot().addListener(this);
@@ -51,56 +52,74 @@ class Squisher {
         }
     }
 
-    async initialize() {
-        const gameAssets = this.game.getAssets ? this.game.getAssets() || {} : {};
-        if (this.hgRoot.getAssets()) {
-            Object.assign(gameAssets, this.hgRoot.getAssets());
-        }
-        
-        let assetBundleSize = 0;
-
-        for (const key in gameAssets) {
-            const payload = await gameAssets[key].getData();
-
-            const assetKeyLength = 32;
-            let keyIndex = 0;
-            const assetKeyArray = new Array(32);
-            while (keyIndex < assetKeyLength && keyIndex < key.length) {
-                assetKeyArray[keyIndex] = key.charCodeAt(keyIndex);
-                keyIndex++;
+    initialize() {
+        return new Promise((resolve, reject) => {
+            const gameAssets = this.gameMetadata && this.gameMetadata.assets ? this.gameMetadata.assets : {};
+            if (this.hgRoot.constructor.metadata().assets) {
+                Object.assign(gameAssets, this.hgRoot.constructor.metadata().assets);
             }
 
-            const encodedLength = (payload.length + assetKeyLength).toString(36);
+            if (this.game.getAssets && this.game.getAssets()) {
+                Object.assign(gameAssets, this.game.getAssets());
+            }
             
-            const assetType = gameAssets[key].info.type === 'image' ? 1 : 2;
+            const initializeAssetBundle = () => new Promise((resolve, reject) => {
+                let assetBundleSize = 0;
+                let finishedCount = 0;
+                const totalCount = Object.keys(gameAssets).length;
+    
+                for (const key in gameAssets) {
+                    gameAssets[key].getData().then(buf => {
+                        const assetKeyLength = 32;
+                        let keyIndex = 0;
+                        const assetKeyArray = new Array(32);
+                        while (keyIndex < assetKeyLength && keyIndex < key.length) {
+                            assetKeyArray[keyIndex] = key.charCodeAt(keyIndex);
+                            keyIndex++;
+                        }
+    
+                        const encodedLength = (buf.length + assetKeyLength).toString(36);
+                        
+                        const assetType = gameAssets[key].info.type === 'image' ? 1 : 2;
+    
+                        const encodedMaxLength = 10;
+                        let encodedLengthString = '';
+                        for (let i = 0; i < (encodedMaxLength - encodedLength.length); i++) {
+                            encodedLengthString += '0';
+                        }
+                        for (let j = encodedLength.length; j < encodedMaxLength; j++) {
+                            encodedLengthString +=  encodedLength.charAt(j - encodedLength.length);
+                        }
+                        const encodedLengthArray = new Array(encodedMaxLength);
+                        for (let i = 0; i < encodedMaxLength; i++) {
+                            encodedLengthArray[i] = encodedLength.charCodeAt(i);
+                        }
+    
+                        this.assets[key] = [ASSET_TYPE, assetType, ...encodedLengthArray, ...assetKeyArray, ...buf];
+                        assetBundleSize += this.assets[key].length;
+                        finishedCount += 1;
 
-            const encodedMaxLength = 10;
-            let encodedLengthString = '';
-            for (let i = 0; i < (encodedMaxLength - encodedLength.length); i++) {
-                encodedLengthString += '0';
-            }
-            for (let j = encodedLength.length; j < encodedMaxLength; j++) {
-                encodedLengthString +=  encodedLength.charAt(j - encodedLength.length);
-            }
-            const encodedLengthArray = new Array(encodedMaxLength);
-            for (let i = 0; i < encodedMaxLength; i++) {
-                encodedLengthArray[i] = encodedLength.charCodeAt(i);
-            }
-            this.assets[key] = [ASSET_TYPE, assetType, ...encodedLengthArray, ...assetKeyArray, ...payload];
-            assetBundleSize += this.assets[key].length;
-        }
-
-        const newAssetBundle = new Array(assetBundleSize);
-
-        for (let index = 0; index < assetBundleSize; index++) {
-            for (const key in this.assets) {
-                for (let y = 0; y < this.assets[key].length; y++) {
-                    newAssetBundle[index++] = this.assets[key][y];
+                        if (finishedCount == totalCount) {
+                            const newAssetBundle = new Array(assetBundleSize);
+                            for (let index = 0; index < assetBundleSize; index++) {
+                                for (const key in this.assets) {
+                                    for (let y = 0; y < this.assets[key].length; y++) {
+                                        newAssetBundle[index++] = this.assets[key][y];
+                                    }
+                                }
+                            }
+                            resolve(newAssetBundle); 
+                        }
+                    });
                 }
-            }
-        }
+            });
 
-        this.assetBundle = newAssetBundle;
+            initializeAssetBundle().then((newAssetBundle) => {
+                this.assetBundle = newAssetBundle;
+                resolve();
+            });
+
+        });
 
     }
 
@@ -114,21 +133,28 @@ class Squisher {
 
     update(node) {
         const playerFrames = {};
+        const spectatorFrames = {};
         const playerIds = new Set(Object.keys(this.game.players));
         const spectatorIds = new Set(Object.keys(this.game.session.spectators));
+        const spectatorFrameId = this.gameMetadata && this.gameMetadata.spectatorId || null;
         for (const playerId of playerIds) {
             playerFrames[playerId] = [];
         }
         
+//        playerFrames['spectator'] = [];
         for (const spectatorId of spectatorIds) {
-            playerFrames[spectatorId] = [];
+            spectatorFrames[spectatorId] = [];
         }
 
-        this.updateHelper(node, playerFrames, new Set([]));
+        this.updateHelper(node, playerFrames, spectatorFrames, new Set([]), null, spectatorFrameId);
         for (const playerId in playerFrames) {
             playerFrames[playerId] = playerFrames[playerId].flat();
         }
-        this.playerFrames = playerFrames;
+        for (const spectatorId in spectatorFrames) {
+            spectatorFrames[spectatorId] = spectatorFrames[spectatorId].flat();
+        }
+        this.spectatorFrames = spectatorFrames;
+        this.playerFrames = Object.assign(playerFrames, spectatorFrames);//playerFrames;
 
         return this.playerFrames;
     }
@@ -145,12 +171,23 @@ class Squisher {
         }
     }
 
-    updateHelper(node, playerFrames, whitelist, scale) {
+    updateHelper(node, playerFrames, spectatorFrames, whitelist, scale, spectatorFrameId) {
+        const yScale = PERFORMANCE_PROFILING ? .8 : 1;
         if (this.game.getRoot() === node) {
             scale = {
                 x: (100 - BEZEL_SIZE_X) / 100,
-                y: (100 - BEZEL_SIZE_Y) / 100
+                y: yScale * ((100 - BEZEL_SIZE_Y) / 100)
             };
+        } else if (this.hgRoot.getRoot() == node || this.hgRoot.baseThing == node) {
+            scale = {
+                x: 1,//(100 - BEZEL_SIZE_X) / 100,
+                y: yScale * 1//(100 - BEZEL_SIZE_Y - 20) / 100
+            }
+        } else if (this.hgRoot.perfThing == node) {
+            scale = {
+                x: 1,
+                y: 1
+            }
         }
 
         if (!this.ids.has(node.node.id)) {
@@ -172,9 +209,19 @@ class Squisher {
             for (const playerId in playerFrames) {
                 playerFrames[playerId].push(squished);
             }
+
+            for (const spectatorId in spectatorFrames) {
+                spectatorFrames[spectatorId].push(squished);
+            }
         } else if (!nodeIsInvisible && !(whitelist.has(INVISIBLE_NODE_PLAYER_ID))) {
             for (const playerId of whitelist) {
-                if (!playerFrames[playerId]) {
+                if (playerId === spectatorFrameId) {
+                    for (const spectatorId in spectatorFrames) {
+                        spectatorFrames[spectatorId].push(squished);
+                    }
+                } else if (spectatorFrames[playerId]) {
+                    spectatorFrames[playerId].push(squished);
+                } else if (!playerFrames[playerId]) {
                     console.warn('got frame for unknown player ' + playerId);
                 } else {
                     playerFrames[playerId].push(squished);
@@ -183,7 +230,7 @@ class Squisher {
         }
 
         for (let i = 0; i < node.node.children.length; i++) {
-            this.updateHelper(node.node.children[i], playerFrames, whitelist, scale);
+            this.updateHelper(node.node.children[i], playerFrames, spectatorFrames, whitelist, scale, spectatorFrameId);
         }
 
         for (const i in node.node.playerIds) {
@@ -193,10 +240,24 @@ class Squisher {
     }
 
     handleStateChange(node) {
+        if (PERFORMANCE_PROFILING) {
+            this.hgRoot.handleSquisherMessage({
+                type: 'renderStart',
+                time: Date.now()
+            });
+        }
+
         const playerFrames = this.update(this.hgRoot.getRoot());
 
         for (const listener of this.listeners) {
             listener.handleSquisherUpdate(playerFrames);
+        }
+
+        if (PERFORMANCE_PROFILING) {
+            this.hgRoot.handleSquisherMessage({
+                type: 'renderEnd',
+                time: Date.now()
+            });
         }
     }
 }

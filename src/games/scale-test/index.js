@@ -8,7 +8,13 @@ class ScaleTest extends Game {
             name: 'Scale test',
             squishVersion: '061',
             author: 'Joseph Garcia',
-            aspectRatio: {x: 1, y: 2}
+            aspectRatio: {x: 1, y: 2},
+            assets: {
+                'image': new Asset('url', {
+                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
+                    'type': 'image'
+                })
+            }
         };
     }
 
@@ -19,13 +25,6 @@ class ScaleTest extends Game {
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             fill: COLORS.HG_BLUE
         });
-
-        this.assets = {
-            'image': new Asset('url', {
-                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
-                'type': 'image'
-            })
-        };
 
         this.testBox = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -50,10 +49,6 @@ class ScaleTest extends Game {
         this.base.addChild(this.testAsset);
     }
     
-    getAssets() {
-        return this.assets;
-    }
-
     getRoot() {
         return this.base;
     }

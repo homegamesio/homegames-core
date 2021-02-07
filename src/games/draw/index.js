@@ -9,18 +9,18 @@ class Draw extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '063',
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/draw_thumbnail.jpg'
+            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/draw_thumbnail.jpg',
+            assets: {
+                'test': new Asset('url', {
+                    'location': 'https://www.nicepng.com/png/full/323-3239506_kanye-west-shrug-transparent.png',
+                    'type': 'image'
+                })
+            }
         };
     }
 
     constructor() {
         super();
-        this.assets = {
-            'test': new Asset('url', {
-                'location': 'https://www.nicepng.com/png/full/323-3239506_kanye-west-shrug-transparent.png',
-                'type': 'image'
-            })
-        };
 
         this.playerColorMap = {};
         const boardShape = ShapeUtils.rectangle(0, 0, 100, 100);
@@ -56,10 +56,6 @@ class Draw extends Game {
 
         this.board.addChild(randomizeButton);
         this.board.addChild(resetButton);
-    }
-
-    getAssets() {
-        return this.assets;
     }
 
     handleBoardClick(player, x, y) {

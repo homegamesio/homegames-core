@@ -331,10 +331,6 @@ class WordMatch extends Game {
         return this.base;
     }
 
-    getAssets() {
-        return this.assets;
-    }
-
     close() {
 
     }

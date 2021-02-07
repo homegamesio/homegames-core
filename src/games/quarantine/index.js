@@ -333,7 +333,7 @@ class Quarantine extends Game {
     handleNewPlayer(player) {
         const playerName = new GameNode.Text({
             textInfo: {
-                text: player.name,
+                text: player.info.name,
                 x: 1,
                 y: 4,
                 size: 2,

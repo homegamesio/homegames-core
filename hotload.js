@@ -1,7 +1,12 @@
 console.log('hello!');
+const WebSocket = require('ws');
 const fs = require('fs')
 const path = require('path')
 const { spawn } = require('child_process');
+const https = require('https');
+const http = require('http');
+
+const hotloadClients = {};
 
 const getAllFiles = (dirPath, arrayOfFiles) => {
   files = fs.readdirSync(dirPath)
@@ -11,11 +16,14 @@ const getAllFiles = (dirPath, arrayOfFiles) => {
     files.forEach((file) => {
         if (file.charAt(0) === '.') {
             return;
-        }
+        } 
+
         if (fs.statSync(dirPath + "/" + file).isDirectory()) {
             arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
         } else {
-            arrayOfFiles.push(path.join(__dirname, dirPath, "/", file))
+            if (file.substring(file.length - 3, file.length) === '.js') {
+                arrayOfFiles.push(path.join(__dirname, dirPath, "/", file))
+            }
         }
     });
 
@@ -40,6 +48,7 @@ setInterval(() => {
             fileData[fileName] = fileContent;
         } else if (fileData[fileName].compare(fileContent) !== 0) {
             fileData[fileName] = fileContent;
+            let hadChild = !!child;
             if (child) {
                 child.kill();
             }
@@ -50,10 +59,46 @@ setInterval(() => {
                     stdio: "inherit"
                 }
             );
+            // todo: get ready state from new one
+
+            if (hadChild) {
+                setTimeout(() => {
+                    for (const wsId in hotloadClients) {
+                        hotloadClients[wsId].send('reload');
+                    }
+                }, 1000);
+            }
+
 
         }
     }
 }, 500);
 
-process.on('exit', () => child && child.kill());
+const server = http.createServer();
+
+let clientId = 0;
+const hotloadServer = new WebSocket.Server({
+    server
+});
+
+hotloadServer.on('connection', (ws) => {
+    console.log('hotload client connected');
+    clientId += 1;
+    ws.id = clientId;
+    hotloadClients[ws.id] = ws;
+
+    ws.on('close', () => {
+        console.log('client left :(');
+        delete hotloadClients[ws.id];
+    });
+});
+
+console.log('lisng');
+server.listen(7101);
+
+process.on('exit', () => {
+    child && child.kill()
+});
+
 process.on('SIGINT', () => child && child.kill());
+

@@ -1,5 +1,7 @@
 const assert = require('assert');
 const squishMap = require('../src/common/squish-map');
+const Player = require('../src/Player');
+
 let { GameNode } = squishMap['0633'];
 
 const testMetaData = (game) => {
@@ -22,7 +24,7 @@ const testGetRoot = (game) => {
 const testHandleNewPlayer = (game) => {
     let succeeded;
     try {
-        game.handleNewPlayer && game.handleNewPlayer({ id: 1 });
+        game.handleNewPlayer && game.handleNewPlayer({ id: 1, info: { name: 'test' } });
         succeeded = true;
     } catch (err) {
         succeeded = false;

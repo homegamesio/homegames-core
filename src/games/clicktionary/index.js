@@ -98,18 +98,6 @@ class Clicktionary extends Game {
                 coordinates2d: ShapeUtils.rectangle(10, 10, yIndex * 8 + 2, 1, 1),
                 fill: COLORS.CREAM
             });
-
-            const playerNameNode = new GameNode.Text({
-                textInfo: {
-                    text: player.name,
-                    x: 10,
-                    y: yIndex * 8 + 2,
-                    size: 2,
-                    color: COLORS.BLACK
-                }
-            });
-
-            playerInfoNode.addChild(playerNameNode);
             
             this.playerInfoNodes[player.id] = playerInfoNode;
             this.base.addChild(playerInfoNode);

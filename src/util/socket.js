@@ -16,6 +16,10 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
+const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
+const HOTLOAD_ENABLED = getConfigValue('HOTLOAD_ENABLED', false);
+
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
 const listenable = function(obj, onChange) {
@@ -82,22 +86,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
             ws.removeListener('message', messageHandler);
 
-            console.log("MESSAGE");
-            console.log(jsonMessage);
-
             ws.id = Number(jsonMessage.id || generatePlayerId());
 
-            const updatePlayerInfo = (_player) => {
-
-                const data = JSON.stringify({
-                    'name': _player.name 
-                });
-
-                const req = http.request({hostname: 'localhost', port: HOMENAMES_PORT, path: '/' + ws.id, method: 'POST', headers: {'Content-Type': 'application/json', 'Content-Length': data.length}}, res => {
-                });
-                req.write(data);
-                req.end();
-            };
 
             const req = http.request({
                 hostname: 'localhost',
@@ -107,7 +97,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             }, res => {
                 res.on('data', d => {
                     const playerInfo = JSON.parse(d);
-                    const player = new Player(ws, jsonMessage.spectating);
+                    const player = new Player(ws, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo);
                     ws.spectating = jsonMessage.spectating;
                     
                     if (jsonMessage.id && playerInfo.name) {
@@ -126,10 +116,19 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     for (let i = 0; i < squishVersion.length; i++) {
                         squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
                     }
+
                     // init message
                     ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+
+                    if (PERFORMANCE_PROFILING) {
+                        ws.send([7]);
+                    }
+                    if (HOTLOAD_ENABLED) {
+                        console.log("SENDING HOTLOAD");
+                        ws.send([8, 71, 01]);
+                    }
                     const _player = listenable(player, () => {
-                        updatePlayerInfo(_player);
+                        player.updatePlayerInfo();
                     });
 
                     if (jsonMessage.spectating) {
@@ -146,7 +145,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
-            console.log('socket closed');
             //            playerIds[ws.id] = false;
             if (ws.spectating) {
                 gameSession.handleSpectatorDisconnect(ws.id);

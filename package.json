@@ -28,6 +28,7 @@
   "homepage": "https://github.com/homegamesio/homegames#readme",
   "dependencies": {
     "homegames-common": "0.1.33",
+    "process-stats": "^3.5.5",
     "squish-061": "npm:squishjs@0.6.1",
     "squish-063": "npm:squishjs@0.6.3",
     "squish-0631": "npm:squishjs@0.6.31",
