@@ -88,7 +88,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
             ws.id = Number(jsonMessage.id || generatePlayerId());
 
-
             const req = http.request({
                 hostname: 'localhost',
                 port: HOMENAMES_PORT,

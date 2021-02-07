@@ -32,16 +32,23 @@ const startServer = (sessionInfo) => {
     gameSession = new GameSession(gameInstance, sessionInfo.port);
 
     if (HTTPS_ENABLED) {
-        guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
+        console.log('hello friend');
+        console.log(CERT_PATH);
+            console.log('hello friend 123');
  
             gameSession.initialize(() => {
+                console.log('hello friend 123456');
                 socketServer(gameSession, sessionInfo.port, () => {
+                    console.log('hello friend 123456789');
                     sendProcessMessage({
                         'success': true
                     });
-                }, certPaths);
+                }, {
+                    certPath: `${CERT_PATH}/fullchain.pem`,
+                    keyPath: `${CERT_PATH}/privkey.pem`
+                    
+                });
             });
-        });
     } else {
         gameSession.initialize(() => {
             socketServer(gameSession, sessionInfo.port, () => {
