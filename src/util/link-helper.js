@@ -31,7 +31,7 @@ const getClientInfo = () => {
 };
 
 const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
-    const client = new WebSocket('wss://www.homegames.link:7080');
+    const client = new WebSocket('wss://homegames.link');
     
     client.on('open', () => {
         const clientInfo = getClientInfo();

@@ -688,7 +688,7 @@ class HomegamesRoot {
 
             const labelText = new GameNode.Text({
                 textInfo: {
-                    text: player.info.name,
+                    text: player.info.name || 'unknown',
                     x: 5,
                     y: 1,
                     size: 0.7,
