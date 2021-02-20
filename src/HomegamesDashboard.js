@@ -166,7 +166,7 @@ class HomegamesDashboard extends Game {
 
         sessions[port] = childSession;
 
-        childSession.send(JSON.stringify({
+        childSession.readyState == 1 && childSession.send(JSON.stringify({
             key: gameKey,
             port,
             player: {
@@ -213,13 +213,13 @@ class HomegamesDashboard extends Game {
                 if (cb) {
                     this.requestCallbacks[requestId] = cb;
                 }
-                childSession.send(JSON.stringify({
+                childSession.readyState == 1 && childSession.send(JSON.stringify({
                     'api': 'getPlayers',
                     'requestId': requestId
                 }));
             },
             sendHeartbeat: () => {
-                childSession.send(JSON.stringify({
+                childSession.readyState == 1 && childSession.send(JSON.stringify({
                     'type': 'heartbeat'
                 }));
             },
