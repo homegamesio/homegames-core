@@ -42,8 +42,8 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
         }));
 
         setInterval(() => {
-            client.send(JSON.stringify({type: 'heartbeat'}));
-        }, 2 * 1000 * 60);
+            client.readyState == 1 && client.send(JSON.stringify({type: 'heartbeat'}));
+        }, 1000 * 10);
 
         resolve(client);
     });

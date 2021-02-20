@@ -83,4 +83,7 @@ const checkPulse = () => {
     }
 };
 
-setInterval(checkPulse, 500);
+// short grace period to allow the first client to connect before checking heartbeat
+setTimeout(() => {
+    setInterval(checkPulse, 500);
+}, 3000);
