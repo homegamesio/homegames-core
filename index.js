@@ -86,14 +86,16 @@ if (LINK_DNS_ENABLED) {
 }
 
 actions.push((_out) => new Promise((resolve, reject) => {
-    if (!_out || !_out.certPath) {
+    if (!HTTPS_ENABLED || !_out || !_out.certPath) {
         console.log('regular server');
         server();
         resolve();
-    } else {
+    } else if (CERT_PATH) {
         console.log('secure server');
-        server(_out);
+        server(CERT_PATH);
         resolve();
+    } else {
+        console.log('idk');
     }
 }));
 
