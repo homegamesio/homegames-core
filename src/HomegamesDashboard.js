@@ -166,7 +166,7 @@ class HomegamesDashboard extends Game {
 
         sessions[port] = childSession;
 
-        childSession.readyState == 1 && childSession.send(JSON.stringify({
+        childSession.send(JSON.stringify({
             key: gameKey,
             port,
             player: {
