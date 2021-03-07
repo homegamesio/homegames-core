@@ -3,8 +3,8 @@ const http = require('http');
 
 console.log('cool');
 
-let portStart = 7000;
-let portEnd = 7100;
+let portStart = 80;
+let portEnd = 81;
 
 for (let x = portStart; x < portEnd; x++) {
     const server = http.createServer();
