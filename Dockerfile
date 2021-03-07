@@ -18,5 +18,5 @@ COPY . .
 # homegames server sessions can take this port range currently
 EXPOSE 7000-7100
 
-CMD [ "node", "game_server.js" ]
+CMD [ "npm", "run", "start"]
 
