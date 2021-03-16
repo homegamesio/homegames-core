@@ -213,13 +213,13 @@ class HomegamesDashboard extends Game {
                 if (cb) {
                     this.requestCallbacks[requestId] = cb;
                 }
-                childSession.readyState == 1 && childSession.send(JSON.stringify({
+                childSession.send(JSON.stringify({
                     'api': 'getPlayers',
                     'requestId': requestId
                 }));
             },
             sendHeartbeat: () => {
-                childSession.readyState == 1 && childSession.send(JSON.stringify({
+                childSession.send(JSON.stringify({
                     'type': 'heartbeat'
                 }));
             },
