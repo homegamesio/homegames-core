@@ -5,7 +5,7 @@ const { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['0633'];
 
 const COLORS = Colors.COLORS;
 
-const Asset = require('./common/Asset');
+const { Asset, downloadFile } = require('./common/Asset');
 
 const games = require('./games');
 
@@ -91,6 +91,33 @@ class HomegamesDashboard extends Game {
 
         this.keyCoolDowns = new ExpiringSet();
         this.modals = {};
+
+        setTimeout(() => {
+            console.log('going to download thing at ' + 'https://www.npmjs.com/package/multiparty');
+
+            const url = 'https://registry.npmjs.org/multiparty/4.2.2';//https://www.npmjs.com/package/multiparty';
+            downloadFile(url, '/Users/josephgarcia/testdep').then((path) => {
+                console.log('downloaded');
+                console.log(path);
+                const fs = require('fs');
+                fs.readFile(path, (err, data) => {
+                    const ting = JSON.parse(data);
+                    console.log(ting.dist);
+                    const tarLoc = ting.dist.tarball;
+                    downloadFile(tarLoc, '/Users/josephgarcia/testdepinstalls').then(path2 => {
+                        console.log('thingo at ');
+                        console.log(path2);
+                        // todo: extract
+                        const indexPath = '/Users/josephgarcia/testdepinstalls/package/index.js';
+                        //todo: install deps (prob sandbox)
+                        const pls = require(indexPath);
+                        console.log('holy shit fuck yes');
+                        console.log(pls);
+                    });
+                });
+            });
+
+        }, 500);
 
         this.gameList = Object.values(games);
 

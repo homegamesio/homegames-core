@@ -2,7 +2,7 @@ const squishMap = require('./common/squish-map');
 
 let { GameNode, Colors, Shapes, ShapeUtils } = squishMap['0633'];
 
-const Asset = require('./common/Asset');
+const { Asset } = require('./common/Asset');
 const { animations } = require('./common/util');
 const COLORS = Colors.COLORS;
 const path = require('path');

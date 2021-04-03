@@ -1,4 +1,4 @@
-const Asset = require('../../common/Asset');
+const { Asset } = require('../../common/Asset');
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-063');
 const COLORS = Colors.COLORS;
 

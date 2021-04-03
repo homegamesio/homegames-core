@@ -34,13 +34,17 @@ const downloadFile = (uri, path) => new Promise((resolve, reject) => {
 
     let data = '';
     getModule.get(uri, (res) => {
+
+        writeStream.on('close', () => {
+            resolve(filePath);
+        });
+
         res.on('data', (chunk) => {
             data += chunk;
             writeStream.write(chunk);
         });
         res.on('end', () => {
             writeStream.end();
-            resolve(filePath);
         });
     }).on('error', error => {
         reject(error);
@@ -101,4 +105,4 @@ class Asset {
     }
 }
 
-module.exports = Asset;
+module.exports = {downloadFile, Asset};
