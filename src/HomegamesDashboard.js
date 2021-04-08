@@ -1,5 +1,8 @@
 const { fork } = require('child_process');
+const fs = require('fs');
 const path = require('path');
+const https = require('https');
+const unzipper = require('unzipper');
 const squishMap = require('./common/squish-map');
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['0633'];
 
@@ -8,8 +11,6 @@ const COLORS = Colors.COLORS;
 const { Asset, downloadFile } = require('./common/Asset');
 
 const games = require('./games');
-
-const sortedGameKeys = Object.keys(games).sort();
 
 const { ExpiringSet, animations } = require('./common/util');
 
@@ -39,6 +40,38 @@ const getServerPort = () => {
 };
 
 let sessionIdCounter = 1;
+
+const httpGet = (url, headers = {}) => new Promise((resolve, reject) => {
+    const lib = url.startsWith('https') ? https : http;
+    lib.get(url, res => {
+        
+        let _buf = '';
+
+        res.on('end', () => {
+            resolve(_buf);
+        });
+
+        res.on('data', (_data) => {
+            _buf += _data;
+        }); 
+
+    });
+});
+
+const getZip = (url, dir) => new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(dir + '.zip');
+    https.get(url, (_response) => {
+	    _response.pipe(unzipper.Extract({ path: dir }));
+	    resolve(dir);
+	});
+});
+
+const downloadGame = (repoName, repoAuthor, branch, installDir) => new Promise((resolve, reject) => {
+    getZip(`https://codeload.github.com/${repoAuthor}/${repoName}/zip/${branch}`, installDir).then(() => {
+        resolve();
+    });
+});
+
 
 const DASHBOARD_COLOR = [69, 100, 150, 255];
 const orangeish = [246, 99, 4, 255];
@@ -93,33 +126,14 @@ class HomegamesDashboard extends Game {
         this.modals = {};
 
         setTimeout(() => {
-            console.log('going to download thing at ' + 'https://www.npmjs.com/package/multiparty');
+            downloadGame('do-dad', 'prosif', 'main', '/Users/josephgarcia/tmpstuff/def').then(() => { 
 
-            const url = 'https://registry.npmjs.org/multiparty/4.2.2';//https://www.npmjs.com/package/multiparty';
-            downloadFile(url, '/Users/josephgarcia/testdep').then((path) => {
-                console.log('downloaded');
-                console.log(path);
-                const fs = require('fs');
-                fs.readFile(path, (err, data) => {
-                    const ting = JSON.parse(data);
-                    console.log(ting.dist);
-                    const tarLoc = ting.dist.tarball;
-                    downloadFile(tarLoc, '/Users/josephgarcia/testdepinstalls').then(path2 => {
-                        console.log('thingo at ');
-                        console.log(path2);
-                        // todo: extract
-                        const indexPath = '/Users/josephgarcia/testdepinstalls/package/index.js';
-                        //todo: install deps (prob sandbox)
-                        const pls = require(indexPath);
-                        console.log('holy shit fuck yes');
-                        console.log(pls);
-                    });
-                });
+                const thing = require('/Users/josephgarcia/tmpstuff/def/do-dad-main');
+                console.log('thing!');
+                console.log(thing);
             });
 
         }, 500);
-
-        this.gameList = Object.values(games);
 
         this.optionColor = [255, 149, 10, 255];
         this.base = new GameNode.Shape({
@@ -195,6 +209,9 @@ class HomegamesDashboard extends Game {
 
         childSession.send(JSON.stringify({
             key: gameKey,
+            gamePaths: {
+                'do-dad': '/Users/josephgarcia/tmpstuff/def/do-dad-main'
+            },
             port,
             player: {
                 id: player.id,
@@ -279,7 +296,7 @@ class HomegamesDashboard extends Game {
             }
         });
 
-        const gameMetadata = games[gameKey].metadata && games[gameKey].metadata() || {};
+        const gameMetadata = games[gameKey] && games[gameKey].metadata && games[gameKey].metadata() || {};
 
         const title = gameMetadata.title || gameKey;
         const author = gameMetadata.author || 'Unknown Author';
@@ -434,7 +451,27 @@ class HomegamesDashboard extends Game {
 
         const gamesPerScreen = perCol * perRow;
 
-        const screens = Math.ceil(Object.keys(games).length / gamesPerScreen);
+        const getCatalogGames = () => new Promise((resolve, reject) => {
+            httpGet('https://landlord.homegames.io/games').then((res) => {
+                console.log('games from landlord');
+                const gameData = JSON.parse(res).games;
+                console.log(gameData);
+                console.log("i have " + Object.keys(gameData).length + " games");
+                for (const index in gameData) {
+                    const game = gameData[index];
+                    console.log("game");
+                    console.log(game);
+                }
+            });
+        });
+
+        getCatalogGames();
+
+        const _games = Object.assign({'do-dad': {'uh': 'hi'}}, games);//.concat(['do-dad']);
+
+        console.log("GAMES ");
+        console.log(_games);
+        const screens = Math.ceil(Object.keys(_games).length / gamesPerScreen);
         const barHeight = 90 / screens;
 
         const barWrapper = new GameNode.Shape({
@@ -480,11 +517,14 @@ class HomegamesDashboard extends Game {
 
         let gameIndex = 0;
 
+        const sortedGameKeys = Object.keys(_games).sort();
+        console.log("SORTTT");
+        console.log(sortedGameKeys);
         const gameKeys = sortedGameKeys.slice(startGameIndex, endGameIndex);
         for (const keyIndex in gameKeys) {
             const key = gameKeys[keyIndex];
 
-            const assetKey = games[key].metadata && games[key].metadata().thumbnail ? key : 'default';
+            const assetKey = _games[key] && _games[key].metadata && _games[key].metadata().thumbnail ? key : 'default';
             const gamePos = indexToPos(gameIndex);
 
             const gameOptionWrapper = new GameNode.Shape({
@@ -530,7 +570,7 @@ class HomegamesDashboard extends Game {
 
             gameIndex++;
 
-            const textThing = (games[key].metadata && games[key].metadata().name || key) + '';
+            const textThing = (_games[key].metadata && _games[key].metadata().name || key) + '';
             const gameOptionTitle = new GameNode.Text({
                 textInfo: {
                     text: textThing, 

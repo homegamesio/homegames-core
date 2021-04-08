@@ -27,7 +27,22 @@ const sendProcessMessage = (msg) => {
 
 const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAccessToken } = require('homegames-common');
 const startServer = (sessionInfo) => {
-    const gameInstance = new games[sessionInfo.key]();
+
+    const gamePaths = sessionInfo.gamePaths;
+
+    const gameRefs = {};
+
+    for (const key in gamePaths) {
+        console.log("KEYYY");
+        console.log(key);
+        gameRefs[key] = require(gamePaths[key]);        
+    }
+
+    console.log("GAME REFS");
+    console.log(gameRefs);
+
+    console.log(sessionInfo.key);
+    const gameInstance = games[sessionInfo.key] ? new games[sessionInfo.key]() : new gameRefs[sessionInfo.key]();
     
     gameSession = new GameSession(gameInstance, sessionInfo.port);
 
