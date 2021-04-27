@@ -125,16 +125,6 @@ class HomegamesDashboard extends Game {
         this.keyCoolDowns = new ExpiringSet();
         this.modals = {};
 
-        setTimeout(() => {
-            downloadGame('do-dad', 'prosif', 'main', '/Users/josephgarcia/tmpstuff/def').then(() => { 
-
-                const thing = require('/Users/josephgarcia/tmpstuff/def/do-dad-main');
-                console.log('thing!');
-                console.log(thing);
-            });
-
-        }, 500);
-
         this.optionColor = [255, 149, 10, 255];
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON, 
@@ -171,6 +161,8 @@ class HomegamesDashboard extends Game {
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             fill: DASHBOARD_COLOR
         });
+
+        this.__games = {};
         
         this.base.addChild(this.screen);
         this.sessions = {};
@@ -209,9 +201,10 @@ class HomegamesDashboard extends Game {
 
         childSession.send(JSON.stringify({
             key: gameKey,
-            gamePaths: {
-                'do-dad': '/Users/josephgarcia/tmpstuff/def/do-dad-main'
-            },
+            games: this.__games,
+//            gamePaths: {
+//                'do-dad': '/Users/josephgarcia/tmpstuff/def/do-dad-main'
+//            },
             port,
             player: {
                 id: player.id,
@@ -465,9 +458,9 @@ class HomegamesDashboard extends Game {
             });
         });
 
-        getCatalogGames();
+        //getCatalogGames();
 
-        const _games = Object.assign({'do-dad': {'uh': 'hi'}}, games);//.concat(['do-dad']);
+        const _games = Object.keys(this.__games).length > 0 ? this.__games : games;//Object.assign({'do-dad': {'uh': 'hi'}}, games);//.concat(['do-dad']);
 
         console.log("GAMES ");
         console.log(_games);

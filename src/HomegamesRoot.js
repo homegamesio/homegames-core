@@ -1,4 +1,6 @@
 const squishMap = require('./common/squish-map');
+const https = require('https');
+const http = require('http');
 
 let { GameNode, Colors, Shapes, ShapeUtils } = squishMap['0633'];
 
@@ -12,6 +14,31 @@ const games = require('./games');
 
 const process = require('process');
 const procStats = require('process-stats')();
+
+const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
+    const getModule = url.startsWith('https') ? https : http;
+
+    let responseData = '';
+
+    getModule.get(url, { headers } , (res) => {
+        const bufs = [];
+        res.on('data', (chunk) => {
+            bufs.push(chunk);
+        });
+
+        res.on('end', () => {
+            if (res.statusCode > 199 && res.statusCode < 300) {
+                resolve(Buffer.concat(bufs));
+            } else {
+                reject(Buffer.concat(bufs));
+            }
+        });
+    }).on('error', error => {
+        reject(error);
+    });
+ 
+});
+
 
 class HomegamesRoot {
     static metadata() {
@@ -42,6 +69,7 @@ class HomegamesRoot {
         this.profiling = profiling;
         this.renderTimes = [];
         this.game = game;
+        this.playerPrefs = {};
         if (game.constructor.metadata() && game.constructor.metadata().squishVersion) {
             const squishVersion = squishMap[game.constructor.metadata().squishVersion];
             GameNode = squishVersion.GameNode;
@@ -223,6 +251,37 @@ class HomegamesRoot {
                     }
                 }
             });
+
+            const unapprovedLabel = new GameNode.Text({
+                textInfo: {
+                    text: 'Unapproved games',
+                    x: 20,
+                    y: 40,
+                    size: 1.6,
+                    align: 'left',
+                    color: COLORS.BLACK
+                },
+                playerIds: [player.id]
+            });
+
+            const unapprovedGamesOption = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(40, 40, 5, 5),
+                fill: this.playerPrefs[player.id].unapprovedGames ? COLORS.GREEN : COLORS.RED,
+                playerIds: [player.id],
+                onClick: (player) => {
+                    console.log('yoooo');
+                    let playerOption = this.playerPrefs[player.id] && this.playerPrefs[player.id].unapprovedGames || false;
+                    let newOption = !playerOption;
+
+                    const newColor = newOption ? COLORS.GREEN : COLORS.RED;
+
+                    this.playerPrefs[player.id].unapprovedGames = newOption;
+
+                    unapprovedGamesOption.node.color = newColor;
+                    unapprovedGamesOption.node.fill = newColor;
+                }
+            });
             
             const version = new GameNode.Text({
                 textInfo: {
@@ -236,7 +295,7 @@ class HomegamesRoot {
                 playerIds: [player.id]
             });
 
-            modal.addChildren(settingsText, playerName, closeButton, version);
+            modal.addChildren(settingsText, playerName, closeButton, unapprovedLabel, unapprovedGamesOption, version);
             this.homeButton.addChild(modal);
             this.playerDashboards[player.id] = {dashboard: modal, intervals: []};
         };
@@ -270,6 +329,49 @@ class HomegamesRoot {
                     }
                 }
             }
+        });
+
+        this.searchBox = new GameNode.Text({
+                textInfo: {
+                    text: `Search`,
+                    x: 60,
+                    y: 2,
+                    size: 1.6,
+                    align: 'left',
+                    color: COLORS.BLACK
+                }, 
+                input: {
+                    type: 'text',
+                    oninput: (player, text) => {
+                        console.log('you want to search for');
+                        console.log(text);
+                        getUrl('https://landlord.homegames.io/games?query=' + text).then(_res => {
+                            const searchResults = JSON.parse(_res);
+                            if (this.isDashboard) {
+                                console.log(searchResults);
+                                console.log("let me see what current dashboard games aee");
+                                console.log(this.game.__games);
+
+                                
+                                const newGames = {};
+                                searchResults.games.forEach(g => {
+                                    console.log('fg');
+                                    console.log(g);
+
+                                    newGames[g.game_name] = {
+                                        name: g.game_name,
+                                        id: g.game_id,
+                                        developer: g.developer_id
+                                    };
+                                });
+
+                                this.game.__games = newGames;
+
+                                this.game.renderGameList(player.id);
+                            }
+                        });
+                    }
+                }
         });
 
         this.settingsButton = new GameNode.Asset({
@@ -616,6 +718,7 @@ class HomegamesRoot {
         this.root.addChild(game.getRoot());
         this.root.addChild(this.homeButton);
         this.root.addChild(this.settingsButton);
+        this.root.addChild(this.searchBox);
     }
 
     getRoot() {
@@ -623,6 +726,7 @@ class HomegamesRoot {
     }
 
     handleNewPlayer(player) {
+        this.playerPrefs[player.id] = {};
         const playerFrame = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             assetInfo: {
@@ -767,6 +871,7 @@ class HomegamesRoot {
     }
 
     handlePlayerDisconnect(playerId) {
+        this.playerPrefs[playerId] = {};
         if (this.playerDashboards[playerId]) {
             this.playerDashboards[playerId].intervals.forEach(interval => {
                 clearInterval(interval);
