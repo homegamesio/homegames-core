@@ -313,9 +313,10 @@ class HomegamesDashboard extends Game {
             }
         });
 
-        const gameMetadata = games[gameKey] && games[gameKey].metadata && games[gameKey].metadata() || {};
+//        const gameMetadata = games[gameKey] && games[gameKey].metadata && games[gameKey].metadata() || {};
 
-        const title = gameMetadata.title || gameKey;
+        const gameMetadata = {};
+        const title = this.__games[gameKey].name;//gameMetadata.title || gameKey;
         const author = gameMetadata.author || 'Unknown Author';
         const description = gameMetadata.description || 'No description available';
         const version = gameMetadata.version ? `Version ${gameMetadata.version}` : 'Unkown version';
@@ -581,7 +582,7 @@ class HomegamesDashboard extends Game {
 
                 gameIndex++;
 
-                const textThing = (_games[key].metadata && _games[key].metadata().name || key) + '';
+                const textThing = this.__games[key].name;//(_games[key].metadata && _games[key].metadata().name || key) + '';
                 const gameOptionTitle = new GameNode.Text({
                     textInfo: {
                         text: textThing, 
