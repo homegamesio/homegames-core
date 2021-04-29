@@ -116,13 +116,8 @@ const startServer = (sessionInfo) => {
             });
         }
     } else if (sessionInfo.games && sessionInfo.games[sessionInfo.key]) {
-        console.log('dont know where this is');
-        console.log(sessionInfo.games);
-        console.log(sessionInfo.games[sessionInfo.key]);
         getUrl('https://landlord.homegames.io/games/' + sessionInfo.games[sessionInfo.key].id).then(_gameData => {
-            console.log('game data');
             const gameData = JSON.parse(_gameData);
-            console.log(gameData);
             const latestVersion = gameData.versions && gameData.versions[0];
             const latestLocation = latestVersion.location;
             const newDir = GAME_PATH + '/' + Date.now();
