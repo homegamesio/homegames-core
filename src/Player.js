@@ -12,7 +12,7 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 class Player {
-    constructor(ws, spectating, clientInfo) {
+    constructor(ws, spectating, clientInfo, requestedGameId) {
         this.inputListeners = new Set();
         this.stateListeners = new Set();
         this.clientInfo = clientInfo;
@@ -20,6 +20,10 @@ class Player {
         this.id = ws.id;
         this.info = {};
         this.spectating = spectating;
+
+        console.log('requested game id');
+        console.log(requestedGameId);
+        this.requestedGameId = requestedGameId;
 
         this.ws.on('message', (input) => {
             try {
