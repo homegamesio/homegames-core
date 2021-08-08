@@ -488,7 +488,7 @@ class HomegamesDashboard extends Game {
                 title: gameData.name, 
                 author: gameData.author, 
                 description: gameData.description,
-                version: versions[0]?.version
+                version: versions[0] && versions[0].version
             };
             renderThing(_gameMetadata);
         } else {
