@@ -173,11 +173,12 @@ class HomegamesDashboard extends Game {
                     path: gamePath
                 }));
 
-                stream.on('finish', () => {
+                stream.on('close', () => {
                     fs.readdir(gamePath, (err, files) => {
                         resolve(`${gamePath}/${files[0]}/index.js`);
                     });
                 });
+
             });
         });
     }
