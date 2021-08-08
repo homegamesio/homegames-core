@@ -1,6 +1,7 @@
 const GameSession = require('./GameSession');
 const { socketServer } = require('./util/socket');
 const games = require('./games');
+const process = require('process');
 
 let lastMessage;
 let gameSession;
@@ -15,7 +16,6 @@ if (baseDir.endsWith('src')) {
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
-const process = require('process');
 
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const CERT_PATH = getConfigValue('HG_CERT_PATH', `${process.cwd()}/.hg_certs`);
@@ -26,9 +26,17 @@ const sendProcessMessage = (msg) => {
 };
 
 const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAccessToken } = require('homegames-common');
+
 const startServer = (sessionInfo) => {
-    const gameInstance = new games[sessionInfo.key]();
-    
+    let gameInstance;
+
+    if (sessionInfo.gamePath) {
+        const _gameClass = require(sessionInfo.gamePath);
+        gameInstance = new _gameClass();
+    } else {
+        gameInstance = new games[sessionInfo.key]();
+    }
+
     gameSession = new GameSession(gameInstance, sessionInfo.port);
 
     if (HTTPS_ENABLED) {
@@ -61,6 +69,7 @@ const startServer = (sessionInfo) => {
 };
 
 process.on('message', (msg) => {
+
     lastMessage = new Date();
     const message = JSON.parse(msg);
     if (message.key) {
@@ -86,4 +95,4 @@ const checkPulse = () => {
 // short grace period to allow the first client to connect before checking heartbeat
 setTimeout(() => {
     setInterval(checkPulse, 500);
-}, 3000);
+}, 5000);

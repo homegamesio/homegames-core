@@ -88,6 +88,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
             ws.id = Number(jsonMessage.id || generatePlayerId());
 
+            const requestedGameId = jsonMessage.clientInfo?.requestedGameId;
+
             const req = http.request({
                 hostname: 'localhost',
                 port: HOMENAMES_PORT,
@@ -96,7 +98,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             }, res => {
                 res.on('data', d => {
                     const playerInfo = JSON.parse(d);
-                    const player = new Player(ws, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo);
+                    const player = new Player(ws, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGameId);
                     ws.spectating = jsonMessage.spectating;
                     
                     if (jsonMessage.id && playerInfo.name) {

@@ -119,6 +119,8 @@ class GameSession {
                 }
             }
         } else if (input.type === 'clientInfo') {
+            console.log('I got this thing');
+            console.log(input);
             if (this.game && this.game.deviceRules) {
                 const deviceRules = this.game.deviceRules();
                 if (deviceRules.aspectRatio) {

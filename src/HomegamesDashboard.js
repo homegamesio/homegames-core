@@ -1,7 +1,10 @@
 const { fork } = require('child_process');
+const https = require('https');
 const path = require('path');
 const squishMap = require('./common/squish-map');
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['0633'];
+const unzipper = require('unzipper');
+const fs = require('fs');
 
 const COLORS = Colors.COLORS;
 
@@ -88,6 +91,7 @@ class HomegamesDashboard extends Game {
         super();
         
         this.playerStates = {};
+        this.downloadedGames = {};
 
         this.keyCoolDowns = new ExpiringSet();
         this.modals = {};
@@ -158,73 +162,195 @@ class HomegamesDashboard extends Game {
         });
     }
 
+    downloadGame(gameId) {
+        return new Promise((resolve, reject) => {
+            console.log('downloaded game ' + gameId);
+            console.log(this.downloadedGames[gameId]);
+            const version = this.downloadedGames[gameId].versions[0];
+            console.log('downloading ' + version.location);
+            const gamePath = `${path.resolve('hg-games')}/${gameId}`;
+            console.log('downloading to ' + gamePath);
+            https.get(version.location, (res) => {
+                // let buf = '';
+                
+                // res.on('data', (data) => {
+                //     buf += data;
+                // });
+
+                // res.on('end', () => {
+                //     unzipper.Open.buffer(buf).then(_thing => {
+                //         console.log('downloaded zip');
+                
+                //         resolve();
+                //     });
+                // });
+
+                const stream = res.pipe(unzipper.Extract({
+                    path: gamePath
+                }));
+
+                stream.on('finish', () => {
+                    fs.readdir(gamePath, (err, files) => {
+                        resolve(`${gamePath}/${files[0]}/index.js`);
+                    });
+                });
+            });
+        });
+    }
+
     startSession(player, gameKey) { 
         const sessionId = sessionIdCounter++;
         const port = getServerPort();
 
-        const childSession = fork(path.join(__dirname, 'child_game_server.js'));
+        if (this.downloadedGames[gameKey]) {
+            this.downloadGame(gameKey).then(gamePath => {
+                console.log('need to pass this to child server');
+                console.log(gamePath);
 
-        sessions[port] = childSession;
+                const childSession = fork(path.join(__dirname, 'child_game_server.js'));
 
-        childSession.send(JSON.stringify({
-            key: gameKey,
-            port,
-            player: {
-                id: player.id,
-                name: player.name
-            }
-        }));
+                console.log('child session');
+                console.log(childSession);
+                sessions[port] = childSession;
 
-        childSession.on('message', (thang) => {
-            const jsonMessage = JSON.parse(thang);
-            if (jsonMessage.success) {
-                player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
-            }
-            else if (jsonMessage.requestId) {
-                this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
-            }
-        });
+                childSession.send(JSON.stringify({
+                    key: gameKey,
+                    gamePath,
+                    port,
+                    player: {
+                        id: player.id,
+                        name: player.name
+                    }
+                }));
 
-        const updateSessionInfo = () => {
-            this.updateSessionInfo(sessionId);
-        };
+                console.log("JUST SENT THSDFDSF");
+                console.log(gamePath);
 
-        const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
+                childSession.on('message', (thang) => {
+                    console.log('got a emssage');
+                    console.log(thang);
+                    if (thang.startsWith('{')) {
+                        const jsonMessage = JSON.parse(thang);
+                        if (jsonMessage.success) {
+                            player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+                        }
+                        else if (jsonMessage.requestId) {
+                            this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
+                        }
+                    } else {
+                        console.log('message!');
+                        console.log(message);
+                    }
+                });
 
-        childSession.on('close', () => {
-            clearInterval(sessionInfoUpdateInterval);
-            sessions[port] = null;
-            delete this.sessions[sessionId];
-        });
+                const updateSessionInfo = () => {
+                    this.updateSessionInfo(sessionId);
+                };
 
-        childSession.on('error', (err) => {
-            console.log('child session error');
-            console.log(err);
-        });
-        
-        this.sessions[sessionId] = {
-            id: sessionId,
-            game: gameKey,
-            port: port,
-            sendMessage: () => {
-            },
-            getPlayers: (cb) => {
-                const requestId = this.requestIdCounter++;
-                if (cb) {
-                    this.requestCallbacks[requestId] = cb;
+                const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
+
+                childSession.on('close', () => {
+                    console.log('cloesed?');
+                    clearInterval(sessionInfoUpdateInterval);
+                    sessions[port] = null;
+                    delete this.sessions[sessionId];
+                });
+
+                childSession.on('error', (err) => {
+                    console.log('child session error');
+                    console.log(err);
+                });
+                
+                this.sessions[sessionId] = {
+                    id: sessionId,
+                    game: gameKey,
+                    port: port,
+                    sendMessage: () => {
+                    },
+                    getPlayers: (cb) => {
+                        const requestId = this.requestIdCounter++;
+                        if (cb) {
+                            this.requestCallbacks[requestId] = cb;
+                        }
+                        childSession.send(JSON.stringify({
+                            'api': 'getPlayers',
+                            'requestId': requestId
+                        }));
+                    },
+                    sendHeartbeat: () => {
+                        childSession.send(JSON.stringify({
+                            'type': 'heartbeat'
+                        }));
+                    },
+                    players: []
+                };
+            });
+        } else {
+
+            const childSession = fork(path.join(__dirname, 'child_game_server.js'));
+
+            sessions[port] = childSession;
+
+            childSession.send(JSON.stringify({
+                key: gameKey,
+                port,
+                player: {
+                    id: player.id,
+                    name: player.name
                 }
-                childSession.send(JSON.stringify({
-                    'api': 'getPlayers',
-                    'requestId': requestId
-                }));
-            },
-            sendHeartbeat: () => {
-                childSession.send(JSON.stringify({
-                    'type': 'heartbeat'
-                }));
-            },
-            players: []
-        };
+            }));
+
+            childSession.on('message', (thang) => {
+                const jsonMessage = JSON.parse(thang);
+                if (jsonMessage.success) {
+                    player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+                }
+                else if (jsonMessage.requestId) {
+                    this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
+                }
+            });
+
+            const updateSessionInfo = () => {
+                this.updateSessionInfo(sessionId);
+            };
+
+            const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
+
+            childSession.on('close', () => {
+                clearInterval(sessionInfoUpdateInterval);
+                sessions[port] = null;
+                delete this.sessions[sessionId];
+            });
+
+            childSession.on('error', (err) => {
+                console.log('child session error');
+                console.log(err);
+            });
+            
+            this.sessions[sessionId] = {
+                id: sessionId,
+                game: gameKey,
+                port: port,
+                sendMessage: () => {
+                },
+                getPlayers: (cb) => {
+                    const requestId = this.requestIdCounter++;
+                    if (cb) {
+                        this.requestCallbacks[requestId] = cb;
+                    }
+                    childSession.send(JSON.stringify({
+                        'api': 'getPlayers',
+                        'requestId': requestId
+                    }));
+                },
+                sendHeartbeat: () => {
+                    childSession.send(JSON.stringify({
+                        'type': 'heartbeat'
+                    }));
+                },
+                players: []
+            };
+        }
 
         //        this.renderGameList();
     }
@@ -252,126 +378,150 @@ class HomegamesDashboard extends Game {
             }
         });
 
-        const gameMetadata = games[gameKey].metadata && games[gameKey].metadata() || {};
+        const renderThing = (gameMetadata) => {
+            const title = gameMetadata.title || gameKey;
+            const author = gameMetadata.author || 'Unknown Author';
+            const description = gameMetadata.description || 'No description available';
+            const version = gameMetadata.version ? `Version ${gameMetadata.version}` : 'Unkown version';
 
-        const title = gameMetadata.title || gameKey;
-        const author = gameMetadata.author || 'Unknown Author';
-        const description = gameMetadata.description || 'No description available';
-        const version = gameMetadata.version ? `Version ${gameMetadata.version}` : 'Unkown version';
-
-        const titleNode = new GameNode.Text({
-            textInfo: createTextInfo(title, 50, 12, 2.5, 'center', orangeish),
-            playerIds: [player.id]
-        });
-
-        const authorNode = new GameNode.Text({
-            textInfo: createTextInfo(`by ${author}`, 50, 20, 1.2, 'center', COLORS.WHITE),
-            playerIds: [player.id]
-        });
-
-        const descriptionNode = new GameNode.Text({
-            textInfo: createTextInfo(description, 50, 32, .8, 'center', COLORS.WHITE),
-            playerIds: [player.id]
-        });
-
-        const versionText = new GameNode.Text({
-            textInfo: createTextInfo(version, 50, 26, 1, 'center', COLORS.HG_YELLOW),
-            playerIds: [player.id]
-        });
- 
-        const createText = new GameNode.Text({
-            textInfo: createTextInfo('Create a new session', 30, 61, 1.3, 'center', COLORS.BLACK),
-            playerIds: [player.id]
-        });
-
-        const createButton = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(17.5, 45, 25, 35),
-            fill: COLORS.HG_BLUE,
-            playerIds: [player.id],
-            onClick: (player) => {
-                this.playerStates[player.id].root.removeChild(gameInfoModal.id);
-                this.startSession(player, gameKey);
-            }
-        });
-
-        gameInfoModal.addChildren(createButton, titleNode, authorNode, descriptionNode, createText, versionText);
-
-        let sessionOptionY = 48;
-        const sessionOptionX = 58;
-
-        const sessionButtonHeight = 4;
-        const sessionButtonWidth = 10;
-        
-        if (activeSessions.length > 0) {
-            const joinText = new GameNode.Text({
-                textInfo: createTextInfo('Current sessions', 70, 40, 1.3, 'center', COLORS.WHITE),
+            const titleNode = new GameNode.Text({
+                textInfo: createTextInfo(title, 50, 12, 2.5, 'center', orangeish),
                 playerIds: [player.id]
             });
 
-            gameInfoModal.addChild(joinText);
+            const authorNode = new GameNode.Text({
+                textInfo: createTextInfo(`by ${author}`, 50, 20, 1.2, 'center', COLORS.WHITE),
+                playerIds: [player.id]
+            });
+
+            const descriptionNode = new GameNode.Text({
+                textInfo: createTextInfo(description, 50, 32, .8, 'center', COLORS.WHITE),
+                playerIds: [player.id]
+            });
+
+            const versionText = new GameNode.Text({
+                textInfo: createTextInfo(version, 50, 26, 1, 'center', COLORS.HG_YELLOW),
+                playerIds: [player.id]
+            });
+     
+            const createText = new GameNode.Text({
+                textInfo: createTextInfo('Create a new session', 30, 61, 1.3, 'center', COLORS.BLACK),
+                playerIds: [player.id]
+            });
+
+            const createButton = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(17.5, 45, 25, 35),
+                fill: COLORS.HG_BLUE,
+                playerIds: [player.id],
+                onClick: (player) => {
+                    this.playerStates[player.id].root.removeChild(gameInfoModal.id);
+                    this.startSession(player, gameKey);
+                }
+            });
+
+            gameInfoModal.addChildren(createButton, titleNode, authorNode, descriptionNode, createText, versionText);
+
+            let sessionOptionY = 48;
+            const sessionOptionX = 58;
+
+            const sessionButtonHeight = 4;
+            const sessionButtonWidth = 10;
+            
+            if (activeSessions.length > 0) {
+                const joinText = new GameNode.Text({
+                    textInfo: createTextInfo('Current sessions', 70, 40, 1.3, 'center', COLORS.WHITE),
+                    playerIds: [player.id]
+                });
+
+                gameInfoModal.addChild(joinText);
+            }
+
+            activeSessions.forEach(s => {
+                const joinSessionButton = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    coordinates2d: ShapeUtils.rectangle(sessionOptionX + 5, sessionOptionY - 1, sessionButtonWidth, sessionButtonHeight),
+                    fill: COLORS.WHITE,
+                    playerIds: [player.id],
+                    onClick: (player) => {
+                        this.joinSession(player, s);
+                    }
+                });
+
+                const joinLabel = new GameNode.Text({
+                    textInfo: createTextInfo('Join', sessionOptionX + 5 + (sessionButtonWidth / 2), sessionOptionY - 1.6 + (sessionButtonHeight / 2), .9, 'center', COLORS.BLACK),
+                    playerIds: [player.id]
+                });
+
+                const spectateSessionButton = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    coordinates2d: ShapeUtils.rectangle(sessionOptionX + sessionButtonWidth + 2 + 5, sessionOptionY - 1, sessionButtonWidth, sessionButtonHeight),
+                    fill: COLORS.WHITE,
+                    playerIds: [player.id],
+                    onClick: (player) => {
+                        this.spectateSession(player, s);
+                    }
+                });
+
+                const spectateLabel = new GameNode.Text({
+                    textInfo: createTextInfo('Spectate', sessionOptionX + 5 + sessionButtonWidth + 2 + (sessionButtonWidth / 2), sessionOptionY - 1.6 + (sessionButtonHeight / 2), .9, 'center', COLORS.BLACK),
+                    playerIds: [player.id]
+                });
+
+                const sessionText = new GameNode.Text({
+                    textInfo: createTextInfo(`Session ${s.id}`, sessionOptionX, sessionOptionY, 1, 'center', orangeish),
+                    playerIds: [player.id]
+                });
+
+                joinSessionButton.addChild(joinLabel);
+                spectateSessionButton.addChild(spectateLabel);
+
+                gameInfoModal.addChildren(sessionText, joinSessionButton, spectateSessionButton);
+
+                sessionOptionY += sessionButtonHeight + 3;
+            });
+
+            const closeModalButton = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(11, 11, 6, 6),
+                fill: COLORS.HG_RED,
+                playerIds: [player.id],
+                onClick: (player) => {
+                    delete this.modals[player.id];
+                    this.playerStates[player.id].root.removeChild(gameInfoModal.node.id);
+                }
+            });
+
+            gameInfoModal.addChild(closeModalButton);
+
+            animations.fadeIn(gameInfoModal, .6);
+             
+            this.playerStates[player.id].root.addChild(gameInfoModal);
         }
 
-        activeSessions.forEach(s => {
-            const joinSessionButton = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(sessionOptionX + 5, sessionOptionY - 1, sessionButtonWidth, sessionButtonHeight),
-                fill: COLORS.WHITE,
-                playerIds: [player.id],
-                onClick: (player) => {
-                    this.joinSession(player, s);
-                }
-            });
+        let _gameMetadata;
 
-            const joinLabel = new GameNode.Text({
-                textInfo: createTextInfo('Join', sessionOptionX + 5 + (sessionButtonWidth / 2), sessionOptionY - 1.6 + (sessionButtonHeight / 2), .9, 'center', COLORS.BLACK),
-                playerIds: [player.id]
-            });
+        if (this.downloadedGames[gameKey]) {
+            console.log(this.downloadedGames);
+            const gameData = this.downloadedGames[gameKey].gameData;
 
-            const spectateSessionButton = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(sessionOptionX + sessionButtonWidth + 2 + 5, sessionOptionY - 1, sessionButtonWidth, sessionButtonHeight),
-                fill: COLORS.WHITE,
-                playerIds: [player.id],
-                onClick: (player) => {
-                    this.spectateSession(player, s);
-                }
-            });
+            const versions = this.downloadedGames[gameKey].versions;
 
-            const spectateLabel = new GameNode.Text({
-                textInfo: createTextInfo('Spectate', sessionOptionX + 5 + sessionButtonWidth + 2 + (sessionButtonWidth / 2), sessionOptionY - 1.6 + (sessionButtonHeight / 2), .9, 'center', COLORS.BLACK),
-                playerIds: [player.id]
-            });
+            console.log('versions');
+            console.log(versions);
 
-            const sessionText = new GameNode.Text({
-                textInfo: createTextInfo(`Session ${s.id}`, sessionOptionX, sessionOptionY, 1, 'center', orangeish),
-                playerIds: [player.id]
-            });
-
-            joinSessionButton.addChild(joinLabel);
-            spectateSessionButton.addChild(spectateLabel);
-
-            gameInfoModal.addChildren(sessionText, joinSessionButton, spectateSessionButton);
-
-            sessionOptionY += sessionButtonHeight + 3;
-        });
-
-        const closeModalButton = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(11, 11, 6, 6),
-            fill: COLORS.HG_RED,
-            playerIds: [player.id],
-            onClick: (player) => {
-                delete this.modals[player.id];
-                this.playerStates[player.id].root.removeChild(gameInfoModal.node.id);
-            }
-        });
-
-        gameInfoModal.addChild(closeModalButton);
-
-        animations.fadeIn(gameInfoModal, .6);
-         
-        this.playerStates[player.id].root.addChild(gameInfoModal);
+            _gameMetadata = {
+                title: gameData.name, 
+                author: gameData.author, 
+                description: gameData.description,
+                version: versions[0]?.version
+            };
+            renderThing(_gameMetadata);
+        } else {
+            _gameMetadata = games[gameKey].metadata && games[gameKey].metadata() || {};
+            renderThing(_gameMetadata);
+        }
+        
     }
     
     renderGameList(playerId) {
@@ -561,6 +711,7 @@ class HomegamesDashboard extends Game {
 
     handleNewPlayer(player) {
         this.keyCoolDowns[player.id] = {};
+
         const playerRootNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: [
@@ -581,6 +732,25 @@ class HomegamesDashboard extends Game {
         };
 
         this.renderGameList(player.id);
+
+        if (player.requestedGameId) {
+            console.log('i need to download this game: ' + player.requestedGameId);
+
+            https.get(`https://landlord.homegames.io/games/${player.requestedGameId}`, (res) => {
+                if (res.statusCode == 200) {
+                    res.on('data', (buf) => {
+
+                        const gameData = JSON.parse(buf);
+                        this.downloadedGames[player.requestedGameId] = gameData;
+                        this.onGameOptionClick(player, player.requestedGameId);
+                    });
+                    //const data = j
+                } else {
+                    console.log('dont know what happened');
+                }
+//                    console.log(res);
+            });
+        }
     }
 
     handlePlayerDisconnect(playerId) {
