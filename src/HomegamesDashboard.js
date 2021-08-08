@@ -165,26 +165,10 @@ class HomegamesDashboard extends Game {
     downloadGame(gameId) {
         return new Promise((resolve, reject) => {
             console.log('downloaded game ' + gameId);
-            console.log(this.downloadedGames[gameId]);
             const version = this.downloadedGames[gameId].versions[0];
-            console.log('downloading ' + version.location);
             const gamePath = `${path.resolve('hg-games')}/${gameId}`;
             console.log('downloading to ' + gamePath);
             https.get(version.location, (res) => {
-                // let buf = '';
-                
-                // res.on('data', (data) => {
-                //     buf += data;
-                // });
-
-                // res.on('end', () => {
-                //     unzipper.Open.buffer(buf).then(_thing => {
-                //         console.log('downloaded zip');
-                
-                //         resolve();
-                //     });
-                // });
-
                 const stream = res.pipe(unzipper.Extract({
                     path: gamePath
                 }));
@@ -204,13 +188,8 @@ class HomegamesDashboard extends Game {
 
         if (this.downloadedGames[gameKey]) {
             this.downloadGame(gameKey).then(gamePath => {
-                console.log('need to pass this to child server');
-                console.log(gamePath);
-
                 const childSession = fork(path.join(__dirname, 'child_game_server.js'));
 
-                console.log('child session');
-                console.log(childSession);
                 sessions[port] = childSession;
 
                 childSession.send(JSON.stringify({
@@ -223,12 +202,7 @@ class HomegamesDashboard extends Game {
                     }
                 }));
 
-                console.log("JUST SENT THSDFDSF");
-                console.log(gamePath);
-
                 childSession.on('message', (thang) => {
-                    console.log('got a emssage');
-                    console.log(thang);
                     if (thang.startsWith('{')) {
                         const jsonMessage = JSON.parse(thang);
                         if (jsonMessage.success) {
@@ -250,7 +224,6 @@ class HomegamesDashboard extends Game {
                 const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
 
                 childSession.on('close', () => {
-                    console.log('cloesed?');
                     clearInterval(sessionInfoUpdateInterval);
                     sessions[port] = null;
                     delete this.sessions[sessionId];
@@ -734,8 +707,6 @@ class HomegamesDashboard extends Game {
         this.renderGameList(player.id);
 
         if (player.requestedGameId) {
-            console.log('i need to download this game: ' + player.requestedGameId);
-
             https.get(`https://landlord.homegames.io/games/${player.requestedGameId}`, (res) => {
                 if (res.statusCode == 200) {
                     res.on('data', (buf) => {
@@ -744,11 +715,9 @@ class HomegamesDashboard extends Game {
                         this.downloadedGames[player.requestedGameId] = gameData;
                         this.onGameOptionClick(player, player.requestedGameId);
                     });
-                    //const data = j
                 } else {
                     console.log('dont know what happened');
                 }
-//                    console.log(res);
             });
         }
     }
