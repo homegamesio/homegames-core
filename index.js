@@ -1,9 +1,25 @@
 const server = require('./game_server');
+const assert = require('assert');
 const squish061 = require('squish-061');
 const squish063 = require('squish-063');
 const squish0631 = require('squish-0631');
 const squish0632 = require('squish-0632');
 const squish0633 = require('squish-0633');
+
+const process = require('process');
+
+
+let __squishMap;
+if (process.argv.length > 2) {
+    try {
+        const squishMap = JSON.parse(process.argv[2]);
+        assert(squishMap['squish-061']);
+        __squishMap = squishMap;
+    } catch (err) {
+        console.log('could not parse squish map');
+        console.log(err);
+    }
+}
 
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
@@ -15,7 +31,6 @@ if (baseDir.endsWith('src')) {
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const linkHelper = require('./src/util/link-helper');
-const process = require('process');
 
 const { guaranteeCerts, guaranteeDir, authWorkflow } = require('homegames-common');
 
@@ -93,11 +108,11 @@ if (LINK_DNS_ENABLED) {
 actions.push((_out) => new Promise((resolve, reject) => {
     if (!HTTPS_ENABLED || !_out || !_out.certPath) {
         console.log('regular server');
-        server();
+        server(null, __squishMap);
         resolve();
     } else if (CERT_PATH) {
         console.log('secure server');
-        server(CERT_PATH);
+        server(CERT_PATH, __squishMap);
         resolve();
     } else {
         console.log('idk');

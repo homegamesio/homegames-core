@@ -87,8 +87,10 @@ class HomegamesDashboard extends Game {
        };
     }
 
-    constructor() {
+    constructor(referenceSquishMap) {
         super();
+
+        this.referenceSquishMap = referenceSquishMap;
         
         this.playerStates = {};
         this.downloadedGames = {};
@@ -189,11 +191,13 @@ class HomegamesDashboard extends Game {
 
         if (this.downloadedGames[gameKey]) {
             this.downloadGame(gameKey).then(gamePath => {
+
                 const childSession = fork(path.join(__dirname, 'child_game_server.js'));
 
                 sessions[port] = childSession;
 
                 childSession.send(JSON.stringify({
+                    referenceSquishMap: this.referenceSquishMap,
                     key: gameKey,
                     gamePath,
                     port,

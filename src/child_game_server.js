@@ -30,8 +30,18 @@ const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAcc
 const startServer = (sessionInfo) => {
     let gameInstance;
 
+    let squishLib = require.resolve('squishjs');
+
     if (sessionInfo.gamePath) {
+
+        if (sessionInfo.referenceSquishMap) {
+            console.log("I HAVE A CUSTOM SQUISH MAP!");
+            process.env.STAGE = 'PRODUCTION';
+            process.env.SQUISH_MAP = JSON.stringify(sessionInfo.referenceSquishMap);
+        }
+
         const _gameClass = require(sessionInfo.gamePath);
+
         gameInstance = new _gameClass();
     } else {
         gameInstance = new games[sessionInfo.key]();
