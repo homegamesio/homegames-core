@@ -1,5 +1,5 @@
 const squishMap = require('./common/squish-map');
-let { squish, unsquish } = squishMap['0633'];
+let { squish, unsquish } = squishMap['0642'];
 
 const HomegamesRoot = require('./HomegamesRoot');
 const HomegamesDashboard = require('./HomegamesDashboard');

@@ -1,4 +1,5 @@
 const squishMap = {
+    '0642': require('squish-0642'),
     '0633': require('squish-0633'),
     '0632': require('squish-0632'),
     '0631': require('squish-061'),
