@@ -6,13 +6,9 @@ const Player = require('../Player');
 const fs = require('fs');
 
 const path = require('path');
-let baseDir = path.dirname(require.main.filename);
 
-if (baseDir.endsWith('src')) {
-    baseDir = baseDir.substring(0, baseDir.length - 3);
-}
+const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);

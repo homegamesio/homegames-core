@@ -1,11 +1,11 @@
-const HomegamesDashboard = require('./src/HomegamesDashboard');
-const GameSession = require('./src/GameSession');
-const { socketServer } = require('./src/util/socket');
-const Homenames = require('./src/Homenames');
+const HomegamesDashboard = require('../dashboard/HomegamesDashboard');
+const GameSession = require('../GameSession');
+const { socketServer } = require('../util/socket');
+const Homenames = require('./Homenames');
 const path = require('path');
-const baseDir = path.dirname(require.main.filename);
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
+
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const GAME_SERVER_HOME_PORT = getConfigValue('GAME_SERVER_HOME_PORT', 7000);

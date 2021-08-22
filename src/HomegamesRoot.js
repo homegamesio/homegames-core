@@ -6,7 +6,6 @@ const Asset = require('./common/Asset');
 const { animations } = require('./common/util');
 const COLORS = Colors.COLORS;
 const path = require('path');
-let baseDir = path.dirname(require.main.filename);
 
 const games = require('./games');
 

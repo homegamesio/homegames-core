@@ -1,9 +1,8 @@
 const WebSocket = require('ws');
 const os = require('os');
 const path = require('path');
-const baseDir = path.dirname(require.main.filename);
+const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();

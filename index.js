@@ -1,4 +1,4 @@
-const server = require('./game_server');
+const server = require('./src/server/game_server');
 const assert = require('assert');
 const squish061 = require('squish-061');
 const squish063 = require('squish-063');
@@ -23,13 +23,8 @@ if (process.argv.length > 2) {
 }
 
 const path = require('path');
-let baseDir = path.dirname(require.main.filename);
 
-if (baseDir.endsWith('src')) {
-    baseDir = baseDir.substring(0, baseDir.length - 3);
-}
-
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
 
 const linkHelper = require('./src/util/link-helper');
 

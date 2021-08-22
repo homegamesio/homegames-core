@@ -1,8 +1,6 @@
 const path = require('path');
 const process = require('process');
 
-const baseDir = path.dirname(require.main.filename);
-
 const getConfigValue = (key, _default = undefined) => {
     let envValue = process.env[key] && `${process.env[key]}`;
     if (envValue !== undefined) {

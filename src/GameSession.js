@@ -1,14 +1,9 @@
-const Squisher = require('./Squisher');
+const Squisher = require('./squisher/Squisher');
 const { generateName } = require('./common/util');
 
 const path = require('path');
-let baseDir = path.dirname(require.main.filename);
 
-if (baseDir.endsWith('src')) {
-    baseDir = baseDir.substring(0, baseDir.length - 3);
-}
-
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
 
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);

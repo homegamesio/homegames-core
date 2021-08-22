@@ -2,13 +2,7 @@ const WebSocket = require('ws');
 const http = require('http');
 
 const path = require('path');
-let baseDir = path.dirname(require.main.filename);
-
-if (baseDir.endsWith('src')) {
-    baseDir = baseDir.substring(0, baseDir.length - 3);
-}
-
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 class Player {

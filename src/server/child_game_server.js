@@ -1,6 +1,6 @@
-const GameSession = require('./GameSession');
-const { socketServer } = require('./util/socket');
-const games = require('./games');
+const GameSession = require('../GameSession');
+const { socketServer } = require('../util/socket');
+const games = require('../games');
 const process = require('process');
 
 let lastMessage;
@@ -8,14 +8,7 @@ let gameSession;
 
 const path = require('path');
 
-let baseDir = path.dirname(require.main.filename);
-
-if (baseDir.endsWith('src')) {
-    baseDir = baseDir.substring(0, baseDir.length - 3);
-}
-
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
-
+const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
 
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const CERT_PATH = getConfigValue('HG_CERT_PATH', `${process.cwd()}/.hg_certs`);

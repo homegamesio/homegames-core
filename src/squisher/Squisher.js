@@ -1,21 +1,16 @@
-const squishMap = require('./common/squish-map');
+const squishMap = require('../common/squish-map');
 let { squish, unsquish } = squishMap['0642'];
 
-const HomegamesRoot = require('./HomegamesRoot');
-const HomegamesDashboard = require('./HomegamesDashboard');
+const HomegamesRoot = require('../HomegamesRoot');
+const HomegamesDashboard = require('../dashboard/HomegamesDashboard');
 
 const ASSET_TYPE = 1;
 
 const INVISIBLE_NODE_PLAYER_ID = 0;
 
 const path = require('path');
-let baseDir = path.dirname(require.main.filename);
 
-if (baseDir.endsWith('src')) {
-    baseDir = baseDir.substring(0, baseDir.length - 3);
-}
-
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
 
 const DEFAULT_TICK_RATE = getConfigValue('DEFAULT_TICK_RATE', 60);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);

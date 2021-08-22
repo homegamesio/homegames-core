@@ -2,8 +2,6 @@ const https = require('https');
 const path = require('path');
 const fs = require('fs');
 
-const baseDir = path.dirname(require.main.filename);
-
 let words = [];
 
 const generateList = async () => new Promise((resolve, reject) => {

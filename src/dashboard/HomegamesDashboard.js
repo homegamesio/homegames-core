@@ -1,28 +1,23 @@
 const { fork } = require('child_process');
 const https = require('https');
 const path = require('path');
-const squishMap = require('./common/squish-map');
+const squishMap = require('../common/squish-map');
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['0642'];
 const unzipper = require('unzipper');
 const fs = require('fs');
 
 const COLORS = Colors.COLORS;
 
-const Asset = require('./common/Asset');
+const Asset = require('../common/Asset');
 
-const games = require('./games');
+const games = require('../games');
 
 const sortedGameKeys = Object.keys(games).sort();
 
-const { ExpiringSet, animations } = require('./common/util');
+const { ExpiringSet, animations } = require('../common/util');
 
-let baseDir = path.dirname(require.main.filename);
+const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
 
-if (baseDir.endsWith('src')) {
-    baseDir = baseDir.substring(0, baseDir.length - 3);
-}
-
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7001);
 const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
@@ -192,7 +187,7 @@ class HomegamesDashboard extends Game {
         if (this.downloadedGames[gameKey]) {
             this.downloadGame(gameKey, gameVersion).then(gamePath => {
 
-                const childSession = fork(path.join(__dirname, 'child_game_server.js'));
+                const childSession = fork(path.resolve('src/server/child_game_server.js'));
 
                 sessions[port] = childSession;
 
@@ -265,7 +260,7 @@ class HomegamesDashboard extends Game {
             });
         } else {
 
-            const childSession = fork(path.join(__dirname, 'child_game_server.js'));
+            const childSession = fork(path.resolve('src/server/child_game_server.js'));
 
             sessions[port] = childSession;
 

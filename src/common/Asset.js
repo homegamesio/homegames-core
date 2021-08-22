@@ -5,13 +5,16 @@ const crypto = require('crypto');
 const path = require('path');
 const process = require('process');
 
-let baseDir = path.dirname(require.main.filename);
+// let baseDir = path.dirname(require.main.filename);
 
-if (baseDir.endsWith('src')) {
-    baseDir = baseDir.substring(0, baseDir.length - 3);
-}
+// console.log("BASE DIR");
+// console.log(baseDir);
+// console.log(path.resolve());
+// if (baseDir.endsWith('src')) {
+//     baseDir = baseDir.substring(0, baseDir.length - 3);
+// }
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
 
 const HG_ASSET_PATH = getConfigValue('HG_ASSET_PATH', `${process.cwd()}/.asset_cache`);
 
