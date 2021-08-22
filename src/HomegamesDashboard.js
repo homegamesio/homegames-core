@@ -169,7 +169,7 @@ class HomegamesDashboard extends Game {
             console.log('downloaded game ' + gameId);
 
             const version = gameVersion && gameVersion.data || this.downloadedGames[gameId].versions[0];
-            const gamePath = `${path.resolve('hg-games')}/${gameId}_${version.version}`;
+            const gamePath = `${path.resolve('hg_games')}/${gameId}_${version.version}`;
             https.get(version.location, (res) => {
                 const stream = res.pipe(unzipper.Extract({
                     path: gamePath
