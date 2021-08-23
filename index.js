@@ -3,6 +3,7 @@
 // https ?
 // init server with config
 
+console.log('test');
 
 const linkHelper = require('./src/util/link-helper');
 const path = require('path');
