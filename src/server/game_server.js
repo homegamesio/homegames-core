@@ -18,7 +18,7 @@ const server = (certPath, squishMap) => {
         console.log(squishMap);
     }
 
-    const dashboard = new HomegamesDashboard(squishMap);
+    const dashboard = new HomegamesDashboard(squishMap, certPath);
     
     const session = new GameSession(dashboard, GAME_SERVER_HOME_PORT);
     

@@ -82,10 +82,11 @@ class HomegamesDashboard extends Game {
        };
     }
 
-    constructor(referenceSquishMap) {
+    constructor(referenceSquishMap, certPath) {
         super();
 
         this.referenceSquishMap = referenceSquishMap;
+	this.certPath = certPath;
         
         this.playerStates = {};
         this.downloadedGames = {};
@@ -193,6 +194,7 @@ class HomegamesDashboard extends Game {
 
                 childSession.send(JSON.stringify({
                     referenceSquishMap: this.referenceSquishMap,
+		    certPath: this.certPath,
                     key: gameKey,
                     gamePath,
                     port,
@@ -266,6 +268,7 @@ class HomegamesDashboard extends Game {
 
             childSession.send(JSON.stringify({
                 key: gameKey,
+		certPath: this.certPath,
                 port,
                 player: {
                     id: player.id,

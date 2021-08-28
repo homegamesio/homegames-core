@@ -10,9 +10,6 @@ const path = require('path');
 
 const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
 
-const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
-const CERT_PATH = getConfigValue('HG_CERT_PATH', `${process.cwd()}/.hg_certs`);
-
 const AUTH_DIR = getConfigValue('HG_AUTH_DIR', `${process.cwd()}/.hg_auth`);
 const sendProcessMessage = (msg) => {
     process.send(JSON.stringify(msg));
@@ -24,6 +21,8 @@ const startServer = (sessionInfo) => {
     let gameInstance;
 
     let squishLib = require.resolve('squishjs');
+	console.log('heolo');
+	console.log(sessionInfo);
 
     if (sessionInfo.gamePath) {
 
@@ -42,24 +41,14 @@ const startServer = (sessionInfo) => {
 
     gameSession = new GameSession(gameInstance, sessionInfo.port);
 
-    if (HTTPS_ENABLED) {
-        console.log('hello friend');
-        console.log(CERT_PATH);
-            console.log('hello friend 123');
- 
+    if (sessionInfo.certPath) {
             gameSession.initialize(() => {
-                console.log('hello friend 123456');
                 socketServer(gameSession, sessionInfo.port, () => {
-                    console.log('hello friend 123456789');
                     sendProcessMessage({
                         'success': true
                     });
-                }, {
-                    certPath: `${CERT_PATH}/fullchain.pem`,
-                    keyPath: `${CERT_PATH}/privkey.pem`
-                    
+                },sessionInfo.certPath);
                 });
-            });
     } else {
         gameSession.initialize(() => {
             socketServer(gameSession, sessionInfo.port, () => {
