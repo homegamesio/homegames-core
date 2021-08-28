@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/homegamesio/homegames#readme",
   "dependencies": {
-    "homegames-common": "file:../homegames-common",
+    "homegames-common": "^0.1.5",
     "unzipper": "^0.10.11",
     "process-stats": "^3.5.5",
     "squish-061": "npm:squishjs@0.6.1",
