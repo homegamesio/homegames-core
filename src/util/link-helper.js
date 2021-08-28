@@ -47,13 +47,18 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
         resolve(client);
     });
 
-    client.on('message', msgHandler ? msgHandler : () => {});
+    client.on('message', (msg) => {
+	    msgHandler && msgHandler(msg);
+    });
     
     client.on('error', (err) => {
+	    console.log('closed 1');
+	    console.log(err);
         reject(err);
     });
 
     client.on('close', () => {
+	    console.log('closed');
         clearTimeout(this.pingTimeout);
     });
 
@@ -71,7 +76,15 @@ const verifyDNS = (client, username, accessToken, localIp) => new Promise((resol
         msgId
     }));
 
-    resolve(msgId); 
+    client.on('message', (msg) => {
+	    console.log(msg);
+	    const message = JSON.parse(msg);
+	    if (message.success) {
+			resolve(message);
+	    } else {
+		reject(message.error);
+	    }
+    });
 });
 
 module.exports = { linkConnect, getClientInfo, verifyDNS };

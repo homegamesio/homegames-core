@@ -1,64 +1,78 @@
-// check config for what we should do
-// link ?
-// https ?
-// init server with config
-
-console.log('test');
-
+const server = require('./src/server/game_server');
 const linkHelper = require('./src/util/link-helper');
 const path = require('path');
 const { getConfigValue } = require(`${path.resolve()}/src/util/config`);
+const { guaranteeCerts, guaranteeDir, authWorkflow } = require('homegames-common');
 
 const linkEnabled = getConfigValue('LINK_ENABLED', false);
 const httpsEnabled = getConfigValue('HTTPS_ENABLED', false);
-const dnsAliasEnabled = getConfigValue('DNS_ALIAS_ENABLED', false);
+const linkDnsEnabled = getConfigValue('LINK_DNS_ENABLED', false);
+const authDir = getConfigValue('AUTH_DIR', path.resolve('.hg_auth'));
+const certPath = getConfigValue('CERT_PATH', path.resolve('.hg_certs'));
 
-const dnsWorkflow = () => {
-    const authDir = getConfigValue('AUTH_DIR');
-    let requestId;
-
-    authWorkflow(authDir).then(() => {
-        console.log('ayylmao');
-    });
-    // const message = JSON.parse(_message);
-    // if (requestId && msg.msgId === requestId) {
-    //     if (msg.success) {
-    //         console.log('Verified DNS record');
-    //         resolve(msg.url);
-    //     } else {
-    //         console.log("failed to verify");
-    //         reject();
-    //     }
-    // }
-};
-
-//     
-
-//     linkHelper.linkConnect(dnsMessageHandler).then((wsClient) => {
-//         guaranteeDir(AUTH_DIR).then(() => {
-//             authWorkflow(`${AUTH_DIR}/tokens.json`).then(authInfo => {
-//                 const clientInfo = linkHelper.getClientInfo();
-//                 linkHelper.verifyDNS(wsClient, authInfo.username, authInfo.tokens.accessToken, clientInfo.localIp).then(_requestId => {
-//                     requestId = _requestId;
-//                 });
-//             });
-//         });
-//     });
-
-// });
-if (linkEnabled) {
-    linkHelper.linkConnect(dnsAliasEnabled ? dnsWorkflow : null).then((wsClient) => {
-        console.log('got link websocket client');
-    }).catch(err => {
-        console.error(`Failed to initialize link. ${err}`);
-    });
+let __squishMap;
+ if (process.argv.length > 2) {
+     try {
+         const squishMap = JSON.parse(process.argv[2]);
+         assert(squishMap['squish-061']);
+         __squishMap = squishMap;
+     } catch (err) {
+         console.log('could not parse squish map');
+         console.log(err);
+     }
 }
 
+if (linkEnabled) {
+	const msgHandler = (_msg) => {
+		console.log('meesssage');
+		console.log(_msg);
+	};
+    linkHelper.linkConnect().then((wsClient) => {
+        console.log('got link websocket client');
+	    if (linkDnsEnabled) {
+		    const clientInfo = linkHelper.getClientInfo()
+		    authWorkflow(`${authDir}/tokens.json`).then(({username, tokens}) => {
+
+			    console.log('got auth data. verifying dns');
+		linkHelper.verifyDNS(wsClient, username, tokens.accessToken, clientInfo.localIp).then(() => {
+			console.log('verified dns');
 if (httpsEnabled) {
-    guaranteeDir(AUTH_DIR).then(() => {
-        guaranteeCerts(`${AUTH_DIR}/tokens.json`, CERT_PATH).then(certPaths => {
-            resolve(certPaths);
+    guaranteeDir(authDir).then(() => {
+	    console.log('about to guarantee certs');
+        guaranteeCerts(`${authDir}/tokens.json`, certPath).then(certPaths => {
+		console.log('got certs at');
+		console.log(certPaths);
+
+	         server(certPaths, __squishMap);
+
+//         console.log('regular server');
+//         server(null, __squishMap);
+//         resolve();
+//     } else if (CERT_PATH) {
+//         console.log('secure server');
+//         resolve();
+//     } else {
+//         console.log('idk');
+//     }
         });
+    });
+} else {
+	server(null, __squishMap);
+}
+
+
+		    }).catch(err => {
+			console.log("ERRRRROR");
+			    console.error(err);
+		    });
+
+		}).catch(err => {
+			console.error("failed to create DNS alias.");
+			console.error(err);
+		});
+	    }
+    }).catch(err => {
+        console.error(`Failed to initialize link. ${err}`);
     });
 }
 

@@ -23,6 +23,9 @@ const server = (certPath, squishMap) => {
     const session = new GameSession(dashboard, GAME_SERVER_HOME_PORT);
     
     const homeNames = new Homenames(HOMENAMES_PORT);
+
+	console.log("certparths");
+	console.log(certPath);
     
     session.initialize(() => {
         socketServer(session, GAME_SERVER_HOME_PORT, null, certPath);
