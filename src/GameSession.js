@@ -1,4 +1,4 @@
-const Squisher = require('./Squisher');
+const { Squisher } = require('squishjs');
 const { generateName } = require('./common/util');
 
 const path = require('path');
@@ -20,13 +20,12 @@ class GameSession {
         this.game = game;
         this.port = port;
         this.spectators = {};
-        // this is a hack
-        this.game.session = this;
-        this.squisher = new Squisher(this.game);
-        this.squisher.hgRoot.players = this.game.players;
-        this.squisher.hgRoot.spectators = this.spectators;
+
+        this.squisher = new Squisher({ game });
+        // this.squisher.hgRoot.players = this.game.players;
+        // this.squisher.hgRoot.spectators = this.spectators;
         this.hgRoot = this.squisher.hgRoot;
-        this.squisher.addListener(this);
+        this.squisher.addListener(() => this.handleSquisherUpdate);
         this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
         this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
     }
@@ -70,11 +69,13 @@ class GameSession {
                 }
             }
 
-            this.squisher.hgRoot.handleNewPlayer(player);
+            // this.squisher.hgRoot.handleNewPlayer(player);
             this.squisher.handleStateChange();
             
+            console.log("STATE");
+            console.log(this.squisher.state);
             // ensure the squisher has game data for the new player
-            player.receiveUpdate(this.squisher.playerFrames[player.id]);
+            player.receiveUpdate(this.squisher.state.flat());//playerFrames[player.id]);
             player.addInputListener(this);
         });
     }

@@ -12,7 +12,7 @@ class LayerTest extends Game {
 
     constructor() {
         super();
-        const baseColor = Colors.randomColor();
+        const baseColor = Colors.RED;//randomColor();
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: [
@@ -26,25 +26,32 @@ class LayerTest extends Game {
             onClick: this.handleLayerClick
         });
 
-        const increment = 1;
-        let prev = this.base;
-        for (let i = increment; i < 50; i+= 2 * increment) {
-            const childColor = Colors.randomColor();
-            const child = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: [
-                    [i, i],
-                    [i + 100 - (2 * i), i],
-                    [i + 100 - (2 * i), i + 100 - (2 * i)],
-                    [i, i + 100 - (2 * i)],
-                    [i, i]
-                ],
-                fill: childColor,
-                onClick: this.handleLayerClick
-            });
-            prev.addChild(child);
-            prev = child;
-        }
+
+        this.layers = [
+            {
+                root: this.base      
+            }
+        ]
+
+        // const increment = 1;
+        // let prev = this.base;
+        // for (let i = increment; i < 50; i+= 2 * increment) {
+        //     const childColor = Colors.randomColor();
+        //     const child = new GameNode.Shape({
+        //         shapeType: Shapes.POLYGON,
+        //         coordinates2d: [
+        //             [i, i],
+        //             [i + 100 - (2 * i), i],
+        //             [i + 100 - (2 * i), i + 100 - (2 * i)],
+        //             [i, i + 100 - (2 * i)],
+        //             [i, i]
+        //         ],
+        //         fill: childColor,
+        //         onClick: this.handleLayerClick
+        //     });
+        //     prev.addChild(child);
+        //     prev = child;
+        // }
     }
 
     handleNewPlayer() {
@@ -59,8 +66,8 @@ class LayerTest extends Game {
         this.fill = newColor;
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return this.layers;
     }
 }
 
