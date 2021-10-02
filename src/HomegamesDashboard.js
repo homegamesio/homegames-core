@@ -2,7 +2,8 @@ const { fork } = require('child_process');
 const https = require('https');
 const path = require('path');
 const squishMap = require('./common/squish-map');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['0642'];
+//const { Game, GameNode, Colors, Shapes, ShapeUtils } = squishMap['0642'];
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 const unzipper = require('unzipper');
 const fs = require('fs');
 
@@ -113,35 +114,36 @@ class HomegamesDashboard extends Game {
             fill: COLORS.HG_BLACK 
         });
 
-        this.speaker = new GameNode.Asset({
-            assetInfo: {
-                'dashboardSong': {
-                    size: {
-                        x: 0,
-                        y: 0
-                    },
-                    pos: {
-                        x: 0,
-                        y: 0
-                    }
-                }
-            },
-            coordinates2d: []
-        });
+       console.log('does this work');
+       // this.speaker = new GameNode.Asset({
+       //     assetInfo: {
+       //         'dashboardSong': {
+       //             size: {
+       //                 x: 0,
+       //                 y: 0
+       //             },
+       //             pos: {
+       //                 x: 0,
+       //                 y: 0
+       //             }
+       //         }
+       //     },
+       //     coordinates2d: []
+       // });
 
-        this.base.addChild(this.speaker);
+       // this.base.addChild(this.speaker);
 
-        this.screen = new GameNode.Shape({
-            shapeType: Shapes.POLYGON, 
-            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: DASHBOARD_COLOR
-        });
-        
-        this.base.addChild(this.screen);
-        this.sessions = {};
-        this.requestCallbacks = {};
-        this.requestIdCounter = 1;
-        setInterval(this.heartbeat.bind(this), CHILD_SESSION_HEARTBEAT_INTERVAL);
+       this.screen = new GameNode.Shape({
+           shapeType: Shapes.POLYGON, 
+           coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+           fill: DASHBOARD_COLOR
+       });
+       
+       this.base.addChild(this.screen);
+       // this.sessions = {};
+       // this.requestCallbacks = {};
+       // this.requestIdCounter = 1;
+       // setInterval(this.heartbeat.bind(this), CHILD_SESSION_HEARTBEAT_INTERVAL);
     }
 
     heartbeat() {
@@ -870,43 +872,43 @@ class HomegamesDashboard extends Game {
     }
 
     handleNewPlayer(player) {
-        this.keyCoolDowns[player.id] = {};
-
-        const playerRootNode = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: [
-                [0, 0],
-                [0, 0],
-                [0, 0],
-                [0, 0],
-                [0, 0]
-            ],
-            playerIds: [player.id]
-        });
-
-        this.base.addChild(playerRootNode);
-
-        this.playerStates[player.id] = {
-            screen: 0,
-            root: playerRootNode,
-            selectedGameVersion: null
-        };
-
-        this.renderGameList(player.id);
-
-        if (player.requestedGameId) {
-            https.get(`https://landlord.homegames.io/games/${player.requestedGameId}`, (res) => {
-                if (res.statusCode == 200) {
-                    res.on('data', (buf) => {
-                        const gameData = JSON.parse(buf);
-                        this.downloadedGames[player.requestedGameId] = gameData;                        
-                        this.onGameOptionClick(player, player.requestedGameId);
-                    });
-                } else {
-                    console.log('dont know what happened');
-                }
-            });
-        }
+//        this.keyCoolDowns[player.id] = {};
+//
+//        const playerRootNode = new GameNode.Shape({
+//            shapeType: Shapes.POLYGON,
+//            coordinates2d: [
+//                [0, 0],
+//                [0, 0],
+//                [0, 0],
+//                [0, 0],
+//                [0, 0]
+//            ],
+//            playerIds: [player.id]
+//        });
+//
+//        this.base.addChild(playerRootNode);
+//
+//        this.playerStates[player.id] = {
+//            screen: 0,
+//            root: playerRootNode,
+//            selectedGameVersion: null
+//        };
+//
+//        this.renderGameList(player.id);
+//
+//        if (player.requestedGameId) {
+//            https.get(`https://landlord.homegames.io/games/${player.requestedGameId}`, (res) => {
+//                if (res.statusCode == 200) {
+//                    res.on('data', (buf) => {
+//                        const gameData = JSON.parse(buf);
+//                        this.downloadedGames[player.requestedGameId] = gameData;                        
+//                        this.onGameOptionClick(player, player.requestedGameId);
+//                    });
+//                } else {
+//                    console.log('dont know what happened');
+//                }
+//            });
+//        }
     }
 
     handlePlayerDisconnect(playerId) {
@@ -925,8 +927,8 @@ class HomegamesDashboard extends Game {
         }
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 }
 

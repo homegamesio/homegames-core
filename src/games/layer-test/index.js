@@ -1,10 +1,9 @@
-const { Game, GameNode, Colors, Shapes } = require('squish-0633');
+const { Game, GameNode, Colors, Shapes } = require('squishjs');
 
 class LayerTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0633',
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/layer-test.png'
         };
@@ -12,7 +11,8 @@ class LayerTest extends Game {
 
     constructor() {
         super();
-        const baseColor = Colors.RED;//randomColor();
+
+        const baseColor = Colors.randomColor();
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: [
@@ -26,32 +26,31 @@ class LayerTest extends Game {
             onClick: this.handleLayerClick
         });
 
-
         this.layers = [
             {
                 root: this.base      
             }
-        ]
+        ];
 
-        // const increment = 1;
-        // let prev = this.base;
-        // for (let i = increment; i < 50; i+= 2 * increment) {
-        //     const childColor = Colors.randomColor();
-        //     const child = new GameNode.Shape({
-        //         shapeType: Shapes.POLYGON,
-        //         coordinates2d: [
-        //             [i, i],
-        //             [i + 100 - (2 * i), i],
-        //             [i + 100 - (2 * i), i + 100 - (2 * i)],
-        //             [i, i + 100 - (2 * i)],
-        //             [i, i]
-        //         ],
-        //         fill: childColor,
-        //         onClick: this.handleLayerClick
-        //     });
-        //     prev.addChild(child);
-        //     prev = child;
-        // }
+//        const increment = 1;
+//        for (let i = increment; i < 50; i+= 2 * increment) {
+//            const childColor = Colors.randomColor();
+//            const layer = new GameNode.Shape({
+//                shapeType: Shapes.POLYGON,
+//                coordinates2d: [
+//                    [i, i],
+//                    [i + 100 - (2 * i), i],
+//                    [i + 100 - (2 * i), i + 100 - (2 * i)],
+//                    [i, i + 100 - (2 * i)],
+//                    [i, i]
+//                ],
+//                fill: childColor,
+//                onClick: this.handleLayerClick
+//            });
+//            this.layers.push({
+//                root: layer
+//            });
+//        }
     }
 
     handleNewPlayer() {
