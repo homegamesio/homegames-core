@@ -79,6 +79,7 @@ class HomegamesRoot {
             fill: COLORS.BLACK
         });
 
+
        this.playerDashboards = {};
 //
 //        const onDashHomeClick = (player, x, y) => {
@@ -251,31 +252,31 @@ class HomegamesRoot {
 //        };
 //
 //        const gameAspectRatio = game.constructor.metadata && game.constructor.metadata().aspectRatio;
-        // let aspectRatio;
+        let aspectRatio;
 //        if (gameAspectRatio) {
 //            aspectRatio = gameAspectRatio;
-//        } else {
-            // aspectRatio = {x: 16, y: 9};
+       // } else {
+            aspectRatio = {x: 16, y: 9};
 //        }
 //
-        // const logoSizeX = 17 * (aspectRatio.y / aspectRatio.x);
-        // const logoSizeY = 5;
-        // const logoStartY = 94.5;
-        // const logoStartX = 50 - (logoSizeX / 2);
+        const logoSizeX = 17 * (aspectRatio.y / aspectRatio.x);
+        const logoSizeY = 5;
+        const logoStartY = 94.5;
+        const logoStartX = 50 - (logoSizeX / 2);
 
-//         this.homeButton = new GameNode.Asset({
-//             onClick: () => {console.log('click')},//isDashboard ? null : onGameHomeClick,
-//             coordinates2d: ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
-//             assetInfo: {
-//                 'logo-horizontal': {
-//                     pos: {x: logoStartX, y: logoStartY},
-//                     size: {
-//                         x: logoSizeX, 
-//                         y: logoSizeY
-//                     }
-//                 }
-//             }
-//         });
+        this.homeButton = new GameNode.Asset({
+            onClick: () => {console.log('click')},//isDashboard ? null : onGameHomeClick,
+            coordinates2d: ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
+            assetInfo: {
+                'logo-horizontal': {
+                    pos: {x: logoStartX, y: logoStartY},
+                    size: {
+                        x: logoSizeX, 
+                        y: logoSizeY
+                    }
+                }
+            }
+        });
 // //
 //         this.settingsButton = new GameNode.Asset({
 //             onClick: () => {console.log('setttttt')},//onDashHomeClick,
@@ -622,6 +623,7 @@ class HomegamesRoot {
         // this.root.addChild(this.homeButton);
         // this.root.addChild(this.settingsButton);
         this.root.addChild(this.frameRoot);
+        this.root.addChild(this.homeButton);
     }
 
     getRoot() {
