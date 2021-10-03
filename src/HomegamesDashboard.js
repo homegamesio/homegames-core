@@ -81,15 +81,16 @@ class HomegamesDashboard extends Game {
 
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0642',
+            // squishVersion: '0642',
             author: 'Joseph Garcia', 
-            tickRate: 10,
+            // tickRate: 10,
             assets: _assets
        };
     }
 
     constructor(referenceSquishMap) {
         super();
+        console.log('i am a dashboard');
 
         this.referenceSquishMap = referenceSquishMap;
         
@@ -140,9 +141,9 @@ class HomegamesDashboard extends Game {
        });
        
        this.base.addChild(this.screen);
-       // this.sessions = {};
-       // this.requestCallbacks = {};
-       // this.requestIdCounter = 1;
+       this.sessions = {};
+       this.requestCallbacks = {};
+       this.requestIdCounter = 1;
        // setInterval(this.heartbeat.bind(this), CHILD_SESSION_HEARTBEAT_INTERVAL);
     }
 
@@ -872,43 +873,43 @@ class HomegamesDashboard extends Game {
     }
 
     handleNewPlayer(player) {
-//        this.keyCoolDowns[player.id] = {};
-//
-//        const playerRootNode = new GameNode.Shape({
-//            shapeType: Shapes.POLYGON,
-//            coordinates2d: [
-//                [0, 0],
-//                [0, 0],
-//                [0, 0],
-//                [0, 0],
-//                [0, 0]
-//            ],
-//            playerIds: [player.id]
-//        });
-//
-//        this.base.addChild(playerRootNode);
-//
-//        this.playerStates[player.id] = {
-//            screen: 0,
-//            root: playerRootNode,
-//            selectedGameVersion: null
-//        };
-//
-//        this.renderGameList(player.id);
-//
-//        if (player.requestedGameId) {
-//            https.get(`https://landlord.homegames.io/games/${player.requestedGameId}`, (res) => {
-//                if (res.statusCode == 200) {
-//                    res.on('data', (buf) => {
-//                        const gameData = JSON.parse(buf);
-//                        this.downloadedGames[player.requestedGameId] = gameData;                        
-//                        this.onGameOptionClick(player, player.requestedGameId);
-//                    });
-//                } else {
-//                    console.log('dont know what happened');
-//                }
-//            });
-//        }
+       this.keyCoolDowns[player.id] = {};
+
+       const playerRootNode = new GameNode.Shape({
+           shapeType: Shapes.POLYGON,
+           coordinates2d: [
+               [0, 0],
+               [0, 0],
+               [0, 0],
+               [0, 0],
+               [0, 0]
+           ],
+           playerIds: [player.id]
+       });
+
+       this.base.addChild(playerRootNode);
+
+       this.playerStates[player.id] = {
+           screen: 0,
+           root: playerRootNode,
+           selectedGameVersion: null
+       };
+
+       this.renderGameList(player.id);
+
+       if (player.requestedGameId) {
+           https.get(`https://landlord.homegames.io/games/${player.requestedGameId}`, (res) => {
+               if (res.statusCode == 200) {
+                   res.on('data', (buf) => {
+                       const gameData = JSON.parse(buf);
+                       this.downloadedGames[player.requestedGameId] = gameData;                        
+                       this.onGameOptionClick(player, player.requestedGameId);
+                   });
+               } else {
+                   console.log('dont know what happened');
+               }
+           });
+       }
     }
 
     handlePlayerDisconnect(playerId) {

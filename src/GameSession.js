@@ -190,12 +190,6 @@ class GameSession {
     findClick(x, y, spectating, playerId = 0) {
         let clicked = null;
 
-        const layerRootIdMap = {};
-
-        this.game.layers.forEach(layer => {
-            layerRootIdMap[Number(layer.root.id)] = layer;
-        });
-
         if (this.customBottomLayer) {
             const scale = {x: 1, y: 1};
             clicked = this.findClickHelper(x, y, false, playerId, this.customBottomLayer.root.node, null, scale) || clicked;
