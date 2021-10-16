@@ -631,8 +631,6 @@ class HomegamesRoot {
     }
 
     handleNewPlayer(player) {
-        console.log("GOT A NEW PKLAYER");
-        console.log(player);
        const playerFrame = new GameNode.Asset({
            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
            assetInfo: {
@@ -688,8 +686,7 @@ class HomegamesRoot {
     updateLabels() {
         for (const nodeId in this.frameRoot.node.children) {
             const playerFrame = this.frameRoot.node.children[nodeId];
-            console.log("PLAYER FRAMES ");
-            console.log(playerFrame);
+            
             playerFrame.clearChildren();
 
             const playerId = playerFrame.node.playerIds[0];

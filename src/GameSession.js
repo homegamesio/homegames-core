@@ -60,6 +60,7 @@ class GameSession {
         spectator.addInputListener(this, true);
         this.spectators[Number(spectator.id)] = spectator;
         this.squisher.hgRoot.handleNewSpectator(spectator);
+        console.log("ADDED SPECTATOR");
     }
 
     addPlayer(player) {
@@ -152,19 +153,20 @@ class GameSession {
 
         const clickedNode = this.findClick(click.x, click.y, player.spectating, player.id);
 
+        // console.log("clicked node " + click.x + ", " + click.y);
+        // console.log(clickedNode);
+        // console.log(BEZEL_SIZE_X);
+        // console.log(BEZEL_SIZE_Y);
+        // console.log(click.)
         if (clickedNode) {
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
-                    
                 clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             } else {
-                const bezelX = BEZEL_SIZE_X;
-                const bezelY = BEZEL_SIZE_Y;
+                const shiftedX = click.x - (BEZEL_SIZE_X / 2);
+                const shiftedY = click.y - (BEZEL_SIZE_Y / 2);
 
-                const shiftedX = click.x - (bezelX / 2);
-                const shiftedY = click.y - (bezelY / 2);
-
-                const scaledX = shiftedX * ( 1 / ((100 - bezelX) / 100));
-                const scaledY = shiftedY * ( 1 / ((100 - bezelY) / 100));
+                const scaledX = shiftedX * ( 1 / ((100 - BEZEL_SIZE_X) / 100));
+                const scaledY = shiftedY * ( 1 / ((100 - BEZEL_SIZE_Y) / 100));
 
                 clickedNode.handleClick && clickedNode.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             }
@@ -190,16 +192,22 @@ class GameSession {
     findClick(x, y, spectating, playerId = 0) {
         let clicked = null;
 
+        // console.log("fsdfsdfsd");
         if (this.customBottomLayer) {
+            // console.log('ayyyy lmao 1');
             const scale = {x: 1, y: 1};
             clicked = this.findClickHelper(x, y, false, playerId, this.customBottomLayer.root.node, null, scale) || clicked;
         }
 
-        for (const layerIndex in this.game.layers) {
-            const layer = this.game.layers[layerIndex];
+        for (const layerIndex in this.game.getLayers()) {
+            const layer = this.game.getLayers()[layerIndex];
             const scale = layer.scale || this.scale;
-            clicked = this.findClickHelper(x, y, false, playerId, this.game.layers[layerIndex].root.node, null, scale) || clicked;
+
+            // console.log('ayyyy lmao 2');
+            clicked = this.findClickHelper(x, y, false, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
         }
+        // console.log('yy lmao');
+        console.log(clicked);
         return clicked;
     }
 

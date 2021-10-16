@@ -52,6 +52,8 @@ class Player {
         }
         
         for (const listener of this.inputListeners) {
+            // console.log("PLAYER INDF");
+            // console.log(data);
             listener.handlePlayerInput(this, data);
         }
     }

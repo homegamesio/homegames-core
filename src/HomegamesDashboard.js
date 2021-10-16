@@ -785,7 +785,9 @@ class HomegamesDashboard extends Game {
                 fill: COLORS.HG_BLACK,
                 playerIds: [playerId],
                 onClick: (player) => {
-                    this.onGameOptionClick(player, key);
+                    console.log("PLAYER CLICKED THING " + key);
+                    console.log(player.id);
+                    // this.onGameOptionClick(player, key);
                 }
             });
 
@@ -794,7 +796,8 @@ class HomegamesDashboard extends Game {
 
             const gameOption = new GameNode.Asset({
                 onClick: (player) => {
-                    this.onGameOptionClick(player, key);
+                    console.log("PLAYER CLICKED THING " + key);
+                    // this.onGameOptionClick(player, key);
                 },
                 coordinates2d: ShapeUtils.rectangle(gamePos[0] + optionMarginX, gamePos[1] + optionMarginY, gameOptionSize.x, gameOptionSize.y),
                 assetInfo: {
