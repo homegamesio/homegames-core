@@ -46,7 +46,8 @@ class GameSession {
 
     handleSquisherUpdate(squished) {
         for (const playerId in this.game.players) {
-            this.game.players[playerId].receiveUpdate(squished.flat());
+            this.game.players[playerId].receiveUpdate(this.squisher.playerStates[playerId].flat());
+            // this.game.players[playerId].receiveUpdate(squished.flat());
         }
 
         for (const playerId in this.spectators) {
@@ -60,7 +61,6 @@ class GameSession {
         spectator.addInputListener(this, true);
         this.spectators[Number(spectator.id)] = spectator;
         this.squisher.hgRoot.handleNewSpectator(spectator);
-        console.log("ADDED SPECTATOR");
     }
 
     addPlayer(player) {
@@ -85,10 +85,16 @@ class GameSession {
             }
 
             this.homegamesRoot.handleNewPlayer(player);
-            this.squisher.handleStateChange();
-            
+
             // ensure the squisher has game data for the new player
-            player.receiveUpdate(this.squisher.state.flat());//playerFrames[player.id]);
+            this.squisher.squish();
+            
+            // console.log("YO YOY OOOOO");
+            // console.log(this.squisher.state);
+            // console.log(this.squisher.playerStates);
+            
+            // player.receiveUpdate(this.squisher.state.flat());//playerFrames[player.id]);
+            player.receiveUpdate(this.squisher.playerStates[player.id].flat());
             player.addInputListener(this);
         });
     }
@@ -207,7 +213,7 @@ class GameSession {
             clicked = this.findClickHelper(x, y, false, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
         }
         // console.log('yy lmao');
-        console.log(clicked);
+        // console.log(clicked);
         return clicked;
     }
 
