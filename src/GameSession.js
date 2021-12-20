@@ -165,8 +165,12 @@ class GameSession {
         // console.log(BEZEL_SIZE_Y);
         // console.log(click.)
         if (clickedNode) {
+            const clickedNodeId = clickedNode.id;
+            // todo: implement get node (maybe maintain map in game?)
+            const realNode = this.game.findNode(clickedNodeId);
+
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
-                clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             } else {
                 const shiftedX = click.x - (BEZEL_SIZE_X / 2);
                 const shiftedY = click.y - (BEZEL_SIZE_Y / 2);
@@ -174,7 +178,7 @@ class GameSession {
                 const scaledX = shiftedX * ( 1 / ((100 - BEZEL_SIZE_X) / 100));
                 const scaledY = shiftedY * ( 1 / ((100 - BEZEL_SIZE_Y) / 100));
 
-                clickedNode.handleClick && clickedNode.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             }
         }
     }

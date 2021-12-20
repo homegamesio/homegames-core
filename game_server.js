@@ -21,8 +21,10 @@ const server = (certPath, squishMap) => {
         console.log(squishMap);
     }
 
+    // const dashboard = new HomegamesDashboard(squishMap);
+    
     const dashboard = new ViewTest();//new HomegamesDashboard(squishMap);
-    //const dashboard = new PlayerVisibilityTest();//new HomegamesDashboard(squishMap);
+    // const dashboard = new PlayerVisibilityTest();//new HomegamesDashboard(squishMap);
     
     // const dashboard = new LayerTest();//new HomegamesDashboard(squishMap);
     
