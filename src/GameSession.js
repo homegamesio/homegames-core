@@ -167,9 +167,11 @@ class GameSession {
         // console.log(BEZEL_SIZE_Y);
         // console.log(click.)
         if (clickedNode) {
+            console.log("what did they click");
+            console.log(clickedNode);
             const clickedNodeId = clickedNode.id;
             // todo: implement get node (maybe maintain map in game?)
-            const realNode = this.game.findNode(clickedNodeId);
+            const realNode = this.game.findNode(clickedNodeId) || this.customBottomLayer.root.findChild(clickedNodeId);
 
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
                 realNode.node.handleClick && realNode.node.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
