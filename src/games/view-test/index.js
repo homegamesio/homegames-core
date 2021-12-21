@@ -59,11 +59,11 @@ class ViewTest extends ViewableGame {
                 newView.x = this.playerViews[player.id].view.x - 1;
             }
 
-            if (key === 's' && this.playerViews[player.id].view.y + 1 < this.planeSize - newView.h) {
+            if (key === 's' && this.playerViews[player.id].view.y + 1 <= this.getPlaneSize() - newView.h) {
                 newView.y = this.playerViews[player.id].view.y + 1;
             }
 
-            if (key === 'd' && this.playerViews[player.id].view.x + 1 < this.planeSize - newView.w) {
+            if (key === 'd' && this.playerViews[player.id].view.x + 1 <= this.getPlaneSize() - newView.w) {
                 newView.x = this.playerViews[player.id].view.x + 1;
             }
 
