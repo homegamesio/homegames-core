@@ -1,5 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-063');
-const { checkCollisions } = require('../../common/util');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squishjs');
 const COLORS = Colors.COLORS;
 
 class MoveTest extends Game {
@@ -82,7 +81,7 @@ class MoveTest extends Game {
             }
         } 
 
-        const wouldBeCollisions = checkCollisions(this.base, {node: {coordinates2d: ShapeUtils.rectangle(newX, newY, 10, 17)}}, (node) => {
+        const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: ShapeUtils.rectangle(newX, newY, 10, 17)}}, (node) => {
             return node.node.id !== this.base.node.id && node.node.id !== player.node.id;
         });
 
