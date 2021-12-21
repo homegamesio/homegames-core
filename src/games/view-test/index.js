@@ -30,7 +30,9 @@ class ViewTest extends ViewableGame {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             fill: COLORS.RED,
-            onClick: () => {console.log('clicked a red guy');}
+            onClick: () => {
+                this.updatePlaneSize(500);
+            }
         });
 
         const blueSquare = new GameNode.Shape({
@@ -41,8 +43,7 @@ class ViewTest extends ViewableGame {
         });
 
         whiteBase.addChildren(redSquare, blueSquare);
-        // this.updatePlaneSize(500);
-        this.addPlaneChildren(whiteBase);
+        this.getPlane().addChildren(whiteBase);
     }
 
     handleKeyDown(player, key) {
@@ -58,24 +59,24 @@ class ViewTest extends ViewableGame {
                 newView.x = this.playerViews[player.id].view.x - 1;
             }
 
-            if (key === 's' && this.playerViews[player.id].view.y + 1 < this.planeSize - 100) {
+            if (key === 's' && this.playerViews[player.id].view.y + 1 < this.planeSize - newView.h) {
                 newView.y = this.playerViews[player.id].view.y + 1;
             }
 
-            if (key === 'd' && this.playerViews[player.id].view.x + 1 < this.planeSize - 100) {
+            if (key === 'd' && this.playerViews[player.id].view.x + 1 < this.planeSize - newView.w) {
                 newView.x = this.playerViews[player.id].view.x + 1;
             }
 
             const newTing = ViewUtils.getView(this.getPlane(), newView, [player.id]);
 
-            this.fakeRoot.removeChild(this.playerViews[player.id].viewRoot.node.id);
+            this.getViewRoot().removeChild(this.playerViews[player.id].viewRoot.node.id);
         
             this.playerViews[player.id] = {
                 view: newView,
                 viewRoot: newTing
             };
 
-            this.fakeRoot.addChild(newTing);
+            this.getViewRoot().addChild(newTing);
 
             this.keyCoolDowns.put(keyCacheId, 200);
         }
@@ -84,27 +85,22 @@ class ViewTest extends ViewableGame {
     handleNewPlayer(player) {
         const playerView = {x: 0, y: 0, w: 100, h: 100};
 
-        console.log("player joined " + player.id);
+        const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id]);
 
-
-        console.log("PLABNE");
-        console.log(this.getPlane());
-        const viewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id]);
-
-        viewRoot.node.playerIds = [player.id];
+        playerViewRoot.node.playerIds = [player.id];
 
         this.playerViews[player.id] = {
             view: playerView,
-            viewRoot
+            viewRoot: playerViewRoot
         }
 
-        this.fakeRoot.addChild(viewRoot);
+        this.getViewRoot().addChild(playerViewRoot);
     }
 
     handlePlayerDisconnect(playerId) {
         const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].viewRoot;
         if (playerViewRoot) {
-            this.fakeRoot.removeChild(playerViewRoot.node.id);
+            this.getViewRoot().removeChild(playerViewRoot.node.id);
         }
     }
 
