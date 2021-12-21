@@ -67,7 +67,7 @@ const getView = (plane, view, playerIds) => {
     return convertedRoot;
 };
 
-class ViewTest extends Game {
+class ViewTest extends ViewableGame {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
@@ -90,19 +90,7 @@ class ViewTest extends Game {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 20, 20),
             fill: COLORS.RED,
-            onClick: (player, x, y) => {
-                // const newView = Object.assign({}, this.playerViews[player.id].view);
-                // console.log('player clicked ' + player.id + ", " + x + ", " + y);
-                // console.log(newView);
-                // if (this.playerViews[player.id].view.x - 1 > 50) {
-                //     newView.x = this.playerViews[player.id].view.x - 1;
-                //     this.playerViews[player.id].view = newView;
-                //     const newTing = getView(this.plane, newView, [player.id]);
-                //     this.fakeRoot.removeChild(this.playerViews[player.id].viewRoot.id);
-                //     this.fakeRoot.addChild(newTing);
-                // }
-                // this.layers[0].root = newTing;
-            }
+            onClick: () => {console.log('clicked a red guy');}
         });
 
         const blueSquare = new GameNode.Shape({
@@ -128,19 +116,11 @@ class ViewTest extends Game {
     }
 
     handleKeyDown(player, key) {
-        // console.log('player ' + player.id + ' typed ' + key);
-        // return;
-        // if (!this.playerEditStates[player.id] || !this.isText(key)) {
-        //     return;
-        // }
-
         const keyCacheId = `$player${player.id}:${key}`;
-        // console.log(keyCacheId);
 
         if (['w','a','s','d'].indexOf(key) >= -1 && !this.keyCoolDowns.has(keyCacheId)) {
             const newView = Object.assign({}, this.playerViews[player.id].view);
-            // console.log('player typed ' + player.id + ", " + key);
-            // console.log(newView);
+
             if (key === 'w' && this.playerViews[player.id].view.y - 1 >= 0) {
                 newView.y = this.playerViews[player.id].view.y - 1    
             }
@@ -148,7 +128,6 @@ class ViewTest extends Game {
                 newView.x = this.playerViews[player.id].view.x - 1;
             }
 
-            // console.log(this.planeSize);
             if (key === 's' && this.playerViews[player.id].view.y + 1 < this.planeSize - 100) {
                 newView.y = this.playerViews[player.id].view.y + 1;
             }
@@ -157,11 +136,6 @@ class ViewTest extends Game {
                 newView.x = this.playerViews[player.id].view.x + 1;
             }
 
-            // console.log(newView);
-            // console.log('wat');
-            // console.log(this.playerViews[player.id]);
-
-            // console.log("yo");
             const newTing = getView(this.plane, newView, [player.id]);
 
             this.fakeRoot.removeChild(this.playerViews[player.id].viewRoot.node.id);
@@ -172,13 +146,7 @@ class ViewTest extends Game {
             };
 
             this.fakeRoot.addChild(newTing);
-            // const newText = this.playerNodes[player.id].text;
-            // if (newText.text.length > 0 && key === 'Backspace') {
-            //     newText.text = newText.text.substring(0, newText.text.length - 1); 
-            // } else if(key !== 'Backspace') {
-            //     newText.text = newText.text + key;
-            // }
-            // this.playerNodes[player.id].text = newText;
+
             this.keyCoolDowns.put(keyCacheId, 200);
         }
     }
@@ -188,25 +156,24 @@ class ViewTest extends Game {
 
         console.log("player joined " + player.id);
 
-        // console.log('they have a view');
-        // console.log(playerView);
 
-        // if (player.id == 1) {
+        const viewRoot = getView(this.plane, playerView, [player.id]);
 
-            const viewRoot = getView(this.plane, playerView, [player.id]);
+        viewRoot.node.playerIds = [player.id];
 
-            viewRoot.node.playerIds = [player.id];
+        this.playerViews[player.id] = {
+            view: playerView,
+            viewRoot
+        }
 
-            this.playerViews[player.id] = {
-                view: playerView,
-                viewRoot
-            }
-
-            this.fakeRoot.addChild(viewRoot);
-        // }
+        this.fakeRoot.addChild(viewRoot);
     }
 
-    handlePlayerDisconnect() {
+    handlePlayerDisconnect(playerId) {
+        const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].viewRoot;
+        if (playerViewRoot) {
+            this.fakeRoot.removeChild(playerViewRoot.node.id);
+        }
     }
 
     handleLayerClick() {
