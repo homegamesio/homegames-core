@@ -33,7 +33,7 @@ class GameSession {
        // 'ayy lmao';
 
         // TODO: make this configurable per player (eg. configurable bezel size)
-        this.scale = {x: 1, y: 1};//.85, y: .85};
+        this.scale = {x: .85, y: .85};
 
         this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer });
         // this.squisher.hgRoot.players = this.game.players;
