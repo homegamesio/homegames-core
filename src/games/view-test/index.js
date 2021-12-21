@@ -1,5 +1,5 @@
 const { Game, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish } = require('squishjs');
-const { checkCollisions } = require('../../common/util');
+const { checkCollisions, ExpiringSet, animations } = require('../../common/util');
 
 const COLORS = Colors.COLORS;
 
@@ -28,6 +28,8 @@ const getView = (plane, view, playerIds) => {
 
     const convertedNodes = [];
 
+    // console.log("ayyyy lmao");
+    // console.log(view);
     if (wouldBeCollisions.length > 0) {
         wouldBeCollisions.forEach(node => {
             // need to slice piece of coordinates
@@ -45,6 +47,7 @@ const getView = (plane, view, playerIds) => {
                 const xScale = 100 / (view.w || 100);
                 const yScale = 100 / (view.h || 100);
 
+                // console.log("t: " + translatedX + ", " + translatedY);
                 translatedX = xScale * translatedX;
                 translatedY = yScale * translatedY;
 
@@ -76,32 +79,35 @@ class ViewTest extends Game {
     constructor() {
         super();
 
+        this.keyCoolDowns = new ExpiringSet();
         this.playerViews = {};
-
-        this.plane = makePlane(500);
+        this.planeSize = 200;
+        this.plane = makePlane(this.planeSize);
 
         // red square in top left
         // blue square in bottom right
         const redSquare = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            coordinates2d: ShapeUtils.rectangle(0, 0, 20, 20),
             fill: COLORS.RED,
             onClick: (player, x, y) => {
-                const newView = Object.assign({}, this.playerViews[player.id].view);
-                console.log('player clicked ' + player.id);
-                console.log(newView);
-                newView.x = this.playerViews[player.id].view.x - 1;
-                this.playerViews[player.id].view = newView;
-                const newTing = getView(this.plane, newView, [player.id]);
-                this.fakeRoot.removeChild(this.playerViews[player.id].viewRoot.id);
-                this.fakeRoot.addChild(newTing);
+                // const newView = Object.assign({}, this.playerViews[player.id].view);
+                // console.log('player clicked ' + player.id + ", " + x + ", " + y);
+                // console.log(newView);
+                // if (this.playerViews[player.id].view.x - 1 > 50) {
+                //     newView.x = this.playerViews[player.id].view.x - 1;
+                //     this.playerViews[player.id].view = newView;
+                //     const newTing = getView(this.plane, newView, [player.id]);
+                //     this.fakeRoot.removeChild(this.playerViews[player.id].viewRoot.id);
+                //     this.fakeRoot.addChild(newTing);
+                // }
                 // this.layers[0].root = newTing;
             }
         });
 
         const blueSquare = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(400, 400, 100, 100),
+            coordinates2d: ShapeUtils.rectangle(180, 180, 20, 20),
             fill: COLORS.BLUE,
             onClick: () => {console.log('clicked a blue guy');}
         });
@@ -121,8 +127,64 @@ class ViewTest extends Game {
         ];
     }
 
+    handleKeyDown(player, key) {
+        // console.log('player ' + player.id + ' typed ' + key);
+        // return;
+        // if (!this.playerEditStates[player.id] || !this.isText(key)) {
+        //     return;
+        // }
+
+        const keyCacheId = `$player${player.id}:${key}`;
+        // console.log(keyCacheId);
+
+        if (['w','a','s','d'].indexOf(key) >= -1 && !this.keyCoolDowns.has(keyCacheId)) {
+            const newView = Object.assign({}, this.playerViews[player.id].view);
+            // console.log('player typed ' + player.id + ", " + key);
+            // console.log(newView);
+            if (key === 'w' && this.playerViews[player.id].view.y - 1 >= 0) {
+                newView.y = this.playerViews[player.id].view.y - 1    
+            }
+            if (key === 'a' && this.playerViews[player.id].view.x - 1 >= 0) {
+                newView.x = this.playerViews[player.id].view.x - 1;
+            }
+
+            // console.log(this.planeSize);
+            if (key === 's' && this.playerViews[player.id].view.y + 1 < this.planeSize - 100) {
+                newView.y = this.playerViews[player.id].view.y + 1;
+            }
+
+            if (key === 'd' && this.playerViews[player.id].view.x + 1 < this.planeSize - 100) {
+                newView.x = this.playerViews[player.id].view.x + 1;
+            }
+
+            // console.log(newView);
+            // console.log('wat');
+            // console.log(this.playerViews[player.id]);
+
+            // console.log("yo");
+            const newTing = getView(this.plane, newView, [player.id]);
+
+            this.fakeRoot.removeChild(this.playerViews[player.id].viewRoot.node.id);
+        
+            this.playerViews[player.id] = {
+                view: newView,
+                viewRoot: newTing
+            };
+
+            this.fakeRoot.addChild(newTing);
+            // const newText = this.playerNodes[player.id].text;
+            // if (newText.text.length > 0 && key === 'Backspace') {
+            //     newText.text = newText.text.substring(0, newText.text.length - 1); 
+            // } else if(key !== 'Backspace') {
+            //     newText.text = newText.text + key;
+            // }
+            // this.playerNodes[player.id].text = newText;
+            this.keyCoolDowns.put(keyCacheId, 200);
+        }
+    }
+
     handleNewPlayer(player) {
-        const playerView = {x: 25, y: 0, w: 100, h: 100};
+        const playerView = {x: 0, y: 0, w: 100, h: 100};
 
         console.log("player joined " + player.id);
 

@@ -46,6 +46,8 @@ class GameSession {
 
     handleSquisherUpdate(squished) {
         for (const playerId in this.game.players) {
+            // console.log("doing this");
+            // console.log(this.squisher.playerStates[playerId]);
             this.game.players[playerId].receiveUpdate(this.squisher.playerStates[playerId].flat());
             // this.game.players[playerId].receiveUpdate(squished.flat());
         }
