@@ -22,7 +22,6 @@ class GameSession {
         this.port = port;
         this.spectators = {};
 
-//        const customBottomLayer = 'ayy lmao';
         this.homegamesRoot = new HomegamesRoot(game, false, false);
         this.customBottomLayer = {
             root: this.homegamesRoot.getRoot(),
@@ -30,10 +29,8 @@ class GameSession {
             assets: this.homegamesRoot.constructor.metadata().assets
         };
 
-       // 'ayy lmao';
-
         // TODO: make this configurable per player (eg. configurable bezel size)
-        this.scale = {x: .85, y: .85};
+        this.scale = {x: (100 - BEZEL_SIZE_X) / 100, y:  (100 - BEZEL_SIZE_Y) / 100};
 
         this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer });
         // this.squisher.hgRoot.players = this.game.players;
@@ -160,15 +157,8 @@ class GameSession {
         }
 
         const clickedNode = this.findClick(click.x, click.y, player.spectating, player.id);
-
-        // console.log("clicked node " + click.x + ", " + click.y);
-        // console.log(clickedNode);
-        // console.log(BEZEL_SIZE_X);
-        // console.log(BEZEL_SIZE_Y);
-        // console.log(click.)
+``
         if (clickedNode) {
-            console.log("what did they click");
-            console.log(clickedNode);
             const clickedNodeId = clickedNode.id;
             // todo: implement get node (maybe maintain map in game?)
             const realNode = this.game.findNode(clickedNodeId) || this.customBottomLayer.root.findChild(clickedNodeId);
