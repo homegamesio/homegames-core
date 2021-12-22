@@ -46,6 +46,15 @@ let sessionIdCounter = 1;
 const DASHBOARD_COLOR = [69, 100, 150, 255];
 const orangeish = [246, 99, 4, 255];
 
+const gamesPerRow = 3;
+const rowsPerPage = 2;
+const containerWidth = 100;
+const containerHeight = 60;
+const gameContainerXMargin = 5;
+const gameContainerYMargin = 10;
+const gameLeftXMargin = 2.5; 
+const gameTopYMargin = 2.5; 
+
 const DEFAULT_GAME_THUMBNAIL = getConfigValue('DEFAULT_GAME_THUMBNAIL', 'https://d3lgoy70hwd3pc.cloudfront.net/logo.png');
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 250);
 
@@ -92,18 +101,14 @@ class HomegamesDashboard extends ViewableGame {
 
     initializeGames(gameCollection) {
         const gameCount = Object.keys(gameCollection).length;
-        const gamesPerRow = 3;
-        const rowsPerPage = 2;
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
-        const pageHeight = 60;
-        const baseSize = pageHeight * pagesNeeded;
-        const gameContainerXMargin = 5;
-        const gameContainerYMargin = 2.5;
-        const gameContainerWidth = 100 - (2 * gameContainerXMargin);
-        const gameContainerHeight = 60 - (2 * gameContainerYMargin);
-        const gameLeftXMargin = 2.5; 
-        const gameTopYMargin = 2.5; 
+        const baseSize = containerHeight * pagesNeeded;
+        const gameContainerWidth = containerWidth - (2 * gameContainerXMargin);
+        const gameContainerHeight = containerHeight - (2 * gameContainerYMargin);
         
+        const optionWidth = (gameContainerWidth - (2 * gameLeftXMargin)) / gamesPerRow;// - gameLeftXMargin);
+        const optionHeight = (gameContainerHeight - (2 * gameTopYMargin)) / rowsPerPage;//Math.floor((gameContainerHeight / rowsPerPage));// - gameLeftXMargin);
+
         this.whiteBase.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
         this.updatePlaneSize(baseSize);
 
@@ -111,19 +116,29 @@ class HomegamesDashboard extends ViewableGame {
         for (let game in gameCollection) {
             // console.log('game ' + (30 * (index % 3)) + ", " + (25 * (index % 2)));
             // console.log(game);
-            const optionWidth = Math.floor((gameContainerWidth / gamesPerRow));// - gameLeftXMargin);
-            const optionHeight = Math.floor((gameContainerHeight / rowsPerPage));// - gameLeftXMargin);
+            // console.log('x should be width ' + optionWidth + ' and height ' + optionHeight);
+            // console.log("centered in container of width " + gameContainerWidth);
 
-            console.log('x should be width ' + optionWidth + ' and height ' + optionHeight);
+            const realStartX = gameContainerXMargin + ( (optionWidth + gameLeftXMargin) * (index % gamesPerRow) );
 
+            const startYIndex = (gameContainerYMargin) + gameTopYMargin;
+            // const realStartY = startYIndex + (optionHeight * Math.floor(index / gamesPerRow));
+            const realStartY = gameContainerYMargin + ( (optionHeight + gameTopYMargin) *  Math.floor(index / gamesPerRow) );
+
+            // const endYIndex = realStartY + optionHeight;
+
+            // console.log('start x is ' + startIndex);
+            // console.log("which option in the row? " + (index  % gamesPerRow));
+            // console.log("so start at " + (startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow))));
+            // console.log('start ' + realStartX + "," + realStartY + " end: " + endXIndex );
             const gameOption = new GameNode.Shape({
                 onClick: (player, x, y) => {
                     console.log('ayy lmao ' + game);
                 },
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(
-                    gameLeftXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
-                    (optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow), 
+                    realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
+                    realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
                     optionWidth, 
                     optionHeight
                 ),
