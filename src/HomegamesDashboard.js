@@ -46,12 +46,12 @@ let sessionIdCounter = 1;
 const DASHBOARD_COLOR = [69, 100, 150, 255];
 const orangeish = [246, 99, 4, 255];
 
-const gamesPerRow = 3;
+const gamesPerRow = 4;
 const rowsPerPage = 2;
 const containerWidth = 100;
 const containerHeight = 60;
 const gameContainerXMargin = 5;
-const gameContainerYMargin = 10;
+const gameContainerYMargin = 0;
 const gameLeftXMargin = 2.5; 
 const gameTopYMargin = 2.5; 
 
@@ -79,17 +79,6 @@ class HomegamesDashboard extends ViewableGame {
             fill: COLORS.WHITE
         });
         
-        // red square in top left
-        // blue square in bottom right
-        const redSquare = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 15, 15),
-            fill: COLORS.ORANGE,
-            onClick: () => {
-            }
-        });
-
-        this.whiteBase.addChildren(redSquare);
         this.getPlane().addChildren(this.whiteBase);
 
         this.initializeGames(games);
@@ -108,7 +97,7 @@ class HomegamesDashboard extends ViewableGame {
         
         const optionWidth = (gameContainerWidth - (2 * gameLeftXMargin)) / gamesPerRow;// - gameLeftXMargin);
         const optionHeight = (gameContainerHeight - (2 * gameTopYMargin)) / rowsPerPage;//Math.floor((gameContainerHeight / rowsPerPage));// - gameLeftXMargin);
-
+       
         this.whiteBase.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
         this.updatePlaneSize(baseSize);
 
@@ -152,9 +141,12 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     handleNewPlayer(player) {
-        const playerView = {x: 0, y: 0, w: 100, h: 100};
 
-        const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id]);//, {filter: (node) => node.node.id !== this.whiteBase.node.id, y: 40});
+        // const playerView = {x: 0, y: 0, w: 100, h: 100};
+        // const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id]);
+
+        const playerView = {x: 0, y: 0, w: containerWidth, h: containerHeight};
+        const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id], {filter: (node) => node.node.id !== this.whiteBase.node.id, y: (100 - containerHeight)});
 
         playerViewRoot.node.playerIds = [player.id];
 
