@@ -409,8 +409,8 @@ class Quarantine extends Game {
         }
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 }
 

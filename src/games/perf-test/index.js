@@ -43,8 +43,8 @@ class PerfTest extends Game {
         }, 20);
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 
 }

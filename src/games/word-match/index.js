@@ -327,8 +327,8 @@ class WordMatch extends Game {
         this.updatePlayerList();
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 
     close() {

@@ -49,8 +49,8 @@ class ScaleTest extends Game {
         this.base.addChild(this.testAsset);
     }
     
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 
 }

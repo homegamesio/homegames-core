@@ -243,9 +243,9 @@ class Slaps extends Game {
         delete this.infoNodes[player.id];
         this.updatePlayerCount();
     }
-
-    getRoot() {
-        return this.base;
+    
+    getLayers() {
+        return [{root: this.base}];
     }
 
 }

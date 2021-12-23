@@ -76,8 +76,12 @@ class Draw extends Game {
         this.board.node.fill = color;
     }
 
-    getRoot() {
-        return this.board;
+    // getRoot() {
+    //     return this.board;
+    // }
+
+    getLayers() {
+        return [{root: this.board}];
     }
 }
 

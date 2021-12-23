@@ -35,10 +35,9 @@ class ShapeTest extends Game {
         });
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
-
 }
 
 module.exports = ShapeTest;

@@ -132,8 +132,8 @@ class MoveTest extends Game {
         this.color = Colors.randomColor();
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 }
 

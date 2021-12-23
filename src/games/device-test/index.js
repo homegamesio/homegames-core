@@ -105,8 +105,8 @@ class DeviceTest extends Game {
         }
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 
 }

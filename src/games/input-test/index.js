@@ -115,8 +115,12 @@ class InputTest extends Game {
         return key.length == 1 && (key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z') || key === ' ' || key === 'Backspace';
     }
 
-    getRoot() {
-        return this.base;
+    // getRoot() {
+    //     return this.base;
+    // }
+    
+    getLayers() {
+        return [{root: this.base}];
     }
 
     getAssets() {

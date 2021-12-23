@@ -176,9 +176,13 @@ class ImageTest extends Game {
         this.base.addChild(this.resetButton);
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
+    
+    // getRoot() {
+    //     return this.base;
+    // }
 }
 
 module.exports = ImageTest;

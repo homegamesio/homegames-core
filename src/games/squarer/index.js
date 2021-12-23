@@ -48,9 +48,9 @@ class Squarer extends Game {
         this.npc = [];
         this.createNpc();
     }
-
-    getRoot() {
-        return this.base;
+    
+    getLayers() {
+        return [{root: this.base}];
     }
 
     createNpc() {

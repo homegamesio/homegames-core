@@ -138,8 +138,9 @@ class SpriteTest extends Game {
         delete this.dancers[playerId];
     }
 
-    getRoot() {
-        return this.background;
+    
+    getLayers() {
+        return [{root: this.background}];
     }
 }
 
