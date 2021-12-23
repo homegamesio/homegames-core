@@ -73,10 +73,12 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         console.log('uhhhhh its not secure');
         server = http.createServer();
     }
-
+console.log(port);
     const wss = new WebSocket.Server({
         server
     });
+
+    console.log('plspslslss');
     
     wss.on('connection', (ws) => {
         function messageHandler(msg) {
@@ -158,6 +160,12 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         ws.on('close', closeHandler);
 
     });
+
+    wss.on('error', (wat) => {
+        console.log('watff');
+        console.log(wat);
+    })
+
     
     server.listen(port, null, null, () => {
         cb && cb();

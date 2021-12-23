@@ -247,9 +247,11 @@ class HomegamesRoot {
 //            this.playerDashboards[player.id] = {dashboard: modal, intervals: []};
 //        };
 //
-//        const onGameHomeClick = (player) => {
-//            player.receiveUpdate([5, 70, 0]);
-//        };
+        // todo: pull this from config and turn port conversion into a function
+       const onGameHomeClick = (player) => {
+        console.log("whahhsdkfhdsf");
+           player.receiveUpdate([5, 70, 1]);
+       };
 //
 //        const gameAspectRatio = game.constructor.metadata && game.constructor.metadata().aspectRatio;
         let aspectRatio;
@@ -265,7 +267,7 @@ class HomegamesRoot {
         const logoStartX = 50 - (logoSizeX / 2);
 
         this.homeButton = new GameNode.Asset({
-            onClick: () => {console.log('clicked!!!')},//isDashboard ? null : onGameHomeClick,
+            onClick: onGameHomeClick,//{console.log('clicked!!!')},//isDashboard ? null : onGameHomeClick,
             coordinates2d: ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
             assetInfo: {
                 'logo-horizontal': {

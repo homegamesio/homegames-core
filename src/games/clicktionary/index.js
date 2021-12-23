@@ -1,5 +1,5 @@
 const { charadesWord } = require('../../common/util');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-063');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 
 const COLORS = Colors.COLORS;
 
@@ -295,8 +295,8 @@ class Clicktionary extends Game {
         clearButton.addChild(countdownNode);
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 
 }

@@ -24,7 +24,7 @@ if (baseDir.endsWith('src')) {
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
-const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7001);
+const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
 const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
 
 const sessions = {};
@@ -46,10 +46,10 @@ let sessionIdCounter = 1;
 const DASHBOARD_COLOR = [69, 100, 150, 255];
 const orangeish = [246, 99, 4, 255];
 
-const gamesPerRow = 4;
+const gamesPerRow = 2;
 const rowsPerPage = 2;
 const containerWidth = 100;
-const containerHeight = 60;
+const containerHeight = 75;
 const gameContainerXMargin = 5;
 const gameContainerYMargin = 0;
 const gameLeftXMargin = 2.5; 
@@ -82,11 +82,541 @@ class HomegamesDashboard extends ViewableGame {
         this.getPlane().addChildren(this.whiteBase);
 
         this.initializeGames(games);
+        this.initializeSearch();
+        this.downloadedGames = {};
+        this.sessions = {};
+        this.requestCallbacks = {};
+        this.requestIdCounter = 1;
+
         // const baseSize = this.getBaseSize(games);
 
         // whiteBase.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
         // this.updatePlaneSize(baseSize);
     }
+
+    initializeSearch() {
+        // todo: connect to game service
+    }
+
+    onGameOptionClick(player, gameKey) {
+        console.log('clicked ' + gameKey);
+        
+        this.showGameModal(player, gameKey);
+    }
+
+    startSession(player, gameKey, gameVersion = null) { 
+        const sessionId = sessionIdCounter++;
+        const port = getServerPort();
+
+        if (this.downloadedGames[gameKey]) {
+            this.downloadGame(gameKey, gameVersion).then(gamePath => {
+
+                const childSession = fork(path.join(__dirname, 'child_game_server.js'));
+
+                sessions[port] = childSession;
+
+                childSession.send(JSON.stringify({
+                    referenceSquishMap: this.referenceSquishMap,
+                    key: gameKey,
+                    gamePath,
+                    port,
+                    player: {
+                        id: player.id,
+                        name: player.name
+                    }
+                }));
+
+                childSession.on('message', (thang) => {
+                    if (thang.startsWith('{')) {
+                        const jsonMessage = JSON.parse(thang);
+                        if (jsonMessage.success) {
+                            player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+                        }
+                        else if (jsonMessage.requestId) {
+                            this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
+                        }
+                    } else {
+                        console.log('message!');
+                        console.log(message);
+                    }
+                });
+
+                const updateSessionInfo = () => {
+                    this.updateSessionInfo(sessionId);
+                };
+
+                const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
+
+                childSession.on('close', () => {
+                    clearInterval(sessionInfoUpdateInterval);
+                    sessions[port] = null;
+                    delete this.sessions[sessionId];
+                });
+
+                childSession.on('error', (err) => {
+                    console.log('child session error');
+                    console.log(err);
+                });
+                
+                this.sessions[sessionId] = {
+                    id: sessionId,
+                    game: gameKey,
+                    port: port,
+                    sendMessage: () => {
+                    },
+                    getPlayers: (cb) => {
+                        const requestId = this.requestIdCounter++;
+                        if (cb) {
+                            this.requestCallbacks[requestId] = cb;
+                        }
+                        childSession.send(JSON.stringify({
+                            'api': 'getPlayers',
+                            'requestId': requestId
+                        }));
+                    },
+                    sendHeartbeat: () => {
+                        childSession.send(JSON.stringify({
+                            'type': 'heartbeat'
+                        }));
+                    },
+                    players: []
+                };
+            });
+        } else {
+
+            const childSession = fork(path.join(__dirname, 'child_game_server.js'));
+
+            sessions[port] = childSession;
+
+            childSession.send(JSON.stringify({
+                key: gameKey,
+                port,
+                player: {
+                    id: player.id,
+                    name: player.name
+                }
+            }));
+
+            childSession.on('message', (thang) => {
+                const jsonMessage = JSON.parse(thang);
+                if (jsonMessage.success) {
+                    player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+                }
+                else if (jsonMessage.requestId) {
+                    this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
+                }
+            });
+
+            const updateSessionInfo = () => {
+                this.updateSessionInfo(sessionId);
+            };
+
+            const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
+
+            childSession.on('close', () => {
+                clearInterval(sessionInfoUpdateInterval);
+                sessions[port] = null;
+                delete this.sessions[sessionId];
+            });
+
+            childSession.on('error', (err) => {
+                console.log('child session error');
+                console.log(err);
+            });
+            
+            this.sessions[sessionId] = {
+                id: sessionId,
+                game: gameKey,
+                port: port,
+                sendMessage: () => {
+                },
+                getPlayers: (cb) => {
+                    const requestId = this.requestIdCounter++;
+                    if (cb) {
+                        this.requestCallbacks[requestId] = cb;
+                    }
+                    childSession.send(JSON.stringify({
+                        'api': 'getPlayers',
+                        'requestId': requestId
+                    }));
+                },
+                sendHeartbeat: () => {
+                    childSession.send(JSON.stringify({
+                        'type': 'heartbeat'
+                    }));
+                },
+                players: []
+            };
+        }
+
+        //        this.renderGameList();
+    }
+
+    showGameModal(player, gameKey) {
+        const game = games[gameKey];
+        const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].root;
+
+        playerViewRoot.addChild(new GameNode.Shape({
+            coordinates2d: ShapeUtils.rectangle(10, 10, 80, 80),
+            fill: COLORS.BLUE,
+            shapeType: Shapes.POLYGON,
+            onClick: (player, x, y) => {
+                console.log('need to create game session for ');
+                this.startSession(player, gameKey);
+            }
+        }));
+    }
+
+//     onGameOptionClick(player, gameKey) {
+//         const modalColor = COLORS.HG_BLACK;//[12, 176, 80, 255];
+//         //const fadeStart = [modalColor[0], modalColor[1], modalColor[2], 0];
+
+//         const createTextInfo = (text, x, y, size, align, color) => { 
+//             return {text, x, y, size, align, color };
+//         };
+
+//         const gameInfoModal = new GameNode.Shape({
+//             shapeType: Shapes.POLYGON,
+//             coordinates2d: ShapeUtils.rectangle(10, 10, 80, 80),
+//             color: COLORS.HG_BLACK,
+//             fill: COLORS.HG_BLACK,//fadeStart,
+//             playerIds: [player.id],
+//             effects: {
+//                 shadow: {
+//                     color: COLORS.HG_BLACK,
+//                     blur: 6
+//                 }
+//             }
+//         });
+
+//         const renderStuff = (gameMetadata) => {
+//             gameInfoModal.clearChildren();
+
+//             const _playerState = this.playerStates[player.id];
+//             if (!_playerState.selectedGameVersion) {
+//                 this.playerStates[player.id].selectedGameVersion = {index: 0, data: gameMetadata.versions[0]};
+//             }
+
+//             const leftArrowBox = new GameNode.Shape({
+//                 shapeType: Shapes.POLYGON,
+//                 coordinates2d: ShapeUtils.rectangle(20, 25, 5, 10),
+//                 fill: COLORS.WHITE,
+//                 playerIds: [player.id],
+//                 onClick: (_player, x, y) => {
+//                     if (_playerState.selectedGameVersion.index + 1 >= gameMetadata.versions.length) {
+//                         return;
+//                     }
+
+//                     this.playerStates[player.id].selectedGameVersion = {index: _playerState.selectedGameVersion.index + 1, data: gameMetadata.versions[_playerState.selectedGameVersion.index + 1]};
+//                     renderStuff(gameMetadata);
+//                 }
+//             });
+
+//             const leftArrowText = new GameNode.Text({
+//                 textInfo: createTextInfo(`\u2190`, 22.5, 26.75, 2.5, 'center', orangeish),
+//                 playerIds: [player.id],
+//             });
+
+//             leftArrowBox.addChild(leftArrowText);
+
+//             const rightArrowBox = new GameNode.Shape({
+//                 shapeType: Shapes.POLYGON,
+//                 coordinates2d: ShapeUtils.rectangle(35, 25, 5, 10),
+//                 fill: COLORS.WHITE,
+//                 playerIds: [player.id],
+//                 onClick: (_player, x, y) => {
+//                     if (_playerState.selectedGameVersion.index - 1 < 0) {
+//                         return;
+//                     }
+
+//                     this.playerStates[player.id].selectedGameVersion = {index: _playerState.selectedGameVersion.index - 1, data: gameMetadata.versions[_playerState.selectedGameVersion.index - 1]};
+//                     renderStuff(gameMetadata);
+//                 }
+//             });
+
+//             const rightArrowText = new GameNode.Text({
+//                 textInfo: createTextInfo(`\u2192`, 37.5, 26.75, 2.5, 'center', orangeish),
+//                 playerIds: [player.id],
+//             });
+
+//             rightArrowBox.addChild(rightArrowText);
+
+//             const currentVersionText = new GameNode.Text({
+//                 textInfo: createTextInfo(`Version ${this.playerStates[player.id].selectedGameVersion.data.version}`, 30, 27.5, 1.6, 'center', COLORS.HG_BLACK),
+//                 playerIds: [player.id],
+//             });
+
+//             const gameVersionSelector = new GameNode.Shape({
+//                 shapeType: Shapes.POLYGON,
+//                 coordinates2d: ShapeUtils.rectangle(20, 25, 20, 10),
+//                 fill: COLORS.WHITE,
+//                 playerIds: [player.id]
+//             });
+
+//             gameVersionSelector.addChildren(leftArrowBox, rightArrowBox, currentVersionText);
+//             gameInfoModal.addChild(gameVersionSelector);
+//             const title = gameMetadata && gameMetadata.gameData.name || gameKey;
+//             const author = gameMetadata && gameMetadata.gameData.author || 'Unknown Author';
+//             const description = gameMetadata && gameMetadata.gameData.description || 'No description available';
+
+//             const titleNode = new GameNode.Text({
+//                 textInfo: createTextInfo(title, 50, 12, 2.5, 'center', orangeish),
+//                 playerIds: [player.id]
+//             });
+
+//             const authorNode = new GameNode.Text({
+//                 textInfo: createTextInfo(`by ${author}`, 50, 20, 1.2, 'center', COLORS.WHITE),
+//                 playerIds: [player.id]
+//             });
+
+//             const descriptionLabel = new GameNode.Text({
+//                 textInfo: createTextInfo('Description', 65, 25, 1.2, 'center', COLORS.HG_YELLOW),
+//                 playerIds: [player.id]
+//             });
+
+//             const descriptionNode = new GameNode.Text({
+//                 textInfo: createTextInfo(description, 55, 32, 1, 'center', COLORS.WHITE),
+//                 playerIds: [player.id]
+//             });
+     
+//             const createText = new GameNode.Text({
+//                 textInfo: createTextInfo('Create a new session', 30, 61, 1.3, 'center', COLORS.BLACK),
+//                 playerIds: [player.id]
+//             });
+
+//             const createButton = new GameNode.Shape({
+//                 shapeType: Shapes.POLYGON,
+//                 coordinates2d: ShapeUtils.rectangle(17.5, 45, 25, 35),
+//                 fill: COLORS.HG_BLUE,
+//                 playerIds: [player.id],
+//                 onClick: (player) => {
+//                     this.playerStates[player.id].root.removeChild(gameInfoModal.id);
+//                     this.startSession(player, gameKey, this.playerStates[player.id].selectedGameVersion);
+//                 }
+//             });
+
+//             gameInfoModal.addChildren(createButton, titleNode, authorNode, descriptionLabel, descriptionNode, createText);
+
+//             let sessionOptionY = 48;
+//             const sessionOptionX = 58;
+
+//             const sessionButtonHeight = 4;
+//             const sessionButtonWidth = 10;
+//             const activeSessions = Object.values(this.sessions).filter(s => s.game === gameKey);
+
+//             if (activeSessions.length > 0) {
+//                 const joinText = new GameNode.Text({
+//                     textInfo: createTextInfo('Current sessions', 70, 40, 1.3, 'center', COLORS.WHITE),
+//                     playerIds: [player.id]
+//                 });
+
+//                 gameInfoModal.addChild(joinText);
+//             }
+
+//             activeSessions.forEach(s => {
+//                 const joinSessionButton = new GameNode.Shape({
+//                     shapeType: Shapes.POLYGON,
+//                     coordinates2d: ShapeUtils.rectangle(sessionOptionX + 5, sessionOptionY - 1, sessionButtonWidth, sessionButtonHeight),
+//                     fill: COLORS.WHITE,
+//                     playerIds: [player.id],
+//                     onClick: (player) => {
+//                         this.joinSession(player, s);
+//                     }
+//                 });
+
+//                 const joinLabel = new GameNode.Text({
+//                     textInfo: createTextInfo('Join', sessionOptionX + 5 + (sessionButtonWidth / 2), sessionOptionY - 1.6 + (sessionButtonHeight / 2), .9, 'center', COLORS.BLACK),
+//                     playerIds: [player.id]
+//                 });
+
+//                 const spectateSessionButton = new GameNode.Shape({
+//                     shapeType: Shapes.POLYGON,
+//                     coordinates2d: ShapeUtils.rectangle(sessionOptionX + sessionButtonWidth + 2 + 5, sessionOptionY - 1, sessionButtonWidth, sessionButtonHeight),
+//                     fill: COLORS.WHITE,
+//                     playerIds: [player.id],
+//                     onClick: (player) => {
+//                         this.spectateSession(player, s);
+//                     }
+//                 });
+
+//                 const spectateLabel = new GameNode.Text({
+//                     textInfo: createTextInfo('Spectate', sessionOptionX + 5 + sessionButtonWidth + 2 + (sessionButtonWidth / 2), sessionOptionY - 1.6 + (sessionButtonHeight / 2), .9, 'center', COLORS.BLACK),
+//                     playerIds: [player.id]
+//                 });
+
+//                 const sessionText = new GameNode.Text({
+//                     textInfo: createTextInfo(`Session ${s.id}`, sessionOptionX, sessionOptionY, 1, 'center', orangeish),
+//                     playerIds: [player.id]
+//                 });
+
+//                 joinSessionButton.addChild(joinLabel);
+//                 spectateSessionButton.addChild(spectateLabel);
+
+//                 gameInfoModal.addChildren(sessionText, joinSessionButton, spectateSessionButton);
+
+//                 sessionOptionY += sessionButtonHeight + 3;
+//             });
+
+//             const closeModalButton = new GameNode.Shape({
+//                 shapeType: Shapes.POLYGON,
+//                 coordinates2d: ShapeUtils.rectangle(11, 11, 6, 6),
+//                 fill: COLORS.HG_RED,
+//                 playerIds: [player.id],
+//                 onClick: (player) => {
+//                     delete this.modals[player.id];
+//                     this.playerStates[player.id].root.removeChild(gameInfoModal.node.id);
+//                 }
+//             });
+
+//             gameInfoModal.addChild(closeModalButton);
+
+//             // animations.fadeIn(gameInfoModal, 1);
+                         
+//         };
+//         const renderThing = (gameMetadata) => {
+//             const title = gameMetadata.title || gameKey;
+//             const author = gameMetadata.author || 'Unknown Author';
+//             const description = gameMetadata.description || 'No description available';
+//             const version = gameMetadata.version ? `Version ${gameMetadata.version}` : 'Unkown version';
+
+//             const titleNode = new GameNode.Text({
+//                 textInfo: createTextInfo(title, 50, 12, 2.5, 'center', orangeish),
+//                 playerIds: [player.id]
+//             });
+
+//             const authorNode = new GameNode.Text({
+//                 textInfo: createTextInfo(`by ${author}`, 50, 20, 1.2, 'center', COLORS.WHITE),
+//                 playerIds: [player.id]
+//             });
+
+//             const descriptionNode = new GameNode.Text({
+//                 textInfo: createTextInfo(description, 50, 32, .8, 'center', COLORS.WHITE),
+//                 playerIds: [player.id]
+//             });
+
+//             const versionText = new GameNode.Text({
+//                 textInfo: createTextInfo(version, 50, 26, 1, 'center', COLORS.HG_YELLOW),
+//                 playerIds: [player.id]
+//             });
+     
+//             const createText = new GameNode.Text({
+//                 textInfo: createTextInfo('Create a new session', 30, 61, 1.3, 'center', COLORS.BLACK),
+//                 playerIds: [player.id]
+//             });
+
+//             const createButton = new GameNode.Shape({
+//                 shapeType: Shapes.POLYGON,
+//                 coordinates2d: ShapeUtils.rectangle(17.5, 45, 25, 35),
+//                 fill: COLORS.HG_BLUE,
+//                 playerIds: [player.id],
+//                 onClick: (player) => {
+//                     this.playerStates[player.id].root.removeChild(gameInfoModal.id);
+//                     this.startSession(player, gameKey);
+//                 }
+//             });
+
+//             gameInfoModal.addChildren(createButton, titleNode, authorNode, descriptionNode, createText, versionText);
+
+//             let sessionOptionY = 48;
+//             const sessionOptionX = 58;
+
+//             const sessionButtonHeight = 4;
+//             const sessionButtonWidth = 10;
+
+//             const activeSessions = Object.values(this.sessions).filter(s => s.game === gameKey);
+            
+//             if (activeSessions.length > 0) {
+//                 const joinText = new GameNode.Text({
+//                     textInfo: createTextInfo('Current sessions', 70, 40, 1.3, 'center', COLORS.WHITE),
+//                     playerIds: [player.id]
+//                 });
+
+//                 gameInfoModal.addChild(joinText);
+//             }
+
+//             activeSessions.forEach(s => {
+//                 const joinSessionButton = new GameNode.Shape({
+//                     shapeType: Shapes.POLYGON,
+//                     coordinates2d: ShapeUtils.rectangle(sessionOptionX + 5, sessionOptionY - 1, sessionButtonWidth, sessionButtonHeight),
+//                     fill: COLORS.WHITE,
+//                     playerIds: [player.id],
+//                     onClick: (player) => {
+//                         this.joinSession(player, s);
+//                     }
+//                 });
+
+//                 const joinLabel = new GameNode.Text({
+//                     textInfo: createTextInfo('Join', sessionOptionX + 5 + (sessionButtonWidth / 2), sessionOptionY - 1.6 + (sessionButtonHeight / 2), .9, 'center', COLORS.BLACK),
+//                     playerIds: [player.id]
+//                 });
+
+//                 const spectateSessionButton = new GameNode.Shape({
+//                     shapeType: Shapes.POLYGON,
+//                     coordinates2d: ShapeUtils.rectangle(sessionOptionX + sessionButtonWidth + 2 + 5, sessionOptionY - 1, sessionButtonWidth, sessionButtonHeight),
+//                     fill: COLORS.WHITE,
+//                     playerIds: [player.id],
+//                     onClick: (player) => {
+//                         this.spectateSession(player, s);
+//                     }
+//                 });
+
+//                 const spectateLabel = new GameNode.Text({
+//                     textInfo: createTextInfo('Spectate', sessionOptionX + 5 + sessionButtonWidth + 2 + (sessionButtonWidth / 2), sessionOptionY - 1.6 + (sessionButtonHeight / 2), .9, 'center', COLORS.BLACK),
+//                     playerIds: [player.id]
+//                 });
+
+//                 const sessionText = new GameNode.Text({
+//                     textInfo: createTextInfo(`Session ${s.id}`, sessionOptionX, sessionOptionY, 1, 'center', orangeish),
+//                     playerIds: [player.id]
+//                 });
+
+//                 joinSessionButton.addChild(joinLabel);
+//                 spectateSessionButton.addChild(spectateLabel);
+
+//                 gameInfoModal.addChildren(sessionText, joinSessionButton, spectateSessionButton);
+
+//                 sessionOptionY += sessionButtonHeight + 3;
+//             });
+
+//             const closeModalButton = new GameNode.Shape({
+//                 shapeType: Shapes.POLYGON,
+//                 coordinates2d: ShapeUtils.rectangle(11, 11, 6, 6),
+//                 fill: COLORS.HG_RED,
+//                 playerIds: [player.id],
+//                 onClick: (player) => {
+//                     delete this.modals[player.id];
+//                     this.playerStates[player.id].root.removeChild(gameInfoModal.node.id);
+//                 }
+//             });
+
+//             gameInfoModal.addChild(closeModalButton);
+
+//             // animations.fadeIn(gameInfoModal, .6);
+//          }
+
+//         this.playerStates[player.id].root.addChild(gameInfoModal);
+
+
+//         let _gameMetadata;
+
+//         if (this.downloadedGames[gameKey]) {
+//             const gameData = this.downloadedGames[gameKey].gameData;
+
+//             const versions = this.downloadedGames[gameKey].versions;
+
+//             _gameMetadata = {
+//                 title: gameData.name, 
+//                 author: gameData.author, 
+//                 description: gameData.description,
+//                 version: versions[0] && versions[0].version
+//             };
+//             renderStuff(this.downloadedGames[gameKey]);//_gameMetadata);
+//         } else {
+//             _gameMetadata = games[gameKey].metadata && games[gameKey].metadata() || {};
+//             renderThing(_gameMetadata);
+//         }
+        
+//     }
 
     initializeGames(gameCollection) {
         const gameCount = Object.keys(gameCollection).length;
@@ -122,7 +652,7 @@ class HomegamesDashboard extends ViewableGame {
             // console.log('start ' + realStartX + "," + realStartY + " end: " + endXIndex );
             const gameOption = new GameNode.Shape({
                 onClick: (player, x, y) => {
-                    console.log('ayy lmao ' + game);
+                    this.onGameOptionClick(player, game);
                 },
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(
@@ -140,26 +670,41 @@ class HomegamesDashboard extends ViewableGame {
         // return pagesNeeded * pageSize;
     }
 
+    // wtf    
+    updateSessionInfo(sessionId) {
+        this.sessions[sessionId].getPlayers((players) => { 
+            this.sessions[sessionId].players = players;
+        });
+    }
+
+
     handleNewPlayer(player) {
 
         // const playerView = {x: 0, y: 0, w: 100, h: 100};
         // const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id]);
 
         const playerView = {x: 0, y: 0, w: containerWidth, h: containerHeight};
-        const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id], {filter: (node) => node.node.id !== this.whiteBase.node.id, y: (100 - containerHeight)});
+        const playerGameViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id], {filter: (node) => node.node.id !== this.whiteBase.node.id, y: (100 - containerHeight)});
 
-        playerViewRoot.node.playerIds = [player.id];
+        const playerNodeRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            playerIds: [player.id]
+        });
+
+        // playerGameViewRoot.node.playerIds = [player.id];
 
         this.playerViews[player.id] = {
             view: playerView,
-            viewRoot: playerViewRoot
+            root: playerNodeRoot
         }
+        playerNodeRoot.addChild(playerGameViewRoot);
 
-        this.getViewRoot().addChild(playerViewRoot);
+        this.getViewRoot().addChild(playerNodeRoot);
     }
 
     handlePlayerDisconnect(playerId) {
-        const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].viewRoot;
+        const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].root;
         if (playerViewRoot) {
             this.getViewRoot().removeChild(playerViewRoot.node.id);
         }

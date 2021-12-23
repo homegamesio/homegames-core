@@ -96,6 +96,11 @@ process.on('message', (msg) => {
     }
 });
 
+process.on('error', (err) => {
+    console.log('error happened');
+    console.log(err);
+});
+
 const checkPulse = () => {
     if (!gameSession || (Object.values(gameSession.game.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 1000) {
         process.exit(0);
