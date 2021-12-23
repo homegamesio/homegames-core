@@ -141,17 +141,17 @@ class HomegamesDashboard extends ViewableGame {
                     }
                 });
 
-                const updateSessionInfo = () => {
-                    this.updateSessionInfo(sessionId);
-                };
+                // const updateSessionInfo = () => {
+                //     this.updateSessionInfo(sessionId);
+                // };
 
-                const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
+                // const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
 
-                childSession.on('close', () => {
-                    clearInterval(sessionInfoUpdateInterval);
-                    sessions[port] = null;
-                    delete this.sessions[sessionId];
-                });
+                // childSession.on('close', () => {
+                //     clearInterval(sessionInfoUpdateInterval);
+                //     sessions[port] = null;
+                //     delete this.sessions[sessionId];
+                // });
 
                 childSession.on('error', (err) => {
                     console.log('child session error');
@@ -207,17 +207,17 @@ class HomegamesDashboard extends ViewableGame {
                 }
             });
 
-            const updateSessionInfo = () => {
-                this.updateSessionInfo(sessionId);
-            };
+            // const updateSessionInfo = () => {
+            //     this.updateSessionInfo(sessionId);
+            // };
 
-            const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
+            // const sessionInfoUpdateInterval = setInterval(updateSessionInfo, 5000); 
 
-            childSession.on('close', () => {
-                clearInterval(sessionInfoUpdateInterval);
-                sessions[port] = null;
-                delete this.sessions[sessionId];
-            });
+            // childSession.on('close', () => {
+            //     clearInterval(sessionInfoUpdateInterval);
+            //     sessions[port] = null;
+            //     delete this.sessions[sessionId];
+            // });
 
             childSession.on('error', (err) => {
                 console.log('child session error');
@@ -671,11 +671,11 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     // wtf    
-    updateSessionInfo(sessionId) {
-        this.sessions[sessionId].getPlayers((players) => { 
-            this.sessions[sessionId].players = players;
-        });
-    }
+    // updateSessionInfo(sessionId) {
+    //     this.sessions[sessionId].getPlayers((players) => { 
+    //         this.sessions[sessionId].players = players;
+    //     });
+    // }
 
 
     handleNewPlayer(player) {
@@ -683,8 +683,17 @@ class HomegamesDashboard extends ViewableGame {
         // const playerView = {x: 0, y: 0, w: 100, h: 100};
         // const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id]);
 
-        const playerView = {x: 0, y: 0, w: containerWidth, h: containerHeight};
-        const playerGameViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id], {filter: (node) => node.node.id !== this.whiteBase.node.id, y: (100 - containerHeight)});
+        const playerView = {x: 0, y: 40, w: containerWidth, h: containerHeight};
+
+        const playerGameViewRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            playerIds: [player.id]
+        });
+
+        const uh = ViewUtils.getView(this.getPlane(), playerView, [player.id], {filter: (node) => node.node.id !== this.whiteBase.node.id, y: (100 - containerHeight)});
+
+        playerGameViewRoot.addChild(uh);
 
         const playerNodeRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -692,13 +701,56 @@ class HomegamesDashboard extends ViewableGame {
             playerIds: [player.id]
         });
 
-        // playerGameViewRoot.node.playerIds = [player.id];
+        const playerSearchBox = new GameNode.Shape({
+            shapeType: Shapes.POLYGON, 
+            coordinates2d: ShapeUtils.rectangle(5, 5, 90, 10),
+            playerIds: [player.id],
+            fill: COLORS.RED,
+            onClick: (player, x, y) => {
+                console.log('searched');
+            }
+        });
+
+        const playerViewBox = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(94.5, 19.5, 5, 80),
+            playerIds: [player.id],
+            fill: COLORS.BLUE,
+            onClick: (player, x, y) => {
+                // console.log("yooo");
+                // console.log(x);    
+                const currentView = this.playerViews[player.id].view;
+
+                // top half, move view up & vice versa
+                if (y <= 49.75) {
+                    currentView.y -= 40;
+                } else {
+                    currentView.y += 40;
+                }
+
+                const newUh = ViewUtils.getView(this.getPlane(), currentView, [player.id], {filter: (node) => node.node.id !== this.whiteBase.node.id, y: (100 - containerHeight)});
+                const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
+                // console.log("yosdfdsf");
+                // console.log(playerViewRoot);
+                if (playerViewRoot) {
+                    playerViewRoot.clearChildren();
+                    playerViewRoot.addChild(newUh);
+                    // playerNodeRoot.removeChild(playerViewRoot.node.id);
+                }
+
+                // todo: manage these roots better
+                // playerNodeRoot.addChild(playerGameViewRoot);
+            }
+        });
+
+        playerNodeRoot.addChild(playerGameViewRoot);
+        playerNodeRoot.addChildren(playerSearchBox, playerViewBox);
 
         this.playerViews[player.id] = {
             view: playerView,
-            root: playerNodeRoot
+            root: playerNodeRoot,
+            viewRoot: playerGameViewRoot
         }
-        playerNodeRoot.addChild(playerGameViewRoot);
 
         this.getViewRoot().addChild(playerNodeRoot);
     }

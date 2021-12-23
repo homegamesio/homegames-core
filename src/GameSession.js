@@ -157,7 +157,7 @@ class GameSession {
         }
 
         const clickedNode = this.findClick(click.x, click.y, player.spectating, player.id);
-``
+
         if (clickedNode) {
             const clickedNodeId = clickedNode.id;
             // todo: implement get node (maybe maintain map in game?)
