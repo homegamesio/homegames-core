@@ -721,6 +721,7 @@ class HomegamesDashboard extends ViewableGame {
                 // console.log(x);    
                 const currentView = this.playerViews[player.id].view;
 
+                console.log("dsfsdfdsf");
                 // top half, move view up & vice versa
                 if (y <= 49.75) {
                     currentView.y -= 40;
