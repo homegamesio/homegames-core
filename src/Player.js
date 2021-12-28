@@ -9,15 +9,17 @@ if (baseDir.endsWith('src')) {
 }
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
-
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
+
+let id = 0;
+
 class Player {
     constructor(ws, spectating, clientInfo, requestedGameId) {
         this.inputListeners = new Set();
         this.stateListeners = new Set();
         this.clientInfo = clientInfo;
         this.ws = ws;
-        this.id = ws.id;
+        this.id = ws?.id || ++id;
         this.info = {};
         this.spectating = spectating;
 
@@ -25,7 +27,7 @@ class Player {
         console.log(requestedGameId);
         this.requestedGameId = requestedGameId;
 
-        this.ws.on('message', (input) => {
+        this.ws?.on('message', (input) => {
             try {
                 const _input = JSON.parse(input);
                 if (_input.clientInfo) {
