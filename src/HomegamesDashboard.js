@@ -259,14 +259,38 @@ class HomegamesDashboard extends ViewableGame {
         const game = games[gameKey];
         const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].root;
 
-        playerViewRoot.addChild(new GameNode.Shape({
-            coordinates2d: ShapeUtils.rectangle(10, 10, 80, 80),
-            fill: COLORS.BLUE,
+        const modalBase = new GameNode.Shape({
+            coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 95),
+            fill: COLORS.PURPLE,
+            shapeType: Shapes.POLYGON
+        });
+
+        const closeButton = new GameNode.Shape({
+            coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 10, 10),
+            fill: COLORS.RED,
             shapeType: Shapes.POLYGON,
-            onClick: (player, x, y) => {
-                this.startSession(player, gameKey);
+            onClick: (player) => {
+                console.log('close');
+                playerViewRoot.removeChild(modalBase.node.id);
             }
-        }));
+        });
+
+        const closeX = new GameNode.Text({
+            textInfo: {
+                x: 7.5,
+                y: 4.5,
+                text: 'X',
+                align: 'center',
+                color: COLORS.WHITE,
+                size: 3
+            }
+        });
+
+        closeButton.addChildren(closeX);
+
+        modalBase.addChildren(closeButton);
+
+        playerViewRoot.addChild(modalBase);
     }
 
 //     onGameOptionClick(player, gameKey) {
