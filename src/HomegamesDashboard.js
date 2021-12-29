@@ -103,9 +103,7 @@ class HomegamesDashboard extends ViewableGame {
         // todo: connect to game service
     }
 
-    onGameOptionClick(player, gameKey) {
-        console.log('clicked ' + gameKey);
-        
+    onGameOptionClick(player, gameKey) {        
         this.showGameModal(player, gameKey);
     }
 
@@ -266,7 +264,6 @@ class HomegamesDashboard extends ViewableGame {
             fill: COLORS.BLUE,
             shapeType: Shapes.POLYGON,
             onClick: (player, x, y) => {
-                console.log('need to create game session for ');
                 this.startSession(player, gameKey);
             }
         }));
@@ -633,25 +630,10 @@ class HomegamesDashboard extends ViewableGame {
 
         let index = 0;
         for (let game in gameCollection) {
-            // console.log('game ' + (30 * (index % 3)) + ", " + (25 * (index % 2)));
-            // console.log(game);
-            // console.log('x should be width ' + optionWidth + ' and height ' + optionHeight);
-            // console.log("centered in container of width " + gameContainerWidth);
-
             const realStartX = gameContainerXMargin + ( (optionWidth + gameLeftXMargin) * (index % gamesPerRow) );
-
             const startYIndex = (gameContainerYMargin) + gameTopYMargin;
-            // const realStartY = startYIndex + (optionHeight * Math.floor(index / gamesPerRow));
             const realStartY = gameContainerYMargin + ( (optionHeight + gameTopYMargin) *  Math.floor(index / gamesPerRow) );
 
-            // const endYIndex = realStartY + optionHeight;
-
-            console.log("putting a guy at x: " + realStartX + ", y: " + realStartY);
-            console.log("container height: " + gameContainerHeight);
-            // console.log('start x is ' + startIndex);
-            // console.log("which option in the row? " + (index  % gamesPerRow));
-            // console.log("so start at " + (startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow))));
-            // console.log('start ' + realStartX + "," + realStartY + " end: " + endXIndex );
             const gameOption = new GameNode.Shape({
                 onClick: (player, x, y) => {
                     this.onGameOptionClick(player, game);
@@ -726,6 +708,10 @@ class HomegamesDashboard extends ViewableGame {
                     currentView.y -= gameContainerHeight;//40;
                 } else {
                     currentView.y += gameContainerHeight;//40;
+                }
+
+                if (currentView.y < 0) {
+                    currentView.y = 0;
                 }
 
                 const newUh = ViewUtils.getView(this.getPlane(), currentView, [player.id], {filter: (node) => node.node.id !== this.whiteBase.node.id, y: (100 - containerHeight)});
