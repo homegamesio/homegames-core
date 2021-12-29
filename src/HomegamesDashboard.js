@@ -55,9 +55,14 @@ const gameContainerYMargin = 0;
 const gameLeftXMargin = 2.5; 
 const gameTopYMargin = 2.5; 
 
+const gameContainerWidth = containerWidth - (2 * gameContainerXMargin);
+const gameContainerHeight = containerHeight - (2 * gameContainerYMargin);
+
+const optionWidth = (gameContainerWidth - (2 * gameLeftXMargin)) / gamesPerRow;// - gameLeftXMargin);
+const optionHeight = (gameContainerHeight - (2 * gameTopYMargin)) / rowsPerPage;//Math.floor((gameContainerHeight / rowsPerPage));// - gameLeftXMargin);
+
 const DEFAULT_GAME_THUMBNAIL = getConfigValue('DEFAULT_GAME_THUMBNAIL', 'https://d3lgoy70hwd3pc.cloudfront.net/logo.png');
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 250);
-
 
 class HomegamesDashboard extends ViewableGame {
     static metadata() {
@@ -622,12 +627,7 @@ class HomegamesDashboard extends ViewableGame {
         const gameCount = Object.keys(gameCollection).length;
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
         const baseSize = containerHeight * pagesNeeded;
-        const gameContainerWidth = containerWidth - (2 * gameContainerXMargin);
-        const gameContainerHeight = containerHeight - (2 * gameContainerYMargin);
-        
-        const optionWidth = (gameContainerWidth - (2 * gameLeftXMargin)) / gamesPerRow;// - gameLeftXMargin);
-        const optionHeight = (gameContainerHeight - (2 * gameTopYMargin)) / rowsPerPage;//Math.floor((gameContainerHeight / rowsPerPage));// - gameLeftXMargin);
-       
+
         this.whiteBase.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
         this.updatePlaneSize(baseSize);
 
@@ -646,6 +646,8 @@ class HomegamesDashboard extends ViewableGame {
 
             // const endYIndex = realStartY + optionHeight;
 
+            console.log("putting a guy at x: " + realStartX + ", y: " + realStartY);
+            console.log("container height: " + gameContainerHeight);
             // console.log('start x is ' + startIndex);
             // console.log("which option in the row? " + (index  % gamesPerRow));
             // console.log("so start at " + (startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow))));
@@ -683,7 +685,7 @@ class HomegamesDashboard extends ViewableGame {
         // const playerView = {x: 0, y: 0, w: 100, h: 100};
         // const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id]);
 
-        const playerView = {x: 0, y: 40, w: containerWidth, h: containerHeight};
+        const playerView = {x: 0, y: 0, w: containerWidth, h: containerHeight};
 
         const playerGameViewRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -717,30 +719,24 @@ class HomegamesDashboard extends ViewableGame {
             playerIds: [player.id],
             fill: COLORS.BLUE,
             onClick: (player, x, y) => {
-                // console.log("yooo");
-                // console.log(x);    
                 const currentView = this.playerViews[player.id].view;
 
-                console.log("dsfsdfdsf");
                 // top half, move view up & vice versa
                 if (y <= 49.75) {
-                    currentView.y -= 40;
+                    currentView.y -= gameContainerHeight;//40;
                 } else {
-                    currentView.y += 40;
+                    currentView.y += gameContainerHeight;//40;
                 }
 
                 const newUh = ViewUtils.getView(this.getPlane(), currentView, [player.id], {filter: (node) => node.node.id !== this.whiteBase.node.id, y: (100 - containerHeight)});
                 const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
-                // console.log("yosdfdsf");
-                // console.log(playerViewRoot);
+
                 if (playerViewRoot) {
                     playerViewRoot.clearChildren();
                     playerViewRoot.addChild(newUh);
-                    // playerNodeRoot.removeChild(playerViewRoot.node.id);
                 }
 
                 // todo: manage these roots better
-                // playerNodeRoot.addChild(playerGameViewRoot);
             }
         });
 
