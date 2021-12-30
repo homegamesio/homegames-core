@@ -76,6 +76,34 @@ class HomegamesDashboard extends ViewableGame {
     constructor() {
         super(1000);
 
+        this.assets = {
+            'default': new Asset('url', {
+                'location': DEFAULT_GAME_THUMBNAIL,
+                'type': 'image'
+            }),
+            'dashboardSong': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/assets/testsong.mp3',
+                type: 'audio'
+            }),
+            'logo': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
+                'type': 'image'
+            }),
+            'settings-gear': new Asset('url', {
+                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/settings_gear.png',
+                'type': 'image'
+            })
+        };
+
+        Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
+            this.assets[key] = new Asset('url', {
+                'location': games[key].metadata && games[key].metadata().thumbnail,
+                'type': 'image'
+            });
+        });
+
+        console.log(this.assets);
+
         this.playerViews = {};
 
         this.whiteBase = new GameNode.Shape({
@@ -262,7 +290,10 @@ class HomegamesDashboard extends ViewableGame {
         const modalBase = new GameNode.Shape({
             coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 95),
             fill: COLORS.PURPLE,
-            shapeType: Shapes.POLYGON
+            shapeType: Shapes.POLYGON,
+            onClick: () => {
+                this.startSession(player, gameKey)
+            }
         });
 
         const closeButton = new GameNode.Shape({
@@ -291,6 +322,10 @@ class HomegamesDashboard extends ViewableGame {
         modalBase.addChildren(closeButton);
 
         playerViewRoot.addChild(modalBase);
+    }
+
+    getAssets() {
+        return this.assets;
     }
 
 //     onGameOptionClick(player, gameKey) {
@@ -658,7 +693,7 @@ class HomegamesDashboard extends ViewableGame {
             const startYIndex = (gameContainerYMargin) + gameTopYMargin;
             const realStartY = gameContainerYMargin + ( (optionHeight + gameTopYMargin) *  Math.floor(index / gamesPerRow) );
 
-            const gameOption = new GameNode.Shape({
+            const gameOptionBase = new GameNode.Shape({
                 onClick: (player, x, y) => {
                     this.onGameOptionClick(player, game);
                 },
@@ -669,22 +704,40 @@ class HomegamesDashboard extends ViewableGame {
                     optionWidth, 
                     optionHeight
                 ),
-                fill: COLORS.CREAM//Colors.randomColor()
+                // fill: COLORS.CREAM//Colors.randomColor()
             });
 
-        // const closeX = new GameNode.Text({
-        //     textInfo: {
-        //         x: 7.5,
-        //         y: 4.5,
-        //         text: 'X',
-        //         align: 'center',
-        //         color: COLORS.WHITE,
-        //         size: 3
-        //     }
-        // });
+            const assetKey = gameCollection[game].metadata && gameCollection[game].metadata().thumbnail ? game : 'default';
+
+            const gameOption = new GameNode.Asset({
+                onClick: (player) => {
+                    console.log("PLAYER CLICKED THING " + game);
+                    // this.onGameOptionClick(player, key);
+                },
+                coordinates2d:  ShapeUtils.rectangle(
+                    realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
+                    realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
+                    optionWidth, 
+                    optionHeight
+                ),//ShapeUtils.rectangle(gamePos[0] + optionMarginX, gamePos[1] + optionMarginY, gameOptionSize.x, gameOptionSize.y),
+                assetInfo: {
+                    [assetKey]: {
+                        pos: {
+                            x: realStartX,//gamePos[0] + optionMarginX,
+                            y: realStartY//gamePos[1] + optionMarginY
+                        },
+                        size: {
+                            x: optionWidth,//(.8 * gameOptionSize.x),
+                            y: optionHeight//(.8 * gameOptionSize.y)
+                        }
+                    }
+                }
+                // playerIds: [playerId]
+            });
+
             const gameName = new GameNode.Text({
                 textInfo: {
-                    text: 'ayy lmao ' + realStartY,
+                    text: game,//'ayy lmao ' + realStartY,
                     x: realStartX + (optionWidth / 2),
                     y: realStartY + 10,
                     color: COLORS.HG_BLACK,
@@ -693,7 +746,7 @@ class HomegamesDashboard extends ViewableGame {
                 }
             });
 
-            gameOption.addChild(gameName);
+            gameOption.addChildren(gameOptionBase, gameName);
 
             this.whiteBase.addChild(gameOption);
             index++;   
