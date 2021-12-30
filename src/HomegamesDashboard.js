@@ -49,11 +49,13 @@ const orangeish = [246, 99, 4, 255];
 const gamesPerRow = 2;
 const rowsPerPage = 2;
 const containerWidth = 100;
-const containerHeight = 85;
+const containerHeight = 90;
+
 const gameContainerXMargin = 10;
-const gameContainerYMargin = 5;
-const gameLeftXMargin = 5;
-const gameTopYMargin = 5; 
+const gameContainerYMargin = 10;
+
+const gameLeftXMargin = 10;
+const gameTopYMargin = 10; 
 
 const gameContainerWidth = containerWidth - (2 * gameContainerXMargin);
 const gameContainerHeight = containerHeight - (2 * gameContainerYMargin);
@@ -108,13 +110,13 @@ class HomegamesDashboard extends ViewableGame {
 
         this.playerViews = {};
 
-        this.whiteBase = new GameNode.Shape({
+        this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 1000, 1000),
             fill: COLORS.WHITE
         });
         
-        this.getPlane().addChildren(this.whiteBase);
+        this.getPlane().addChildren(this.base);
 
         this.initializeGames(games);
         this.initializeSearch();
@@ -684,16 +686,18 @@ class HomegamesDashboard extends ViewableGame {
     initializeGames(gameCollection) {
         const gameCount = Object.keys(gameCollection).length;
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
-        const baseSize = gameContainerHeight * pagesNeeded;
+        const baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
 
-        this.whiteBase.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
+        this.base.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
         this.updatePlaneSize(baseSize);
 
         let index = 0;
         for (let game in gameCollection) {
             const realStartX = gameContainerXMargin + ( (optionWidth + gameLeftXMargin) * (index % gamesPerRow) );
             const startYIndex = (gameContainerYMargin) + gameTopYMargin;
-            const realStartY = gameContainerYMargin + ( (optionHeight + gameTopYMargin) *  Math.floor(index / gamesPerRow) );
+            // hack
+            const textHeight = 2.5;
+            const realStartY = gameContainerYMargin + ( (optionHeight + gameTopYMargin) *  Math.floor(index / gamesPerRow) ) + textHeight;
 
             const gameOptionBase = new GameNode.Shape({
                 onClick: (player, x, y) => {
@@ -741,16 +745,16 @@ class HomegamesDashboard extends ViewableGame {
                 textInfo: {
                     text: game,//'ayy lmao ' + realStartY,
                     x: realStartX + (optionWidth / 2),
-                    y: realStartY + 10,
+                    y: realStartY - textHeight,
                     color: COLORS.HG_BLACK,
                     align: 'center',
-                    size: 1
+                    size: 1.1
                 }
             });
 
             gameOption.addChildren(gameOptionBase, gameName);
 
-            this.whiteBase.addChild(gameOption);
+            this.base.addChild(gameOption);
             index++;   
         }
         // for (let colIndex = 0; colIndex < gamesPerRow; colIndex)
@@ -779,7 +783,7 @@ class HomegamesDashboard extends ViewableGame {
             playerIds: [player.id]
         });
 
-        const uh = ViewUtils.getView(this.getPlane(), playerView, [player.id], {filter: (node) => node.node.id !== this.whiteBase.node.id, y: (100 - containerHeight)});
+        const uh = ViewUtils.getView(this.getPlane(), playerView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
 
         playerGameViewRoot.addChild(uh);
 
@@ -791,7 +795,7 @@ class HomegamesDashboard extends ViewableGame {
 
         const playerSearchBox = new GameNode.Shape({
             shapeType: Shapes.POLYGON, 
-            coordinates2d: ShapeUtils.rectangle(5, 5, 90, 10),
+            coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 10),
             playerIds: [player.id],
             fill: COLORS.RED,
             onClick: (player, x, y) => {
@@ -799,41 +803,104 @@ class HomegamesDashboard extends ViewableGame {
             }
         });
 
-        const playerViewBox = new GameNode.Shape({
+        const upArrow = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(94.5, 19.5, 5, 80),
+            coordinates2d: ShapeUtils.rectangle(90, 22.5, 10, 20),
             playerIds: [player.id],
-            fill: COLORS.BLUE,
+            fill: COLORS.WHITE,
             onClick: (player, x, y) => {
                 const currentView = this.playerViews[player.id].view;
 
-                // top half, move view up & vice versa
-                if (y <= 49.75) {
-                    currentView.y -= gameContainerHeight + gameContainerYMargin;//40;
-                } else {
-                    currentView.y += (gameContainerHeight + gameContainerYMargin);//40;
-                }
+                currentView.y -= gameContainerHeight + gameContainerYMargin;//40;
 
                 if (currentView.y < 0) {
                     currentView.y = 0;
                 }
 
-                // console.log('dsdljkfsdfdsf');
-                // console.log(currentView);
-                const newUh = ViewUtils.getView(this.getPlane(), currentView, [player.id], {filter: (node) => node.node.id !== this.whiteBase.node.id, y: (100 - containerHeight)});
+                const newUh = ViewUtils.getView(this.getPlane(), currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
                 const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
 
                 if (playerViewRoot) {
                     playerViewRoot.clearChildren();
                     playerViewRoot.addChild(newUh);
                 }
-
-                // todo: manage these roots better
             }
         });
 
+        const upText = new GameNode.Text({
+            textInfo: {
+                x: 95,
+                y: 27.5,
+                align: 'center',
+                size: 1.1,
+                text: '\u2191',
+                color: COLORS.BLACK
+            }
+        });
+
+        upArrow.addChild(upText);
+//             const leftArrowText = new GameNode.Text({
+//                 textInfo: createTextInfo(`\u2190`, 22.5, 26.75, 2.5, 'center', orangeish),
+//                 playerIds: [player.id],
+//             });
+
+        const downArrow = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(90, 72.5, 10, 20),
+            playerIds: [player.id],
+            fill: COLORS.WHITE,
+            onClick: (player, x, y) => {
+                const currentView = this.playerViews[player.id].view;
+
+                currentView.y += gameContainerHeight + gameContainerYMargin;//40;
+
+                // todo: check base size bound
+
+                const newUh = ViewUtils.getView(this.getPlane(), currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
+                const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
+
+                if (playerViewRoot) {
+                    playerViewRoot.clearChildren();
+                    playerViewRoot.addChild(newUh);
+                }
+            }
+        });
+
+        // const playerViewBox = new GameNode.Shape({
+        //     shapeType: Shapes.POLYGON,
+        //     coordinates2d: ShapeUtils.rectangle(94.5, 19.5, 5, 80),
+        //     playerIds: [player.id],
+        //     fill: COLORS.BLUE,
+        //     onClick: (player, x, y) => {
+        //         const currentView = this.playerViews[player.id].view;
+
+        //         // top half, move view up & vice versa
+        //         if (y <= 49.75) {
+        //             currentView.y -= gameContainerHeight + gameContainerYMargin;//40;
+        //         } else {
+        //             currentView.y += (gameContainerHeight + gameContainerYMargin);//40;
+        //         }
+
+        //         if (currentView.y < 0) {
+        //             currentView.y = 0;
+        //         }
+
+        //         // console.log('dsdljkfsdfdsf');
+        //         // console.log(currentView);
+        //         const newUh = ViewUtils.getView(this.getPlane(), currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
+        //         const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
+
+        //         if (playerViewRoot) {
+        //             playerViewRoot.clearChildren();
+        //             playerViewRoot.addChild(newUh);
+        //         }
+
+        //         // todo: manage these roots better
+        //     }
+        // });
+
         playerNodeRoot.addChild(playerGameViewRoot);
-        playerNodeRoot.addChildren(playerSearchBox, playerViewBox);
+        playerNodeRoot.addChildren(playerSearchBox, upArrow, downArrow);
 
         this.playerViews[player.id] = {
             view: playerView,
