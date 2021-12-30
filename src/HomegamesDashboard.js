@@ -833,7 +833,7 @@ class HomegamesDashboard extends ViewableGame {
                 y: 27.5,
                 align: 'center',
                 size: 1.1,
-                text: '\u2191',
+                text: '\u25B2',
                 color: COLORS.BLACK
             }
         });
@@ -865,6 +865,19 @@ class HomegamesDashboard extends ViewableGame {
                 }
             }
         });
+
+        const downText = new GameNode.Text({
+            textInfo: {
+                x: 95,
+                y: 77.5,
+                align: 'center',
+                size: 1.1,
+                text: '\u25BC',
+                color: COLORS.BLACK
+            }
+        });
+
+        downArrow.addChild(downText);
 
         // const playerViewBox = new GameNode.Shape({
         //     shapeType: Shapes.POLYGON,
