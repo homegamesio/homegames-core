@@ -110,5 +110,5 @@ const checkPulse = () => {
 
 // short grace period to allow the first client to connect before checking heartbeat
 setTimeout(() => {
-    setInterval(checkPulse, 500);
+    // setInterval(checkPulse, 500);
 }, 5000);

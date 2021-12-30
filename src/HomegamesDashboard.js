@@ -49,17 +49,21 @@ const orangeish = [246, 99, 4, 255];
 const gamesPerRow = 2;
 const rowsPerPage = 2;
 const containerWidth = 100;
-const containerHeight = 75;
-const gameContainerXMargin = 5;
-const gameContainerYMargin = 0;
-const gameLeftXMargin = 2.5; 
-const gameTopYMargin = 2.5; 
+const containerHeight = 85;
+const gameContainerXMargin = 10;
+const gameContainerYMargin = 5;
+const gameLeftXMargin = 5;
+const gameTopYMargin = 5; 
 
 const gameContainerWidth = containerWidth - (2 * gameContainerXMargin);
 const gameContainerHeight = containerHeight - (2 * gameContainerYMargin);
 
-const optionWidth = (gameContainerWidth - (2 * gameLeftXMargin)) / gamesPerRow;// - gameLeftXMargin);
-const optionHeight = (gameContainerHeight - (2 * gameTopYMargin)) / rowsPerPage;//Math.floor((gameContainerHeight / rowsPerPage));// - gameLeftXMargin);
+console.log("container height: " + gameContainerHeight);
+
+const optionWidth = (gameContainerWidth - ((gamesPerRow - 1) * gameLeftXMargin)) / gamesPerRow;
+const optionHeight = (gameContainerHeight - ((rowsPerPage - 1) * gameTopYMargin)) / rowsPerPage;
+
+console.log("option is " + optionWidth + " wide, " + optionHeight + " high");
 
 const DEFAULT_GAME_THUMBNAIL = getConfigValue('DEFAULT_GAME_THUMBNAIL', 'https://d3lgoy70hwd3pc.cloudfront.net/logo.png');
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 250);
@@ -101,8 +105,6 @@ class HomegamesDashboard extends ViewableGame {
                 'type': 'image'
             });
         });
-
-        console.log(this.assets);
 
         this.playerViews = {};
 
@@ -682,7 +684,7 @@ class HomegamesDashboard extends ViewableGame {
     initializeGames(gameCollection) {
         const gameCount = Object.keys(gameCollection).length;
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
-        const baseSize = containerHeight * pagesNeeded;
+        const baseSize = gameContainerHeight * pagesNeeded;
 
         this.whiteBase.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
         this.updatePlaneSize(baseSize);
@@ -768,7 +770,7 @@ class HomegamesDashboard extends ViewableGame {
         // const playerView = {x: 0, y: 0, w: 100, h: 100};
         // const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id]);
 
-        const playerView = {x: 0, y: 0, w: containerWidth, h: containerHeight};
+        const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
         // const playerView = {x: 0, y: 0, w: containerWidth, h: 10};
 
         const playerGameViewRoot = new GameNode.Shape({
@@ -807,9 +809,9 @@ class HomegamesDashboard extends ViewableGame {
 
                 // top half, move view up & vice versa
                 if (y <= 49.75) {
-                    currentView.y -= gameContainerHeight;//40;
+                    currentView.y -= gameContainerHeight + gameContainerYMargin;//40;
                 } else {
-                    currentView.y += gameContainerHeight;//40;
+                    currentView.y += (gameContainerHeight + gameContainerYMargin);//40;
                 }
 
                 if (currentView.y < 0) {
