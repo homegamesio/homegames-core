@@ -31,9 +31,10 @@ assert(Object.keys(dashboard.playerViews).length == 1);
 
 const fakePlayerView = dashboard.playerViews[fakePlayer.id];
 
-const playerScrollBar = fakePlayerView.root.getChildren().find(child => child.node.fill && arrayEquals(child.node.fill, [0, 0, 255, 255]));
+// TODO: finish this test
+// const playerScrollBar = fakePlayerView.root.getChildren().find(child => child.node.fill && arrayEquals(child.node.fill, [0, 0, 255, 255]));
 
-playerScrollBar.node.handleClick(fakePlayer, 80, 90);
+// playerScrollBar.node.handleClick(fakePlayer, 80, 90);
 // get the canvas that everything is rendered on top of
 // const playerCanvas = fakePlayerRoot.getChildren().find(child => arrayEquals(child.node.coordinates2d[0], [0, 0]) && arrayEquals(child.node.coordinates2d[1], [0, 0]));
 
@@ -51,7 +52,3 @@ playerScrollBar.node.handleClick(fakePlayer, 80, 90);
 // 	console.log(child);
 // });
 
-// // const scrollBar = fakePlayerViewRoot.children.
-
-// console.log('yooooo');
-// console.log(fakePlayerView);
