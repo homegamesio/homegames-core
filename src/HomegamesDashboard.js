@@ -48,7 +48,7 @@ const OPTION_COLOR = [222, 232, 236, 255];
 const BASE_COLOR = [147, 176, 208, 255];
 const SEARCH_BOX_COLOR = [234, 204, 151, 255];
 const TEXT_COLOR = [];
-const SEARCH_TEXT_COLOR = [];
+const SEARCH_TEXT_COLOR = [255, 255, 255, 255];
 const orangeish = [246, 99, 4, 255];
 
 const gamesPerRow = 2;
@@ -538,10 +538,10 @@ class HomegamesDashboard extends ViewableGame {
                 textInfo: {
                     text: game,//'ayy lmao ' + realStartY,
                     x: realStartX + (optionWidth / 2),
-                    y: realStartY - textHeight,
+                    y: realStartY - textHeight - 4, //hack,
                     color: COLORS.HG_BLACK,
                     align: 'center',
-                    size: 1.1
+                    size: 2.5
                 }
             });
 
@@ -561,6 +561,20 @@ class HomegamesDashboard extends ViewableGame {
     //     });
     // }
 
+    handlePlayerSearch(player, text) {
+        console.log('player weants to search ');
+        const playerSearchBox = this.playerViews[player.id].searchBox;
+        //hack. should be finding text. but also shouldnt be adding children to this text node
+        const newText = playerSearchBox.getChildren()[0].clone({});
+        
+        if (!text) {
+            newText.node.text.text = 'Search';
+        } else {
+            newText.node.text.text = text;
+        }
+        playerSearchBox.clearChildren();
+        playerSearchBox.addChild(newText);
+    }
 
     handleNewPlayer(player) {
         const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
@@ -588,13 +602,24 @@ class HomegamesDashboard extends ViewableGame {
             fill: SEARCH_BOX_COLOR,
             input: {
                 type: 'text',
-                oninput: (player, data) => {
-                    console.log('sdfhdsfdsf');
-                    console.log(data);
-                    // this.initQuestions(null, data);
+                oninput: (player, text) => {
+                    this.handlePlayerSearch(player, text);
                 }
             }
         });
+
+        const playerSearchText = new GameNode.Text({
+            textInfo: {
+                x: 5, // maybe need a function to map text size given a screen size
+                y: 4,
+                text: 'Search',
+                color: SEARCH_TEXT_COLOR,
+                size: 3
+            },
+            playerIds: [player.id]
+        });
+
+        playerSearchBox.addChild(playerSearchText);
 
         const upArrow = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -673,7 +698,8 @@ class HomegamesDashboard extends ViewableGame {
         this.playerViews[player.id] = {
             view: playerView,
             root: playerNodeRoot,
-            viewRoot: playerGameViewRoot
+            viewRoot: playerGameViewRoot,
+            searchBox: playerSearchBox
         }
 
         this.getViewRoot().addChild(playerNodeRoot);
