@@ -43,7 +43,12 @@ const getServerPort = () => {
 
 let sessionIdCounter = 1;
 
-const DASHBOARD_COLOR = [69, 100, 150, 255];
+// const DASHBOARD_COLOR = [69, 100, 150, 255];
+const OPTION_COLOR = [222, 232, 236, 255];
+const BASE_COLOR = [147, 176, 208, 255];
+const SEARCH_BOX_COLOR = [234, 204, 151, 255];
+const TEXT_COLOR = [];
+const SEARCH_TEXT_COLOR = [];
 const orangeish = [246, 99, 4, 255];
 
 const gamesPerRow = 2;
@@ -113,7 +118,7 @@ class HomegamesDashboard extends ViewableGame {
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 1000, 1000),
-            fill: COLORS.WHITE
+            fill: BASE_COLOR
         });
         
         this.getPlane().addChildren(this.base);
@@ -477,7 +482,21 @@ class HomegamesDashboard extends ViewableGame {
             const textHeight = 2.5;
             const realStartY = gameContainerYMargin + ( (optionHeight + gameTopYMargin) *  Math.floor(index / gamesPerRow) ) + textHeight;
 
-            const gameOptionBase = new GameNode.Shape({
+            const gameOptionVisualBase = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(
+                    realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
+                    realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
+                    optionWidth, 
+                    optionHeight
+                ),
+                fill: OPTION_COLOR
+                // fill: COLORS.CREAM//Colors.randomColor()
+            });
+
+
+            // transparent box with click handler (so image shows under)
+            const gameOptionClickHandler = new GameNode.Shape({
                 onClick: (player, x, y) => {
                     this.onGameOptionClick(gameCollection, player, game);
                 },
@@ -487,7 +506,7 @@ class HomegamesDashboard extends ViewableGame {
                     realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
                     optionWidth, 
                     optionHeight
-                ),
+                )
                 // fill: COLORS.CREAM//Colors.randomColor()
             });
 
@@ -526,9 +545,9 @@ class HomegamesDashboard extends ViewableGame {
                 }
             });
 
-            gameOption.addChildren(gameOptionBase, gameName);
+            gameOptionVisualBase.addChildren(gameOption, gameOptionClickHandler, gameName);
 
-            this.base.addChild(gameOption);
+            this.base.addChild(gameOptionVisualBase);
             index++;   
         }
         // for (let colIndex = 0; colIndex < gamesPerRow; colIndex)
@@ -566,9 +585,14 @@ class HomegamesDashboard extends ViewableGame {
             shapeType: Shapes.POLYGON, 
             coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 10),
             playerIds: [player.id],
-            fill: COLORS.RED,
-            onClick: (player, x, y) => {
-                console.log('searched');
+            fill: SEARCH_BOX_COLOR,
+            input: {
+                type: 'text',
+                oninput: (player, data) => {
+                    console.log('sdfhdsfdsf');
+                    console.log(data);
+                    // this.initQuestions(null, data);
+                }
             }
         });
 
@@ -576,7 +600,7 @@ class HomegamesDashboard extends ViewableGame {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(90, 22.5, 10, 20),
             playerIds: [player.id],
-            fill: COLORS.WHITE,
+            fill: BASE_COLOR,
             onClick: (player, x, y) => {
                 const currentView = this.playerViews[player.id].view;
 
@@ -613,7 +637,7 @@ class HomegamesDashboard extends ViewableGame {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(90, 72.5, 10, 20),
             playerIds: [player.id],
-            fill: COLORS.WHITE,
+            fill: BASE_COLOR,
             onClick: (player, x, y) => {
                 const currentView = this.playerViews[player.id].view;
 

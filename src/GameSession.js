@@ -128,7 +128,7 @@ class GameSession {
         } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
         } else if (input.type === 'input') {
-            const node = this.findNode(input.nodeId);
+            const node = this.game.findNode(input.nodeId);
             if (node && node.node.input) {
                 // hilarious
                 if (node.node.input.type === 'file') {
@@ -175,22 +175,6 @@ class GameSession {
                 realNode.node.handleClick && realNode.node.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             }
         }
-    }
-
-    findNode(nodeId) {
-        return this.findNodeHelper(nodeId, this.squisher.hgRoot.getRoot());//this.game.getRoot());
-    }
-
-    findNodeHelper(nodeId, node, found = null) {
-        if (node.node.id === nodeId) {
-            found = node;
-        }
-
-        for (const i in node.node.children) {
-            found = this.findNodeHelper(nodeId, node.node.children[i], found);
-        }
-        
-        return found;
     }
 
     findClick(x, y, spectating, playerId = 0) {
