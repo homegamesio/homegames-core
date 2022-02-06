@@ -1,4 +1,5 @@
 const { fork } = require('child_process');
+const http = require('http');
 const https = require('https');
 const path = require('path');
 const squishMap = require('./common/squish-map');
@@ -74,6 +75,49 @@ console.log("option is " + optionWidth + " wide, " + optionHeight + " high");
 
 const DEFAULT_GAME_THUMBNAIL = getConfigValue('DEFAULT_GAME_THUMBNAIL', 'https://d3lgoy70hwd3pc.cloudfront.net/logo.png');
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 250);
+
+
+// copied from common. TODO: refactor everything so its not embarrassing 
+const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
+    const getModule = url.startsWith('https') ? https : http;
+
+    let responseData = '';
+
+    getModule.get(url, { headers } , (res) => {
+        const bufs = [];
+        res.on('data', (chunk) => {
+            bufs.push(chunk);
+        });
+
+        res.on('end', () => {
+            if (res.statusCode > 199 && res.statusCode < 300) {
+                resolve(Buffer.concat(bufs));
+            } else {
+                reject(Buffer.concat(bufs));
+            }
+        });
+    }).on('error', error => {
+        reject(error);
+    });
+ 
+});
+
+const networkHelper = {
+    searchGames: (q) => new Promise((resolve, reject) => {
+        console.log('want ot sealksdfg ' + q);
+        getUrl('https://landlord.homegames.io/games?query=' + q).then(response => {
+            console.log("GOT RESULTS FOR THAT");
+            let results;
+            try {
+                results = JSON.parse(response);
+            } catch (err) {
+                console.error('Unable to do thing');
+                reject();
+            }    
+            resolve(results);
+        });
+    })
+}
 
 class HomegamesDashboard extends ViewableGame {
     static metadata() {
@@ -466,6 +510,230 @@ class HomegamesDashboard extends ViewableGame {
         return this.assets;
     }
 
+    viewableList(player, parent, collection, width, height) {
+        const playerView = {x: 0, y: 0, w: width, h: height};
+
+        const playerGameViewRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            playerIds: [player.id]
+        });
+
+        const uh = ViewUtils.getView(this.getPlane(), playerView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
+
+        playerGameViewRoot.addChild(uh);
+
+        const playerNodeRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            playerIds: [player.id]
+        });
+
+        const playerSearchBox = new GameNode.Shape({
+            shapeType: Shapes.POLYGON, 
+            coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 10),
+            playerIds: [player.id],
+            fill: SEARCH_BOX_COLOR,
+            input: {
+                type: 'text',
+                oninput: (player, text) => {
+                    this.handlePlayerSearch(player, text);
+                }
+            }
+        });
+
+        const playerSearchText = new GameNode.Text({
+            textInfo: {
+                x: 5, // maybe need a function to map text size given a screen size
+                y: 4,
+                text: 'Search',
+                color: SEARCH_TEXT_COLOR,
+                size: 3
+            },
+            playerIds: [player.id]
+        });
+
+        playerSearchBox.addChild(playerSearchText);
+
+        const upArrow = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(90, 22.5, 10, 20),
+            playerIds: [player.id],
+            fill: BASE_COLOR,
+            onClick: (player, x, y) => {
+                const currentView = this.playerViews[player.id].view;
+
+                currentView.y -= gameContainerHeight + gameContainerYMargin;//40;
+
+                if (currentView.y < 0) {
+                    currentView.y = 0;
+                }
+
+                const newUh = ViewUtils.getView(this.getPlane(), currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
+                const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
+
+                if (playerViewRoot) {
+                    playerViewRoot.clearChildren();
+                    playerViewRoot.addChild(newUh);
+                }
+            }
+        });
+
+        const upText = new GameNode.Text({
+            textInfo: {
+                x: 95,
+                y: 27.5,
+                align: 'center',
+                size: 1.1,
+                text: '\u25B2',
+                color: COLORS.BLACK
+            }
+        });
+
+        upArrow.addChild(upText);
+
+        const downArrow = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(90, 72.5, 10, 20),
+            playerIds: [player.id],
+            fill: BASE_COLOR,
+            onClick: (player, x, y) => {
+                const currentView = this.playerViews[player.id].view;
+
+                currentView.y += gameContainerHeight + gameContainerYMargin;//40;
+
+                // todo: check base size bound
+
+                const newUh = ViewUtils.getView(this.getPlane(), currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
+                const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
+
+                if (playerViewRoot) {
+                    playerViewRoot.clearChildren();
+                    playerViewRoot.addChild(newUh);
+                }
+            }
+        });
+
+        const downText = new GameNode.Text({
+            textInfo: {
+                x: 95,
+                y: 77.5,
+                align: 'center',
+                size: 1.1,
+                text: '\u25BC',
+                color: COLORS.BLACK
+            }
+        });
+
+        downArrow.addChild(downText);
+        playerNodeRoot.addChild(playerGameViewRoot);
+        playerNodeRoot.addChildren(playerSearchBox, upArrow, downArrow);
+
+        this.playerViews[player.id] = {
+            view: playerView,
+            root: playerNodeRoot,
+            viewRoot: playerGameViewRoot,
+            searchBox: playerSearchBox
+        }
+
+        this.getViewRoot().addChild(playerNodeRoot);
+    }
+
+    renderSearch(player, gameCollection) {
+        const gameCount = Object.keys(gameCollection).length;
+        const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
+        const baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
+
+        // this.base.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
+        // this.updatePlaneSize(baseSize);
+
+        const container = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+
+        });
+
+        let index = 0;
+        for (let game in gameCollection) {
+            const realStartX = gameContainerXMargin + ( (optionWidth + gameLeftXMargin) * (index % gamesPerRow) );
+            const startYIndex = (gameContainerYMargin) + gameTopYMargin;
+            // hack
+            const textHeight = 2.5;
+            const realStartY = gameContainerYMargin + ( (optionHeight + gameTopYMargin) *  Math.floor(index / gamesPerRow) ) + textHeight;
+
+            const gameOptionVisualBase = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(
+                    realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
+                    realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
+                    optionWidth, 
+                    optionHeight
+                ),
+                fill: OPTION_COLOR
+                // fill: COLORS.CREAM//Colors.randomColor()
+            });
+
+
+            // transparent box with click handler (so image shows under)
+            const gameOptionClickHandler = new GameNode.Shape({
+                onClick: (player, x, y) => {
+                    this.onGameOptionClick(gameCollection, player, game);
+                },
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(
+                    realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
+                    realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
+                    optionWidth, 
+                    optionHeight
+                )
+                // fill: COLORS.CREAM//Colors.randomColor()
+            });
+
+            const assetKey = gameCollection[game].metadata && gameCollection[game].metadata().thumbnail ? game : 'default';
+
+            const gameOption = new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
+                    realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
+                    optionWidth, 
+                    optionHeight
+                ),//ShapeUtils.rectangle(gamePos[0] + optionMarginX, gamePos[1] + optionMarginY, gameOptionSize.x, gameOptionSize.y),
+                assetInfo: {
+                    [assetKey]: {
+                        pos: {
+                            x: realStartX,//gamePos[0] + optionMarginX,
+                            y: realStartY//gamePos[1] + optionMarginY
+                        },
+                        size: {
+                            x: optionWidth,//(.8 * gameOptionSize.x),
+                            y: optionHeight//(.8 * gameOptionSize.y)
+                        }
+                    }
+                }
+                // playerIds: [playerId]
+            });
+
+            const gameName = new GameNode.Text({
+                textInfo: {
+                    text: game,//'ayy lmao ' + realStartY,
+                    x: realStartX + (optionWidth / 2),
+                    y: realStartY - textHeight - 4, //hack,
+                    color: COLORS.HG_BLACK,
+                    align: 'center',
+                    size: 2.5
+                }
+            });
+
+            console.log('hjksdhfdsf');
+            console.log(gameCollection);
+            gameOptionVisualBase.addChildren(gameOption, gameOptionClickHandler, gameName);
+
+            // this.base.addChild(gameOptionVisualBase);
+            index++;   
+        }
+        // for (let colIndex = 0; colIndex < gamesPerRow; colIndex)
+        // return pagesNeeded * pageSize;
+    }
+
     initializeGames(gameCollection) {
         const gameCount = Object.keys(gameCollection).length;
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
@@ -566,7 +834,18 @@ class HomegamesDashboard extends ViewableGame {
         const playerSearchBox = this.playerViews[player.id].searchBox;
         //hack. should be finding text. but also shouldnt be adding children to this text node
         const newText = playerSearchBox.getChildren()[0].clone({});
-        
+        networkHelper.searchGames(text).then(results => {
+            console.log('search results');
+            console.log(results);
+            this.renderSearch(player, results);
+            // const pls = new GameNode.Shape({
+            //     shapeType: Shapes.POLYGON,
+            //     fill: COLORS.RED,
+            //     coordinates2d: ShapeUtils.rectangle(0, 0, 25, 25),
+            //     playerIds: [player.id]
+            // })
+            // this.playerViews[player.id].root.addChild(pls)
+        });
         if (!text) {
             newText.node.text.text = 'Search';
         } else {
