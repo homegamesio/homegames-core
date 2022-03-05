@@ -45,6 +45,7 @@ const actions = [];
 
 const linkInit = () => new Promise((resolve, reject) => {
     linkHelper.linkConnect().then((wsClient) => {
+        console.log('linked idk');
         resolve();
     }).catch(err => {
         console.log("Failed to initialize link.");
