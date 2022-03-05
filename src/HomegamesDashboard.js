@@ -1,7 +1,6 @@
 const { fork } = require('child_process');
 const https = require('https');
 const path = require('path');
-const squishMap = require('./common/squish-map');
 const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squishjs');
 const unzipper = require('unzipper');
 const fs = require('fs');

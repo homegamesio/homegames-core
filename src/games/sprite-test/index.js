@@ -1,5 +1,5 @@
 const Asset = require('../../common/Asset');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-063');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');
 const COLORS = Colors.COLORS;
 
 class SpriteTest extends Game {
