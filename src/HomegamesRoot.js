@@ -254,7 +254,8 @@ class HomegamesRoot {
                 }
 
                 if (button) {
-                    playerFrame.addChild(button)
+                    // add spectator button back later
+                    // playerFrame.addChild(button)
                 }
             }
         }

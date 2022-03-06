@@ -88,11 +88,6 @@ class GameSession {
             // ensure the squisher has game data for the new player
             this.squisher.squish();
             
-            // console.log("YO YOY OOOOO");
-            // console.log(this.squisher.state);
-            // console.log(this.squisher.playerStates);
-            
-            // player.receiveUpdate(this.squisher.state.flat());//playerFrames[player.id]);
             player.receiveUpdate(this.squisher.playerStates[player.id].flat());
             player.addInputListener(this);
         });
@@ -180,9 +175,7 @@ class GameSession {
     findClick(x, y, spectating, playerId = 0) {
         let clicked = null;
 
-        // console.log("fsdfsdfsd");
         if (this.customBottomLayer) {
-            // console.log('ayyyy lmao 1');
             const scale = {x: 1, y: 1};
             clicked = this.findClickHelper(x, y, false, playerId, this.customBottomLayer.root.node, null, scale) || clicked;
         }
@@ -191,11 +184,9 @@ class GameSession {
             const layer = this.game.getLayers()[layerIndex];
             const scale = layer.scale || this.scale;
 
-            // console.log('ayyyy lmao 2');
             clicked = this.findClickHelper(x, y, false, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
         }
-        console.log('yy lmao');
-        console.log(clicked);
+
         return clicked;
     }
 
