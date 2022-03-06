@@ -1,4 +1,4 @@
-let { GameNode, Colors, Shapes, ShapeUtils } = require('squishjs');//squishMap['0633'];
+let { GameNode, Colors, Shapes, ShapeUtils } = require('squish-0710');
 
 const Asset = require('./common/Asset');
 const { animations } = require('./common/util');

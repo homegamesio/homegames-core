@@ -1,4 +1,4 @@
-const { Squisher } = require('squishjs');
+const { Squisher } = require('squish-0710');
 const { generateName } = require('./common/util');
 const HomegamesRoot = require('./HomegamesRoot');
 
@@ -194,13 +194,13 @@ class GameSession {
             // console.log('ayyyy lmao 2');
             clicked = this.findClickHelper(x, y, false, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
         }
-        // console.log('yy lmao');
-        // console.log(clicked);
+        console.log('yy lmao');
+        console.log(clicked);
         return clicked;
     }
 
     findClickHelper(x, y, spectating, playerId, node, clicked = null, scale) {
-            if ((node.handleClick && node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+            if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
                 const vertices = [];
  
                 for (const i in node.coordinates2d) {

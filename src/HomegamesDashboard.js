@@ -2,7 +2,7 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squishjs');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0710');
 const unzipper = require('unzipper');
 const fs = require('fs');
 
@@ -273,8 +273,13 @@ class HomegamesDashboard extends ViewableGame {
 
             sessions[port] = childSession;
 
+            const referencedGame = games[gameKey];
+
+            const squishVersion = referencedGame.metadata().squishVersion;
+
             childSession.send(JSON.stringify({
                 key: gameKey,
+                squishVersion,
                 port,
                 player: {
                     id: player.id,

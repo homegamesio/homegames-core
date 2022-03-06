@@ -1,4 +1,4 @@
-const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squishjs');
+const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-0710');
 const Asset = require('../../common/Asset');
 
 const COLORS = Colors.COLORS;
@@ -7,7 +7,7 @@ class Draw extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '063',
+            squishVersion: '0710',
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/draw_thumbnail.jpg',
             assets: {

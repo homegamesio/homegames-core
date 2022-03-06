@@ -30,7 +30,11 @@ const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAcc
 const startServer = (sessionInfo) => {
     let gameInstance;
 
-    let squishLib = require.resolve('squishjs');
+    console.log('you want to start server with this info');
+    console.log(sessionInfo);
+
+    // let squishLib = require.resolve('squishjs');
+    let squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0710');
 
     if (sessionInfo.gamePath) {
 
