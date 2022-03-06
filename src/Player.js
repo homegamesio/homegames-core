@@ -14,7 +14,7 @@ const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 let id = 0;
 
 class Player {
-    constructor(ws, spectating, clientInfo, requestedGameId) {
+    constructor(ws, spectating, clientInfo, requestedGame) {
         this.inputListeners = new Set();
         this.stateListeners = new Set();
         this.clientInfo = clientInfo;
@@ -23,9 +23,7 @@ class Player {
         this.info = {};
         this.spectating = spectating;
 
-        console.log('requested game id');
-        console.log(requestedGameId);
-        this.requestedGameId = requestedGameId;
+        this.requestedGame = requestedGame;
 
         this.ws?.on('message', (input) => {
             try {
