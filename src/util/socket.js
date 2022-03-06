@@ -90,7 +90,7 @@ console.log(port);
 
             ws.id = Number(jsonMessage.id || generatePlayerId());
 
-            const requestedGameId = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGameId;
+            const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
 
             const req = http.request({
                 hostname: 'localhost',
@@ -100,7 +100,7 @@ console.log(port);
             }, res => {
                 res.on('data', d => {
                     const playerInfo = JSON.parse(d);
-                    const player = new Player(ws, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGameId);
+                    const player = new Player(ws, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
                     ws.spectating = jsonMessage.spectating;
                     
                     if (jsonMessage.id && playerInfo.name) {
