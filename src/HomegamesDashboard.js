@@ -879,6 +879,27 @@ class HomegamesDashboard extends ViewableGame {
         playerNodeRoot.addChildren(upArrow, downArrow);
     }
 
+    downloadGame(gameId, gameVersion = null) {
+        return new Promise((resolve, reject) => {
+            console.log('downloaded game ' + gameId);
+
+            const version = gameVersion && gameVersion.data || this.downloadedGames[gameId].versions[0];
+            const gamePath = `${path.resolve('hg-games')}/${gameId}_${version.version}`;
+            https.get(version.location, (res) => {
+                const stream = res.pipe(unzipper.Extract({
+                    path: gamePath
+                }));
+
+                stream.on('close', () => {
+                    fs.readdir(gamePath, (err, files) => {
+                        resolve(`${gamePath}/${files[0]}/index.js`);
+                    });
+                });
+
+            });
+        });
+    }
+
     handlePlayerDisconnect(playerId) {
         const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].root;
         if (playerViewRoot) {
