@@ -1,4 +1,4 @@
-const { Colors, Game, GameNode, Shapes } = require('squish-061');
+const { Colors, Game, GameNode, Shapes } = require('squish-0710');
 const COLORS = Colors.COLORS;
 
 class ShapeTest extends Game {
@@ -9,7 +9,7 @@ class ShapeTest extends Game {
                 y: 9
             },
             author: 'Joseph Garcia',
-            squishVersion: '061',
+            squishVersion: '0710',
             name: 'Shape Test',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/shape-test.png'
         };
@@ -35,10 +35,9 @@ class ShapeTest extends Game {
         });
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
-
 }
 
 module.exports = ShapeTest;

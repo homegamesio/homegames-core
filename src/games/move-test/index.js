@@ -1,12 +1,11 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-063');
-const { checkCollisions } = require('../../common/util');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0710');
 const COLORS = Colors.COLORS;
 
 class MoveTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '063',
+            squishVersion: '0710',
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/move-test.png'
         };
@@ -82,7 +81,7 @@ class MoveTest extends Game {
             }
         } 
 
-        const wouldBeCollisions = checkCollisions(this.base, {node: {coordinates2d: ShapeUtils.rectangle(newX, newY, 10, 17)}}, (node) => {
+        const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: ShapeUtils.rectangle(newX, newY, 10, 17)}}, (node) => {
             return node.node.id !== this.base.node.id && node.node.id !== player.node.id;
         });
 
@@ -133,8 +132,8 @@ class MoveTest extends Game {
         this.color = Colors.randomColor();
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 }
 

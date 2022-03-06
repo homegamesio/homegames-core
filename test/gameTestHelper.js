@@ -2,7 +2,7 @@ const assert = require('assert');
 const squishMap = require('../src/common/squish-map');
 const Player = require('../src/Player');
 
-let { GameNode } = squishMap['0633'];
+let { GameNode } = require('squish-0710');
 
 const testMetaData = (game) => {
     const metaData = game.metadata();
@@ -13,12 +13,14 @@ const testMetaData = (game) => {
 };
 
 const testGetRoot = (game) => {
-    const res = game.getRoot();
-    const metadata = game.constructor.metadata();
-    const squishVersion = metadata.squishVersion;
-    const squishLib = squishMap[squishVersion];
-    GameNode = squishLib.GameNode;
-    assert((res instanceof GameNode.Shape) || (res instanceof GameNode.Text) || (res instanceof GameNode.Asset));
+    const layers = game.getLayers();
+    const metadata = game.constructor.metadata && game.constructor.metadata();
+    // const squishVersion = metadata?.squishVersion;
+    // const squishLib = squishMap[squishVersion];
+    // GameNode = squishLib.GameNode;
+    layers.forEach(layer => {
+        assert((layer.root instanceof GameNode.Shape) || (layer.root instanceof GameNode.Text) || (layer.root instanceof GameNode.Asset));
+    });
 };
 
 const testHandleNewPlayer = (game) => {

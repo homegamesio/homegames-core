@@ -29,13 +29,7 @@
   "dependencies": {
     "homegames-common": "0.1.34",
     "process-stats": "^3.5.5",
-    "squish-061": "npm:squishjs@0.6.1",
-    "squish-063": "npm:squishjs@0.6.3",
-    "squish-0631": "npm:squishjs@0.6.31",
-    "squish-0632": "npm:squishjs@0.6.32",
-    "squish-0633": "npm:squishjs@0.6.33",
-    "squish-0642": "npm:squishjs@0.6.42",
-    "squishjs": "^0.6.42",
+    "squish-0710": "npm:squishjs@0.7.1",
     "ws": "7.4.6"
   }
 }

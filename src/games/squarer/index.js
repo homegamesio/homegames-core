@@ -1,11 +1,11 @@
-const { Colors, Game, GameNode, Shapes, ShapeUtils } =  require('squish-063');
+const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-0710');
 const { BLACK, GRAY, GOLD, GREEN } = Colors.COLORS;
 
 class Squarer extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '063',
+            squishVersion: '0710',
             author: 'Yazeed Loonat',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/squarer.png'
         };
@@ -48,9 +48,9 @@ class Squarer extends Game {
         this.npc = [];
         this.createNpc();
     }
-
-    getRoot() {
-        return this.base;
+    
+    getLayers() {
+        return [{root: this.base}];
     }
 
     createNpc() {

@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-063');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0710');
 const Asset = require('../../common/Asset');
 const fs = require('fs');
 
@@ -9,7 +9,7 @@ class Quarantine extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '063',
+            squishVersion: '0710',
             players: 2,
             name: 'Quarantine Questions',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/quarantine-questions.png'
@@ -409,8 +409,8 @@ class Quarantine extends Game {
         }
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 }
 

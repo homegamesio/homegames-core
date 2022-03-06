@@ -1,12 +1,12 @@
 const Asset = require('../../common/Asset');
-const { Game, GameNode, Colors, Shapes } = require('squish-0631');
+const { Game, GameNode, Colors, Shapes } = require('squish-0710');
 const COLORS = Colors.COLORS;
 
 class ImageTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0631',
+            squishVersion: '0710',
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/image-test.png',
             assets: {
@@ -176,9 +176,13 @@ class ImageTest extends Game {
         this.base.addChild(this.resetButton);
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
+    
+    // getRoot() {
+    //     return this.base;
+    // }
 }
 
 module.exports = ImageTest;

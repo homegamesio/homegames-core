@@ -1,5 +1,5 @@
 const { charadesWord } = require('../../common/util');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-063');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0710');
 
 const COLORS = Colors.COLORS;
 
@@ -7,7 +7,7 @@ class Clicktionary extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '063',
+            description: 'ayy lmao this is a test',
             author: 'Joseph Garcia',
             thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/clicktionary.png'
         };
@@ -295,8 +295,8 @@ class Clicktionary extends Game {
         clearButton.addChild(countdownNode);
     }
 
-    getRoot() {
-        return this.base;
+    getLayers() {
+        return [{root: this.base}];
     }
 
 }

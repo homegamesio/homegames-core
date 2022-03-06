@@ -1,11 +1,11 @@
 const server = require('./game_server');
 const assert = require('assert');
-const squish061 = require('squish-061');
-const squish063 = require('squish-063');
-const squish0631 = require('squish-0631');
-const squish0632 = require('squish-0632');
-const squish0633 = require('squish-0633');
-const squish0642 = require('squish-0642');
+//const squish061 = require('squish-061');
+//const squish063 = require('squish-063');
+//const squish0631 = require('squish-0631');
+//const squish0632 = require('squish-0632');
+//const squish0633 = require('squish-0633');
+//const squish0642 = require('squish-0642');
 
 const process = require('process');
 
@@ -45,6 +45,7 @@ const actions = [];
 
 const linkInit = () => new Promise((resolve, reject) => {
     linkHelper.linkConnect().then((wsClient) => {
+        console.log('linked idk');
         resolve();
     }).catch(err => {
         console.log("Failed to initialize link.");

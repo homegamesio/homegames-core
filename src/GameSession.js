@@ -1,5 +1,6 @@
-const Squisher = require('./Squisher');
+const { Squisher } = require('squish-0710');
 const { generateName } = require('./common/util');
+const HomegamesRoot = require('./HomegamesRoot');
 
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
@@ -20,20 +21,32 @@ class GameSession {
         this.game = game;
         this.port = port;
         this.spectators = {};
-        // this is a hack
-        this.game.session = this;
-        this.squisher = new Squisher(this.game);
-        this.squisher.hgRoot.players = this.game.players;
-        this.squisher.hgRoot.spectators = this.spectators;
+
+        this.homegamesRoot = new HomegamesRoot(game, false, false);
+        this.customBottomLayer = {
+            root: this.homegamesRoot.getRoot(),
+            scale: {x: 1, y: 1},
+            assets: this.homegamesRoot.constructor.metadata().assets
+        };
+
+        // TODO: make this configurable per player (eg. configurable bezel size)
+        this.scale = {x: (100 - BEZEL_SIZE_X) / 100, y:  (100 - BEZEL_SIZE_Y) / 100};
+
+        this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer });
+        // this.squisher.hgRoot.players = this.game.players;
+        // this.squisher.hgRoot.spectators = this.spectators;
         this.hgRoot = this.squisher.hgRoot;
-        this.squisher.addListener(this);
+        this.squisher.addListener((squished) => {this.handleSquisherUpdate(squished)});//this.handleSquisherUpdate);
         this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
         this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
     }
 
     handleSquisherUpdate(squished) {
         for (const playerId in this.game.players) {
-            this.game.players[playerId].receiveUpdate(squished[playerId]);
+            // console.log("doing this");
+            // console.log(this.squisher.playerStates[playerId]);
+            this.game.players[playerId].receiveUpdate(this.squisher.playerStates[playerId].flat());
+            // this.game.players[playerId].receiveUpdate(squished.flat());
         }
 
         for (const playerId in this.spectators) {
@@ -70,11 +83,12 @@ class GameSession {
                 }
             }
 
-            this.squisher.hgRoot.handleNewPlayer(player);
-            this.squisher.handleStateChange();
-            
+            this.homegamesRoot.handleNewPlayer(player);
+
             // ensure the squisher has game data for the new player
-            player.receiveUpdate(this.squisher.playerFrames[player.id]);
+            this.squisher.squish();
+            
+            player.receiveUpdate(this.squisher.playerStates[player.id].flat());
             player.addInputListener(this);
         });
     }
@@ -87,7 +101,7 @@ class GameSession {
     handlePlayerDisconnect(playerId) {
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
         this.game._hgRemovePlayer(playerId);
-        this.squisher.hgRoot.handlePlayerDisconnect(playerId);
+        this.homegamesRoot.handlePlayerDisconnect(playerId);
     }
 
     initialize(cb) {
@@ -109,7 +123,7 @@ class GameSession {
         } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
         } else if (input.type === 'input') {
-            const node = this.findNode(input.nodeId);
+            const node = this.game.findNode(input.nodeId);
             if (node && node.node.input) {
                 // hilarious
                 if (node.node.input.type === 'file') {
@@ -140,94 +154,55 @@ class GameSession {
         const clickedNode = this.findClick(click.x, click.y, player.spectating, player.id);
 
         if (clickedNode) {
+            const clickedNodeId = clickedNode.id;
+            // todo: implement get node (maybe maintain map in game?)
+            const realNode = this.game.findNode(clickedNodeId) || this.customBottomLayer.root.findChild(clickedNodeId);
+
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
-                    
-                clickedNode.handleClick && clickedNode.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             } else {
-                const bezelX = BEZEL_SIZE_X;
-                const bezelY = BEZEL_SIZE_Y;
+                const shiftedX = click.x - (BEZEL_SIZE_X / 2);
+                const shiftedY = click.y - (BEZEL_SIZE_Y / 2);
 
-                const shiftedX = click.x - (bezelX / 2);
-                const shiftedY = click.y - (bezelY / 2);
+                const scaledX = shiftedX * ( 1 / ((100 - BEZEL_SIZE_X) / 100));
+                const scaledY = shiftedY * ( 1 / ((100 - BEZEL_SIZE_Y) / 100));
 
-                const scaledX = shiftedX * ( 1 / ((100 - bezelX) / 100));
-                const scaledY = shiftedY * ( 1 / ((100 - bezelY) / 100));
-
-                clickedNode.handleClick && clickedNode.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             }
         }
     }
 
-    findNode(nodeId) {
-        return this.findNodeHelper(nodeId, this.squisher.hgRoot.getRoot());//this.game.getRoot());
-    }
-
-    findNodeHelper(nodeId, node, found = null) {
-        if (node.node.id === nodeId) {
-            found = node;
-        }
-
-        for (const i in node.node.children) {
-            found = this.findNodeHelper(nodeId, node.node.children[i], found);
-        }
-        
-        return found;
-    }
-
     findClick(x, y, spectating, playerId = 0) {
-        return this.findClickHelper(x, y, spectating, playerId, this.squisher.hgRoot.getRoot().node);
+        let clicked = null;
+
+        if (this.customBottomLayer) {
+            const scale = {x: 1, y: 1};
+            clicked = this.findClickHelper(x, y, false, playerId, this.customBottomLayer.root.node, null, scale) || clicked;
+        }
+
+        for (const layerIndex in this.game.getLayers()) {
+            const layer = this.game.getLayers()[layerIndex];
+            const scale = layer.scale || this.scale;
+
+            clicked = this.findClickHelper(x, y, false, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
+        }
+
+        return clicked;
     }
 
-    findClickHelper(x, y, spectating, playerId, node, clicked = null, inGame, inPerfThing) {
-        if (node == this.game.getRoot().node) {
-            inGame = true;
-        }
-
-        if (this.hgRoot.perfThing && node === this.hgRoot.perfThing.node) {
-            inPerfThing = true;
-        } 
-
-        if (node === this.hgRoot.baseThing.node) {
-            inPerfThing = false;
-        }
-
-        if (inGame && spectating) {
-
-        } else {
-
-            if ((node.handleClick && node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+    findClickHelper(x, y, spectating, playerId, node, clicked = null, scale) {
+            if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
                 const vertices = [];
  
                 for (const i in node.coordinates2d) {
-                    if (inPerfThing) {
-                        vertices.push(
-                            [node.coordinates2d[i][0],
-                                node.coordinates2d[i][1]]
-                        )
+                            const xOffset = 100 - (scale.x * 100);
+                            const yOffset = 100 - (scale.y * 100);
+    
 
-                    } else if (inGame) {
-                        const bezelX = BEZEL_SIZE_X;
-                        const bezelY = BEZEL_SIZE_Y;
+                        const scaledX = node.coordinates2d[i][0] * ((100 - xOffset) / 100) + (xOffset / 2);
+                        const scaledY = node.coordinates2d[i][1] * ((100 - yOffset) / 100) + (yOffset / 2);
 
-                        const scaledX = node.coordinates2d[i][0] * ((100 - bezelX) / 100) + (bezelX / 2);
-                        const scaledY = node.coordinates2d[i][1] * ((100 - bezelY) / 100) + (bezelY / 2);
-
-                        vertices.push(
-                            [
-                                scaledX,// * 100,//(node.coordinates2d[i][0]),// * clickScaleX) + Math.round(100 * (1 - clickScaleX) / 2),
-                                scaledY// * 100//(node.coordinates2d[i][1])// * clickScaleY) + Math.round(100 * (1 - clickScaleY) / 2)//100 - BEZEL_SIZE_Y / 2)
-                            ]
-                        );
-                    } else {
-                        const profilingHeaderSize = 20;//BEZEL_SIZE_Y;
-                        const scaledY = node.coordinates2d[i][1] * ((100 - profilingHeaderSize) / 100) + (profilingHeaderSize / 2);
-
-                        const _y = PERFORMANCE_PROFILING ? scaledY : node.coordinates2d[i][1];
-                        vertices.push(
-                            [node.coordinates2d[i][0],
-                                _y]
-                        );
-                    }
+                        vertices.push([scaledX, scaledY]);
                 }
 
                 let isInside = false;
@@ -259,10 +234,9 @@ class GameSession {
                 }
 
             }
-        }
 
         for (const i in node.children) {
-            clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, inGame, inPerfThing);
+            clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, scale);
         }
 
         return clicked;

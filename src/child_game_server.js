@@ -30,7 +30,11 @@ const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAcc
 const startServer = (sessionInfo) => {
     let gameInstance;
 
-    let squishLib = require.resolve('squishjs');
+    console.log('you want to start server with this info');
+    console.log(sessionInfo);
+
+    // let squishLib = require.resolve('squishjs');
+    let squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0710');
 
     if (sessionInfo.gamePath) {
 
@@ -96,13 +100,19 @@ process.on('message', (msg) => {
     }
 });
 
+process.on('error', (err) => {
+    console.log('error happened');
+    console.log(err);
+});
+
 const checkPulse = () => {
     if (!gameSession || (Object.values(gameSession.game.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 1000) {
-        process.exit(0);
+        console.log('killing myself');
+        // process.exit(0);
     }
 };
 
 // short grace period to allow the first client to connect before checking heartbeat
 setTimeout(() => {
-    setInterval(checkPulse, 500);
+    // setInterval(checkPulse, 500);
 }, 5000);
