@@ -73,12 +73,10 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         console.log('uhhhhh its not secure');
         server = http.createServer();
     }
-console.log(port);
+
     const wss = new WebSocket.Server({
         server
     });
-
-    console.log('plspslslss');
     
     wss.on('connection', (ws) => {
         function messageHandler(msg) {

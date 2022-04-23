@@ -105,9 +105,7 @@ const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
 
 const networkHelper = {
     searchGames: (q) => new Promise((resolve, reject) => {
-        console.log('want ot sealksdfg ' + q);
         getUrl('https://landlord.homegames.io/games?query=' + q).then(response => {
-            console.log("GOT RESULTS FOR THAT");
             let results;
             try {
                 results = JSON.parse(response);
@@ -193,10 +191,6 @@ class HomegamesDashboard extends ViewableGame {
         const sessionId = sessionIdCounter++;
         const port = getServerPort();
 
-        console.log("GAME KEY");
-        console.log(gameKey);
-        console.log('version jke');
-        console.log(versionKey);
         if (this.downloadedGames[gameKey]) {
             if (!versionKey) {
                 console.log('downhloaded game requires version id');
@@ -361,9 +355,6 @@ class HomegamesDashboard extends ViewableGame {
             }
         });
 
-        console.log('game collection? ' + gameKey);
-        console.log(gameCollection);
-
         const assetKey = gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().thumbnail ? gameKey : 'default';
 
         const imgCoords = [27.5, 12.5, 45, 45];
@@ -506,7 +497,11 @@ class HomegamesDashboard extends ViewableGame {
     initializeGames(gameCollection) {
         const gameCount = Object.keys(gameCollection).length;
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
-        const baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
+        let baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
+
+        // pages need to match height of game container to avoid the base getting cut off
+        const paddingMultiplier = Math.ceil(baseSize / gameContainerHeight) / (baseSize / gameContainerHeight);
+        baseSize *= paddingMultiplier;
 
         this.base.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
         this.updatePlaneSize(baseSize);
@@ -849,14 +844,15 @@ class HomegamesDashboard extends ViewableGame {
 
                 const currentView = this.playerViews[player.id].view;
 
-                currentView.y -= gameContainerHeight + gameContainerYMargin;//40;
+                if (currentView.y - (gameContainerHeight + gameContainerYMargin) > 0) { 
+                    currentView.y -= gameContainerHeight + gameContainerYMargin;
 
-                // todo: check base size bound
-                const newUh = ViewUtils.getView(_plane, currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
-                const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
-            
-                playerGameViewRoot.clearChildren();
-                playerGameViewRoot.addChild(newUh);
+                    const newView = ViewUtils.getView(_plane, currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
+                    const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
+                
+                    playerGameViewRoot.clearChildren();
+                    playerGameViewRoot.addChild(newView);
+                }
             }
         });
 
@@ -883,14 +879,19 @@ class HomegamesDashboard extends ViewableGame {
 
                 const currentView = this.playerViews[player.id].view;
 
-                currentView.y += gameContainerHeight + gameContainerYMargin;//40;
+                // y value of bottom right corner of base (assumed rectangle)
+                const baseHeight = this.base.node.coordinates2d[2][1];
 
-                // todo: check base size bound
-                const newUh = ViewUtils.getView(_plane, currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
-                const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
-            
-                playerGameViewRoot.clearChildren();
-                playerGameViewRoot.addChild(newUh);
+                // game container height + game y margin would be the new 0, 0 of the view, so we multiply by 2 to make sure the new view would be covered by the base
+                if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
+                    currentView.y += gameContainerHeight + gameContainerYMargin;
+                    const newView = ViewUtils.getView(_plane, currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
+                    const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
+                
+                    playerGameViewRoot.clearChildren();
+                    playerGameViewRoot.addChild(newView);
+                }
+
             }
         });
 
