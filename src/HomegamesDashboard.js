@@ -42,7 +42,8 @@ const getServerPort = () => {
 };
 
 let sessionIdCounter = 1;
-
+// https://coolors.co/5bc0eb-fde74c-9bc53d-e55934-fa7921
+// https://coolors.co/99621e-d38b5d-f3ffb6-739e82-2c5530
 // const DASHBOARD_COLOR = [69, 100, 150, 255];
 const OPTION_COLOR = [222, 232, 236, 255];
 // const BASE_COLOR = [147, 176, 208, 255];
@@ -499,6 +500,11 @@ class HomegamesDashboard extends ViewableGame {
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
         let baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
 
+        console.log('game container height');
+        console.log(gameContainerHeight);
+        console.log(baseSize);
+
+
         // pages need to match height of game container to avoid the base getting cut off
         const paddingMultiplier = Math.ceil(baseSize / gameContainerHeight) / (baseSize / gameContainerHeight);
         baseSize *= paddingMultiplier;
@@ -766,7 +772,7 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     renderGames(player, {results, query}) {
-
+        console.log('what');
         const playerView = this.playerViews[player.id].view;
         // const existingViewNode = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
         
@@ -833,6 +839,22 @@ class HomegamesDashboard extends ViewableGame {
 
         playerSearchBox.addChild(playerSearchText);
 
+        let canGoDown, canGoUp = false;
+
+        const baseHeight = this.base.node.coordinates2d[2][1];
+
+        const currentView = this.playerViews[player.id].view;
+        console.log('abiudsbdofg');
+        console.log(gameContainerHeight);
+        console.log(gameContainerYMargin);
+        console.log(currentView);  
+        if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {     
+            canGoUp = true;
+        } 
+        
+        if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
+            canGoDown = true;
+        }
         const upArrow = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(90, 22.5, 10, 20),
@@ -842,17 +864,14 @@ class HomegamesDashboard extends ViewableGame {
 
                 const _plane = results ? this.initializeCollectionPlane(results.games) : this.getPlane();
 
-                const currentView = this.playerViews[player.id].view;
+                const currentView = Object.assign({}, this.playerViews[player.id].view);
 
-                if (currentView.y - (gameContainerHeight + gameContainerYMargin) > 0) { 
+                // console.log('current view');
+                if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {
                     currentView.y -= gameContainerHeight + gameContainerYMargin;
-
-                    const newView = ViewUtils.getView(_plane, currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
-                    const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
-                
-                    playerGameViewRoot.clearChildren();
-                    playerGameViewRoot.addChild(newView);
-                }
+                    this.playerViews[player.id].view = currentView;
+                    this.renderGames(player, {});
+                } 
             }
         });
 
@@ -877,7 +896,7 @@ class HomegamesDashboard extends ViewableGame {
             onClick: (player, x, y) => {
                 const _plane = results ? this.initializeCollectionPlane(results.games) : this.getPlane();
 
-                const currentView = this.playerViews[player.id].view;
+                const currentView = Object.assign({}, this.playerViews[player.id].view);
 
                 // y value of bottom right corner of base (assumed rectangle)
                 const baseHeight = this.base.node.coordinates2d[2][1];
@@ -885,12 +904,9 @@ class HomegamesDashboard extends ViewableGame {
                 // game container height + game y margin would be the new 0, 0 of the view, so we multiply by 2 to make sure the new view would be covered by the base
                 if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
                     currentView.y += gameContainerHeight + gameContainerYMargin;
-                    const newView = ViewUtils.getView(_plane, currentView, [player.id], {filter: (node) => node.node.id !== this.base.node.id, y: (100 - containerHeight)});
-                    const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
-                
-                    playerGameViewRoot.clearChildren();
-                    playerGameViewRoot.addChild(newView);
-                }
+                    this.playerViews[player.id].view = currentView;
+                    this.renderGames(player, {});
+                } 
 
             }
         });
@@ -909,8 +925,14 @@ class HomegamesDashboard extends ViewableGame {
         downArrow.addChild(downText);
 
         playerNodeRoot.addChild(playerGameViewRoot);
-        playerNodeRoot.addChildren(playerSearchBox, upArrow, downArrow);
-        playerNodeRoot.addChildren(upArrow, downArrow);
+        playerNodeRoot.addChild(playerSearchBox);
+        if (canGoUp) {
+            playerNodeRoot.addChildren(upArrow);
+        }
+        if (canGoDown) {
+            playerNodeRoot.addChildren(downArrow);
+        }
+        // playerNodeRoot.addChildren(upArrow, downArrow);
     }
 
     downloadGame(gameId, versionId) {
