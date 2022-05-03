@@ -173,78 +173,76 @@ class WordMatch extends Game {
         this.clearTable();
         this.gameInProgress = true;
         this.updatePlayerList();
-        dictionary.random().then(word1 => {
-            dictionary.random().then(word2 => {
-                const word1Node = GameNode(COLORS.WHITE, null, 
-                    {x: 10, y: 45},
-                    {x: 20, y: 20},
-                    {text: word1, x: 20 , y: 53}
-                );
-                const word2Node = GameNode(COLORS.WHITE, null, 
-                    {x: 70, y: 45},
-                    {x: 20, y: 20},
-                    {text: word2, x: 80, y: 53}
-                );
+        const word1 = dictionary.random();
+        const word2 = dictionary.random();
+        const word1Node = GameNode(COLORS.WHITE, null, 
+            {x: 10, y: 45},
+            {x: 20, y: 20},
+            {text: word1, x: 20 , y: 53}
+        );
+        const word2Node = GameNode(COLORS.WHITE, null, 
+            {x: 70, y: 45},
+            {x: 20, y: 20},
+            {text: word2, x: 80, y: 53}
+        );
 
-                this.base.addChild(word1Node);
-                this.base.addChild(word2Node);
+        this.base.addChild(word1Node);
+        this.base.addChild(word2Node);
 
-                for (const j in this.currentPlayerIndices) {
-                    const player = Object.values(this.players)[this.currentPlayerIndices[j]];
+        for (const j in this.currentPlayerIndices) {
+            const player = Object.values(this.players)[this.currentPlayerIndices[j]];
 
-                    const toggleEdit = () => {
-                        this.responseBoxes[player.id].editing = !this.responseBoxes[player.id].editing;
-                        if (this.responseBoxes[player.id].editing) {
-                            this.responseBoxes[player.id].color = COLORS.WHITE;
-                        } else {
-                            this.responseBoxes[player.id].color = COLORS.CREAM;
-                        }
-                    };
-
-                    const toggleReady = () => {
-                        this.playerReadyButtons[player.id].ready = !this.playerReadyButtons[player.id].ready;
-                        if (!this.playerReadyButtons[player.id].ready) {
-                            this.playerReadyButtons[player.id].color = COLORS.RED;
-                        } else {
-                            this.playerReadyButtons[player.id].color = COLORS.GREEN;
-                        }
-
-                        this.updatePlayerList();
-                    };
-
-                    const textValue = {
-                        text: '',
-                        x: 50,
-                        y: 50
-                    };
-                    this.responseBoxes[player.id] = GameNode(
-                        COLORS.WHITE,
-                        toggleEdit,
-                        {x: 40, y: 40},
-                        {x: 20, y: 20},
-                        textValue,
-                        null,
-                        player.id
-                    );
-                    
-                    this.playerReadyButtons[player.id] = GameNode(
-                        COLORS.RED,
-                        toggleReady,
-                        {x: 40, y: 70},
-                        {x: 20, y: 10},
-                        {text: 'Ready', x: 50, y: 73},
-                        null,
-                        player.id
-                    );
-
-                    this.responseBoxes[player.id].editing = true;
-                    this.playerReadyButtons[player.id].ready = false;
-    
-                    this.base.addChild(this.playerReadyButtons[player.id]);
-                    this.base.addChild(this.responseBoxes[player.id]);
+            const toggleEdit = () => {
+                this.responseBoxes[player.id].editing = !this.responseBoxes[player.id].editing;
+                if (this.responseBoxes[player.id].editing) {
+                    this.responseBoxes[player.id].color = COLORS.WHITE;
+                } else {
+                    this.responseBoxes[player.id].color = COLORS.CREAM;
                 }
-            });
-        });
+            };
+
+            const toggleReady = () => {
+                this.playerReadyButtons[player.id].ready = !this.playerReadyButtons[player.id].ready;
+                if (!this.playerReadyButtons[player.id].ready) {
+                    this.playerReadyButtons[player.id].color = COLORS.RED;
+                } else {
+                    this.playerReadyButtons[player.id].color = COLORS.GREEN;
+                }
+
+                this.updatePlayerList();
+            };
+
+            const textValue = {
+                text: '',
+                x: 50,
+                y: 50
+            };
+            this.responseBoxes[player.id] = GameNode(
+                COLORS.WHITE,
+                toggleEdit,
+                {x: 40, y: 40},
+                {x: 20, y: 20},
+                textValue,
+                null,
+                player.id
+            );
+            
+            this.playerReadyButtons[player.id] = GameNode(
+                COLORS.RED,
+                toggleReady,
+                {x: 40, y: 70},
+                {x: 20, y: 10},
+                {text: 'Ready', x: 50, y: 73},
+                null,
+                player.id
+            );
+
+            this.responseBoxes[player.id].editing = true;
+            this.playerReadyButtons[player.id].ready = false;
+
+            this.base.addChild(this.playerReadyButtons[player.id]);
+            this.base.addChild(this.responseBoxes[player.id]);
+        }
     }
 
     isText(key) {

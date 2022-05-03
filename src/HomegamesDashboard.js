@@ -41,17 +41,23 @@ const getServerPort = () => {
     }
 };
 
+const findLocalGames = (_path = '') => {
+    const path = _path || config.GAME
+    if (!path) {
+
+    }
+}
+
 let sessionIdCounter = 1;
 // https://coolors.co/5bc0eb-fde74c-9bc53d-e55934-fa7921
 // https://coolors.co/99621e-d38b5d-f3ffb6-739e82-2c5530
 // const DASHBOARD_COLOR = [69, 100, 150, 255];
-const OPTION_COLOR = [222, 232, 236, 255];
-// const BASE_COLOR = [147, 176, 208, 255];
+
+const OPTION_COLOR = [255, 0, 0, 255];
 const BASE_COLOR = [251, 255, 242, 255];
-// const SEARCH_BOX_COLOR = [234, 204, 151, 255];
-const SEARCH_BOX_COLOR = [148, 211, 230, 255];
-const TEXT_COLOR = [];
-const SEARCH_TEXT_COLOR = [255, 255, 255, 255];
+const SEARCH_BOX_COLOR = [241, 112, 111, 255];
+const DASHBOARD_TEXT_COLOR = COLORS.ALMOST_BLACK;
+const SEARCH_TEXT_COLOR = COLORS.ALMOST_BLACK;//[255, 255, 255, 255];
 const orangeish = [246, 99, 4, 255];
 
 const gamesPerRow = 2;
@@ -59,7 +65,7 @@ const rowsPerPage = 2;
 const containerWidth = 100;
 const containerHeight = 90;
 
-const gameContainerXMargin = 10;
+const gameContainerXMargin = 12.5;
 const gameContainerYMargin = 10;
 
 const gameLeftXMargin = 10;
@@ -78,7 +84,9 @@ console.log("option is " + optionWidth + " wide, " + optionHeight + " high");
 const DEFAULT_GAME_THUMBNAIL = getConfigValue('DEFAULT_GAME_THUMBNAIL', 'https://d3lgoy70hwd3pc.cloudfront.net/logo.png');
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 250);
 
-
+const GAME_DIRECTORY = path.resolve(getConfigValue('GAME_DIRECTORY', 'hg-games'));
+console.log("GAME DIR");
+console.log(GAME_DIRECTORY);
 // copied from common. TODO: refactor everything so its not embarrassing 
 const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
     const getModule = url.startsWith('https') ? https : http;
@@ -150,6 +158,77 @@ class HomegamesDashboard extends ViewableGame {
             })
         };
 
+
+        const thang = () => new Promise((resolve, reject) => {
+            console.log('tyusosdhuf')
+            thangHelper(GAME_DIRECTORY, new Set()).then(resolve);//('ayy lmao'));
+        });
+
+        const thangHelper = (dir) => new Promise((resolve, reject) => {
+
+            fs.readdir(dir, (err, entries) => {
+                // console.log('entries');
+                // console.log(entries);
+                const results = new Set();
+                const processedEntries = {};
+                entries.forEach(entry => {
+                    // console.log('entry: ' + entry);
+                    const entryPath = path.resolve(`${dir}/${entry}`)
+                    // console.log(entryPath);
+
+                    processedEntries[entryPath] = false;
+
+                    fs.stat(entryPath, (err, metadata) => {
+                        if (metadata.isFile()) {
+                        processedEntries[entryPath] = true;
+                        // console.log('found file ' + entryPath);
+                        if (entryPath.endsWith('index.js')) {
+                            results.add(entryPath);
+                        }
+
+                        if (Object.keys(processedEntries).filter(k => !processedEntries[k]).length == 0) {
+                            // console.log('donee!!!! nice 123');
+                            resolve(results);
+                        }
+                    } else if (metadata.isDirectory()) {
+                        // console.log('need to traverse');
+                        // console.log(entryPath);
+                        thangHelper(entryPath).then(nestedPaths => {
+                            // results.add(nestedPaths);
+                            nestedPaths.forEach(nestedPath => results.add(nestedPath));
+                            processedEntries[entryPath] = true;
+
+                            if (Object.keys(processedEntries).filter(k => !processedEntries[k]).length == 0) {
+                                // console.log('donee!!!! nice 456');
+                                resolve(results);
+                            }
+                        });
+                    }
+                    });
+                    
+                })
+            });
+        });
+
+        this.localGames = Object.assign({}, games);
+        thang().then((stuff) => {
+            // console.log('got response:');
+            // console.log(stuff);
+            let counter = 0;
+            stuff.forEach(gamePath => {
+                const _game = require(gamePath);
+                // console.log('game!');
+                // console.log(_game);
+                // console.log(_game.name)
+                const gameMetadata = _game.metadata && _game.metadata() || null;
+                const suffix = gameMetadata && gameMetadata.version || counter++;
+                this.localGames[_game.name + '_' + suffix] = {game: _game, path: gamePath}; 
+            });
+            this.initializeGames(this.localGames);
+            // console.log('ayyyyyk sldfg');
+            // console.log(this.localGames);
+        });
+
         Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
             this.assets[key] = new Asset('url', {
                 'location': games[key].metadata && games[key].metadata().thumbnail,
@@ -167,7 +246,7 @@ class HomegamesDashboard extends ViewableGame {
         
         this.getPlane().addChildren(this.base);
 
-        this.initializeGames(games);
+        // this.initializeGames(this.localGames);
         this.initializeSearch();
         this.downloadedGames = {};
         this.sessions = {};
@@ -264,13 +343,14 @@ class HomegamesDashboard extends ViewableGame {
 
             sessions[port] = childSession;
 
-            const referencedGame = games[gameKey];
+            const referencedGame = games[gameKey] || this.localGames[gameKey].game;
 
             const squishVersion = referencedGame.metadata().squishVersion;
 
             childSession.send(JSON.stringify({
                 key: gameKey,
                 squishVersion,
+                gamePath: this.localGames[gameKey] ? this.localGames[gameKey].path : null,
                 port,
                 player: {
                     id: player.id,
@@ -500,11 +580,6 @@ class HomegamesDashboard extends ViewableGame {
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
         let baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
 
-        console.log('game container height');
-        console.log(gameContainerHeight);
-        console.log(baseSize);
-
-
         // pages need to match height of game container to avoid the base getting cut off
         const paddingMultiplier = Math.ceil(baseSize / gameContainerHeight) / (baseSize / gameContainerHeight);
         baseSize *= paddingMultiplier;
@@ -572,14 +647,16 @@ class HomegamesDashboard extends ViewableGame {
                 // playerIds: [playerId]
             });
 
+            console.log('ayegeye');
+
             const gameName = new GameNode.Text({
                 textInfo: {
                     text: game,//'ayy lmao ' + realStartY,
                     x: realStartX + (optionWidth / 2),
                     y: realStartY - textHeight - 4, //hack,
-                    color: COLORS.HG_BLACK,
+                    color: DASHBOARD_TEXT_COLOR,
                     align: 'center',
-                    size: 2.5
+                    size: 1.6
                 }
             });
 
@@ -604,17 +681,10 @@ class HomegamesDashboard extends ViewableGame {
         
         const plane = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            // fill: BASE_COLOR,
             coordinates2d: ShapeUtils.rectangle(0, 0, 1000, 1000)
         });
 
         plane.addChildren(planeBase);
-
-        // console.log('sdfhjdsfgdsf');
-        // console.log(this.getPlane());
-        // console.log(plane);
-        // console.log(this.getPlane().node.children[0]);
-        // console.log(plane.node.children[0]);
         
         // return plane;
         const gameCount = Object.keys(gameCollection).length;
@@ -694,7 +764,7 @@ class HomegamesDashboard extends ViewableGame {
                     text: game,//'ayy lmao ' + realStartY,
                     x: realStartX + (optionWidth / 2),
                     y: realStartY - textHeight - 4, //hack,
-                    color: COLORS.HG_BLACK,
+                    color: DASHBOARD_TEXT_COLOR,
                     align: 'center',
                     size: 2.5
                 }
@@ -787,7 +857,6 @@ class HomegamesDashboard extends ViewableGame {
 
         let view;
         if (results) {
-            console.log('should be happening');
             const plane = this.initializeCollectionPlane(results.games);
             view = ViewUtils.getView(
                 plane,
@@ -817,22 +886,16 @@ class HomegamesDashboard extends ViewableGame {
             shapeType: Shapes.POLYGON, 
             coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 10),
             playerIds: [player.id],
-            fill: SEARCH_BOX_COLOR,
-            // input: {
-            //     type: 'text',
-            //     oninput: (player, text) => {
-            //         this.handlePlayerSearch(player, text, playerSearchBox);
-            //     }
-            // }
+            fill: SEARCH_BOX_COLOR
         });
 
         const playerSearchText = new GameNode.Text({
             textInfo: {
                 x: 5, // maybe need a function to map text size given a screen size
-                y: 4,
+                y: 5.5,
                 text: query || 'Search - coming soon',
                 color: SEARCH_TEXT_COLOR,
-                size: 3
+                size:1.8
             },
             playerIds: [player.id]
         });
@@ -844,10 +907,6 @@ class HomegamesDashboard extends ViewableGame {
         const baseHeight = this.base.node.coordinates2d[2][1];
 
         const currentView = this.playerViews[player.id].view;
-        console.log('abiudsbdofg');
-        console.log(gameContainerHeight);
-        console.log(gameContainerYMargin);
-        console.log(currentView);  
         if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {     
             canGoUp = true;
         } 
@@ -866,7 +925,6 @@ class HomegamesDashboard extends ViewableGame {
 
                 const currentView = Object.assign({}, this.playerViews[player.id].view);
 
-                // console.log('current view');
                 if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {
                     currentView.y -= gameContainerHeight + gameContainerYMargin;
                     this.playerViews[player.id].view = currentView;
@@ -932,7 +990,6 @@ class HomegamesDashboard extends ViewableGame {
         if (canGoDown) {
             playerNodeRoot.addChildren(downArrow);
         }
-        // playerNodeRoot.addChildren(upArrow, downArrow);
     }
 
     downloadGame(gameId, versionId) {
@@ -942,7 +999,7 @@ class HomegamesDashboard extends ViewableGame {
             console.log('referenced');
             console.log(referencedGame);
             // const version = gameVersion && gameVersion.data || this.downloadedGames[gameId].versions[0];
-            const gamePath = `${path.resolve('hg-games')}/${gameId}_${versionId}`;
+            const gamePath = `${GAME_DIRECTORY}/${gameId}_${versionId}`;
             https.get(referencedGame.location, (res) => {
                 const stream = res.pipe(unzipper.Extract({
                     path: gamePath

@@ -66,31 +66,29 @@ class GameSession {
         if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
             player.receiveUpdate([5, 70, 0]);
         }
+        const playerName = generateName();
+        player.info.name = player.info.name || playerName;
+        this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
-        generateName().then(playerName => {
-            player.info.name = player.info.name || playerName;
-            this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
-
-            this.game._hgAddPlayer(player);
-            this.game.handleNewPlayer && this.game.handleNewPlayer(player);
-            if (this.game.deviceRules && player.clientInfo) {
-                const deviceRules = this.game.deviceRules();
-                if (deviceRules.aspectRatio) {
-                    deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
-                }
-                if (deviceRules.deviceType) {
-                    deviceRules.deviceType(player, player.clientInfo.deviceType)
-                }
+        this.game._hgAddPlayer(player);
+        this.game.handleNewPlayer && this.game.handleNewPlayer(player);
+        if (this.game.deviceRules && player.clientInfo) {
+            const deviceRules = this.game.deviceRules();
+            if (deviceRules.aspectRatio) {
+                deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
             }
+            if (deviceRules.deviceType) {
+                deviceRules.deviceType(player, player.clientInfo.deviceType)
+            }
+        }
 
-            this.homegamesRoot.handleNewPlayer(player);
+        this.homegamesRoot.handleNewPlayer(player);
 
-            // ensure the squisher has game data for the new player
-            this.squisher.squish();
-            
-            player.receiveUpdate(this.squisher.playerStates[player.id].flat());
-            player.addInputListener(this);
-        });
+        // ensure the squisher has game data for the new player
+        this.squisher.squish();
+        
+        player.receiveUpdate(this.squisher.playerStates[player.id].flat());
+        player.addInputListener(this);
     }
 
     handleSpectatorDisconnect(spectatorId) {

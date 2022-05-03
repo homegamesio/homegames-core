@@ -6,35 +6,22 @@ const baseDir = path.dirname(require.main.filename);
 
 let words = [];
 
-const generateList = async () => new Promise((resolve, reject) => {
-    resolve(['to', 'do']);
-});
+// need to move to squish
+
+if (fs.existsSync(path.resolve('dictionary.txt'))) {
+    const dictionaryBytes = fs.readFileSync(path.resolve('dictionary.txt'));
+    words = dictionaryBytes.toString().split('\n').filter(w => !!w);
+} else {
+    console.warn('Missing dictionary.txt file. Using default dictionary');
+    words = ['hello', 'world'];
+}
 
 const dictionary = {
-
-    init: async () => {
-        if (words.length > 0) {
-            return words;
-        } else {
-            words = await generateList();
-            return words;
-        }
-    },
+    length: () => words.length,
     
-    length: async () => {
-        const words = await dictionary.init();
-        return words.length;
-    },
-
-    get: async (index) => {
-        const words = await dictionary.init();
-        return words[index];
-    },
-
-    random: async () => {
-        const length = await dictionary.length();
-        return dictionary.get(Math.floor(Math.random() * length));
-    }
+    get: (index) => words[index],
+    
+    random: () => words[Math.floor(Math.random() * words.length)]
 };
 
 module.exports = dictionary;
