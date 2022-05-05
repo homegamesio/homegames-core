@@ -3,6 +3,7 @@ const http = require('http');
 
 class Homenames {
     constructor(port) {
+        console.log("running homenames on port " + port);
         this.playerInfo = {};
         const server = http.createServer((req, res) => {
             const reqPath = req.url.split('/');

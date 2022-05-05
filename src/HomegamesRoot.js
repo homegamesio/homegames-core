@@ -34,6 +34,9 @@ class HomegamesRoot {
             }
         }
     }
+    getTopLayerRoot() {
+        return this.topLayerRoot;
+    }
 
     constructor(game, isDashboard, profiling) {
         this.isDashboard = isDashboard;
@@ -72,6 +75,11 @@ class HomegamesRoot {
             fill: COLORS.BLACK
         });
 
+        this.topLayerRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            fill: COLORS.BLACK
+        });
 
        this.playerDashboards = {};
 
@@ -109,6 +117,13 @@ class HomegamesRoot {
 
         this.root.addChild(this.frameRoot);
         this.root.addChild(this.homeButton);
+        const ting = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 80, 80),
+            fill: COLORS.HG_BLUE,
+            // playerIds: [playerId]
+        });
+        this.topLayerRoot.addChild(ting);
     }
 
     getRoot() {
@@ -168,6 +183,23 @@ class HomegamesRoot {
         this.updateLabels();
     }
 
+    showSettings(playerId) {
+        console.log('plssdsd ' + playerId);
+        console.log("COLORS");
+        console.log(COLORS);
+        const settingsModal = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 80, 80),
+            fill: COLORS.HG_BLUE,
+            playerIds: [playerId]
+        });
+
+        // console.log('what is this');
+        // console.log(this);
+        
+        this.root.addChild(settingsModal);
+    }
+
     updateLabels() {
         for (const nodeId in this.frameRoot.node.children) {
             const playerFrame = this.frameRoot.node.children[nodeId];
@@ -180,19 +212,35 @@ class HomegamesRoot {
                 return;
             }
 
+            const settingsButton = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                        coordinates2d: ShapeUtils.rectangle(45, 0, 10, 5),
+                        fill: [84, 77, 71, 255], // frame color
+                        onClick: (player, x, y) => {
+                            this.showSettings(player.id);
+                            // player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
+                            //player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
+                        }, 
+                        playerIds: [playerId]
+            });
+
             const labelText = new GameNode.Text({
                 textInfo: {
-                    text: player.info.name || 'unknown',
-                    x: 5,
+                    text: 'big ole b',//player.info.name || 'unknown',
+                    x: 50,
                     y: 1,
                     size: 0.7,
                     color: COLORS.WHITE,
                     align: 'center'
                 },
+                onClick: () => {
+                    console.log('clicking box');
+                },
                 playerIds: [playerId]
             });
     
-            playerFrame.addChild(labelText);
+            settingsButton.addChild(labelText);
+            playerFrame.addChild(settingsButton);
 
             if (!this.isDashboard) {
                 const isSpectator = this.game.spectators && this.game.spectators[playerId] && true || false;

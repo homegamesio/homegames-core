@@ -576,10 +576,15 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     initializeGames(gameCollection) {
+        console.log("ayyyy");
+        console.log(gameCollection);
         const gameCount = Object.keys(gameCollection).length;
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
+        console.log('need ' + pagesNeeded + ' pages with ' + rowsPerPage + ' rows per page for ' + gameCount + ' games')
         let baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
 
+        console.log('dsfdsfds bah ' + baseSize);
+        console.log(gameContainerHeight + gameContainerYMargin);
         // pages need to match height of game container to avoid the base getting cut off
         const paddingMultiplier = Math.ceil(baseSize / gameContainerHeight) / (baseSize / gameContainerHeight);
         baseSize *= paddingMultiplier;
@@ -884,14 +889,14 @@ class HomegamesDashboard extends ViewableGame {
 
         const playerSearchBox = new GameNode.Shape({
             shapeType: Shapes.POLYGON, 
-            coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 10),
+            coordinates2d: ShapeUtils.rectangle(12.5, 2.5, 75, 10),
             playerIds: [player.id],
             fill: SEARCH_BOX_COLOR
         });
 
         const playerSearchText = new GameNode.Text({
             textInfo: {
-                x: 5, // maybe need a function to map text size given a screen size
+                x: 15, // maybe need a function to map text size given a screen size
                 y: 5.5,
                 text: query || 'Search - coming soon',
                 color: SEARCH_TEXT_COLOR,

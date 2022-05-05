@@ -22,6 +22,7 @@ class GameSession {
         this.port = port;
         this.spectators = {};
 
+        console.log('sdfkjsdfkjdsfnskjdf buttttt');
         this.homegamesRoot = new HomegamesRoot(game, false, false);
         this.customBottomLayer = {
             root: this.homegamesRoot.getRoot(),
@@ -29,10 +30,15 @@ class GameSession {
             assets: this.homegamesRoot.constructor.metadata().assets
         };
 
+        this.customTopLayer = {
+            root: this.homegamesRoot.getTopLayerRoot(),
+            scale: {x: 1, y: 1}
+        }
+
         // TODO: make this configurable per player (eg. configurable bezel size)
         this.scale = {x: (100 - BEZEL_SIZE_X) / 100, y:  (100 - BEZEL_SIZE_Y) / 100};
 
-        this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer });
+        this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer, customTopLayer: this.customTopLayer });
         // this.squisher.hgRoot.players = this.game.players;
         // this.squisher.hgRoot.spectators = this.spectators;
         this.hgRoot = this.squisher.hgRoot;
