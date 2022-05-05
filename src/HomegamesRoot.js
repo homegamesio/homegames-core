@@ -117,13 +117,13 @@ class HomegamesRoot {
 
         this.root.addChild(this.frameRoot);
         this.root.addChild(this.homeButton);
-        const ting = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 80, 80),
-            fill: COLORS.HG_BLUE,
-            // playerIds: [playerId]
-        });
-        this.topLayerRoot.addChild(ting);
+        // const ting = new GameNode.Shape({
+        //     shapeType: Shapes.POLYGON,
+        //     coordinates2d: ShapeUtils.rectangle(0, 0, 80, 80),
+        //     fill: COLORS.HG_BLUE,
+        //     // playerIds: [playerId]
+        // });
+        // this.topLayerRoot.addChild(ting);
     }
 
     getRoot() {
@@ -191,13 +191,18 @@ class HomegamesRoot {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 80, 80),
             fill: COLORS.HG_BLUE,
+            onClick: () => {
+                console.log('removing');
+                console.log(settingsModal.node);
+                this.topLayerRoot.removeChild(settingsModal.node.id);
+            },
             playerIds: [playerId]
         });
 
         // console.log('what is this');
         // console.log(this);
         
-        this.root.addChild(settingsModal);
+        this.topLayerRoot.addChild(settingsModal);
     }
 
     updateLabels() {
