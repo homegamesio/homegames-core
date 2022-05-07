@@ -10,6 +10,7 @@ if (baseDir.endsWith('src')) {
 }
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const HomenamesHelper = require('./util/homenames-helper');
 
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
@@ -21,7 +22,7 @@ class GameSession {
         this.game = game;
         this.port = port;
         this.spectators = {};
-
+        this.homenamesHelper = new HomenamesHelper();
         this.homegamesRoot = new HomegamesRoot(game, false, false);
         this.customBottomLayer = {
             root: this.homegamesRoot.getRoot(),
@@ -72,28 +73,32 @@ class GameSession {
             player.receiveUpdate([5, 70, 0]);
         }
         const playerName = generateName();
-        player.info.name = player.info.name || playerName;
-        this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
-        this.game._hgAddPlayer(player);
-        this.game.handleNewPlayer && this.game.handleNewPlayer(player);
-        if (this.game.deviceRules && player.clientInfo) {
-            const deviceRules = this.game.deviceRules();
-            if (deviceRules.aspectRatio) {
-                deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+        this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
+            // console.log('just updated ayy lmao')
+            // player.info.name = player.info.name || playerName;
+            this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+
+            this.game._hgAddPlayer(player);
+            this.game.handleNewPlayer && this.game.handleNewPlayer(player);
+            if (this.game.deviceRules && player.clientInfo) {
+                const deviceRules = this.game.deviceRules();
+                if (deviceRules.aspectRatio) {
+                    deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+                }
+                if (deviceRules.deviceType) {
+                    deviceRules.deviceType(player, player.clientInfo.deviceType)
+                }
             }
-            if (deviceRules.deviceType) {
-                deviceRules.deviceType(player, player.clientInfo.deviceType)
-            }
-        }
 
-        this.homegamesRoot.handleNewPlayer(player);
+            this.homegamesRoot.handleNewPlayer(player);
 
-        // ensure the squisher has game data for the new player
-        this.squisher.squish();
-        
-        player.receiveUpdate(this.squisher.playerStates[player.id].flat());
-        player.addInputListener(this);
+            // ensure the squisher has game data for the new player
+            this.squisher.squish();
+            
+            player.receiveUpdate(this.squisher.playerStates[player.id].flat());
+            player.addInputListener(this);
+        });
     }
 
     handleSpectatorDisconnect(spectatorId) {

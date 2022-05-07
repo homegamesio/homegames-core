@@ -75,7 +75,7 @@ class HomenamesHelper {
 
 	updatePlayerInfo(playerId, { playerName }) {
 		return new Promise((resolve, reject) => {
-			makePost('/' + playerId, { ayy: 'lmao' }).then(resolve);
+			makePost('/' + playerId, { name: playerName }).then(resolve);
 		});
 	}
 }

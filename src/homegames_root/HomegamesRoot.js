@@ -48,6 +48,7 @@ class HomegamesRoot {
         this.renderTimes = [];
         this.game = game;
         this.homenamesHelper = new HomenamesHelper();
+        this.playerInfoMap = {};
 
         this.gameAssets = {};
 
@@ -136,30 +137,33 @@ class HomegamesRoot {
     }
 
     handleNewPlayer(player) {
-       const playerFrame = new GameNode.Asset({
-           coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-           assetInfo: {
-               'frame': {
-                   pos: {x: 0, y: 0},
-                   size: {
-                       x: 100,
-                       y: 100
+        this.homenamesHelper.getPlayerInfo(player.id).then((playerInfo) => {
+            this.playerInfoMap[player.id] = playerInfo;
+           const playerFrame = new GameNode.Asset({
+               coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+               assetInfo: {
+                   'frame': {
+                       pos: {x: 0, y: 0},
+                       size: {
+                           x: 100,
+                           y: 100
+                       }
                    }
-               }
-           },
-           effects: {
-               shadow: {
-                   color: COLORS.HG_BLACK,
-                   blur: 5
-               }
-           },
-           playerIds: [player.id]
+               },
+               effects: {
+                   shadow: {
+                       color: COLORS.HG_BLACK,
+                       blur: 5
+                   }
+               },
+               playerIds: [player.id]
+           });
+
+           this.frameStates[player.id] = playerFrame;
+           this.frameRoot.addChild(playerFrame);
+
+           this.updateLabels();
        });
-
-       this.frameStates[player.id] = playerFrame;
-       this.frameRoot.addChild(playerFrame);
-
-       this.updateLabels();
     }
 
     handleNewSpectator(spectator) {
@@ -189,9 +193,10 @@ class HomegamesRoot {
     }
 
     showSettings(playerId) {
+        this.topLayerRoot.clearChildren();
         const modal = settingsModal({ 
             playerId,
-            playerName: this.game.players[playerId].info.name,
+            playerName: this.playerInfoMap[playerId].name,
             onRemove: () => {
                 this.topLayerRoot.removeChild(modal.node.id);
             }, 
@@ -201,10 +206,10 @@ class HomegamesRoot {
                 {
                     playerName: text
                 }).then(() => {
-                    console.log('updated the thing! ' + playerId);
-                    this.homenamesHelper.getPlayerInfo(playerId).then(playerInfo => {
-                        console.log("hgere is new playuer info");
-                        console.log(playerInfo);
+                    this.homenamesHelper.getPlayerInfo(playerId).then(_playerInfo => {
+                        this.playerInfoMap[playerId] = _playerInfo;
+                        this.updateLabels();
+                        this.showSettings(playerId);
                     }).catch(err => {
                         console.log('whats the probelm');
                         console.log(err);
@@ -251,7 +256,7 @@ class HomegamesRoot {
 
             const labelText = new GameNode.Text({
                 textInfo: {
-                    text: player.info.name || 'unknown',
+                    text: this.playerInfoMap[player.id].name || 'unknown',
                     x: 50,
                     y: 1.5,
                     size: 0.7,
