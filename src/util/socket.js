@@ -93,7 +93,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             const req = http.request({
                 hostname: 'localhost',
                 port: HOMENAMES_PORT,
-                path: `/${ws.id}`,
+                path: `/info/${ws.id}`,
                 method: 'GET'
             }, res => {
                 res.on('data', d => {
@@ -101,9 +101,9 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     const player = new Player(ws, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
                     ws.spectating = jsonMessage.spectating;
                     
-                    if (jsonMessage.id && playerInfo.name) {
-                        player.name = playerInfo.name;
-                    }
+                    // if (jsonMessage.id && playerInfo.name) {
+                    //     player.name = playerInfo.name;
+                    // }{}
                     const aspectRatio = gameSession.aspectRatio;
                     const gameMetadata = gameSession.gameMetadata;
 

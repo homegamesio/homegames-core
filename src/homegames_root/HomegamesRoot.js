@@ -3,6 +3,8 @@ let { GameNode, Colors, Shapes, ShapeUtils } = require('squish-0710');
 const Asset = require('../common/Asset');
 const { animations } = require('../common/util');
 
+const PLAYER_SETTINGS = require('../common/player-settings.js');
+
 const HomenamesHelper = require('../util/homenames-helper');
 
 const settingsModal = require('./settings');
@@ -48,7 +50,6 @@ class HomegamesRoot {
         this.renderTimes = [];
         this.game = game;
         this.homenamesHelper = new HomenamesHelper();
-        this.playerInfoMap = {};
 
         this.gameAssets = {};
 
@@ -138,7 +139,6 @@ class HomegamesRoot {
 
     handleNewPlayer(player) {
         this.homenamesHelper.getPlayerInfo(player.id).then((playerInfo) => {
-            this.playerInfoMap[player.id] = playerInfo;
            const playerFrame = new GameNode.Asset({
                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
                assetInfo: {
@@ -196,7 +196,6 @@ class HomegamesRoot {
         this.topLayerRoot.clearChildren();
         const modal = settingsModal({ 
             playerId,
-            playerName: this.playerInfoMap[playerId].name,
             onRemove: () => {
                 this.topLayerRoot.removeChild(modal.node.id);
             }, 
@@ -207,13 +206,26 @@ class HomegamesRoot {
                     playerName: text
                 }).then(() => {
                     this.homenamesHelper.getPlayerInfo(playerId).then(_playerInfo => {
-                        this.playerInfoMap[playerId] = _playerInfo;
                         this.updateLabels();
                         this.showSettings(playerId);
                     }).catch(err => {
                         console.log('whats the probelm');
                         console.log(err);
                     })
+                });
+            },
+            onSoundToggle: (newVal) => {
+                this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
+                    enabled: newVal
+                }).then(() => {
+                                            this.showSettings(playerId);
+
+                    // this.homenamesHelper.getPlayerSettings(playerId).then(_playerSettings => {
+                    //     this.playerSettingsMap[playerId] = _playerSettings;
+                    // }).catch(err => {
+                    //     console.log('whats the probelm');
+                    //     console.log(err);
+                    // });
                 });
             }
         });
@@ -254,22 +266,24 @@ class HomegamesRoot {
                        },
             });
 
-            const labelText = new GameNode.Text({
-                textInfo: {
-                    text: this.playerInfoMap[player.id].name || 'unknown',
-                    x: 50,
-                    y: 1.5,
-                    size: 0.7,
-                    color: COLORS.WHITE,
-                    align: 'center'
-                },
-                onClick: () => {
-                    console.log('clicking box');
-                },
-                playerIds: [playerId]
+            this.homenamesHelper.getPlayerInfo(playerId).then(playerInfo => {
+                const labelText = new GameNode.Text({
+                    textInfo: {
+                        text: playerInfo.name || 'unknown',
+                        x: 50,
+                        y: 1.5,
+                        size: 0.7,
+                        color: COLORS.WHITE,
+                        align: 'center'
+                    },
+                    onClick: () => {
+                        console.log('clicking box');
+                    },
+                    playerIds: [playerId]
+                });
+        
+                settingsButton.addChild(labelText);
             });
-    
-            settingsButton.addChild(labelText);
             playerFrame.addChild(settingsButton);
 
             if (!this.isDashboard) {

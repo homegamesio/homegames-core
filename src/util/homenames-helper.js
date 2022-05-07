@@ -5,6 +5,8 @@ const http = require('http');
 
 const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
     const host = 'http://localhost:' + getConfigValue('HOMENAMES_PORT');
+    console.log('jhkdsf');
+    console.log(path)
     http.get(`${host}${path}`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
@@ -66,18 +68,33 @@ class HomenamesHelper {
 
 	getPlayerInfo(playerId) {
 		return new Promise((resolve, reject) => {
-			makeGet(`/${playerId}`).then(resolve).catch(err => {
+			makeGet(`/info/${playerId}`).then(resolve).catch(err => {
                 console.log('watttt');
                 console.log(err);
             });
 		});
 	}
 
+    getPlayerSettings(playerId) {
+        return new Promise((resolve, reject) => {
+            makeGet(`/settings/${playerId}`).then(resolve).catch(err => {
+                console.log('watttt');
+                console.log(err);
+            });
+        });   
+    }
+
 	updatePlayerInfo(playerId, { playerName }) {
 		return new Promise((resolve, reject) => {
-			makePost('/' + playerId, { name: playerName }).then(resolve);
+			makePost('/' + playerId + '/info', { name: playerName }).then(resolve);
 		});
 	}
+
+    updatePlayerSetting(playerId, settingKey, value) {
+        return new Promise((resolve, reject) => {
+            makePost('/' + playerId + '/settings', {[settingKey]: value}).then(resolve);
+        });
+    }
 }
 
 module.exports = HomenamesHelper;
