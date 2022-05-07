@@ -1,12 +1,16 @@
 let { GameNode, Colors, Shapes, ShapeUtils } = require('squish-0710');
 
-const Asset = require('./common/Asset');
-const { animations } = require('./common/util');
+const Asset = require('../common/Asset');
+const { animations } = require('../common/util');
+
+const HomenamesHelper = require('../util/homenames-helper');
+
+const settingsModal = require('./settings');
 const COLORS = Colors.COLORS;
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
 
-const games = require('./games');
+const games = require('../games');
 
 const process = require('process');
 const procStats = require('process-stats')();
@@ -43,6 +47,7 @@ class HomegamesRoot {
         this.profiling = profiling;
         this.renderTimes = [];
         this.game = game;
+        this.homenamesHelper = new HomenamesHelper();
 
         this.gameAssets = {};
 
@@ -184,25 +189,34 @@ class HomegamesRoot {
     }
 
     showSettings(playerId) {
-        console.log('plssdsd ' + playerId);
-        console.log("COLORS");
-        console.log(COLORS);
-        const settingsModal = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 80, 80),
-            fill: COLORS.HG_BLUE,
-            onClick: () => {
-                console.log('removing');
-                console.log(settingsModal.node);
-                this.topLayerRoot.removeChild(settingsModal.node.id);
-            },
-            playerIds: [playerId]
+        const modal = settingsModal({ 
+            playerId,
+            playerName: this.game.players[playerId].info.name,
+            onRemove: () => {
+                this.topLayerRoot.removeChild(modal.node.id);
+            }, 
+            onNameChange: (text) => {
+                console.log('player id ' + playerId + ' changed name ' + playerId);
+                this.homenamesHelper.updatePlayerInfo(playerId,
+                {
+                    playerName: text
+                }).then(() => {
+                    console.log('updated the thing! ' + playerId);
+                    this.homenamesHelper.getPlayerInfo(playerId).then(playerInfo => {
+                        console.log("hgere is new playuer info");
+                        console.log(playerInfo);
+                    }).catch(err => {
+                        console.log('whats the probelm');
+                        console.log(err);
+                    })
+                });
+            }
         });
 
         // console.log('what is this');
         // console.log(this);
         
-        this.topLayerRoot.addChild(settingsModal);
+        this.topLayerRoot.addChild(modal);
     }
 
     updateLabels() {
@@ -219,21 +233,27 @@ class HomegamesRoot {
 
             const settingsButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
-                        coordinates2d: ShapeUtils.rectangle(45, 0, 10, 5),
-                        fill: [84, 77, 71, 255], // frame color
+                        coordinates2d: ShapeUtils.rectangle(42.5,.25, 15, 4.5),
+                        fill: [187, 189, 191, 255],//[84, 77, 71, 255], // frame color
                         onClick: (player, x, y) => {
                             this.showSettings(player.id);
                             // player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
                             //player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
                         }, 
-                        playerIds: [playerId]
+                        playerIds: [playerId],
+                        effects: {
+                           shadow: {
+                               color: COLORS.BLACK,
+                               blur: 10
+                           }
+                       },
             });
 
             const labelText = new GameNode.Text({
                 textInfo: {
-                    text: 'big ole b',//player.info.name || 'unknown',
+                    text: player.info.name || 'unknown',
                     x: 50,
-                    y: 1,
+                    y: 1.5,
                     size: 0.7,
                     color: COLORS.WHITE,
                     align: 'center'

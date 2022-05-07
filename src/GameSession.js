@@ -1,6 +1,6 @@
 const { Squisher } = require('squish-0710');
 const { generateName } = require('./common/util');
-const HomegamesRoot = require('./HomegamesRoot');
+const HomegamesRoot = require('./homegames_root/HomegamesRoot');
 
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
@@ -22,7 +22,6 @@ class GameSession {
         this.port = port;
         this.spectators = {};
 
-        console.log('sdfkjsdfkjdsfnskjdf buttttt');
         this.homegamesRoot = new HomegamesRoot(game, false, false);
         this.customBottomLayer = {
             root: this.homegamesRoot.getRoot(),
@@ -127,7 +126,7 @@ class GameSession {
         } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
         } else if (input.type === 'input') {
-            const node = this.game.findNode(input.nodeId);
+            const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
             if (node && node.node.input) {
                 // hilarious
                 if (node.node.input.type === 'file') {
@@ -160,7 +159,7 @@ class GameSession {
         if (clickedNode) {
             const clickedNodeId = clickedNode.id;
             // todo: implement get node (maybe maintain map in game?)
-            const realNode = this.game.findNode(clickedNodeId) || this.customBottomLayer.root.findChild(clickedNodeId);
+            const realNode = this.game.findNode(clickedNodeId) || this.customBottomLayer.root.findChild(clickedNodeId) || this.customTopLayer.root.findChild(clickedNodeId);
 
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
                 realNode.node.handleClick && realNode.node.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
@@ -189,6 +188,11 @@ class GameSession {
             const scale = layer.scale || this.scale;
 
             clicked = this.findClickHelper(x, y, false, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
+        }
+
+        if (this.customTopLayer) {
+            const scale = {x: 1, y: 1};
+            clicked = this.findClickHelper(x, y, false, playerId, this.customTopLayer.root.node, null, scale) || clicked;
         }
 
         return clicked;

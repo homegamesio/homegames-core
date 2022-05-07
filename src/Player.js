@@ -65,6 +65,7 @@ class Player {
     }
 
     updatePlayerInfo() {
+        console.log('does this ever happen what');
         return new Promise((resolve, reject) => {
             const data = JSON.stringify({
                 info: this.info

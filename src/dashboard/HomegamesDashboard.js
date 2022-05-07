@@ -8,13 +8,13 @@ const fs = require('fs');
 
 const COLORS = Colors.COLORS;
 
-const Asset = require('./common/Asset');
+const Asset = require('../common/Asset');
 
-const games = require('./games');
+const games = require('../games');
 
 const sortedGameKeys = Object.keys(games).sort();
 
-const { ExpiringSet, animations } = require('./common/util');
+const { ExpiringSet, animations } = require('../common/util');
 
 let baseDir = path.dirname(require.main.filename);
 
@@ -276,8 +276,8 @@ class HomegamesDashboard extends ViewableGame {
                 console.log('downhloaded game requires version id');
             } else {
                 this.downloadGame(gameKey, versionKey).then(gamePath => {
-
-                    const childSession = fork(path.join(__dirname, 'child_game_server.js'));
+                    const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
+                    const childSession = fork(childGameServerPath);
 
                     sessions[port] = childSession;
 
@@ -339,7 +339,9 @@ class HomegamesDashboard extends ViewableGame {
             }
         } else {
 
-            const childSession = fork(path.join(__dirname, 'child_game_server.js'));
+            const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
+
+            const childSession = fork(childGameServerPath);
 
             sessions[port] = childSession;
 

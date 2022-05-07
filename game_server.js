@@ -1,4 +1,4 @@
-const HomegamesDashboard = require('./src/HomegamesDashboard');
+const HomegamesDashboard = require('./src/dashboard/HomegamesDashboard');
 const LayerTest = require('./src/games/layer-test');
 const ViewTest = require('./src/games/view-test');
 const GameSession = require('./src/GameSession');
