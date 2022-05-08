@@ -9,13 +9,7 @@ class Draw extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0710',
             author: 'Joseph Garcia',
-            thumbnail: 'c7b7df6b3a90ccfde66f20e759093ea6',
-            assets: {
-                'test': new Asset('url', {
-                    'location': 'https://www.nicepng.com/png/full/323-3239506_kanye-west-shrug-transparent.png',
-                    'type': 'image'
-                })
-            }
+            thumbnail: 'c7b7df6b3a90ccfde66f20e759093ea6'
         };
     }
 

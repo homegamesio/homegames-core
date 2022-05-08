@@ -20,10 +20,7 @@ if (!fs.existsSync(HG_ASSET_PATH)) {
 }
 
 const getHash = (str) => {
-    // console.log('creating hash from str ' + str);
     const shasum = crypto.createHash('sha1');
-    // console.log(str);
-    // console.log(shasum);
     shasum.update(str);
     return shasum.digest('hex');
 }
@@ -88,19 +85,14 @@ class Asset {
     }
 
     getData() {
-        console.log('getting data');
-        console.log(this);
         return new Promise((resolve, reject) => {
             if (this.sourceType === 'url') {
                 this.download().then(fileLocation => {
-                    console.log('just saved a file to ' + fileLocation);
                     fs.readFile(fileLocation, (err, buf) => {
                         if (err) {
                             reject(err);
                         } else {
-                            console.log('this is buf');
-                            console.log(buf);
-                            resolve(buf);//fs.readFile(fileLocation));
+                            resolve(buf);
                         }
                     });
                 });

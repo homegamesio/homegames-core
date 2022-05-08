@@ -150,7 +150,6 @@ class HomegamesDashboard extends ViewableGame {
 
 
         const thang = () => new Promise((resolve, reject) => {
-            console.log('tyusosdhuf');
             thangHelper(GAME_DIRECTORY, new Set()).then(resolve);//('ayy lmao'));
         });
 
@@ -644,8 +643,6 @@ class HomegamesDashboard extends ViewableGame {
                 // playerIds: [playerId]
             });
 
-            console.log('ayegeye');
-
             const gameName = new GameNode.Text({
                 textInfo: {
                     text: game,//'ayy lmao ' + realStartY,
@@ -662,8 +659,6 @@ class HomegamesDashboard extends ViewableGame {
             this.base.addChild(gameOptionVisualBase);
             index++;   
         }
-        // for (let colIndex = 0; colIndex < gamesPerRow; colIndex)
-        // return pagesNeeded * pageSize;
     }
 
 
