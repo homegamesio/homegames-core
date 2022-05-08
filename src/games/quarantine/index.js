@@ -87,7 +87,7 @@ class Quarantine extends Game {
                 this.newTurn();
             }
         } else if (url) {
-            this.questionUrl = new Asset('url', {location: url});
+            this.questionUrl = new Asset({location: url});
             const initWords = async() => {
                 const questionData = await this.questionUrl.getData();
                 this.questions = JSON.parse(questionData);

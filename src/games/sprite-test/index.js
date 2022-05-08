@@ -18,23 +18,23 @@ class SpriteTest extends Game {
             author: 'Joseph Garcia',
             thumbnail: 'd8a39042ae0d7829b83f5c0280dc8230',
             assets: {
-                'dance0': new Asset('url', {
+                'dance0': new Asset({
                     'location': danceFrames['dance0'],
                     'type': 'image'
                 }),
-                'dance_up': new Asset('url', {
+                'dance_up': new Asset({
                     'location': danceFrames['dance_up'],
                     'type': 'image'
                 }),
-                'dance_down': new Asset('url', {
+                'dance_down': new Asset({
                     'location': danceFrames['dance_down'],
                     'type': 'image'
                 }),
-                'dance_left': new Asset('url', {
+                'dance_left': new Asset({
                     'location': danceFrames['dance_left'],
                     'type': 'image'
                 }),
-                'dance_right': new Asset('url', {
+                'dance_right': new Asset({
                     'location': danceFrames['dance_right'],
                     'type': 'image'
                 })

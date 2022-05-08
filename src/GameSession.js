@@ -1,5 +1,4 @@
-// const { Squisher } = require('squish-0710');
-const { Squisher } = require('squishjs');
+const { Squisher } = require('squish-0712');
 const { generateName } = require('./common/util');
 const HomegamesRoot = require('./homegames_root/HomegamesRoot');
 

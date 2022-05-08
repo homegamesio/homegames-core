@@ -49,8 +49,7 @@ const downloadFile = (assetId, path) => new Promise((resolve, reject) => {
 });
 
 class Asset {
-    constructor(sourceType, info) {
-        this.sourceType = sourceType;
+    constructor(info) {
         this.info = info;
     }
 
@@ -86,7 +85,6 @@ class Asset {
 
     getData() {
         return new Promise((resolve, reject) => {
-            if (this.sourceType === 'url') {
                 this.download().then(fileLocation => {
                     fs.readFile(fileLocation, (err, buf) => {
                         if (err) {
@@ -96,7 +94,6 @@ class Asset {
                         }
                     });
                 });
-            }
         }); 
     }
 }

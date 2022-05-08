@@ -21,11 +21,11 @@ class HomegamesRoot {
     static metadata() {
         return {
             assets: {
-                'frame': new Asset('url', {
+                'frame': new Asset({
                     'id': 'c299f1f7e24d03e59cb569f5815bfe2f',
                     'type': 'image'
                 }),
-                'logo-horizontal': new Asset('url', {
+                'logo-horizontal': new Asset({
                     'id': '31b81479f187d9ab6aa6845e0794b4be',
                     'type': 'image'
                 })

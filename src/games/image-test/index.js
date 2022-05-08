@@ -29,7 +29,6 @@ class ImageTest extends Game {
             ],
             fill: COLORS.WHITE,
             onClick: (player, x, y) => {
-                console.log('sdfdsfdsf');
                 const newAsset = this.imageNode.node.asset;
                 newAsset.image.pos = {x, y};
                 this.imageNode.node.asset = newAsset;
@@ -177,7 +176,7 @@ class ImageTest extends Game {
 
     getAssets() {
         return {
-            'image': new Asset('url', {
+            'image': new Asset({
                 'id': '8870cb1616e9b60db68a0455a85aa22c',
                 'type': 'image'
             })

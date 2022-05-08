@@ -10,7 +10,7 @@ class ScaleTest extends Game {
             author: 'Joseph Garcia',
             aspectRatio: {x: 1, y: 2},
             assets: {
-                'image': new Asset('url', {
+                'image': new Asset({
                     'id': '8870cb1616e9b60db68a0455a85aa22c',
                     'type': 'image'
                 })

@@ -138,11 +138,11 @@ class HomegamesDashboard extends ViewableGame {
         super(1000);
 
         this.assets = {
-            'default': new Asset('url', {
+            'default': new Asset({
                 'id': 'ff745468e1b725445c65245ce044da21',
                 'type': 'image'
             }),
-            'dashboardSong': new Asset('url', {
+            'dashboardSong': new Asset({
                 'id': 'd9f097268324319d07a903cb50dc7210',
                 type: 'audio'
             })
@@ -219,7 +219,7 @@ class HomegamesDashboard extends ViewableGame {
         });
 
         Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
-            this.assets[key] = new Asset('url', {
+            this.assets[key] = new Asset({
                 'id': games[key].metadata && games[key].metadata().thumbnail,
                 'type': 'image'
             });
