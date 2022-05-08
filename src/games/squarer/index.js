@@ -7,7 +7,7 @@ class Squarer extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0710',
             author: 'Yazeed Loonat',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/squarer.png'
+            thumbnail: 'dcd6e74ff94d51f9f323ce00669d98d4'
         };
     }
 

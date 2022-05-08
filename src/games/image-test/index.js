@@ -8,13 +8,7 @@ class ImageTest extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0710',
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/image-test.png',
-            assets: {
-                'image': new Asset('url', {
-                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
-                    'type': 'image'
-                })
-            }
+            thumbnail: '2a0cf606567326c6c40df592ee1358ca'
         };
     }
 
@@ -35,6 +29,7 @@ class ImageTest extends Game {
             ],
             fill: COLORS.WHITE,
             onClick: (player, x, y) => {
+                console.log('sdfdsfdsf');
                 const newAsset = this.imageNode.node.asset;
                 newAsset.image.pos = {x, y};
                 this.imageNode.node.asset = newAsset;
@@ -178,6 +173,15 @@ class ImageTest extends Game {
 
     getLayers() {
         return [{root: this.base}];
+    }
+
+    getAssets() {
+        return {
+            'image': new Asset('url', {
+                'id': '8870cb1616e9b60db68a0455a85aa22c',
+                'type': 'image'
+            })
+        }
     }
     
     // getRoot() {

@@ -12,7 +12,7 @@ class InputTest extends Game {
             squishVersion: '0710',
             author: 'Joseph Garcia',
             name: 'Input Test',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/input-test.png'
+            thumbnail: 'c6d38aca68fed708d08d284a5d201a0a'
         };
     }
 

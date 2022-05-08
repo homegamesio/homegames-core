@@ -135,6 +135,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     if (jsonMessage.spectating) {
                         gameSession.addSpectator(_player);
                     } else {
+                        console.log("ADDING PLAUYERRR");
+                        // console.log
                         gameSession.addPlayer(_player);
                     }
 

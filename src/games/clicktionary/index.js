@@ -9,7 +9,7 @@ class Clicktionary extends Game {
             aspectRatio: {x: 16, y: 9},
             description: 'ayy lmao this is a test',
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/clicktionary.png'
+            thumbnail: '4b5f169186bc542e14b5d001d25ce6bb'
         };
     }
 

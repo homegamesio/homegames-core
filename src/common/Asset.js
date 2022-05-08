@@ -7,7 +7,7 @@ const process = require('process');
 
 let baseDir = path.dirname(require.main.filename);
 
-if (baseDir.endsWith('src')) {
+if (baseDir.endsWith('/src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
@@ -20,20 +20,23 @@ if (!fs.existsSync(HG_ASSET_PATH)) {
 }
 
 const getHash = (str) => {
+    // console.log('creating hash from str ' + str);
     const shasum = crypto.createHash('sha1');
+    // console.log(str);
+    // console.log(shasum);
     shasum.update(str);
     return shasum.digest('hex');
 }
 
-const downloadFile = (uri, path) => new Promise((resolve, reject) => {
-    const fileHash = getHash(uri);
+const downloadFile = (assetId, path) => new Promise((resolve, reject) => {
+    const fileHash = getHash(assetId);
     const filePath = `${path}/${fileHash}`;
 
     const writeStream = fs.createWriteStream(filePath);
-    const getModule = uri.startsWith('https') ? https : http;
+    const getModule = https;
 
     let data = '';
-    getModule.get(uri, (res) => {
+    getModule.get(`https://assets.homegames.io/${assetId}`, (res) => {
         res.on('data', (chunk) => {
             data += chunk;
             writeStream.write(chunk);
@@ -55,13 +58,13 @@ class Asset {
     }
 
     getFileLocation() {
-        const fileHash = getHash(this.info.location);
+        const fileHash = getHash(this.info.id);
         return `${HG_ASSET_PATH}/${fileHash}`;
     }
 
     existsLocally() {
         return new Promise((resolve, reject) => {
-            const fileLocation = this.getFileLocation(this.info.location);
+            const fileLocation = this.getFileLocation(this.info.id);
             fs.exists(fileLocation, (exists) => {
                 resolve(exists && fileLocation);
             });
@@ -70,12 +73,12 @@ class Asset {
 
     download(force) {
         return new Promise((resolve, reject) => {
-            this.existsLocally(this.info.location).then(fileLocation => {
+            this.existsLocally().then(fileLocation => {
                 if (fileLocation && !force) {
                     this.initialized = true;
                     resolve(fileLocation);
                 } else {
-                    downloadFile(this.info.location, HG_ASSET_PATH).then((fileLocation) => {
+                    downloadFile(this.info.id, HG_ASSET_PATH).then((fileLocation) => {
                         this.initialized = true;
                         resolve(fileLocation);
                     });
@@ -85,13 +88,18 @@ class Asset {
     }
 
     getData() {
+        console.log('getting data');
+        console.log(this);
         return new Promise((resolve, reject) => {
             if (this.sourceType === 'url') {
                 this.download().then(fileLocation => {
+                    console.log('just saved a file to ' + fileLocation);
                     fs.readFile(fileLocation, (err, buf) => {
                         if (err) {
                             reject(err);
                         } else {
+                            console.log('this is buf');
+                            console.log(buf);
                             resolve(buf);//fs.readFile(fileLocation));
                         }
                     });

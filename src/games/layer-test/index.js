@@ -5,7 +5,7 @@ class LayerTest extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/layer-test.png'
+            thumbnail: 'f103961541614b68c503a9ae2fd4cc47'
         };
     }
 

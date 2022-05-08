@@ -1,4 +1,5 @@
-const { Squisher } = require('squish-0710');
+// const { Squisher } = require('squish-0710');
+const { Squisher } = require('squishjs');
 const { generateName } = require('./common/util');
 const HomegamesRoot = require('./homegames_root/HomegamesRoot');
 
@@ -49,10 +50,8 @@ class GameSession {
 
     handleSquisherUpdate(squished) {
         for (const playerId in this.game.players) {
-            // console.log("doing this");
-            // console.log(this.squisher.playerStates[playerId]);
-            this.game.players[playerId].receiveUpdate(this.squisher.playerStates[playerId].flat());
-            // this.game.players[playerId].receiveUpdate(squished.flat());
+            const playerFrame = this.squisher.getPlayerFrame(playerId);
+            this.game.players[playerId].receiveUpdate(playerFrame.flat());
         }
 
         for (const playerId in this.spectators) {
@@ -75,8 +74,6 @@ class GameSession {
         const playerName = generateName();
 
         this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
-            // console.log('just updated ayy lmao')
-            // player.info.name = player.info.name || playerName;
             this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
             this.game._hgAddPlayer(player);
@@ -93,10 +90,6 @@ class GameSession {
 
             this.homegamesRoot.handleNewPlayer(player);
 
-            // ensure the squisher has game data for the new player
-            this.squisher.squish();
-            
-            player.receiveUpdate(this.squisher.playerStates[player.id].flat());
             player.addInputListener(this);
         });
     }

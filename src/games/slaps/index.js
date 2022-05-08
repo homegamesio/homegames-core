@@ -8,7 +8,7 @@ class Slaps extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0710',
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/slaps.png'
+            thumbnail: 'e9d61bd0a3ab307dfe077e363b24e64a'
         };
     }
 

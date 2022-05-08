@@ -16,7 +16,7 @@ class SpriteTest extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0710',
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/sprite-test.png',
+            thumbnail: 'd8a39042ae0d7829b83f5c0280dc8230',
             assets: {
                 'dance0': new Asset('url', {
                     'location': danceFrames['dance0'],

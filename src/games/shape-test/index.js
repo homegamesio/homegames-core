@@ -11,7 +11,7 @@ class ShapeTest extends Game {
             author: 'Joseph Garcia',
             squishVersion: '0710',
             name: 'Shape Test',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/shape-test.png'
+            thumbnail: 'e5eea80e9a43152a4b65811cd648228d'
         };
     }
 

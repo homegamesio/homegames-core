@@ -53,7 +53,7 @@ let sessionIdCounter = 1;
 // https://coolors.co/99621e-d38b5d-f3ffb6-739e82-2c5530
 // const DASHBOARD_COLOR = [69, 100, 150, 255];
 
-const OPTION_COLOR = [255, 0, 0, 255];
+const OPTION_COLOR = [251, 255, 242, 255];
 const BASE_COLOR = [251, 255, 242, 255];
 const SEARCH_BOX_COLOR = [241, 112, 111, 255];
 const DASHBOARD_TEXT_COLOR = COLORS.ALMOST_BLACK;
@@ -81,7 +81,6 @@ const optionHeight = (gameContainerHeight - ((rowsPerPage - 1) * gameTopYMargin)
 
 console.log("option is " + optionWidth + " wide, " + optionHeight + " high");
 
-const DEFAULT_GAME_THUMBNAIL = getConfigValue('DEFAULT_GAME_THUMBNAIL', 'https://d3lgoy70hwd3pc.cloudfront.net/logo.png');
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 250);
 
 const GAME_DIRECTORY = path.resolve(getConfigValue('GAME_DIRECTORY', 'hg-games'));
@@ -131,8 +130,7 @@ class HomegamesDashboard extends ViewableGame {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/layer-test.png'
+            author: 'Joseph Garcia'
         };
     }
 
@@ -141,26 +139,18 @@ class HomegamesDashboard extends ViewableGame {
 
         this.assets = {
             'default': new Asset('url', {
-                'location': DEFAULT_GAME_THUMBNAIL,
+                'id': 'ff745468e1b725445c65245ce044da21',
                 'type': 'image'
             }),
             'dashboardSong': new Asset('url', {
-                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/assets/testsong.mp3',
+                'id': 'd9f097268324319d07a903cb50dc7210',
                 type: 'audio'
-            }),
-            'logo': new Asset('url', {
-                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
-                'type': 'image'
-            }),
-            'settings-gear': new Asset('url', {
-                'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/settings_gear.png',
-                'type': 'image'
             })
         };
 
 
         const thang = () => new Promise((resolve, reject) => {
-            console.log('tyusosdhuf')
+            console.log('tyusosdhuf');
             thangHelper(GAME_DIRECTORY, new Set()).then(resolve);//('ayy lmao'));
         });
 
@@ -231,7 +221,7 @@ class HomegamesDashboard extends ViewableGame {
 
         Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
             this.assets[key] = new Asset('url', {
-                'location': games[key].metadata && games[key].metadata().thumbnail,
+                'id': games[key].metadata && games[key].metadata().thumbnail,
                 'type': 'image'
             });
         });

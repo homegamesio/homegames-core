@@ -1,12 +1,16 @@
 const path = require('path');
-const baseDir = path.dirname(require.main.filename);
+
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('/src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
+
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 const http = require('http');
 
 const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
     const host = 'http://localhost:' + getConfigValue('HOMENAMES_PORT');
-    console.log('jhkdsf');
-    console.log(path)
     http.get(`${host}${path}`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
@@ -73,6 +77,7 @@ class HomenamesHelper {
                 console.log(err);
             });
 		});
+        console.log('what abc');
 	}
 
     getPlayerSettings(playerId) {
@@ -81,16 +86,21 @@ class HomenamesHelper {
                 console.log('watttt');
                 console.log(err);
             });
-        });   
+        });
+        console.log('what def');   
     }
 
 	updatePlayerInfo(playerId, { playerName }) {
+
+        console.log('what ghi');
 		return new Promise((resolve, reject) => {
 			makePost('/' + playerId + '/info', { name: playerName }).then(resolve);
 		});
 	}
 
     updatePlayerSetting(playerId, settingKey, value) {
+
+        console.log('what jkl');
         return new Promise((resolve, reject) => {
             makePost('/' + playerId + '/settings', {[settingKey]: value}).then(resolve);
         });

@@ -21,20 +21,12 @@ class HomegamesRoot {
     static metadata() {
         return {
             assets: {
-                'settings-gear': new Asset('url', {
-                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/assets/settings_gear.png',
-                    'type': 'image'
-                }),
-                'home-button': new Asset('url', {
-                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
-                    'type': 'image'
-                }),
                 'frame': new Asset('url', {
-                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/frame.jpg',
+                    'id': 'c299f1f7e24d03e59cb569f5815bfe2f',
                     'type': 'image'
                 }),
                 'logo-horizontal': new Asset('url', {
-                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/logo_horizontal.png',
+                    'id': '31b81479f187d9ab6aa6845e0794b4be',
                     'type': 'image'
                 })
             }

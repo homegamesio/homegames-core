@@ -12,7 +12,7 @@ class Quarantine extends Game {
             squishVersion: '0710',
             players: 2,
             name: 'Quarantine Questions',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/quarantine-questions.png'
+            thumbnail: '6c7eb394c378cc82425bf5850ebaaff9'
         };
     }
 
