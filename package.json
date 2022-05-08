@@ -30,6 +30,7 @@
     "homegames-common": "0.1.34",
     "process-stats": "^3.5.5",
     "squish-0710": "npm:squishjs@0.7.1",
+    "squish-0712": "npm:squishjs@0.7.2",
     "ws": "7.4.6"
   }
 }
