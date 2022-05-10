@@ -412,6 +412,9 @@ class HomegamesDashboard extends ViewableGame {
             activeSessions, 
             playerId: player.id, 
             gameMetadata, 
+            onJoinSession: (session) => {
+                this.joinSession(player, session);
+            },
             onCreateSession: () => {
                 this.startSession(player, gameKey, versionKey);
             }, 

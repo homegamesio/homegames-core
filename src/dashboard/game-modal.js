@@ -167,7 +167,7 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
 					shapeType: Shapes.POLYGON,
 					coordinates2d: ShapeUtils.rectangle(60, startingY + (10 * i), 30, 8),
 					fill: COLORS.WHITE,
-					onClick: () => onJoinSession(pageContent[i].id)
+					onClick: () => onJoinSession(pageContent[i])
 				});
 
 				const optionText = new GameNode.Text({
