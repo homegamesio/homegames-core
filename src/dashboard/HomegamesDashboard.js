@@ -2,9 +2,12 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0710');
+// const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0710');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squishjs');
+
 const unzipper = require('unzipper');
 const fs = require('fs');
+const gameModal = require('./game-modal');
 
 const COLORS = Colors.COLORS;
 
@@ -397,169 +400,177 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     showGameModal(gameCollection, player, gameKey, versionKey = null) {
-        const game = gameCollection[gameKey];
         const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].root;
 
-        const modalBase = new GameNode.Shape({
-            coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 95),
-            fill: COLORS.LIGHT_CORAL,
-            shapeType: Shapes.POLYGON
-        });
+        const gameMetadata = gameCollection[gameKey].metadata && gameCollection[gameKey].metadata() || {};
 
-        const closeButton = new GameNode.Shape({
-            coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 10, 10),
-            fill: COLORS.HARD_ORANGE_RED,
-            shapeType: Shapes.POLYGON,
-            onClick: (player) => {
-                console.log('close');
-                playerViewRoot.removeChild(modalBase.node.id);
-            }
-        });
+        const modal = gameModal({ gameKey, playerId: player.id, gameMetadata, onClose: () => {
+            playerViewRoot.removeChild(modal.node.id);  
+        }});
 
-        const closeX = new GameNode.Text({
-            textInfo: {
-                x: 7.5,
-                y: 4.5,
-                text: 'X',
-                align: 'center',
-                color: COLORS.WHITE,
-                size: 3
-            }
-        });
+        // const game = gameCollection[gameKey];
+        
+        
+        // const modalBase = new GameNode.Shape({
+        //     coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 95),
+        //     fill: COLORS.LIGHT_CORAL,
+        //     shapeType: Shapes.POLYGON
+        // });
 
-        const assetKey = gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().thumbnail ? gameKey : 'default';
+        // const closeButton = new GameNode.Shape({
+        //     coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 10, 10),
+        //     fill: COLORS.HARD_ORANGE_RED,
+        //     shapeType: Shapes.POLYGON,
+        //     onClick: (player) => {
+        //         console.log('close');
+        //         playerViewRoot.removeChild(modalBase.node.id);
+        //     }
+        // });
 
-        const imgCoords = [27.5, 12.5, 45, 45];
-        const gameImage = new GameNode.Asset({
-            coordinates2d:  ShapeUtils.rectangle(imgCoords[0], imgCoords[1], imgCoords[2], imgCoords[3]),
-            assetInfo: {
-                [assetKey]: {
-                    pos: {
-                        x: imgCoords[0],
-                        y: imgCoords[1]
-                    },
-                    size: {
-                        x: imgCoords[2],
-                        y: imgCoords[3]
-                    }
-                }
-            }
-        });
+        // const closeX = new GameNode.Text({
+        //     textInfo: {
+        //         x: 7.5,
+        //         y: 4.5,
+        //         text: 'X',
+        //         align: 'center',
+        //         color: COLORS.WHITE,
+        //         size: 3
+        //     }
+        // });
 
-        const gameName = new GameNode.Text({
-            textInfo: {
-                text: assetKey,
-                x: 50,
-                y: 5,
-                color: COLORS.WHITE,
-                size: 1.5,
-                align: 'center'
-            }
-        });
+        // const assetKey = gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().thumbnail ? gameKey : 'default';
 
-        const author = new GameNode.Text({
-            textInfo: {
-                text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().author || 'Unknown author',
-                x: 50,
-                y: 9,
-                color: COLORS.ALMOST_BLACK,
-                size: 0.9,
-                align: 'center'
-            }
-        });
+        // const imgCoords = [27.5, 12.5, 45, 45];
+        // const gameImage = new GameNode.Asset({
+        //     coordinates2d:  ShapeUtils.rectangle(imgCoords[0], imgCoords[1], imgCoords[2], imgCoords[3]),
+        //     assetInfo: {
+        //         [assetKey]: {
+        //             pos: {
+        //                 x: imgCoords[0],
+        //                 y: imgCoords[1]
+        //             },
+        //             size: {
+        //                 x: imgCoords[2],
+        //                 y: imgCoords[3]
+        //             }
+        //         }
+        //     }
+        // });
 
-        const description = new GameNode.Text({
-            textInfo: {
-                x: 27.5,
-                y: 65,
-                text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().description || 'No description available',
-                align: 'left',
-                size: 0.6,
-                color: COLORS.WHITE
-            }
-        });
+        // const gameName = new GameNode.Text({
+        //     textInfo: {
+        //         text: assetKey,
+        //         x: 50,
+        //         y: 5,
+        //         color: COLORS.WHITE,
+        //         size: 1.5,
+        //         align: 'center'
+        //     }
+        // });
 
-        const sessionText = new GameNode.Text({
-            textInfo: {
-                x: 15,
-                y: 17.5,
-                text: 'Join an existing session',
-                color: COLORS.WHITE,
-                align: 'center',
-                size: 1.2
-            }
-        });
+        // const author = new GameNode.Text({
+        //     textInfo: {
+        //         text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().author || 'Unknown author',
+        //         x: 50,
+        //         y: 9,
+        //         color: COLORS.ALMOST_BLACK,
+        //         size: 0.9,
+        //         align: 'center'
+        //     }
+        // });
 
-        let yIndex = 22.5;
+        // const description = new GameNode.Text({
+        //     textInfo: {
+        //         x: 27.5,
+        //         y: 65,
+        //         text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().description || 'No description available',
+        //         align: 'left',
+        //         size: 0.6,
+        //         color: COLORS.WHITE
+        //     }
+        // });
 
-        let count = 0;
-        const sessionList = Object.values(this.sessions).filter(session => {
-            return session.game === gameKey;
-        }).map(session => {
-            const sessionNode = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(10, yIndex, 10, 8),
-                fill: COLORS.GRAY,
-                onClick: (player, x, y) => {
-                    this.joinSession(player, session);
-                }
-            });
+        // const sessionText = new GameNode.Text({
+        //     textInfo: {
+        //         x: 15,
+        //         y: 17.5,
+        //         text: 'Join an existing session',
+        //         color: COLORS.WHITE,
+        //         align: 'center',
+        //         size: 1.2
+        //     }
+        // });
 
-            const sessionText = new GameNode.Text({
-                textInfo: {
-                    x: 15,
-                    y: yIndex + 3,
-                    size: 0.8,
-                    color: COLORS.WHITE,
-                    align: 'center',
-                    text: `Session ${session.id}`
-                }
-            });
+        // let yIndex = 22.5;
 
-            yIndex += 10;
-            sessionNode.addChild(sessionText);
-            return sessionNode;
-        });
+        // let count = 0;
+        // const sessionList = Object.values(this.sessions).filter(session => {
+        //     return session.game === gameKey;
+        // }).map(session => {
+        //     const sessionNode = new GameNode.Shape({
+        //         shapeType: Shapes.POLYGON,
+        //         coordinates2d: ShapeUtils.rectangle(10, yIndex, 10, 8),
+        //         fill: COLORS.GRAY,
+        //         onClick: (player, x, y) => {
+        //             this.joinSession(player, session);
+        //         }
+        //     });
 
-        const createButton = new GameNode.Shape({
-            fill: COLORS.COOL_GREEN,
-            coordinates2d: ShapeUtils.rectangle(75, 22.5, 20, 15),
-            shapeType: Shapes.POLYGON,
-            onClick: () => {
-                this.startSession(player, gameKey, versionKey);
-            }
-        });
+        //     const sessionText = new GameNode.Text({
+        //         textInfo: {
+        //             x: 15,
+        //             y: yIndex + 3,
+        //             size: 0.8,
+        //             color: COLORS.WHITE,
+        //             align: 'center',
+        //             text: `Session ${session.id}`
+        //         }
+        //     });
 
-        const createIcon = new GameNode.Text({
-            textInfo: {
-                color: COLORS.ALMOST_BLACK,
-                x: 85, 
-                y: 25,
-                text: '\u1405',
-                align: 'center',
-                size: 5
-            }
-        });
+        //     yIndex += 10;
+        //     sessionNode.addChild(sessionText);
+        //     return sessionNode;
+        // });
 
-        const createText = new GameNode.Text({
-            textInfo: {
-                x: 85,
-                y: 17.5, 
-                text: 'Create a session',
-                color: COLORS.WHITE,
-                size: 1.3,
-                align: 'center'
-            }
-        });
+        // const createButton = new GameNode.Shape({
+        //     fill: COLORS.COOL_GREEN,
+        //     coordinates2d: ShapeUtils.rectangle(75, 22.5, 20, 15),
+        //     shapeType: Shapes.POLYGON,
+        //     onClick: () => {
+        //         this.startSession(player, gameKey, versionKey);
+        //     }
+        // });
 
-        createButton.addChildren(createText, createIcon);
+        // const createIcon = new GameNode.Text({
+        //     textInfo: {
+        //         color: COLORS.ALMOST_BLACK,
+        //         x: 85, 
+        //         y: 25,
+        //         text: '\u1405',
+        //         align: 'center',
+        //         size: 5
+        //     }
+        // });
 
-        closeButton.addChildren(closeX);
+        // const createText = new GameNode.Text({
+        //     textInfo: {
+        //         x: 85,
+        //         y: 17.5, 
+        //         text: 'Create a session',
+        //         color: COLORS.WHITE,
+        //         size: 1.3,
+        //         align: 'center'
+        //     }
+        // });
 
-        sessionList.forEach(sessionNode => modalBase.addChild(sessionNode));
-        modalBase.addChildren(closeButton, gameName, author, gameImage, description, sessionText, createButton);
+        // createButton.addChildren(createText, createIcon);
 
-        playerViewRoot.addChild(modalBase);
+        // closeButton.addChildren(closeX);
+
+        // sessionList.forEach(sessionNode => modalBase.addChild(sessionNode));
+        // modalBase.addChildren(closeButton, gameName, author, gameImage, description, sessionText, createButton);
+
+        playerViewRoot.addChild(modal);
     }
 
     getAssets() {
@@ -793,48 +804,56 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     handleNewPlayer(player) {
-        const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
-
-        const playerNodeRoot = new GameNode.Shape({
+        const color = Colors.randomColor();
+        console.log("RANDOM COLOR");
+        console.log(color);
+        this.getViewRoot().addChild(new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            fill: color,
+            coordinates2d: ShapeUtils.rectangle(0,0, 100, 100),
             playerIds: [player.id]
-        });
+        }));
+        // const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
 
-        this.playerViews[player.id] = {
-            view: playerView,
-            root: playerNodeRoot,
-        }
+        // const playerNodeRoot = new GameNode.Shape({
+        //     shapeType: Shapes.POLYGON,
+        //     coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+        //     playerIds: [player.id]
+        // });
 
-        this.renderGames(player, {});
+        // this.playerViews[player.id] = {
+        //     view: playerView,
+        //     root: playerNodeRoot,
+        // }
 
-        this.getViewRoot().addChild(playerNodeRoot);
+        // this.renderGames(player, {});
 
-        if (player.requestedGame) {
-            const { gameId, versionId } = player.requestedGame;
+        // // this.getViewRoot().addChild(playerNodeRoot);
 
-           https.get(`https://landlord.homegames.io/games/${gameId}/version/${versionId}`, (res) => {
-               if (res.statusCode == 200) {
-                   res.on('data', (buf) => {
-                       const gameData = JSON.parse(buf);
-                       if (!this.downloadedGames[gameId]) {
-                            this.downloadedGames[gameId] = {};
-                       }
+        // if (player.requestedGame) {
+        //     const { gameId, versionId } = player.requestedGame;
 
-                       this.downloadedGames[gameId][versionId] = gameData;
-                       console.log('thisd fgsdfg');
-                       console.log(this.downloadedGames);
-                       this.showGameModal(this.downloadedGames, player, gameId, versionId);
-                   });
-               } else {
-                   console.log('dont know what happened');
-               }
-           });
-        }
+        //    https.get(`https://landlord.homegames.io/games/${gameId}/version/${versionId}`, (res) => {
+        //        if (res.statusCode == 200) {
+        //            res.on('data', (buf) => {
+        //                const gameData = JSON.parse(buf);
+        //                if (!this.downloadedGames[gameId]) {
+        //                     this.downloadedGames[gameId] = {};
+        //                }
+
+        //                this.downloadedGames[gameId][versionId] = gameData;
+        //                console.log('thisd fgsdfg');
+        //                console.log(this.downloadedGames);
+        //                this.showGameModal(this.downloadedGames, player, gameId, versionId);
+        //            });
+        //        } else {
+        //            console.log('dont know what happened');
+        //        }
+        //    });
+        // }
     }
 
     renderGames(player, {results, query}) {
-        console.log('what');
         const playerView = this.playerViews[player.id].view;
         // const existingViewNode = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
         

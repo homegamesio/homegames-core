@@ -15,7 +15,7 @@ const soundSettingContainer = ({ playerId, onToggle }) => {
 
 	const soundSettingContainer = new GameNode.Shape({
 		shapeType: Shapes.POLYGON,
-		coordinates2d: ShapeUtils.rectangle(16, 64, 35, 16),
+		coordinates2d: ShapeUtils.rectangle(16, 56, 35, 16),
 		fill: [251, 255, 242, 255],
 		onClick: handleClick,
 		playerIds: [playerId]
@@ -31,7 +31,7 @@ const soundSettingContainer = ({ playerId, onToggle }) => {
 		const soundEnabledText = new GameNode.Text({
 			textInfo: {
 				x: 17,
-				y: 70,
+				y: 62,
 				text: `Sound: ${soundEnabled ? 'on' : 'off'}`,
 				align: 'left',
 				size: 1.5,
@@ -85,28 +85,26 @@ const nameSettingContainer = ({ playerId, onNameChange }) => {
 };
 
 const closeContainer = ({ playerId, onRemove }) => {
-	const container = new GameNode.Shape({
+	const closeButton = new GameNode.Shape({
+        coordinates2d: ShapeUtils.rectangle(15, 15, 6, 8),
+        fill: COLORS.HG_RED,
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(16, 16, 4, 7),
-        fill: COLORS.HG_BLUE,
-        onClick: onRemove,
-        playerIds: [playerId]
-    });        
+        onClick: onRemove
+    });
 
-    const closeButton = new GameNode.Text({
+    const closeX = new GameNode.Text({
         textInfo: {
             x: 18,
             y: 16,
-            color: COLORS.HG_BLACK,
-            text: '\u2715',
+            text: 'X',
             align: 'center',
+            color: [251, 255, 242, 255],
             size: 3
         }
     });
+    closeButton.addChild(closeX);
 
-    container.addChild(closeButton);
-
-    return container;
+    return closeButton;
 }
 
 const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundToggle }) => {
