@@ -2,8 +2,7 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-// const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0710');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squishjs');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0730');
 
 const unzipper = require('unzipper');
 const fs = require('fs');
@@ -404,9 +403,22 @@ class HomegamesDashboard extends ViewableGame {
 
         const gameMetadata = gameCollection[gameKey].metadata && gameCollection[gameKey].metadata() || {};
 
-        const modal = gameModal({ gameKey, playerId: player.id, gameMetadata, onClose: () => {
-            playerViewRoot.removeChild(modal.node.id);  
-        }});
+        const activeSessions = Object.values(this.sessions).filter(session => {
+            return session.game === gameKey;
+        });
+
+        const modal = gameModal({ 
+            gameKey, 
+            activeSessions, 
+            playerId: player.id, 
+            gameMetadata, 
+            onCreateSession: () => {
+                this.startSession(player, gameKey, versionKey);
+            }, 
+            onClose: () => {
+                playerViewRoot.removeChild(modal.node.id);  
+            }
+        });
 
         // const game = gameCollection[gameKey];
         
@@ -804,53 +816,44 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     handleNewPlayer(player) {
-        const color = Colors.randomColor();
-        console.log("RANDOM COLOR");
-        console.log(color);
-        this.getViewRoot().addChild(new GameNode.Shape({
+        const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
+
+        const playerNodeRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            fill: color,
-            coordinates2d: ShapeUtils.rectangle(0,0, 100, 100),
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
             playerIds: [player.id]
-        }));
-        // const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
+        });
 
-        // const playerNodeRoot = new GameNode.Shape({
-        //     shapeType: Shapes.POLYGON,
-        //     coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
-        //     playerIds: [player.id]
-        // });
+        this.playerViews[player.id] = {
+            view: playerView,
+            root: playerNodeRoot,
+        }
 
-        // this.playerViews[player.id] = {
-        //     view: playerView,
-        //     root: playerNodeRoot,
-        // }
+        this.renderGames(player, {});
 
-        // this.renderGames(player, {});
+        this.getViewRoot().addChild(playerNodeRoot);
 
-        // // this.getViewRoot().addChild(playerNodeRoot);
+        if (player.requestedGame) {
+            const { gameId, versionId } = player.requestedGame;
 
-        // if (player.requestedGame) {
-        //     const { gameId, versionId } = player.requestedGame;
+           https.get(`https://landlord.homegames.io/games/${gameId}/version/${versionId}`, (res) => {
+               if (res.statusCode == 200) {
+                   res.on('data', (buf) => {
+                       const gameData = JSON.parse(buf);
+                       if (!this.downloadedGames[gameId]) {
+                            this.downloadedGames[gameId] = {};
+                       }
 
-        //    https.get(`https://landlord.homegames.io/games/${gameId}/version/${versionId}`, (res) => {
-        //        if (res.statusCode == 200) {
-        //            res.on('data', (buf) => {
-        //                const gameData = JSON.parse(buf);
-        //                if (!this.downloadedGames[gameId]) {
-        //                     this.downloadedGames[gameId] = {};
-        //                }
-
-        //                this.downloadedGames[gameId][versionId] = gameData;
-        //                console.log('thisd fgsdfg');
-        //                console.log(this.downloadedGames);
-        //                this.showGameModal(this.downloadedGames, player, gameId, versionId);
-        //            });
-        //        } else {
-        //            console.log('dont know what happened');
-        //        }
-        //    });
-        // }
+                       this.downloadedGames[gameId][versionId] = gameData;
+                       console.log('thisd fgsdfg');
+                       console.log(this.downloadedGames);
+                       this.showGameModal(this.downloadedGames, player, gameId, versionId);
+                   });
+               } else {
+                   console.log('dont know what happened');
+               }
+           });
+        }
     }
 
     renderGames(player, {results, query}) {
