@@ -36,11 +36,11 @@ class HomegamesRoot {
         return this.topLayerRoot;
     }
 
-    constructor(game, isDashboard, profiling) {
+    constructor(session, isDashboard, profiling) {
         this.isDashboard = isDashboard;
         this.profiling = profiling;
         this.renderTimes = [];
-        this.game = game;
+        this.session = session;
         this.homenamesHelper = new HomenamesHelper();
 
         this.gameAssets = {};
@@ -87,7 +87,7 @@ class HomegamesRoot {
            player.receiveUpdate([5, 70, 1]);
        };
 
-       const gameAspectRatio = game.constructor.metadata && game.constructor.metadata().aspectRatio;
+       const gameAspectRatio = this.session.game.constructor.metadata && this.session.game.constructor.metadata().aspectRatio;
        let aspectRatio;
        if (gameAspectRatio) {
            aspectRatio = gameAspectRatio;
@@ -154,6 +154,8 @@ class HomegamesRoot {
            this.frameStates[player.id] = playerFrame;
            this.frameRoot.addChild(playerFrame);
 
+            console.log('player info should be guaranteed here');
+            console.log(this.session.playerInfoMap);
            this.updateLabels();
        });
     }
@@ -234,11 +236,12 @@ class HomegamesRoot {
             
             playerFrame.clearChildren();
 
+            console.log('ayo iii ');
+            console.log(playerFrame.node.playerIds);
+            console.log(this.session.playerInfoMap);
+            // console.log(this.session);
             const playerId = playerFrame.node.playerIds[0];
-            const player = this.game.players[playerId] || this.game.spectators[playerId];
-            if (!player) {
-                return;
-            }
+            const playerInfo = this.session.playerInfoMap[playerId];
 
             const settingsButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
@@ -258,7 +261,7 @@ class HomegamesRoot {
                        },
             });
 
-            this.homenamesHelper.getPlayerInfo(playerId).then(playerInfo => {
+            // this.homenamesHelper.getPlayerInfo(playerId).then(playerInfo => {
                 const labelText = new GameNode.Text({
                     textInfo: {
                         text: playerInfo.name || 'unknown',
@@ -275,72 +278,74 @@ class HomegamesRoot {
                 });
         
                 settingsButton.addChild(labelText);
-            });
+            // });
             playerFrame.addChild(settingsButton);
 
             if (!this.isDashboard) {
-                const isSpectator = this.game.spectators && this.game.spectators[playerId] && true || false;
+                // const isSpectator = this.game.spectators && this.game.spectators[playerId] && true || false;
 
-                let button;
-                if (isSpectator) {
-                    const label = new GameNode.Text({
-                        textInfo: {
-                            text: 'Join game',
-                            x: 15,
-                            y: 1,
-                            size: 0.7,
-                            color: COLORS.WHITE,
-                            align: 'center'
-                        },
-                        playerIds: [playerId]
-                    });
+                // let button;
+                // if (isSpectator) {
+                //     const label = new GameNode.Text({
+                //         textInfo: {
+                //             text: 'Join game',
+                //             x: 15,
+                //             y: 1,
+                //             size: 0.7,
+                //             color: COLORS.WHITE,
+                //             align: 'center'
+                //         },
+                //         playerIds: [playerId]
+                //     });
 
-                    button = new GameNode.Shape({
-                        shapeType: Shapes.POLYGON,
-                        coordinates2d: ShapeUtils.rectangle(10, 0, 10, 3),
-                        fill: COLORS.HG_BLUE,
-                        onClick: (player, x, y) => {
+                //     button = new GameNode.Shape({
+                //         shapeType: Shapes.POLYGON,
+                //         coordinates2d: ShapeUtils.rectangle(10, 0, 10, 3),
+                //         fill: COLORS.HG_BLUE,
+                //         onClick: (player, x, y) => {
                             
-                            player.receiveUpdate([5, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
-                        },
-                        playerIds: [playerId]
-                    });
+                //             player.receiveUpdate([5, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
+                //         },
+                //         playerIds: [playerId]
+                //     });
 
 
-                    button.addChild(label);
-                } else if (Object.values(this.game.players).length > 1) {
-                    const label = new GameNode.Text({
-                        textInfo: {
-                            text: 'Switch to spectator',
-                            x: 15,
-                            y: 1,
-                            size: 0.7,
-                            color: COLORS.WHITE,
-                            align: 'center'
-                        },
-                        playerIds: [playerId]
-                    });
+                //     button.addChild(label);
+                // } else 
+                // if (Object.values(this.game.players).length > 1) {
+                //     const label = new GameNode.Text({
+                //         textInfo: {
+                //             text: 'Switch to spectator',
+                //             x: 15,
+                //             y: 1,
+                //             size: 0.7,
+                //             color: COLORS.WHITE,
+                //             align: 'center'
+                //         },
+                //         playerIds: [playerId]
+                //     });
 
-                    button = new GameNode.Shape({
-                        shapeType: Shapes.POLYGON,
-                        coordinates2d: ShapeUtils.rectangle(10, 0, 10, 3),
-                        fill: COLORS.HG_BLUE,
-                        onClick: (player, x, y) => {
-                            player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
-                            //player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
-                        }, 
-                        playerIds: [playerId]
-                    });
+                //     button = new GameNode.Shape({
+                //         shapeType: Shapes.POLYGON,
+                //         coordinates2d: ShapeUtils.rectangle(10, 0, 10, 3),
+                //         fill: COLORS.HG_BLUE,
+                //         onClick: (player, x, y) => {
+                //             player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
+                //             //player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
+                //         }, 
+                //         playerIds: [playerId]
+                //     });
 
-                    button.addChild(label);
-                } else {
-//                    playerFrame.node.coordinates2d = playerFrame.node.coordinates2d;
-                }
+                //     button.addChild(label);
+                // } 
+//                 else {
+// //                    playerFrame.node.coordinates2d = playerFrame.node.coordinates2d;
+//                 }
 
-                if (button) {
-                    // add spectator button back later
-                    // playerFrame.addChild(button)
-                }
+//                 if (button) {
+//                     // add spectator button back later
+//                     // playerFrame.addChild(button)
+//                 }
             }
         }
     }

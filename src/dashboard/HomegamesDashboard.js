@@ -827,6 +827,9 @@ class HomegamesDashboard extends ViewableGame {
 
     handleNewPlayer(player) {
 
+        console.log('adddddding player');
+        console.log(player);
+
         const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
 
         const playerNodeRoot = new GameNode.Shape({

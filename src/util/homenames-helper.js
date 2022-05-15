@@ -67,7 +67,9 @@ const makePost = (path, _payload) => new Promise((resolve, reject) => {
 });
 
 class HomenamesHelper {
-	constructor() {
+	constructor(sessionPort) {
+        this.sessionPort = sessionPort;
+        this.playerListeners = {};
 	}
 
 	getPlayerInfo(playerId) {
@@ -79,6 +81,17 @@ class HomenamesHelper {
 		});
         console.log('what abc');
 	}
+
+    addListener(playerId, cb) {//=> new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
+            makePost('/add_listener', { playerId, sessionPort: this.sessionPort }).then(resolve).catch(reject);
+        });
+        // if (!this.playerListeners[playerId]) {
+        //     this.playerListeners[playerId] = new Set();
+        // }
+
+        // this.playerListeners[playerId].add(cb);
+    }
 
     getPlayerSettings(playerId) {
         return new Promise((resolve, reject) => {

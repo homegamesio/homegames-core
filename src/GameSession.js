@@ -22,8 +22,11 @@ class GameSession {
         this.game = game;
         this.port = port;
         this.spectators = {};
-        this.homenamesHelper = new HomenamesHelper();
-        this.homegamesRoot = new HomegamesRoot(game, false, false);
+        this.homenamesHelper = new HomenamesHelper(this.port);
+
+        this.playerInfoMap = {};
+
+        this.homegamesRoot = new HomegamesRoot(this, false, false);
         this.customBottomLayer = {
             root: this.homegamesRoot.getRoot(),
             scale: {x: 1, y: 1},
@@ -45,17 +48,22 @@ class GameSession {
         this.squisher.addListener((squished) => {this.handleSquisherUpdate(squished)});//this.handleSquisherUpdate);
         this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
         this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
+
+        this.players = {};
+        this.spectators = {};
     }
 
     handleSquisherUpdate(squished) {
-        for (const playerId in this.game.players) {
+        console.log('ayo');
+        console.log(this.players);
+        for (const playerId in this.players) {
             const playerFrame = this.squisher.getPlayerFrame(playerId);
-            this.game.players[playerId].receiveUpdate(playerFrame.flat());
+            this.players[playerId].receiveUpdate(playerFrame.flat());
         }
 
-        for (const playerId in this.spectators) {
-            this.spectators[playerId].receiveUpdate(this.squisher.playerFrames[playerId]);
-        }
+        // for (const playerId in this.spectators) {
+        //     this.spectators[playerId].receiveUpdate(this.squisher.playerFrames[playerId]);
+        // }
     }
 
     addSpectator(spectator) {
@@ -70,27 +78,42 @@ class GameSession {
         if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
             player.receiveUpdate([5, 70, 0]);
         }
-        const playerName = generateName();
 
-        this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
-            this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+        this.players[player.id] = player;
+        console.log('ayo adding playerrrr ' + player.id);
 
-            this.game._hgAddPlayer(player);
-            this.game.handleNewPlayer && this.game.handleNewPlayer(player);
-            if (this.game.deviceRules && player.clientInfo) {
-                const deviceRules = this.game.deviceRules();
-                if (deviceRules.aspectRatio) {
-                    deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+        this.homenamesHelper.addListener(player.id, (playerInfo) => {
+            console.log('new playuer info');
+            console.log(playerInfo);
+        }).then(() => {
+            const playerName = generateName();
+
+            this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
+                this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+
+                this.game.handleNewPlayer && this.game.handleNewPlayer(player);
+                if (this.game.deviceRules && player.clientInfo) {
+                    const deviceRules = this.game.deviceRules();
+                    if (deviceRules.aspectRatio) {
+                        deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+                    }
+                    if (deviceRules.deviceType) {
+                        deviceRules.deviceType(player, player.clientInfo.deviceType)
+                    }
                 }
-                if (deviceRules.deviceType) {
-                    deviceRules.deviceType(player, player.clientInfo.deviceType)
-                }
-            }
 
-            this.homegamesRoot.handleNewPlayer(player);
+                this.homegamesRoot.handleNewPlayer(player);
 
-            player.addInputListener(this);
+                player.addInputListener(this);
+            });
         });
+    }
+
+    handlePlayerUpdate(playerId, newData) {
+        this.playerInfoMap[playerId] = newData;
+        // this.homegamesRoot.handlePlayerUpdate(playerId, newData);
+        // this.playerInfoMap[playerId] = newData;
+        this.game.handlePlayerUpdate && this.game.handlePlayerUpdate(playerId, newData);
     }
 
     handleSpectatorDisconnect(spectatorId) {
@@ -99,8 +122,8 @@ class GameSession {
     }
 
     handlePlayerDisconnect(playerId) {
+        delete this.players[playerId];
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
-        this.game._hgRemovePlayer(playerId);
         this.homegamesRoot.handlePlayerDisconnect(playerId);
     }
 

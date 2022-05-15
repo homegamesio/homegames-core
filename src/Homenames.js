@@ -1,5 +1,15 @@
 const WebSocket = require('ws');
 const http = require('http');
+const path = require('path');
+
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('/src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
+
+const { getConfigValue } = require(`${baseDir}/src/util/config`);
+
 
 class Homenames {
     constructor(port) {
@@ -7,6 +17,8 @@ class Homenames {
         
         this.playerInfo = {};
         this.playerSettings = {};
+        this.sessionClients = {};
+        this.playerListeners = {};
 
         const server = http.createServer((req, res) => {
             const reqPath = req.url.split('/');
@@ -31,11 +43,7 @@ class Homenames {
                 }
 
             } else if (req.method === 'POST') {
-                console.log('watt');
-                console.log(reqPath);
-
                 const playerId = reqPath[reqPath.length - 2];
-                console.log(playerId);
 
                 if (reqPath[reqPath.length - 1] === 'info') {
                     let body = '';
@@ -48,6 +56,7 @@ class Homenames {
                         res.statusCode = 200;
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify(this.playerInfo[playerId]));
+                        this.notifyListeners(playerId);
                     });
                 } else if (reqPath[reqPath.length - 1] === 'settings') {
                     let body = '';
@@ -64,9 +73,61 @@ class Homenames {
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify(this.playerSettings[playerId]));
                     });
+                } else if (reqPath[reqPath.length - 1] === 'add_listener') {
+                    let body = '';
+                    req.on('data', chunk => {
+                        body += chunk.toString(); 
+                    });
+
+                    req.on('end', () => {
+                        const payload = JSON.parse(body);
+                        console.log('need to know session port so I can send http request to that port when a player id updates');
+                        console.log(payload);
+
+                        // const port = getConfigValue('HOMENAMES_PORT')
+
+                        // console.log(port);
+                        const socketSession = new WebSocket(`ws://localhost:${payload.sessionPort}`);
+                        socketSession.on('open', () => {
+                            console.log('opened socket connection to session');
+                            this.sessionClients[payload.sessionPort] = socketSession;
+                            if (!this.playerListeners[payload.playerId]) {
+                                this.playerListeners[payload.playerId] = new Set();
+                            }
+
+                            this.playerListeners[payload.playerId].add(payload.sessionPort);
+
+                            res.end('alright');
+                        });
+                        // const newSettings = this.playerSettings[playerId] || {};
+                        // Object.assign(newSettings, payload);
+                        // this.playerSettings[playerId] = newSettings;
+                        // res.statusCode = 200;
+                        // res.setHeader('Content-Type', 'application/json');
+                        // res.end(JSON.stringify(this.playerSettings[playerId]));
+                    });
                 }
             }
         }).listen(port); 
+    }
+
+    notifyListeners(playerId) {
+        console.log('notifying listeners');
+        console.log(playerId);
+        console.log(this.playerListeners);
+        const sessionPorts = this.playerListeners[playerId];
+        console.log('session ports');
+        console.log(sessionPorts);
+        console.log(this.playerListeners);
+        if (sessionPorts) {
+            for (const port of sessionPorts) {
+                const sessionClient = this.sessionClients[port];
+                if (sessionClient) {
+                    sessionClient.send(JSON.stringify({type: 'homenames_update', playerId, payload: this.playerInfo[playerId]}));
+                }
+            }
+        }
+        // socketSession.send(JSON.stringify({type: 'homenames_listener', playerId: }));
     }
 }
 

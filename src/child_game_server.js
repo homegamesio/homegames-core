@@ -108,7 +108,7 @@ process.on('error', (err) => {
 const checkPulse = () => {
     // console.log(gameSession);
     // if ()
-    if (!gameSession || (Object.values(gameSession.game.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 5000) {
+    if (!gameSession || (Object.values(gameSession.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 5000) {
         console.log('killing myself');
         process.exit(0);
     }
