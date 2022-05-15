@@ -34,7 +34,7 @@ const startServer = (sessionInfo) => {
     console.log(sessionInfo);
 
     // let squishLib = require.resolve('squishjs');
-    let squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0710');
+    let squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0730');
 
     if (sessionInfo.gamePath) {
 
@@ -106,13 +106,15 @@ process.on('error', (err) => {
 });
 
 const checkPulse = () => {
-    if (!gameSession || (Object.values(gameSession.game.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 1000) {
+    // console.log(gameSession);
+    // if ()
+    if (!gameSession || (Object.values(gameSession.game.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 5000) {
         console.log('killing myself');
-        // process.exit(0);
+        process.exit(0);
     }
 };
 
-// short grace period to allow the first client to connect before checking heartbeat
+// short grace period of two to allow the first client to connect before checking heartbeat
 setTimeout(() => {
-    // setInterval(checkPulse, 500);
-}, 5000);
+    setInterval(checkPulse, 500);
+}, 2000);

@@ -170,6 +170,8 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
 					onClick: () => onJoinSession(pageContent[i])
 				});
 
+				console.log('ayooo');
+				console.log(pageContent);
 				const optionText = new GameNode.Text({
 					textInfo: {
 						x: 61,

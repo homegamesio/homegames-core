@@ -83,7 +83,7 @@ const optionHeight = (gameContainerHeight - ((rowsPerPage - 1) * gameTopYMargin)
 
 console.log("option is " + optionWidth + " wide, " + optionHeight + " high");
 
-const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 250);
+const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 500);
 
 const GAME_DIRECTORY = path.resolve(getConfigValue('GAME_DIRECTORY', 'hg-games'));
 console.log("GAME DIR");
@@ -203,21 +203,14 @@ class HomegamesDashboard extends ViewableGame {
 
         this.localGames = Object.assign({}, games);
         thang().then((stuff) => {
-            // console.log('got response:');
-            // console.log(stuff);
             let counter = 0;
             stuff.forEach(gamePath => {
                 const _game = require(gamePath);
-                // console.log('game!');
-                // console.log(_game);
-                // console.log(_game.name)
                 const gameMetadata = _game.metadata && _game.metadata() || null;
                 const suffix = gameMetadata && gameMetadata.version || counter++;
                 this.localGames[_game.name + '_' + suffix] = {game: _game, path: gamePath}; 
             });
             this.initializeGames(this.localGames);
-            // console.log('ayyyyyk sldfg');
-            // console.log(this.localGames);
         });
 
         Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
@@ -243,7 +236,12 @@ class HomegamesDashboard extends ViewableGame {
         this.sessions = {};
         this.requestCallbacks = {};
         this.requestIdCounter = 1;
-
+            
+        setInterval(() => {
+            for (let i in this.sessions) {
+                this.sessions[i].sendHeartbeat && this.sessions[i].sendHeartbeat();
+            }
+        }, CHILD_SESSION_HEARTBEAT_INTERVAL);
         // const baseSize = this.getBaseSize(games);
 
         // whiteBase.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
@@ -299,10 +297,16 @@ class HomegamesDashboard extends ViewableGame {
                     });
 
                     childSession.on('error', (err) => {
+                        this.sessions[sessionId] = {};
+                        
                         console.log('child session error');
                         console.log(err);
                     });
                     
+                    childSession.on('close', (err) => {
+                        this.sessions[sessionId] = {};
+                    });
+                    console.log('asss asss asss111');
                     this.sessions[sessionId] = {
                         id: sessionId,
                         game: gameKey,
@@ -362,8 +366,14 @@ class HomegamesDashboard extends ViewableGame {
             });
 
             childSession.on('error', (err) => {
+                this.sessions[sessionId] = {};
+                childSession.kill();
                 console.log('child session error');
                 console.log(err);
+            });
+            
+            childSession.on('close', (err) => {
+                this.sessions[sessionId] = {};
             });
             
             this.sessions[sessionId] = {
@@ -593,14 +603,11 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     initializeGames(gameCollection) {
-        console.log("ayyyy");
-        console.log(gameCollection);
         const gameCount = Object.keys(gameCollection).length;
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
         console.log('need ' + pagesNeeded + ' pages with ' + rowsPerPage + ' rows per page for ' + gameCount + ' games')
         let baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
 
-        console.log('dsfdsfds bah ' + baseSize);
         console.log(gameContainerHeight + gameContainerYMargin);
         // pages need to match height of game container to avoid the base getting cut off
         const paddingMultiplier = Math.ceil(baseSize / gameContainerHeight) / (baseSize / gameContainerHeight);
@@ -819,6 +826,7 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     handleNewPlayer(player) {
+
         const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
 
         const playerNodeRoot = new GameNode.Shape({
@@ -848,8 +856,6 @@ class HomegamesDashboard extends ViewableGame {
                        }
 
                        this.downloadedGames[gameId][versionId] = gameData;
-                       console.log('thisd fgsdfg');
-                       console.log(this.downloadedGames);
                        this.showGameModal(this.downloadedGames, player, gameId, versionId);
                    });
                } else {
