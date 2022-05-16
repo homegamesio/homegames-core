@@ -86,8 +86,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             console.log(jsonMessage);
             if (jsonMessage.type === 'homenames_update') {
                 console.log('its a homenames update');
-                console.log(jsonMessage.payload);
-                gameSession.handlePlayerUpdate(jsonMessage.playerId, jsonMessage.payload);
+                // console.log(jsonMessage.payload);
+                gameSession.handlePlayerUpdate(jsonMessage.playerId, { info: jsonMessage.info, settings: jsonMessage.settings });
             } else if (jsonMessage.type === 'ready') {
 
                 ws.removeListener('message', messageHandler);

@@ -54,11 +54,65 @@ class GameSession {
     }
 
     handleSquisherUpdate(squished) {
-        console.log('ayo');
-        console.log(this.players);
         for (const playerId in this.players) {
-            const playerFrame = this.squisher.getPlayerFrame(playerId);
-            this.players[playerId].receiveUpdate(playerFrame.flat());
+            // console.log('playuer id ' + playerId);
+            // console.log(this.playerInfoMap);
+            const playerInfo = this.playerInfoMap[playerId] || {};
+            
+            let playerFrame = this.squisher.getPlayerFrame(playerId);
+            
+            console.log('frame');
+            console.log(playerFrame);
+            if (playerInfo.settings) {
+                // console.log(playerInfo.settings);
+                if (!playerInfo.settings.SOUND || !playerInfo.settings.SOUND.enabled) {
+                    playerFrame = playerFrame.filter(f => {
+                        const unsquished = this.squisher.unsquish(f);
+                        if (unsquished.node.asset) {
+                            // console.log('assset');
+                            // console.log(unsquished.node.asset);
+                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
+                                // console.log('referneces an asset lol im dumb');
+                                // console.log(this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]);
+                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
+                                    return false;
+                                    // console.log('need to filter out audio!');
+                                }
+                            }
+                        }
+
+                        return true;
+                    })
+                    // for (let i = 0; i < playerFrame.length; i++) {
+                    //     // TODO: find a more performant way to do this filtering
+                    //     const unsquished = this.squisher.unsquish(playerFrame[i]);
+                    //     if (unsquished.node.asset) {
+                    //         // console.log('assset');
+                    //         // console.log(unsquished.node.asset);
+                    //         if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
+                    //             // console.log('referneces an asset lol im dumb');
+                    //             // console.log(this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]);
+                    //             if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
+                    //                 // console.log('need to filter out audio!');
+                    //             }
+                    //         }
+                    //     }
+                        // console.log('wasss');
+                        // console.log(this.squisher.unsquish(playerFrame[i]));
+                        // if (playerFrame[i][2] === 48) {
+                        //     console.log('plapssssss');
+                        // }
+                    // }
+                    // playerFrame = this.squisher.getPlayerFrame(playerId).filter(f => f[2] !== 48);
+                    // console.log('playuer frame');
+                    // console.log(playerFrame);
+                }
+            }
+
+            if (playerFrame) {
+
+                this.players[playerId].receiveUpdate(playerFrame.flat());
+            }
         }
 
         // for (const playerId in this.spectators) {
@@ -79,8 +133,8 @@ class GameSession {
             player.receiveUpdate([5, 70, 0]);
         }
 
+        console.log('sesion just got player');
         this.players[player.id] = player;
-        console.log('ayo adding playerrrr ' + player.id);
 
         this.homenamesHelper.addListener(player.id, (playerInfo) => {
             console.log('new playuer info');
@@ -89,6 +143,8 @@ class GameSession {
             const playerName = generateName();
 
             this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
+                this.homegamesRoot.handleNewPlayer(player);
+
                 this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
                 this.game.handleNewPlayer && this.game.handleNewPlayer(player);
@@ -101,8 +157,6 @@ class GameSession {
                         deviceRules.deviceType(player, player.clientInfo.deviceType)
                     }
                 }
-
-                this.homegamesRoot.handleNewPlayer(player);
 
                 player.addInputListener(this);
             });

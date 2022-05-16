@@ -130,6 +130,9 @@ class HomegamesRoot {
     }
 
     handleNewPlayer(player) {
+        console.log('homnenames helper just got new player');
+        // console.log('whahahahaha');
+        // console.log(player);
         this.homenamesHelper.getPlayerInfo(player.id).then((playerInfo) => {
            const playerFrame = new GameNode.Asset({
                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
@@ -339,7 +342,7 @@ class HomegamesRoot {
                 //     button.addChild(label);
                 // } 
 //                 else {
-// //                    playerFrame.node.coordinates2d = playerFrame.node.coordinates2d;
+                   playerFrame.node.coordinates2d = playerFrame.node.coordinates2d;
 //                 }
 
 //                 if (button) {

@@ -72,6 +72,7 @@ class Homenames {
                         res.statusCode = 200;
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify(this.playerSettings[playerId]));
+                        this.notifyListeners(playerId);
                     });
                 } else if (reqPath[reqPath.length - 1] === 'add_listener') {
                     let body = '';
@@ -123,7 +124,7 @@ class Homenames {
             for (const port of sessionPorts) {
                 const sessionClient = this.sessionClients[port];
                 if (sessionClient) {
-                    sessionClient.send(JSON.stringify({type: 'homenames_update', playerId, payload: this.playerInfo[playerId]}));
+                    sessionClient.send(JSON.stringify({type: 'homenames_update', playerId, info: this.playerInfo[playerId] || {}, settings: this.playerSettings[playerId] || {} }));
                 }
             }
         }
