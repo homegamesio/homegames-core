@@ -17,14 +17,31 @@ const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 const BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y; 
 
+const createPlayerPayload = (squishVersion, player, playerSettings, playerInfo) => {
+    // console.log('player payload');
+    // console.log(squishVersion);
+    // console.log(player);
+    if (squishVersion === '0730') {
+        return {
+            playerId: player.id,
+            info: playerInfo,
+            settings: playerSettings,
+            requestedGame: player.requestedGame || null
+        }
+    }
+
+    return {};
+}
+
 class GameSession {
     constructor(game, port) {
         this.game = game;
         this.port = port;
-        this.spectators = {};
-        this.homenamesHelper = new HomenamesHelper(this.port);
-
+        
+        this.playerSettingsMap = {};
         this.playerInfoMap = {};
+
+        this.homenamesHelper = new HomenamesHelper(this.port);
 
         this.homegamesRoot = new HomegamesRoot(this, false, false);
         this.customBottomLayer = {
@@ -61,8 +78,8 @@ class GameSession {
             
             let playerFrame = this.squisher.getPlayerFrame(playerId);
             
-            console.log('frame');
-            console.log(playerFrame);
+            // console.log('frame');
+            // console.log(playerFrame);
             if (playerInfo.settings) {
                 // console.log(playerInfo.settings);
                 if (!playerInfo.settings.SOUND || !playerInfo.settings.SOUND.enabled) {
@@ -134,40 +151,58 @@ class GameSession {
         }
 
         console.log('sesion just got player');
+        console.log(player);
         this.players[player.id] = player;
 
-        this.homenamesHelper.addListener(player.id, (playerInfo) => {
-            console.log('new playuer info');
-            console.log(playerInfo);
-        }).then(() => {
+        // this.homenamesHelper.addListener(player.id).then(() => {
             const playerName = generateName();
 
             this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
-                this.homegamesRoot.handleNewPlayer(player);
+                this.homenamesHelper.getPlayerInfo(player.id).then(playerInfo => {
+                    this.homenamesHelper.getPlayerSettings(player.id).then(playerSettings => {
+                        this.playerInfoMap[player.id] = playerInfo;
+                        this.playerSettingsMap[player.id] = playerSettings;
+                        const gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata() || {};
+                        const playerPayload = createPlayerPayload(gameMetadata.squishVersion || '0730', player, playerSettings || {}, playerInfo || {});
+                        console.log('aaaaavvvv'); 
+                        console.log(playerPayload);
+                        this.homegamesRoot.handleNewPlayer(playerPayload);
 
-                this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+                        this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
 
-                this.game.handleNewPlayer && this.game.handleNewPlayer(player);
-                if (this.game.deviceRules && player.clientInfo) {
-                    const deviceRules = this.game.deviceRules();
-                    if (deviceRules.aspectRatio) {
-                        deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
-                    }
-                    if (deviceRules.deviceType) {
-                        deviceRules.deviceType(player, player.clientInfo.deviceType)
-                    }
-                }
+                        this.game.handleNewPlayer && this.game.handleNewPlayer(playerPayload);
+                        
+                        this.homenamesHelper.addListener(player.id);
 
-                player.addInputListener(this);
+                        if (this.game.deviceRules && player.clientInfo) {
+                            const deviceRules = this.game.deviceRules();
+                            if (deviceRules.aspectRatio) {
+                                deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+                            }
+                            if (deviceRules.deviceType) {
+                                deviceRules.deviceType(player, player.clientInfo.deviceType)
+                            }
+                        }
+
+                        player.addInputListener(this);
+                    });
+                });
+                console.log('aaaaa');
+
             });
-        });
+        // });
     }
 
-    handlePlayerUpdate(playerId, newData) {
-        this.playerInfoMap[playerId] = newData;
-        // this.homegamesRoot.handlePlayerUpdate(playerId, newData);
+    handlePlayerUpdate(playerId, { info: playerInfo, settings: playerSettings }) {
+        this.playerInfoMap[playerId] = playerInfo;
+        this.playerSettingsMap[playerId] = playerSettings;
+
+        const gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata() || {};
+        const playerPayload = createPlayerPayload(gameMetadata.squishVersion || '0730', this.players[playerId], this.playerInfoMap[playerId] || {}, this.playerSettingsMap[playerId] || {});
+
+        this.homegamesRoot.handlePlayerUpdate({ playerId, playerInfo, playerSettings });
         // this.playerInfoMap[playerId] = newData;
-        this.game.handlePlayerUpdate && this.game.handlePlayerUpdate(playerId, newData);
+        // this.game.handlePlayerUpdate && this.game.handlePlayerUpdate(playerId, newData);
     }
 
     handleSpectatorDisconnect(spectatorId) {

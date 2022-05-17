@@ -129,38 +129,33 @@ class HomegamesRoot {
         return this.root;
     }
 
-    handleNewPlayer(player) {
-        console.log('homnenames helper just got new player');
-        // console.log('whahahahaha');
+    handleNewPlayer({ playerId, info: playerInfo, settings: playerSettings }) {
+        console.log('whahahahaha ' + playerId);
         // console.log(player);
-        this.homenamesHelper.getPlayerInfo(player.id).then((playerInfo) => {
-           const playerFrame = new GameNode.Asset({
-               coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-               assetInfo: {
-                   'frame': {
-                       pos: {x: 0, y: 0},
-                       size: {
-                           x: 100,
-                           y: 100
-                       }
+       const playerFrame = new GameNode.Asset({
+           coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+           assetInfo: {
+               'frame': {
+                   pos: {x: 0, y: 0},
+                   size: {
+                       x: 100,
+                       y: 100
                    }
-               },
-               effects: {
-                   shadow: {
-                       color: COLORS.HG_BLACK,
-                       blur: 5
-                   }
-               },
-               playerIds: [player.id]
-           });
-
-           this.frameStates[player.id] = playerFrame;
-           this.frameRoot.addChild(playerFrame);
-
-            console.log('player info should be guaranteed here');
-            console.log(this.session.playerInfoMap);
-           this.updateLabels();
+               }
+           },
+           effects: {
+               shadow: {
+                   color: COLORS.HG_BLACK,
+                   blur: 5
+               }
+           },
+           playerIds: [playerId]
        });
+
+       this.frameStates[playerId] = playerFrame;
+       this.frameRoot.addChild(playerFrame);
+
+       // this.updateLabels();
     }
 
     handleNewSpectator(spectator) {
@@ -237,7 +232,7 @@ class HomegamesRoot {
         for (const nodeId in this.frameRoot.node.children) {
             const playerFrame = this.frameRoot.node.children[nodeId];
             
-            playerFrame.clearChildren();
+            // playerFrame.clearChildren();
 
             console.log('ayo iii ');
             console.log(playerFrame.node.playerIds);
@@ -353,6 +348,10 @@ class HomegamesRoot {
         }
     }
 
+    handlePlayerUpdate({ playerId, info: playerInfo, settings: playerSettings }) {
+        console.log('playuer updattttt ' + playerId);
+    }
+
     handlePlayerDisconnect(playerId) {
         if (this.playerDashboards[playerId]) {
             this.playerDashboards[playerId].intervals.forEach(interval => {
@@ -362,7 +361,7 @@ class HomegamesRoot {
             delete this.playerDashboards[playerId];
         }
         if (this.frameStates[playerId]) {
-            this.frameRoot.removeChild(this.frameStates[playerId].node.id);
+            // this.frameRoot.removeChild(this.frameStates[playerId].node.id);
             delete this.frameStates[playerId];
         }
 

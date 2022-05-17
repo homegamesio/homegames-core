@@ -252,11 +252,11 @@ class HomegamesDashboard extends ViewableGame {
         // todo: connect to game service
     }
 
-    onGameOptionClick(gameCollection, player, gameKey, versionKey = null) {        
-        this.showGameModal(gameCollection, player, gameKey, versionKey);
+    onGameOptionClick(gameCollection, playerId, gameKey, versionKey = null) {        
+        this.showGameModal(gameCollection, playerId, gameKey, versionKey);
     }
 
-    startSession(player, gameKey, versionKey = null) { 
+    startSession(playerId, gameKey, versionKey = null) { 
         const sessionId = sessionIdCounter++;
         const port = getServerPort();
 
@@ -276,8 +276,7 @@ class HomegamesDashboard extends ViewableGame {
                         gamePath,
                         port,
                         player: {
-                            id: player.id,
-                            name: player.name
+                            id: playerId
                         }
                     }));
 
@@ -285,7 +284,8 @@ class HomegamesDashboard extends ViewableGame {
                         if (thang.startsWith('{')) {
                             const jsonMessage = JSON.parse(thang);
                             if (jsonMessage.success) {
-                                player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+                                console.log('need to figure this out. give access to session?')
+                                // player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
                             }
                             else if (jsonMessage.requestId) {
                                 this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
@@ -350,15 +350,15 @@ class HomegamesDashboard extends ViewableGame {
                 gamePath: this.localGames[gameKey] ? this.localGames[gameKey].path : null,
                 port,
                 player: {
-                    id: player.id,
-                    name: player.name
+                    id: playerId
                 }
             }));
 
             childSession.on('message', (thang) => {
                 const jsonMessage = JSON.parse(thang);
                 if (jsonMessage.success) {
-                    player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+                    console.log('oh no');
+                    // player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
                 }
                 else if (jsonMessage.requestId) {
                     this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
@@ -405,11 +405,12 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     joinSession(player, session) {
-        player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
+        console.log('hmmmmmm');
+        // player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
     }
 
-    showGameModal(gameCollection, player, gameKey, versionKey = null) {
-        const playerViewRoot = this.playerViews[player.id] && this.playerViews[player.id].root;
+    showGameModal(gameCollection, playerId, gameKey, versionKey = null) {
+        const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].root;
 
         const gameMetadata = gameCollection[gameKey].metadata && gameCollection[gameKey].metadata() || {};
 
@@ -420,13 +421,13 @@ class HomegamesDashboard extends ViewableGame {
         const modal = gameModal({ 
             gameKey, 
             activeSessions, 
-            playerId: player.id, 
+            playerId,
             gameMetadata, 
             onJoinSession: (session) => {
-                this.joinSession(player, session);
+                this.joinSession(playerId, session);
             },
             onCreateSession: () => {
-                this.startSession(player, gameKey, versionKey);
+                this.startSession(playerId, gameKey, versionKey);
             }, 
             onClose: () => {
                 playerViewRoot.removeChild(modal.node.id);  
@@ -825,30 +826,30 @@ class HomegamesDashboard extends ViewableGame {
         playerSearchBox.addChild(newText);
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer({ playerId, settings: playerSettings, info: playerInfo, requestedGame }) {
 
         console.log('adddddding player');
-        console.log(player);
+        // console.log(player);
 
         const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
 
         const playerNodeRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
-            playerIds: [player.id]
+            playerIds: [playerId]
         });
 
-        this.playerViews[player.id] = {
+        this.playerViews[playerId] = {
             view: playerView,
             root: playerNodeRoot,
         }
 
-        this.renderGames(player, {});
+        this.renderGames(playerId, {});
 
         this.getViewRoot().addChild(playerNodeRoot);
 
-        if (player.requestedGame) {
-            const { gameId, versionId } = player.requestedGame;
+        if (requestedGame) {
+            const { gameId, versionId } = requestedGame;
 
            https.get(`https://landlord.homegames.io/games/${gameId}/version/${versionId}`, (res) => {
                if (res.statusCode == 200) {
@@ -868,17 +869,17 @@ class HomegamesDashboard extends ViewableGame {
         }
     }
 
-    renderGames(player, {results, query}) {
-        const playerView = this.playerViews[player.id].view;
+    renderGames(playerId, {results, query}) {
+        const playerView = this.playerViews[playerId].view;
         // const existingViewNode = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
         
-        const playerNodeRoot = this.playerViews[player.id].root;
+        const playerNodeRoot = this.playerViews[playerId].root;
         playerNodeRoot.clearChildren();
 
         const playerGameViewRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
-            playerIds: [player.id]
+            playerIds: [playerId]
         });
 
         let view;
@@ -887,7 +888,7 @@ class HomegamesDashboard extends ViewableGame {
             view = ViewUtils.getView(
                 plane,
                 playerView, 
-                [player.id], 
+                [playerId], 
                 {
                     filter: (node) => node.node.id !== plane.getChildren()[0].node.id, 
                     y: (100 - containerHeight)
@@ -898,7 +899,7 @@ class HomegamesDashboard extends ViewableGame {
             view = ViewUtils.getView(
                 this.getPlane(),
                 playerView, 
-                [player.id], 
+                [playerId], 
                 {
                     filter: (node) => node.node.id !== this.base.node.id, 
                     y: (100 - containerHeight)
@@ -911,7 +912,7 @@ class HomegamesDashboard extends ViewableGame {
         const playerSearchBox = new GameNode.Shape({
             shapeType: Shapes.POLYGON, 
             coordinates2d: ShapeUtils.rectangle(12.5, 2.5, 75, 10),
-            playerIds: [player.id],
+            playerIds: [playerId],
             fill: SEARCH_BOX_COLOR
         });
 
@@ -923,7 +924,7 @@ class HomegamesDashboard extends ViewableGame {
                 color: SEARCH_TEXT_COLOR,
                 size:1.8
             },
-            playerIds: [player.id]
+            playerIds: [playerId]
         });
 
         playerSearchBox.addChild(playerSearchText);
@@ -932,7 +933,7 @@ class HomegamesDashboard extends ViewableGame {
 
         const baseHeight = this.base.node.coordinates2d[2][1];
 
-        const currentView = this.playerViews[player.id].view;
+        const currentView = this.playerViews[playerId].view;
         if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {     
             canGoUp = true;
         } 
@@ -943,17 +944,17 @@ class HomegamesDashboard extends ViewableGame {
         const upArrow = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(90, 22.5, 10, 20),
-            playerIds: [player.id],
+            playerIds: [playerId],
             fill: BASE_COLOR,
             onClick: (player, x, y) => {
 
                 const _plane = results ? this.initializeCollectionPlane(results.games) : this.getPlane();
 
-                const currentView = Object.assign({}, this.playerViews[player.id].view);
+                const currentView = Object.assign({}, this.playerViews[playerId].view);
 
                 if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {
                     currentView.y -= gameContainerHeight + gameContainerYMargin;
-                    this.playerViews[player.id].view = currentView;
+                    this.playerViews[playerId].view = currentView;
                     this.renderGames(player, {});
                 } 
             }
@@ -975,12 +976,12 @@ class HomegamesDashboard extends ViewableGame {
         const downArrow = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(90, 72.5, 10, 20),
-            playerIds: [player.id],
+            playerIds: [playerId],
             fill: BASE_COLOR,
             onClick: (player, x, y) => {
                 const _plane = results ? this.initializeCollectionPlane(results.games) : this.getPlane();
 
-                const currentView = Object.assign({}, this.playerViews[player.id].view);
+                const currentView = Object.assign({}, this.playerViews[playerId].view);
 
                 // y value of bottom right corner of base (assumed rectangle)
                 const baseHeight = this.base.node.coordinates2d[2][1];
@@ -988,7 +989,7 @@ class HomegamesDashboard extends ViewableGame {
                 // game container height + game y margin would be the new 0, 0 of the view, so we multiply by 2 to make sure the new view would be covered by the base
                 if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
                     currentView.y += gameContainerHeight + gameContainerYMargin;
-                    this.playerViews[player.id].view = currentView;
+                    this.playerViews[playerId].view = currentView;
                     this.renderGames(player, {});
                 } 
 

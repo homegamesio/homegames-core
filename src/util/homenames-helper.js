@@ -82,7 +82,7 @@ class HomenamesHelper {
         console.log('what abc');
 	}
 
-    addListener(playerId, cb) {//=> new Promise((resolve, reject) => {
+    addListener(playerId) {//=> new Promise((resolve, reject) => {
         return new Promise((resolve, reject) => {
             makePost('/add_listener', { playerId, sessionPort: this.sessionPort }).then(resolve).catch(reject);
         });

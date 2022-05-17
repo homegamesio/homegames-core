@@ -75,7 +75,6 @@ class SoundTest extends Game {
                 this.base.addChild(this.pauseButton);
             }
         });
-
         
         // this.songNode = new GameNode.Asset({
         //     coordinates2d: ShapeUtils.rectangle(20, 20, 0, 0),
@@ -98,6 +97,18 @@ class SoundTest extends Game {
         // });
 
         this.base.addChild(this.playButton);
+    }
+
+    handlePlayerUpdate(playerId, newData) {
+        console.log('oh shit wow');
+        if (this.pauseButton.node.children.length > 0) {
+            const diff = (new Date() - this.songPlayedAt) / 1000;
+            console.log('its been ' + diff + ' since i started playing'); 
+            // this.startTime = this.startTime + diff;
+            // console.log('new start time ' + this.startTime);
+            // console.log(this.pauseButton.node.children[0]);
+            this.pauseButton.node.children[0].node.asset.song.startTime = diff;
+        }
     }
 
     getLayers() {
