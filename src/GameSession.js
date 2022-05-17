@@ -17,31 +17,15 @@ const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 const BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y; 
 
-const createPlayerPayload = (squishVersion, player, playerSettings, playerInfo) => {
-    // console.log('player payload');
-    // console.log(squishVersion);
-    // console.log(player);
-    if (squishVersion === '0730') {
-        return {
-            playerId: player.id,
-            info: playerInfo,
-            settings: playerSettings,
-            requestedGame: player.requestedGame || null
-        }
-    }
-
-    return {};
-}
-
 class GameSession {
     constructor(game, port) {
         this.game = game;
         this.port = port;
-        
-        this.playerSettingsMap = {};
-        this.playerInfoMap = {};
 
         this.homenamesHelper = new HomenamesHelper(this.port);
+
+        this.playerInfoMap = {};
+        this.playerSettingsMap = {};
 
         this.homegamesRoot = new HomegamesRoot(this, false, false);
         this.customBottomLayer = {
@@ -151,10 +135,12 @@ class GameSession {
         }
 
         console.log('sesion just got player');
-        console.log(player);
         this.players[player.id] = player;
 
-        // this.homenamesHelper.addListener(player.id).then(() => {
+        // this.homenamesHelper.addListener(player.id, (playerInfo) => {
+            // console.log('new playuer info');
+            // console.log(playerInfo);
+        // }).then(() => {
             const playerName = generateName();
 
             this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
@@ -162,17 +148,14 @@ class GameSession {
                     this.homenamesHelper.getPlayerSettings(player.id).then(playerSettings => {
                         this.playerInfoMap[player.id] = playerInfo;
                         this.playerSettingsMap[player.id] = playerSettings;
-                        const gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata() || {};
-                        const playerPayload = createPlayerPayload(gameMetadata.squishVersion || '0730', player, playerSettings || {}, playerInfo || {});
-                        console.log('aaaaavvvv'); 
-                        console.log(playerPayload);
-                        this.homegamesRoot.handleNewPlayer(playerPayload);
+
+                        this.homegamesRoot.handleNewPlayer(player);
 
                         this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+                        const playerPayload = {playerId: player.id, settings: this.playerSettingsMap[player.id], info: this.playerInfoMap[player.id], requestedGame: player.requestedGame };
 
                         this.game.handleNewPlayer && this.game.handleNewPlayer(playerPayload);
-                        
-                        this.homenamesHelper.addListener(player.id);
+                                this.homenamesHelper.addListener(player.id);
 
                         if (this.game.deviceRules && player.clientInfo) {
                             const deviceRules = this.game.deviceRules();
@@ -187,22 +170,17 @@ class GameSession {
                         player.addInputListener(this);
                     });
                 });
-                console.log('aaaaa');
-
             });
         // });
     }
 
-    handlePlayerUpdate(playerId, { info: playerInfo, settings: playerSettings }) {
-        this.playerInfoMap[playerId] = playerInfo;
-        this.playerSettingsMap[playerId] = playerSettings;
+    handlePlayerUpdate(playerId, {info, settings}) {
+        this.playerInfoMap[playerId] = info;
+        this.playerSettingsMap[playerId] = settings;
 
-        const gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata() || {};
-        const playerPayload = createPlayerPayload(gameMetadata.squishVersion || '0730', this.players[playerId], this.playerInfoMap[playerId] || {}, this.playerSettingsMap[playerId] || {});
-
-        this.homegamesRoot.handlePlayerUpdate({ playerId, playerInfo, playerSettings });
+        this.homegamesRoot.handlePlayerUpdate(playerId, {info, settings});
         // this.playerInfoMap[playerId] = newData;
-        // this.game.handlePlayerUpdate && this.game.handlePlayerUpdate(playerId, newData);
+        this.game.handlePlayerUpdate && this.game.handlePlayerUpdate(playerId, newData);
     }
 
     handleSpectatorDisconnect(spectatorId) {

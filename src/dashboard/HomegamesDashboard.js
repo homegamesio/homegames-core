@@ -811,11 +811,11 @@ class HomegamesDashboard extends ViewableGame {
     //     });
     // }
 
-    handlePlayerSearch(player, text, playerSearchBox) {
+    handlePlayerSearch(playerId, text, playerSearchBox) {
         // hack. should be finding text. but also shouldnt be adding children to this text node
         const newText = playerSearchBox.getChildren()[0].clone({});
         networkHelper.searchGames(text).then(results => {
-            this.renderGames(player, {results, query: text});
+            this.renderGames(playerId, {results, query: text});
         });
         if (!text) {
             newText.node.text.text = 'Search';
@@ -843,6 +843,9 @@ class HomegamesDashboard extends ViewableGame {
             view: playerView,
             root: playerNodeRoot,
         }
+
+        console.log('whattfffsaadst');
+        console.log(this.playerViews);
 
         this.renderGames(playerId, {});
 
@@ -955,7 +958,7 @@ class HomegamesDashboard extends ViewableGame {
                 if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {
                     currentView.y -= gameContainerHeight + gameContainerYMargin;
                     this.playerViews[playerId].view = currentView;
-                    this.renderGames(player, {});
+                    this.renderGames(playerId, {});
                 } 
             }
         });
@@ -990,7 +993,7 @@ class HomegamesDashboard extends ViewableGame {
                 if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
                     currentView.y += gameContainerHeight + gameContainerYMargin;
                     this.playerViews[playerId].view = currentView;
-                    this.renderGames(player, {});
+                    this.renderGames(playerId, {});
                 } 
 
             }
