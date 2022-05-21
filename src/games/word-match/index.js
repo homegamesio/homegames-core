@@ -41,6 +41,7 @@ class WordMatch extends Game {
         this.keyCoolDowns = {};
         this.currentPlayerIndices = [];
         this.scores = {};
+        this.players = {};
     }
 
     clearTable() {
@@ -55,12 +56,15 @@ class WordMatch extends Game {
             this.playerRequirement.text = null;
         } else if (playerCount < 2 && !this.playerRequirement) {
             this.gameInProgress = false;
-            this.newGameButton = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
-                fill: COLORS.HG_GREEN
-            });
-            this.savedNodeRoot.addChild(this.newGameButton);
+            // this.newGameButton = new GameNode.Shape({
+            //     shapeType: Shapes.POLYGON,
+            //     coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
+            //     fill: COLORS.HG_GREEN
+            // });
+            console.log('wat');
+            // console.log(this.savedNodeRoot);
+            // console.log(this.newGameButton);
+            // this.savedNodeRoot.addChild(this.newGameButton);
             //this.newGameButton.size = {x: 0, y: 0};
             //tis.newGameButton.text = null;
             //this.playerRequirement.text = {x: 50, y: 50, text: 'At least two players required'};
@@ -282,17 +286,17 @@ class WordMatch extends Game {
         for (const playerId in this.players) {
             const player = this.players[playerId];
             const yPos = yIndex++;
-            const ready = this.playerReadyButtons[player.id] && this.playerReadyButtons[player.id].ready;
+            const ready = this.playerReadyButtons[playerId] && this.playerReadyButtons[playerId].ready;
             const readyStatusColor = ready ? COLORS.GREEN : Colors.RED;
             const statusColor = this.gameInProgress ? readyStatusColor : COLORS.CREAM;
-            const playerNameText = player.name + ': ' + (player.id in this.scores ? this.scores[player.id] : 0);
+            const playerNameText = player.name + ': ' + (playerId in this.scores ? this.scores[playerId] : 0);
             const playerNode = GameNode(statusColor, null, {x: 70, y: 2 + (yPos * 10)}, {x: 5, y: 5}, {x: 85, y: 2 + (yPos * 10), text: playerNameText});
             this.playerList.addChild(playerNode);
         }
     }
 
-    handleNewPlayer(player) {
-        this.keyCoolDowns[player.id] = {};
+    handleNewPlayer({ playerId, info }) {
+        this.keyCoolDowns[playerId] = {};
         
         //const infoNode = GameNode(
         //    COLORS.CREAM,
@@ -313,13 +317,15 @@ class WordMatch extends Game {
         //    null,
         //    player.id
         //);
-        this.infoNodes[player.id] = {};//infoNode;
+        this.players[playerId] = { id: playerId, ...info };
+        this.infoNodes[playerId] = {};//infoNode;
         //this.savedNodeRoot.addChild(infoNode);
         //this.updatePlayerList();
     }
 
     handlePlayerDisconnect(playerId) {
         this.savedNodeRoot.removeChild(this.infoNodes[playerId].id);
+        delete this.players[playerId];
         delete this.infoNodes[playerId];
         delete this.scores[playerId];
         this.updatePlayerList();

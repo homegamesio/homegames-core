@@ -21,6 +21,7 @@ class Clicktionary extends Game {
             fill: COLORS.CREAM
         });
 
+        this.players = {};
         this.excludedNodeRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: [
@@ -83,15 +84,19 @@ class Clicktionary extends Game {
         }
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer({ playerId, info: playerInfo }) {
+        this.players[playerId] = playerInfo;
         this.updateGameState();
+    }
+
+    handlePlayerDisconnect(playerId) {
+        delete this.players[playerId]
     }
 
     renderPlayerList() {
         this.base.clearChildren([this.excludedNodeRoot.id]);
         let yIndex = 0;
         for (const playerId in this.players) {
-            const player = this.players[playerId];
 
             const playerInfoNode = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
@@ -99,7 +104,7 @@ class Clicktionary extends Game {
                 fill: COLORS.CREAM
             });
             
-            this.playerInfoNodes[player.id] = playerInfoNode;
+            this.playerInfoNodes[playerId] = playerInfoNode;
             this.base.addChild(playerInfoNode);
 
             yIndex++;

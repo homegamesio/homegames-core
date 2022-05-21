@@ -58,15 +58,15 @@ class GameSession {
         for (const playerId in this.players) {
             // console.log('playuer id ' + playerId);
             // console.log(this.playerInfoMap);
-            const playerInfo = this.playerInfoMap[playerId] || {};
+            const playerSettings = this.playerSettingsMap[playerId] || {};
             
             let playerFrame = this.squisher.getPlayerFrame(playerId);
             
             // console.log('frame');
             // console.log(playerFrame);
-            if (playerInfo.settings) {
+            if (playerSettings) {
                 // console.log(playerInfo.settings);
-                if (!playerInfo.settings.SOUND || !playerInfo.settings.SOUND.enabled) {
+                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
                     playerFrame = playerFrame.filter(f => {
                         const unsquished = this.squisher.unsquish(f);
                         if (unsquished.node.asset) {
@@ -180,7 +180,7 @@ class GameSession {
 
         this.homegamesRoot.handlePlayerUpdate(playerId, {info, settings});
         // this.playerInfoMap[playerId] = newData;
-        this.game.handlePlayerUpdate && this.game.handlePlayerUpdate(playerId, newData);
+        this.game.handlePlayerUpdate && this.game.handlePlayerUpdate(playerId, { info, settings });
     }
 
     handleSpectatorDisconnect(spectatorId) {
@@ -189,6 +189,7 @@ class GameSession {
     }
 
     handlePlayerDisconnect(playerId) {
+        console.log('player disconnected formt his ');
         delete this.players[playerId];
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
         this.homegamesRoot.handlePlayerDisconnect(playerId);
@@ -235,6 +236,11 @@ class GameSession {
         }
     }
 
+    movePlayer({ playerId, port }) {
+        console.log('lookuing '  +playerId)
+        const player = this.players[playerId];
+        player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+    }
 
     handleClick(player, click) {
         if (click.x >= 100 || click.y >= 100) {
@@ -249,7 +255,7 @@ class GameSession {
             const realNode = this.game.findNode(clickedNodeId) || this.customBottomLayer.root.findChild(clickedNodeId) || this.customTopLayer.root.findChild(clickedNodeId);
 
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
-                realNode.node.handleClick && realNode.node.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(player.id, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             } else {
                 const shiftedX = click.x - (BEZEL_SIZE_X / 2);
                 const shiftedY = click.y - (BEZEL_SIZE_Y / 2);
@@ -257,7 +263,7 @@ class GameSession {
                 const scaledX = shiftedX * ( 1 / ((100 - BEZEL_SIZE_X) / 100));
                 const scaledY = shiftedY * ( 1 / ((100 - BEZEL_SIZE_Y) / 100));
 
-                realNode.node.handleClick && realNode.node.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(player.id, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             }
         }
     }

@@ -136,7 +136,7 @@ class HomegamesDashboard extends ViewableGame {
         };
     }
 
-    constructor() {
+    constructor({ movePlayer }) {
         super(1000);
 
         this.assets = {
@@ -149,6 +149,8 @@ class HomegamesDashboard extends ViewableGame {
                 type: 'audio'
             })
         };
+
+        this.movePlayer = movePlayer;
 
 
         const thang = () => new Promise((resolve, reject) => {
@@ -357,7 +359,8 @@ class HomegamesDashboard extends ViewableGame {
             childSession.on('message', (thang) => {
                 const jsonMessage = JSON.parse(thang);
                 if (jsonMessage.success) {
-                    console.log('oh no');
+                    // console.log('oh no');
+                    this.movePlayer({ playerId, port });
                     // player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
                 }
                 else if (jsonMessage.requestId) {
@@ -404,8 +407,9 @@ class HomegamesDashboard extends ViewableGame {
         //        this.renderGameList();
     }
 
-    joinSession(player, session) {
+    joinSession(playerId, session) {
         console.log('hmmmmmm');
+        this.movePlayer({ playerId, port: session.port });
         // player.receiveUpdate([5, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
     }
 
@@ -417,6 +421,8 @@ class HomegamesDashboard extends ViewableGame {
         const activeSessions = Object.values(this.sessions).filter(session => {
             return session.game === gameKey;
         });
+
+        console.log('player if ' + playerId);
 
         const modal = gameModal({ 
             gameKey, 
@@ -640,8 +646,8 @@ class HomegamesDashboard extends ViewableGame {
 
             // transparent box with click handler (so image shows under)
             const gameOptionClickHandler = new GameNode.Shape({
-                onClick: (player, x, y) => {
-                    this.onGameOptionClick(gameCollection, player, game);
+                onClick: (playerId) => {
+                    this.onGameOptionClick(gameCollection, playerId, game);
                 },
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(
@@ -748,8 +754,8 @@ class HomegamesDashboard extends ViewableGame {
 
             // transparent box with click handler (so image shows under)
             const gameOptionClickHandler = new GameNode.Shape({
-                onClick: (player, x, y) => {
-                    this.onGameOptionClick(gameCollection, player, game);
+                onClick: (playerId) => {
+                    this.onGameOptionClick(gameCollection, playerId, game);
                 },
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(

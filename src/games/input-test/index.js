@@ -15,6 +15,7 @@ class InputTest extends Game {
             thumbnail: 'c6d38aca68fed708d08d284a5d201a0a'
         };
     }
+        // TODO: fix this one
 
     constructor() {
         super();

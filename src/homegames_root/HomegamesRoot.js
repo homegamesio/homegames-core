@@ -44,6 +44,7 @@ class HomegamesRoot {
         this.homenamesHelper = new HomenamesHelper();
 
         this.gameAssets = {};
+        this.viewStates = {};
 
         for (let gameIndex in this.games) {
             const game = this.games[gameIndex];
@@ -83,8 +84,8 @@ class HomegamesRoot {
        this.playerDashboards = {};
 
         // todo: pull this from config and turn port conversion into a function
-       const onGameHomeClick = (player) => {
-           player.receiveUpdate([5, 70, 1]);
+       const onGameHomeClick = (playerId) => {
+           this.session.movePlayer({ playerId, port: 7001 });
        };
 
        const gameAspectRatio = this.session.game.constructor.metadata && this.session.game.constructor.metadata().aspectRatio;
@@ -130,44 +131,40 @@ class HomegamesRoot {
     }
 
     handleNewPlayer({ playerId }) {
-        console.log('homnenames helper just got new player');
-        // console.log('whahahahaha');
-        // console.log(player);
-        // this.homenamesHelper.getPlayerInfo(playerId).then((playerInfo) => {
-            // setTimeout(() => {
-           const playerFrame = new GameNode.Asset({
-               coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-               assetInfo: {
-                   'frame': {
-                       pos: {x: 0, y: 0},
-                       size: {
-                           x: 100,
-                           y: 100
-                       }
+       const playerFrame = new GameNode.Asset({
+           coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+           assetInfo: {
+               'frame': {
+                   pos: {x: 0, y: 0},
+                   size: {
+                       x: 100,
+                       y: 100
                    }
-               },
-               effects: {
-                   shadow: {
-                       color: COLORS.HG_BLACK,
-                       blur: 5
-                   }
-               },
-               playerIds: [playerId]
-           });
+               }
+           },
+           effects: {
+               shadow: {
+                   color: COLORS.HG_BLACK,
+                   blur: 5
+               }
+           },
+           playerIds: [playerId]
+       });
 
-           this.frameStates[playerId] = playerFrame;
-           this.frameRoot.addChild(playerFrame);
+       this.frameStates[playerId] = playerFrame;
+       this.frameRoot.addChild(playerFrame);
 
-            console.log('player info should be guaranteed here');
-            console.log(this.session.playerInfoMap);
-           this.updateLabels();
-       // }, 500);
-       // });
+       this.updateLabels();
     }
 
     handlePlayerUpdate(playerId, newData) {
         console.log('need to update name in thing i think');
         console.log(newData);
+        // console.log(this.session.game);
+        this.updateLabels();
+        if (this.viewStates[playerId] && this.viewStates[playerId].state === 'settings') {
+            this.showSettings(playerId);
+        }
     }
 
     handleNewSpectator(spectator) {
@@ -197,7 +194,9 @@ class HomegamesRoot {
     }
 
     showSettings(playerId) {
+        console.log('showibng settings for pl ' + playerId);
         this.topLayerRoot.clearChildren();
+        this.viewStates[playerId] = {state: 'settings'};
         const modal = settingsModal({ 
             playerId,
             onRemove: () => {
@@ -208,29 +207,31 @@ class HomegamesRoot {
                 this.homenamesHelper.updatePlayerInfo(playerId,
                 {
                     playerName: text
-                }).then(() => {
-                    this.homenamesHelper.getPlayerInfo(playerId).then(_playerInfo => {
-                        this.updateLabels();
-                        this.showSettings(playerId);
-                    }).catch(err => {
-                        console.log('whats the probelm');
-                        console.log(err);
-                    })
                 });
+                // .then(() => {
+                //     this.homenamesHelper.getPlayerInfo(playerId).then(_playerInfo => {
+                //         this.updateLabels();
+                //         this.showSettings(playerId);
+                //     }).catch(err => {
+                //         console.log('whats the probelm');
+                //         console.log(err);
+                //     })
+                // });
             },
             onSoundToggle: (newVal) => {
                 this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
                     enabled: newVal
-                }).then(() => {
-                                            this.showSettings(playerId);
-
-                    // this.homenamesHelper.getPlayerSettings(playerId).then(_playerSettings => {
-                    //     this.playerSettingsMap[playerId] = _playerSettings;
-                    // }).catch(err => {
-                    //     console.log('whats the probelm');
-                    //     console.log(err);
-                    // });
                 });
+                // .then(() => {
+                //                             this.showSettings(playerId);
+
+                //     // this.homenamesHelper.getPlayerSettings(playerId).then(_playerSettings => {
+                //     //     this.playerSettingsMap[playerId] = _playerSettings;
+                //     // }).catch(err => {
+                //     //     console.log('whats the probelm');
+                //     //     console.log(err);
+                //     // });
+                // });
             }
         });
 
@@ -257,8 +258,8 @@ class HomegamesRoot {
                 shapeType: Shapes.POLYGON,
                         coordinates2d: ShapeUtils.rectangle(42.5,.25, 15, 4.5),
                         fill: [187, 189, 191, 255],//[84, 77, 71, 255], // frame color
-                        onClick: (player, x, y) => {
-                            this.showSettings(player.id);
+                        onClick: (playerId) => {
+                            this.showSettings(playerId);
                             // player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
                             //player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
                         }, 
@@ -361,6 +362,7 @@ class HomegamesRoot {
     }
 
     handlePlayerDisconnect(playerId) {
+        delete this.viewStates[playerId];
         if (this.playerDashboards[playerId]) {
             this.playerDashboards[playerId].intervals.forEach(interval => {
                 clearInterval(interval);

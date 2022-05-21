@@ -21,13 +21,18 @@ const server = (certPath, squishMap) => {
         console.log(squishMap);
     }
 
-    const dashboard = new HomegamesDashboard(squishMap);
+    // hack kind of. but homegames dashbaoard is special
+    let session;
+
+    const dashboard = new HomegamesDashboard({ squishMap, movePlayer: (params) => {
+        session && session.movePlayer(params);
+    }});
     
     // const dashboard = new PlayerVisibilityTest();//new HomegamesDashboard(squishMap);
     
     // const dashboard = new LayerTest();//new HomegamesDashboard(squishMap);
     
-    const session = new GameSession(dashboard, GAME_SERVER_HOME_PORT);
+    session = new GameSession(dashboard, GAME_SERVER_HOME_PORT);
     
     const homeNames = new Homenames(HOMENAMES_PORT);
     

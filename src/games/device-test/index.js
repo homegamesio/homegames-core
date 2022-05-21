@@ -29,7 +29,7 @@ class DeviceTest extends Game {
         });
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer({ playerId }) {
         const playerRootNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: [
@@ -39,12 +39,12 @@ class DeviceTest extends Game {
                 [0, 0],
                 [0, 0]
             ],
-            playerIds: [player.id]
+            playerIds: [playerId]
         });
 
         this.base.addChild(playerRootNode);
 
-        this.playerStates[player.id] = {
+        this.playerStates[playerId] = {
             screen: 0,
             root: playerRootNode
         };

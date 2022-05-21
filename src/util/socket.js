@@ -155,6 +155,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
+            console.log("AYO IT CLOSED");
             //            playerIds[ws.id] = false;
             if (ws.spectating) {
                 gameSession.handleSpectatorDisconnect(ws.id);

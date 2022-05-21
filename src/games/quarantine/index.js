@@ -31,6 +31,8 @@ class Quarantine extends Game {
             fill: this.baseColor,
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
+
+        // TODO: fix this one
         
         this.newQuestionButton = new GameNode.Shape({
             color: [53, 196, 91, 255],
