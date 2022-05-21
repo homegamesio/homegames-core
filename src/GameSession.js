@@ -149,13 +149,13 @@ class GameSession {
                         this.playerInfoMap[player.id] = playerInfo;
                         this.playerSettingsMap[player.id] = playerSettings;
 
-                        this.homegamesRoot.handleNewPlayer(player);
-
                         this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
                         const playerPayload = {playerId: player.id, settings: this.playerSettingsMap[player.id], info: this.playerInfoMap[player.id], requestedGame: player.requestedGame };
 
+                        this.homenamesHelper.addListener(player.id);
+
+                        this.homegamesRoot.handleNewPlayer(playerPayload);
                         this.game.handleNewPlayer && this.game.handleNewPlayer(playerPayload);
-                                this.homenamesHelper.addListener(player.id);
 
                         if (this.game.deviceRules && player.clientInfo) {
                             const deviceRules = this.game.deviceRules();

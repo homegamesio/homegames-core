@@ -41,6 +41,7 @@ class HomegamesRoot {
         this.profiling = profiling;
         this.renderTimes = [];
         this.session = session;
+        this.homenamesHelper = new HomenamesHelper();
 
         this.gameAssets = {};
 
@@ -128,11 +129,12 @@ class HomegamesRoot {
         return this.root;
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer({ playerId }) {
         console.log('homnenames helper just got new player');
         // console.log('whahahahaha');
         // console.log(player);
-        this.homenamesHelper.getPlayerInfo(player.id).then((playerInfo) => {
+        // this.homenamesHelper.getPlayerInfo(playerId).then((playerInfo) => {
+            // setTimeout(() => {
            const playerFrame = new GameNode.Asset({
                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
                assetInfo: {
@@ -150,16 +152,17 @@ class HomegamesRoot {
                        blur: 5
                    }
                },
-               playerIds: [player.id]
+               playerIds: [playerId]
            });
 
-           this.frameStates[player.id] = playerFrame;
+           this.frameStates[playerId] = playerFrame;
            this.frameRoot.addChild(playerFrame);
 
             console.log('player info should be guaranteed here');
             console.log(this.session.playerInfoMap);
            this.updateLabels();
-       });
+       // }, 500);
+       // });
     }
 
     handlePlayerUpdate(playerId, newData) {
