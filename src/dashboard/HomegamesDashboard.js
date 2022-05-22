@@ -169,10 +169,6 @@ const getGamePaths = () => {
     });
 
     return games;
-    //         const _game = require(gamePath);
-    //         const gameMetadata = _game.metadata && _game.metadata() || null;
-    //         const suffix = gameMetadata && gameMetadata.version || counter++;
-    //         this.localGames[_game.name + '_' + suffix] = {game: _game, path: gamePath}; 
 };
 
 class HomegamesDashboard extends ViewableGame {
@@ -206,33 +202,27 @@ class HomegamesDashboard extends ViewableGame {
             fill: BASE_COLOR
         });
 
-        this.localGames = {};//Object.assign({}, games);
-        const gamePaths = getGamePaths();//then((stuff) => {
-        let counter = 0;
-        for (const gameKey in gamePaths) {//.forEach(gamePath => {
-            console.log(gamePaths);
+        this.localGames = {};
+        const gamePaths = getGamePaths();
+        for (const gameKey in gamePaths) {
             const gameClass = gamePaths[gameKey].class;
-            const _game = gameClass;
-            const gameMetadata = _game.metadata && _game.metadata() || null;
-            const suffix = gameMetadata && gameMetadata.version || counter++;
-            this.localGames[_game.name + '_' + suffix] = {game: _game, path: gamePaths[gameKey].metadata.path}; 
+            this.localGames[gameKey] = { gameClass: gameClass, path: gamePaths[gameKey].path, metadata: gamePaths[gameKey].metadata }; 
         }
-        this.initializeGames(this.localGames);
-        // });
 
         Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
             this.assets[key] = new Asset({
-                'id': this.localGames[key].metadata && this.localGames[key].metadata().thumbnail,
+                'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
                 'type': 'image'
             });
         });
+
+        this.initializeGames(this.localGames);
 
         this.playerViews = {};
 
         
         this.getPlane().addChildren(this.base);
 
-        // this.initializeGames(this.localGames);
         this.initializeSearch();
         this.downloadedGames = {};
         this.sessions = {};
@@ -244,97 +234,89 @@ class HomegamesDashboard extends ViewableGame {
                 this.sessions[i].sendHeartbeat && this.sessions[i].sendHeartbeat();
             }
         }, CHILD_SESSION_HEARTBEAT_INTERVAL);
-        // const baseSize = this.getBaseSize(games);
-
-        // whiteBase.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
-        // this.updatePlaneSize(baseSize);
     }
 
     initializeSearch() {
         // todo: connect to game service
     }
 
-    onGameOptionClick(gameCollection, playerId, gameKey, versionKey = null) {        
-        this.showGameModal(gameCollection, playerId, gameKey, versionKey);
-    }
-
     startSession(playerId, gameKey, versionKey = null) { 
         const sessionId = sessionIdCounter++;
         const port = getServerPort();
 
-        if (this.downloadedGames[gameKey]) {
-            if (!versionKey) {
-                console.log('downhloaded game requires version id');
-            } else {
-                this.downloadGame(gameKey, versionKey).then(gamePath => {
-                    const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
-                    const childSession = fork(childGameServerPath);
+        // if (this.downloadedGames[gameKey]) {
+        //     if (!versionKey) {
+        //         console.log('downhloaded game requires version id');
+        //     } else {
+        //         this.downloadGame(gameKey, versionKey).then(gamePath => {
+        //             const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
+        //             const childSession = fork(childGameServerPath);
 
-                    sessions[port] = childSession;
+        //             sessions[port] = childSession;
 
-                    childSession.send(JSON.stringify({
-                        referenceSquishMap: this.referenceSquishMap,
-                        key: gameKey,
-                        gamePath,
-                        port,
-                        player: {
-                            id: playerId
-                        }
-                    }));
+        //             childSession.send(JSON.stringify({
+        //                 referenceSquishMap: this.referenceSquishMap,
+        //                 key: gameKey,
+        //                 gamePath,
+        //                 port,
+        //                 player: {
+        //                     id: playerId
+        //                 }
+        //             }));
 
-                    childSession.on('message', (thang) => {
-                        if (thang.startsWith('{')) {
-                            const jsonMessage = JSON.parse(thang);
-                            if (jsonMessage.success) {
-                                console.log('need to figure this out. give access to session?');
-                                // player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
-                            }
-                            else if (jsonMessage.requestId) {
-                                this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
-                            }
-                        } else {
-                            console.log('message!');
-                            console.log(message);
-                        }
-                    });
+        //             childSession.on('message', (thang) => {
+        //                 if (thang.startsWith('{')) {
+        //                     const jsonMessage = JSON.parse(thang);
+        //                     if (jsonMessage.success) {
+        //                         console.log('need to figure this out. give access to session?');
+        //                         // player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+        //                     }
+        //                     else if (jsonMessage.requestId) {
+        //                         this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
+        //                     }
+        //                 } else {
+        //                     console.log('message!');
+        //                     console.log(message);
+        //                 }
+        //             });
 
-                    childSession.on('error', (err) => {
-                        this.sessions[sessionId] = {};
+        //             childSession.on('error', (err) => {
+        //                 this.sessions[sessionId] = {};
                         
-                        console.log('child session error');
-                        console.log(err);
-                    });
+        //                 console.log('child session error');
+        //                 console.log(err);
+        //             });
                     
-                    childSession.on('close', (err) => {
-                        this.sessions[sessionId] = {};
-                    });
-                    console.log('asss asss asss111');
-                    this.sessions[sessionId] = {
-                        id: sessionId,
-                        game: gameKey,
-                        port: port,
-                        sendMessage: () => {
-                        },
-                        getPlayers: (cb) => {
-                            const requestId = this.requestIdCounter++;
-                            if (cb) {
-                                this.requestCallbacks[requestId] = cb;
-                            }
-                            childSession.send(JSON.stringify({
-                                'api': 'getPlayers',
-                                'requestId': requestId
-                            }));
-                        },
-                        sendHeartbeat: () => {
-                            childSession.send(JSON.stringify({
-                                'type': 'heartbeat'
-                            }));
-                        },
-                        players: []
-                    };
-                });
-            }
-        } else {
+        //             childSession.on('close', (err) => {
+        //                 this.sessions[sessionId] = {};
+        //             });
+
+        //             this.sessions[sessionId] = {
+        //                 id: sessionId,
+        //                 game: gameKey,
+        //                 port: port,
+        //                 sendMessage: () => {
+        //                 },
+        //                 getPlayers: (cb) => {
+        //                     const requestId = this.requestIdCounter++;
+        //                     if (cb) {
+        //                         this.requestCallbacks[requestId] = cb;
+        //                     }
+        //                     childSession.send(JSON.stringify({
+        //                         'api': 'getPlayers',
+        //                         'requestId': requestId
+        //                     }));
+        //                 },
+        //                 sendHeartbeat: () => {
+        //                     childSession.send(JSON.stringify({
+        //                         'type': 'heartbeat'
+        //                     }));
+        //                 },
+        //                 players: []
+        //             };
+        //         });
+        //     }
+        // } else {
 
             const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
 
@@ -342,14 +324,14 @@ class HomegamesDashboard extends ViewableGame {
 
             sessions[port] = childSession;
 
-            const referencedGame = games[gameKey] || this.localGames[gameKey].game;
+            const referencedGame = this.localGames[gameKey];// || this.localGames[gameKey].game;
 
-            const squishVersion = referencedGame.metadata().squishVersion;
+            const squishVersion = referencedGame.metadata.squishVersion;
 
             childSession.send(JSON.stringify({
                 key: gameKey,
                 squishVersion,
-                gamePath: this.localGames[gameKey] ? this.localGames[gameKey].path : null,
+                gamePath: this.localGames[gameKey].metadata.path,// ? this.localGames[gameKey].path : null,
                 port,
                 player: {
                     id: playerId
@@ -402,7 +384,7 @@ class HomegamesDashboard extends ViewableGame {
                 },
                 players: []
             };
-        }
+        // }
 
         //        this.renderGameList();
     }
@@ -414,9 +396,11 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     showGameModal(gameCollection, playerId, gameKey, versionKey = null) {
+        console.log('looking for kame ' + gameKey);
+        console.log(gameCollection);
         const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].root;
 
-        const gameMetadata = gameCollection[gameKey].metadata && gameCollection[gameKey].metadata() || {};
+        const gameMetadata = gameCollection[gameKey].metadata || {};
 
         const activeSessions = Object.values(this.sessions).filter(session => {
             return session.game === gameKey;
@@ -463,7 +447,7 @@ class HomegamesDashboard extends ViewableGame {
         this.updatePlaneSize(baseSize);
 
         let index = 0;
-        for (const game in gameCollection) {
+        for (const gameKey in gameCollection) {
             const realStartX = gameContainerXMargin + ( (optionWidth + gameLeftXMargin) * (index % gamesPerRow) );
             const startYIndex = (gameContainerYMargin) + gameTopYMargin;
             // hack
@@ -486,7 +470,8 @@ class HomegamesDashboard extends ViewableGame {
             // transparent box with click handler (so image shows under)
             const gameOptionClickHandler = new GameNode.Shape({
                 onClick: (playerId) => {
-                    this.onGameOptionClick(gameCollection, playerId, game);
+                    // this.onGameOptionClick(gameCollection, playerId, gameKey);
+                    this.showGameModal(gameCollection, playerId, gameKey);//, versionKey );
                 },
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(
@@ -498,15 +483,15 @@ class HomegamesDashboard extends ViewableGame {
                 // fill: COLORS.CREAM//Colors.randomColor()
             });
 
-            const assetKey = gameCollection[game].metadata && gameCollection[game].metadata().thumbnail ? game : 'default';
+            const assetKey = gameCollection[gameKey].metadata && gameCollection[gameKey].metadata.thumbnail ? gameKey : 'default';
 
             const gameOption = new GameNode.Asset({
                 coordinates2d:  ShapeUtils.rectangle(
-                    realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
-                    realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
+                    realStartX,
+                    realStartY,
                     optionWidth, 
                     optionHeight
-                ),//ShapeUtils.rectangle(gamePos[0] + optionMarginX, gamePos[1] + optionMarginY, gameOptionSize.x, gameOptionSize.y),
+                ),
                 assetInfo: {
                     [assetKey]: {
                         pos: {
@@ -524,7 +509,7 @@ class HomegamesDashboard extends ViewableGame {
 
             const gameName = new GameNode.Text({
                 textInfo: {
-                    text: game,//'ayy lmao ' + realStartY,
+                    text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata.name || gameKey,//'ayy lmao ' + realStartY,
                     x: realStartX + (optionWidth / 2),
                     y: realStartY - textHeight - 4, //hack,
                     color: DASHBOARD_TEXT_COLOR,
@@ -594,7 +579,8 @@ class HomegamesDashboard extends ViewableGame {
             // transparent box with click handler (so image shows under)
             const gameOptionClickHandler = new GameNode.Shape({
                 onClick: (playerId) => {
-                    this.onGameOptionClick(gameCollection, playerId, game);
+                    // this.onGameOptionClick(gameCollection, playerId, game);
+                    this.showGameModal(gameCollection, playerId, gameKey, versionKey);
                 },
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(

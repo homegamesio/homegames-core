@@ -1,6 +1,5 @@
 const GameSession = require('./GameSession');
 const { socketServer } = require('./util/socket');
-const games = require('./games');
 const process = require('process');
 
 let lastMessage;
