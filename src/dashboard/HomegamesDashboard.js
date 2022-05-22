@@ -12,11 +12,8 @@ const COLORS = Colors.COLORS;
 
 const Asset = require('../common/Asset');
 
-const games = require('../games');
-
-const sortedGameKeys = Object.keys(games).sort();
-
 const { ExpiringSet, animations } = require('../common/util');
+const { renderDashboard } = require('./dashboard');
 
 let baseDir = path.dirname(require.main.filename);
 
@@ -85,9 +82,12 @@ console.log("option is " + optionWidth + " wide, " + optionHeight + " high");
 
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 500);
 
-const GAME_DIRECTORY = path.resolve(getConfigValue('GAME_DIRECTORY', 'hg-games'));
-console.log("GAME DIR");
-console.log(GAME_DIRECTORY);
+const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', 'src/games'));
+const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', 'hg-games'));
+
+console.log("GAME DIRLLLLL");
+console.log(SOURCE_GAME_DIRECTORY);
+console.log(DOWNLOADED_GAME_DIRECTORY);
 // copied from common. TODO: refactor everything so its not embarrassing 
 const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
     const getModule = url.startsWith('https') ? https : http;
@@ -136,6 +136,62 @@ class HomegamesDashboard extends ViewableGame {
         };
     }
 
+    initializeGamesHelper(dir) {
+        const entries = fs.readdirSync(dir);
+            const results = new Set();
+            const processedEntries = {};
+
+            entries.forEach(entry => {
+                const entryPath = path.resolve(`${dir}/${entry}`)
+            
+                const metadata = fs.statSync(entryPath);
+                if (metadata.isFile()) {
+                    if (entryPath.endsWith('index.js')) {
+                        results.add(entryPath);
+                    }
+                } else if (metadata.isDirectory()) {
+                    const nestedPaths = this.initializeGamesHelper(entryPath);
+                        nestedPaths.forEach(nestedPath => results.add(nestedPath));
+                }
+                
+            });
+
+            return results;
+    }
+
+    initializeGames() {
+        const sourceGames = this.initializeGamesHelper(SOURCE_GAME_DIRECTORY);
+        const downloadedGames = this.initializeGamesHelper(DOWNLOADED_GAME_DIRECTORY);
+
+        const gamePaths = Array.from(new Set([...sourceGames, ...downloadedGames])).sort();
+
+        const games = {};
+
+        // used to append to keys with clashes. we should have ids
+        let suffixCount = 0;
+        gamePaths.forEach(gamePath => {
+            const gameClass = require(gamePath);
+            const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
+            const isLocal = sourceGames.has(gamePath);
+            gameMetadata.isLocal = isLocal;
+            gameMetadata.path = gamePath;
+            
+            const gameKey = gameClass.name;
+
+            if (!games[gameKey]) {
+                games[gameKey] = { class: gameClass, metadata: gameMetadata };
+            } else {
+                games[`${gameKey}_${suffixCount++}`] = { class: gameClass, metadata: gameMetadata };
+            }
+        });
+
+        return games;
+        //         const _game = require(gamePath);
+        //         const gameMetadata = _game.metadata && _game.metadata() || null;
+        //         const suffix = gameMetadata && gameMetadata.version || counter++;
+        //         this.localGames[_game.name + '_' + suffix] = {game: _game, path: gamePath}; 
+    }
+
     constructor({ movePlayer }) {
         super(1000);
 
@@ -150,77 +206,31 @@ class HomegamesDashboard extends ViewableGame {
             })
         };
 
+        this.playerStates = {};
+
         this.movePlayer = movePlayer;
 
+        this.games = this.initializeGames();
 
-        const thang = () => new Promise((resolve, reject) => {
-            thangHelper(GAME_DIRECTORY, new Set()).then(resolve);//('ayy lmao'));
-        });
+        this.plane = this.initializeCollectionPlane(this.games);
 
-        const thangHelper = (dir) => new Promise((resolve, reject) => {
+        // thang().then((stuff) => {
+        //     let counter = 0;
+        //     stuff.forEach(gamePath => {
+        //         const _game = require(gamePath);
+        //         const gameMetadata = _game.metadata && _game.metadata() || null;
+        //         const suffix = gameMetadata && gameMetadata.version || counter++;
+        //         this.localGames[_game.name + '_' + suffix] = {game: _game, path: gamePath}; 
+        //     });
+        //     this.initializeGames(this.localGames);
+        // });
 
-            fs.readdir(dir, (err, entries) => {
-                // console.log('entries');
-                // console.log(entries);
-                const results = new Set();
-                const processedEntries = {};
-                entries.forEach(entry => {
-                    // console.log('entry: ' + entry);
-                    const entryPath = path.resolve(`${dir}/${entry}`)
-                    // console.log(entryPath);
-
-                    processedEntries[entryPath] = false;
-
-                    fs.stat(entryPath, (err, metadata) => {
-                        if (metadata.isFile()) {
-                        processedEntries[entryPath] = true;
-                        // console.log('found file ' + entryPath);
-                        if (entryPath.endsWith('index.js')) {
-                            results.add(entryPath);
-                        }
-
-                        if (Object.keys(processedEntries).filter(k => !processedEntries[k]).length == 0) {
-                            // console.log('donee!!!! nice 123');
-                            resolve(results);
-                        }
-                    } else if (metadata.isDirectory()) {
-                        // console.log('need to traverse');
-                        // console.log(entryPath);
-                        thangHelper(entryPath).then(nestedPaths => {
-                            // results.add(nestedPaths);
-                            nestedPaths.forEach(nestedPath => results.add(nestedPath));
-                            processedEntries[entryPath] = true;
-
-                            if (Object.keys(processedEntries).filter(k => !processedEntries[k]).length == 0) {
-                                // console.log('donee!!!! nice 456');
-                                resolve(results);
-                            }
-                        });
-                    }
-                    });
-                    
-                })
-            });
-        });
-
-        this.localGames = Object.assign({}, games);
-        thang().then((stuff) => {
-            let counter = 0;
-            stuff.forEach(gamePath => {
-                const _game = require(gamePath);
-                const gameMetadata = _game.metadata && _game.metadata() || null;
-                const suffix = gameMetadata && gameMetadata.version || counter++;
-                this.localGames[_game.name + '_' + suffix] = {game: _game, path: gamePath}; 
-            });
-            this.initializeGames(this.localGames);
-        });
-
-        Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
-            this.assets[key] = new Asset({
-                'id': games[key].metadata && games[key].metadata().thumbnail,
-                'type': 'image'
-            });
-        });
+        // Object.keys(games).filter(k => games[k].metadata && games[k].metadata().thumbnail).forEach(key => {
+        //     this.assets[key] = new Asset({
+        //         'id': games[key].metadata && games[key].metadata().thumbnail,
+        //         'type': 'image'
+        //     });
+        // });
 
         this.playerViews = {};
 
@@ -440,168 +450,6 @@ class HomegamesDashboard extends ViewableGame {
             }
         });
 
-        // const game = gameCollection[gameKey];
-        
-        
-        // const modalBase = new GameNode.Shape({
-        //     coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 95),
-        //     fill: COLORS.LIGHT_CORAL,
-        //     shapeType: Shapes.POLYGON
-        // });
-
-        // const closeButton = new GameNode.Shape({
-        //     coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 10, 10),
-        //     fill: COLORS.HARD_ORANGE_RED,
-        //     shapeType: Shapes.POLYGON,
-        //     onClick: (player) => {
-        //         console.log('close');
-        //         playerViewRoot.removeChild(modalBase.node.id);
-        //     }
-        // });
-
-        // const closeX = new GameNode.Text({
-        //     textInfo: {
-        //         x: 7.5,
-        //         y: 4.5,
-        //         text: 'X',
-        //         align: 'center',
-        //         color: COLORS.WHITE,
-        //         size: 3
-        //     }
-        // });
-
-        // const assetKey = gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().thumbnail ? gameKey : 'default';
-
-        // const imgCoords = [27.5, 12.5, 45, 45];
-        // const gameImage = new GameNode.Asset({
-        //     coordinates2d:  ShapeUtils.rectangle(imgCoords[0], imgCoords[1], imgCoords[2], imgCoords[3]),
-        //     assetInfo: {
-        //         [assetKey]: {
-        //             pos: {
-        //                 x: imgCoords[0],
-        //                 y: imgCoords[1]
-        //             },
-        //             size: {
-        //                 x: imgCoords[2],
-        //                 y: imgCoords[3]
-        //             }
-        //         }
-        //     }
-        // });
-
-        // const gameName = new GameNode.Text({
-        //     textInfo: {
-        //         text: assetKey,
-        //         x: 50,
-        //         y: 5,
-        //         color: COLORS.WHITE,
-        //         size: 1.5,
-        //         align: 'center'
-        //     }
-        // });
-
-        // const author = new GameNode.Text({
-        //     textInfo: {
-        //         text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().author || 'Unknown author',
-        //         x: 50,
-        //         y: 9,
-        //         color: COLORS.ALMOST_BLACK,
-        //         size: 0.9,
-        //         align: 'center'
-        //     }
-        // });
-
-        // const description = new GameNode.Text({
-        //     textInfo: {
-        //         x: 27.5,
-        //         y: 65,
-        //         text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().description || 'No description available',
-        //         align: 'left',
-        //         size: 0.6,
-        //         color: COLORS.WHITE
-        //     }
-        // });
-
-        // const sessionText = new GameNode.Text({
-        //     textInfo: {
-        //         x: 15,
-        //         y: 17.5,
-        //         text: 'Join an existing session',
-        //         color: COLORS.WHITE,
-        //         align: 'center',
-        //         size: 1.2
-        //     }
-        // });
-
-        // let yIndex = 22.5;
-
-        // let count = 0;
-        // const sessionList = Object.values(this.sessions).filter(session => {
-        //     return session.game === gameKey;
-        // }).map(session => {
-        //     const sessionNode = new GameNode.Shape({
-        //         shapeType: Shapes.POLYGON,
-        //         coordinates2d: ShapeUtils.rectangle(10, yIndex, 10, 8),
-        //         fill: COLORS.GRAY,
-        //         onClick: (player, x, y) => {
-        //             this.joinSession(player, session);
-        //         }
-        //     });
-
-        //     const sessionText = new GameNode.Text({
-        //         textInfo: {
-        //             x: 15,
-        //             y: yIndex + 3,
-        //             size: 0.8,
-        //             color: COLORS.WHITE,
-        //             align: 'center',
-        //             text: `Session ${session.id}`
-        //         }
-        //     });
-
-        //     yIndex += 10;
-        //     sessionNode.addChild(sessionText);
-        //     return sessionNode;
-        // });
-
-        // const createButton = new GameNode.Shape({
-        //     fill: COLORS.COOL_GREEN,
-        //     coordinates2d: ShapeUtils.rectangle(75, 22.5, 20, 15),
-        //     shapeType: Shapes.POLYGON,
-        //     onClick: () => {
-        //         this.startSession(player, gameKey, versionKey);
-        //     }
-        // });
-
-        // const createIcon = new GameNode.Text({
-        //     textInfo: {
-        //         color: COLORS.ALMOST_BLACK,
-        //         x: 85, 
-        //         y: 25,
-        //         text: '\u1405',
-        //         align: 'center',
-        //         size: 5
-        //     }
-        // });
-
-        // const createText = new GameNode.Text({
-        //     textInfo: {
-        //         x: 85,
-        //         y: 17.5, 
-        //         text: 'Create a session',
-        //         color: COLORS.WHITE,
-        //         size: 1.3,
-        //         align: 'center'
-        //     }
-        // });
-
-        // createButton.addChildren(createText, createIcon);
-
-        // closeButton.addChildren(closeX);
-
-        // sessionList.forEach(sessionNode => modalBase.addChild(sessionNode));
-        // modalBase.addChildren(closeButton, gameName, author, gameImage, description, sessionText, createButton);
-
         playerViewRoot.addChild(modal);
     }
 
@@ -609,97 +457,97 @@ class HomegamesDashboard extends ViewableGame {
         return this.assets;
     }
 
-    initializeGames(gameCollection) {
-        const gameCount = Object.keys(gameCollection).length;
-        const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
-        console.log('need ' + pagesNeeded + ' pages with ' + rowsPerPage + ' rows per page for ' + gameCount + ' games')
-        let baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
+    // initializeGames(gameCollection) {
+    //     const gameCount = Object.keys(gameCollection).length;
+    //     const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
+    //     console.log('need ' + pagesNeeded + ' pages with ' + rowsPerPage + ' rows per page for ' + gameCount + ' games')
+    //     let baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
 
-        console.log(gameContainerHeight + gameContainerYMargin);
-        // pages need to match height of game container to avoid the base getting cut off
-        const paddingMultiplier = Math.ceil(baseSize / gameContainerHeight) / (baseSize / gameContainerHeight);
-        baseSize *= paddingMultiplier;
+    //     console.log(gameContainerHeight + gameContainerYMargin);
+    //     // pages need to match height of game container to avoid the base getting cut off
+    //     const paddingMultiplier = Math.ceil(baseSize / gameContainerHeight) / (baseSize / gameContainerHeight);
+    //     baseSize *= paddingMultiplier;
 
-        this.base.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
-        this.updatePlaneSize(baseSize);
+    //     this.base.node.coordinates2d = ShapeUtils.rectangle(0, 0, baseSize, baseSize);
+    //     this.updatePlaneSize(baseSize);
 
-        let index = 0;
-        for (let game in gameCollection) {
-            const realStartX = gameContainerXMargin + ( (optionWidth + gameLeftXMargin) * (index % gamesPerRow) );
-            const startYIndex = (gameContainerYMargin) + gameTopYMargin;
-            // hack
-            const textHeight = 2.5;
-            const realStartY = gameContainerYMargin + ( (optionHeight + gameTopYMargin) *  Math.floor(index / gamesPerRow) ) + textHeight;
+    //     let index = 0;
+    //     for (let game in gameCollection) {
+    //         const realStartX = gameContainerXMargin + ( (optionWidth + gameLeftXMargin) * (index % gamesPerRow) );
+    //         const startYIndex = (gameContainerYMargin) + gameTopYMargin;
+    //         // hack
+    //         const textHeight = 2.5;
+    //         const realStartY = gameContainerYMargin + ( (optionHeight + gameTopYMargin) *  Math.floor(index / gamesPerRow) ) + textHeight;
 
-            const gameOptionVisualBase = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(
-                    realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
-                    realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
-                    optionWidth, 
-                    optionHeight
-                ),
-                fill: OPTION_COLOR
-                // fill: COLORS.CREAM//Colors.randomColor()
-            });
+    //         const gameOptionVisualBase = new GameNode.Shape({
+    //             shapeType: Shapes.POLYGON,
+    //             coordinates2d: ShapeUtils.rectangle(
+    //                 realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
+    //                 realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
+    //                 optionWidth, 
+    //                 optionHeight
+    //             ),
+    //             fill: OPTION_COLOR
+    //             // fill: COLORS.CREAM//Colors.randomColor()
+    //         });
 
 
-            // transparent box with click handler (so image shows under)
-            const gameOptionClickHandler = new GameNode.Shape({
-                onClick: (playerId) => {
-                    this.onGameOptionClick(gameCollection, playerId, game);
-                },
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(
-                    realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
-                    realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
-                    optionWidth, 
-                    optionHeight
-                )
-                // fill: COLORS.CREAM//Colors.randomColor()
-            });
+    //         // transparent box with click handler (so image shows under)
+    //         const gameOptionClickHandler = new GameNode.Shape({
+    //             onClick: (playerId) => {
+    //                 this.onGameOptionClick(gameCollection, playerId, game);
+    //             },
+    //             shapeType: Shapes.POLYGON,
+    //             coordinates2d: ShapeUtils.rectangle(
+    //                 realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
+    //                 realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
+    //                 optionWidth, 
+    //                 optionHeight
+    //             )
+    //             // fill: COLORS.CREAM//Colors.randomColor()
+    //         });
 
-            const assetKey = gameCollection[game].metadata && gameCollection[game].metadata().thumbnail ? game : 'default';
+    //         const assetKey = gameCollection[game].metadata && gameCollection[game].metadata().thumbnail ? game : 'default';
 
-            const gameOption = new GameNode.Asset({
-                coordinates2d:  ShapeUtils.rectangle(
-                    realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
-                    realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
-                    optionWidth, 
-                    optionHeight
-                ),//ShapeUtils.rectangle(gamePos[0] + optionMarginX, gamePos[1] + optionMarginY, gameOptionSize.x, gameOptionSize.y),
-                assetInfo: {
-                    [assetKey]: {
-                        pos: {
-                            x: realStartX,//gamePos[0] + optionMarginX,
-                            y: realStartY//gamePos[1] + optionMarginY
-                        },
-                        size: {
-                            x: optionWidth,//(.8 * gameOptionSize.x),
-                            y: optionHeight//(.8 * gameOptionSize.y)
-                        }
-                    }
-                }
-                // playerIds: [playerId]
-            });
+    //         const gameOption = new GameNode.Asset({
+    //             coordinates2d:  ShapeUtils.rectangle(
+    //                 realStartX,//startIndex + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)),//gameContainerXMargin + ((optionWidth + gameLeftXMargin) * (index % gamesPerRow)), 
+    //                 realStartY,//gameContainerYMargin + ((optionHeight + gameTopYMargin) * Math.floor(index / gamesPerRow)), 
+    //                 optionWidth, 
+    //                 optionHeight
+    //             ),//ShapeUtils.rectangle(gamePos[0] + optionMarginX, gamePos[1] + optionMarginY, gameOptionSize.x, gameOptionSize.y),
+    //             assetInfo: {
+    //                 [assetKey]: {
+    //                     pos: {
+    //                         x: realStartX,//gamePos[0] + optionMarginX,
+    //                         y: realStartY//gamePos[1] + optionMarginY
+    //                     },
+    //                     size: {
+    //                         x: optionWidth,//(.8 * gameOptionSize.x),
+    //                         y: optionHeight//(.8 * gameOptionSize.y)
+    //                     }
+    //                 }
+    //             }
+    //             // playerIds: [playerId]
+    //         });
 
-            const gameName = new GameNode.Text({
-                textInfo: {
-                    text: game,//'ayy lmao ' + realStartY,
-                    x: realStartX + (optionWidth / 2),
-                    y: realStartY - textHeight - 4, //hack,
-                    color: DASHBOARD_TEXT_COLOR,
-                    align: 'center',
-                    size: 1.6
-                }
-            });
+    //         const gameName = new GameNode.Text({
+    //             textInfo: {
+    //                 text: game,//'ayy lmao ' + realStartY,
+    //                 x: realStartX + (optionWidth / 2),
+    //                 y: realStartY - textHeight - 4, //hack,
+    //                 color: DASHBOARD_TEXT_COLOR,
+    //                 align: 'center',
+    //                 size: 1.6
+    //             }
+    //         });
 
-            gameOptionVisualBase.addChildren(gameOption, gameOptionClickHandler, gameName);
+    //         gameOptionVisualBase.addChildren(gameOption, gameOptionClickHandler, gameName);
 
-            this.base.addChild(gameOptionVisualBase);
-            index++;   
-        }
-    }
+    //         this.base.addChild(gameOptionVisualBase);
+    //         index++;   
+    //     }
+    // }
 
 
     initializeCollectionPlane(gameCollection) {
@@ -710,6 +558,8 @@ class HomegamesDashboard extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(0, 0, 1000, 1000),
             fill: BASE_COLOR
         });
+
+        return planeBase;
         
         const plane = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -718,7 +568,7 @@ class HomegamesDashboard extends ViewableGame {
 
         plane.addChildren(planeBase);
         
-        // return plane;
+        return plane;
         const gameCount = Object.keys(gameCollection).length;
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
         const baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
@@ -751,6 +601,10 @@ class HomegamesDashboard extends ViewableGame {
                 // fill: COLORS.CREAM//Colors.randomColor()
             });
 
+            console.log("GAME KEY");
+            console.log(game);
+            console.log(gameCollection[game]);
+
 
             // transparent box with click handler (so image shows under)
             const gameOptionClickHandler = new GameNode.Shape({
@@ -767,7 +621,7 @@ class HomegamesDashboard extends ViewableGame {
                 // fill: COLORS.CREAM//Colors.randomColor()
             });
 
-            const assetKey = gameCollection[game].metadata && gameCollection[game].metadata().thumbnail ? game : 'default';
+            const assetKey = gameCollection[game].metadata && gameCollection[game].metadata.thumbnail ? game : 'default';
 
             const gameOption = new GameNode.Asset({
                 coordinates2d:  ShapeUtils.rectangle(
@@ -810,18 +664,11 @@ class HomegamesDashboard extends ViewableGame {
         return plane;
     }
 
-    // wtf    
-    // updateSessionInfo(sessionId) {
-    //     this.sessions[sessionId].getPlayers((players) => { 
-    //         this.sessions[sessionId].players = players;
-    //     });
-    // }
-
     handlePlayerSearch(playerId, text, playerSearchBox) {
         // hack. should be finding text. but also shouldnt be adding children to this text node
         const newText = playerSearchBox.getChildren()[0].clone({});
         networkHelper.searchGames(text).then(results => {
-            this.renderGames(playerId, {results, query: text});
+            this.renderGames(playerId);//, {results, query: text});
         });
         if (!text) {
             newText.node.text.text = 'Search';
@@ -833,11 +680,14 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     handleNewPlayer({ playerId, settings: playerSettings, info: playerInfo, requestedGame }) {
-
-        console.log('adddddding player');
-        // console.log(player);
-
-        const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
+        this.playerStates[playerId] = {
+            view: {
+                x: 0, 
+                y: 0, 
+                w: gameContainerWidth, 
+                h: gameContainerHeight
+            }
+        };
 
         const playerNodeRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -846,67 +696,52 @@ class HomegamesDashboard extends ViewableGame {
         });
 
         this.playerViews[playerId] = {
-            view: playerView,
             root: playerNodeRoot,
         }
 
-        console.log('whattfffsaadst');
-        console.log(this.playerViews);
-
-        this.renderGames(playerId, {});
-
         this.getViewRoot().addChild(playerNodeRoot);
 
-        if (requestedGame) {
-            const { gameId, versionId } = requestedGame;
+        this.renderGames(playerId);//, {});
 
-           https.get(`https://landlord.homegames.io/games/${gameId}/version/${versionId}`, (res) => {
-               if (res.statusCode == 200) {
-                   res.on('data', (buf) => {
-                       const gameData = JSON.parse(buf);
-                       if (!this.downloadedGames[gameId]) {
-                            this.downloadedGames[gameId] = {};
-                       }
+        // if (requestedGame) {
+        //     const { gameId, versionId } = requestedGame;
 
-                       this.downloadedGames[gameId][versionId] = gameData;
-                       this.showGameModal(this.downloadedGames, player, gameId, versionId);
-                   });
-               } else {
-                   console.log('dont know what happened');
-               }
-           });
-        }
+        //    https.get(`https://landlord.homegames.io/games/${gameId}/version/${versionId}`, (res) => {
+        //        if (res.statusCode == 200) {
+        //            res.on('data', (buf) => {
+        //                const gameData = JSON.parse(buf);
+        //                if (!this.downloadedGames[gameId]) {
+        //                     this.downloadedGames[gameId] = {};
+        //                }
+
+        //                this.downloadedGames[gameId][versionId] = gameData;
+        //                this.showGameModal(this.downloadedGames, player, gameId, versionId);
+        //            });
+        //        } else {
+        //            console.log('dont know what happened');
+        //        }
+        //    });
+        // }
     }
 
-    renderGames(playerId, {results, query}) {
-        const playerView = this.playerViews[playerId].view;
-        // const existingViewNode = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
-        
-        const playerNodeRoot = this.playerViews[playerId].root;
-        playerNodeRoot.clearChildren();
+    renderGames(playerId) {//, {results, query}) {
+        console.log('player state should have results + query for polayer id ' + playerId);
+        console.log(this.playerStates);
+        console.log(this.games);
+        const playerState = this.playerStates[playerId];
 
-        const playerGameViewRoot = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
-            playerIds: [playerId]
-        });
+        const playerView = playerState.view;
+        console.log(playerView);
+        if (playerState) {
+            const nodeRoot = this.playerViews[playerId].root;
 
-        let view;
-        if (results) {
-            const plane = this.initializeCollectionPlane(results.games);
-            view = ViewUtils.getView(
+            const plane = playerState.results ? resultPlane(playerState.results) : this.plane;
+
+            console.log('planbe!!!');
+            console.log(playerView)
+            console.log(plane);
+            const view = ViewUtils.getView(
                 plane,
-                playerView, 
-                [playerId], 
-                {
-                    filter: (node) => node.node.id !== plane.getChildren()[0].node.id, 
-                    y: (100 - containerHeight)
-                }
-            );
-            // return;
-        } else {
-            view = ViewUtils.getView(
-                this.getPlane(),
                 playerView, 
                 [playerId], 
                 {
@@ -914,118 +749,172 @@ class HomegamesDashboard extends ViewableGame {
                     y: (100 - containerHeight)
                 }
             );
+            console.log('noew view');
+            console.log(view);
+
+            const dashboardContent = renderDashboard({ playerId, plane, playerView: view });
+
+            const playerNodeRoot = this.playerViews[playerId].root;
+            playerNodeRoot.clearChildren();
+
+            const tang = new GameNode.Shape({
+                fill: COLORS.WHITE,
+                coordinates2d: ShapeUtils.rectangle(20, 20, 20, 20),
+                shapeType: Shapes.POLYGON
+            });
+
+            nodeRoot.addChild(view);
+            // nodeRoot.addChild(dashboardContent);
+
+            console.log('i have node root to render to, and state to know what to render');
         }
-
-        playerGameViewRoot.addChild(view);
-
-        const playerSearchBox = new GameNode.Shape({
-            shapeType: Shapes.POLYGON, 
-            coordinates2d: ShapeUtils.rectangle(12.5, 2.5, 75, 10),
-            playerIds: [playerId],
-            fill: SEARCH_BOX_COLOR
-        });
-
-        const playerSearchText = new GameNode.Text({
-            textInfo: {
-                x: 15, // maybe need a function to map text size given a screen size
-                y: 5.5,
-                text: query || 'Search - coming soon',
-                color: SEARCH_TEXT_COLOR,
-                size:1.8
-            },
-            playerIds: [playerId]
-        });
-
-        playerSearchBox.addChild(playerSearchText);
-
-        let canGoDown, canGoUp = false;
-
-        const baseHeight = this.base.node.coordinates2d[2][1];
-
-        const currentView = this.playerViews[playerId].view;
-        if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {     
-            canGoUp = true;
-        } 
+        // const playerView = this.playerViews[playerId].view;
+        // // const existingViewNode = this.playerViews[player.id] && this.playerViews[player.id].viewRoot;
         
-        if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
-            canGoDown = true;
-        }
-        const upArrow = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(90, 22.5, 10, 20),
-            playerIds: [playerId],
-            fill: BASE_COLOR,
-            onClick: (player, x, y) => {
+        // const playerNodeRoot = this.playerViews[playerId].root;
+        // playerNodeRoot.clearChildren();
 
-                const _plane = results ? this.initializeCollectionPlane(results.games) : this.getPlane();
+        // const playerGameViewRoot = new GameNode.Shape({
+        //     shapeType: Shapes.POLYGON,
+        //     coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+        //     playerIds: [playerId]
+        // });
 
-                const currentView = Object.assign({}, this.playerViews[playerId].view);
+        // let view;
+        // if (results) {
+        //     const plane = this.initializeCollectionPlane(results.games);
+        //     view = ViewUtils.getView(
+        //         plane,
+        //         playerView, 
+        //         [playerId], 
+        //         {
+        //             filter: (node) => node.node.id !== plane.getChildren()[0].node.id, 
+        //             y: (100 - containerHeight)
+        //         }
+        //     );
+        //     // return;
+        // } else {
+        //     view = ViewUtils.getView(
+        //         this.getPlane(),
+        //         playerView, 
+        //         [playerId], 
+        //         {
+        //             filter: (node) => node.node.id !== this.base.node.id, 
+        //             y: (100 - containerHeight)
+        //         }
+        //     );
+        // }
 
-                if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {
-                    currentView.y -= gameContainerHeight + gameContainerYMargin;
-                    this.playerViews[playerId].view = currentView;
-                    this.renderGames(playerId, {});
-                } 
-            }
-        });
+        // playerGameViewRoot.addChild(view);
 
-        const upText = new GameNode.Text({
-            textInfo: {
-                x: 95,
-                y: 27.5,
-                align: 'center',
-                size: 1.1,
-                text: '\u25B2',
-                color: COLORS.BLACK
-            }
-        });
+        // const playerSearchBox = new GameNode.Shape({
+        //     shapeType: Shapes.POLYGON, 
+        //     coordinates2d: ShapeUtils.rectangle(12.5, 2.5, 75, 10),
+        //     playerIds: [playerId],
+        //     fill: SEARCH_BOX_COLOR
+        // });
 
-        upArrow.addChild(upText);
+        // const playerSearchText = new GameNode.Text({
+        //     textInfo: {
+        //         x: 15, // maybe need a function to map text size given a screen size
+        //         y: 5.5,
+        //         text: query || 'Search - coming soon',
+        //         color: SEARCH_TEXT_COLOR,
+        //         size:1.8
+        //     },
+        //     playerIds: [playerId]
+        // });
 
-        const downArrow = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(90, 72.5, 10, 20),
-            playerIds: [playerId],
-            fill: BASE_COLOR,
-            onClick: (player, x, y) => {
-                const _plane = results ? this.initializeCollectionPlane(results.games) : this.getPlane();
+        // playerSearchBox.addChild(playerSearchText);
 
-                const currentView = Object.assign({}, this.playerViews[playerId].view);
+        // let canGoDown, canGoUp = false;
 
-                // y value of bottom right corner of base (assumed rectangle)
-                const baseHeight = this.base.node.coordinates2d[2][1];
+        // const baseHeight = this.base.node.coordinates2d[2][1];
 
-                // game container height + game y margin would be the new 0, 0 of the view, so we multiply by 2 to make sure the new view would be covered by the base
-                if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
-                    currentView.y += gameContainerHeight + gameContainerYMargin;
-                    this.playerViews[playerId].view = currentView;
-                    this.renderGames(playerId, {});
-                } 
+        // const currentView = this.playerViews[playerId].view;
+        // if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {     
+        //     canGoUp = true;
+        // } 
+        
+        // if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
+        //     canGoDown = true;
+        // }
+        // const upArrow = new GameNode.Shape({
+        //     shapeType: Shapes.POLYGON,
+        //     coordinates2d: ShapeUtils.rectangle(90, 22.5, 10, 20),
+        //     playerIds: [playerId],
+        //     fill: BASE_COLOR,
+        //     onClick: (player, x, y) => {
 
-            }
-        });
+        //         const _plane = results ? this.initializeCollectionPlane(results.games) : this.getPlane();
 
-        const downText = new GameNode.Text({
-            textInfo: {
-                x: 95,
-                y: 77.5,
-                align: 'center',
-                size: 1.1,
-                text: '\u25BC',
-                color: COLORS.BLACK
-            }
-        });
+        //         const currentView = Object.assign({}, this.playerViews[playerId].view);
 
-        downArrow.addChild(downText);
+        //         if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {
+        //             currentView.y -= gameContainerHeight + gameContainerYMargin;
+        //             this.playerViews[playerId].view = currentView;
+        //             this.renderGames(playerId, {});
+        //         } 
+        //     }
+        // });
 
-        playerNodeRoot.addChild(playerGameViewRoot);
-        playerNodeRoot.addChild(playerSearchBox);
-        if (canGoUp) {
-            playerNodeRoot.addChildren(upArrow);
-        }
-        if (canGoDown) {
-            playerNodeRoot.addChildren(downArrow);
-        }
+        // const upText = new GameNode.Text({
+        //     textInfo: {
+        //         x: 95,
+        //         y: 27.5,
+        //         align: 'center',
+        //         size: 1.1,
+        //         text: '\u25B2',
+        //         color: COLORS.BLACK
+        //     }
+        // });
+
+        // upArrow.addChild(upText);
+
+        // const downArrow = new GameNode.Shape({
+        //     shapeType: Shapes.POLYGON,
+        //     coordinates2d: ShapeUtils.rectangle(90, 72.5, 10, 20),
+        //     playerIds: [playerId],
+        //     fill: BASE_COLOR,
+        //     onClick: (player, x, y) => {
+        //         const _plane = results ? this.initializeCollectionPlane(results.games) : this.getPlane();
+
+        //         const currentView = Object.assign({}, this.playerViews[playerId].view);
+
+        //         // y value of bottom right corner of base (assumed rectangle)
+        //         const baseHeight = this.base.node.coordinates2d[2][1];
+
+        //         // game container height + game y margin would be the new 0, 0 of the view, so we multiply by 2 to make sure the new view would be covered by the base
+        //         if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
+        //             currentView.y += gameContainerHeight + gameContainerYMargin;
+        //             this.playerViews[playerId].view = currentView;
+        //             this.renderGames(playerId, {});
+        //         } 
+
+        //     }
+        // });
+
+        // const downText = new GameNode.Text({
+        //     textInfo: {
+        //         x: 95,
+        //         y: 77.5,
+        //         align: 'center',
+        //         size: 1.1,
+        //         text: '\u25BC',
+        //         color: COLORS.BLACK
+        //     }
+        // });
+
+        // downArrow.addChild(downText);
+
+        // playerNodeRoot.addChild(playerGameViewRoot);
+        // playerNodeRoot.addChild(playerSearchBox);
+        // if (canGoUp) {
+        //     playerNodeRoot.addChildren(upArrow);
+        // }
+        // if (canGoDown) {
+        //     playerNodeRoot.addChildren(downArrow);
+        // }
     }
 
     downloadGame(gameId, versionId) {
