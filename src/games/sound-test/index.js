@@ -122,7 +122,7 @@ class SoundTest extends Game {
                 'id': 'd9f097268324319d07a903cb50dc7210',
                 'type': 'audio'
             })
-        }
+        };
     }
     
     // getRoot() {

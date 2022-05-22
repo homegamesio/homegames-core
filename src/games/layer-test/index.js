@@ -32,25 +32,25 @@ class LayerTest extends Game {
             }
         ];
 
-       const increment = 1;
-       for (let i = increment; i < 50; i+= 2 * increment) {
-           const childColor = Colors.randomColor();
-           const layer = new GameNode.Shape({
-               shapeType: Shapes.POLYGON,
-               coordinates2d: [
-                   [i, i],
-                   [i + 100 - (2 * i), i],
-                   [i + 100 - (2 * i), i + 100 - (2 * i)],
-                   [i, i + 100 - (2 * i)],
-                   [i, i]
-               ],
-               fill: childColor,
-               onClick: this.handleLayerClick
-           });
-           this.layers.push({
-               root: layer
-           });
-       }
+        const increment = 1;
+        for (let i = increment; i < 50; i+= 2 * increment) {
+            const childColor = Colors.randomColor();
+            const layer = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: [
+                    [i, i],
+                    [i + 100 - (2 * i), i],
+                    [i + 100 - (2 * i), i + 100 - (2 * i)],
+                    [i, i + 100 - (2 * i)],
+                    [i, i]
+                ],
+                fill: childColor,
+                onClick: this.handleLayerClick
+            });
+            this.layers.push({
+                root: layer
+            });
+        }
     }
 
     handleNewPlayer() {

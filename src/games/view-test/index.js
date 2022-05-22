@@ -52,7 +52,7 @@ class ViewTest extends ViewableGame {
             const newView = Object.assign({}, this.playerViews[player.id].view);
 
             if (key === 'w' && this.playerViews[player.id].view.y - 1 >= 0) {
-                newView.y = this.playerViews[player.id].view.y - 1    
+                newView.y = this.playerViews[player.id].view.y - 1;    
             }
             if (key === 'a' && this.playerViews[player.id].view.x - 1 >= 0) {
                 newView.x = this.playerViews[player.id].view.x - 1;
@@ -91,7 +91,7 @@ class ViewTest extends ViewableGame {
         this.playerViews[playerId] = {
             view: playerView,
             viewRoot: playerViewRoot
-        }
+        };
 
         this.getViewRoot().addChild(playerViewRoot);
     }

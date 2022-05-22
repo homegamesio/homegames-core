@@ -13,7 +13,7 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 class Homenames {
     constructor(port) {
-        console.log("running homenames on port " + port);
+        console.log('running homenames on port ' + port);
         
         this.playerInfo = {};
         this.playerSettings = {};

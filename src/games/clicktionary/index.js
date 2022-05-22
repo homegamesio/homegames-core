@@ -90,7 +90,7 @@ class Clicktionary extends Game {
     }
 
     handlePlayerDisconnect(playerId) {
-        delete this.players[playerId]
+        delete this.players[playerId];
     }
 
     renderPlayerList() {

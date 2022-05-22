@@ -15,7 +15,7 @@ class InputTest extends Game {
             thumbnail: 'c6d38aca68fed708d08d284a5d201a0a'
         };
     }
-        // TODO: fix this one
+    // TODO: fix this one
 
     constructor() {
         super();
@@ -61,7 +61,7 @@ class InputTest extends Game {
 
         let image;
 
-        let _that = this;
+        const _that = this;
 
         this.fileInputNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,

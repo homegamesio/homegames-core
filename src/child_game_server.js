@@ -34,12 +34,12 @@ const startServer = (sessionInfo) => {
     console.log(sessionInfo);
 
     // let squishLib = require.resolve('squishjs');
-    let squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0730');
+    const squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0730');
 
     if (sessionInfo.gamePath) {
 
         if (sessionInfo.referenceSquishMap) {
-            console.log("I HAVE A CUSTOM SQUISH MAP!");
+            console.log('I HAVE A CUSTOM SQUISH MAP!');
             process.env.STAGE = 'PRODUCTION';
             process.env.SQUISH_MAP = JSON.stringify(sessionInfo.referenceSquishMap);
         }
@@ -56,21 +56,21 @@ const startServer = (sessionInfo) => {
     if (HTTPS_ENABLED) {
         console.log('hello friend');
         console.log(CERT_PATH);
-            console.log('hello friend 123');
+        console.log('hello friend 123');
  
-            gameSession.initialize(() => {
-                console.log('hello friend 123456');
-                socketServer(gameSession, sessionInfo.port, () => {
-                    console.log('hello friend 123456789');
-                    sendProcessMessage({
-                        'success': true
-                    });
-                }, {
-                    certPath: `${CERT_PATH}/fullchain.pem`,
-                    keyPath: `${CERT_PATH}/privkey.pem`
-                    
+        gameSession.initialize(() => {
+            console.log('hello friend 123456');
+            socketServer(gameSession, sessionInfo.port, () => {
+                console.log('hello friend 123456789');
+                sendProcessMessage({
+                    'success': true
                 });
+            }, {
+                certPath: `${CERT_PATH}/fullchain.pem`,
+                keyPath: `${CERT_PATH}/privkey.pem`
+                    
             });
+        });
     } else {
         gameSession.initialize(() => {
             socketServer(gameSession, sessionInfo.port, () => {

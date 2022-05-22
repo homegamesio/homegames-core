@@ -1,3 +1,3 @@
 module.exports = {
-	SOUND: 'SOUND'
-}
+    SOUND: 'SOUND'
+};

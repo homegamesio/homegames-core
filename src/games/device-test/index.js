@@ -9,7 +9,7 @@ class DeviceTest extends Game {
             squishVersion: '0710',
             author: 'Joseph Garcia', 
             tickRate: 10
-       };
+        };
     }
 
     constructor() {
@@ -102,7 +102,7 @@ class DeviceTest extends Game {
                     }
                 } 
             }
-        }
+        };
     }
 
     getLayers() {

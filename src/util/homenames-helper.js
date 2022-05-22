@@ -26,7 +26,7 @@ const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
 });
 
 const makePost = (path, _payload) => new Promise((resolve, reject) => {
-	const payload = JSON.stringify(_payload);
+    const payload = JSON.stringify(_payload);
 
     let module, hostname, port;
 
@@ -67,20 +67,20 @@ const makePost = (path, _payload) => new Promise((resolve, reject) => {
 });
 
 class HomenamesHelper {
-	constructor(sessionPort) {
+    constructor(sessionPort) {
         this.sessionPort = sessionPort;
         this.playerListeners = {};
-	}
+    }
 
-	getPlayerInfo(playerId) {
-		return new Promise((resolve, reject) => {
-			makeGet(`/info/${playerId}`).then(resolve).catch(err => {
+    getPlayerInfo(playerId) {
+        return new Promise((resolve, reject) => {
+            makeGet(`/info/${playerId}`).then(resolve).catch(err => {
                 console.log('watttt');
                 console.log(err);
             });
-		});
+        });
         console.log('what abc');
-	}
+    }
 
     addListener(playerId) {//=> new Promise((resolve, reject) => {
         return new Promise((resolve, reject) => {
@@ -103,13 +103,13 @@ class HomenamesHelper {
         console.log('what def');   
     }
 
-	updatePlayerInfo(playerId, { playerName }) {
+    updatePlayerInfo(playerId, { playerName }) {
 
         console.log('what ghi');
-		return new Promise((resolve, reject) => {
-			makePost('/' + playerId + '/info', { name: playerName }).then(resolve);
-		});
-	}
+        return new Promise((resolve, reject) => {
+            makePost('/' + playerId + '/info', { name: playerName }).then(resolve);
+        });
+    }
 
     updatePlayerSetting(playerId, settingKey, value) {
 

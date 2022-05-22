@@ -37,7 +37,7 @@ class GameSession {
         this.customTopLayer = {
             root: this.homegamesRoot.getTopLayerRoot(),
             scale: {x: 1, y: 1}
-        }
+        };
 
         // TODO: make this configurable per player (eg. configurable bezel size)
         this.scale = {x: (100 - BEZEL_SIZE_X) / 100, y:  (100 - BEZEL_SIZE_Y) / 100};
@@ -46,7 +46,7 @@ class GameSession {
         // this.squisher.hgRoot.players = this.game.players;
         // this.squisher.hgRoot.spectators = this.spectators;
         this.hgRoot = this.squisher.hgRoot;
-        this.squisher.addListener((squished) => {this.handleSquisherUpdate(squished)});//this.handleSquisherUpdate);
+        this.squisher.addListener((squished) => {this.handleSquisherUpdate(squished);});//this.handleSquisherUpdate);
         this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
         this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
 
@@ -83,7 +83,7 @@ class GameSession {
                         }
 
                         return true;
-                    })
+                    });
                     // for (let i = 0; i < playerFrame.length; i++) {
                     //     // TODO: find a more performant way to do this filtering
                     //     const unsquished = this.squisher.unsquish(playerFrame[i]);
@@ -98,11 +98,11 @@ class GameSession {
                     //             }
                     //         }
                     //     }
-                        // console.log('wasss');
-                        // console.log(this.squisher.unsquish(playerFrame[i]));
-                        // if (playerFrame[i][2] === 48) {
-                        //     console.log('plapssssss');
-                        // }
+                    // console.log('wasss');
+                    // console.log(this.squisher.unsquish(playerFrame[i]));
+                    // if (playerFrame[i][2] === 48) {
+                    //     console.log('plapssssss');
+                    // }
                     // }
                     // playerFrame = this.squisher.getPlayerFrame(playerId).filter(f => f[2] !== 48);
                     // console.log('playuer frame');
@@ -138,39 +138,39 @@ class GameSession {
         this.players[player.id] = player;
 
         // this.homenamesHelper.addListener(player.id, (playerInfo) => {
-            // console.log('new playuer info');
-            // console.log(playerInfo);
+        // console.log('new playuer info');
+        // console.log(playerInfo);
         // }).then(() => {
-            const playerName = generateName();
+        const playerName = generateName();
 
-            this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
-                this.homenamesHelper.getPlayerInfo(player.id).then(playerInfo => {
-                    this.homenamesHelper.getPlayerSettings(player.id).then(playerSettings => {
-                        this.playerInfoMap[player.id] = playerInfo;
-                        this.playerSettingsMap[player.id] = playerSettings;
+        this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
+            this.homenamesHelper.getPlayerInfo(player.id).then(playerInfo => {
+                this.homenamesHelper.getPlayerSettings(player.id).then(playerSettings => {
+                    this.playerInfoMap[player.id] = playerInfo;
+                    this.playerSettingsMap[player.id] = playerSettings;
 
-                        this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
-                        const playerPayload = {playerId: player.id, settings: this.playerSettingsMap[player.id], info: this.playerInfoMap[player.id], requestedGame: player.requestedGame };
+                    this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+                    const playerPayload = {playerId: player.id, settings: this.playerSettingsMap[player.id], info: this.playerInfoMap[player.id], requestedGame: player.requestedGame };
 
-                        this.homenamesHelper.addListener(player.id);
+                    this.homenamesHelper.addListener(player.id);
 
-                        this.homegamesRoot.handleNewPlayer(playerPayload);
-                        this.game.handleNewPlayer && this.game.handleNewPlayer(playerPayload);
+                    this.homegamesRoot.handleNewPlayer(playerPayload);
+                    this.game.handleNewPlayer && this.game.handleNewPlayer(playerPayload);
 
-                        if (this.game.deviceRules && player.clientInfo) {
-                            const deviceRules = this.game.deviceRules();
-                            if (deviceRules.aspectRatio) {
-                                deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
-                            }
-                            if (deviceRules.deviceType) {
-                                deviceRules.deviceType(player, player.clientInfo.deviceType)
-                            }
+                    if (this.game.deviceRules && player.clientInfo) {
+                        const deviceRules = this.game.deviceRules();
+                        if (deviceRules.aspectRatio) {
+                            deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
                         }
+                        if (deviceRules.deviceType) {
+                            deviceRules.deviceType(player, player.clientInfo.deviceType);
+                        }
+                    }
 
-                        player.addInputListener(this);
-                    });
+                    player.addInputListener(this);
                 });
             });
+        });
         // });
     }
 
@@ -237,7 +237,7 @@ class GameSession {
     }
 
     movePlayer({ playerId, port }) {
-        console.log('lookuing '  +playerId)
+        console.log('lookuing '  +playerId);
         const player = this.players[playerId];
         player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
     }
@@ -292,49 +292,49 @@ class GameSession {
     }
 
     findClickHelper(x, y, spectating, playerId, node, clicked = null, scale) {
-            if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
-                const vertices = [];
+        if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+            const vertices = [];
  
-                for (const i in node.coordinates2d) {
-                            const xOffset = 100 - (scale.x * 100);
-                            const yOffset = 100 - (scale.y * 100);
+            for (const i in node.coordinates2d) {
+                const xOffset = 100 - (scale.x * 100);
+                const yOffset = 100 - (scale.y * 100);
     
 
-                        const scaledX = node.coordinates2d[i][0] * ((100 - xOffset) / 100) + (xOffset / 2);
-                        const scaledY = node.coordinates2d[i][1] * ((100 - yOffset) / 100) + (yOffset / 2);
+                const scaledX = node.coordinates2d[i][0] * ((100 - xOffset) / 100) + (xOffset / 2);
+                const scaledY = node.coordinates2d[i][1] * ((100 - yOffset) / 100) + (yOffset / 2);
 
-                        vertices.push([scaledX, scaledY]);
-                }
+                vertices.push([scaledX, scaledY]);
+            }
 
-                let isInside = false;
-                let minX = vertices[0][0];
-                let maxX = vertices[0][0];
-                let minY = vertices[0][1];
-                let maxY = vertices[0][1];
-                for (let i = 1; i < vertices.length; i++) {
-                    const vert = vertices[i];
-                    minX = Math.min(vert[0], minX);
-                    maxX = Math.max(vert[0], maxX);
-                    minY = Math.min(vert[1], minY);
-                    maxY = Math.max(vert[1], maxY);
-                }
+            let isInside = false;
+            let minX = vertices[0][0];
+            let maxX = vertices[0][0];
+            let minY = vertices[0][1];
+            let maxY = vertices[0][1];
+            for (let i = 1; i < vertices.length; i++) {
+                const vert = vertices[i];
+                minX = Math.min(vert[0], minX);
+                maxX = Math.max(vert[0], maxX);
+                minY = Math.min(vert[1], minY);
+                maxY = Math.max(vert[1], maxY);
+            }
 
-                if (!(x < minX || x > maxX || y < minY || y > maxY)) {
-                    let i = 0;
-                    let j = vertices.length - 1;
-                    for (i, j; i < vertices.length; j=i++) {
-                        if ((vertices[i][1] > y) != (vertices[j][1] > y) &&
+            if (!(x < minX || x > maxX || y < minY || y > maxY)) {
+                let i = 0;
+                let j = vertices.length - 1;
+                for (i, j; i < vertices.length; j=i++) {
+                    if ((vertices[i][1] > y) != (vertices[j][1] > y) &&
                                 x < (vertices[j][0] - vertices[i][0]) * (y - vertices[i][1]) / (vertices[j][1] - vertices[i][1]) + vertices[i][0]) {
-                            isInside = !isInside;
-                        }
+                        isInside = !isInside;
                     }
                 }
-                
-                if (isInside) {
-                    clicked = node;
-                }
-
             }
+                
+            if (isInside) {
+                clicked = node;
+            }
+
+        }
 
         for (const i in node.children) {
             clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, scale);

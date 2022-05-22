@@ -180,7 +180,7 @@ class ImageTest extends Game {
                 'id': '8870cb1616e9b60db68a0455a85aa22c',
                 'type': 'image'
             })
-        }
+        };
     }
     
     // getRoot() {
