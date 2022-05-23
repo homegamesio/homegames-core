@@ -35,6 +35,8 @@ const closeSection = ({ onClose, playerId }) => {
 };
 
 const thumbnailSection = ({ gameKey, gameMetadata }) => {
+    console.log('gmmmgmgmg');
+    console.log(gameMetadata);
     const assetKey = gameMetadata.thumbnail ? gameKey : 'default';
 
     const thumbnail = new GameNode.Asset({

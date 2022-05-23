@@ -134,8 +134,8 @@ class GameSession {
             player.receiveUpdate([5, 70, 0]);
         }
 
-        console.log('sesion just got player');
-        console.log(player);
+        // console.log('sesion just got player');
+        // console.log(player);
         this.players[player.id] = player;
 
         // this.homenamesHelper.addListener(player.id, (playerInfo) => {
@@ -171,8 +171,8 @@ class GameSession {
             });
         }
 
-        console.log('the fuck');
-        console.log(player.info.name);
+        // console.log('the fuck');
+        // console.log(player.info.name);
         if (player.info && player.info.name) {
             doThing();
         } else {
