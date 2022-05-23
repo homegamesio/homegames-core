@@ -94,6 +94,9 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
                 ws.id = Number(jsonMessage.id || generatePlayerId());
 
+                console.log('this is their id');
+                console.log(jsonMessage.id);
+
                 const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
 
                 const req = http.request({
@@ -104,12 +107,11 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 }, res => {
                     res.on('data', d => {
                         const playerInfo = JSON.parse(d);
-                        const player = new Player(ws, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
+                        console.log("player info from homenames for this person");
+                        console.log(playerInfo);
+                        const player = new Player(ws, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
                         ws.spectating = jsonMessage.spectating;
                         
-                        // if (jsonMessage.id && playerInfo.name) {
-                        //     player.name = playerInfo.name;
-                        // }{}
                         const aspectRatio = gameSession.aspectRatio;
                         const gameMetadata = gameSession.gameMetadata;
 
@@ -134,16 +136,13 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                             console.log("SENDING HOTLOAD");
                             ws.send([8, 71, 01]);
                         }
-                        const _player = listenable(player, () => {
-                            player.updatePlayerInfo();
-                        });
 
                         if (jsonMessage.spectating) {
-                            gameSession.addSpectator(_player);
+                            gameSession.addSpectator(player);
                         } else {
                             console.log("ADDING PLAUYERRR");
                             // console.log
-                            gameSession.addPlayer(_player);
+                            gameSession.addPlayer(player);
                         }
 
                     });

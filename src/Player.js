@@ -13,13 +13,13 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 let id = 0;
 
 class Player {
-    constructor(ws, spectating, clientInfo, requestedGame) {
+    constructor(ws, playerInfo, spectating, clientInfo, requestedGame) {
         this.inputListeners = new Set();
         this.stateListeners = new Set();
         this.clientInfo = clientInfo;
         this.ws = ws;
         this.id = ws?.id || ++id;
-        this.info = {};
+        this.info = playerInfo || {};
         this.spectating = spectating;
 
         this.requestedGame = requestedGame;

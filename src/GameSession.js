@@ -135,15 +135,14 @@ class GameSession {
         }
 
         console.log('sesion just got player');
+        console.log(player);
         this.players[player.id] = player;
 
         // this.homenamesHelper.addListener(player.id, (playerInfo) => {
         // console.log('new playuer info');
         // console.log(playerInfo);
         // }).then(() => {
-        const playerName = generateName();
-
-        this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
+        const doThing = () => {
             this.homenamesHelper.getPlayerInfo(player.id).then(playerInfo => {
                 this.homenamesHelper.getPlayerSettings(player.id).then(playerSettings => {
                     this.playerInfoMap[player.id] = playerInfo;
@@ -170,7 +169,19 @@ class GameSession {
                     player.addInputListener(this);
                 });
             });
-        });
+        }
+
+        console.log('the fuck');
+        console.log(player.info.name);
+        if (player.info && player.info.name) {
+            doThing();
+        } else {
+            const playerName = generateName();
+
+            this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
+                doThing();
+            });
+        }
         // });
     }
 
@@ -214,13 +225,17 @@ class GameSession {
         } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
         } else if (input.type === 'input') {
+            console.log('input isdf');
+            console.log(input);
             const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
             if (node && node.node.input) {
+                console.log('input');
+                console.log(node);
                 // hilarious
                 if (node.node.input.type === 'file') {
-                    node.node.input.oninput(player, Object.values(input.input));
+                    node.node.input.oninput(player.id, Object.values(input.input));
                 } else {
-                    node.node.input.oninput(player, input.input);
+                    node.node.input.oninput(player.id, input.input);
                 }
             }
         } else if (input.type === 'clientInfo') {

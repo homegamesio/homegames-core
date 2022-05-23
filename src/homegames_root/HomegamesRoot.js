@@ -230,9 +230,9 @@ class HomegamesRoot {
             
             playerFrame.clearChildren();
 
-            console.log('ayo iii ');
-            console.log(playerFrame.node.playerIds);
-            console.log(this.session.playerInfoMap);
+            // console.log('ayo iii ');
+            // console.log(playerFrame.node.playerIds);
+            // console.log(this.session.playerInfoMap);
             // console.log(this.session);
             const playerId = playerFrame.node.playerIds[0];
             const playerInfo = this.session.playerInfoMap[playerId];
@@ -345,6 +345,7 @@ class HomegamesRoot {
     }
 
     handlePlayerDisconnect(playerId) {
+        console.log('player just disconnected');
         delete this.viewStates[playerId];
         if (this.playerDashboards[playerId]) {
             this.playerDashboards[playerId].intervals.forEach(interval => {
