@@ -182,7 +182,6 @@ class HomegamesDashboard extends ViewableGame {
 
     constructor({ movePlayer }) {
         super(1000);
-        this.thang = 0;
         this.assets = {
             'default': new Asset({
                 'id': 'ff745468e1b725445c65245ce044da21',
@@ -720,9 +719,14 @@ class HomegamesDashboard extends ViewableGame {
 
     handleSearch(playerId) {
         const query = this.playerStates[playerId].query;
+
+        const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
+
+        this.playerStates[playerId] = {
+            view: playerView
+        };
+
         networkHelper.searchGames(query).then(results => {
-            console.log('ayyyy');
-            console.log(results);
             const games = {};
             results.games.forEach(game => {
                 games[game.id] = {
@@ -780,19 +784,24 @@ class HomegamesDashboard extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(82.5, 2.5, 5, 10),
             playerIds: [playerId],
             fill: SEARCH_BOX_COLOR,
-            onClick: (playerId) => {
-                console.log('sdsdsd');
+            onClick: (playerId) => {        
+                const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
+
+                this.playerStates[playerId] = {
+                    view: playerView
+                };
+
                 this.renderGames(playerId);
             }
         });
 
         const clearSearchX = new GameNode.Text({
             textInfo: {
-                x: 87.5,
-                y: 7.5,
-                size: 1.5,
+                x: 83.75,
+                y: 2.25,
+                size: 4,
                 text: 'x',
-                color: SEARCH_TEXT_COLOR
+                color: BASE_COLOR
             },
             playerIds: [playerId]
         });
@@ -939,7 +948,6 @@ class HomegamesDashboard extends ViewableGame {
                 oninput: (playerId, input) => {
                     this.playerStates[playerId].query = input;
                     this.handleSearch(playerId);
-                    console.log('handling search!');
                 }
             }
         });
@@ -948,14 +956,12 @@ class HomegamesDashboard extends ViewableGame {
             textInfo: {
                 x: 15, // maybe need a function to map text size given a screen size
                 y: 5.5,
-                text: 'Search - coming soon ' + (this.thang++),
+                text: 'Search',
                 color: SEARCH_TEXT_COLOR,
                 size:1.8
             },
             playerIds: [playerId]
         });
-
-        console.log('for thang, ' + this.thang + ", id: " + playerSearchBox.node.id);
 
         playerSearchBox.addChild(playerSearchText);
 
