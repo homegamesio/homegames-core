@@ -76,6 +76,19 @@ const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT
 
 const GAME_DIRECTORY = path.resolve(getConfigValue('GAME_DIRECTORY', 'hg-games'));
 
+const updateGameMetadataMap = (newMetadata) => {
+    fs.writeFileSync(GAME_DIRECTORY + '/.metadata', JSON.stringify(newMetadata));
+}
+
+const getGameMetadataMap = () => {
+    if (fs.existsSync(GAME_DIRECTORY + '/.metadata')) {
+        const bytes = fs.readFileSync(GAME_DIRECTORY + '/.metadata');
+        return JSON.parse(bytes);
+    }
+
+    return {};
+}
+
 // copied from common. TODO: refactor everything so its not embarrassing 
 const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
     const getModule = url.startsWith('https') ? https : http;
@@ -168,19 +181,23 @@ const getGamePaths = () => {
 
     // used to append to keys with clashes. we should have ids
     let suffixCount = 0;
+    const gameMetadataMap = getGameMetadataMap();
     gamePaths.forEach(gamePath => {
         const gameClass = require(gamePath);
         const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
+        const storedMetadata = gameMetadataMap[gamePath] || {};
+
+        const metadata = { ...gameMetadata, ...storedMetadata }
         const isLocal = sourceGames.has(gamePath);
-        gameMetadata.isLocal = isLocal;
-        gameMetadata.path = gamePath;
+        metadata.isLocal = isLocal;
+        metadata.path = gamePath;
         
         const gameKey = gameClass.name;
 
         if (!games[gameKey]) {
-            games[gameKey] = { class: gameClass, metadata: gameMetadata };
+            games[gameKey] = { class: gameClass, metadata };
         } else {
-            games[`${gameKey}_${suffixCount++}`] = { class: gameClass, metadata: gameMetadata };
+            games[`${gameKey}_${suffixCount++}`] = { class: gameClass, metadata };
         }
     });
 
@@ -373,7 +390,7 @@ class HomegamesDashboard extends ViewableGame {
 
                 const { gameId, versionId } = version;
 
-                this.downloadGame(version).then(gamePath => {
+                this.downloadGame( { gameDetails, version }).then(gamePath => {
                     this.localGames = {};
                     const gamePaths = getGamePaths();
                     for (const gameKey2 in gamePaths) {
@@ -424,7 +441,6 @@ class HomegamesDashboard extends ViewableGame {
         console.log('need ' + pagesNeeded + ' pages with ' + rowsPerPage + ' rows per page for ' + gameCount + ' games');
         let baseSize = (gameContainerHeight + gameContainerYMargin) * pagesNeeded;
 
-        console.log(gameContainerHeight + gameContainerYMargin);
         // pages need to match height of game container to avoid the base getting cut off
         const paddingMultiplier = Math.ceil(baseSize / gameContainerHeight) / (baseSize / gameContainerHeight);
         baseSize *= paddingMultiplier;
@@ -1014,7 +1030,10 @@ class HomegamesDashboard extends ViewableGame {
         }
     }
 
-    downloadGame({ gameId, versionId, location }) {
+    downloadGame({ gameDetails, version }) {
+        // const { name, description, thumbnail, id } = gameDetails;
+        const { id: gameId } = gameDetails;
+        const { versionId, location } = version;
         return new Promise((resolve, reject) => {
             const gamePath = `${GAME_DIRECTORY}/${gameId}/${versionId}`;
 
@@ -1029,7 +1048,13 @@ class HomegamesDashboard extends ViewableGame {
 
                 stream.on('close', () => {
                     fs.readdir(gamePath, (err, files) => {
-                        resolve(`${gamePath}/${files[0]}/index.js`);
+                        const currentMetadata = getGameMetadataMap();
+                        const indexPath = `${gamePath}/${files[0]}/index.js`;
+                
+                        currentMetadata[indexPath] = gameDetails;
+                        updateGameMetadataMap(currentMetadata);
+                
+                        resolve(indexPath);
                     });
                 });
 
