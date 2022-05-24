@@ -6,7 +6,7 @@ class PerfTest extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0710',
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/perf-test.png'
+            thumbnail: '14966f35c53029f6e219369038fe1ebf'
         };
     }
 

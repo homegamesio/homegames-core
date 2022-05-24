@@ -6,10 +6,10 @@ class DeviceTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0710',
+            squishVersion: '0740',
             author: 'Joseph Garcia', 
             tickRate: 10
-       };
+        };
     }
 
     constructor() {
@@ -29,7 +29,7 @@ class DeviceTest extends Game {
         });
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer({ playerId }) {
         const playerRootNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: [
@@ -39,12 +39,12 @@ class DeviceTest extends Game {
                 [0, 0],
                 [0, 0]
             ],
-            playerIds: [player.id]
+            playerIds: [playerId]
         });
 
         this.base.addChild(playerRootNode);
 
-        this.playerStates[player.id] = {
+        this.playerStates[playerId] = {
             screen: 0,
             root: playerRootNode
         };
@@ -59,50 +59,50 @@ class DeviceTest extends Game {
         return {
             aspectRatio: (player, x) => {
             },
-            deviceType: (player, type) => {
+            deviceType: (playerId, type) => {
                 console.log('player is using ' + type);
                 if (type === 'desktop') {
                     const playerNode = new GameNode.Shape({
                         shapeType: Shapes.POLYGON,
                         fill: COLORS.RED,
                         coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                        playerIds: [player.id]
+                        playerIds: [playerId]
                     });
 
-                    if (this.playerStates[player.id]) {
-                        this.playerStates[player.id].root.clearChildren();
-                        this.playerStates[player.id].root.addChild(playerNode);
+                    if (this.playerStates[playerId]) {
+                        this.playerStates[playerId].root.clearChildren();
+                        this.playerStates[playerId].root.addChild(playerNode);
                     }
                 } else if (type == 'mobile') {
                     const playerNode = new GameNode.Shape({
                         shapeType: Shapes.POLYGON,
                         fill: COLORS.BLUE,
                         coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                        playerIds: [player.id]
+                        playerIds: [playerId]
                     });
 
                     // 1:2 ratio for mobile
-                    player.receiveUpdate([9, 1, 2]);
+                    // player.receiveUpdate([9, 1, 2]);
 
-                    if (this.playerStates[player.id]) {
-                        this.playerStates[player.id].root.clearChildren();
-                        this.playerStates[player.id].root.addChild(playerNode);
+                    if (this.playerStates[playerId]) {
+                        this.playerStates[playerId].root.clearChildren();
+                        this.playerStates[playerId].root.addChild(playerNode);
                     }
                 } else {
                     const playerNode = new GameNode.Shape({
                         shapeType: Shapes.POLYGON,
                         fill: COLORS.TERRACOTTA,
                         coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                        playerIds: [player.id]
+                        playerIds: [playerId]
                     });
 
-                    if (this.playerStates[player.id]) {
-                        this.playerStates[player.id].root.clearChildren();
-                        this.playerStates[player.id].root.addChild(playerNode);
+                    if (this.playerStates[playerId]) {
+                        this.playerStates[playerId].root.clearChildren();
+                        this.playerStates[playerId].root.addChild(playerNode);
                     }
                 } 
             }
-        }
+        };
     }
 
     getLayers() {

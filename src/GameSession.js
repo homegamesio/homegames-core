@@ -1,6 +1,6 @@
-const { Squisher } = require('squish-0710');
+const { Squisher } = require('squish-0740');
 const { generateName } = require('./common/util');
-const HomegamesRoot = require('./HomegamesRoot');
+const HomegamesRoot = require('./homegames_root/HomegamesRoot');
 
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
@@ -10,6 +10,7 @@ if (baseDir.endsWith('src')) {
 }
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const HomenamesHelper = require('./util/homenames-helper');
 
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
@@ -20,37 +21,65 @@ class GameSession {
     constructor(game, port) {
         this.game = game;
         this.port = port;
-        this.spectators = {};
 
-        this.homegamesRoot = new HomegamesRoot(game, false, false);
+        this.homenamesHelper = new HomenamesHelper(this.port);
+
+        this.playerInfoMap = {};
+        this.playerSettingsMap = {};
+
+        this.homegamesRoot = new HomegamesRoot(this, false, false);
         this.customBottomLayer = {
             root: this.homegamesRoot.getRoot(),
             scale: {x: 1, y: 1},
             assets: this.homegamesRoot.constructor.metadata().assets
         };
 
+        this.customTopLayer = {
+            root: this.homegamesRoot.getTopLayerRoot(),
+            scale: {x: 1, y: 1}
+        };
+
         // TODO: make this configurable per player (eg. configurable bezel size)
         this.scale = {x: (100 - BEZEL_SIZE_X) / 100, y:  (100 - BEZEL_SIZE_Y) / 100};
 
-        this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer });
-        // this.squisher.hgRoot.players = this.game.players;
-        // this.squisher.hgRoot.spectators = this.spectators;
+        this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer, customTopLayer: this.customTopLayer });
+        
         this.hgRoot = this.squisher.hgRoot;
-        this.squisher.addListener((squished) => {this.handleSquisherUpdate(squished)});//this.handleSquisherUpdate);
+        this.squisher.addListener((squished) => {this.handleSquisherUpdate(squished);});
         this.gameMetadata = this.game.constructor.metadata && this.game.constructor.metadata();
         this.aspectRatio = this.gameMetadata && this.gameMetadata.aspectRatio || {x: 16, y: 9}; 
+
+        this.players = {};
+        this.spectators = {};
     }
 
     handleSquisherUpdate(squished) {
-        for (const playerId in this.game.players) {
-            // console.log("doing this");
-            // console.log(this.squisher.playerStates[playerId]);
-            this.game.players[playerId].receiveUpdate(this.squisher.playerStates[playerId].flat());
-            // this.game.players[playerId].receiveUpdate(squished.flat());
-        }
+        for (const playerId in this.players) {
+            const playerSettings = this.playerSettingsMap[playerId] || {};
+            
+            let playerFrame = this.squisher.getPlayerFrame(playerId);
+            
+            if (playerSettings) {
+                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
+                    playerFrame = playerFrame.filter(f => {
+                        const unsquished = this.squisher.unsquish(f);
+                        if (unsquished.node.asset) {
+                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
+                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
+                                    return false;
+                                }
+                            }
+                        }
 
-        for (const playerId in this.spectators) {
-            this.spectators[playerId].receiveUpdate(this.squisher.playerFrames[playerId]);
+                        return true;
+                    });
+                }
+            }
+
+            if (playerFrame) {
+
+                this.players[playerId].receiveUpdate(playerFrame.flat());
+            }
         }
     }
 
@@ -67,30 +96,55 @@ class GameSession {
             player.receiveUpdate([5, 70, 0]);
         }
 
-        generateName().then(playerName => {
-            player.info.name = player.info.name || playerName;
-            this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+        this.players[player.id] = player;
 
-            this.game._hgAddPlayer(player);
-            this.game.handleNewPlayer && this.game.handleNewPlayer(player);
-            if (this.game.deviceRules && player.clientInfo) {
-                const deviceRules = this.game.deviceRules();
-                if (deviceRules.aspectRatio) {
-                    deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
-                }
-                if (deviceRules.deviceType) {
-                    deviceRules.deviceType(player, player.clientInfo.deviceType)
-                }
-            }
+        const doThing = () => {
+            this.homenamesHelper.getPlayerInfo(player.id).then(playerInfo => {
+                this.homenamesHelper.getPlayerSettings(player.id).then(playerSettings => {
+                    this.playerInfoMap[player.id] = playerInfo;
+                    this.playerSettingsMap[player.id] = playerSettings;
 
-            this.homegamesRoot.handleNewPlayer(player);
+                    this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+                    const playerPayload = {playerId: player.id, settings: this.playerSettingsMap[player.id], info: this.playerInfoMap[player.id], requestedGame: player.requestedGame };
 
-            // ensure the squisher has game data for the new player
-            this.squisher.squish();
-            
-            player.receiveUpdate(this.squisher.playerStates[player.id].flat());
-            player.addInputListener(this);
-        });
+                    this.homenamesHelper.addListener(player.id);
+
+                    this.homegamesRoot.handleNewPlayer(playerPayload);
+                    this.game.handleNewPlayer && this.game.handleNewPlayer(playerPayload);
+
+                    if (this.game.deviceRules && player.clientInfo) {
+                        const deviceRules = this.game.deviceRules();
+                        if (deviceRules.aspectRatio) {
+                            deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+                        }
+                        if (deviceRules.deviceType) {
+                            deviceRules.deviceType(player, player.clientInfo.deviceType);
+                        }
+                    }
+
+                    player.addInputListener(this);
+                });
+            });
+        }
+
+        if (player.info && player.info.name) {
+            doThing();
+        } else {
+            const playerName = generateName();
+
+            this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
+                doThing();
+            });
+        }
+    }
+
+    handlePlayerUpdate(playerId, {info, settings}) {
+        this.playerInfoMap[playerId] = info;
+        this.playerSettingsMap[playerId] = settings;
+
+        this.homegamesRoot.handlePlayerUpdate(playerId, {info, settings});
+        // this.playerInfoMap[playerId] = newData;
+        this.game.handlePlayerUpdate && this.game.handlePlayerUpdate(playerId, { info, settings });
     }
 
     handleSpectatorDisconnect(spectatorId) {
@@ -99,8 +153,9 @@ class GameSession {
     }
 
     handlePlayerDisconnect(playerId) {
+        console.log('player disconnected formt his ');
+        delete this.players[playerId];
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
-        this.game._hgRemovePlayer(playerId);
         this.homegamesRoot.handlePlayerDisconnect(playerId);
     }
 
@@ -119,24 +174,24 @@ class GameSession {
         if (input.type === 'click') {
             this.handleClick(player, input.data);
         } else if (input.type === 'keydown') {
-            this.game.handleKeyDown && this.game.handleKeyDown(player, input.key);
+            this.game.handleKeyDown && this.game.handleKeyDown(player.id, input.key);
         } else if (input.type === 'keyup') {
-            this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
+            this.game.handleKeyUp && this.game.handleKeyUp(player.id, input.key);
         } else if (input.type === 'input') {
-            const node = this.game.findNode(input.nodeId);
+            const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
             if (node && node.node.input) {
                 // hilarious
                 if (node.node.input.type === 'file') {
-                    node.node.input.oninput(player, Object.values(input.input));
+                    node.node.input.oninput(player.id, Object.values(input.input));
                 } else {
-                    node.node.input.oninput(player, input.input);
+                    node.node.input.oninput(player.id, input.input);
                 }
             }
         } else if (input.type === 'clientInfo') {
             if (this.game && this.game.deviceRules) {
                 const deviceRules = this.game.deviceRules();
                 if (deviceRules.aspectRatio) {
-                    deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+                    deviceRules.aspectRatio(player.id, player.clientInfo.aspectRatio);
                 }
                 
             }
@@ -145,6 +200,10 @@ class GameSession {
         }
     }
 
+    movePlayer({ playerId, port }) {
+        const player = this.players[playerId];
+        player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+    }
 
     handleClick(player, click) {
         if (click.x >= 100 || click.y >= 100) {
@@ -156,10 +215,10 @@ class GameSession {
         if (clickedNode) {
             const clickedNodeId = clickedNode.id;
             // todo: implement get node (maybe maintain map in game?)
-            const realNode = this.game.findNode(clickedNodeId) || this.customBottomLayer.root.findChild(clickedNodeId);
+            const realNode = this.game.findNode(clickedNodeId) || this.customBottomLayer.root.findChild(clickedNodeId) || this.customTopLayer.root.findChild(clickedNodeId);
 
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
-                realNode.node.handleClick && realNode.node.handleClick(player, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(player.id, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             } else {
                 const shiftedX = click.x - (BEZEL_SIZE_X / 2);
                 const shiftedY = click.y - (BEZEL_SIZE_Y / 2);
@@ -167,7 +226,7 @@ class GameSession {
                 const scaledX = shiftedX * ( 1 / ((100 - BEZEL_SIZE_X) / 100));
                 const scaledY = shiftedY * ( 1 / ((100 - BEZEL_SIZE_Y) / 100));
 
-                realNode.node.handleClick && realNode.node.handleClick(player, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(player.id, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             }
         }
     }
@@ -187,53 +246,58 @@ class GameSession {
             clicked = this.findClickHelper(x, y, false, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
         }
 
+        if (this.customTopLayer) {
+            const scale = {x: 1, y: 1};
+            clicked = this.findClickHelper(x, y, false, playerId, this.customTopLayer.root.node, null, scale) || clicked;
+        }
+
         return clicked;
     }
 
     findClickHelper(x, y, spectating, playerId, node, clicked = null, scale) {
-            if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
-                const vertices = [];
+        if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+            const vertices = [];
  
-                for (const i in node.coordinates2d) {
-                            const xOffset = 100 - (scale.x * 100);
-                            const yOffset = 100 - (scale.y * 100);
+            for (const i in node.coordinates2d) {
+                const xOffset = 100 - (scale.x * 100);
+                const yOffset = 100 - (scale.y * 100);
     
 
-                        const scaledX = node.coordinates2d[i][0] * ((100 - xOffset) / 100) + (xOffset / 2);
-                        const scaledY = node.coordinates2d[i][1] * ((100 - yOffset) / 100) + (yOffset / 2);
+                const scaledX = node.coordinates2d[i][0] * ((100 - xOffset) / 100) + (xOffset / 2);
+                const scaledY = node.coordinates2d[i][1] * ((100 - yOffset) / 100) + (yOffset / 2);
 
-                        vertices.push([scaledX, scaledY]);
-                }
+                vertices.push([scaledX, scaledY]);
+            }
 
-                let isInside = false;
-                let minX = vertices[0][0];
-                let maxX = vertices[0][0];
-                let minY = vertices[0][1];
-                let maxY = vertices[0][1];
-                for (let i = 1; i < vertices.length; i++) {
-                    const vert = vertices[i];
-                    minX = Math.min(vert[0], minX);
-                    maxX = Math.max(vert[0], maxX);
-                    minY = Math.min(vert[1], minY);
-                    maxY = Math.max(vert[1], maxY);
-                }
+            let isInside = false;
+            let minX = vertices[0][0];
+            let maxX = vertices[0][0];
+            let minY = vertices[0][1];
+            let maxY = vertices[0][1];
+            for (let i = 1; i < vertices.length; i++) {
+                const vert = vertices[i];
+                minX = Math.min(vert[0], minX);
+                maxX = Math.max(vert[0], maxX);
+                minY = Math.min(vert[1], minY);
+                maxY = Math.max(vert[1], maxY);
+            }
 
-                if (!(x < minX || x > maxX || y < minY || y > maxY)) {
-                    let i = 0;
-                    let j = vertices.length - 1;
-                    for (i, j; i < vertices.length; j=i++) {
-                        if ((vertices[i][1] > y) != (vertices[j][1] > y) &&
+            if (!(x < minX || x > maxX || y < minY || y > maxY)) {
+                let i = 0;
+                let j = vertices.length - 1;
+                for (i, j; i < vertices.length; j=i++) {
+                    if ((vertices[i][1] > y) != (vertices[j][1] > y) &&
                                 x < (vertices[j][0] - vertices[i][0]) * (y - vertices[i][1]) / (vertices[j][1] - vertices[i][1]) + vertices[i][0]) {
-                            isInside = !isInside;
-                        }
+                        isInside = !isInside;
                     }
                 }
-                
-                if (isInside) {
-                    clicked = node;
-                }
-
             }
+                
+            if (isInside) {
+                clicked = node;
+            }
+
+        }
 
         for (const i in node.children) {
             clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, scale);

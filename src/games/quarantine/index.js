@@ -12,7 +12,7 @@ class Quarantine extends Game {
             squishVersion: '0710',
             players: 2,
             name: 'Quarantine Questions',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/quarantine-questions.png'
+            thumbnail: '6c7eb394c378cc82425bf5850ebaaff9'
         };
     }
 
@@ -31,6 +31,8 @@ class Quarantine extends Game {
             fill: this.baseColor,
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
+
+        // TODO: fix this one
         
         this.newQuestionButton = new GameNode.Shape({
             color: [53, 196, 91, 255],
@@ -87,7 +89,7 @@ class Quarantine extends Game {
                 this.newTurn();
             }
         } else if (url) {
-            this.questionUrl = new Asset('url', {location: url});
+            this.questionUrl = new Asset({location: url});
             const initWords = async() => {
                 const questionData = await this.questionUrl.getData();
                 this.questions = JSON.parse(questionData);

@@ -9,23 +9,20 @@ if (baseDir.endsWith('src')) {
 }
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
-const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 
 let id = 0;
 
 class Player {
-    constructor(ws, spectating, clientInfo, requestedGameId) {
+    constructor(ws, playerInfo, spectating, clientInfo, requestedGame) {
         this.inputListeners = new Set();
         this.stateListeners = new Set();
         this.clientInfo = clientInfo;
         this.ws = ws;
         this.id = ws?.id || ++id;
-        this.info = {};
+        this.info = playerInfo || {};
         this.spectating = spectating;
 
-        console.log('requested game id');
-        console.log(requestedGameId);
-        this.requestedGameId = requestedGameId;
+        this.requestedGame = requestedGame;
 
         this.ws?.on('message', (input) => {
             try {
@@ -65,35 +62,6 @@ class Player {
             listener.handlePlayerDisconnect(this);
         }
     }
-
-    updatePlayerInfo() {
-        return new Promise((resolve, reject) => {
-            const data = JSON.stringify({
-                info: this.info
-            });
-                // 'name': _player.name.
-                // clientInfo,
-                // id: _player.id
-            // });
-
-            const req = http.request({
-                hostname: 'localhost', 
-                port: HOMENAMES_PORT, 
-                path: '/' + this.id, 
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json', 
-                    'Content-Length': data.length
-                }
-            }, 
-            res => {
-                resolve();
-            });
-
-            req.write(data);
-            req.end();
-        });
-    };
 
     addStateListener(listener) {
         this.stateListeners.add(listener);

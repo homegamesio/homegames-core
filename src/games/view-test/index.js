@@ -7,8 +7,7 @@ class ViewTest extends ViewableGame {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/layer-test.png'
+            author: 'Joseph Garcia'
         };
     }
 
@@ -53,7 +52,7 @@ class ViewTest extends ViewableGame {
             const newView = Object.assign({}, this.playerViews[player.id].view);
 
             if (key === 'w' && this.playerViews[player.id].view.y - 1 >= 0) {
-                newView.y = this.playerViews[player.id].view.y - 1    
+                newView.y = this.playerViews[player.id].view.y - 1;    
             }
             if (key === 'a' && this.playerViews[player.id].view.x - 1 >= 0) {
                 newView.x = this.playerViews[player.id].view.x - 1;
@@ -82,17 +81,17 @@ class ViewTest extends ViewableGame {
         }
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer({ playerId }) {
         const playerView = {x: 0, y: 0, w: 100, h: 100};
 
-        const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [player.id]);
+        const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [playerId]);
 
-        playerViewRoot.node.playerIds = [player.id];
+        playerViewRoot.node.playerIds = [playerId];
 
-        this.playerViews[player.id] = {
+        this.playerViews[playerId] = {
             view: playerView,
             viewRoot: playerViewRoot
-        }
+        };
 
         this.getViewRoot().addChild(playerViewRoot);
     }

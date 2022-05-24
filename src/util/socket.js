@@ -73,81 +73,88 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         console.log('uhhhhh its not secure');
         server = http.createServer();
     }
-console.log(port);
+
     const wss = new WebSocket.Server({
         server
     });
-
-    console.log('plspslslss');
     
     wss.on('connection', (ws) => {
         function messageHandler(msg) {
             const jsonMessage = JSON.parse(msg);
 
-            assert(jsonMessage.type === 'ready');
+            console.log("MESSAGE THEY SENT");
+            console.log(jsonMessage);
+            if (jsonMessage.type === 'homenames_update') {
+                console.log('its a homenames update');
+                // console.log(jsonMessage.payload);
+                gameSession.handlePlayerUpdate(jsonMessage.playerId, { info: jsonMessage.info, settings: jsonMessage.settings });
+            } else if (jsonMessage.type === 'ready') {
 
-            ws.removeListener('message', messageHandler);
+                ws.removeListener('message', messageHandler);
 
-            ws.id = Number(jsonMessage.id || generatePlayerId());
+                ws.id = Number(jsonMessage.id || generatePlayerId());
 
-            const requestedGameId = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGameId;
+                console.log('this is their id');
+                console.log(jsonMessage.id);
 
-            const req = http.request({
-                hostname: 'localhost',
-                port: HOMENAMES_PORT,
-                path: `/${ws.id}`,
-                method: 'GET'
-            }, res => {
-                res.on('data', d => {
-                    const playerInfo = JSON.parse(d);
-                    const player = new Player(ws, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGameId);
-                    ws.spectating = jsonMessage.spectating;
-                    
-                    if (jsonMessage.id && playerInfo.name) {
-                        player.name = playerInfo.name;
-                    }
-                    const aspectRatio = gameSession.aspectRatio;
-                    const gameMetadata = gameSession.gameMetadata;
+                const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
 
-                    let squishVersion = 'latest';
-                    if (gameMetadata && gameMetadata.squishVersion) {
-                        squishVersion = gameMetadata.squishVersion;
-                    }
+                const req = http.request({
+                    hostname: 'localhost',
+                    port: HOMENAMES_PORT,
+                    path: `/info/${ws.id}`,
+                    method: 'GET'
+                }, res => {
+                    res.on('data', d => {
+                        const playerInfo = JSON.parse(d);
+                        console.log("player info from homenames for this person");
+                        console.log(playerInfo);
+                        const player = new Player(ws, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
+                        ws.spectating = jsonMessage.spectating;
+                        
+                        const aspectRatio = gameSession.aspectRatio;
+                        const gameMetadata = gameSession.gameMetadata;
 
-                    const squishVersionArray = [];
-                    squishVersionArray[0] = squishVersion.length;
-                    for (let i = 0; i < squishVersion.length; i++) {
-                        squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
-                    }
+                        let squishVersion = 'latest';
+                        if (gameMetadata && gameMetadata.squishVersion) {
+                            squishVersion = gameMetadata.squishVersion;
+                        }
 
-                    // init message
-                    ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+                        const squishVersionArray = [];
+                        squishVersionArray[0] = squishVersion.length;
+                        for (let i = 0; i < squishVersion.length; i++) {
+                            squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
+                        }
 
-                    if (PERFORMANCE_PROFILING) {
-                        ws.send([7]);
-                    }
-                    if (HOTLOAD_ENABLED) {
-                        console.log("SENDING HOTLOAD");
-                        ws.send([8, 71, 01]);
-                    }
-                    const _player = listenable(player, () => {
-                        player.updatePlayerInfo();
+                        // init message
+                        ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+
+                        if (PERFORMANCE_PROFILING) {
+                            ws.send([7]);
+                        }
+                        if (HOTLOAD_ENABLED) {
+                            console.log("SENDING HOTLOAD");
+                            ws.send([8, 71, 01]);
+                        }
+
+                        if (jsonMessage.spectating) {
+                            gameSession.addSpectator(player);
+                        } else {
+                            console.log("ADDING PLAUYERRR");
+                            // console.log
+                            gameSession.addPlayer(player);
+                        }
+
                     });
-
-                    if (jsonMessage.spectating) {
-                        gameSession.addSpectator(_player);
-                    } else {
-                        gameSession.addPlayer(_player);
-                    }
-
                 });
-            });
-            req.end();
+                req.end();
+            }
         }
 
         ws.on('message', messageHandler);
 
         function closeHandler() {
+            console.log("AYO IT CLOSED");
             //            playerIds[ws.id] = false;
             if (ws.spectating) {
                 gameSession.handleSpectatorDisconnect(ws.id);

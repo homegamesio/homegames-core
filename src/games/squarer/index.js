@@ -1,13 +1,13 @@
-const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-0710');
+const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-0740');
 const { BLACK, GRAY, GOLD, GREEN } = Colors.COLORS;
 
 class Squarer extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0710',
+            squishVersion: '0740',
             author: 'Yazeed Loonat',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/squarer.png'
+            thumbnail: 'dcd6e74ff94d51f9f323ce00669d98d4'
         };
     }
 
@@ -100,8 +100,8 @@ class Squarer extends Game {
         }
     }
 
-    handleNewPlayer(player) {
-        this.keyCoolDowns[player.id] = {};
+    handleNewPlayer({ playerId }) {
+        this.keyCoolDowns[playerId] = {};
         const color = Colors.randomColor(this.usedColors);
         this.usedColors.push(color);
         const defaultX = (this.playerArray.length * 10) + 5;
@@ -111,17 +111,17 @@ class Squarer extends Game {
             fill: color
         });
 
-        square.controllerID = player.id;
+        square.controllerID = playerId;
         square.defaultX = defaultX;
         square.score = 0;
         this.playerArray.push(square);
         this.base.addChild(square);
     }
 
-    handleKeyDown(player, key) {
-        const index = this.playerArray.findIndex(elem => elem.controllerID === player.id );
+    handleKeyDown(playerId, key) {
+        const index = this.playerArray.findIndex(elem => elem.controllerID === playerId );
         const square = this.playerArray[index];
-        if (!this.keyCoolDowns[player.id] || !this.keyCoolDowns[player.id][key]) {
+        if (!this.keyCoolDowns[playerId] || !this.keyCoolDowns[playerId][key]) {
             if (key === 'ArrowUp' || key === 'w') {
                 this.movementQueue.push({ node: square, direction: 'up' });
             } else if (key === 'ArrowDown' || key === 's') {
@@ -133,25 +133,25 @@ class Squarer extends Game {
             } else {
                 return;
             }
-            this.keyCoolDowns[player.id][key] = this.setTimeout(() => {
-                clearTimeout(this.keyCoolDowns[player.id][key]);
-                delete this.keyCoolDowns[player.id][key];
+            this.keyCoolDowns[playerId][key] = this.setTimeout(() => {
+                clearTimeout(this.keyCoolDowns[playerId][key]);
+                delete this.keyCoolDowns[playerId][key];
             }, 250);
         }
     }
 
-    handlePlayerDisconnect(player) {
-        const index = this.playerArray.findIndex(elem => elem.playerId === player);
+    handlePlayerDisconnect(playerId) {
+        const index = this.playerArray.findIndex(elem => elem.playerId === playerId);
         if (index > -1) {
             this.base.removeChild(this.playerArray[index].id);
             this.playerArray.splice(index, 1);
         }
     }
 
-    handleKeyUp(player, key) {
-        if (this.keyCoolDowns[player.id][key]) {
-            clearTimeout(this.keyCoolDowns[player.id][key]);
-            delete this.keyCoolDowns[player.id][key];
+    handleKeyUp(playerId, key) {
+        if (this.keyCoolDowns[playerId][key]) {
+            clearTimeout(this.keyCoolDowns[playerId][key]);
+            delete this.keyCoolDowns[playerId][key];
         }
     }
 

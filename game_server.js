@@ -1,12 +1,9 @@
-const HomegamesDashboard = require('./src/HomegamesDashboard');
-const LayerTest = require('./src/games/layer-test');
-const ViewTest = require('./src/games/view-test');
+const HomegamesDashboard = require('./src/dashboard/HomegamesDashboard');
 const GameSession = require('./src/GameSession');
 const { socketServer } = require('./src/util/socket');
 const Homenames = require('./src/Homenames');
 const path = require('path');
 const baseDir = path.dirname(require.main.filename);
-const PlayerVisibilityTest = require('./src/games/player-vis-test');
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
@@ -21,14 +18,18 @@ const server = (certPath, squishMap) => {
         console.log(squishMap);
     }
 
-    const dashboard = new HomegamesDashboard(squishMap);
+    // hack kind of. but homegames dashbaoard is special
+    let session;
+
+    const dashboard = new HomegamesDashboard({ squishMap, movePlayer: (params) => {
+        session && session.movePlayer(params);
+    }});
     
-    // const dashboard = new ViewTest();//new HomegamesDashboard(squishMap);
     // const dashboard = new PlayerVisibilityTest();//new HomegamesDashboard(squishMap);
     
     // const dashboard = new LayerTest();//new HomegamesDashboard(squishMap);
     
-    const session = new GameSession(dashboard, GAME_SERVER_HOME_PORT);
+    session = new GameSession(dashboard, GAME_SERVER_HOME_PORT);
     
     const homeNames = new Homenames(HOMENAMES_PORT);
     

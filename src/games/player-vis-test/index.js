@@ -55,8 +55,8 @@ class PlayerVisibilityTest extends Game {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(40, 10, 20, 20),
             fill: COLORS.HG_BLUE,
-            onClick: (player) => {
-                this.secretMessage.showFor(player.id);
+            onClick: (playerId) => {
+                this.secretMessage.showFor(playerId);
             }
         });
 
@@ -64,8 +64,8 @@ class PlayerVisibilityTest extends Game {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(40, 70, 20, 20),
             fill: COLORS.PURPLE,
-            onClick: (player) => {
-                this.secretMessage.hideFor(player.id);
+            onClick: (playerId) => {
+                this.secretMessage.hideFor(playerId);
             }
         });
         

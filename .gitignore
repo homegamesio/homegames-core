@@ -3,3 +3,4 @@ node_modules
 local
 .hg_auth
 .hg_certs
+hg-games

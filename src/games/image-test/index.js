@@ -1,20 +1,14 @@
 const Asset = require('../../common/Asset');
-const { Game, GameNode, Colors, Shapes } = require('squish-0710');
+const { Game, GameNode, Colors, Shapes } = require('squish-0740');
 const COLORS = Colors.COLORS;
 
 class ImageTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0710',
+            squishVersion: '0740',
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/image-test.png',
-            assets: {
-                'image': new Asset('url', {
-                    'location': 'https://homegamesio.s3-us-west-1.amazonaws.com/images/homegames_logo_small.png',
-                    'type': 'image'
-                })
-            }
+            thumbnail: '2a0cf606567326c6c40df592ee1358ca'
         };
     }
 
@@ -178,6 +172,15 @@ class ImageTest extends Game {
 
     getLayers() {
         return [{root: this.base}];
+    }
+
+    getAssets() {
+        return {
+            'image': new Asset({
+                'id': '8870cb1616e9b60db68a0455a85aa22c',
+                'type': 'image'
+            })
+        };
     }
     
     // getRoot() {

@@ -5,37 +5,37 @@ const COLORS = Colors.COLORS;
 class SpriteTest extends Game {
     static metadata() {
         const danceFrames = {
-            'dance0': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_0.png',
-            'dance_left': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_left.png',
-            'dance_right': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_right.png',
-            'dance_up': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_up.png',
-            'dance_down': 'https://homegamesio.s3-us-west-1.amazonaws.com/sprites/dance_down.png'
+            'dance0': '3b16c6d6ee6d3709bf827b61e61003b1',
+            'dance_left': '1b2bd924c08a2b72d6ac18b28ba6a125',
+            'dance_right': 'd5b9d6f97fad560735509723314fa524',
+            'dance_up': '41ba50cf1bb69975c74d8f65ef43ee04',
+            'dance_down': '22f9dd0f7519fadc805a7dc1ec051e6f'
         };
 
         return {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0710',
             author: 'Joseph Garcia',
-            thumbnail: 'https://d3lgoy70hwd3pc.cloudfront.net/thumbnails/sprite-test.png',
+            thumbnail: 'd8a39042ae0d7829b83f5c0280dc8230',
             assets: {
-                'dance0': new Asset('url', {
-                    'location': danceFrames['dance0'],
+                'dance0': new Asset({
+                    'id': danceFrames['dance0'],
                     'type': 'image'
                 }),
-                'dance_up': new Asset('url', {
-                    'location': danceFrames['dance_up'],
+                'dance_up': new Asset({
+                    'id': danceFrames['dance_up'],
                     'type': 'image'
                 }),
-                'dance_down': new Asset('url', {
-                    'location': danceFrames['dance_down'],
+                'dance_down': new Asset({
+                    'id': danceFrames['dance_down'],
                     'type': 'image'
                 }),
-                'dance_left': new Asset('url', {
-                    'location': danceFrames['dance_left'],
+                'dance_left': new Asset({
+                    'id': danceFrames['dance_left'],
                     'type': 'image'
                 }),
-                'dance_right': new Asset('url', {
-                    'location': danceFrames['dance_right'],
+                'dance_right': new Asset({
+                    'id': danceFrames['dance_right'],
                     'type': 'image'
                 })
             }
