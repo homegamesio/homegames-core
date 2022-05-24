@@ -82,12 +82,7 @@ class Homenames {
 
                     req.on('end', () => {
                         const payload = JSON.parse(body);
-                        console.log('need to know session port so I can send http request to that port when a player id updates');
-                        console.log(payload);
 
-                        // const port = getConfigValue('HOMENAMES_PORT')
-
-                        // console.log(port);
                         const socketSession = new WebSocket(`ws://localhost:${payload.sessionPort}`);
                         socketSession.on('open', () => {
                             console.log('opened socket connection to session');
@@ -100,12 +95,6 @@ class Homenames {
 
                             res.end('alright');
                         });
-                        // const newSettings = this.playerSettings[playerId] || {};
-                        // Object.assign(newSettings, payload);
-                        // this.playerSettings[playerId] = newSettings;
-                        // res.statusCode = 200;
-                        // res.setHeader('Content-Type', 'application/json');
-                        // res.end(JSON.stringify(this.playerSettings[playerId]));
                     });
                 }
             }
@@ -113,13 +102,7 @@ class Homenames {
     }
 
     notifyListeners(playerId) {
-        console.log('notifying listeners');
-        console.log(playerId);
-        console.log(this.playerListeners);
         const sessionPorts = this.playerListeners[playerId];
-        console.log('session ports');
-        console.log(sessionPorts);
-        console.log(this.playerListeners);
         if (sessionPorts) {
             for (const port of sessionPorts) {
                 const sessionClient = this.sessionClients[port];
@@ -128,7 +111,6 @@ class Homenames {
                 }
             }
         }
-        // socketSession.send(JSON.stringify({type: 'homenames_listener', playerId: }));
     }
 }
 
