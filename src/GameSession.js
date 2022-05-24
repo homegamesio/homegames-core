@@ -212,9 +212,9 @@ class GameSession {
         if (input.type === 'click') {
             this.handleClick(player, input.data);
         } else if (input.type === 'keydown') {
-            this.game.handleKeyDown && this.game.handleKeyDown(player, input.key);
+            this.game.handleKeyDown && this.game.handleKeyDown(player.id, input.key);
         } else if (input.type === 'keyup') {
-            this.game.handleKeyUp && this.game.handleKeyUp(player, input.key);
+            this.game.handleKeyUp && this.game.handleKeyUp(player.id, input.key);
         } else if (input.type === 'input') {
             console.log('input isdf');
             console.log(input);
@@ -233,7 +233,7 @@ class GameSession {
             if (this.game && this.game.deviceRules) {
                 const deviceRules = this.game.deviceRules();
                 if (deviceRules.aspectRatio) {
-                    deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
+                    deviceRules.aspectRatio(player.id, player.clientInfo.aspectRatio);
                 }
                 
             }
