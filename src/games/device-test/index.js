@@ -6,7 +6,7 @@ class DeviceTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0710',
+            squishVersion: '0740',
             author: 'Joseph Garcia', 
             tickRate: 10
         };

@@ -33,7 +33,7 @@ const startServer = (sessionInfo) => {
     console.log(sessionInfo);
 
     // let squishLib = require.resolve('squishjs');
-    const squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0730');
+    const squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0740');
 
     if (sessionInfo.gamePath) {
 

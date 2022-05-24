@@ -1,5 +1,5 @@
 const Asset = require('../../common/Asset');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0730');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0740');
 const COLORS = Colors.COLORS;
 
 class SoundTest extends Game {

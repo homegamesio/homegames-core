@@ -1,4 +1,4 @@
-const { Squisher } = require('squish-0730');
+const { Squisher } = require('squish-0740');
 const { generateName } = require('./common/util');
 const HomegamesRoot = require('./homegames_root/HomegamesRoot');
 
@@ -134,14 +134,8 @@ class GameSession {
             player.receiveUpdate([5, 70, 0]);
         }
 
-        // console.log('sesion just got player');
-        // console.log(player);
         this.players[player.id] = player;
 
-        // this.homenamesHelper.addListener(player.id, (playerInfo) => {
-        // console.log('new playuer info');
-        // console.log(playerInfo);
-        // }).then(() => {
         const doThing = () => {
             this.homenamesHelper.getPlayerInfo(player.id).then(playerInfo => {
                 this.homenamesHelper.getPlayerSettings(player.id).then(playerSettings => {
@@ -171,8 +165,6 @@ class GameSession {
             });
         }
 
-        // console.log('the fuck');
-        // console.log(player.info.name);
         if (player.info && player.info.name) {
             doThing();
         } else {
@@ -182,7 +174,6 @@ class GameSession {
                 doThing();
             });
         }
-        // });
     }
 
     handlePlayerUpdate(playerId, {info, settings}) {
