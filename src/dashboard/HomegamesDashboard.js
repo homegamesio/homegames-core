@@ -1051,7 +1051,8 @@ class HomegamesDashboard extends ViewableGame {
             [playerId], 
             {
                 // filter: (node) => {console.log('what is this node im filtering lol'); console.log(node); return false;},//node.node.id !== playerRoot.node.id,//this.base.node.id, 
-                // y: 50//(100 - 90)//containerHeight)
+                y: 10,//(100 - 90)//containerHeight)
+                x: 10
             }
         );
 
