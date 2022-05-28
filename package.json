@@ -32,7 +32,8 @@
     "squish-0710": "npm:squishjs@0.7.1",
     "squish-0720": "npm:squishjs@0.7.2",
     "squish-0730": "npm:squishjs@0.7.3",
-    "squish-0740": "npm:squishjs@0.7.4",
+    "squish-0740": "file:../squish",
+    "squishjs": "file:../squish",
     "ws": "7.4.6"
   }
 }
