@@ -63,7 +63,7 @@ const containerWidth = 100;
 const containerHeight = 90;
 
 const gameContainerXMargin = 12.5;
-const gameContainerYMargin = 10;
+const gameContainerYMargin = 5;
 
 const gameLeftXMargin = 10;
 const gameTopYMargin = 10; 
@@ -371,8 +371,6 @@ class HomegamesDashboard extends ViewableGame {
 
     showGameModal(gameCollection, playerId, gameKey, versionKey = null) {
         const playerRoot = this.playerRoots[playerId].node;
-        console.log('plauer rotoott');
-        console.log(playerRoot);
 
         const gameMetadata = gameCollection[gameKey].metadata || {};
 
@@ -479,7 +477,6 @@ class HomegamesDashboard extends ViewableGame {
             const assetKey = gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
             const gameName = gameCollection[key].metadata && gameCollection[key].metadata.name || key;
 
-            console.log('rendering aty y ' + yIndex+ ', ' + xIndex)
             const gameOptionNode = gameOption({
                 x: xIndex,
                 y: yIndex,
@@ -518,9 +515,6 @@ class HomegamesDashboard extends ViewableGame {
             view: playerView
         };
 
-        // this.playerViews[playerId] = {
-        //     root: playerNodeRoot
-        // };
         this.playerRootNode.addChild(playerNodeRoot);
 
         this.renderGames(playerId, {});
@@ -570,7 +564,7 @@ class HomegamesDashboard extends ViewableGame {
         })
     }
 
-    buildStaticElements(playerId, gamePlane, searchQuery) {
+    buildStaticElements(playerId, gamePlane, searchQuery = '', searchResults = null) {
         const baseNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: BASE_COLOR,
@@ -719,15 +713,15 @@ class HomegamesDashboard extends ViewableGame {
         }
 
         const gamePlane = searchResults ? searchPlaneBase : this.getPlane();
-
-        const staticElements = this.buildStaticElements(playerId, gamePlane, searchQuery);
+        
+        const staticElements = this.buildStaticElements(playerId, gamePlane, searchQuery, searchResults);
 
         const view = ViewUtils.getView(
             gamePlane,
             playerView, 
             [playerId], 
             {
-                y: 12.5 + ((100 - 12.5 - 70) / 2),
+                y: 12.5 + ((100 - 12.5 - gameContainerHeight) / 2),
                 x: 12.5
             },
             {
