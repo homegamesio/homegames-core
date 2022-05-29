@@ -612,8 +612,41 @@ class HomegamesDashboard extends ViewableGame {
             },
             playerIds: [playerId]
         });
+        
+        playerSearchBox.addChildren(playerSearchText);
 
-        playerSearchBox.addChild(playerSearchText);
+
+        if (searchResults) {
+            const clearSearchButton = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(82.5, 2.5, 5, 10),
+                playerIds: [playerId],
+                fill: SEARCH_BOX_COLOR,
+                onClick: (playerId) => {        
+                    const playerView = {x: 0, y: 0, w: 100, h: 100};
+
+                    this.playerStates[playerId] = {
+                        view: playerView
+                    };
+
+                    this.renderGames(playerId, {});
+                }
+            });
+
+            const clearSearchX = new GameNode.Text({
+                textInfo: {
+                    x: 83.75,
+                    y: 2.25,
+                    size: 4,
+                    text: 'x',
+                    color: BASE_COLOR
+                },
+                playerIds: [playerId]
+            });
+
+            clearSearchButton.addChild(clearSearchX);
+            playerSearchBox.addChildren(clearSearchButton);
+        }
 
         let canGoDown, canGoUp = false;
 

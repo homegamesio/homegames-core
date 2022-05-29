@@ -72,8 +72,10 @@ const downloadFileSync = async (assetId, path) => {//new Promise((resolve, rejec
         });
     });
 
+    console.log('about to wait for ting ' + assetId);
     const stuff = await ting();
     console.log('stuf fff!!!');
+    console.log(stuff);
     return stuff;
 
 }
@@ -106,7 +108,7 @@ class Asset {
         });
     }
 
-    downloadSync(force) {
+    async downloadSync(force) {
             const fileLocationExists = this.existsLocallySync();//.then(fileLocation => {
             const fileLocation = this.getFileLocation(this.info.id);
 
@@ -115,7 +117,7 @@ class Asset {
                     return fileLocation;
                     // resolve(fileLocation);
                 } else {
-                    const fileLocation2 = downloadFileSync(this.info.id, HG_ASSET_PATH);//.then((fileLocation) => {
+                    const fileLocation2 = await downloadFileSync(this.info.id, HG_ASSET_PATH);//.then((fileLocation) => {
                         this.initialized = true;
                         return fileLocation;
                     // });
@@ -154,12 +156,18 @@ class Asset {
         }); 
     }
 
-    getDataSync() {
-            const fileLocation = this.downloadSync();//.then(fileLocation => {
-            const buf = fs.readFileSync(fileLocation);//, (err, buf) => {
-                // console.log('buff');
-                // console.log(buf);
-            return buf;
+    async getDataSync() {
+        console.log('getting data synchronouyslty ' + this.info.id)
+            const fileLocation = await this.downloadSync();
+            console.log('apparently downloaded to');
+            console.log(fileLocation);
+            // setTimeout(() => {
+            //.then(fileLocation => {
+                const buf = fs.readFileSync(fileLocation);//, (err, buf) => {
+                    // console.log('buff');
+                    // console.log(buf);
+                return buf;
+            // }, 500);
             //         if (err) {
             //             reject(err);
             //         } else {
