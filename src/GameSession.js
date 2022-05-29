@@ -169,10 +169,10 @@ class GameSession {
         if (this.initialized) {
             cb && cb();
         } else {
-            this.squisher.initialize().then(() => {
+            this.squisher.initialize();//.then(() => {
                 this.initialized = true;
                 cb && cb();
-            });
+            //}//);
         }
     }
 

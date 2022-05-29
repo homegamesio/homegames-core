@@ -568,13 +568,11 @@ class HomegamesDashboard extends ViewableGame {
                     }
                 }
 
-                if (!this.assets[thumbnailId]) {
-                    console.log('neeeed to addd dsdsd' + thumbnailId);
-                    this.assets[thumbnailId] = new Asset({
+                if (!this.assets[game.id]) {
+                    this.assets[game.id] = new Asset({
                         'id': thumbnailId,
                         'type': 'image'
-                    });
-                    // this.assets[metad.thumbnail] = 
+                    }); 
                 }
             });
 
