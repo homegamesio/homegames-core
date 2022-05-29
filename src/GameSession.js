@@ -42,7 +42,13 @@ class GameSession {
         // TODO: make this configurable per player (eg. configurable bezel size)
         this.scale = {x: (100 - BEZEL_SIZE_X) / 100, y:  (100 - BEZEL_SIZE_Y) / 100};
 
-        this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer, customTopLayer: this.customTopLayer });
+        this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer, customTopLayer: this.customTopLayer, onAssetUpdate: (newAssetBundle) => {
+            console.log('new asset bundle');
+            for (const playerId in this.players) {
+                console.log('need to tell player ' + playerId);
+                this.players[playerId].receiveUpdate(newAssetBundle);
+            }
+        } });
         
         this.hgRoot = this.squisher.hgRoot;
         this.squisher.addListener((squished) => {this.handleSquisherUpdate(squished);});

@@ -14,8 +14,6 @@ const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
     http.get(`${host}${path}`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
-            console.log('chunk');
-            console.log(chunk);
             buf += chunk.toString();
         });
 

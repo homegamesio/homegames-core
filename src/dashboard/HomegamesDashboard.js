@@ -424,6 +424,11 @@ class HomegamesDashboard extends ViewableGame {
                         path: gamePath,
                         metadata: metad
                     }
+
+                    if (metad && metad.thumbnail && !this.assets[metad.thumbnail]) {
+                        console.log('neeeed to addd ' + metad.thumbnail);
+                        // this.assets[metad.thumbnail] = 
+                    }
                     
                     const newPlane = this.buildGamePlane({ gameCollection: this.localGames });
 
@@ -552,14 +557,27 @@ class HomegamesDashboard extends ViewableGame {
         networkHelper.searchGames(query).then(results => {
             const games = {};
             results.games.forEach(game => {
+
+                const thumbnailId = game.thumbnail.indexOf('/') > 0 ? game.thumbnail.split('/')[game.thumbnail.split('/').length  - 1] : game.thumbnail; 
+
                 games[game.id] = {
                     metadata: {
                         name: game.name,
                         author: game.createdBy,
-                        thumbnail: game.thumbnail
+                        thumbnail: thumbnailId
                     }
                 }
+
+                if (!this.assets[thumbnailId]) {
+                    console.log('neeeed to addd dsdsd' + thumbnailId);
+                    this.assets[thumbnailId] = new Asset({
+                        'id': thumbnailId,
+                        'type': 'image'
+                    });
+                    // this.assets[metad.thumbnail] = 
+                }
             });
+
             this.renderGames(playerId, { searchResults: games, searchQuery: query });
         })
     }
@@ -700,6 +718,10 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     renderGames(playerId, { searchResults, searchQuery }) {
+        console.log('rendering for player id ' +playerId);
+        console.log(searchResults);
+        console.log(searchQuery);
+        
         const playerRoot = this.playerRoots[playerId];
         const playerView = this.playerStates[playerId].view;
 
