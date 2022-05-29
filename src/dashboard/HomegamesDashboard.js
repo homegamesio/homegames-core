@@ -744,7 +744,7 @@ class HomegamesDashboard extends ViewableGame {
     handleSearch(playerId) {
         const query = this.playerStates[playerId].query;
 
-        const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
+        const playerView = {x: 0, y: 0, w: 100, h: 100};
 
         this.playerStates[playerId] = {
             view: playerView
@@ -1090,8 +1090,18 @@ class HomegamesDashboard extends ViewableGame {
 
         console.log('search results');
         console.log(searchResults);
+
+        const ting = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+        });
+
+        if (searchResults) {
+                ting.addChild(this.buildGamePlane({ gameCollection: searchResults }));
+        }
+
         const view = ViewUtils.getView(
-            searchResults ? this.buildGamePlane({ gameCollection: searchResults }) : this.getPlane(),
+            searchResults ? ting : this.getPlane(),
             playerView, 
             [playerId], 
             {
