@@ -22,7 +22,7 @@ if (baseDir.endsWith('src')) {
 
 const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
 
-		const optionXMargin = 4;
+		const optionXMargin = 6;
 		const optionYMargin = 6;
 
         const node = new GameNode.Shape({
