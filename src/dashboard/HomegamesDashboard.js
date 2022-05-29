@@ -14,6 +14,8 @@ const Asset = require('../common/Asset');
 
 const { ExpiringSet, animations } = require('../common/util');
 
+const gameOption = require('./game-option');
+
 let baseDir = path.dirname(require.main.filename);
 
 if (baseDir.endsWith('src')) {
@@ -370,7 +372,9 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     showGameModal(gameCollection, playerId, gameKey, versionKey = null) {
-        const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].root;
+        const playerRoot = this.playerRoots[playerId].node;
+        console.log('plauer rotoott');
+        console.log(playerRoot);
 
         const gameMetadata = gameCollection[gameKey].metadata || {};
 
@@ -391,11 +395,11 @@ class HomegamesDashboard extends ViewableGame {
                     this.startSession(playerId, gameKey, versionKey);
                 }, 
                 onClose: () => {
-                    playerViewRoot.removeChild(modal.node.id);  
+                    playerRoot.removeChild(modal.node.id);  
                 }
             });
 
-            playerViewRoot.addChild(modal);
+            playerRoot.addChild(modal);
         } else {
             networkHelper.getGameDetails(gameKey).then(gameDetails => {
                 let version;
@@ -438,11 +442,11 @@ class HomegamesDashboard extends ViewableGame {
                             this.startSession(playerId, gameKey, versionId);
                         }, 
                         onClose: () => {
-                            playerViewRoot.removeChild(modal.node.id);  
+                            playerRoot.removeChild(modal.node.id);  
                         }
                     });
 
-                    playerViewRoot.addChild(modal);
+                    playerRoot.addChild(modal);
                 });
                 
             })
@@ -468,16 +472,24 @@ class HomegamesDashboard extends ViewableGame {
         });
 
         for (const key in gameCollection) {
-            const fill = Colors.randomColor();
             const xIndex = gameIndex % columnsPerPage === 0 ? 0 : ((gameIndex % columnsPerPage) / columnsPerPage) * 100; 
-            const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
-            const node = new GameNode.Shape({
-                fill,
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(xIndex, yIndex, gameOptionWidth, gameOptionHeight)
+            const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);// + (gameIndex < columnsPerPage ? 0 : 10);
+            const assetKey = gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
+            const gameName = gameCollection[key].metadata && gameCollection[key].metadata.name || key;
+
+            const gameOptionNode = gameOption({
+                x: xIndex,
+                y: yIndex,
+                width: gameOptionWidth,
+                height: gameOptionHeight,
+                gameName,
+                assetKey,
+                onClick: (playerId) => {
+                    this.showGameModal(gameCollection, playerId, key);
+                }
             });
 
-            planeBase.addChild(node);
+            planeBase.addChild(gameOptionNode);
             gameIndex++;
 
         }

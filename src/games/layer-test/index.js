@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes } = require('squish-0710');
+const { Game, GameNode, Colors, Shapes } = require('squish-0740');
 
 class LayerTest extends Game {
     static metadata() {
