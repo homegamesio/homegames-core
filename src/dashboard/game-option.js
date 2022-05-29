@@ -26,9 +26,8 @@ const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
 		const optionYMargin = 6;
 
         const node = new GameNode.Shape({
-        	// fill: Colors.randomColor(),
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(x, y, width, height)//(x + optionXMargin, y - optionYMargin, width - 2 * optionXMargin, height - 2 * optionYMargin)
+            coordinates2d: ShapeUtils.rectangle(x, y, width, height)
         });
 
         const clickHandlerOverlay = new GameNode.Shape({
@@ -62,7 +61,7 @@ const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
             textInfo: {
                 text: gameName,
                 x: x + (width / 2),
-                y: y + optionYMargin + (height - 2 * optionYMargin) + 1,// - 2 * optionYMargin) + 1,
+                y: y + optionYMargin + (height - 2 * optionYMargin) + 1,
                 color: COLORS.ALMOST_BLACK,
                 align: 'center',
                 size: 1.6

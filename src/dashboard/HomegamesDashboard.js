@@ -473,7 +473,7 @@ class HomegamesDashboard extends ViewableGame {
 
         for (const key in gameCollection) {
             const xIndex = gameIndex % columnsPerPage === 0 ? 0 : ((gameIndex % columnsPerPage) / columnsPerPage) * 100; 
-            const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);// + (gameIndex < columnsPerPage ? 0 : 10);
+            const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
             const assetKey = gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
             const gameName = gameCollection[key].metadata && gameCollection[key].metadata.name || key;
 
