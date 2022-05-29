@@ -45,32 +45,32 @@ class ViewTest extends ViewableGame {
         this.getPlane().addChildren(whiteBase);
     }
 
-    handleKeyDown(player, key) {
-        const keyCacheId = `$player${player.id}:${key}`;
+    handleKeyDown(playerId, key) {
+        const keyCacheId = `$player${playerId}:${key}`;
 
         if (['w','a','s','d'].indexOf(key) >= -1 && !this.keyCoolDowns.has(keyCacheId)) {
-            const newView = Object.assign({}, this.playerViews[player.id].view);
+            const newView = Object.assign({}, this.playerViews[playerId].view);
 
-            if (key === 'w' && this.playerViews[player.id].view.y - 1 >= 0) {
-                newView.y = this.playerViews[player.id].view.y - 1;    
+            if (key === 'w' && this.playerViews[playerId].view.y - 1 >= 0) {
+                newView.y = this.playerViews[playerId].view.y - 1;    
             }
-            if (key === 'a' && this.playerViews[player.id].view.x - 1 >= 0) {
-                newView.x = this.playerViews[player.id].view.x - 1;
-            }
-
-            if (key === 's' && this.playerViews[player.id].view.y + 1 <= this.getPlaneSize() - newView.h) {
-                newView.y = this.playerViews[player.id].view.y + 1;
+            if (key === 'a' && this.playerViews[playerId].view.x - 1 >= 0) {
+                newView.x = this.playerViews[playerId].view.x - 1;
             }
 
-            if (key === 'd' && this.playerViews[player.id].view.x + 1 <= this.getPlaneSize() - newView.w) {
-                newView.x = this.playerViews[player.id].view.x + 1;
+            if (key === 's' && this.playerViews[playerId].view.y + 1 <= this.getPlaneSize() - newView.h) {
+                newView.y = this.playerViews[playerId].view.y + 1;
             }
 
-            const newTing = ViewUtils.getView(this.getPlane(), newView, [player.id]);
+            if (key === 'd' && this.playerViews[playerId].view.x + 1 <= this.getPlaneSize() - newView.w) {
+                newView.x = this.playerViews[playerId].view.x + 1;
+            }
 
-            this.getViewRoot().removeChild(this.playerViews[player.id].viewRoot.node.id);
+            const newTing = ViewUtils.getView(this.getPlane(), newView, [playerId]);
+
+            this.getViewRoot().removeChild(this.playerViews[playerId].viewRoot.node.id);
         
-            this.playerViews[player.id] = {
+            this.playerViews[playerId] = {
                 view: newView,
                 viewRoot: newTing
             };
