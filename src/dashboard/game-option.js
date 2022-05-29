@@ -26,7 +26,6 @@ const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
 		const optionYMargin = 6;
 
         const node = new GameNode.Shape({
-        	fill: Colors.randomColor(),
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(x, y, width, height)
         });
