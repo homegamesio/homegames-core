@@ -865,8 +865,8 @@ class HomegamesDashboard extends ViewableGame {
 
                 const currentView = Object.assign({}, this.playerStates[playerId].view);
 
-                if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {
-                    currentView.y -= gameContainerHeight + gameContainerYMargin;
+                if (currentView.y - 100 >= 0) {
+                    currentView.y -= 100;
                     this.playerStates[playerId].view = currentView;
                     this.renderGames(playerId);
                 } 
@@ -897,11 +897,13 @@ class HomegamesDashboard extends ViewableGame {
                 const currentView = Object.assign({}, this.playerStates[playerId].view);
 
                 // y value of bottom right corner of base (assumed rectangle)
-                const baseHeight = this.base.node.coordinates2d[2][1];
+                const baseHeight = this.getPlane().node.children[0].node.coordinates2d[2][1];
 
                 // game container height + game y margin would be the new 0, 0 of the view, so we multiply by 2 to make sure the new view would be covered by the base
-                if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
-                    currentView.y += gameContainerHeight + gameContainerYMargin;
+                if (currentView.y + 2 * 100 <= baseHeight) {
+                    currentView.y += 100;
+                    console.log('adding 100 to view');
+                    console.log(currentView)
                     this.playerStates[playerId].view = currentView;
                     this.renderGames(playerId);
                 } 
@@ -1002,8 +1004,8 @@ class HomegamesDashboard extends ViewableGame {
 
                 const currentView = Object.assign({}, this.playerStates[playerId].view);
 
-                if (currentView.y - (gameContainerHeight + gameContainerYMargin) >= 0) {
-                    currentView.y -= gameContainerHeight + gameContainerYMargin;
+                if (currentView.y - 100 >= 0) {
+                    currentView.y -= 100;
                     this.playerStates[playerId].view = currentView;
                     this.renderGames(playerId);
                 } 
@@ -1033,12 +1035,10 @@ class HomegamesDashboard extends ViewableGame {
 
                 const currentView = Object.assign({}, this.playerStates[playerId].view);
 
-                // y value of bottom right corner of base (assumed rectangle)
-                const baseHeight = this.base.node.coordinates2d[2][1];
+                const largestOptionY = Math.max(...this.getPlane().node.children[0].node.children.map(c => c.node.coordinates2d[0][1]));
 
-                // game container height + game y margin would be the new 0, 0 of the view, so we multiply by 2 to make sure the new view would be covered by the base
-                if (currentView.y + 2 * (gameContainerHeight + gameContainerYMargin) <= baseHeight) {
-                    currentView.y += gameContainerHeight + gameContainerYMargin;
+                if (currentView.y + 100 <= largestOptionY) {
+                    currentView.y += 100;
                     this.playerStates[playerId].view = currentView;
                     this.renderGames(playerId);
                 } 
