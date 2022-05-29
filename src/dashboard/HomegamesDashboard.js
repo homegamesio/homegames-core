@@ -215,8 +215,12 @@ class HomegamesDashboard extends ViewableGame {
     }
 
 
-    constructor({ movePlayer }) {
+    constructor({ movePlayer, addAsset }) {
         super(1000);
+        // todo: static vs. addasset
+
+        this.addAsset = addAsset;
+
         this.assets = {
             'default': new Asset({
                 'id': 'ff745468e1b725445c65245ce044da21',
@@ -264,7 +268,6 @@ class HomegamesDashboard extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(0, 0, 1000, 1000)
         });
 
-        this.initializeSearch();
         this.downloadedGames = {};
         this.sessions = {};
         this.requestCallbacks = {};
@@ -278,17 +281,12 @@ class HomegamesDashboard extends ViewableGame {
         });
 
         this.getViewRoot().addChild(this.playerRootNode);
-
             
         setInterval(() => {
             for (const i in this.sessions) {
                 this.sessions[i].sendHeartbeat && this.sessions[i].sendHeartbeat();
             }
         }, CHILD_SESSION_HEARTBEAT_INTERVAL);
-    }
-
-    initializeSearch() {
-        // todo: connect to game service
     }
 
     startSession(playerId, gameKey, versionKey = null) { 
@@ -479,7 +477,12 @@ class HomegamesDashboard extends ViewableGame {
         for (const key in gameCollection) {
             const xIndex = gameIndex % columnsPerPage === 0 ? 0 : ((gameIndex % columnsPerPage) / columnsPerPage) * 100; 
             const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
-            const assetKey = gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
+            let assetKey = gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
+
+            // if (gameCollection[key].metadata.thumbnail)
+            // console.log('the efefefe ');
+            // console.log(gameCollection[key]);
+            // console.log('asset key for game ' + key + ' is ' + assetKey);
             const gameName = gameCollection[key].metadata && gameCollection[key].metadata.name || key;
 
             const gameOptionNode = gameOption({
@@ -554,32 +557,59 @@ class HomegamesDashboard extends ViewableGame {
             view: playerView
         };
 
-        networkHelper.searchGames(query).then(results => {
-            const games = {};
-            results.games.forEach(game => {
+        const games = {};
 
-                const thumbnailId = game.thumbnail.indexOf('/') > 0 ? game.thumbnail.split('/')[game.thumbnail.split('/').length  - 1] : game.thumbnail; 
+        const thang = async function (game) {
 
-                games[game.id] = {
-                    metadata: {
-                        name: game.name,
-                        author: game.createdBy,
-                        thumbnail: thumbnailId
-                    }
+            const thumbnailId = game.thumbnail.indexOf('/') > 0 ? game.thumbnail.split('/')[game.thumbnail.split('/').length  - 1] : game.thumbnail; 
+
+            games[game.id] = {
+                metadata: {
+                    name: game.name,
+                    author: game.createdBy,
+                    thumbnail: thumbnailId
                 }
+            }
 
-                if (!this.assets[thumbnailId]) {
-                    console.log('neeeed to addd dsdsd' + thumbnailId);
-                    this.assets[thumbnailId] = new Asset({
-                        'id': thumbnailId,
-                        'type': 'image'
-                    });
-                    // this.assets[metad.thumbnail] = 
-                }
+            if (!this.assets[game.id]) {
+                console.log('game ' + game.id + ' has asset id ' + thumbnailId);
+                const asset = new Asset({
+                    'id': thumbnailId,
+                    'type': 'image'
+                }); 
+
+                console.log("AYYYYY LMAO EVERYTHING SHOULD START HERE");
+                await this.addAsset(game.id, asset);
+                console.log("AYYYYY LMAO EVERYTHING SHOULD FINISH HERE");
+
+                this.assets[game.id] = asset;
+            }
+        }
+
+        const lol = async function() {
+
+        }
+
+        const idk = async function() {
+            const uh1 = await networkHelper.searchGames(query);
+            //.then(results => {
+                console.log('got result?');
+                console.log(uh1);
+
+        }
+
+        const wat = async function() {
+
+            networkHelper.searchGames(query).then(results => {
+                results.games.forEach(game => {
+                    await thang(game);
+                });
+
+                this.renderGames(playerId, { searchResults: games, searchQuery: query });
             });
+        }
 
-            this.renderGames(playerId, { searchResults: games, searchQuery: query });
-        })
+        wat();
     }
 
     buildStaticElements(playerId, gamePlane, searchQuery = '', searchResults = null) {
@@ -614,8 +644,41 @@ class HomegamesDashboard extends ViewableGame {
             },
             playerIds: [playerId]
         });
+        
+        playerSearchBox.addChildren(playerSearchText);
 
-        playerSearchBox.addChild(playerSearchText);
+
+        if (searchResults) {
+            const clearSearchButton = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(82.5, 2.5, 5, 10),
+                playerIds: [playerId],
+                fill: SEARCH_BOX_COLOR,
+                onClick: (playerId) => {        
+                    const playerView = {x: 0, y: 0, w: 100, h: 100};
+
+                    this.playerStates[playerId] = {
+                        view: playerView
+                    };
+
+                    this.renderGames(playerId, {});
+                }
+            });
+
+            const clearSearchX = new GameNode.Text({
+                textInfo: {
+                    x: 83.75,
+                    y: 2.25,
+                    size: 4,
+                    text: 'x',
+                    color: BASE_COLOR
+                },
+                playerIds: [playerId]
+            });
+
+            clearSearchButton.addChild(clearSearchX);
+            playerSearchBox.addChildren(clearSearchButton);
+        }
 
         let canGoDown, canGoUp = false;
 

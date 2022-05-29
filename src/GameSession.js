@@ -59,6 +59,18 @@ class GameSession {
         this.spectators = {};
     }
 
+    async handleNewAsset(key, asset) {
+        await this.squisher.handleNewAsset(key, asset);
+        console.log('afjfjfjf mao');
+        for (const playerId in this.players) {
+            const player = this.players[playerId];
+            console.log('telling plauer about new asset bundle')
+            this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+        }
+        console.log('dddddd key ' + key);
+        console.log(asset);
+    }
+
     handleSquisherUpdate(squished) {
         for (const playerId in this.players) {
             const playerSettings = this.playerSettingsMap[playerId] || {};

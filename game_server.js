@@ -26,6 +26,11 @@ const server = (certPath, squishMap) => {
         squishMap, 
         movePlayer: (params) => {
             session && session.movePlayer(params);
+        },
+        addAsset: async (key, asset) => {
+            if (session) {
+                await session.handleNewAsset(key, asset);
+            }
         }
     });
 
