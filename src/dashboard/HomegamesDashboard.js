@@ -568,11 +568,13 @@ class HomegamesDashboard extends ViewableGame {
                     }
                 }
 
-                if (!this.assets[game.id]) {
-                    this.assets[game.id] = new Asset({
+                if (!this.assets[thumbnailId]) {
+                    console.log('neeeed to addd dsdsd' + thumbnailId);
+                    this.assets[thumbnailId] = new Asset({
                         'id': thumbnailId,
                         'type': 'image'
-                    }); 
+                    });
+                    // this.assets[metad.thumbnail] = 
                 }
             });
 
@@ -612,41 +614,8 @@ class HomegamesDashboard extends ViewableGame {
             },
             playerIds: [playerId]
         });
-        
-        playerSearchBox.addChildren(playerSearchText);
 
-
-        if (searchResults) {
-            const clearSearchButton = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(82.5, 2.5, 5, 10),
-                playerIds: [playerId],
-                fill: SEARCH_BOX_COLOR,
-                onClick: (playerId) => {        
-                    const playerView = {x: 0, y: 0, w: 100, h: 100};
-
-                    this.playerStates[playerId] = {
-                        view: playerView
-                    };
-
-                    this.renderGames(playerId, {});
-                }
-            });
-
-            const clearSearchX = new GameNode.Text({
-                textInfo: {
-                    x: 83.75,
-                    y: 2.25,
-                    size: 4,
-                    text: 'x',
-                    color: BASE_COLOR
-                },
-                playerIds: [playerId]
-            });
-
-            clearSearchButton.addChild(clearSearchX);
-            playerSearchBox.addChildren(clearSearchButton);
-        }
+        playerSearchBox.addChild(playerSearchText);
 
         let canGoDown, canGoUp = false;
 
