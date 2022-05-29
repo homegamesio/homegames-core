@@ -81,7 +81,6 @@ class Asset {
                 } else {
                     downloadFile(this.info.id, HG_ASSET_PATH).then((fileLocation) => {
 
-                        console.log('file location ' + fileLocation);
                         this.initialized = true;
                         resolve(fileLocation);
                     });
@@ -92,12 +91,11 @@ class Asset {
 
     getData() {
         return new Promise((resolve, reject) => {
-            this.download(true).then(fileLocation => {
+            this.download().then(fileLocation => {
                 fs.readFile(fileLocation, (err, buf) => {
                     if (err) {
                         reject(err);
                     } else {
-                        console.log('key has bytes ' + this.info.id + ', ' + buf.length);
                         resolve(buf);
                     }
                 });
