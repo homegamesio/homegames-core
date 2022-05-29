@@ -26,6 +26,7 @@ const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
 		const optionYMargin = 6;
 
         const node = new GameNode.Shape({
+        	fill: Colors.randomColor(),
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(x, y, width, height)
         });
@@ -57,11 +58,12 @@ const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
             }
         });
 
+        console.log('what the hell ' + (y + 40));
         const gameNameNode = new GameNode.Text({
             textInfo: {
                 text: gameName,
                 x: x + (width / 2),
-                y: y + optionYMargin + (height - 2 * optionYMargin) + 1,
+                y: y + 40,//(height - 2 * optionYMargin),// + (height - 2 * optionYMargin) - 1,
                 color: COLORS.ALMOST_BLACK,
                 align: 'center',
                 size: 1.6
