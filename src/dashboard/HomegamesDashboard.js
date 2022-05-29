@@ -685,9 +685,7 @@ class HomegamesDashboard extends ViewableGame {
 
     handleNewPlayer({ playerId, settings: playerSettings, info: playerInfo, requestedGame }) {
     
-        const playerView = {x: 0, y: 0, w: gameContainerWidth, h: gameContainerHeight};
-        console.log('here it shte t');
-        console.log(playerView);
+        const playerView = {x: 0, y: 0, w: 100, h: 100};
 
         const playerNodeRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -976,11 +974,12 @@ class HomegamesDashboard extends ViewableGame {
 
         const currentView = this.playerStates[playerId].view;
 
-        const gameOptionsBelowView = this.base.getChildren().filter(child => {
+        const planeBase = this.getPlane().getChildren()[0];
+        const gameOptionsBelowView = planeBase.getChildren().filter(child => {
             return child.node.coordinates2d[0][1] > (currentView.y + currentView.h);
         });
 
-        const gameOptionsAboveView = this.base.getChildren().filter(child => {
+        const gameOptionsAboveView = planeBase.getChildren().filter(child => {
             return child.node.coordinates2d[2][1] < currentView.y;
         });
 
@@ -1076,27 +1075,20 @@ class HomegamesDashboard extends ViewableGame {
         const playerRoot = this.playerRoots[playerId];
         const playerView = this.playerStates[playerId].view;
 
-        console.log('sdfisdf');
-        console.log(this.playerRoots);
-
         const view = ViewUtils.getView(
             this.getPlane(),
             playerView, 
             [playerId], 
             {
-                // filter: (node) => {console.log('what is this node im filtering lol'); console.log(node); return false;},//node.node.id !== playerRoot.node.id,//this.base.node.id, 
-                // y: 10,//(100 - 90)//containerHeight)
-                // x: 10
+                y: 12.5 + ((100 - 12.5 - 70) / 2),
+                x: 12.5
+            },
+            {
+                x: gameContainerWidth / 100,
+                y: gameContainerHeight / 100
             }
         );
 
-        console.log('this is view');
-
-
-        console.log('hjksdfdsf');
-        // console.log(this.getPlane());
-        console.log(view.node.children);
-        // console.log(playerView);
         // playerRoot.node.addChild(staticElements);
 
         playerRoot.node.addChildren(staticElements, view);
