@@ -8,15 +8,17 @@ const viewtest = require('./src/games/view-test');
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
+const logger = require('./src/logger');
+
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const GAME_SERVER_HOME_PORT = getConfigValue('GAME_SERVER_HOME_PORT', 7001);
 
 const server = (certPath, squishMap) => {
-    console.log('running server');
+    logger.debug('running server');
 
     if (squishMap) {
-        console.log("custom squish map");
-        console.log(squishMap);
+        logger.debug("custom squish map");
+        logger.debug(squishMap);
     }
 
     // hack kind of. but homegames dashbaoard is special

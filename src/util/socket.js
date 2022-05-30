@@ -3,6 +3,7 @@ const http = require('http');
 const https = require('https');
 const assert = require('assert');
 const Player = require('../Player');
+const logger = require('../logger');
 const fs = require('fs');
 
 const path = require('path');
@@ -70,7 +71,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             cert: fs.readFileSync(certPath.certPath).toString()
         });
     } else { 
-        console.log('uhhhhh its not secure');
+        logger.info("Starting regular server");
         server = http.createServer();
     }
 
@@ -82,10 +83,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         function messageHandler(msg) {
             const jsonMessage = JSON.parse(msg);
 
-            console.log("MESSAGE THEY SENT");
-            console.log(jsonMessage);
             if (jsonMessage.type === 'homenames_update') {
-                console.log('its a homenames update');
                 // console.log(jsonMessage.payload);
                 gameSession.handlePlayerUpdate(jsonMessage.playerId, { info: jsonMessage.info, settings: jsonMessage.settings });
             } else if (jsonMessage.type === 'ready') {
@@ -93,9 +91,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 ws.removeListener('message', messageHandler);
 
                 ws.id = Number(jsonMessage.id || generatePlayerId());
-
-                console.log('this is their id');
-                console.log(jsonMessage.id);
 
                 const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
 
