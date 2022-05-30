@@ -461,20 +461,6 @@ class HomegamesDashboard extends ViewableGame {
                 const { gameId, versionId } = version;
 
                 this.downloadGame( { gameDetails, version }).then(gamePath => {
-                    console.log('downloaded game to this path');
-                    console.log(gamePath);
-                    // console.log(gameDetails);
-                    // console.log(version); 
-                    // console.log("BUG OLD EBUEDFSDSF");
-                    // console.log(this.localGames);
-
-                    // this.assets['bigbolebutt'] = 'DoDad';
-                    // this.localGames['bigbolebutt'] = {
-                    //     name: 'does this work please',
-                    //     metadata: {
-                    //         thumbnail: 'DoDad'
-                    //     }
-                    // }
                     this.localGames = getGameMap();
 
                     Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
@@ -486,55 +472,24 @@ class HomegamesDashboard extends ViewableGame {
 
                     this.renderGamePlane();
                     this.renderGames(playerId, {});
-                    // this.localGames = {};
-                    // const gamePaths = getGamePaths();
-                    // for (const gameKey2 in gamePaths) {
-                    //     const gameClass = gamePaths[gameKey2].class;
-                    //     this.localGames[gameKey2] = { gameClass: gameClass, path: gamePaths[gameKey2].path, metadata: gamePaths[gameKey2].metadata }; 
-                    // }
-                    // const gameClass = require(gamePath);
-                    // const metad = Object.assign({path: gamePath}, gameMetadata || {});
 
-                    // console.log('game ddde');
-                    // // console.log(game)
+                    const modal = gameModal({ 
+                        gameKey, 
+                        activeSessions, 
+                        playerId,
+                        gameMetadata: metad, 
+                        onJoinSession: (session) => {
+                            this.joinSession(playerId, session);
+                        },
+                        onCreateSession: () => {
+                            this.startSession(playerId, gameKey, versionId);
+                        }, 
+                        onClose: () => {
+                            playerRoot.removeChild(modal.node.id);  
+                        }
+                    });
 
-                    // this.localGames[gameKey] = {
-                    //     gameClass,
-                    //     path: gamePath,
-                    //     metadata: metad
-                    // }
-
-                    // console.log('here is metadata for thing i downloaded');
-                    // console.log(metad);
-                    // console.log(this.assets[gameId]);
-
-                    // if (metad && metad.thumbnail && !this.assets[metad.thumbnail]) {
-                    //     console.log('neeeed to addd ' + metad.thumbnail);
-                    //     // this.assets[metad.thumbnail] = 
-                    // }
-                    
-                    // const newPlane = this.buildGamePlane({ gameCollection: this.localGames });
-
-                    // this.getPlane().clearChildren();
-                    // this.getPlane().addChild(newPlane);
-
-                    // const modal = gameModal({ 
-                    //     gameKey, 
-                    //     activeSessions, 
-                    //     playerId,
-                    //     gameMetadata: metad, 
-                    //     onJoinSession: (session) => {
-                    //         this.joinSession(playerId, session);
-                    //     },
-                    //     onCreateSession: () => {
-                    //         this.startSession(playerId, gameKey, versionId);
-                    //     }, 
-                    //     onClose: () => {
-                    //         playerRoot.removeChild(modal.node.id);  
-                    //     }
-                    // });
-
-                    // playerRoot.addChild(modal);
+                    playerRoot.addChild(modal);
                 });
                 
             })
