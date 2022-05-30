@@ -206,8 +206,10 @@ const getGamePaths = () => {
         }
 
         if (!games[gameKey]) {
+
+            const metadataToInsert = isLocal ? { game: metadata, version: {} } : metadata;
             games[gameKey] = {
-                metadata,
+                metadata: metadataToInsert,
                 versions: {}
             };
         }
@@ -574,7 +576,7 @@ class HomegamesDashboard extends ViewableGame {
             console.log(gameCollection[key]);
             const xIndex = gameIndex % columnsPerPage === 0 ? 0 : ((gameIndex % columnsPerPage) / columnsPerPage) * 100; 
             const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
-            let assetKey = key;//gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
+            let assetKey = this.assets[key] ? key : 'default';//gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
 
             // console.log('here is metadata fdor htat game ' + assetKey);
             // console.log(gameCollection[key].metadata);
