@@ -1,11 +1,5 @@
 const server = require('./game_server');
 const assert = require('assert');
-//const squish061 = require('squish-061');
-//const squish063 = require('squish-063');
-//const squish0631 = require('squish-0631');
-//const squish0632 = require('squish-0632');
-//const squish0633 = require('squish-0633');
-//const squish0642 = require('squish-0642');
 
 const process = require('process');
 
@@ -32,6 +26,7 @@ if (baseDir.endsWith('src')) {
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
 const linkHelper = require('./src/util/link-helper');
+const logger = require('./src/logger');
 
 const { guaranteeCerts, guaranteeDir, authWorkflow } = require('homegames-common');
 
@@ -45,14 +40,14 @@ const actions = [];
 
 const linkInit = () => new Promise((resolve, reject) => {
     linkHelper.linkConnect().then((wsClient) => {
-        console.log('linked idk');
+        logger.info('Initialized connection to homegames.link');
         resolve();
     }).catch(err => {
-        console.log("Failed to initialize link.");
-        console.log(err);
+        logger.error('Failed to initialize link', err);
         reject();
     });
 });
+
 
 const httpsInit = () => new Promise((resolve, reject) => {
     guaranteeDir(AUTH_DIR).then(() => {

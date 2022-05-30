@@ -206,6 +206,26 @@ const getGamePaths = () => {
     return games;
 };
 
+const getGameMap = () => {
+    const games = {};
+    const gamePaths = getGamePaths();
+    for (const gameKey in gamePaths) {
+        const gameClass = gamePaths[gameKey].class;
+        console.log('stuff and metadata');
+        console.log(gamePaths[gameKey].metadata);
+        const metadata = gamePaths[gameKey].metadata;
+        if (metadata.thumbnail) {
+            // todo: fix this hack
+            if (metadata.thumbnail.indexOf('/') > 0) {
+                metadata.thumbnail = metadata.thumbnail.split('/')[metadata.thumbnail.split('/').length - 1];
+            }
+        }
+        games[gameKey] = { gameClass: gameClass, metadata };//: gamePaths[gameKey].metadata }; 
+    }
+
+    return games;
+}
+
 class HomegamesDashboard extends ViewableGame {
     static metadata() {
         return {
@@ -240,21 +260,7 @@ class HomegamesDashboard extends ViewableGame {
             fill: BASE_COLOR
         });
 
-        this.localGames = {};
-        const gamePaths = getGamePaths();
-        for (const gameKey in gamePaths) {
-            const gameClass = gamePaths[gameKey].class;
-            console.log('stuff and metadata');
-            console.log(gamePaths[gameKey].metadata);
-            const metadata = gamePaths[gameKey].metadata;
-            if (metadata.thumbnail) {
-                // todo: fix this hack
-                if (metadata.thumbnail.indexOf('/') > 0) {
-                    metadata.thumbnail = metadata.thumbnail.split('/')[metadata.thumbnail.split('/').length - 1];
-                }
-            }
-            this.localGames[gameKey] = { gameClass: gameClass, path: gamePaths[gameKey].path, metadata };//: gamePaths[gameKey].metadata }; 
-        }
+        this.localGames = getGameMap();
 
         Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
             this.assets[key] = new Asset({
@@ -263,8 +269,7 @@ class HomegamesDashboard extends ViewableGame {
             });
         });
 
-        const plane = this.buildGamePlane({ gameCollection: this.localGames, width: 80, height: 80 });
-        this.getPlane().addChild(plane);
+        this.renderGamePlane();
 
         this.playerViews = {};
         this.playerStates = {};
@@ -417,59 +422,90 @@ class HomegamesDashboard extends ViewableGame {
                 const { gameId, versionId } = version;
 
                 this.downloadGame( { gameDetails, version }).then(gamePath => {
-                    this.localGames = {};
-                    const gamePaths = getGamePaths();
-                    for (const gameKey2 in gamePaths) {
-                        const gameClass = gamePaths[gameKey2].class;
-                        this.localGames[gameKey2] = { gameClass: gameClass, path: gamePaths[gameKey2].path, metadata: gamePaths[gameKey2].metadata }; 
-                    }
-                    const gameClass = require(gamePath);
-                    const metad = Object.assign({path: gamePath}, gameMetadata || {});
+                    console.log('downloaded game to this path');
+                    console.log(gamePath);
+                    console.log(gameDetails);
+                    console.log(version);
+                    console.log("BUG OLD EBUEDFSDSF");
+                    console.log(this.localGames);
 
-                    console.log('game ddde');
-                    // console.log(game)
+                    // this.assets['bigbolebutt'] = 'DoDad';
+                    // this.localGames['bigbolebutt'] = {
+                    //     name: 'does this work please',
+                    //     metadata: {
+                    //         thumbnail: 'DoDad'
+                    //     }
+                    // }
+                    this.localGames = getGameMap();
 
-                    this.localGames[gameKey] = {
-                        gameClass,
-                        path: gamePath,
-                        metadata: metad
-                    }
-
-                    console.log('here is metadata for thing i downloaded');
-                    console.log(metad);
-                    console.log(this.assets[gameId]);
-
-                    if (metad && metad.thumbnail && !this.assets[metad.thumbnail]) {
-                        console.log('neeeed to addd ' + metad.thumbnail);
-                        // this.assets[metad.thumbnail] = 
-                    }
-                    
-                    const newPlane = this.buildGamePlane({ gameCollection: this.localGames });
-
-                    this.getPlane().clearChildren();
-                    this.getPlane().addChild(newPlane);
-
-                    const modal = gameModal({ 
-                        gameKey, 
-                        activeSessions, 
-                        playerId,
-                        gameMetadata: metad, 
-                        onJoinSession: (session) => {
-                            this.joinSession(playerId, session);
-                        },
-                        onCreateSession: () => {
-                            this.startSession(playerId, gameKey, versionId);
-                        }, 
-                        onClose: () => {
-                            playerRoot.removeChild(modal.node.id);  
-                        }
+                    Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
+                        this.assets[key] = new Asset({
+                            'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                            'type': 'image'
+                        });
                     });
 
-                    playerRoot.addChild(modal);
+                    this.renderGamePlane();
+                    this.renderGames(playerId, {});
+                    // this.localGames = {};
+                    // const gamePaths = getGamePaths();
+                    // for (const gameKey2 in gamePaths) {
+                    //     const gameClass = gamePaths[gameKey2].class;
+                    //     this.localGames[gameKey2] = { gameClass: gameClass, path: gamePaths[gameKey2].path, metadata: gamePaths[gameKey2].metadata }; 
+                    // }
+                    // const gameClass = require(gamePath);
+                    // const metad = Object.assign({path: gamePath}, gameMetadata || {});
+
+                    // console.log('game ddde');
+                    // // console.log(game)
+
+                    // this.localGames[gameKey] = {
+                    //     gameClass,
+                    //     path: gamePath,
+                    //     metadata: metad
+                    // }
+
+                    // console.log('here is metadata for thing i downloaded');
+                    // console.log(metad);
+                    // console.log(this.assets[gameId]);
+
+                    // if (metad && metad.thumbnail && !this.assets[metad.thumbnail]) {
+                    //     console.log('neeeed to addd ' + metad.thumbnail);
+                    //     // this.assets[metad.thumbnail] = 
+                    // }
+                    
+                    // const newPlane = this.buildGamePlane({ gameCollection: this.localGames });
+
+                    // this.getPlane().clearChildren();
+                    // this.getPlane().addChild(newPlane);
+
+                    // const modal = gameModal({ 
+                    //     gameKey, 
+                    //     activeSessions, 
+                    //     playerId,
+                    //     gameMetadata: metad, 
+                    //     onJoinSession: (session) => {
+                    //         this.joinSession(playerId, session);
+                    //     },
+                    //     onCreateSession: () => {
+                    //         this.startSession(playerId, gameKey, versionId);
+                    //     }, 
+                    //     onClose: () => {
+                    //         playerRoot.removeChild(modal.node.id);  
+                    //     }
+                    // });
+
+                    // playerRoot.addChild(modal);
                 });
                 
             })
         }
+    }
+
+    renderGamePlane() {
+        const plane = this.buildGamePlane({ gameCollection: this.localGames, width: 80, height: 80 });
+        this.getPlane().clearChildren();
+        this.getPlane().addChild(plane);
     }
 
     getAssets() {
@@ -503,6 +539,9 @@ class HomegamesDashboard extends ViewableGame {
             console.log(gameCollection[key].metadata);
             const gameName = gameCollection[key].metadata && gameCollection[key].metadata.name || key;
 
+            if (key === 'bigbolebutt') {
+                assetKey = 'DoDad';
+            }
             const gameOptionNode = gameOption({
                 x: xIndex,
                 y: yIndex,

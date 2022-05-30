@@ -1,5 +1,7 @@
 const GameSession = require('./GameSession');
 const { socketServer } = require('./util/socket');
+const logger = require('./logger');
+
 const process = require('process');
 
 let lastMessage;
@@ -29,8 +31,7 @@ const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAcc
 const startServer = (sessionInfo) => {
     let gameInstance;
 
-    console.log('you want to start server with this info');
-    console.log(sessionInfo);
+    logger.info('Starting server with this info', sessionInfo);
 
     // let squishLib = require.resolve('squishjs');
     const squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0740');
