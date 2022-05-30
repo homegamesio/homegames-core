@@ -426,11 +426,18 @@ class HomegamesDashboard extends ViewableGame {
                     const gameClass = require(gamePath);
                     const metad = Object.assign({path: gamePath}, gameMetadata || {});
 
+                    console.log('game ddde');
+                    // console.log(game)
+
                     this.localGames[gameKey] = {
                         gameClass,
                         path: gamePath,
                         metadata: metad
                     }
+
+                    console.log('here is metadata for thing i downloaded');
+                    console.log(metad);
+                    console.log(this.assets[gameId]);
 
                     if (metad && metad.thumbnail && !this.assets[metad.thumbnail]) {
                         console.log('neeeed to addd ' + metad.thumbnail);
@@ -492,6 +499,8 @@ class HomegamesDashboard extends ViewableGame {
             const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
             let assetKey = gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
 
+            console.log('here is metadata fdor htat game ' + assetKey);
+            console.log(gameCollection[key].metadata);
             const gameName = gameCollection[key].metadata && gameCollection[key].metadata.name || key;
 
             const gameOptionNode = gameOption({

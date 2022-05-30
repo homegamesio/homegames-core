@@ -22,6 +22,7 @@ if (baseDir.endsWith('src')) {
 
 const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
 
+		console.log('game name has asset key ' + gameName + ', ' + assetKey);
 		const optionXMargin = 6;
 		const optionYMargin = 6;
 
