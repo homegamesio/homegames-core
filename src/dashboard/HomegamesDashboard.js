@@ -471,13 +471,12 @@ class HomegamesDashboard extends ViewableGame {
                     });
 
                     this.renderGamePlane();
-                    this.renderGames(playerId, {});
 
                     const modal = gameModal({ 
                         gameKey, 
                         activeSessions, 
                         playerId,
-                        gameMetadata: metad, 
+                        gameMetadata: this.localGames[gameId].metadata, 
                         onJoinSession: (session) => {
                             this.joinSession(playerId, session);
                         },
@@ -485,6 +484,7 @@ class HomegamesDashboard extends ViewableGame {
                             this.startSession(playerId, gameKey, versionId);
                         }, 
                         onClose: () => {
+                            this.renderGames(playerId, {})
                             playerRoot.removeChild(modal.node.id);  
                         }
                     });
