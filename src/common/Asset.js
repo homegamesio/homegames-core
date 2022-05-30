@@ -165,26 +165,26 @@ class Asset {
         }); 
     }
 
-    async getDataSync() {
-        // console.log('getting data synchronouyslty ' + this.info.id)
-            const fileLocation = await this.downloadSync();
-            // console.log('apparently downloaded to');
-            // console.log(fileLocation);
-            // setTimeout(() => {
-            //.then(fileLocation => {
-                const buf = fs.readFileSync(fileLocation);//, (err, buf) => {
-                    // console.log('buff');
-                    // console.log(buf);
-                return buf;
-            // }, 500);
-            //         if (err) {
-            //             reject(err);
-            //         } else {
-            //             resolve(buf);
-            //         }
-            //     });
-            // });
-    }
+    // async getDataSync() {
+    //     // console.log('getting data synchronouyslty ' + this.info.id)
+    //         const fileLocation = await this.downloadSync();
+    //         // console.log('apparently downloaded to');
+    //         // console.log(fileLocation);
+    //         // setTimeout(() => {
+    //         //.then(fileLocation => {
+    //             const buf = fs.readFileSync(fileLocation);//, (err, buf) => {
+    //                 // console.log('buff');
+    //                 // console.log(buf);
+    //             return buf;
+    //         // }, 500);
+    //         //         if (err) {
+    //         //             reject(err);
+    //         //         } else {
+    //         //             resolve(buf);
+    //         //         }
+    //         //     });
+    //         // });
+    // }
 
     
 }

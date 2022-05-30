@@ -244,7 +244,16 @@ class HomegamesDashboard extends ViewableGame {
         const gamePaths = getGamePaths();
         for (const gameKey in gamePaths) {
             const gameClass = gamePaths[gameKey].class;
-            this.localGames[gameKey] = { gameClass: gameClass, path: gamePaths[gameKey].path, metadata: gamePaths[gameKey].metadata }; 
+            console.log('stuff and metadata');
+            console.log(gamePaths[gameKey].metadata);
+            const metadata = gamePaths[gameKey].metadata;
+            if (metadata.thumbnail) {
+                // todo: fix this hack
+                if (metadata.thumbnail.indexOf('/') > 0) {
+                    metadata.thumbnail = metadata.thumbnail.split('/')[metadata.thumbnail.split('/').length - 1];
+                }
+            }
+            this.localGames[gameKey] = { gameClass: gameClass, path: gamePaths[gameKey].path, metadata };//: gamePaths[gameKey].metadata }; 
         }
 
         Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
@@ -461,7 +470,10 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     buildGamePlane({ gameCollection, rowsPerPage = 2, columnsPerPage = 2 }) {
+
         const gameCount = Object.keys(gameCollection).length;
+        
+        console.log('buvilding plkane for this many games ' + gameCount);
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
 
         const gameOptionWidth = 100 / columnsPerPage;
@@ -475,14 +487,11 @@ class HomegamesDashboard extends ViewableGame {
         });
 
         for (const key in gameCollection) {
+            console.log('rendering game ' + key);
             const xIndex = gameIndex % columnsPerPage === 0 ? 0 : ((gameIndex % columnsPerPage) / columnsPerPage) * 100; 
             const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
             let assetKey = gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
 
-            // if (gameCollection[key].metadata.thumbnail)
-            // console.log('the efefefe ');
-            // console.log(gameCollection[key]);
-            // console.log('asset key for game ' + key + ' is ' + assetKey);
             const gameName = gameCollection[key].metadata && gameCollection[key].metadata.name || key;
 
             const gameOptionNode = gameOption({
@@ -559,57 +568,51 @@ class HomegamesDashboard extends ViewableGame {
 
         const games = {};
 
-        const thang = async function (game) {
 
-            const thumbnailId = game.thumbnail.indexOf('/') > 0 ? game.thumbnail.split('/')[game.thumbnail.split('/').length  - 1] : game.thumbnail; 
-
-            games[game.id] = {
-                metadata: {
-                    name: game.name,
-                    author: game.createdBy,
-                    thumbnail: thumbnailId
-                }
-            }
-
-            if (!this.assets[game.id]) {
-                console.log('game ' + game.id + ' has asset id ' + thumbnailId);
-                const asset = new Asset({
-                    'id': thumbnailId,
-                    'type': 'image'
-                }); 
-
-                console.log("AYYYYY LMAO EVERYTHING SHOULD START HERE");
-                await this.addAsset(game.id, asset);
-                console.log("AYYYYY LMAO EVERYTHING SHOULD FINISH HERE");
-
-                this.assets[game.id] = asset;
-            }
-        }
-
-        const lol = async function() {
-
-        }
-
-        const idk = async function() {
-            const uh1 = await networkHelper.searchGames(query);
-            //.then(results => {
-                console.log('got result?');
-                console.log(uh1);
-
-        }
-
-        const wat = async function() {
-
-            networkHelper.searchGames(query).then(results => {
+        let processedEntries = 0;
+        networkHelper.searchGames(query).then(results => {
+            if (!results.games || !results.games.length) {
+                this.renderGames(playerId, {})
+            } else {
                 results.games.forEach(game => {
-                    await thang(game);
+                    const thumbnailId = game.thumbnail.indexOf('/') > 0 ? game.thumbnail.split('/')[game.thumbnail.split('/').length  - 1] : game.thumbnail; 
+
+                    games[game.id] = {
+                        metadata: {
+                            name: game.name,
+                            author: game.createdBy,
+                            thumbnail: thumbnailId
+                        }
+                    }
+
+                    if (!this.assets[game.id]) {
+                        const asset = new Asset({
+                            'id': thumbnailId,
+                            'type': 'image'
+                        }); 
+
+                        this.assets[game.id] = asset;    
+
+                        this.addAsset(game.id, asset).then(() => {
+                            processedEntries += 1;
+                            if (processedEntries === results.games.length) {
+                                this.renderGames(playerId, { searchResults: games, searchQuery: query });
+                            }
+
+                        });
+                        
+                    } else {
+                        processedEntries += 1;
+                        if (processedEntries === results.games.length) {
+                            this.renderGames(playerId, { searchResults: games, searchQuery: query });
+                        }
+                    }
                 });
+            }
 
-                this.renderGames(playerId, { searchResults: games, searchQuery: query });
-            });
-        }
+        });
+    
 
-        wat();
     }
 
     buildStaticElements(playerId, gamePlane, searchQuery = '', searchResults = null) {
@@ -680,7 +683,8 @@ class HomegamesDashboard extends ViewableGame {
             playerSearchBox.addChildren(clearSearchButton);
         }
 
-        let canGoDown, canGoUp = false;
+        let canGoDown = false;
+        let canGoUp = false;
 
         const baseHeight = this.base.node.coordinates2d[2][1];
 
@@ -688,11 +692,11 @@ class HomegamesDashboard extends ViewableGame {
 
         const planeBase = gamePlane.getChildren()[0];
         const gameOptionsBelowView = planeBase.getChildren().filter(child => {
-            return child.node.coordinates2d[0][1] > (currentView.y + currentView.h);
+            return child.node.coordinates2d[0][1] >= (currentView.y + currentView.h);
         });
 
         const gameOptionsAboveView = planeBase.getChildren().filter(child => {
-            return child.node.coordinates2d[2][1] < currentView.y;
+            return child.node.coordinates2d[2][1] <= currentView.y;
         });
 
         if (gameOptionsBelowView.length > 0) {
@@ -781,10 +785,6 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     renderGames(playerId, { searchResults, searchQuery }) {
-        console.log('rendering for player id ' +playerId);
-        console.log(searchResults);
-        console.log(searchQuery);
-        
         const playerRoot = this.playerRoots[playerId];
         const playerView = this.playerStates[playerId].view;
 

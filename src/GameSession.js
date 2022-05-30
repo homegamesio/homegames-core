@@ -43,9 +43,7 @@ class GameSession {
         this.scale = {x: (100 - BEZEL_SIZE_X) / 100, y:  (100 - BEZEL_SIZE_Y) / 100};
 
         this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer, customTopLayer: this.customTopLayer, onAssetUpdate: (newAssetBundle) => {
-            console.log('new asset bundle');
             for (const playerId in this.players) {
-                console.log('need to tell player ' + playerId);
                 this.players[playerId].receiveUpdate(newAssetBundle);
             }
         } });
@@ -59,16 +57,16 @@ class GameSession {
         this.spectators = {};
     }
 
-    async handleNewAsset(key, asset) {
-        await this.squisher.handleNewAsset(key, asset);
-        console.log('afjfjfjf mao');
-        for (const playerId in this.players) {
-            const player = this.players[playerId];
-            console.log('telling plauer about new asset bundle')
-            this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
-        }
-        console.log('dddddd key ' + key);
-        console.log(asset);
+    handleNewAsset(key, asset) {
+        return new Promise((resolve, reject) => {
+            this.squisher.handleNewAsset(key, asset).then(newBundle => {
+                for (const playerId in this.players) {
+                    const player = this.players[playerId];
+                    player.receiveUpdate(newBundle);
+                }
+                resolve();
+            });
+        });
     }
 
     handleSquisherUpdate(squished) {

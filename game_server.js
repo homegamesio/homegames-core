@@ -27,11 +27,11 @@ const server = (certPath, squishMap) => {
         movePlayer: (params) => {
             session && session.movePlayer(params);
         },
-        addAsset: async (key, asset) => {
-            if (session) {
-                await session.handleNewAsset(key, asset);
-            }
-        }
+        addAsset: (key, asset) => new Promise((resolve, reject) => {
+            // if (session) {
+                session.handleNewAsset(key, asset).then(resolve).catch(reject);
+            // }
+        })
     });
 
     // const dashboard = new viewtest();
