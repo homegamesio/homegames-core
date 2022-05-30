@@ -185,45 +185,77 @@ const getGamePaths = () => {
     let suffixCount = 0;
     const gameMetadataMap = getGameMetadataMap();
     gamePaths.forEach(gamePath => {
+        const isLocal = sourceGames.has(gamePath);
+
         const gameClass = require(gamePath);
         const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
+
         const storedMetadata = gameMetadataMap[gamePath] || {};
 
-        const metadata = { ...gameMetadata, ...storedMetadata }
-        const isLocal = sourceGames.has(gamePath);
-        metadata.isLocal = isLocal;
-        metadata.path = gamePath;
+        const metadata = isLocal ? gameMetadata : storedMetadata;// :// { ...gameMetadata, ...storedMetadata }
+        // metadata.path = gamePath;
         
-        const gameKey = gameClass.name;
+            console.log("what do d");
+            console.log(metadata);
+
+        let gameKey;
+        if (isLocal) {
+            gameKey = gameClass.name;
+        } else {
+            gameKey = metadata.game.gameId;
+        }
 
         if (!games[gameKey]) {
-            games[gameKey] = { class: gameClass, metadata };
-        } else {
-            games[`${gameKey}_${suffixCount++}`] = { class: gameClass, metadata };
+            games[gameKey] = {
+                metadata,
+                versions: {}
+            };
         }
+
+        // versioning not supported for source games
+        if (isLocal) {
+            games[gameKey].versions[0] = {
+                class: gameClass,
+                metadata,
+                gamePath
+            }
+        } else {
+            games[gameKey].versions[metadata.version.versionId] = {
+                class: gameClass,
+                metadata,
+                gamePath
+            }
+        }
+
+        // if (!games[gameKey]) {
+        //     games[gameKey] = { class: gameClass, metadata };
+        // } else {
+        //     games[`${gameKey}_${suffixCount++}`] = { class: gameClass, metadata };
+        // }
     });
 
     return games;
 };
 
 const getGameMap = () => {
-    const games = {};
-    const gamePaths = getGamePaths();
-    for (const gameKey in gamePaths) {
-        const gameClass = gamePaths[gameKey].class;
-        console.log('stuff and metadata');
-        console.log(gamePaths[gameKey].metadata);
-        const metadata = gamePaths[gameKey].metadata;
-        if (metadata.thumbnail) {
-            // todo: fix this hack
-            if (metadata.thumbnail.indexOf('/') > 0) {
-                metadata.thumbnail = metadata.thumbnail.split('/')[metadata.thumbnail.split('/').length - 1];
-            }
-        }
-        games[gameKey] = { gameClass: gameClass, metadata };//: gamePaths[gameKey].metadata }; 
-    }
+    return getGamePaths();
+    // const games = {};
+    // const gamePaths = getGamePaths();
+    // for (const gameKey in gamePaths) {
+    //     const gameClass = gamePaths[gameKey].class;
+    //     console.log('stuff and metadata');
+    //     console.log(gamePaths[gameKey].metadata);
+    //     const metadata = gamePaths[gameKey].metadata;
+    //     if (metadata.thumbnail) {
+    //         // todo: fix this hack
+    //         if (metadata.thumbnail.indexOf('/') > 0) {
+    //             metadata.thumbnail = metadata.thumbnail.split('/')[metadata.thumbnail.split('/').length - 1];
+    //         }
+    //     }
+    //     games[gameKey] = { gameClass: gameClass, metadata };//: gamePaths[gameKey].metadata }; 
+    // }
 
-    return games;
+    // return games;
 }
 
 class HomegamesDashboard extends ViewableGame {
@@ -262,9 +294,12 @@ class HomegamesDashboard extends ViewableGame {
 
         this.localGames = getGameMap();
 
-        Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
+        console.log('initializing assets here');
+        console.log(this.localGames);
+
+        Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.game.thumbnail).forEach(key => {
             this.assets[key] = new Asset({
-                'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                'id': this.localGames[key].metadata && this.localGames[key].metadata.game.thumbnail,
                 'type': 'image'
             });
         });
@@ -307,74 +342,76 @@ class HomegamesDashboard extends ViewableGame {
         const sessionId = sessionIdCounter++;
         const port = getServerPort();
 
-            const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
+        const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
 
-            const childSession = fork(childGameServerPath);
+        const childSession = fork(childGameServerPath);
 
-            sessions[port] = childSession;
+        sessions[port] = childSession;
 
-            if (this.localGames[gameKey]) {
-                const referencedGame = this.localGames[gameKey];
+        if (this.localGames[gameKey]) {
+            const referencedGame = this.localGames[gameKey];
 
-                const squishVersion = referencedGame.metadata.squishVersion;
+            const squishVersion = referencedGame.metadata.squishVersion;
 
-                childSession.send(JSON.stringify({
-                    key: gameKey,
-                    squishVersion,
-                    gamePath: this.localGames[gameKey].metadata.path,
-                    port,
-                    player: {
-                        id: playerId
+            console.log('referenced');
+            console.log(referencedGame);
+            console.log(this.localGames);
+            const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
+            childSession.send(JSON.stringify({
+                key: gameKey,
+                squishVersion,
+                gamePath: referencedGame.versions[versionId].gamePath,//this.localGames[gameKey].metadata.path,
+                port,
+                player: {
+                    id: playerId
+                }
+            }));
+
+            childSession.on('message', (thang) => {
+                const jsonMessage = JSON.parse(thang);
+                if (jsonMessage.success) {
+                    this.movePlayer({ playerId, port });
+                }
+                else if (jsonMessage.requestId) {
+                    this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
+                }
+            });
+
+            childSession.on('error', (err) => {
+                this.sessions[sessionId] = {};
+                childSession.kill();
+                console.log('child session error');
+                console.log(err);
+            });
+            
+            childSession.on('close', (err) => {
+                this.sessions[sessionId] = {};
+            });
+            
+            this.sessions[sessionId] = {
+                id: sessionId,
+                game: gameKey,
+                port: port,
+                sendMessage: () => {
+                },
+                getPlayers: (cb) => {
+                    const requestId = this.requestIdCounter++;
+                    if (cb) {
+                        this.requestCallbacks[requestId] = cb;
                     }
-                }));
-
-                childSession.on('message', (thang) => {
-                    const jsonMessage = JSON.parse(thang);
-                    if (jsonMessage.success) {
-                        this.movePlayer({ playerId, port });
-                    }
-                    else if (jsonMessage.requestId) {
-                        this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
-                    }
-                });
-
-                childSession.on('error', (err) => {
-                    this.sessions[sessionId] = {};
-                    childSession.kill();
-                    console.log('child session error');
-                    console.log(err);
-                });
-                
-                childSession.on('close', (err) => {
-                    this.sessions[sessionId] = {};
-                });
-                
-                this.sessions[sessionId] = {
-                    id: sessionId,
-                    game: gameKey,
-                    port: port,
-                    sendMessage: () => {
-                    },
-                    getPlayers: (cb) => {
-                        const requestId = this.requestIdCounter++;
-                        if (cb) {
-                            this.requestCallbacks[requestId] = cb;
-                        }
-                        childSession.send(JSON.stringify({
-                            'api': 'getPlayers',
-                            'requestId': requestId
-                        }));
-                    },
-                    sendHeartbeat: () => {
-                        childSession.send(JSON.stringify({
-                            'type': 'heartbeat'
-                        }));
-                    },
-                    players: []
-                };
-            } else {
-
-            }
+                    childSession.send(JSON.stringify({
+                        'api': 'getPlayers',
+                        'requestId': requestId
+                    }));
+                },
+                sendHeartbeat: () => {
+                    childSession.send(JSON.stringify({
+                        'type': 'heartbeat'
+                    }));
+                },
+                players: []
+            };
+        }
     }
 
     joinSession(playerId, session) {
@@ -424,10 +461,10 @@ class HomegamesDashboard extends ViewableGame {
                 this.downloadGame( { gameDetails, version }).then(gamePath => {
                     console.log('downloaded game to this path');
                     console.log(gamePath);
-                    console.log(gameDetails);
-                    console.log(version);
-                    console.log("BUG OLD EBUEDFSDSF");
-                    console.log(this.localGames);
+                    // console.log(gameDetails);
+                    // console.log(version); 
+                    // console.log("BUG OLD EBUEDFSDSF");
+                    // console.log(this.localGames);
 
                     // this.assets['bigbolebutt'] = 'DoDad';
                     // this.localGames['bigbolebutt'] = {
@@ -529,19 +566,23 @@ class HomegamesDashboard extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
+        console.log("GAME COLEL");
+        console.log(gameCollection);
+
         for (const key in gameCollection) {
             console.log('rendering game ' + key);
+            console.log(gameCollection[key]);
             const xIndex = gameIndex % columnsPerPage === 0 ? 0 : ((gameIndex % columnsPerPage) / columnsPerPage) * 100; 
             const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
-            let assetKey = gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
+            let assetKey = key;//gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
 
-            console.log('here is metadata fdor htat game ' + assetKey);
-            console.log(gameCollection[key].metadata);
-            const gameName = gameCollection[key].metadata && gameCollection[key].metadata.name || key;
+            // console.log('here is metadata fdor htat game ' + assetKey);
+            // console.log(gameCollection[key].metadata);
+            const gameName = gameCollection[key]?.metadata?.game.name || key;
 
-            if (key === 'bigbolebutt') {
-                assetKey = 'DoDad';
-            }
+            // if (key === 'bigbolebutt') {
+            //     assetKey = 'DoDad';
+            // }
             const gameOptionNode = gameOption({
                 x: xIndex,
                 y: yIndex,
@@ -842,7 +883,21 @@ class HomegamesDashboard extends ViewableGame {
         });
 
         if (searchResults) {
-            searchPlaneBase.addChild(this.buildGamePlane({ gameCollection: searchResults }));
+            console.log('results')
+            console.log(searchResults);
+            const transformedResults = {};
+            Object.keys(searchResults).forEach(gameId => {
+                console.log('mapping this result');
+                // console.log(result);
+                transformedResults[gameId] = {
+                    versions: {},
+                    metadata: {
+                        version: {},
+                        game: searchResults[gameId].metadata
+                    }
+                };
+            })
+            searchPlaneBase.addChild(this.buildGamePlane({ gameCollection: transformedResults }));
         }
 
         const gamePlane = searchResults ? searchPlaneBase : this.getPlane();
@@ -867,8 +922,22 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     downloadGame({ gameDetails, version }) {
-        const { id: gameId } = gameDetails;
+        const { id: gameId, description, name, createdBy, createdAt } = gameDetails;
         const { versionId, location } = version;
+
+        const metadataToStore = {
+            version: {
+                versionId,
+            },
+            game: {
+               gameId,
+               description,
+               name,
+               createdBy,
+               createdAt,
+               thumbnail: gameDetails.thumbnail && gameDetails.thumbnail.indexOf('/') > 0 ? gameDetails.thumbnail.split('/')[gameDetails.thumbnail.split('/').length - 1] : gameDetails.thumbnail 
+            }
+        }
         return new Promise((resolve, reject) => {
             const gamePath = `${GAME_DIRECTORY}/${gameId}/${versionId}`;
 
@@ -885,8 +954,8 @@ class HomegamesDashboard extends ViewableGame {
                     fs.readdir(gamePath, (err, files) => {
                         const currentMetadata = getGameMetadataMap();
                         const indexPath = `${gamePath}/${files[0]}/index.js`;
-                
-                        currentMetadata[indexPath] = gameDetails;
+                    
+                        currentMetadata[indexPath] = metadataToStore;
                         updateGameMetadataMap(currentMetadata);
                 
                         resolve(indexPath);

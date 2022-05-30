@@ -4,7 +4,7 @@ const { socketServer } = require('./src/util/socket');
 const Homenames = require('./src/Homenames');
 const path = require('path');
 const baseDir = path.dirname(require.main.filename);
-const viewtest = require('./src/games/view-test');
+// const viewtest = require('./src/games/view-test');
 
 const { getConfigValue } = require(`${baseDir}/src/util/config`);
 
