@@ -393,6 +393,7 @@ class HomegamesDashboard extends ViewableGame {
             this.sessions[sessionId] = {
                 id: sessionId,
                 game: gameKey,
+                versionId,
                 port: port,
                 sendMessage: () => {
                 },
@@ -432,14 +433,18 @@ class HomegamesDashboard extends ViewableGame {
         networkHelper.getGameDetails(gameKey).then(gameDetails => {
 
         const versionToShow = versionKey || Object.values(gameDetails.versions)[0].versionId;
-        console.log('which version are you starting ' + versionToShow);
+
         const versionList = [];
-        for (const versionId in this.localGames[gameKey].versions) {
-            const gameVersionData = this.localGames[gameKey].versions[versionId];
-            versionList.push({
-                version: null,//gameVersionData.version,
-                versionId: gameVersionData.metadata.version.versionId
-            })
+        // unpublished games do not have version numbers
+        let nullVersionCounter = 0;
+        if (this.localGames[gameKey]) {
+            for (const versionId in this.localGames[gameKey].versions) {
+                const gameVersionData = this.localGames[gameKey].versions[versionId];
+                versionList.push({
+                    version: -1 * ++nullVersionCounter,//gameVersionData.version,
+                    versionId: gameVersionData.metadata.version.versionId
+                })
+            }
         }
         for (const versionIndex in gameDetails.versions) {
             const versionData = gameDetails.versions[versionIndex];
@@ -449,7 +454,7 @@ class HomegamesDashboard extends ViewableGame {
             });
         }
 
-        const createModal = ({ gameId, versionId }) => {
+        const createModal = ({ gameId, versionId, onCreateSession }) => {
 
             const modal = gameModal({ 
                 gameKey: gameId,
@@ -459,7 +464,7 @@ class HomegamesDashboard extends ViewableGame {
                 versions: versionList,
                 gameMetadata, 
                 onVersionChange: (newVersionId) => {
-                    const newModal = createModal({ gameId, versionId: newVersionId });
+                    const newModal = createModal({ gameId, versionId: newVersionId, onCreateSession });
                     playerRoot.removeChild(modal.id);
                     playerRoot.addChild(newModal);
 
@@ -467,9 +472,25 @@ class HomegamesDashboard extends ViewableGame {
                 onJoinSession: (session) => {
                     this.joinSession(playerId, session);
                 },
-                onCreateSession: () => {
-                    this.startSession(playerId, gameId, versionId);
-                }, 
+                onCreateSession,
+                // : () => {
+                //     this.downloadGame( { gameDetails, version }).then(gamePath => {
+                //         this.localGames = getGameMap();
+
+                //         Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
+                //             this.assets[key] = new Asset({
+                //                 'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                //                 'type': 'image'
+                //             });
+                //         });
+
+                //         this.startSession(playerId, gameId, versionId);
+
+                //         // this.renderGamePlane();
+
+                //     });
+                //     // this.startSession(playerId, gameId, versionId);
+                // }, 
                 onClose: () => {
                     playerRoot.removeChild(modal.node.id);  
                 }
@@ -479,7 +500,9 @@ class HomegamesDashboard extends ViewableGame {
         }
 
         if (this.localGames[gameKey]) {
-            const modal = createModal({ gameId: gameKey, versionId: versionToShow });
+            const modal = createModal({ gameId: gameKey, versionId: versionToShow, onCreateSession: () => {
+                this.startSession(playerId, gameId, versionId);
+            }});
             playerRoot.addChild(modal);
         } else {
             networkHelper.getGameDetails(gameKey).then(gameDetails => {
@@ -492,24 +515,31 @@ class HomegamesDashboard extends ViewableGame {
 
                 }
 
+                console.log('auyf lmao');
+
                 const { gameId, versionId } = version;
 
-                this.downloadGame( { gameDetails, version }).then(gamePath => {
-                    this.localGames = getGameMap();
 
-                    Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
-                        this.assets[key] = new Asset({
-                            'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
-                            'type': 'image'
+                const modal = createModal({ gameId, versionId, onCreateSession: () => {
+                    this.downloadGame( { gameDetails, version }).then(gamePath => {
+                        this.localGames = getGameMap();
+
+                        Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
+                            this.assets[key] = new Asset({
+                                'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                                'type': 'image'
+                            });
                         });
+
+                        this.startSession(playerId, gameId, versionId);
+
+                        // this.renderGamePlane();
+
                     });
+                    // this.startSession(playerId, gameId, versionId);
+                }});
 
-                    this.renderGamePlane();
-
-                    const modal = createModal({ gameId, versionId });
-
-                    playerRoot.addChild(modal);
-                });
+                playerRoot.addChild(modal);
                 
             })
         }

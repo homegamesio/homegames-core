@@ -92,11 +92,11 @@ const infoSection = ({ gameKey, gameMetadata}) => {
     return infoContainer;
 };
 
-const createSection = ({ gameKey, onCreateSession, onJoinSession }) => {
+const createSection = ({ gameKey, onCreateSession, onJoinSession, isVerified = false }) => {
     const createContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(12.5, 67, 20, 20),
-        fill: [160, 235, 93, 255],
+        fill: isVerified ? [160, 235, 93, 255] : COLORS.HG_YELLOW,
         onClick: onCreateSession
     });
 
@@ -128,11 +128,6 @@ const createSection = ({ gameKey, onCreateSession, onJoinSession }) => {
 };
 
 const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersions }) => {
-    console.log('need to do somethingeeeee');
-    console.log(gameKey);
-    console.log(currentVersion);
-    console.log(onVersionChange);
-    console.log(otherVersions);
 
     const versionSelectorContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
@@ -151,8 +146,8 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
         }
     });
 
-    const previousVersions = otherVersions.filter(v => v.version < currentVersion.version).sort((a, b) => (b.version || 0) - (a.version || 0));
-    const subsequentVersions = otherVersions.filter(v => v.version > currentVersion.version).sort((a, b) => (a.version || 0) - (b.version || 0));
+    const previousVersions = otherVersions.filter(v => v.version !== null && v.version < currentVersion.version).sort((a, b) => b.version - a.version);
+    const subsequentVersions = otherVersions.filter(v => v.version !== null && v.version > currentVersion.version).sort((a, b) => a.version - b.version);
 
     if (previousVersions.length > 0) {
         const leftButton = new GameNode.Shape({
@@ -175,9 +170,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
 
         versionSelectorContainer.addChildren(rightButton);
     }
-    console.log('orrreeev');
-    console.log(previousVersions);
-    console.log(subsequentVersions);
+
     versionSelectorContainer.addChildren(currentVersionText);
 
     return versionSelectorContainer;
@@ -375,136 +368,9 @@ const gameModal = ({
     const join = joinSection({ gameKey, activeSessions, onJoinSession });
 
     const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions })
+
     modal.addChildren(close, info, create, join, selector);
 
-    // const imgCoords = [27.5, 12.5, 45, 45];
-    // const gameImage = new GameNode.Asset({
-    //     coordinates2d:  ShapeUtils.rectangle(imgCoords[0], imgCoords[1], imgCoords[2], imgCoords[3]),
-    //     assetInfo: {
-    //         [assetKey]: {
-    //             pos: {
-    //                 x: imgCoords[0],
-    //                 y: imgCoords[1]
-    //             },
-    //             size: {
-    //                 x: imgCoords[2],
-    //                 y: imgCoords[3]
-    //             }
-    //         }
-    //     }
-    // });
-
-    // const gameName = new GameNode.Text({
-    //     textInfo: {
-    //         text: assetKey,
-    //         x: 50,
-    //         y: 5,
-    //         color: COLORS.WHITE,
-    //         size: 1.5,
-    //         align: 'center'
-    //     }
-    // });
-
-    // const author = new GameNode.Text({
-    //     textInfo: {
-    //         text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().author || 'Unknown author',
-    //         x: 50,
-    //         y: 9,
-    //         color: COLORS.ALMOST_BLACK,
-    //         size: 0.9,
-    //         align: 'center'
-    //     }
-    // });
-
-    // const description = new GameNode.Text({
-    //     textInfo: {
-    //         x: 27.5,
-    //         y: 65,
-    //         text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().description || 'No description available',
-    //         align: 'left',
-    //         size: 0.6,
-    //         color: COLORS.WHITE
-    //     }
-    // });
-
-    // const sessionText = new GameNode.Text({
-    //     textInfo: {
-    //         x: 15,
-    //         y: 17.5,
-    //         text: 'Join an existing session',
-    //         color: COLORS.WHITE,
-    //         align: 'center',
-    //         size: 1.2
-    //     }
-    // });
-
-    // let yIndex = 22.5;
-
-    // let count = 0;
-    // const sessionList = Object.values(this.sessions).filter(session => {
-    //     return session.game === gameKey;
-    // }).map(session => {
-    //     const sessionNode = new GameNode.Shape({
-    //         shapeType: Shapes.POLYGON,
-    //         coordinates2d: ShapeUtils.rectangle(10, yIndex, 10, 8),
-    //         fill: COLORS.GRAY,
-    //         onClick: (player, x, y) => {
-    //             this.joinSession(player, session);
-    //         }
-    //     });
-
-    //     const sessionText = new GameNode.Text({
-    //         textInfo: {
-    //             x: 15,
-    //             y: yIndex + 3,
-    //             size: 0.8,
-    //             color: COLORS.WHITE,
-    //             align: 'center',
-    //             text: `Session ${session.id}`
-    //         }
-    //     });
-
-    //     yIndex += 10;
-    //     sessionNode.addChild(sessionText);
-    //     return sessionNode;
-    // });
-
-    // const createButton = new GameNode.Shape({
-    //     fill: COLORS.COOL_GREEN,
-    //     coordinates2d: ShapeUtils.rectangle(75, 22.5, 20, 15),
-    //     shapeType: Shapes.POLYGON,
-    //     onClick: () => {
-    //         this.startSession(player, gameKey, versionKey);
-    //     }
-    // });
-
-    // const createIcon = new GameNode.Text({
-    //     textInfo: {
-    //         color: COLORS.ALMOST_BLACK,
-    //         x: 85, 
-    //         y: 25,
-    //         text: '\u1405',
-    //         align: 'center',
-    //         size: 5
-    //     }
-    // });
-
-    // const createText = new GameNode.Text({
-    //     textInfo: {
-    //         x: 85,
-    //         y: 17.5, 
-    //         text: 'Create a session',
-    //         color: COLORS.WHITE,
-    //         size: 1.3,
-    //         align: 'center'
-    //     }
-    // });
-
-    // createButton.addChildren(createText, createIcon);
-
-
-    // sessionList.forEach(sessionNode => modalBase.addChild(sessionNode));
-    // modalBase.addChildren(closeButton, gameName, author, gameImage, description, sessionText, createButton);
     return modal;
 };
 
