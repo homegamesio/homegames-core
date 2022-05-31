@@ -473,24 +473,6 @@ class HomegamesDashboard extends ViewableGame {
                     this.joinSession(playerId, session);
                 },
                 onCreateSession,
-                // : () => {
-                //     this.downloadGame( { gameDetails, version }).then(gamePath => {
-                //         this.localGames = getGameMap();
-
-                //         Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
-                //             this.assets[key] = new Asset({
-                //                 'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
-                //                 'type': 'image'
-                //             });
-                //         });
-
-                //         this.startSession(playerId, gameId, versionId);
-
-                //         // this.renderGamePlane();
-
-                //     });
-                //     // this.startSession(playerId, gameId, versionId);
-                // }, 
                 onClose: () => {
                     playerRoot.removeChild(modal.node.id);  
                 }
@@ -515,8 +497,6 @@ class HomegamesDashboard extends ViewableGame {
 
                 }
 
-                console.log('auyf lmao');
-
                 const { gameId, versionId } = version;
 
 
@@ -532,11 +512,7 @@ class HomegamesDashboard extends ViewableGame {
                         });
 
                         this.startSession(playerId, gameId, versionId);
-
-                        // this.renderGamePlane();
-
                     });
-                    // this.startSession(playerId, gameId, versionId);
                 }});
 
                 playerRoot.addChild(modal);

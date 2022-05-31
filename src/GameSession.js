@@ -159,7 +159,6 @@ class GameSession {
         this.playerSettingsMap[playerId] = settings;
 
         this.homegamesRoot.handlePlayerUpdate(playerId, {info, settings});
-        // this.playerInfoMap[playerId] = newData;
         this.game.handlePlayerUpdate && this.game.handlePlayerUpdate(playerId, { info, settings });
     }
 
@@ -169,7 +168,6 @@ class GameSession {
     }
 
     handlePlayerDisconnect(playerId) {
-        console.log('player disconnected formt his ');
         delete this.players[playerId];
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
         this.homegamesRoot.handlePlayerDisconnect(playerId);
