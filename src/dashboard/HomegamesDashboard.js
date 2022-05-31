@@ -350,6 +350,7 @@ class HomegamesDashboard extends ViewableGame {
 
         sessions[port] = childSession;
 
+        console.log('ayy lmao ' + gameKey);
         if (this.localGames[gameKey]) {
             const referencedGame = this.localGames[gameKey];
 
@@ -422,17 +423,15 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     showGameModal(gameCollection, playerId, gameKey, versionKey = null) {
+
+        console.log("GAME KEY " + gameKey);
+        console.log(this.localGames[gameKey]);
         const playerRoot = this.playerRoots[playerId].node;
 
         const gameMetadata = gameCollection[gameKey].metadata || {};
 
-        const activeSessions = Object.values(this.sessions).filter(session => {
-            return session.game === gameKey;
-        });
-
-        networkHelper.getGameDetails(gameKey).then(gameDetails => {
-
-        const versionToShow = versionKey || Object.values(gameDetails.versions)[0].versionId;
+        if (!this.localGames[gameKey].versions[])
+        const gameVersion = versionKey ? Object.values(gameDetails.versions).filter(v => v.versionId === versionKey)[0] : Object.values(gameDetails.versions)[0];
 
         const versionList = [];
         // unpublished games do not have version numbers
@@ -446,16 +445,13 @@ class HomegamesDashboard extends ViewableGame {
                 })
             }
         }
-        for (const versionIndex in gameDetails.versions) {
-            const versionData = gameDetails.versions[versionIndex];
-            versionList.push({
-                version: versionData.version,
-                versionId: versionData.versionId
-            });
-        }
 
         const createModal = ({ gameId, versionId, onCreateSession }) => {
 
+            const activeSessions = Object.values(this.sessions).filter(session => {
+                return session.game === gameKey && session.versionId === gameVersion.versionId;
+            });
+            
             const modal = gameModal({ 
                 gameKey: gameId,
                 versionId,
@@ -482,22 +478,27 @@ class HomegamesDashboard extends ViewableGame {
         }
 
         if (this.localGames[gameKey]) {
-            const modal = createModal({ gameId: gameKey, versionId: versionToShow, onCreateSession: () => {
+            const modal = createModal({ gameId: gameKey, versionId: gameVersion.versionId, onCreateSession: () => {
                 this.startSession(playerId, gameId, versionId);
             }});
             playerRoot.addChild(modal);
         } else {
-            networkHelper.getGameDetails(gameKey).then(gameDetails => {
-                let version;
 
-                if (versionKey) {
-                    version = gameDetails.versions.filter(v => v.id === versionKey)[0];
-                } else {
-                    version = gameDetails.versions[gameDetails.versions.length - 1];
+        networkHelper.getGameDetails(gameKey).then(gameDetails => {
 
-                }
+            for (const versionIndex in gameDetails.versions) {
+                const versionData = gameDetails.versions[versionIndex];
+                versionList.push({
+                    version: versionData.version,
+                    versionId: versionData.versionId
+                });
+            }
 
-                const { gameId, versionId } = version;
+
+        console.log('bug offf ' +gameKey);
+        // console)
+
+                const { gameId, versionId } = gameVersion;
 
 
                 const modal = createModal({ gameId, versionId, onCreateSession: () => {
@@ -517,9 +518,10 @@ class HomegamesDashboard extends ViewableGame {
 
                 playerRoot.addChild(modal);
                 
-            })
-        }
+        
+        
          });
+    }
     }
 
     renderGamePlane() {
@@ -549,23 +551,13 @@ class HomegamesDashboard extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
-        console.log("GAME COLEL");
-        console.log(gameCollection);
-
         for (const key in gameCollection) {
-            console.log('rendering game ' + key);
-            console.log(gameCollection[key]);
             const xIndex = gameIndex % columnsPerPage === 0 ? 0 : ((gameIndex % columnsPerPage) / columnsPerPage) * 100; 
             const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
-            let assetKey = this.assets[key] ? key : 'default';//gameCollection[key].metadata && gameCollection[key].metadata.thumbnail ? key : 'default';
+            let assetKey = this.assets[key] ? key : 'default';
 
-            // console.log('here is metadata fdor htat game ' + assetKey);
-            // console.log(gameCollection[key].metadata);
             const gameName = gameCollection[key]?.metadata?.game.name || key;
 
-            // if (key === 'bigbolebutt') {
-            //     assetKey = 'DoDad';
-            // }
             const gameOptionNode = gameOption({
                 x: xIndex,
                 y: yIndex,
@@ -574,6 +566,7 @@ class HomegamesDashboard extends ViewableGame {
                 gameName,
                 assetKey,
                 onClick: (playerId) => {
+                    console.log('what what what 123');
                     this.showGameModal(gameCollection, playerId, key);
                 }
             });

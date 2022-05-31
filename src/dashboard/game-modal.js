@@ -177,6 +177,29 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
     
 }
 
+const unverifiedGameVersionWarning = () => {
+    const warningContainer = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(60, 60, 15, 15),
+        fill: COLORS.HG_YELLOW
+    });
+
+    const warningText = new GameNode.Text({
+        textInfo: {
+            x: 60,
+            y: 60,
+            size: 1.2,
+            color: COLORS.HG_BLACK,
+            align: 'left',
+            text: 'This game version has not yet been verified by Homegames administrators.'
+        }
+    });
+
+    warningContainer.addChildren(warningText);
+
+    return warningContainer;
+}
+
 const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSize = 2 }) => {
     const joinContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
@@ -363,12 +386,18 @@ const gameModal = ({
 
     const info = infoSection({ gameKey, gameMetadata });
 
-    const create = createSection({ gameKey, onCreateSession });
+    const isVerified = thisVersion.version > 0;
+
+    const create = createSection({ gameKey, onCreateSession, isVerified });
 
     const join = joinSection({ gameKey, activeSessions, onJoinSession });
 
     const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions })
 
+    // if (!isVerified) {
+    //     const unverifiedWarning = unverifiedGameVersionWarning();
+    //     modal.addChildren(unverifiedWarning);
+    // }
     modal.addChildren(close, info, create, join, selector);
 
     return modal;
