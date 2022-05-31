@@ -429,23 +429,57 @@ class HomegamesDashboard extends ViewableGame {
             return session.game === gameKey;
         });
 
-        if (this.localGames[gameKey]) {
+        networkHelper.getGameDetails(gameKey).then(gameDetails => {
+
+        const versionToShow = versionKey || Object.values(gameDetails.versions)[0].versionId;
+        console.log('which version are you starting ' + versionToShow);
+        const versionList = [];
+        for (const versionId in this.localGames[gameKey].versions) {
+            const gameVersionData = this.localGames[gameKey].versions[versionId];
+            versionList.push({
+                version: null,//gameVersionData.version,
+                versionId: gameVersionData.metadata.version.versionId
+            })
+        }
+        for (const versionIndex in gameDetails.versions) {
+            const versionData = gameDetails.versions[versionIndex];
+            versionList.push({
+                version: versionData.version,
+                versionId: versionData.versionId
+            });
+        }
+
+        const createModal = ({ gameId, versionId }) => {
+
             const modal = gameModal({ 
-                gameKey, 
+                gameKey: gameId,
+                versionId,
                 activeSessions, 
                 playerId,
+                versions: versionList,
                 gameMetadata, 
+                onVersionChange: (newVersionId) => {
+                    const newModal = createModal({ gameId, versionId: newVersionId });
+                    playerRoot.removeChild(modal.id);
+                    playerRoot.addChild(newModal);
+
+                },
                 onJoinSession: (session) => {
                     this.joinSession(playerId, session);
                 },
                 onCreateSession: () => {
-                    this.startSession(playerId, gameKey, versionKey);
+                    this.startSession(playerId, gameId, versionId);
                 }, 
                 onClose: () => {
                     playerRoot.removeChild(modal.node.id);  
                 }
             });
 
+            return modal;
+        }
+
+        if (this.localGames[gameKey]) {
+            const modal = createModal({ gameId: gameKey, versionId: versionToShow });
             playerRoot.addChild(modal);
         } else {
             networkHelper.getGameDetails(gameKey).then(gameDetails => {
@@ -472,28 +506,14 @@ class HomegamesDashboard extends ViewableGame {
 
                     this.renderGamePlane();
 
-                    const modal = gameModal({ 
-                        gameKey, 
-                        activeSessions, 
-                        playerId,
-                        gameMetadata: this.localGames[gameId].metadata, 
-                        onJoinSession: (session) => {
-                            this.joinSession(playerId, session);
-                        },
-                        onCreateSession: () => {
-                            this.startSession(playerId, gameKey, versionId);
-                        }, 
-                        onClose: () => {
-                            this.renderGames(playerId, {})
-                            playerRoot.removeChild(modal.node.id);  
-                        }
-                    });
+                    const modal = createModal({ gameId, versionId });
 
                     playerRoot.addChild(modal);
                 });
                 
             })
         }
+         });
     }
 
     renderGamePlane() {
@@ -585,20 +605,22 @@ class HomegamesDashboard extends ViewableGame {
         if (requestedGame) {
             const { gameId, versionId } = requestedGame;
 
-            https.get(`https://landlord.homegames.io/games/${gameId}/version/${versionId}`, (res) => {
-                if (res.statusCode == 200) {
-                    res.on('data', (buf) => {
-                        const gameData = JSON.parse(buf);
-                        if (!this.downloadedGames[gameId]) {
-                            this.downloadedGames[gameId] = {};
-                        }
+            networkHelper.getGameDetails(gameId).then(gameDetails => {
+                const version = gameDetails.versions.filter(v => v.versionId === versionId)[0];
 
-                        this.downloadedGames[gameId][versionId] = gameData;
-                        this.showGameModal(this.downloadedGames, player, gameId, versionId);
+                this.downloadGame( { gameDetails, version }).then(gamePath => {
+                    this.localGames = getGameMap();
+
+                    Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
+                        this.assets[key] = new Asset({
+                            'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                            'type': 'image'
+                        });
                     });
-                } else {
-                    console.log('dont know what happened');
-                }
+
+                    this.renderGamePlane();
+                    this.renderGames(playerId, {})
+                });
             });
         }
     }

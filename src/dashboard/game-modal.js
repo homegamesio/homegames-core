@@ -37,7 +37,7 @@ const closeSection = ({ onClose, playerId }) => {
 const thumbnailSection = ({ gameKey, gameMetadata }) => {
     console.log('gmmmgmgmg');
     console.log(gameMetadata);
-    const assetKey = gameMetadata.thumbnail ? gameKey : 'default';
+    const assetKey = gameMetadata.game.thumbnail ? gameKey : 'default';
 
     const thumbnail = new GameNode.Asset({
         coordinates2d: ShapeUtils.rectangle(35, 5, 30, 30),
@@ -126,6 +126,63 @@ const createSection = ({ gameKey, onCreateSession, onJoinSession }) => {
 
     return createContainer;
 };
+
+const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersions }) => {
+    console.log('need to do somethingeeeee');
+    console.log(gameKey);
+    console.log(currentVersion);
+    console.log(onVersionChange);
+    console.log(otherVersions);
+
+    const versionSelectorContainer = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(70, 20, 10, 10),
+        fill: COLORS.HG_RED
+    });
+
+    const currentVersionText = new GameNode.Text({
+        textInfo: {
+            text: 'Version ' + currentVersion.version,
+            x: 75,
+            y: 15,
+            color: COLORS.HG_BLACK,
+            size: 2,
+            align: 'center'
+        }
+    });
+
+    const previousVersions = otherVersions.filter(v => v.version < currentVersion.version).sort((a, b) => (b.version || 0) - (a.version || 0));
+    const subsequentVersions = otherVersions.filter(v => v.version > currentVersion.version).sort((a, b) => (a.version || 0) - (b.version || 0));
+
+    if (previousVersions.length > 0) {
+        const leftButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: COLORS.HG_BLUE,
+            coordinates2d: ShapeUtils.rectangle(60, 30, 10, 20),
+            onClick: () => onVersionChange(previousVersions[0].versionId)
+        });
+
+        versionSelectorContainer.addChildren(leftButton);
+    }
+
+    if (subsequentVersions.length > 0) {
+        const rightButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: COLORS.HG_YELLOW,
+            coordinates2d: ShapeUtils.rectangle(90, 30, 10, 20),
+            onClick: () => onVersionChange(subsequentVersions[0].versionId)
+        });
+
+        versionSelectorContainer.addChildren(rightButton);
+    }
+    console.log('orrreeev');
+    console.log(previousVersions);
+    console.log(subsequentVersions);
+    versionSelectorContainer.addChildren(currentVersionText);
+
+    return versionSelectorContainer;
+    
+}
 
 const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSize = 2 }) => {
     const joinContainer = new GameNode.Shape({
@@ -287,13 +344,27 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
     return joinContainer;
 };
 
-const gameModal = ({ gameMetadata, gameKey, onClose, activeSessions, onCreateSession, onJoinSession, playerId }) => {
+const gameModal = ({ 
+    gameMetadata, 
+    gameKey, 
+    versionId, 
+    onClose, 
+    activeSessions, 
+    onCreateSession, 
+    onJoinSession, 
+    playerId, 
+    onVersionChange,
+    versions = [] 
+}) => {
     const modal = new GameNode.Shape({
         coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 95),
         fill: COLORS.HG_BLUE,
         shapeType: Shapes.POLYGON,
         playerIds: [playerId]
     });
+
+    const thisVersion = versions.filter(version => version.versionId === versionId)[0];
+    const otherVersions = versions.filter(version => version.versionId !== versionId);
 
     const close = closeSection({ playerId, onClose });
 
@@ -303,7 +374,8 @@ const gameModal = ({ gameMetadata, gameKey, onClose, activeSessions, onCreateSes
 
     const join = joinSection({ gameKey, activeSessions, onJoinSession });
 
-    modal.addChildren(close, info, create, join);
+    const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions })
+    modal.addChildren(close, info, create, join, selector);
 
     // const imgCoords = [27.5, 12.5, 45, 45];
     // const gameImage = new GameNode.Asset({
