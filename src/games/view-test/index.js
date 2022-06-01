@@ -66,16 +66,16 @@ class ViewTest extends ViewableGame {
                 newView.x = this.playerViews[playerId].view.x + 1;
             }
 
-            const newTing = ViewUtils.getView(this.getPlane(), newView, [playerId]);
+            const newViewRoot = ViewUtils.getView(this.getPlane(), newView, [playerId]);
 
             this.getViewRoot().removeChild(this.playerViews[playerId].viewRoot.node.id);
         
             this.playerViews[playerId] = {
                 view: newView,
-                viewRoot: newTing
+                viewRoot: newViewRoot
             };
 
-            this.getViewRoot().addChild(newTing);
+            this.getViewRoot().addChild(newViewRoot);
 
             this.keyCoolDowns.put(keyCacheId, 200);
         }

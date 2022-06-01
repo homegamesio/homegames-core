@@ -51,44 +51,6 @@ const downloadFile = (assetId, path) => new Promise((resolve, reject) => {
 
 });
 
-const downloadFileSync = async (assetId, path) => {//new Promise((resolve, reject) => {
-    const fileHash = getHash(assetId);
-    const filePath = `${path}/${fileHash}`;
-
-    const getModule = https;
-
-    let data = '';
-
-    // console.log('downloading sync!');
-
-    const ting = () => new Promise((resolve, reject) => {
-        const writeStream = fs.createWriteStream(filePath);
-
-        writeStream.on('close', () => {
-            resolve(filePath);
-        });
-
-        getModule.get(`https://assets.homegames.io/${assetId}`, (res) => {
-            res.on('data', (chunk) => {
-                data += chunk;
-                writeStream.write(chunk);
-            });
-            res.on('end', () => {
-                writeStream.end();
-            });
-        }).on('error', error => {
-            reject(error);
-        });
-    });
-
-    // console.log('about to wait for ting ' + assetId);
-    const stuff = await ting();
-    // console.log('stuf fff!!!'); 
-    // console.log(stuff);
-    return stuff;
-
-};
-
 class Asset {
     constructor(info) {
         this.info = info;
@@ -101,11 +63,7 @@ class Asset {
 
     existsLocallySync() {
         const fileLocation = this.getFileLocation(this.info.id);
-        // console.log('sjdkfdsfg waaat');
         return fs.existsSync(fileLocation);
-        // fs.exists(fileLocation, (exists) => {
-        //     resolve(exists && fileLocation);
-        // });
     }
     
     existsLocally() {
@@ -118,21 +76,17 @@ class Asset {
     }
 
     async downloadSync(force) {
-        const fileLocationExists = this.existsLocallySync();//.then(fileLocation => {
+        const fileLocationExists = this.existsLocallySync();
         const fileLocation = this.getFileLocation(this.info.id);
 
         if (fileLocationExists && !force) {
             this.initialized = true;
             return fileLocation;
-            // resolve(fileLocation);
         } else {
-            const fileLocation2 = await downloadFileSync(this.info.id, HG_ASSET_PATH);//.then((fileLocation) => {
+            const fileLocation2 = await downloadFileSync(this.info.id, HG_ASSET_PATH);
             this.initialized = true;
             return fileLocation;
-            // });
         }
-        // });
-        // });
     }
     
     download(force) {
@@ -164,28 +118,6 @@ class Asset {
             });
         }); 
     }
-
-    // async getDataSync() {
-    //     // console.log('getting data synchronouyslty ' + this.info.id)
-    //         const fileLocation = await this.downloadSync();
-    //         // console.log('apparently downloaded to');
-    //         // console.log(fileLocation);
-    //         // setTimeout(() => {
-    //         //.then(fileLocation => {
-    //             const buf = fs.readFileSync(fileLocation);//, (err, buf) => {
-    //                 // console.log('buff');
-    //                 // console.log(buf);
-    //             return buf;
-    //         // }, 500);
-    //         //         if (err) {
-    //         //             reject(err);
-    //         //         } else {
-    //         //             resolve(buf);
-    //         //         }
-    //         //     });
-    //         // });
-    // }
-
     
 }
 
