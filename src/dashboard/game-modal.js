@@ -176,7 +176,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
 
     return versionSelectorContainer;
     
-}
+};
 
 const unverifiedGameVersionWarning = () => {
     const warningContainer = new GameNode.Shape({
@@ -199,7 +199,7 @@ const unverifiedGameVersionWarning = () => {
     warningContainer.addChildren(warningText);
 
     return warningContainer;
-}
+};
 
 const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSize = 2 }) => {
     const joinContainer = new GameNode.Shape({

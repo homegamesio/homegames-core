@@ -141,7 +141,7 @@ class GameSession {
                     player.addInputListener(this);
                 });
             });
-        }
+        };
 
         if (player.info && player.info.name) {
             doThing();

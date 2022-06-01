@@ -67,7 +67,7 @@ const linkDNSInit = () => new Promise((resolve, reject) => {
                 console.log('Verified DNS record');
                 resolve(msg.url);
             } else {
-                console.log("failed to verify");
+                console.log('failed to verify');
                 reject();
             }
         }
@@ -95,7 +95,7 @@ if (LINK_DNS_ENABLED) {
     actions.push(linkInit);
 } else if (HTTPS_ENABLED) {
     actions.push(() => new Promise((resolve, reject) => {
-        console.log("One day: custom certs");
+        console.log('One day: custom certs');
         resolve();
     }));
 } else {
@@ -129,16 +129,16 @@ const doWork = () => new Promise((resolve, reject) => {
                 _result = result;
                 _doWork(cb);
             }).catch(err => {
-                console.log("Failed to perform action");
+                console.log('Failed to perform action');
                 console.log(err);
                 i++;
                 _result = null;
                 _doWork(cb);
             });
         }
-    }
+    };
 
-    _doWork(resolve)
+    _doWork(resolve);
 });
 
 doWork();

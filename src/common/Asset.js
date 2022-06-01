@@ -87,7 +87,7 @@ const downloadFileSync = async (assetId, path) => {//new Promise((resolve, rejec
     // console.log(stuff);
     return stuff;
 
-}
+};
 
 class Asset {
     constructor(info) {
@@ -118,20 +118,20 @@ class Asset {
     }
 
     async downloadSync(force) {
-            const fileLocationExists = this.existsLocallySync();//.then(fileLocation => {
-            const fileLocation = this.getFileLocation(this.info.id);
+        const fileLocationExists = this.existsLocallySync();//.then(fileLocation => {
+        const fileLocation = this.getFileLocation(this.info.id);
 
-                if (fileLocationExists && !force) {
-                    this.initialized = true;
-                    return fileLocation;
-                    // resolve(fileLocation);
-                } else {
-                    const fileLocation2 = await downloadFileSync(this.info.id, HG_ASSET_PATH);//.then((fileLocation) => {
-                        this.initialized = true;
-                        return fileLocation;
-                    // });
-                }
+        if (fileLocationExists && !force) {
+            this.initialized = true;
+            return fileLocation;
+            // resolve(fileLocation);
+        } else {
+            const fileLocation2 = await downloadFileSync(this.info.id, HG_ASSET_PATH);//.then((fileLocation) => {
+            this.initialized = true;
+            return fileLocation;
             // });
+        }
+        // });
         // });
     }
     

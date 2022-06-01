@@ -16,24 +16,24 @@ const LOG_LEVEL = getConfigValue('LOG_LEVEL', 'INFO');
 // if DEBUG, log all
 
 const msgToString = (msg) => {
-	return typeof msg === 'object' ? JSON.stringify(msg) : msg;
-}
+    return typeof msg === 'object' ? JSON.stringify(msg) : msg;
+};
 
 const logger = {
-	error: (err, explanation) => console.error(`[HOMEGAMES-ERROR] ${msgToString(err)}${explanation ? ':\n' + msgToString(explanation) : ''}`)
-}
+    error: (err, explanation) => console.error(`[HOMEGAMES-ERROR] ${msgToString(err)}${explanation ? ':\n' + msgToString(explanation) : ''}`)
+};
 
 if (LOG_LEVEL === 'INFO') {
-	logger.info = (msg, explanation) => console.log(`[HOMEGAMES-INFO] ${msgToString(msg)}${explanation ? ':\n' + msgToString(explanation) : ''}`);
+    logger.info = (msg, explanation) => console.log(`[HOMEGAMES-INFO] ${msgToString(msg)}${explanation ? ':\n' + msgToString(explanation) : ''}`);
 } else {
-	logger.info = () => {};
+    logger.info = () => {};
 }
 
 if (LOG_LEVEL === 'DEBUG') {
-	logger.debug = (msg, explanation) => console.warn(`[HOMEGAMES-DEBUG] ${msgToString(msg)}${explanation ? ':\n' + msgToString(explanation) : ''}`);
-	logger.info = (msg, explanation) => console.log(`[HOMEGAMES-INFO] ${msgToString(msg)}${explanation ? ':\n' + msgToString(explanation) : ''}`);
+    logger.debug = (msg, explanation) => console.warn(`[HOMEGAMES-DEBUG] ${msgToString(msg)}${explanation ? ':\n' + msgToString(explanation) : ''}`);
+    logger.info = (msg, explanation) => console.log(`[HOMEGAMES-INFO] ${msgToString(msg)}${explanation ? ':\n' + msgToString(explanation) : ''}`);
 } else {
-	logger.debug = () => {};
+    logger.debug = () => {};
 }
 
 module.exports = logger;

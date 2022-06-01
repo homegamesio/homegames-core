@@ -17,7 +17,7 @@ const server = (certPath, squishMap) => {
     logger.debug('running server');
 
     if (squishMap) {
-        logger.debug("custom squish map");
+        logger.debug('custom squish map');
         logger.debug(squishMap);
     }
 
@@ -31,7 +31,7 @@ const server = (certPath, squishMap) => {
         },
         addAsset: (key, asset) => new Promise((resolve, reject) => {
             // if (session) {
-                session.handleNewAsset(key, asset).then(resolve).catch(reject);
+            session.handleNewAsset(key, asset).then(resolve).catch(reject);
             // }
         })
     });
