@@ -432,8 +432,6 @@ class HomegamesDashboard extends ViewableGame {
         let nullVersionCounter = 0;
         if (this.localGames[gameKey]) {
             for (const versionId in this.localGames[gameKey].versions) {
-                console.log('what the fuck is this');
-                console.log(this.localGames[gameKey]);
                 const gameVersionData = this.localGames[gameKey].versions[versionId];
                 
                 const versionNumber = this.localGames[gameKey].metadata.version.version >= 0 ? this.localGames[gameKey].metadata.version.version : -1 * ++nullVersionCounter;
@@ -538,7 +536,6 @@ class HomegamesDashboard extends ViewableGame {
 
         const gameCount = Object.keys(gameCollection).length;
         
-        console.log('buvilding plkane for this many games ' + gameCount);
         const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
 
         const gameOptionWidth = 100 / columnsPerPage;
@@ -566,7 +563,6 @@ class HomegamesDashboard extends ViewableGame {
                 gameName,
                 assetKey,
                 onClick: (playerId) => {
-                    console.log('what what what 123');
                     this.showGameModal(gameCollection, playerId, key);
                 }
             });
