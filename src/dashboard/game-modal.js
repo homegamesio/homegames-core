@@ -54,6 +54,7 @@ const thumbnailSection = ({ gameKey, gameMetadata }) => {
             }
         }
     });
+    console.log('hhwe');
 
     return thumbnail;
 };
@@ -386,19 +387,17 @@ const gameModal = ({
 
     const info = infoSection({ gameKey, gameMetadata });
 
-    const isVerified = thisVersion.version > 0;
+    const isVerified = thisVersion.version >= 0;
 
     const create = createSection({ gameKey, onCreateSession, isVerified });
 
     const join = joinSection({ gameKey, activeSessions, onJoinSession });
+    modal.addChildren(close, info, create, join);
 
-    const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions })
-
-    // if (!isVerified) {
-    //     const unverifiedWarning = unverifiedGameVersionWarning();
-    //     modal.addChildren(unverifiedWarning);
-    // }
-    modal.addChildren(close, info, create, join, selector);
+    if (thisVersion.version > 0) {
+        const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions });
+        modal.addChild(selector);
+    }
 
     return modal;
 };

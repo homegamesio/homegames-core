@@ -207,7 +207,7 @@ const getGamePaths = () => {
 
         if (!games[gameKey]) {
 
-            const metadataToInsert = isLocal ? { game: metadata, version: {} } : metadata;
+            const metadataToInsert = isLocal ? { game: metadata, version: {version: 0} } : metadata;
             games[gameKey] = {
                 metadata: metadataToInsert,
                 versions: {}
@@ -350,15 +350,11 @@ class HomegamesDashboard extends ViewableGame {
 
         sessions[port] = childSession;
 
-        console.log('ayy lmao ' + gameKey);
         if (this.localGames[gameKey]) {
             const referencedGame = this.localGames[gameKey];
 
             const squishVersion = referencedGame.metadata.squishVersion;
 
-            console.log('referenced');
-            console.log(referencedGame);
-            console.log(this.localGames);
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
             childSession.send(JSON.stringify({
                 key: gameKey,
@@ -424,24 +420,26 @@ class HomegamesDashboard extends ViewableGame {
 
     showGameModal(gameCollection, playerId, gameKey, versionKey = null) {
 
-        console.log("GAME KEY " + gameKey);
-        console.log(this.localGames[gameKey]);
         const playerRoot = this.playerRoots[playerId].node;
 
         const gameMetadata = gameCollection[gameKey].metadata || {};
 
-        if (!this.localGames[gameKey].versions[])
-        const gameVersion = versionKey ? Object.values(gameDetails.versions).filter(v => v.versionId === versionKey)[0] : Object.values(gameDetails.versions)[0];
+        const _versionId = versionKey || this.localGames[gameKey] && Object.keys(this.localGames[gameKey].versions)[0];
 
         const versionList = [];
+
         // unpublished games do not have version numbers
         let nullVersionCounter = 0;
         if (this.localGames[gameKey]) {
             for (const versionId in this.localGames[gameKey].versions) {
+                console.log('what the fuck is this');
+                console.log(this.localGames[gameKey]);
                 const gameVersionData = this.localGames[gameKey].versions[versionId];
+                
+                const versionNumber = this.localGames[gameKey].metadata.version.version >= 0 ? this.localGames[gameKey].metadata.version.version : -1 * ++nullVersionCounter;
                 versionList.push({
-                    version: -1 * ++nullVersionCounter,//gameVersionData.version,
-                    versionId: gameVersionData.metadata.version.versionId
+                    version: versionNumber,
+                    versionId
                 })
             }
         }
@@ -449,9 +447,9 @@ class HomegamesDashboard extends ViewableGame {
         const createModal = ({ gameId, versionId, onCreateSession }) => {
 
             const activeSessions = Object.values(this.sessions).filter(session => {
-                return session.game === gameKey && session.versionId === gameVersion.versionId;
+                return session.game === gameKey && session.versionId === versionId;
             });
-            
+
             const modal = gameModal({ 
                 gameKey: gameId,
                 versionId,
@@ -478,32 +476,34 @@ class HomegamesDashboard extends ViewableGame {
         }
 
         if (this.localGames[gameKey]) {
-            const modal = createModal({ gameId: gameKey, versionId: gameVersion.versionId, onCreateSession: () => {
-                this.startSession(playerId, gameId, versionId);
+            const modal = createModal({ gameId: gameKey, versionId: _versionId, onCreateSession: () => {
+                this.startSession(playerId, gameKey, _versionId);
             }});
             playerRoot.addChild(modal);
         } else {
 
         networkHelper.getGameDetails(gameKey).then(gameDetails => {
-
+            const fullVersionMap = {};
             for (const versionIndex in gameDetails.versions) {
                 const versionData = gameDetails.versions[versionIndex];
+                const versionId = versionData.versionId;
+                fullVersionMap[versionId] = versionData;
                 versionList.push({
                     version: versionData.version,
                     versionId: versionData.versionId
                 });
             }
 
+            const _version = versionKey ? versionList.filter(v => v.versionId === versionKey)[0] : versionList[0];
 
-        console.log('bug offf ' +gameKey);
-        // console)
-
-                const { gameId, versionId } = gameVersion;
-
-
+                const gameId = gameDetails.id;
+                const versionId = _version.versionId;
                 const modal = createModal({ gameId, versionId, onCreateSession: () => {
-                    this.downloadGame( { gameDetails, version }).then(gamePath => {
+
+                    this.downloadGame( { gameDetails, version: fullVersionMap[_version.versionId] }).then(gamePath => {
                         this.localGames = getGameMap();
+
+                        this.renderGamePlane();
 
                         Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
                             this.assets[key] = new Asset({
@@ -903,9 +903,12 @@ class HomegamesDashboard extends ViewableGame {
         const { id: gameId, description, name, createdBy, createdAt } = gameDetails;
         const { versionId, location } = version;
 
+        console.log('fsdfds ');
+        console.log(version)
         const metadataToStore = {
             version: {
                 versionId,
+                version: version.version
             },
             game: {
                gameId,
