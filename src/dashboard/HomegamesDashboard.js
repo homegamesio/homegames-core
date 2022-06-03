@@ -27,6 +27,8 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
 const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
 
+const IS_DEMO = getConfigValue('IS_DEMO', true);
+
 const sessions = {};
 
 for (let i = serverPortMin; i <= serverPortMax; i++) {
@@ -116,13 +118,6 @@ const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
  
 });
 
-// let baseDir = path.dirname(require.main.filename);
-
-console.log("WHAT IS BASE DIR420");
-console.log(baseDir);
-// if (baseDir.endsWith('src')) {
-//     baseDir = baseDir.substring(0, baseDir.length - 3);
-// }
 const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}/src/games`));
 const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
 
@@ -449,6 +444,7 @@ class HomegamesDashboard extends ViewableGame {
             }
         }
 
+        let currentVersionId = _versionId;
         const createModal = ({ gameId, versionId, onCreateSession }) => {
 
             const activeSessions = Object.values(this.sessions).filter(session => {
@@ -463,6 +459,7 @@ class HomegamesDashboard extends ViewableGame {
                 versions: versionList,
                 gameMetadata, 
                 onVersionChange: (newVersionId) => {
+                    currentVersionId = newVersionId;
                     const newModal = createModal({ gameId, versionId: newVersionId, onCreateSession });
                     playerRoot.removeChild(modal.id);
                     playerRoot.addChild(newModal);
@@ -505,7 +502,7 @@ class HomegamesDashboard extends ViewableGame {
                 const versionId = _version.versionId;
                 const modal = createModal({ gameId, versionId, onCreateSession: () => {
 
-                    this.downloadGame( { gameDetails, version: fullVersionMap[_version.versionId] }).then(gamePath => {
+                    this.downloadGame( { gameDetails, version: fullVersionMap[currentVersionId || _version.versionId] }).then(gamePath => {
                         this.localGames = getGameMap();
 
                         this.renderGamePlane();
@@ -698,7 +695,7 @@ class HomegamesDashboard extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(12.5, 2.5, 75, 10),
             playerIds: [playerId],
             fill: SEARCH_BOX_COLOR,
-            input: {
+            input: IS_DEMO ? null : {
                 type: 'text',
                 oninput: (playerId, input) => {
                     this.playerStates[playerId].query = input;
@@ -711,7 +708,7 @@ class HomegamesDashboard extends ViewableGame {
             textInfo: {
                 x: 15, // maybe need a function to map text size given a screen size
                 y: 5.5,
-                text: searchQuery || 'Search',
+                text: IS_DEMO ? 'Search - disabled in demo' : searchQuery || 'Search',
                 color: SEARCH_TEXT_COLOR,
                 size:1.8
             },

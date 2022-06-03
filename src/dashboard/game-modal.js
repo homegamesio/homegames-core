@@ -35,8 +35,6 @@ const closeSection = ({ onClose, playerId }) => {
 };
 
 const thumbnailSection = ({ gameKey, gameMetadata }) => {
-    console.log('gmmmgmgmg');
-    console.log(gameMetadata);
     const assetKey = gameMetadata.game.thumbnail ? gameKey : 'default';
 
     const thumbnail = new GameNode.Asset({
@@ -73,7 +71,7 @@ const infoSection = ({ gameKey, gameMetadata}) => {
             align: 'center',
             color: COLORS.HG_BLACK,
             size: 2.5,
-            text: gameKey
+            text: gameMetadata?.game?.name || gameKey
         }
     });
 
@@ -132,15 +130,15 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
 
     const versionSelectorContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(70, 20, 10, 10),
+        coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
         fill: COLORS.HG_RED
     });
 
     const currentVersionText = new GameNode.Text({
         textInfo: {
             text: 'Version ' + currentVersion.version,
-            x: 75,
-            y: 15,
+            x: 80,
+            y: 12.5,
             color: COLORS.HG_BLACK,
             size: 2,
             align: 'center'
@@ -154,9 +152,22 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
         const leftButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: COLORS.HG_BLUE,
-            coordinates2d: ShapeUtils.rectangle(60, 30, 10, 20),
+            coordinates2d: ShapeUtils.rectangle(65, 10, 10, 10),
             onClick: () => onVersionChange(previousVersions[0].versionId)
         });
+
+        const leftText = new GameNode.Text({
+            textInfo: {
+                text: '\u2190',
+                x: 70,
+                y: 10,
+                color: COLORS.HG_BLACK,
+                align: 'center',
+                size: 4
+            }
+        });
+
+        leftButton.addChildren(leftText);
 
         versionSelectorContainer.addChildren(leftButton);
     }
@@ -164,10 +175,23 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
     if (subsequentVersions.length > 0) {
         const rightButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            fill: COLORS.HG_YELLOW,
-            coordinates2d: ShapeUtils.rectangle(90, 30, 10, 20),
+            fill: COLORS.HG_BLUE,
+            coordinates2d: ShapeUtils.rectangle(85, 10, 10, 10),
             onClick: () => onVersionChange(subsequentVersions[0].versionId)
         });
+
+        const rightText = new GameNode.Text({
+            textInfo: {
+                text: '\u2192',
+                x: 90,
+                y: 10,
+                color: COLORS.HG_BLACK,
+                align: 'center',
+                size: 4
+            }
+        });
+
+        rightButton.addChildren(rightText);
 
         versionSelectorContainer.addChildren(rightButton);
     }

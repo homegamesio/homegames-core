@@ -2,7 +2,7 @@ const assert = require('assert');
 const squishMap = require('../src/common/squish-map');
 const Player = require('../src/Player');
 
-const { GameNode } = require('squish-0710');
+const { GameNode } = require('squish-0740');
 
 const testMetaData = (game) => {
     const metaData = game.metadata();

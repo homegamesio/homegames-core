@@ -11,7 +11,7 @@ const { getConfigValue } = require(`${baseDir}/src/util/config`);
 const logger = require('./src/logger');
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
-const GAME_SERVER_HOME_PORT = getConfigValue('GAME_SERVER_HOME_PORT', 7001);
+const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 
 const server = (certPath, squishMap) => {
     logger.debug('running server');
@@ -42,12 +42,12 @@ const server = (certPath, squishMap) => {
     
     // const dashboard = new LayerTest();//new HomegamesDashboard(squishMap);
     
-    session = new GameSession(dashboard, GAME_SERVER_HOME_PORT);
+    session = new GameSession(dashboard, HOME_PORT);
     
     const homeNames = new Homenames(HOMENAMES_PORT);
     
     session.initialize(() => {
-        socketServer(session, GAME_SERVER_HOME_PORT, null, certPath);
+        socketServer(session, HOME_PORT, null, certPath);
     });
 };
 

@@ -21,7 +21,7 @@ const COLORS = Colors.COLORS;
 const process = require('process');
 const procStats = require('process-stats')();
 
-const GAME_SERVER_HOME_PORT = getConfigValue('GAME_SERVER_HOME_PORT', 7001);
+const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 class HomegamesRoot {
     static metadata() {
         return {
@@ -73,9 +73,8 @@ class HomegamesRoot {
 
         this.playerDashboards = {};
 
-        // todo: pull this from config and turn port conversion into a function
         const onGameHomeClick = (playerId) => {
-            this.session.movePlayer({ playerId, port: GAME_SERVER_HOME_PORT });
+            this.session.movePlayer({ playerId, port: HOME_PORT });
         };
 
         const gameAspectRatio = this.session.game.constructor.metadata && this.session.game.constructor.metadata().aspectRatio;
