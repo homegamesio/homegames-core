@@ -5,16 +5,23 @@ const { animations } = require('../common/util');
 
 const PLAYER_SETTINGS = require('../common/player-settings.js');
 
+const path = require('path');
+
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
+const { getConfigValue } = require(`${baseDir}/src/util/config`);
 const HomenamesHelper = require('../util/homenames-helper');
 
 const settingsModal = require('./settings');
 const COLORS = Colors.COLORS;
-const path = require('path');
-const baseDir = path.dirname(require.main.filename);
 
 const process = require('process');
 const procStats = require('process-stats')();
 
+const GAME_SERVER_HOME_PORT = getConfigValue('GAME_SERVER_HOME_PORT', 7001);
 class HomegamesRoot {
     static metadata() {
         return {
@@ -68,7 +75,7 @@ class HomegamesRoot {
 
         // todo: pull this from config and turn port conversion into a function
         const onGameHomeClick = (playerId) => {
-            this.session.movePlayer({ playerId, port: 7001 });
+            this.session.movePlayer({ playerId, port: GAME_SERVER_HOME_PORT });
         };
 
         const gameAspectRatio = this.session.game.constructor.metadata && this.session.game.constructor.metadata().aspectRatio;

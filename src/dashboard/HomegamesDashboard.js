@@ -116,8 +116,15 @@ const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
  
 });
 
-const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', 'src/games'));
-const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', 'hg-games'));
+// let baseDir = path.dirname(require.main.filename);
+
+console.log("WHAT IS BASE DIR420");
+console.log(baseDir);
+// if (baseDir.endsWith('src')) {
+//     baseDir = baseDir.substring(0, baseDir.length - 3);
+// }
+const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}/src/games`));
+const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
 
 const networkHelper = {
     searchGames: (q) => new Promise((resolve, reject) => {
