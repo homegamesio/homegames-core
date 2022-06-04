@@ -91,11 +91,11 @@ const infoSection = ({ gameKey, gameMetadata}) => {
     return infoContainer;
 };
 
-const createSection = ({ gameKey, onCreateSession, onJoinSession, isVerified = false }) => {
+const createSection = ({ gameKey, onCreateSession, isReviewed = false }) => {
     const createContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(12.5, 67, 20, 20),
-        fill: isVerified ? [160, 235, 93, 255] : COLORS.HG_YELLOW,
+        fill: isReviewed ? [160, 235, 93, 255] : COLORS.HG_YELLOW,
         onClick: onCreateSession
     });
 
@@ -122,6 +122,40 @@ const createSection = ({ gameKey, onCreateSession, onJoinSession, isVerified = f
     });
 
     createContainer.addChildren(createText, playIcon);
+
+    if (!isReviewed) {
+        const warningContainer = new GameNode.Shape({
+            fill: COLORS.HG_RED,
+            coordinates2d: ShapeUtils.rectangle(30, 87.5, 40, 10),
+            shapeType: Shapes.POLYGON
+        });
+
+        const warningTextHead = new GameNode.Text({
+            textInfo: {
+                text: 'This game version has not been reviewed',// by a Homegames administrator.',
+                x: 50,
+                y: 88.5,
+                align: 'center',
+                size: 1.2,
+                color: COLORS.WHITE
+            }
+        });
+
+        const warningTextSub = new GameNode.Text({
+            textInfo: {
+                text: 'Only play games from sources you trust.',
+                x: 50,
+                y: 93.5,
+                align: 'center',
+                size: 1,
+                color: COLORS.WHITE
+            }
+        });
+
+        warningContainer.addChildren(warningTextHead, warningTextSub);
+
+        createContainer.addChildren(warningContainer);
+    }
 
     return createContainer;
 };
@@ -270,8 +304,6 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
                     onClick: () => onJoinSession(pageContent[i])
                 });
 
-                console.log('ayooo');
-                console.log(pageContent);
                 const optionText = new GameNode.Text({
                     textInfo: {
                         x: 61,
@@ -405,15 +437,19 @@ const gameModal = ({
     });
 
     const thisVersion = versions.filter(version => version.versionId === versionId)[0];
+
+    console.log('whats the verison ' + versionId);
+    console.log(thisVersion);
+    console.log(versions);
     const otherVersions = versions.filter(version => version.versionId !== versionId);
 
     const close = closeSection({ playerId, onClose });
 
     const info = infoSection({ gameKey, gameMetadata });
 
-    const isVerified = thisVersion.version >= 0;
+    const isReviewed = thisVersion.isReviewed;
 
-    const create = createSection({ gameKey, onCreateSession, isVerified });
+    const create = createSection({ gameKey, onCreateSession, isReviewed: thisVersion.versionId === '0' ? true : thisVersion.isReviewed });
 
     const join = joinSection({ gameKey, activeSessions, onJoinSession });
     modal.addChildren(close, info, create, join);

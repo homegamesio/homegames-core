@@ -443,71 +443,137 @@ class HomegamesDashboard extends ViewableGame {
                 const gameVersionData = this.localGames[gameKey].versions[versionId];
                 
                 const versionNumber = this.localGames[gameKey].metadata.version.version >= 0 ? this.localGames[gameKey].metadata.version.version : -1 * ++nullVersionCounter;
+                // console.log('need to know if thisi s appeepe');
+                // console.log(this.localGames[gameKey].metadata);
                 versionList.push({
                     version: versionNumber,
-                    versionId
+                    versionId,
+                    // isReviewed: 
                 })
             }
         }
 
-        let currentVersionId = _versionId;
-        const createModal = ({ gameId, versionId, onCreateSession }) => {
+        const thang = (gameDetails) => {
 
-            const activeSessions = Object.values(this.sessions).filter(session => {
-                return session.game === gameKey && session.versionId === versionId;
-            });
 
-            const modal = gameModal({ 
-                gameKey: gameId,
-                versionId,
-                activeSessions, 
-                playerId,
-                versions: versionList,
-                gameMetadata, 
-                onVersionChange: (newVersionId) => {
-                    currentVersionId = newVersionId;
-                    const newModal = createModal({ gameId, versionId: newVersionId, onCreateSession });
-                    playerRoot.removeChild(modal.id);
-                    playerRoot.addChild(newModal);
-
-                },
-                onJoinSession: (session) => {
-                    this.joinSession(playerId, session);
-                },
-                onCreateSession,
-                onClose: () => {
-                    playerRoot.removeChild(modal.node.id);  
+            const fetchedVersions = gameDetails.versions;
+            for (const index in fetchedVersions) {
+                const fetchedVersion = fetchedVersions[index];
+                if (versionList.filter(v => v.versionId === fetchedVersion.versionId ).length === 0) {
+                //     console.log('need to know if thisi s appeepff 22222e');
+                // console.log(fetchedVersion);
+                    versionList.push({
+                        version: fetchedVersion.version,
+                        versionId: fetchedVersion.versionId,
+                        isReviewed: !!fetchedVersion.isReviewed || false
+                    });
                 }
-            });
+            }
+            // console.log(fetchedVersions)
+            // console.log("VERSION LIST");
+            // console.log(versionList);
+            let currentVersionId = _versionId;
+            const createModal = ({ gameId, versionId, onCreateSession }) => {
 
-            return modal;
-        }
-
-        if (this.localGames[gameKey]) {
-            const modal = createModal({ gameId: gameKey, versionId: _versionId, onCreateSession: () => {
-                this.startSession(playerId, gameKey, _versionId);
-            }});
-            playerRoot.addChild(modal);
-        } else {
-
-        networkHelper.getGameDetails(gameKey).then(gameDetails => {
-            const fullVersionMap = {};
-            for (const versionIndex in gameDetails.versions) {
-                const versionData = gameDetails.versions[versionIndex];
-                const versionId = versionData.versionId;
-                fullVersionMap[versionId] = versionData;
-                versionList.push({
-                    version: versionData.version,
-                    versionId: versionData.versionId
+                console.log('creating create modal for version ' + gameId + ', ' + versionId);
+                const activeSessions = Object.values(this.sessions).filter(session => {
+                    return session.game === gameKey && session.versionId === versionId;
                 });
+
+                const modal = gameModal({ 
+                    gameKey: gameId,
+                    versionId,
+                    activeSessions, 
+                    playerId,
+                    versions: versionList,
+                    gameMetadata, 
+                    onVersionChange: (newVersionId) => {
+                        currentVersionId = newVersionId;
+                        const newModal = createModal({ gameId, versionId: newVersionId, onCreateSession });
+                        playerRoot.removeChild(modal.id);
+                        playerRoot.addChild(newModal);
+
+                    },
+                    onJoinSession: (session) => {
+                        this.joinSession(playerId, session);
+                    },
+                    onCreateSession: () => onCreateSession(versionId),
+                    onClose: () => {
+                        playerRoot.removeChild(modal.node.id);  
+                    }
+                });
+
+                return modal;
             }
 
-            const _version = versionKey ? versionList.filter(v => v.versionId === versionKey)[0] : versionList[0];
+            if (this.localGames[gameKey] && this.localGames[gameKey].versions[_versionId]) {
+                console.log('what the fuck mane');
+                const modal = createModal({ gameId: gameKey, versionId: _versionId, onCreateSession: (sessionVersionId) => {
+                console.log('what the fuck mane 420 ' + sessionVersionId);
+
+                const fullVersionMap = {};
+                for (const versionIndex in gameDetails.versions) {
+                    const versionData = gameDetails.versions[versionIndex];
+                    const versionId = versionData.versionId;
+                    fullVersionMap[versionId] = versionData;
+                    versionList.push({
+                        version: versionData.version,
+                        versionId: versionData.versionId
+                    });
+                }
+
+                const isPublic = gameDetails.isPublic;
+
+                console.log("GAME DETAILS ");
+                console.log(gameDetails);
+
+                const _version = versionList.filter(v => v.versionId === sessionVersionId);
 
                 const gameId = gameDetails.id;
                 const versionId = _version.versionId;
-                const modal = createModal({ gameId, versionId, onCreateSession: () => {
+                    this.downloadGame( { gameDetails, version: fullVersionMap[sessionVersionId] }).then(gamePath => {
+                        this.localGames = getGameMap();
 
+                        Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
+                            this.assets[key] = new Asset({
+                                'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                                'type': 'image'
+                            });
+                        });
+
+                        this.startSession(playerId, gameId, sessionVersionId);
+                    });
+                    // this.startSession(playerId, gameKey, sessionVersionId);
+                }});
+                playerRoot.addChild(modal);
+            } else {
+
+                const fullVersionMap = {};
+                for (const versionIndex in gameDetails.versions) {
+                    const versionData = gameDetails.versions[versionIndex];
+                    const versionId = versionData.versionId;
+                    fullVersionMap[versionId] = versionData;
+                    versionList.push({
+                        version: versionData.version,
+                        versionId: versionData.versionId
+                    });
+                }
+
+                const isPublic = gameDetails.isPublic;
+
+                console.log("GAME DETAILS ");
+                console.log(gameDetails);
+
+                const _version = versionKey ? versionList.filter(v => v.versionId === versionKey)[0] : versionList[0];
+
+                const gameId = gameDetails.id;
+                const versionId = _version.versionId;
+                const modal = createModal({ gameId, versionId, onCreateSession: (sessionVersionId) => {
+
+                    console.log("DOWNLOADddddING GAME VERS");
+                    console.log(currentVersionId || _version.versionId);
+                    console.log(currentVersionId);
+                    console.log(_version.versionId);
                     this.downloadGame( { gameDetails, version: fullVersionMap[currentVersionId || _version.versionId] }).then(gamePath => {
                         this.localGames = getGameMap();
 
@@ -524,12 +590,17 @@ class HomegamesDashboard extends ViewableGame {
                     });
                 }});
 
-                playerRoot.addChild(modal);
-                
-        
-        
-         });
-    }
+                playerRoot.addChild(modal);        
+            }
+        }
+
+        if (_versionId === '0') {
+            thang(this.localGames[gameKey].metadata.game)
+        } else {
+            networkHelper.getGameDetails(gameKey).then(gameDetails => {
+                thang(gameDetails)
+            });
+        }
     }
 
     renderGamePlane() {
