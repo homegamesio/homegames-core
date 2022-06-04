@@ -1,5 +1,5 @@
 const { charadesWord } = require('../../common/util');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0740');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
 
 const COLORS = Colors.COLORS;
 

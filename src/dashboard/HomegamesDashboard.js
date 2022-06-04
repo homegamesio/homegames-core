@@ -2,7 +2,7 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0740');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0750');
 
 const unzipper = require('unzipper');
 const fs = require('fs');
@@ -194,10 +194,13 @@ const getGamePaths = () => {
 
         const storedMetadata = gameMetadataMap[gamePath] || {};
 
+        console.log(gameMetadataMap);
+
         const metadata = isLocal ? gameMetadata : storedMetadata;// :// { ...gameMetadata, ...storedMetadata }
         // metadata.path = gamePath;
         
             console.log("what do d");
+            console.log(storedMetadata);
             console.log(metadata);
 
         let gameKey;
@@ -356,8 +359,10 @@ class HomegamesDashboard extends ViewableGame {
             const referencedGame = this.localGames[gameKey];
 
             const squishVersion = referencedGame.metadata.squishVersion;
-
+            console.log('watttt ' + versionKey);
+            console.log(referencedGame)
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
+            console.log('version id is ' + versionId)
             childSession.send(JSON.stringify({
                 key: gameKey,
                 squishVersion,
@@ -514,7 +519,7 @@ class HomegamesDashboard extends ViewableGame {
                             });
                         });
 
-                        this.startSession(playerId, gameId, versionId);
+                        this.startSession(playerId, gameId, currentVersionId || _version.versionId);
                     });
                 }});
 
@@ -934,7 +939,7 @@ class HomegamesDashboard extends ViewableGame {
                 stream.on('close', () => {
                     fs.readdir(gamePath, (err, files) => {
                         const currentMetadata = getGameMetadataMap();
-                        const indexPath = `${gamePath}/${files[0]}/index.js`;
+                        const indexPath = `${gamePath}/index.js`;
                     
                         currentMetadata[indexPath] = metadataToStore;
                         updateGameMetadataMap(currentMetadata);
