@@ -108,9 +108,9 @@ class GameSession {
     }
 
     addPlayer(player) {
-        if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
-            player.receiveUpdate([5, 70, 0]);
-        }
+        // if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
+        //     player.receiveUpdate([5, 70, 0]);
+        // }
 
         this.players[player.id] = player;
 
@@ -137,6 +137,7 @@ class GameSession {
                             deviceRules.deviceType(player, player.clientInfo.deviceType);
                         }
                     }
+                    player.requestedGame = null;
 
                     player.addInputListener(this);
                 });

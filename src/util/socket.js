@@ -93,7 +93,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 ws.id = Number(jsonMessage.id || generatePlayerId());
 
                 const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
-
+                
                 const req = http.request({
                     hostname: 'localhost',
                     port: HOMENAMES_PORT,
@@ -124,19 +124,17 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                         // init message
                         ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
-                        if (PERFORMANCE_PROFILING) {
-                            ws.send([7]);
-                        }
-                        if (HOTLOAD_ENABLED) {
-                            console.log("SENDING HOTLOAD");
-                            ws.send([8, 71, 01]);
-                        }
+                        // if (PERFORMANCE_PROFILING) {
+                        //     ws.send([7]);
+                        // }
+                        // if (HOTLOAD_ENABLED) {
+                        //     console.log("SENDING HOTLOAD");
+                        //     ws.send([8, 71, 01]);
+                        // }
 
                         if (jsonMessage.spectating) {
                             gameSession.addSpectator(player);
                         } else {
-                            console.log("ADDING PLAUYERRR");
-                            // console.log
                             gameSession.addPlayer(player);
                         }
 

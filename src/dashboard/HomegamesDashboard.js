@@ -194,14 +194,14 @@ const getGamePaths = () => {
 
         const storedMetadata = gameMetadataMap[gamePath] || {};
 
-        console.log(gameMetadataMap);
+        // console.log(gameMetadataMap);
 
         const metadata = isLocal ? gameMetadata : storedMetadata;// :// { ...gameMetadata, ...storedMetadata }
         // metadata.path = gamePath;
         
-            console.log("what do d");
-            console.log(storedMetadata);
-            console.log(metadata);
+            // console.log("what do d");
+            // console.log(storedMetadata);
+            // console.log(metadata);
 
         let gameKey;
         if (isLocal) {
@@ -426,7 +426,8 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     showGameModal(gameCollection, playerId, gameKey, versionKey = null) {
-
+        console.log('this is game collection');
+        console.log(gameCollection);
         const playerRoot = this.playerRoots[playerId].node;
 
         const gameMetadata = gameCollection[gameKey].metadata || {};
@@ -612,22 +613,71 @@ class HomegamesDashboard extends ViewableGame {
             networkHelper.getGameDetails(gameId).then(gameDetails => {
                 const version = gameDetails.versions.filter(v => v.versionId === versionId)[0];
 
-                this.downloadGame( { gameDetails, version }).then(gamePath => {
-                    this.localGames = getGameMap();
+                const ting = { 
+                    [gameId]: {
+                        metadata: {
+                            game: gameDetails,
+                            version
+                        },
+                        versions: {
+                            [versionId]: version
+                        }
+                    }
+                };
 
-                    Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
-                        this.assets[key] = new Asset({
-                            'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
-                            'type': 'image'
-                        });
+                console.log('player requested a game');
+                console.log(gameDetails)
+
+                if (!this.assets[gameId]) {
+                    const asset = new Asset({
+                        'id': gameDetails.thumbnail,
+                        'type': 'image'
+                    }); 
+
+                    this.assets[gameId] = asset;    
+
+                    this.addAsset(gameId, asset).then(() => {
+                        this.showGameModal(ting, playerId, gameId, version.versionId);
                     });
-
-                    this.renderGamePlane();
-                    this.renderGames(playerId, {})
-                });
+                } else {
+                        this.showGameModal(ting, playerId, gameId, version.versionId);
+                }
             });
         }
     }
+
+                    
+                // this.downloadGame( { gameDetails, version }).then(gamePath => {
+                // this.localGames = getGameMap();
+
+                // this.renderGamePlane();
+                // this.renderGames(playerId, {})
+
+
+                // Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
+                //     this.assets[key] = new Asset({
+                //         'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                //         'type': 'image'
+                //     });
+                // });
+
+                // // this.startSession(playerId, gameId, currentVersionId || _version.versionId);
+                //     // this.localGames = getGameMap();
+
+                //     // Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
+                //     //     this.assets[key] = new Asset({
+                //     //         'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                //     //         'type': 'image'
+                //     //     });
+                //     // });
+
+                //     // this.renderGamePlane();
+                //     // this.renderGames(playerId, {})
+            //     // });
+            //     }
+            // });
+    //     }
+    // }
 
     handleSearch(playerId) {
         const query = this.playerStates[playerId].query;
