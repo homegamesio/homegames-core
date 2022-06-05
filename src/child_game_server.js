@@ -54,14 +54,8 @@ const startServer = (sessionInfo) => {
     gameSession = new GameSession(gameInstance, sessionInfo.port);
 
     if (HTTPS_ENABLED) {
-        console.log('hello friend');
-        console.log(CERT_PATH);
-        console.log('hello friend 123');
- 
         gameSession.initialize(() => {
-            console.log('hello friend 123456');
             socketServer(gameSession, sessionInfo.port, () => {
-                console.log('hello friend 123456789');
                 sendProcessMessage({
                     'success': true
                 });
@@ -106,10 +100,8 @@ process.on('error', (err) => {
 });
 
 const checkPulse = () => {
-    // console.log(gameSession);
-    // if ()
     if (!gameSession || (Object.values(gameSession.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 5000) {
-        console.log('killing myself');
+        console.log('discontinuing myself');
         process.exit(0);
     }
 };

@@ -420,15 +420,12 @@ class HomegamesDashboard extends ViewableGame {
                         versionList.push({...gameVersion});
                     }
 
-                    console.log('gammde');
-                    console.log(game);
-                    console.log(gameVersion)
                     const modal = gameModal({ 
                         gameKey: gameId,
                         versionId: gameVersion.versionId,
                         activeSessions, 
                         playerId,
-                        versions: versionList,//this.localGames[gameId] ? Object.values(this.localGames[gameId].versions) : [{ ...gameVersion }],
+                        versions: versionList,
                         gameMetadata: gameVersion.metadata, 
                         onVersionChange: (newVersionId) => {
                             this.showGameModalNew(playerId, gameId, newVersionId);
@@ -467,7 +464,6 @@ class HomegamesDashboard extends ViewableGame {
             networkHelper.getGameDetails(gameId).then(gameDetails => {
                 if (versionId) {
                     networkHelper.getGameVersionDetails(gameId, versionId).then(gameVersion => {
-                        // console.log()
                         const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail }};
                         wat(gameDetails, withMetadata);
                     })

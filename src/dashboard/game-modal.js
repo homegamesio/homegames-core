@@ -35,12 +35,8 @@ const closeSection = ({ onClose, playerId }) => {
 };
 
 const thumbnailSection = ({ gameKey, gameMetadata }) => {
-    const assetKey = gameMetadata?.thumbnail ? gameKey : 'default';//? gameKey : 'default';
-
-    console.log('game key? ' + gameKey);
-    console.log(gameMetadata);
-    console.log(assetKey);
-
+    const assetKey = gameMetadata?.thumbnail ? gameKey : 'default';
+    
     const thumbnail = new GameNode.Asset({
         coordinates2d: ShapeUtils.rectangle(35, 5, 30, 30),
         assetInfo: {
@@ -441,13 +437,8 @@ const gameModal = ({
 
     const thisVersion = versions.filter(version => version.versionId === versionId)[0];
 
-    console.log('whats the verison ' + versionId);
-    console.log(thisVersion);
-    console.log(versions);
     const otherVersions = versions.filter(version => version.versionId !== versionId);
 
-    console.log('other versions');
-    console.log(otherVersions);
     const close = closeSection({ playerId, onClose });
 
     const info = infoSection({ gameKey, gameMetadata });
