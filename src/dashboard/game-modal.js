@@ -35,7 +35,7 @@ const closeSection = ({ onClose, playerId }) => {
 };
 
 const thumbnailSection = ({ gameKey, gameMetadata }) => {
-    const assetKey = gameMetadata.game.thumbnail ? gameKey : 'default';
+    const assetKey = gameMetadata?.game?.thumbnail ? gameKey : 'default';
 
     const thumbnail = new GameNode.Asset({
         coordinates2d: ShapeUtils.rectangle(35, 5, 30, 30),
@@ -52,7 +52,6 @@ const thumbnailSection = ({ gameKey, gameMetadata }) => {
             }
         }
     });
-    console.log('hhwe');
 
     return thumbnail;
 };
@@ -170,7 +169,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
 
     const currentVersionText = new GameNode.Text({
         textInfo: {
-            text: 'Version ' + currentVersion.version,
+            text: 'Version ' + currentVersion.metadata.version,
             x: 80,
             y: 12.5,
             color: COLORS.HG_BLACK,
@@ -179,15 +178,15 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
         }
     });
 
-    const previousVersions = otherVersions.filter(v => v.version !== null && v.version < currentVersion.version).sort((a, b) => b.version - a.version);
-    const subsequentVersions = otherVersions.filter(v => v.version !== null && v.version > currentVersion.version).sort((a, b) => a.version - b.version);
+    const previousVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version < currentVersion.metadata.version).sort((a, b) => b.metadata.version - a.metadata.version);
+    const subsequentVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version > currentVersion.metadata.version).sort((a, b) => a.metadata.version - b.metadata.version);
 
     if (previousVersions.length > 0) {
         const leftButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: COLORS.HG_BLUE,
             coordinates2d: ShapeUtils.rectangle(65, 10, 10, 10),
-            onClick: () => onVersionChange(previousVersions[0].versionId)
+            onClick: () => onVersionChange(previousVersions[0].metadata.versionId)
         });
 
         const leftText = new GameNode.Text({
@@ -211,7 +210,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
             shapeType: Shapes.POLYGON,
             fill: COLORS.HG_BLUE,
             coordinates2d: ShapeUtils.rectangle(85, 10, 10, 10),
-            onClick: () => onVersionChange(subsequentVersions[0].versionId)
+            onClick: () => onVersionChange(subsequentVersions[0].metadata.versionId)
         });
 
         const rightText = new GameNode.Text({
@@ -443,18 +442,20 @@ const gameModal = ({
     console.log(versions);
     const otherVersions = versions.filter(version => version.versionId !== versionId);
 
+    console.log('other versions');
+    console.log(otherVersions);
     const close = closeSection({ playerId, onClose });
 
     const info = infoSection({ gameKey, gameMetadata });
 
-    const isReviewed = thisVersion.isReviewed;
+    const isReviewed = thisVersion.metadata.isReviewed;
 
-    const create = createSection({ gameKey, onCreateSession, isReviewed: thisVersion.versionId === '0' ? true : thisVersion.isReviewed });
+    const create = createSection({ gameKey, onCreateSession, isReviewed });
 
     const join = joinSection({ gameKey, activeSessions, onJoinSession });
     modal.addChildren(close, info, create, join);
 
-    if (thisVersion.version > 0) {
+    if (versions.length > 0) {
         const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions });
         modal.addChild(selector);
     }
