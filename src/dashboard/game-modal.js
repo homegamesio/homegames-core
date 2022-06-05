@@ -35,7 +35,11 @@ const closeSection = ({ onClose, playerId }) => {
 };
 
 const thumbnailSection = ({ gameKey, gameMetadata }) => {
-    const assetKey = gameMetadata?.game?.thumbnail ? gameKey : 'default';
+    const assetKey = gameMetadata?.thumbnail ? gameKey : 'default';//? gameKey : 'default';
+
+    console.log('game key? ' + gameKey);
+    console.log(gameMetadata);
+    console.log(assetKey);
 
     const thumbnail = new GameNode.Asset({
         coordinates2d: ShapeUtils.rectangle(35, 5, 30, 30),
@@ -70,7 +74,7 @@ const infoSection = ({ gameKey, gameMetadata}) => {
             align: 'center',
             color: COLORS.HG_BLACK,
             size: 2.5,
-            text: gameMetadata?.game?.name || gameKey
+            text: gameMetadata?.name || gameKey
         }
     });
 
@@ -169,7 +173,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
 
     const currentVersionText = new GameNode.Text({
         textInfo: {
-            text: 'Version ' + currentVersion.metadata.version,
+            text: 'Version ' + currentVersion.version,
             x: 80,
             y: 12.5,
             color: COLORS.HG_BLACK,
@@ -178,8 +182,8 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
         }
     });
 
-    const previousVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version < currentVersion.metadata.version).sort((a, b) => b.metadata.version - a.metadata.version);
-    const subsequentVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version > currentVersion.metadata.version).sort((a, b) => a.metadata.version - b.metadata.version);
+    const previousVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version < currentVersion.version).sort((a, b) => b.metadata.version - a.metadata.version);
+    const subsequentVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version > currentVersion.version).sort((a, b) => a.metadata.version - b.metadata.version);
 
     if (previousVersions.length > 0) {
         const leftButton = new GameNode.Shape({
@@ -448,14 +452,14 @@ const gameModal = ({
 
     const info = infoSection({ gameKey, gameMetadata });
 
-    const isReviewed = thisVersion.metadata.isReviewed;
+    const isReviewed = thisVersion.isReviewed;
 
     const create = createSection({ gameKey, onCreateSession, isReviewed });
 
     const join = joinSection({ gameKey, activeSessions, onJoinSession });
     modal.addChildren(close, info, create, join);
 
-    if (versions.length > 0) {
+    if (versionId !== 0) {   
         const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions });
         modal.addChild(selector);
     }
