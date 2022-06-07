@@ -391,6 +391,7 @@ class HomegamesDashboard extends ViewableGame {
                     }));
                 },
                 sendHeartbeat: () => {
+                    
                     childSession.send(JSON.stringify({
                         'type': 'heartbeat'
                     }));
