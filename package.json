@@ -1,6 +1,6 @@
 {
   "name": "homegames-core",
-  "version": "0.7.13",
+  "version": "0.7.49",
   "description": "Play games at home",
   "directories": {
     "lib": "lib"
