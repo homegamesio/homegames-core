@@ -1,4 +1,5 @@
-const { charadesWord } = require('../../common/util');
+const dictionary = require('../../common/util/dictionary');
+
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
 
 const COLORS = Colors.COLORS;
@@ -33,7 +34,7 @@ class Clicktionary extends Game {
         this.base.addChild(this.excludedNodeRoot);
 
         this.playerInfoNodes = {};
-        this.playerCOLORS = {};
+        this.playerColors = {};
 
         this.updateGameState();
     }
@@ -85,7 +86,7 @@ class Clicktionary extends Game {
     }
 
     handleNewPlayer({ playerId, info: playerInfo }) {
-        this.players[playerId] = playerInfo;
+        this.players[Number(playerId)] = { ...playerInfo, id: playerId };
         this.updateGameState();
     }
 
@@ -145,12 +146,12 @@ class Clicktionary extends Game {
                 [15, 15]
             ],
             fill: COLORS.WHITE,
-            onClick: (player, x, y) => {
-                if (!currentPlayer || currentPlayer.id != player.id) {
+            onClick: (playerId, x, y) => {
+                if (!currentPlayer || currentPlayer.id != playerId) {
                     return;
                 }
 
-                const playerColor = this.playerCOLORS[player.id] || COLORS.BLACK;
+                const playerColor = this.playerColors[playerId] || COLORS.BLACK;
 
                 const coloredPixel = new GameNode.Shape({
                     shapeType: Shapes.POLYGON,
@@ -169,23 +170,21 @@ class Clicktionary extends Game {
 
         this.base.addChild(this.canvas);
         
-        charadesWord().then(word => {
-            this.wordNode = new GameNode.Text({
-                textInfo: {
-                    text: word,
-                    align: 'center',
-                    x: 50,
-                    y: 5,
-                    size: 2,
-                    color: COLORS.BLACK
-                },
-                playerIds: [currentPlayer.id]
-            });
-
-            this.base.addChild(this.wordNode);
-
+        const word = dictionary.random();
+        this.wordNode = new GameNode.Text({
+            textInfo: {
+                text: word,
+                align: 'center',
+                x: 50,
+                y: 5,
+                size: 2,
+                color: COLORS.BLACK
+            },
+            playerIds: [currentPlayer.id]
         });
-    
+
+        this.base.addChild(this.wordNode);
+
         const clearButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(2, 70, 10, 10),
@@ -219,8 +218,10 @@ class Clicktionary extends Game {
             playerIds: [currentPlayer.id],
             onClick: () => {
                 if (!doneCountdown) {
-                    this.wordNode.node.playerId = null;
+                    this.stopInterval = true;
+                    this.wordNode.node.playerIds = [];
                     doneCountdown = this.setTimeout(() => {
+                        this.stopInterval = false;
                         doneCountdown = null;
                         this.base.clearChildren([this.excludedNodeRoot.id]);
                         this.newRound();
@@ -241,6 +242,9 @@ class Clicktionary extends Game {
             playerIds: [currentPlayer.id]
         });
 
+        console.log('currentPlayer');
+        console.log(currentPlayer);
+        console.log(this.players);
         doneButton.addChild(doneText);
 
         clearButton.addChild(doneButton);
@@ -257,8 +261,8 @@ class Clicktionary extends Game {
                 coordinates2d: ShapeUtils.rectangle(optionX, 90, 5, 5),
                 fill: color,
                 playerIds: [currentPlayer.id],
-                onClick: (player) => {
-                    this.playerCOLORS[player.id] = color;
+                onClick: (playerId) => {
+                    this.playerColors[playerId] = color;
                 }
             });
             clearButton.addChild(colorButton);
@@ -281,9 +285,14 @@ class Clicktionary extends Game {
         const countdownNode = new GameNode.Text({textInfo: Object.assign({}, textInfo)});
 
         const countdown = this.setInterval(() => {
+            if (this.stopInterval) {
+                this.stopInterval = false;
+                clearInterval(countdown);
+            }
+
             if (currentTime <= 1) {
                 clearInterval(countdown);
-                this.wordNode.node.playerId = null;
+                this.wordNode.node.playerIds = [];
                 this.setTimeout(() => {
                     this.base.clearChildren([this.excludedNodeRoot.id]);
                     this.newRound();
