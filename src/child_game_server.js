@@ -15,8 +15,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
-
+const { getConfigValue } = require('homegames-common');
 
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const CERT_PATH = getConfigValue('HG_CERT_PATH', `${process.cwd()}/.hg_certs`);

@@ -3,7 +3,7 @@ const os = require('os');
 const path = require('path');
 const baseDir = path.dirname(require.main.filename);
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require('homegames-common');
 
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();

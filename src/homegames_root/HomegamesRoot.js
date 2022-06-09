@@ -12,7 +12,7 @@ let baseDir = path.dirname(require.main.filename);
 if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require('homegames-common');
 const HomenamesHelper = require('../util/homenames-helper');
 
 const settingsModal = require('./settings');
@@ -20,6 +20,9 @@ const COLORS = Colors.COLORS;
 
 const process = require('process');
 const procStats = require('process-stats')();
+
+console.log("WHAT IN THE FUCKINGGGGGG");
+console.log(getConfigValue('HOME_PORT'));
 
 const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 class HomegamesRoot {

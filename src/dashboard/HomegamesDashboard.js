@@ -22,7 +22,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require('homegames-common');
 
 const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
 const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
@@ -209,6 +209,7 @@ const getGameMap = () => {
                 },
                 versions: {
                     0: {
+                        gameId: gameClass.name,
                         class: gameClass,
                         metadata: {...gameMetadata },
                         gamePath,
@@ -413,7 +414,11 @@ class HomegamesDashboard extends ViewableGame {
 
         const wat = (game, gameVersion) => {
                     const activeSessions = Object.values(this.sessions).filter(session => {
-                        return session.game === gameVersion.gameId && session.versionId === gameVersion.versionId;
+                        console.log("THIS SESSIONSSS");
+                        console.log(session);
+                        console.log(gameVersion);
+                        console.log(gameVersion.versionId);
+                        return session.game === gameVersion.gameId && Number(session.versionId) === Number(gameVersion.versionId);
                     });
 
                     const versionList = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions) : [];

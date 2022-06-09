@@ -6,7 +6,7 @@ const path = require('path');
 const baseDir = path.dirname(require.main.filename);
 // const viewtest = require('./src/games/view-test');
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require('homegames-common');
 
 const logger = require('./src/logger');
 

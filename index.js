@@ -23,12 +23,10 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
-
 const linkHelper = require('./src/util/link-helper');
 const logger = require('./src/logger');
 
-const { guaranteeCerts, guaranteeDir, authWorkflow } = require('homegames-common');
+const { guaranteeCerts, guaranteeDir, authWorkflow, getConfigValue } = require('homegames-common');
 
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
 const AUTH_DIR = getConfigValue('HG_AUTH_DIR', `${process.cwd()}/.hg_auth`);
