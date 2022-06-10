@@ -32,17 +32,7 @@ const startServer = (sessionInfo) => {
 
     logger.info('Starting server with this info', sessionInfo);
 
-    // let squishLib = require.resolve('squishjs');
-    const squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0750');
-
     if (sessionInfo.gamePath) {
-
-        if (sessionInfo.referenceSquishMap) {
-            console.log('I HAVE A CUSTOM SQUISH MAP!');
-            process.env.STAGE = 'PRODUCTION';
-            process.env.SQUISH_MAP = JSON.stringify(sessionInfo.referenceSquishMap);
-        }
-
         const _gameClass = require(sessionInfo.gamePath);
 
         gameInstance = new _gameClass();

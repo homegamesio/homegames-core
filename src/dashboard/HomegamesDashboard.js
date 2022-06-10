@@ -4,6 +4,11 @@ const https = require('https');
 const path = require('path');
 const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0750');
 
+const squishMap = {
+    '0750': require.resolve('squish-0750'),
+    '0751': require.resolve('squish-0751')
+}
+
 const unzipper = require('unzipper');
 const fs = require('fs');
 const gameModal = require('./game-modal');
@@ -235,7 +240,7 @@ const getGameMap = () => {
 
                 games[gameId].versions[versionId] = {
                     class: gameClass,
-                    metadata: storedMetadata.version,
+                    metadata: { ...storedMetadata.version, squishVersion: gameMetadata.squishVersion },
                     gamePath,
                     versionId,
                     version: storedMetadata.version.version,
@@ -332,16 +337,16 @@ class HomegamesDashboard extends ViewableGame {
         const port = getServerPort();
 
         const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
-
-        const childSession = fork(childGameServerPath);
-
-        sessions[port] = childSession;
-
+    
         if (this.localGames[gameKey]) {
             const referencedGame = this.localGames[gameKey];
-
-            const squishVersion = referencedGame.metadata.squishVersion;
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
+
+            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0750';
+
+            const childSession = fork(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion] }});
+
+            sessions[port] = childSession;
 
             childSession.send(JSON.stringify({
                 key: gameKey,
@@ -414,10 +419,6 @@ class HomegamesDashboard extends ViewableGame {
 
         const wat = (game, gameVersion) => {
                     const activeSessions = Object.values(this.sessions).filter(session => {
-                        console.log("THIS SESSIONSSS");
-                        console.log(session);
-                        console.log(gameVersion);
-                        console.log(gameVersion.versionId);
                         return session.game === gameVersion.gameId && Number(session.versionId) === Number(gameVersion.versionId);
                     });
 
