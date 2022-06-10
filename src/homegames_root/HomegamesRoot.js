@@ -1,4 +1,5 @@
-const { GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
+const process = require('process');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH || 'squish-0750');
 
 const Asset = require('../common/Asset');
 const { animations } = require('../common/util');
@@ -18,11 +19,7 @@ const HomenamesHelper = require('../util/homenames-helper');
 const settingsModal = require('./settings');
 const COLORS = Colors.COLORS;
 
-const process = require('process');
 const procStats = require('process-stats')();
-
-console.log("WHAT IN THE FUCKINGGGGGG");
-console.log(getConfigValue('HOME_PORT'));
 
 const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 class HomegamesRoot {
