@@ -871,7 +871,8 @@ class HomegamesDashboard extends ViewableGame {
             version: {
                 versionId,
                 version: version.version,
-                isReviewed
+                isReviewed,
+                squishVersion: version.squishVersion
             },
             game: {
                gameId,
