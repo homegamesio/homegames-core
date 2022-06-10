@@ -200,12 +200,12 @@ const getGameMap = () => {
     gamePaths.forEach(gamePath => {
         const isLocal = sourceGames.has(gamePath);
 
-        const gameClass = require(gamePath);
-        const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
-
-        const storedMetadata = gameMetadataMap[gamePath] || {};
 
         if (isLocal) {
+
+            const gameClass = require(gamePath);
+            const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
+
             games[gameClass.name] = {
                 metadata: {
                     name: gameMetadata.name || gameClass.name,
@@ -225,6 +225,8 @@ const getGameMap = () => {
                 }
             }
         } else {
+            const storedMetadata = gameMetadataMap[gamePath] || {};
+
             const gameId = storedMetadata?.game?.gameId;
             const versionId = storedMetadata?.version?.versionId;
 
@@ -239,8 +241,8 @@ const getGameMap = () => {
                 }
 
                 games[gameId].versions[versionId] = {
-                    class: gameClass,
-                    metadata: { ...storedMetadata.version, squishVersion: gameMetadata.squishVersion },
+                    // class: gameClass,
+                    metadata: storedMetadata.version,
                     gamePath,
                     versionId,
                     version: storedMetadata.version.version,
