@@ -153,7 +153,6 @@ const networkHelper = {
     }), 
     getGameVersionDetails: (gameId, versionId) => new Promise((resolve, reject) => {
         getUrl('https://landlord.homegames.io/games/' + gameId + '/version/' + versionId).then(response => { 
-            console.log(response.toString());
             resolve(JSON.parse(response));
         }); 
     })
@@ -419,14 +418,21 @@ class HomegamesDashboard extends ViewableGame {
 
         const isSourceGame = this.localGames[gameId] && this.localGames[gameId].versions[0] ? true : false;
 
-        const wat = (game, gameVersion) => {
+        const wat = (game, gameVersion, versions = []) => {
                     const activeSessions = Object.values(this.sessions).filter(session => {
                         return session.game === gameVersion.gameId && Number(session.versionId) === Number(gameVersion.versionId);
                     });
 
                     const versionList = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions) : [];
+                    
                     if (versionList.filter(v => v.versionId === gameVersion.versionId).length === 0) {
                         versionList.push({...gameVersion});
+                    }
+
+                    for (let i = 0; i < versions.length; i++) {
+                        if (versionList.filter(v => v.versionId === versions[i].versionId).length === 0) {
+                            versionList.push({ ...versions[i]})
+                        }
                     }
 
                     const modal = gameModal({ 
@@ -474,12 +480,20 @@ class HomegamesDashboard extends ViewableGame {
                 if (versionId) {
                     networkHelper.getGameVersionDetails(gameId, versionId).then(gameVersion => {
                         const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail }};
-                        wat(gameDetails, withMetadata);
+                        const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
+                             return {...v, metadata: { version: v.version, description: v.description, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
+                        });
+                        wat(gameDetails, withMetadata, gameVersionsWithMetadata);
                     })
                 } else {
                     const gameVersion = Object.values(gameDetails.versions)[0];
                     const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail }};
-                    wat(gameDetails, withMetadata)
+                    
+                    const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
+                         return {...v, metadata: { description: v.description, version: v.version, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
+                    });
+
+                    wat(gameDetails, withMetadata, gameVersionsWithMetadata)
                 }
 
         });
