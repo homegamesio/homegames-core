@@ -86,12 +86,12 @@ const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT
 const GAME_DIRECTORY = path.resolve(getConfigValue('GAME_DIRECTORY', 'hg-games'));
 
 const updateGameMetadataMap = (newMetadata) => {
-    fs.writeFileSync(GAME_DIRECTORY + '/.metadata', JSON.stringify(newMetadata));
+    fs.writeFileSync(GAME_DIRECTORY + path.sep + '.metadata', JSON.stringify(newMetadata));
 }
 
 const getGameMetadataMap = () => {
-    if (fs.existsSync(GAME_DIRECTORY + '/.metadata')) {
-        const bytes = fs.readFileSync(GAME_DIRECTORY + '/.metadata');
+    if (fs.existsSync(GAME_DIRECTORY + path.sep + '.metadata')) {
+        const bytes = fs.readFileSync(GAME_DIRECTORY + path.sep + '.metadata');
         return JSON.parse(bytes);
     }
 
@@ -168,7 +168,7 @@ const getGamePathsHelper = (dir) => {
     const processedEntries = {};
 
     entries.forEach(entry => {
-        const entryPath = path.resolve(`${dir}/${entry}`);
+        const entryPath = path.resolve(`${dir}${path.sep}${entry}`);
         
         const metadata = fs.statSync(entryPath);
         if (metadata.isFile()) {
@@ -900,10 +900,10 @@ class HomegamesDashboard extends ViewableGame {
             }
         }
         return new Promise((resolve, reject) => {
-            const gamePath = `${GAME_DIRECTORY}/${gameId}/${versionId}`;
+            const gamePath = `${GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}`;
 
-            if (!fs.existsSync(`${GAME_DIRECTORY}/${gameId}`)) {
-                fs.mkdirSync(`${GAME_DIRECTORY}/${gameId}`);
+            if (!fs.existsSync(`${GAME_DIRECTORY}${path.sep}${gameId}`)) {
+                fs.mkdirSync(`${GAME_DIRECTORY}${path.sep}${gameId}`);
             }
 
             https.get(location, (res) => {
@@ -914,7 +914,7 @@ class HomegamesDashboard extends ViewableGame {
                 stream.on('close', () => {
                     fs.readdir(gamePath, (err, files) => {
                         const currentMetadata = getGameMetadataMap();
-                        const indexPath = `${gamePath}/index.js`;
+                        const indexPath = `${gamePath}${path.sep}index.js`;
                     
                         currentMetadata[indexPath] = metadataToStore;
                         updateGameMetadataMap(currentMetadata);
