@@ -2,12 +2,9 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0750');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0751');
 
-const squishMap = {
-    '0750': require.resolve('squish-0750'),
-    '0751': require.resolve('squish-0751')
-}
+const squishMap = require('../common/squish-map');
 
 const unzipper = require('unzipper');
 const fs = require('fs');

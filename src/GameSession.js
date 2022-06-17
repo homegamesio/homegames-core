@@ -1,5 +1,7 @@
-const { Squisher } = require('squish-0750');
+let { Squisher } = require('squish-0750');
 const { generateName } = require('./common/util');
+const squishMap = require('./common/squish-map');
+
 const HomegamesRoot = require('./homegames_root/HomegamesRoot');
 
 const path = require('path');
@@ -22,6 +24,14 @@ class GameSession {
         this.game = game;
         this.port = port;
 
+        const gameSquishVersion = game.constructor.metadata().squishVersion;
+        console.log('what is squish version ' + game.constructor.metadata().squishVersion)
+
+        if (squishMap[gameSquishVersion]) {
+            console.log('hooooo shit nice');
+            Squisher = require(squishMap[gameSquishVersion]).Squisher; 
+            console.log(Squisher);
+        }
         this.homenamesHelper = new HomenamesHelper(this.port);
 
         this.playerInfoMap = {};

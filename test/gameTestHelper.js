@@ -40,6 +40,7 @@ const testHandlePlayerDisconnect = (game) => {
         game.handlePlayerDisconnect && game.handlePlayerDisconnect(1);
         succeeded = true;
     } catch (err) {
+        console.log(err);
         succeeded = false;
     }
     assert(succeeded);

@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0754');
 const dictionary = require('../../common/util/dictionary');
 
 const COLORS = Colors.COLORS;
@@ -7,7 +7,7 @@ class WordMatch extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0750',
+            squishVersion: '0754',
             author: 'Joseph Garcia'
         };
     }
@@ -42,40 +42,41 @@ class WordMatch extends Game {
         this.currentPlayerIndices = [];
         this.scores = {};
         this.players = {};
+        this.update();
     }
 
     clearTable() {
         this.base.clearChildren([this.savedNodeRoot.id, this.playerList.id]);
     }
 
-    tick() {
-        const playerCount = Object.keys(this.players).length;
-        if (playerCount > 1 && !this.newGameButton && !this.gameInProgress) {
-            this.newGameButton.size = {x: 20, y: 20};
-            this.newGameButton.text = {text: 'New Game', x: 50, y: 50};
-            this.playerRequirement.text = null;
-        } else if (playerCount < 2 && !this.playerRequirement) {
-            this.gameInProgress = false;
-            // this.newGameButton = new GameNode.Shape({
-            //     shapeType: Shapes.POLYGON,
-            //     coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
-            //     fill: COLORS.HG_GREEN
-            // });
-            console.log('wat');
-            // console.log(this.savedNodeRoot);
-            // console.log(this.newGameButton);
-            // this.savedNodeRoot.addChild(this.newGameButton);
-            //this.newGameButton.size = {x: 0, y: 0};
-            //tis.newGameButton.text = null;
-            //this.playerRequirement.text = {x: 50, y: 50, text: 'At least two players required'};
-            //this.clearTable();
-        } else if (this.gameInProgress && !this.results) {
-            const notReadyPlayers = Object.values(this.playerReadyButtons).filter(s => !s.ready);
-            if (notReadyPlayers.length < 1) {
-                this.showResults();
-            }
-        }
-    }
+//    tick() {
+//        const playerCount = Object.keys(this.players).length;
+//        if (playerCount > 1 && !this.newGameButton && !this.gameInProgress) {
+//            this.newGameButton.size = {x: 20, y: 20};
+//            this.newGameButton.text = {text: 'New Game', x: 50, y: 50};
+//            this.playerRequirement.text = null;
+//        } else if (playerCount < 2 && !this.playerRequirement) {
+//            this.gameInProgress = false;
+//            // this.newGameButton = new GameNode.Shape({
+//            //     shapeType: Shapes.POLYGON,
+//            //     coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
+//            //     fill: COLORS.HG_GREEN
+//            // });
+//            console.log('wat');
+//            // console.log(this.savedNodeRoot);
+//            // console.log(this.newGameButton);
+//            // this.savedNodeRoot.addChild(this.newGameButton);
+//            //this.newGameButton.size = {x: 0, y: 0};
+//            //tis.newGameButton.text = null;
+//            //this.playerRequirement.text = {x: 50, y: 50, text: 'At least two players required'};
+//            //this.clearTable();
+//        } else if (this.gameInProgress && !this.results) {
+//            const notReadyPlayers = Object.values(this.playerReadyButtons).filter(s => !s.ready);
+//            if (notReadyPlayers.length < 1) {
+//                this.showResults();
+//            }
+//        }
+//    }
 
     finishRound() {
         const newPlayerIndices = new Array();
@@ -172,8 +173,8 @@ class WordMatch extends Game {
             this.currentPlayerIndices = [0, 1];
         }
 
-        this.newGameButton.size = {x: 0, y: 0};
-        this.newGameButton.text = null;
+        // this.newGameButton.size = {x: 0, y: 0};
+        // this.newGameButton.text = null;
         this.clearTable();
         this.gameInProgress = true;
         this.updatePlayerList();
@@ -273,10 +274,10 @@ class WordMatch extends Game {
         }
     }
 
-    handleKeyUp(player, key) {
-        if (this.keyCoolDowns[player.id][key]) {
-            clearTimeout(this.keyCoolDowns[player.id][key]);
-            delete this.keyCoolDowns[player.id][key];
+    handleKeyUp(playerId, key) {
+        if (this.keyCoolDowns[playerId][key]) {
+            clearTimeout(this.keyCoolDowns[playerId][key]);
+            delete this.keyCoolDowns[playerId][key];
         }
     }
 
@@ -294,6 +295,29 @@ class WordMatch extends Game {
             this.playerList.addChild(playerNode);
         }
     }
+//        if (playerCount > 1 && !this.newGameButton && !this.gameInProgress) {
+//            this.newGameButton.size = {x: 20, y: 20};
+//            this.newGameButton.text = {text: 'New Game', x: 50, y: 50};
+//            this.playerRequirement.text = null;
+//        } else if (playerCount < 2 && !this.playerRequirement) {
+//            this.gameInProgress = false;
+//            // this.newGameButton = new GameNode.Shape({
+//            //     shapeType: Shapes.POLYGON,
+//            //     coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
+//            //     fill: COLORS.HG_GREEN
+//            // });
+//            console.log('wat');
+//            // console.log(this.savedNodeRoot);
+//            // console.log(this.newGameButton);
+//            // this.savedNodeRoot.addChild(this.newGameButton);
+//            //this.newGameButton.size = {x: 0, y: 0};
+//            //tis.newGameButton.text = null;
+//            //this.playerRequirement.text = {x: 50, y: 50, text: 'At least two players required'};
+//            //this.clearTable();
+//        } else if (this.gameInProgress && !this.results) {
+//            const notReadyPlayers = Object.values(this.playerReadyButtons).filter(s => !s.ready);
+//            if (notReadyPlayers.length < 1) {
+//                this.showResults();
 
     handleNewPlayer({ playerId, info }) {
         this.keyCoolDowns[playerId] = {};
@@ -319,8 +343,61 @@ class WordMatch extends Game {
         //);
         this.players[playerId] = { id: playerId, ...info };
         this.infoNodes[playerId] = {};//infoNode;
+
+        this.update();
         //this.savedNodeRoot.addChild(infoNode);
         //this.updatePlayerList();
+    }
+
+    update() {
+        console.log('something happened. need to look at current state and see what i need to do');
+        if (!this.gameInProgress) {
+            if (Object.keys(this.players).length == 2 && !this.newGameButton) {
+                if (this.notEnoughPlayersText) {
+                    this.base.removeChild(this.notEnoughPlayersText.id);
+                }
+                console.log('need to show play button');
+                this.playButton = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    fill: COLORS.BLACK,
+                    coordinates2d: ShapeUtils.rectangle(30, 30, 40, 40),
+                    onClick: () => {
+                        this.newGame();
+                    }
+                });
+
+                this.base.addChild(this.playButton);
+            } else if (!this.notEnoughPlayersText) {
+                console.log('not enough players');
+
+                this.notEnoughPlayersText = new GameNode.Text({
+                    textInfo: {
+                        x: 50,
+                        y: 50,
+                        align: 'center',
+                        size: 3,
+                        text: '2 players required',
+                        color: COLORS.BLACK
+                    }
+                });
+
+                this.instructionsText = new GameNode.Text({
+                    textInfo: {
+                        x: 50,
+                        y: 95,
+                        align: 'center',
+                        size: 1,
+                        text: 'Entsdfsdfdsfafsdfasdfasd faPLEAS REKFBSJKFGera the word you think is the "middle" of the two words shown.',
+                        color: COLORS.BLACK
+                    }
+                });
+                // this.base.addChildren(this.instructionsText);
+
+                this.base.addChildren(this.notEnoughPlayersText, this.instructionsText);
+            }
+        } else {
+            console.log('a game is happening');
+        }
     }
 
     handlePlayerDisconnect(playerId) {
@@ -329,6 +406,7 @@ class WordMatch extends Game {
         delete this.infoNodes[playerId];
         delete this.scores[playerId];
         this.updatePlayerList();
+        this.update();
     }
 
     getLayers() {

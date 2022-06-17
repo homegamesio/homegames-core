@@ -1,4 +1,4 @@
-const HomegamesDashboard = require('../../src/HomegamesDashboard');
+const HomegamesDashboard = require('../../src/dashboard/HomegamesDashboard');
 const Player = require('../../src/Player');
 const assert = require('assert');
 
@@ -16,20 +16,21 @@ const arrayEquals = (array1, array2) => {
     return eq;
 };
 
-const dashboard = new HomegamesDashboard();
+const movePlayer = () => {
+    console.log('moving player');
+};
+
+const addAsset = () => {
+    console.log('adddd asset');
+}
+
+const dashboard = new HomegamesDashboard({ movePlayer, addAsset });
 
 const fakePlayer = new Player();
 
-assert(Object.keys(dashboard.players).length == 0);
-assert(Object.keys(dashboard.playerViews).length == 0);
+console.log('uhhhh');
+console.log(dashboard);
 
-dashboard._hgAddPlayer(fakePlayer);
-assert(Object.keys(dashboard.players).length == 1);
-
-dashboard.handleNewPlayer(fakePlayer);
-assert(Object.keys(dashboard.playerViews).length == 1);
-
-const fakePlayerView = dashboard.playerViews[fakePlayer.id];
 
 // TODO: finish this test
 // const playerScrollBar = fakePlayerView.root.getChildren().find(child => child.node.fill && arrayEquals(child.node.fill, [0, 0, 255, 255]));

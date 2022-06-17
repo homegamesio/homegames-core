@@ -31,6 +31,7 @@
     "process-stats": "^3.5.5",
     "squish-0750": "npm:squishjs@0.7.5",
     "squish-0751": "npm:squishjs@0.7.51",
+    "squish-0754": "npm:squishjs@0.7.54",
     "unzipper": "^0.10.11",
     "ws": "7.4.6"
   }
