@@ -387,7 +387,7 @@ class WordMatch extends Game {
                         y: 95,
                         align: 'center',
                         size: 1,
-                        text: 'Entsdfsdfdsfafsdfasdfasd faPLEAS REKFBSJKFGera the word you think is the "middle" of the two words shown.',
+                        text: 'Enter the word you think is the "middle" of the two words shown.',
                         color: COLORS.BLACK
                     }
                 });

@@ -110,6 +110,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                         const aspectRatio = gameSession.aspectRatio;
                         const gameMetadata = gameSession.gameMetadata;
 
+                        // TODO: remove 'latest'
                         let squishVersion = 'latest';
                         if (gameMetadata && gameMetadata.squishVersion) {
                             squishVersion = gameMetadata.squishVersion;
