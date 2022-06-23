@@ -28,8 +28,16 @@ const dashboard = new HomegamesDashboard({ movePlayer, addAsset });
 
 const fakePlayer = new Player();
 
-console.log('uhhhh');
-console.log(dashboard);
+dashboard.handleNewPlayer({ 
+    playerId: fakePlayer.id, 
+    info: { 
+        name: 'fake player'
+    }, 
+    settings: {} 
+});
+
+dashboard.close();
+// console.log(dashboard);
 
 
 // TODO: finish this test

@@ -323,8 +323,10 @@ class HomegamesDashboard extends ViewableGame {
         });
 
         this.getViewRoot().addChild(this.playerRootNode);
-            
-        setInterval(() => {
+        
+        console.log('whjhwwewhhnfsd');
+        this.setInterval(() => {
+            console.log('dsfdsf');
             for (const i in this.sessions) {
                 this.sessions[i].sendHeartbeat && this.sessions[i].sendHeartbeat();
             }

@@ -350,7 +350,6 @@ class WordMatch extends Game {
     }
 
     update() {
-        console.log('something happened. need to look at current state and see what i need to do');
         if (!this.gameInProgress) {
             if (Object.keys(this.players).length == 2 && !this.newGameButton) {
                 if (this.notEnoughPlayersText) {
