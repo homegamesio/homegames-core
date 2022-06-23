@@ -1,11 +1,11 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0710');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
 const COLORS = Colors.COLORS;
 
 class PlayerVisibilityTest extends Game {
     static metadata() {
         return {
             name: 'Visibility test',
-            squishVersion: '0710',
+            squishVersion: '0750',
             author: 'Joseph Garcia',
             aspectRatio: {x: 1, y: 2},
             description: 'Test that multiple players can view/hide game nodes'

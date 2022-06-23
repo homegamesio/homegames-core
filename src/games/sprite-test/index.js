@@ -1,5 +1,5 @@
 const Asset = require('../../common/Asset');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0710');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
 const COLORS = Colors.COLORS;
 
 class SpriteTest extends Game {
@@ -14,7 +14,7 @@ class SpriteTest extends Game {
 
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0710',
+            squishVersion: '0750',
             author: 'Joseph Garcia',
             thumbnail: 'd8a39042ae0d7829b83f5c0280dc8230',
             assets: {
@@ -76,26 +76,31 @@ class SpriteTest extends Game {
         this.dancers = {};
     }
 
-    handleKeyDown(player, key) {
-        if (this.inputCooldowns[player.id]) {
+    handleKeyDown(playerId, key) {
+        if (this.inputCooldowns[playerId]) {
             return;
         }
-        this.inputCooldowns[player.id] = this.setTimeout(function() {
-            clearTimeout(this.inputCooldowns[player.id]);
-            delete this.inputCooldowns[player.id];
+        this.inputCooldowns[playerId] = this.setTimeout(function() {
+            clearTimeout(this.inputCooldowns[playerId]);
+            delete this.inputCooldowns[playerId];
         }.bind(this), 50);
 
-        const dancer = this.dancers[player.id];
+        const dancer = this.dancers[playerId];
         const frameMap = {
             'ArrowLeft': 'dance_left',
             'ArrowRight': 'dance_right',
             'ArrowUp': 'dance_up',
-            'ArrowDown': 'dance_down'
+            'ArrowDown': 'dance_down',
+
+            'a': 'dance_left',
+            'd': 'dance_right',
+            'w': 'dance_up',
+            's': 'dance_down'
         };
 
         const newFrame = frameMap[key] ? (dancer.node.asset.dance0 ? frameMap[key] : 'dance0') : 'dance0';
         const newAssets = {};
-        newAssets[newFrame] = Object.values(this.dancers[player.id].node.asset)[0];
+        newAssets[newFrame] = Object.values(this.dancers[playerId].node.asset)[0];
         dancer.node.asset = newAssets;
     }
 
@@ -107,9 +112,9 @@ class SpriteTest extends Game {
         }
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer({ playerId, info, settings }) {
         const spot = this.getPlayerSpot();
-        spot.player = player;
+        spot.player = playerId;
         const x = ((spot.x * 10) + 2);
         const y = ((spot.y * 30) + 2);
         const dancer = new GameNode.Asset({
@@ -122,9 +127,9 @@ class SpriteTest extends Game {
             }
         });
 
-        this.dancers[player.id] = dancer;
+        this.dancers[playerId] = dancer;
 
-        this.background.addChild(this.dancers[player.id]);
+        this.background.addChild(this.dancers[playerId]);
     }
 
     handlePlayerDisconnect(playerId) {

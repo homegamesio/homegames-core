@@ -1,5 +1,7 @@
-const { Squisher } = require('squish-0740');
+let { Squisher } = require('squish-0750');
 const { generateName } = require('./common/util');
+const squishMap = require('./common/squish-map');
+
 const HomegamesRoot = require('./homegames_root/HomegamesRoot');
 
 const path = require('path');
@@ -9,7 +11,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require('homegames-common');
 const HomenamesHelper = require('./util/homenames-helper');
 
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
@@ -22,6 +24,11 @@ class GameSession {
         this.game = game;
         this.port = port;
 
+        const gameSquishVersion = game.constructor.metadata().squishVersion;
+
+        if (squishMap[gameSquishVersion]) {
+            Squisher = require(squishMap[gameSquishVersion]).Squisher; 
+        }
         this.homenamesHelper = new HomenamesHelper(this.port);
 
         this.playerInfoMap = {};
@@ -42,7 +49,11 @@ class GameSession {
         // TODO: make this configurable per player (eg. configurable bezel size)
         this.scale = {x: (100 - BEZEL_SIZE_X) / 100, y:  (100 - BEZEL_SIZE_Y) / 100};
 
-        this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer, customTopLayer: this.customTopLayer });
+        this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer, customTopLayer: this.customTopLayer, onAssetUpdate: (newAssetBundle) => {
+            for (const playerId in this.players) {
+                this.players[playerId].receiveUpdate(newAssetBundle);
+            }
+        } });
         
         this.hgRoot = this.squisher.hgRoot;
         this.squisher.addListener((squished) => {this.handleSquisherUpdate(squished);});
@@ -51,6 +62,18 @@ class GameSession {
 
         this.players = {};
         this.spectators = {};
+    }
+
+    handleNewAsset(key, asset) {
+        return new Promise((resolve, reject) => {
+            this.squisher.handleNewAsset(key, asset).then(newBundle => {
+                for (const playerId in this.players) {
+                    const player = this.players[playerId];
+                    player.receiveUpdate(newBundle);
+                }
+                resolve();
+            });
+        });
     }
 
     handleSquisherUpdate(squished) {
@@ -92,9 +115,9 @@ class GameSession {
     }
 
     addPlayer(player) {
-        if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
-            player.receiveUpdate([5, 70, 0]);
-        }
+        // if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
+        //     player.receiveUpdate([5, 70, 0]);
+        // }
 
         this.players[player.id] = player;
 
@@ -121,11 +144,12 @@ class GameSession {
                             deviceRules.deviceType(player, player.clientInfo.deviceType);
                         }
                     }
+                    player.requestedGame = null;
 
                     player.addInputListener(this);
                 });
             });
-        }
+        };
 
         if (player.info && player.info.name) {
             doThing();
@@ -143,7 +167,6 @@ class GameSession {
         this.playerSettingsMap[playerId] = settings;
 
         this.homegamesRoot.handlePlayerUpdate(playerId, {info, settings});
-        // this.playerInfoMap[playerId] = newData;
         this.game.handlePlayerUpdate && this.game.handlePlayerUpdate(playerId, { info, settings });
     }
 
@@ -153,7 +176,6 @@ class GameSession {
     }
 
     handlePlayerDisconnect(playerId) {
-        console.log('player disconnected formt his ');
         delete this.players[playerId];
         this.game.handlePlayerDisconnect && this.game.handlePlayerDisconnect(playerId);
         this.homegamesRoot.handlePlayerDisconnect(playerId);

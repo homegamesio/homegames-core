@@ -3,6 +3,7 @@ const http = require('http');
 const https = require('https');
 const assert = require('assert');
 const Player = require('../Player');
+const logger = require('../logger');
 const fs = require('fs');
 
 const path = require('path');
@@ -12,7 +13,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require('homegames-common');
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
@@ -70,7 +71,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             cert: fs.readFileSync(certPath.certPath).toString()
         });
     } else { 
-        console.log('uhhhhh its not secure');
+        logger.info("Starting regular server on port " + port);
         server = http.createServer();
     }
 
@@ -82,10 +83,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         function messageHandler(msg) {
             const jsonMessage = JSON.parse(msg);
 
-            console.log("MESSAGE THEY SENT");
-            console.log(jsonMessage);
             if (jsonMessage.type === 'homenames_update') {
-                console.log('its a homenames update');
                 // console.log(jsonMessage.payload);
                 gameSession.handlePlayerUpdate(jsonMessage.playerId, { info: jsonMessage.info, settings: jsonMessage.settings });
             } else if (jsonMessage.type === 'ready') {
@@ -94,11 +92,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
                 ws.id = Number(jsonMessage.id || generatePlayerId());
 
-                console.log('this is their id');
-                console.log(jsonMessage.id);
-
                 const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
-
+                
                 const req = http.request({
                     hostname: 'localhost',
                     port: HOMENAMES_PORT,
@@ -115,6 +110,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                         const aspectRatio = gameSession.aspectRatio;
                         const gameMetadata = gameSession.gameMetadata;
 
+                        // TODO: remove 'latest'
                         let squishVersion = 'latest';
                         if (gameMetadata && gameMetadata.squishVersion) {
                             squishVersion = gameMetadata.squishVersion;
@@ -129,19 +125,17 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                         // init message
                         ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
-                        if (PERFORMANCE_PROFILING) {
-                            ws.send([7]);
-                        }
-                        if (HOTLOAD_ENABLED) {
-                            console.log("SENDING HOTLOAD");
-                            ws.send([8, 71, 01]);
-                        }
+                        // if (PERFORMANCE_PROFILING) {
+                        //     ws.send([7]);
+                        // }
+                        // if (HOTLOAD_ENABLED) {
+                        //     console.log("SENDING HOTLOAD");
+                        //     ws.send([8, 71, 01]);
+                        // }
 
                         if (jsonMessage.spectating) {
                             gameSession.addSpectator(player);
                         } else {
-                            console.log("ADDING PLAUYERRR");
-                            // console.log
                             gameSession.addPlayer(player);
                         }
 
@@ -154,8 +148,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         ws.on('message', messageHandler);
 
         function closeHandler() {
-            console.log("AYO IT CLOSED");
-            //            playerIds[ws.id] = false;
             if (ws.spectating) {
                 gameSession.handleSpectatorDisconnect(ws.id);
             } else {
@@ -169,7 +161,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
     });
 
     wss.on('error', (wat) => {
-        console.log('watff');
+        console.log('wat');
         console.log(wat);
     })
 

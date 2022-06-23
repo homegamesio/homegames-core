@@ -1,11 +1,5 @@
 const server = require('./game_server');
 const assert = require('assert');
-//const squish061 = require('squish-061');
-//const squish063 = require('squish-063');
-//const squish0631 = require('squish-0631');
-//const squish0632 = require('squish-0632');
-//const squish0633 = require('squish-0633');
-//const squish0642 = require('squish-0642');
 
 const process = require('process');
 
@@ -29,11 +23,10 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
-
 const linkHelper = require('./src/util/link-helper');
+const logger = require('./src/logger');
 
-const { guaranteeCerts, guaranteeDir, authWorkflow } = require('homegames-common');
+const { guaranteeCerts, guaranteeDir, authWorkflow, getConfigValue } = require('homegames-common');
 
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
 const AUTH_DIR = getConfigValue('HG_AUTH_DIR', `${process.cwd()}/.hg_auth`);
@@ -45,14 +38,14 @@ const actions = [];
 
 const linkInit = () => new Promise((resolve, reject) => {
     linkHelper.linkConnect().then((wsClient) => {
-        console.log('linked idk');
+        logger.info('Initialized connection to homegames.link');
         resolve();
     }).catch(err => {
-        console.log("Failed to initialize link.");
-        console.log(err);
+        logger.error('Failed to initialize link', err);
         reject();
     });
 });
+
 
 const httpsInit = () => new Promise((resolve, reject) => {
     guaranteeDir(AUTH_DIR).then(() => {
@@ -72,7 +65,7 @@ const linkDNSInit = () => new Promise((resolve, reject) => {
                 console.log('Verified DNS record');
                 resolve(msg.url);
             } else {
-                console.log("failed to verify");
+                console.log('failed to verify');
                 reject();
             }
         }
@@ -100,7 +93,7 @@ if (LINK_DNS_ENABLED) {
     actions.push(linkInit);
 } else if (HTTPS_ENABLED) {
     actions.push(() => new Promise((resolve, reject) => {
-        console.log("One day: custom certs");
+        console.log('One day: custom certs');
         resolve();
     }));
 } else {
@@ -134,16 +127,16 @@ const doWork = () => new Promise((resolve, reject) => {
                 _result = result;
                 _doWork(cb);
             }).catch(err => {
-                console.log("Failed to perform action");
+                console.log('Failed to perform action');
                 console.log(err);
                 i++;
                 _result = null;
                 _doWork(cb);
             });
         }
-    }
+    };
 
-    _doWork(resolve)
+    _doWork(resolve);
 });
 
 doWork();

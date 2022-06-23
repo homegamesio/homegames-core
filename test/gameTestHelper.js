@@ -2,8 +2,6 @@ const assert = require('assert');
 const squishMap = require('../src/common/squish-map');
 const Player = require('../src/Player');
 
-let { GameNode } = require('squish-0710');
-
 const testMetaData = (game) => {
     const metaData = game.metadata();
     assert(metaData.aspectRatio);
@@ -15,10 +13,18 @@ const testMetaData = (game) => {
 const testGetRoot = (game) => {
     const layers = game.getLayers();
     const metadata = game.constructor.metadata && game.constructor.metadata();
-    // const squishVersion = metadata?.squishVersion;
-    // const squishLib = squishMap[squishVersion];
-    // GameNode = squishLib.GameNode;
+    const squishVersion = metadata?.squishVersion;
+    const squishLib = require(squishMap[squishVersion]);
+    // console.log('squsiv ' + squishVersion);
+    // console.log(squishMap);
+    const GameNode = squishLib.GameNode;
     layers.forEach(layer => {
+        // console.log('layerrrr');
+        // console.log(layer);
+
+        // console.log(layer.root);
+        // console.log(layer.root.constructor);
+        // console.log()
         assert((layer.root instanceof GameNode.Shape) || (layer.root instanceof GameNode.Text) || (layer.root instanceof GameNode.Asset));
     });
 };
@@ -26,9 +32,11 @@ const testGetRoot = (game) => {
 const testHandleNewPlayer = (game) => {
     let succeeded;
     try {
-        game.handleNewPlayer && game.handleNewPlayer({ id: 1, info: { name: 'test' } });
+        game.handleNewPlayer && game.handleNewPlayer({ playerId: 1, info: { name: 'test' }, settings: {} });
         succeeded = true;
     } catch (err) {
+        console.log('sdfdsf');
+        console.log(err);
         succeeded = false;
     }
     assert(succeeded);
@@ -40,6 +48,7 @@ const testHandlePlayerDisconnect = (game) => {
         game.handlePlayerDisconnect && game.handlePlayerDisconnect(1);
         succeeded = true;
     } catch (err) {
+        console.log(err);
         succeeded = false;
     }
     assert(succeeded);

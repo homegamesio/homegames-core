@@ -4,3 +4,5 @@ local
 .hg_auth
 .hg_certs
 hg-games
+config.json
+

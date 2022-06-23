@@ -5,13 +5,19 @@ const crypto = require('crypto');
 const path = require('path');
 const process = require('process');
 
-let baseDir = path.dirname(require.main.filename);
+let baseDir = process.cwd();
+
+if (!fs.existsSync(`${process.cwd()}/src/util/config.js`)) {
+    baseDir = path.dirname(require.main.filename);
+}
 
 if (baseDir.endsWith('/src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+console.log('aaaaa');
+
+const { getConfigValue } = require('homegames-common');
 
 const HG_ASSET_PATH = getConfigValue('HG_ASSET_PATH', `${process.cwd()}/.asset_cache`);
 
@@ -32,6 +38,10 @@ const downloadFile = (assetId, path) => new Promise((resolve, reject) => {
     const writeStream = fs.createWriteStream(filePath);
     const getModule = https;
 
+    writeStream.on('close', () => {
+        resolve(filePath);
+    });
+
     let data = '';
     getModule.get(`https://assets.homegames.io/${assetId}`, (res) => {
         res.on('data', (chunk) => {
@@ -40,7 +50,6 @@ const downloadFile = (assetId, path) => new Promise((resolve, reject) => {
         });
         res.on('end', () => {
             writeStream.end();
-            resolve(filePath);
         });
     }).on('error', error => {
         reject(error);
@@ -58,6 +67,11 @@ class Asset {
         return `${HG_ASSET_PATH}/${fileHash}`;
     }
 
+    existsLocallySync() {
+        const fileLocation = this.getFileLocation(this.info.id);
+        return fs.existsSync(fileLocation);
+    }
+    
     existsLocally() {
         return new Promise((resolve, reject) => {
             const fileLocation = this.getFileLocation(this.info.id);
@@ -67,6 +81,20 @@ class Asset {
         });
     }
 
+    async downloadSync(force) {
+        const fileLocationExists = this.existsLocallySync();
+        const fileLocation = this.getFileLocation(this.info.id);
+
+        if (fileLocationExists && !force) {
+            this.initialized = true;
+            return fileLocation;
+        } else {
+            const fileLocation2 = await downloadFileSync(this.info.id, HG_ASSET_PATH);
+            this.initialized = true;
+            return fileLocation;
+        }
+    }
+    
     download(force) {
         return new Promise((resolve, reject) => {
             this.existsLocally().then(fileLocation => {
@@ -96,6 +124,7 @@ class Asset {
             });
         }); 
     }
+    
 }
 
 module.exports = Asset;

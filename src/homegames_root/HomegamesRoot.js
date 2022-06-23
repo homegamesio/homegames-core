@@ -1,20 +1,27 @@
-const { GameNode, Colors, Shapes, ShapeUtils } = require('squish-0740');
+const process = require('process');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH || 'squish-0750');
 
 const Asset = require('../common/Asset');
 const { animations } = require('../common/util');
 
 const PLAYER_SETTINGS = require('../common/player-settings.js');
 
+const path = require('path');
+
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
+const { getConfigValue } = require('homegames-common');
 const HomenamesHelper = require('../util/homenames-helper');
 
 const settingsModal = require('./settings');
 const COLORS = Colors.COLORS;
-const path = require('path');
-const baseDir = path.dirname(require.main.filename);
 
-const process = require('process');
 const procStats = require('process-stats')();
 
+const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 class HomegamesRoot {
     static metadata() {
         return {
@@ -66,9 +73,8 @@ class HomegamesRoot {
 
         this.playerDashboards = {};
 
-        // todo: pull this from config and turn port conversion into a function
         const onGameHomeClick = (playerId) => {
-            this.session.movePlayer({ playerId, port: 7001 });
+            this.session.movePlayer({ playerId, port: HOME_PORT });
         };
 
         const gameAspectRatio = this.session.game.constructor.metadata && this.session.game.constructor.metadata().aspectRatio;
@@ -141,9 +147,6 @@ class HomegamesRoot {
     }
 
     handlePlayerUpdate(playerId, newData) {
-        console.log('need to update name in thing i think');
-        console.log(newData);
-        // console.log(this.session.game);
         this.updateLabels();
         if (this.viewStates[playerId] && this.viewStates[playerId].state === 'settings') {
             this.showSettings(playerId);
@@ -177,7 +180,6 @@ class HomegamesRoot {
     }
 
     showSettings(playerId) {
-        console.log('showibng settings for pl ' + playerId);
         this.topLayerRoot.clearChildren();
         this.viewStates[playerId] = {state: 'settings'};
         const modal = settingsModal({ 
@@ -186,40 +188,18 @@ class HomegamesRoot {
                 this.topLayerRoot.removeChild(modal.node.id);
             }, 
             onNameChange: (text) => {
-                console.log('player id ' + playerId + ' changed name ' + playerId);
                 this.homenamesHelper.updatePlayerInfo(playerId,
                     {
                         playerName: text
                     });
-                // .then(() => {
-                //     this.homenamesHelper.getPlayerInfo(playerId).then(_playerInfo => {
-                //         this.updateLabels();
-                //         this.showSettings(playerId);
-                //     }).catch(err => {
-                //         console.log('whats the probelm');
-                //         console.log(err);
-                //     })
-                // });
             },
             onSoundToggle: (newVal) => {
                 this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
                     enabled: newVal
                 });
-                // .then(() => {
-                //                             this.showSettings(playerId);
-
-                //     // this.homenamesHelper.getPlayerSettings(playerId).then(_playerSettings => {
-                //     //     this.playerSettingsMap[playerId] = _playerSettings;
-                //     // }).catch(err => {
-                //     //     console.log('whats the probelm');
-                //     //     console.log(err);
-                //     // });
-                // });
             }
         });
 
-        // console.log('what is this');
-        // console.log(this);
         
         this.topLayerRoot.addChild(modal);
     }
@@ -230,21 +210,15 @@ class HomegamesRoot {
             
             playerFrame.clearChildren();
 
-            // console.log('ayo iii ');
-            // console.log(playerFrame.node.playerIds);
-            // console.log(this.session.playerInfoMap);
-            // console.log(this.session);
             const playerId = playerFrame.node.playerIds[0];
             const playerInfo = this.session.playerInfoMap[playerId];
 
             const settingsButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(42.5,.25, 15, 4.5),
-                fill: [187, 189, 191, 255],//[84, 77, 71, 255], // frame color
+                fill: [187, 189, 191, 255],
                 onClick: (playerId) => {
                     this.showSettings(playerId);
-                    // player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
-                    //player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
                 }, 
                 playerIds: [playerId],
                 effects: {
@@ -255,7 +229,6 @@ class HomegamesRoot {
                 },
             });
 
-            // this.homenamesHelper.getPlayerInfo(playerId).then(playerInfo => {
             const labelText = new GameNode.Text({
                 textInfo: {
                     text: playerInfo.name || 'unknown',
@@ -265,87 +238,20 @@ class HomegamesRoot {
                     color: COLORS.WHITE,
                     align: 'center'
                 },
-                onClick: () => {
-                    console.log('clicking box');
-                },
                 playerIds: [playerId]
             });
         
             settingsButton.addChild(labelText);
-            // });
+                
             playerFrame.addChild(settingsButton);
 
             if (!this.isDashboard) {
-                // const isSpectator = this.game.spectators && this.game.spectators[playerId] && true || false;
-
-                // let button;
-                // if (isSpectator) {
-                //     const label = new GameNode.Text({
-                //         textInfo: {
-                //             text: 'Join game',
-                //             x: 15,
-                //             y: 1,
-                //             size: 0.7,
-                //             color: COLORS.WHITE,
-                //             align: 'center'
-                //         },
-                //         playerIds: [playerId]
-                //     });
-
-                //     button = new GameNode.Shape({
-                //         shapeType: Shapes.POLYGON,
-                //         coordinates2d: ShapeUtils.rectangle(10, 0, 10, 3),
-                //         fill: COLORS.HG_BLUE,
-                //         onClick: (player, x, y) => {
-                            
-                //             player.receiveUpdate([5, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
-                //         },
-                //         playerIds: [playerId]
-                //     });
-
-
-                //     button.addChild(label);
-                // } else 
-                // if (Object.values(this.game.players).length > 1) {
-                //     const label = new GameNode.Text({
-                //         textInfo: {
-                //             text: 'Switch to spectator',
-                //             x: 15,
-                //             y: 1,
-                //             size: 0.7,
-                //             color: COLORS.WHITE,
-                //             align: 'center'
-                //         },
-                //         playerIds: [playerId]
-                //     });
-
-                //     button = new GameNode.Shape({
-                //         shapeType: Shapes.POLYGON,
-                //         coordinates2d: ShapeUtils.rectangle(10, 0, 10, 3),
-                //         fill: COLORS.HG_BLUE,
-                //         onClick: (player, x, y) => {
-                //             player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
-                //             //player.receiveUpdate([6, Math.floor(this.game.session.port / 100), Math.floor(this.game.session.port % 100)]);
-                //         }, 
-                //         playerIds: [playerId]
-                //     });
-
-                //     button.addChild(label);
-                // } 
-                //                 else {
                 playerFrame.node.coordinates2d = playerFrame.node.coordinates2d;
-                //                 }
-
-                //                 if (button) {
-                //                     // add spectator button back later
-                //                     // playerFrame.addChild(button)
-                //                 }
             }
         }
     }
 
     handlePlayerDisconnect(playerId) {
-        console.log('player just disconnected');
         delete this.viewStates[playerId];
         if (this.playerDashboards[playerId]) {
             this.playerDashboards[playerId].intervals.forEach(interval => {
@@ -391,7 +297,6 @@ class HomegamesRoot {
                             downloadedCount += 1;
                         } else {
                             asset.download().then(() => {
-                                console.log('downloaded dddd');
                                 downloadedCount += 1;
                                 if (downloadedCount == totalCount) {
                                     resolve();

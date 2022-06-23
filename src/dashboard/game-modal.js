@@ -2,7 +2,7 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0740');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0750');
 
 const unzipper = require('unzipper');
 const fs = require('fs');
@@ -35,10 +35,8 @@ const closeSection = ({ onClose, playerId }) => {
 };
 
 const thumbnailSection = ({ gameKey, gameMetadata }) => {
-    console.log('gmmmgmgmg');
-    console.log(gameMetadata);
-    const assetKey = gameMetadata.thumbnail ? gameKey : 'default';
-
+    const assetKey = gameMetadata?.thumbnail ? gameKey : 'default';
+    
     const thumbnail = new GameNode.Asset({
         coordinates2d: ShapeUtils.rectangle(35, 5, 30, 30),
         assetInfo: {
@@ -72,7 +70,7 @@ const infoSection = ({ gameKey, gameMetadata}) => {
             align: 'center',
             color: COLORS.HG_BLACK,
             size: 2.5,
-            text: gameKey
+            text: gameMetadata?.name || gameKey
         }
     });
 
@@ -92,11 +90,11 @@ const infoSection = ({ gameKey, gameMetadata}) => {
     return infoContainer;
 };
 
-const createSection = ({ gameKey, onCreateSession, onJoinSession }) => {
+const createSection = ({ gameKey, onCreateSession, isReviewed = false }) => {
     const createContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(12.5, 67, 20, 20),
-        fill: [160, 235, 93, 255],
+        fill: isReviewed ? [160, 235, 93, 255] : COLORS.HG_YELLOW,
         onClick: onCreateSession
     });
 
@@ -124,7 +122,140 @@ const createSection = ({ gameKey, onCreateSession, onJoinSession }) => {
 
     createContainer.addChildren(createText, playIcon);
 
+    if (!isReviewed) {
+        const warningContainer = new GameNode.Shape({
+            fill: COLORS.HG_RED,
+            coordinates2d: ShapeUtils.rectangle(30, 87.5, 40, 10),
+            shapeType: Shapes.POLYGON
+        });
+
+        const warningTextHead = new GameNode.Text({
+            textInfo: {
+                text: 'This game version has not been reviewed',// by a Homegames administrator.',
+                x: 50,
+                y: 88.5,
+                align: 'center',
+                size: 1.2,
+                color: COLORS.WHITE
+            }
+        });
+
+        const warningTextSub = new GameNode.Text({
+            textInfo: {
+                text: 'Only play games from sources you trust.',
+                x: 50,
+                y: 93.5,
+                align: 'center',
+                size: 1,
+                color: COLORS.WHITE
+            }
+        });
+
+        warningContainer.addChildren(warningTextHead, warningTextSub);
+
+        createContainer.addChildren(warningContainer);
+    }
+
     return createContainer;
+};
+
+const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersions }) => {
+
+    const versionSelectorContainer = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+        fill: COLORS.HG_RED
+    });
+
+    const currentVersionText = new GameNode.Text({
+        textInfo: {
+            text: 'Version ' + currentVersion.version,
+            x: 80,
+            y: 12.5,
+            color: COLORS.HG_BLACK,
+            size: 2,
+            align: 'center'
+        }
+    });
+
+    const previousVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version < currentVersion.version).sort((a, b) => b.metadata.version - a.metadata.version);
+    const subsequentVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version > currentVersion.version).sort((a, b) => a.metadata.version - b.metadata.version);
+
+    if (previousVersions.length > 0) {
+        const leftButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: COLORS.HG_BLUE,
+            coordinates2d: ShapeUtils.rectangle(65, 10, 10, 10),
+            onClick: () => onVersionChange(previousVersions[0].metadata.versionId)
+        });
+
+        const leftText = new GameNode.Text({
+            textInfo: {
+                text: '\u2190',
+                x: 70,
+                y: 10,
+                color: COLORS.HG_BLACK,
+                align: 'center',
+                size: 4
+            }
+        });
+
+        leftButton.addChildren(leftText);
+
+        versionSelectorContainer.addChildren(leftButton);
+    }
+
+    if (subsequentVersions.length > 0) {
+        const rightButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: COLORS.HG_BLUE,
+            coordinates2d: ShapeUtils.rectangle(85, 10, 10, 10),
+            onClick: () => onVersionChange(subsequentVersions[0].metadata.versionId)
+        });
+
+        const rightText = new GameNode.Text({
+            textInfo: {
+                text: '\u2192',
+                x: 90,
+                y: 10,
+                color: COLORS.HG_BLACK,
+                align: 'center',
+                size: 4
+            }
+        });
+
+        rightButton.addChildren(rightText);
+
+        versionSelectorContainer.addChildren(rightButton);
+    }
+
+    versionSelectorContainer.addChildren(currentVersionText);
+
+    return versionSelectorContainer;
+    
+};
+
+const unverifiedGameVersionWarning = () => {
+    const warningContainer = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(60, 60, 15, 15),
+        fill: COLORS.HG_YELLOW
+    });
+
+    const warningText = new GameNode.Text({
+        textInfo: {
+            x: 60,
+            y: 60,
+            size: 1.2,
+            color: COLORS.HG_BLACK,
+            align: 'left',
+            text: 'This game version has not yet been verified by Homegames administrators.'
+        }
+    });
+
+    warningContainer.addChildren(warningText);
+
+    return warningContainer;
 };
 
 const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSize = 2 }) => {
@@ -172,8 +303,6 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
                     onClick: () => onJoinSession(pageContent[i])
                 });
 
-                console.log('ayooo');
-                console.log(pageContent);
                 const optionText = new GameNode.Text({
                     textInfo: {
                         x: 61,
@@ -287,7 +416,18 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
     return joinContainer;
 };
 
-const gameModal = ({ gameMetadata, gameKey, onClose, activeSessions, onCreateSession, onJoinSession, playerId }) => {
+const gameModal = ({ 
+    gameMetadata, 
+    gameKey, 
+    versionId, 
+    onClose, 
+    activeSessions, 
+    onCreateSession, 
+    onJoinSession, 
+    playerId, 
+    onVersionChange,
+    versions = [] 
+}) => {
     const modal = new GameNode.Shape({
         coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 95, 95),
         fill: COLORS.HG_BLUE,
@@ -295,144 +435,26 @@ const gameModal = ({ gameMetadata, gameKey, onClose, activeSessions, onCreateSes
         playerIds: [playerId]
     });
 
+    const thisVersion = versions.filter(version => version.versionId === versionId)[0];
+
+    const otherVersions = versions.filter(version => version.versionId !== versionId);
+
     const close = closeSection({ playerId, onClose });
 
     const info = infoSection({ gameKey, gameMetadata });
 
-    const create = createSection({ gameKey, onCreateSession });
+    const isReviewed = thisVersion.isReviewed;
+
+    const create = createSection({ gameKey, onCreateSession, isReviewed });
 
     const join = joinSection({ gameKey, activeSessions, onJoinSession });
-
     modal.addChildren(close, info, create, join);
 
-    // const imgCoords = [27.5, 12.5, 45, 45];
-    // const gameImage = new GameNode.Asset({
-    //     coordinates2d:  ShapeUtils.rectangle(imgCoords[0], imgCoords[1], imgCoords[2], imgCoords[3]),
-    //     assetInfo: {
-    //         [assetKey]: {
-    //             pos: {
-    //                 x: imgCoords[0],
-    //                 y: imgCoords[1]
-    //             },
-    //             size: {
-    //                 x: imgCoords[2],
-    //                 y: imgCoords[3]
-    //             }
-    //         }
-    //     }
-    // });
+    if (versionId !== 0) {   
+        const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions });
+        modal.addChild(selector);
+    }
 
-    // const gameName = new GameNode.Text({
-    //     textInfo: {
-    //         text: assetKey,
-    //         x: 50,
-    //         y: 5,
-    //         color: COLORS.WHITE,
-    //         size: 1.5,
-    //         align: 'center'
-    //     }
-    // });
-
-    // const author = new GameNode.Text({
-    //     textInfo: {
-    //         text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().author || 'Unknown author',
-    //         x: 50,
-    //         y: 9,
-    //         color: COLORS.ALMOST_BLACK,
-    //         size: 0.9,
-    //         align: 'center'
-    //     }
-    // });
-
-    // const description = new GameNode.Text({
-    //     textInfo: {
-    //         x: 27.5,
-    //         y: 65,
-    //         text: gameCollection[gameKey].metadata && gameCollection[gameKey].metadata().description || 'No description available',
-    //         align: 'left',
-    //         size: 0.6,
-    //         color: COLORS.WHITE
-    //     }
-    // });
-
-    // const sessionText = new GameNode.Text({
-    //     textInfo: {
-    //         x: 15,
-    //         y: 17.5,
-    //         text: 'Join an existing session',
-    //         color: COLORS.WHITE,
-    //         align: 'center',
-    //         size: 1.2
-    //     }
-    // });
-
-    // let yIndex = 22.5;
-
-    // let count = 0;
-    // const sessionList = Object.values(this.sessions).filter(session => {
-    //     return session.game === gameKey;
-    // }).map(session => {
-    //     const sessionNode = new GameNode.Shape({
-    //         shapeType: Shapes.POLYGON,
-    //         coordinates2d: ShapeUtils.rectangle(10, yIndex, 10, 8),
-    //         fill: COLORS.GRAY,
-    //         onClick: (player, x, y) => {
-    //             this.joinSession(player, session);
-    //         }
-    //     });
-
-    //     const sessionText = new GameNode.Text({
-    //         textInfo: {
-    //             x: 15,
-    //             y: yIndex + 3,
-    //             size: 0.8,
-    //             color: COLORS.WHITE,
-    //             align: 'center',
-    //             text: `Session ${session.id}`
-    //         }
-    //     });
-
-    //     yIndex += 10;
-    //     sessionNode.addChild(sessionText);
-    //     return sessionNode;
-    // });
-
-    // const createButton = new GameNode.Shape({
-    //     fill: COLORS.COOL_GREEN,
-    //     coordinates2d: ShapeUtils.rectangle(75, 22.5, 20, 15),
-    //     shapeType: Shapes.POLYGON,
-    //     onClick: () => {
-    //         this.startSession(player, gameKey, versionKey);
-    //     }
-    // });
-
-    // const createIcon = new GameNode.Text({
-    //     textInfo: {
-    //         color: COLORS.ALMOST_BLACK,
-    //         x: 85, 
-    //         y: 25,
-    //         text: '\u1405',
-    //         align: 'center',
-    //         size: 5
-    //     }
-    // });
-
-    // const createText = new GameNode.Text({
-    //     textInfo: {
-    //         x: 85,
-    //         y: 17.5, 
-    //         text: 'Create a session',
-    //         color: COLORS.WHITE,
-    //         size: 1.3,
-    //         align: 'center'
-    //     }
-    // });
-
-    // createButton.addChildren(createText, createIcon);
-
-
-    // sessionList.forEach(sessionNode => modalBase.addChild(sessionNode));
-    // modalBase.addChildren(closeButton, gameName, author, gameImage, description, sessionText, createButton);
     return modal;
 };
 

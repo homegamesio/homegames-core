@@ -6,7 +6,7 @@ if (baseDir.endsWith('/src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
+const { getConfigValue } = require('homegames-common');
 const http = require('http');
 
 const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
@@ -14,8 +14,6 @@ const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
     http.get(`${host}${path}`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
-            console.log('chunk');
-            console.log(chunk);
             buf += chunk.toString();
         });
 
@@ -75,45 +73,32 @@ class HomenamesHelper {
     getPlayerInfo(playerId) {
         return new Promise((resolve, reject) => {
             makeGet(`/info/${playerId}`).then(resolve).catch(err => {
-                console.log('watttt');
                 console.log(err);
             });
         });
-        console.log('what abc');
     }
 
     addListener(playerId) {//=> new Promise((resolve, reject) => {
         return new Promise((resolve, reject) => {
             makePost('/add_listener', { playerId, sessionPort: this.sessionPort }).then(resolve).catch(reject);
         });
-        // if (!this.playerListeners[playerId]) {
-        //     this.playerListeners[playerId] = new Set();
-        // }
-
-        // this.playerListeners[playerId].add(cb);
     }
 
     getPlayerSettings(playerId) {
         return new Promise((resolve, reject) => {
             makeGet(`/settings/${playerId}`).then(resolve).catch(err => {
-                console.log('watttt');
                 console.log(err);
             });
         });
-        console.log('what def');   
     }
 
     updatePlayerInfo(playerId, { playerName }) {
-
-        console.log('what ghi');
         return new Promise((resolve, reject) => {
             makePost('/' + playerId + '/info', { name: playerName }).then(resolve);
         });
     }
 
     updatePlayerSetting(playerId, settingKey, value) {
-
-        console.log('what jkl');
         return new Promise((resolve, reject) => {
             makePost('/' + playerId + '/settings', {[settingKey]: value}).then(resolve);
         });

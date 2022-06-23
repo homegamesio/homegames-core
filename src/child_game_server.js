@@ -1,5 +1,7 @@
 const GameSession = require('./GameSession');
 const { socketServer } = require('./util/socket');
+const logger = require('./logger');
+
 const process = require('process');
 
 let lastMessage;
@@ -13,8 +15,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require(`${baseDir}/src/util/config`);
-
+const { getConfigValue } = require('homegames-common');
 
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const CERT_PATH = getConfigValue('HG_CERT_PATH', `${process.cwd()}/.hg_certs`);
@@ -29,20 +30,9 @@ const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAcc
 const startServer = (sessionInfo) => {
     let gameInstance;
 
-    console.log('you want to start server with this info');
-    console.log(sessionInfo);
-
-    // let squishLib = require.resolve('squishjs');
-    const squishLib = require.resolve(sessionInfo.squishVersion ? `squish-${sessionInfo.squishVersion}` : 'squish-0740');
+    logger.info('Starting server with this info', sessionInfo);
 
     if (sessionInfo.gamePath) {
-
-        if (sessionInfo.referenceSquishMap) {
-            console.log('I HAVE A CUSTOM SQUISH MAP!');
-            process.env.STAGE = 'PRODUCTION';
-            process.env.SQUISH_MAP = JSON.stringify(sessionInfo.referenceSquishMap);
-        }
-
         const _gameClass = require(sessionInfo.gamePath);
 
         gameInstance = new _gameClass();
@@ -53,14 +43,8 @@ const startServer = (sessionInfo) => {
     gameSession = new GameSession(gameInstance, sessionInfo.port);
 
     if (HTTPS_ENABLED) {
-        console.log('hello friend');
-        console.log(CERT_PATH);
-        console.log('hello friend 123');
- 
         gameSession.initialize(() => {
-            console.log('hello friend 123456');
             socketServer(gameSession, sessionInfo.port, () => {
-                console.log('hello friend 123456789');
                 sendProcessMessage({
                     'success': true
                 });
@@ -105,10 +89,8 @@ process.on('error', (err) => {
 });
 
 const checkPulse = () => {
-    // console.log(gameSession);
-    // if ()
     if (!gameSession || (Object.values(gameSession.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 5000) {
-        console.log('killing myself');
+        console.log('discontinuing myself');
         process.exit(0);
     }
 };

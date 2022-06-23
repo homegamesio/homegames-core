@@ -1,12 +1,12 @@
 const Asset = require('../../common/Asset');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0740');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
 const COLORS = Colors.COLORS;
 
 class SoundTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            // squishVersion: '0730',
+            squishVersion: '0750',
             author: 'Joseph Garcia',
             thumbnail: '2a0cf606567326c6c40df592ee1358ca'
         };
@@ -42,8 +42,6 @@ class SoundTest extends Game {
                 this.pauseButton.clearChildren();
                 this.base.removeChild(this.pauseButton.node.id);
                 this.base.addChild(this.playButton);
-                console.log('thidf this');
-                console.log(this.startTime);
                 const diff = (new Date() - this.songPlayedAt) / 1000;
                 this.startTime = this.startTime + diff;
                 // console.log('its been this many milliseconds ' + diff);
@@ -101,7 +99,6 @@ class SoundTest extends Game {
     // TODO: fix this one
 
     handlePlayerUpdate(playerId, newData) {
-        console.log('oh shit wow');
         if (this.pauseButton.node.children.length > 0) {
             const diff = (new Date() - this.songPlayedAt) / 1000;
             console.log('its been ' + diff + ' since i started playing'); 

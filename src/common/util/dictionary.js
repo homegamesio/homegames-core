@@ -7,9 +7,20 @@ const baseDir = path.dirname(require.main.filename);
 let words = [];
 
 // need to move to squish
+const options = [process.cwd(), require.main.filename, process.mainModule.filename, __dirname]
 
-if (fs.existsSync(path.resolve('dictionary.txt'))) {
-    const dictionaryBytes = fs.readFileSync(path.resolve('dictionary.txt'));
+let dictPath;
+
+for (let i = 0; i < options.length; i++) {
+    if (fs.existsSync(`${options[i]}/dictionary.txt`)) {
+        dictPath = `${options[i]}/dictionary.txt`;
+        break;
+    }
+}
+
+if (dictPath) {
+    console.log('Using dictionary file at ' + dictPath);
+    const dictionaryBytes = fs.readFileSync(dictPath);
     words = dictionaryBytes.toString().split('\n').filter(w => !!w);
 } else {
     console.warn('Missing dictionary.txt file. Using default dictionary');
