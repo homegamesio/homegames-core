@@ -42,8 +42,6 @@ class SoundTest extends Game {
                 this.pauseButton.clearChildren();
                 this.base.removeChild(this.pauseButton.node.id);
                 this.base.addChild(this.playButton);
-                console.log('thidf this');
-                console.log(this.startTime);
                 const diff = (new Date() - this.songPlayedAt) / 1000;
                 this.startTime = this.startTime + diff;
                 // console.log('its been this many milliseconds ' + diff);
@@ -101,7 +99,6 @@ class SoundTest extends Game {
     // TODO: fix this one
 
     handlePlayerUpdate(playerId, newData) {
-        console.log('oh shit wow');
         if (this.pauseButton.node.children.length > 0) {
             const diff = (new Date() - this.songPlayedAt) / 1000;
             console.log('its been ' + diff + ' since i started playing'); 

@@ -291,8 +291,8 @@ class WordMatch extends Game {
             const readyStatusColor = ready ? COLORS.GREEN : Colors.RED;
             const statusColor = this.gameInProgress ? readyStatusColor : COLORS.CREAM;
             const playerNameText = player.name + ': ' + (playerId in this.scores ? this.scores[playerId] : 0);
-            const playerNode = GameNode(statusColor, null, {x: 70, y: 2 + (yPos * 10)}, {x: 5, y: 5}, {x: 85, y: 2 + (yPos * 10), text: playerNameText});
-            this.playerList.addChild(playerNode);
+            // const playerNode = GameNode(statusColor, null, {x: 70, y: 2 + (yPos * 10)}, {x: 5, y: 5}, {x: 85, y: 2 + (yPos * 10), text: playerNameText});
+            // this.playerList.addChild(playerNode);
         }
     }
 //        if (playerCount > 1 && !this.newGameButton && !this.gameInProgress) {
@@ -401,7 +401,7 @@ class WordMatch extends Game {
     }
 
     handlePlayerDisconnect(playerId) {
-        this.savedNodeRoot.removeChild(this.infoNodes[playerId].id);
+        // this.savedNodeRoot.removeChild(this.infoNodes[playerId].id);
         delete this.players[playerId];
         delete this.infoNodes[playerId];
         delete this.scores[playerId];

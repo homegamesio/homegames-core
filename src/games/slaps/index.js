@@ -14,7 +14,7 @@ class Slaps extends Game {
 
     constructor() {
         super();
-        this._players = {};
+        this.players = {};
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: COLORS.EMERALD,
@@ -174,21 +174,21 @@ class Slaps extends Game {
 
     }
 
-    handleNewPlayer(player) {
+    handleNewPlayer({ playerId, info, settings }) {
         this.updatePlayerCount();
         const infoNode = new GameNode.Text({
             textInfo: {
-                text: player.info.name, 
+                text: info.name, 
                 x: 80, 
                 y: 5,
                 size: 3,
                 align: 'center',
                 color: COLORS.BLACK
             }, 
-            playerIds: [player.id]
+            playerIds: [playerId]
         });
 
-        this.infoNodes[player.id] = infoNode;
+        this.infoNodes[playerId] = infoNode;
         this.infoNodeRoot.addChild(infoNode);
 
         this.clearTable();
