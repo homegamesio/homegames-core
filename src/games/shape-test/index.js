@@ -30,7 +30,6 @@ class ShapeTest extends Game {
             ],
             fill: COLORS.PURPLE,
             onClick: (player, x, y) => {
-                console.log('I have neen clicked');
             }
         });
     }

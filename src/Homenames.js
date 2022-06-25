@@ -8,12 +8,12 @@ if (baseDir.endsWith('/src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require('homegames-common');
+const { getConfigValue, log } = require('homegames-common');
 
 
 class Homenames {
     constructor(port) {
-        console.log('running homenames on port ' + port);
+        log.info('running homenames on port ', port);
         
         this.playerInfo = {};
         this.playerSettings = {};
@@ -85,7 +85,7 @@ class Homenames {
 
                         const socketSession = new WebSocket(`ws://localhost:${payload.sessionPort}`);
                         socketSession.on('open', () => {
-                            console.log('opened socket connection to session');
+                            log.info('opened socket connection to session');
                             this.sessionClients[payload.sessionPort] = socketSession;
                             if (!this.playerListeners[payload.playerId]) {
                                 this.playerListeners[payload.playerId] = new Set();

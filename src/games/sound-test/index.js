@@ -26,9 +26,6 @@ class SoundTest extends Game {
             ],
             fill: COLORS.WHITE,
             onClick: (player, x, y) => {
-                // const newAsset = this.imageNode.node.asset;
-                // newAsset.image.pos = {x, y};
-                // this.imageNode.node.asset = newAsset;
             }
         });
 
@@ -44,8 +41,6 @@ class SoundTest extends Game {
                 this.base.addChild(this.playButton);
                 const diff = (new Date() - this.songPlayedAt) / 1000;
                 this.startTime = this.startTime + diff;
-                // console.log('its been this many milliseconds ' + diff);
-                // this.startTime =
             }
         });
 
@@ -54,9 +49,7 @@ class SoundTest extends Game {
             coordinates2d: ShapeUtils.rectangle(20, 20, 20, 20),
             fill: COLORS.GREEN,
             onClick: (player) => {
-                console.log('want to add song node at a given point (start for now) ' + this.startTime);
                 this.songPlayedAt = new Date();
-                // this.startTime
                 const songNode = new GameNode.Asset({
                     coordinates2d: ShapeUtils.rectangle(20, 20, 0, 0),
                     assetInfo: {
@@ -73,38 +66,13 @@ class SoundTest extends Game {
                 this.base.addChild(this.pauseButton);
             }
         });
-        
-        // this.songNode = new GameNode.Asset({
-        //     coordinates2d: ShapeUtils.rectangle(20, 20, 0, 0),
-        //     assetInfo: {
-        //         'song': {
-        //             'pos': Object.assign({}, { x: 0, y: 0 }),
-        //             'size': Object.assign({}, { x: 0, y: 0 })
-        //         }
-        //     }
-        // });
-
-        // this.pauseButton = new GameNode.Asset({
-        //     coordinates2d: ShapeUtils.rectangle(20, 20, 20, 20),
-        //     assetInfo: {
-        //         'image': {
-        //             'pos': Object.assign({}, { x: 20, y: 20 }),
-        //             'size': Object.assign({}, { x: 20, y: 20 })
-        //         }
-        //     }
-        // });
 
         this.base.addChild(this.playButton);
     }
-    // TODO: fix this one
 
     handlePlayerUpdate(playerId, newData) {
         if (this.pauseButton.node.children.length > 0) {
             const diff = (new Date() - this.songPlayedAt) / 1000;
-            console.log('its been ' + diff + ' since i started playing'); 
-            // this.startTime = this.startTime + diff;
-            // console.log('new start time ' + this.startTime);
-            // console.log(this.pauseButton.node.children[0]);
             this.pauseButton.node.children[0].node.asset.song.startTime = diff;
         }
     }
@@ -122,9 +90,6 @@ class SoundTest extends Game {
         };
     }
     
-    // getRoot() {
-    //     return this.base;
-    // }
 }
 
 module.exports = SoundTest;

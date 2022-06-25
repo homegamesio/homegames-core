@@ -60,7 +60,6 @@ class DeviceTest extends Game {
             aspectRatio: (player, x) => {
             },
             deviceType: (playerId, type) => {
-                console.log('player is using ' + type);
                 if (type === 'desktop') {
                     const playerNode = new GameNode.Shape({
                         shapeType: Shapes.POLYGON,

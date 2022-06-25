@@ -243,9 +243,6 @@ class Clicktionary extends Game {
             playerIds: [currentPlayer.id]
         });
 
-        console.log('currentPlayer');
-        console.log(currentPlayer);
-        console.log(this.players);
         doneButton.addChild(doneText);
 
         clearButton.addChild(doneButton);

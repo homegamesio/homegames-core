@@ -1,6 +1,5 @@
 const GameSession = require('./GameSession');
 const { socketServer } = require('./util/socket');
-const logger = require('./logger');
 
 const process = require('process');
 
@@ -15,22 +14,16 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require('homegames-common');
+const { log, getConfigValue } = require('homegames-common');
 
-const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
-const CERT_PATH = getConfigValue('HG_CERT_PATH', `${process.cwd()}/.hg_certs`);
-
-const AUTH_DIR = getConfigValue('HG_AUTH_DIR', `${process.cwd()}/.hg_auth`);
 const sendProcessMessage = (msg) => {
     process.send(JSON.stringify(msg));
 };
 
-const { guaranteeCerts, getLoginInfo, promptLogin, login, storeTokens, verifyAccessToken } = require('homegames-common');
-
 const startServer = (sessionInfo) => {
     let gameInstance;
 
-    logger.info('Starting server with this info', sessionInfo);
+    log.info('Starting server with this info', sessionInfo);
 
     if (sessionInfo.gamePath) {
         const _gameClass = require(sessionInfo.gamePath);
@@ -42,31 +35,17 @@ const startServer = (sessionInfo) => {
 
     gameSession = new GameSession(gameInstance, sessionInfo.port);
 
-    if (HTTPS_ENABLED) {
-        gameSession.initialize(() => {
-            socketServer(gameSession, sessionInfo.port, () => {
-                sendProcessMessage({
-                    'success': true
-                });
-            }, {
-                certPath: `${CERT_PATH}/fullchain.pem`,
-                keyPath: `${CERT_PATH}/privkey.pem`
-                    
+    gameSession.initialize(() => {
+        socketServer(gameSession, sessionInfo.port, () => {
+            sendProcessMessage({
+                'success': true
             });
         });
-    } else {
-        gameSession.initialize(() => {
-            socketServer(gameSession, sessionInfo.port, () => {
-                sendProcessMessage({
-                    'success': true
-                });
-            });
-        });
-    }
+    });
+
 };
 
 process.on('message', (msg) => {
-
     lastMessage = new Date();
     const message = JSON.parse(msg);
     if (message.key) {
@@ -84,13 +63,12 @@ process.on('message', (msg) => {
 });
 
 process.on('error', (err) => {
-    console.log('error happened');
-    console.log(err);
+    log.error('error happened', err);
 });
 
 const checkPulse = () => {
     if (!gameSession || (Object.values(gameSession.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 5000) {
-        console.log('discontinuing myself');
+        log.info('discontinuing myself');
         process.exit(0);
     }
 };

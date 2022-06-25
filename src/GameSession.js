@@ -218,7 +218,7 @@ class GameSession {
                 
             }
         } else {
-            console.log('Unknown input type: ' + input.type);
+            log.info('Unknown input type: ', input.type);
         }
     }
 

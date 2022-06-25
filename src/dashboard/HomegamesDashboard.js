@@ -2,6 +2,7 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
+
 const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0754');
 
 const squishMap = require('../common/squish-map');
@@ -42,13 +43,6 @@ const getServerPort = () => {
         if (!sessions[p]) {
             return Number(p);
         }
-    }
-};
-
-const findLocalGames = (_path = '') => {
-    const path = _path || config.GAME;
-    if (!path) {
-
     }
 };
 
@@ -324,9 +318,7 @@ class HomegamesDashboard extends ViewableGame {
 
         this.getViewRoot().addChild(this.playerRootNode);
         
-        console.log('whjhwwewhhnfsd');
         this.setInterval(() => {
-            console.log('dsfdsf');
             for (const i in this.sessions) {
                 this.sessions[i].sendHeartbeat && this.sessions[i].sendHeartbeat();
             }
@@ -372,8 +364,7 @@ class HomegamesDashboard extends ViewableGame {
             childSession.on('error', (err) => {
                 this.sessions[sessionId] = {};
                 childSession.kill();
-                console.log('child session error');
-                console.log(err);
+                log.error('child session error', err);
             });
             
             childSession.on('close', (err) => {

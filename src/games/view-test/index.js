@@ -38,7 +38,7 @@ class ViewTest extends ViewableGame {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(100, 100, 25, 25),
             fill: COLORS.BLUE,
-            onClick: () => {console.log('clicked a blue guy');}
+            onClick: () => {}
         });
 
         whiteBase.addChildren(redSquare, blueSquare);

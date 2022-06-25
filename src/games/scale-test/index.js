@@ -34,7 +34,6 @@ class ScaleTest extends Game {
 
         this.testAsset = new GameNode.Asset({
             onClick: (player, x, y) => {
-                console.log('clicked that thang');
             },
             coordinates2d: ShapeUtils.rectangle(20, 60, 60, 20),
             assetInfo: {

@@ -8,7 +8,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require('homegames-common');
+const { getConfigValue, log } = require('homegames-common');
 
 let id = 0;
 
@@ -37,8 +37,7 @@ class Player {
                     this.handlePlayerInput(input);
                 }
             } catch (err) {
-                console.log('nope');
-                console.log(err);
+                log.error('client ws error', err);
                 this.handlePlayerInput(input);
             }
         });
@@ -51,8 +50,6 @@ class Player {
         }
         
         for (const listener of this.inputListeners) {
-            // console.log("PLAYER INDF");
-            // console.log(data);
             listener.handlePlayerInput(this, data);
         }
     }

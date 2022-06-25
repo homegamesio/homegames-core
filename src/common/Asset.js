@@ -15,8 +15,6 @@ if (baseDir.endsWith('/src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-console.log('aaaaa');
-
 const { getConfigValue } = require('homegames-common');
 
 const HG_ASSET_PATH = getConfigValue('HG_ASSET_PATH', `${process.cwd()}/.asset_cache`);
