@@ -203,12 +203,12 @@ const getGameMap = () => {
                     description: gameMetadata.description || 'No description available'
                 },
                 versions: {
-                    0: {
+                    'local-game-version': {
                         gameId: gameClass.name,
                         class: gameClass,
                         metadata: {...gameMetadata },
                         gamePath,
-                        versionId: 0,
+                        versionId: 'local-game-version',
                         version: 0,
                         isReviewed: true
                     }
@@ -407,11 +407,11 @@ class HomegamesDashboard extends ViewableGame {
         const playerRoot = this.playerRoots[playerId].node;
 
 
-        const isSourceGame = this.localGames[gameId] && this.localGames[gameId].versions[0] ? true : false;
+        const isSourceGame = this.localGames[gameId] && this.localGames[gameId].versions['local-game-version'] ? true : false;
 
         const wat = (game, gameVersion, versions = []) => {
                     const activeSessions = Object.values(this.sessions).filter(session => {
-                        return session.game === gameVersion.gameId && Number(session.versionId) === Number(gameVersion.versionId);
+                        return session.game === gameVersion.gameId && session.versionId === gameVersion.versionId;
                     });
 
                     const versionList = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions) : [];
@@ -465,7 +465,7 @@ class HomegamesDashboard extends ViewableGame {
 
             }
         if (isSourceGame) {
-            wat(this.localGames[gameId].metadata.game, this.localGames[gameId].versions[0]);
+            wat(this.localGames[gameId].metadata.game, this.localGames[gameId].versions['local-game-version']);
         } else {
             networkHelper.getGameDetails(gameId).then(gameDetails => {
                 if (versionId) {

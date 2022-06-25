@@ -403,6 +403,7 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
 
         };
 
+
         const sessionsPage = activeSessions.slice(currentPage * pageSize, (currentPage * pageSize) + pageSize);
         renderPage(sessionsPage);
     } else {
@@ -456,7 +457,7 @@ const gameModal = ({
     const join = joinSection({ gameKey, activeSessions, onJoinSession });
     modal.addChildren(close, info, create, join);
 
-    if (versionId !== 0) {   
+    if (versionId !== 'local-game-version') {   
         const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions });
         modal.addChild(selector);
     }
