@@ -5,4 +5,4 @@ local
 .hg_certs
 hg-games
 config.json
-
+homegames_log.txt
