@@ -303,20 +303,26 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
                     onClick: () => onJoinSession(pageContent[i])
                 });
 
-                const optionText = new GameNode.Text({
-                    textInfo: {
-                        x: 61,
-                        y: startingY + (10 * i) + 3,
-                        align: 'left',
-                        size: 1,
-                        color: COLORS.HG_BLACK,
-                        text: `Session ${pageContent[i].id} - ${pageContent[i].players.length} players`
-                    }
+                const sessionPlayerCount = activeSessions.filter(s => s.id === pageContent[i].id).length;
+
+                pageContent[i].getPlayers(players => {
+
+                    const optionText = new GameNode.Text({
+                        textInfo: {
+                            x: 61,
+                            y: startingY + (10 * i) + 3,
+                            align: 'left',
+                            size: 1,
+                            color: COLORS.HG_BLACK,
+                            text: `Session ${pageContent[i].id} - ${players.length} players`
+                        }
+                    });
+
+                    optionWrapper.addChildren(optionText);
+
+                    pageContainer.addChildren(optionWrapper);
+
                 });
-
-                optionWrapper.addChildren(optionText);
-
-                pageContainer.addChildren(optionWrapper);
             }
 
             if (currentPage > 0) {
