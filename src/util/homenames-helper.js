@@ -73,7 +73,7 @@ class HomenamesHelper {
     getPlayerInfo(playerId) {
         return new Promise((resolve, reject) => {
             makeGet(`/info/${playerId}`).then(resolve).catch(err => {
-                console.log(err);
+                log.error('homenames helper info error', err);
             });
         });
     }
@@ -87,7 +87,7 @@ class HomenamesHelper {
     getPlayerSettings(playerId) {
         return new Promise((resolve, reject) => {
             makeGet(`/settings/${playerId}`).then(resolve).catch(err => {
-                console.log(err);
+                log.error('homenames helper settings error', err);
             });
         });
     }
