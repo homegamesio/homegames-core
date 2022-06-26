@@ -15,17 +15,18 @@ class InputTest extends Game {
             thumbnail: 'c6d38aca68fed708d08d284a5d201a0a'
         };
     }
-    // TODO: fix this one
 
-    constructor() {
+    constructor({ addAsset }) {
         super();
+        this.addAsset = addAsset;
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON, 
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             fill: COLORS.CREAM
         });
 
-        this.assets = {};
+        this.assets = {
+        };
 
         this.textNode = new GameNode.Text({
             textInfo: {
@@ -70,39 +71,33 @@ class InputTest extends Game {
             input: {
                 type: 'file',
                 oninput: (player, data) => {
-                    const imageKey = 'image' + imageNum;
-                    this.assets[imageKey] = new Asset('data', {type: 'image'}, Buffer.from(data));
+                    const imageKey = 'image' + (++imageNum);
+                    
+                    this.assets[imageKey] = new Asset({
+                        id: imageKey,
+                        type: 'image'
+                    }, data);
 
-                    // HACK
-                    this.session.squisher.initialize().then(() => {
-                        Object.values(this.players).forEach(player => {
-                            player.receiveUpdate(this.session.squisher.assetBundle);
-                        });
-                        _that.setTimeout(() => {
-                            if (image) {
-                                this.base.removeChild(image.id);
-                            }
-                            image = new GameNode.Asset({
-                                shapeType: ShapeUtils.rectangle(40, 40, 30, 30),
-                                assetInfo: {
-                                    [imageKey]: {
-                                        pos: {
-                                            x: 40,
-                                            y: 40
-                                        },
-                                        size: {
-                                            x: 30,
-                                            y: 30
-                                        }
+                    this.addAsset(imageKey, this.assets[imageKey]).then(() => {
+                        if (image) {
+                            this.base.removeChild(image.id);
+                        }
+                        image = new GameNode.Asset({
+                            assetInfo: {
+                                [imageKey]: {
+                                    pos: {
+                                        x: 60,
+                                        y: 40
+                                    },
+                                    size: {
+                                        x: 30,
+                                        y: 30
                                     }
                                 }
-                            });
-                            this.base.addChild(image);
-                        }, 500);
-                
+                            }
+                        });
+                        this.base.addChild(image);
                     });
-
-                    imageNum++;
                 }
             }
         });
@@ -115,10 +110,6 @@ class InputTest extends Game {
     isText(key) {
         return key.length == 1 && (key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z') || key === ' ' || key === 'Backspace';
     }
-
-    // getRoot() {
-    //     return this.base;
-    // }
     
     getLayers() {
         return [{root: this.base}];

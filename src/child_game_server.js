@@ -1,5 +1,6 @@
 const GameSession = require('./GameSession');
 const { socketServer } = require('./util/socket');
+const Asset = require('./common/Asset');
 
 const process = require('process');
 
@@ -25,12 +26,17 @@ const startServer = (sessionInfo) => {
 
     log.info('Starting server with this info', sessionInfo);
 
+
+    const addAsset = (key, asset) => new Promise((resolve, reject) => {
+        gameSession.handleNewAsset(key, asset).then(resolve).catch(reject);
+    });
+
     if (sessionInfo.gamePath) {
         const _gameClass = require(sessionInfo.gamePath);
 
-        gameInstance = new _gameClass();
+        gameInstance = new _gameClass({ addAsset });
     } else {
-        gameInstance = new games[sessionInfo.key]();
+        gameInstance = new games[sessionInfo.key]({ addAsset });
     }
 
     gameSession = new GameSession(gameInstance, sessionInfo.port);

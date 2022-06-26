@@ -56,8 +56,11 @@ const downloadFile = (assetId, path) => new Promise((resolve, reject) => {
 });
 
 class Asset {
-    constructor(info) {
+    constructor(info, data = null) {
         this.info = info;
+        if (data) {
+            this.data = data;
+        }
     }
 
     getFileLocation() {
@@ -72,6 +75,9 @@ class Asset {
     
     existsLocally() {
         return new Promise((resolve, reject) => {
+            if (this.data) {
+                resolve(true);
+            }
             const fileLocation = this.getFileLocation(this.info.id);
             fs.exists(fileLocation, (exists) => {
                 resolve(exists && fileLocation);
@@ -111,15 +117,22 @@ class Asset {
 
     getData() {
         return new Promise((resolve, reject) => {
-            this.download().then(fileLocation => {
-                fs.readFile(fileLocation, (err, buf) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(buf);
-                    }
+            if (this.data) {
+                console.log('resolviog with this data');
+                console.log(this.data);
+                resolve(this.data);
+            } else {
+                this.download().then(fileLocation => {
+                    fs.readFile(fileLocation, (err, buf) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            console.log('downloaded from ' + fileLocation);
+                            resolve(buf);
+                        }
+                    });
                 });
-            });
+            }
         }); 
     }
     
