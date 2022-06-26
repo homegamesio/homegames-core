@@ -142,7 +142,6 @@ class SpriteTest extends Game {
         this.background.removeChild(this.dancers[playerId].id);
         delete this.dancers[playerId];
     }
-
     
     getLayers() {
         return [{root: this.background}];

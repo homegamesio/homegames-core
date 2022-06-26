@@ -118,8 +118,6 @@ class Asset {
     getData() {
         return new Promise((resolve, reject) => {
             if (this.data) {
-                console.log('resolviog with this data');
-                console.log(this.data);
                 resolve(this.data);
             } else {
                 this.download().then(fileLocation => {
@@ -127,7 +125,6 @@ class Asset {
                         if (err) {
                             reject(err);
                         } else {
-                            console.log('downloaded from ' + fileLocation);
                             resolve(buf);
                         }
                     });
