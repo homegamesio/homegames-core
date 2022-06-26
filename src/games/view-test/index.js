@@ -7,7 +7,8 @@ class ViewTest extends ViewableGame {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            author: 'Joseph Garcia'
+            author: 'Joseph Garcia',
+            squishVersion: '0750'
         };
     }
 
