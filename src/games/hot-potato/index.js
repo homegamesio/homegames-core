@@ -8,9 +8,9 @@ class HotPotato extends Game {
             aspectRatio: {x: 1, y: 1},
             squishVersion: '0755',
             author: 'Joseph Garcia',
-            description: 'Click or tap the potato when you have the potato.',
-            name: 'Hot Potato'
-            // thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96'
+            description: 'Click or tap the potato when you have the potato. Make sure you have sound turned on.',
+            name: 'Hot Potato',
+            thumbnail: 'adfd7a7b28e1e4e5b6ae3dc0b07a5784'
         };
     }
 
@@ -23,6 +23,7 @@ class HotPotato extends Game {
         });
 
         this.players = {};
+        this.soundTimestamp = null;
     }
 
     updateMessage() {
@@ -53,10 +54,9 @@ class HotPotato extends Game {
     }
 
     explode() {
-        console.log('need to remove potato, show exploded potato, play explosion audio');
         if (this.potato) {
             this.base.removeChild(this.potato.id);
-            const deadPotato = new GameNode.Asset({
+            this.deadPotato = new GameNode.Asset({
                 coordinates2d: ShapeUtils.rectangle(25, 25, 50, 50),
                 assetInfo: {
                     'potato-dead': {
@@ -66,11 +66,28 @@ class HotPotato extends Game {
                 },
                 playerIds: this.potato.node.playerIds
             });
+            
+            this.deadPotatoSound = new GameNode.Asset({
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                assetInfo: {
+                    'potato-bleh': {
+                        pos: {x: 0, y: 0},
+                        size: {x: 0, y: 0},
+                        startTime: 0
+                    }
+                },
+                playerIds: this.potato.node.playerIds
+            });
+            
+            this.base.addChildren(this.deadPotato, this.deadPotatoSound);
 
-            this.base.addChild(deadPotato);
-
+            setTimeout(() => {
+                this.base.removeChild(this.deadPotatoSound.id);
+            }, 250);
             this.setTimeout(() => {
-                this.base.removeChild(deadPotato.id);
+                if (this.deadPotato) {
+                    this.base.removeChild(this.deadPotato.id);
+                }
                 this.createPotato();
             }, 3 * 1000);
         }
@@ -102,13 +119,26 @@ class HotPotato extends Game {
             },
             playerIds: [assignedPlayerId || this.randomPlayerId()]
         });
+        
+        this.songPlayedAt = Date.now();
+        this.soundTimestamp = 0;
+        this.potatoSound = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            assetInfo: {
+                'hiss': {
+                    pos: {x: 0, y: 0},
+                    size: {x: 0, y: 0},
+                    startTime: this.soundTimestamp
+                }
+            }
+        });
 
-        this.potato.addChild(potatoOverlay);
+        this.potato.addChildren(potatoOverlay, this.potatoSound);
 
         // this.potato.addChild(potatoAsset);
 
-        // at least 5 seconds, possibly up to 30
-        const randomEndSeconds = 5 + (Math.floor(Math.random() * 25));
+        // at least 5 seconds, possibly up to 20
+        const randomEndSeconds = 5 + (Math.floor(Math.random() * 15));
 
         this.setTimeout(() => {
             this.explode();
@@ -118,12 +148,33 @@ class HotPotato extends Game {
     }
 
     updatePotatoState(assignedPlayerId) {
+        if (this.deadPotato) {
+            // this.base.clearChildren(this.deadPotato.id);
+            // this.deadPotato = null;
+        }
+
         if (Object.keys(this.players).length > 1 && !this.potato) {
             this.createPotato();
         } else if (this.potato && Object.keys(this.players).length < 2) {
             this.base.removeChild(this.potato.id);
             this.potato = null;
         } else if (assignedPlayerId && this.potato) {
+            const now = Date.now();
+            this.soundTimestamp = this.soundTimestamp + ((now - this.songPlayedAt) / 1000);
+            this.potato.removeChild(this.potatoSound.id);
+            this.potatoSound = new GameNode.Asset({
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                assetInfo: {
+                    'hiss': {
+                        pos: {x: 0, y: 0},
+                        size: {x: 0, y: 0},
+                        startTime: this.soundTimestamp//(now - this.songPlayedAt) / 1000
+                    }
+                }
+            });
+            this.songPlayedAt = now;
+            this.potato.addChild(this.potatoSound);
+
             this.potato.node.playerIds = [assignedPlayerId];
         }
     }
@@ -161,6 +212,15 @@ class HotPotato extends Game {
                 id: '5fc598f08a887c8cd437bb3d9cdca197',
                 type: 'image'
             }),
+            'hiss': new Asset({
+                'id': '9de51f059a02e37356da0faefcabe643',
+                'type': 'audio'
+            }),
+            'potato-bleh': new Asset({
+                'id': '600513b2cbd50c1f8c465b3098c22c56',
+                'type': 'audio'
+            }),
+            
         }
     }
 }
