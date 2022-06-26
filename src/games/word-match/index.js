@@ -49,34 +49,34 @@ class WordMatch extends Game {
         this.base.clearChildren([this.savedNodeRoot.id, this.playerList.id]);
     }
 
-//    tick() {
-//        const playerCount = Object.keys(this.players).length;
-//        if (playerCount > 1 && !this.newGameButton && !this.gameInProgress) {
-//            this.newGameButton.size = {x: 20, y: 20};
-//            this.newGameButton.text = {text: 'New Game', x: 50, y: 50};
-//            this.playerRequirement.text = null;
-//        } else if (playerCount < 2 && !this.playerRequirement) {
-//            this.gameInProgress = false;
-//            // this.newGameButton = new GameNode.Shape({
-//            //     shapeType: Shapes.POLYGON,
-//            //     coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
-//            //     fill: COLORS.HG_GREEN
-//            // });
-//            console.log('wat');
-//            // console.log(this.savedNodeRoot);
-//            // console.log(this.newGameButton);
-//            // this.savedNodeRoot.addChild(this.newGameButton);
-//            //this.newGameButton.size = {x: 0, y: 0};
-//            //tis.newGameButton.text = null;
-//            //this.playerRequirement.text = {x: 50, y: 50, text: 'At least two players required'};
-//            //this.clearTable();
-//        } else if (this.gameInProgress && !this.results) {
-//            const notReadyPlayers = Object.values(this.playerReadyButtons).filter(s => !s.ready);
-//            if (notReadyPlayers.length < 1) {
-//                this.showResults();
-//            }
-//        }
-//    }
+   tick() {
+       const playerCount = Object.keys(this.players).length;
+       if (playerCount > 1 && !this.newGameButton && !this.gameInProgress) {
+           this.newGameButton.size = {x: 20, y: 20};
+           this.newGameButton.text = {text: 'New Game', x: 50, y: 50};
+           // this.playerRequirement.text = null;
+       } else if (playerCount < 2 && !this.playerRequirement) {
+           this.gameInProgress = false;
+           this.newGameButton = new GameNode.Shape({
+               shapeType: Shapes.POLYGON,
+               coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
+               fill: COLORS.HG_GREEN
+           });
+           // console.log('wat');
+           // console.log(this.savedNodeRoot);
+           // console.log(this.newGameButton);
+           // this.savedNodeRoot.addChild(this.newGameButton);
+           this.newGameButton.size = {x: 0, y: 0};
+           this.newGameButton.text = null;
+           // this.playerRequirement.node.text = {x: 50, y: 50, text: 'At least two players required'};
+           this.clearTable();
+       } else if (this.gameInProgress && !this.results) {
+           const notReadyPlayers = Object.values(this.playerReadyButtons).filter(s => !s.ready);
+           if (notReadyPlayers.length < 1) {
+               this.showResults();
+           }
+       }
+   }
 
     finishRound() {
         const newPlayerIndices = new Array();
@@ -358,7 +358,7 @@ class WordMatch extends Game {
                 console.log('need to show play button');
                 this.playButton = new GameNode.Shape({
                     shapeType: Shapes.POLYGON,
-                    fill: COLORS.BLACK,
+                    fill: COLORS.HG_GREEN,
                     coordinates2d: ShapeUtils.rectangle(30, 30, 40, 40),
                     onClick: () => {
                         this.newGame();
