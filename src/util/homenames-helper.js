@@ -92,6 +92,14 @@ class HomenamesHelper {
         });
     }
 
+    getClientInfo(playerId) {
+        return new Promise((resolve, reject) => {
+            makeGet(`/client_info/${playerId}`).then(resolve).catch(err => {
+                log.error('homenames helper client info error', err);
+            });
+        });
+    }
+
     updatePlayerInfo(playerId, { playerName }) {
         return new Promise((resolve, reject) => {
             makePost('/' + playerId + '/info', { name: playerName }).then(resolve);
@@ -101,6 +109,12 @@ class HomenamesHelper {
     updatePlayerSetting(playerId, settingKey, value) {
         return new Promise((resolve, reject) => {
             makePost('/' + playerId + '/settings', {[settingKey]: value}).then(resolve);
+        });
+    }
+
+    updateClientInfo(playerId, clientInfo) {
+        return new Promise((resolve, reject) => {
+            makePost('/' + playerId + '/client_info', clientInfo).then(resolve);
         });
     }
 }

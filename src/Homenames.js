@@ -19,6 +19,7 @@ class Homenames {
         this.playerSettings = {};
         this.sessionClients = {};
         this.playerListeners = {};
+        this.clientInfo = {};
 
         const server = http.createServer((req, res) => {
             const reqPath = req.url.split('/');
@@ -36,6 +37,14 @@ class Homenames {
                     let payload = {};
                     if (this.playerSettings[playerId]) {
                         payload = this.playerSettings[playerId];
+                    } 
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(payload));
+                } else if (reqPath[reqPath.length - 2] === 'client_info') {
+                    let payload = {};
+                    if (this.clientInfo[playerId]) {
+                        payload = this.clientInfo[playerId];
                     } 
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
@@ -72,6 +81,22 @@ class Homenames {
                         res.statusCode = 200;
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify(this.playerSettings[playerId]));
+                        this.notifyListeners(playerId);
+                    });
+                } else if (reqPath[reqPath.length - 1] === 'client_info') {
+                    let body = '';
+                    req.on('data', chunk => {
+                        body += chunk.toString(); 
+                    });
+
+                    req.on('end', () => {
+                        const payload = JSON.parse(body);
+                        const newClientInfo = this.clientInfo[playerId] || {};
+                        Object.assign(newClientInfo, payload);
+                        this.clientInfo[playerId] = newClientInfo;
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(this.clientInfo[playerId]));
                         this.notifyListeners(playerId);
                     });
                 } else if (reqPath[reqPath.length - 1] === 'add_listener') {

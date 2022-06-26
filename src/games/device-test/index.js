@@ -29,7 +29,7 @@ class DeviceTest extends Game {
         });
     }
 
-    handleNewPlayer({ playerId }) {
+    handleNewPlayer({ playerId, clientInfo }) {
         const playerRootNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: [
@@ -48,6 +48,7 @@ class DeviceTest extends Game {
             screen: 0,
             root: playerRootNode
         };
+        this.deviceRules(playerId, clientInfo);
     }
 
     handlePlayerDisconnect(playerId) {
@@ -55,11 +56,11 @@ class DeviceTest extends Game {
         this.base.removeChild(playerRoot.node.id);
     }
     
-    deviceRules() {
-        return {
+    deviceRules(playerId, clientInfo) {
+        const funcMap = {
             aspectRatio: (player, x) => {
             },
-            deviceType: (playerId, type) => {
+            deviceType: (type) => {
                 if (type === 'desktop') {
                     const playerNode = new GameNode.Shape({
                         shapeType: Shapes.POLYGON,
@@ -102,6 +103,8 @@ class DeviceTest extends Game {
                 } 
             }
         };
+
+        funcMap.deviceType(clientInfo.deviceType);
     }
 
     getLayers() {
