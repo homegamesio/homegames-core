@@ -232,7 +232,9 @@ class GameSession {
 
     movePlayer({ playerId, port }) {
         const player = this.players[playerId];
-        player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+        if (player) {
+            player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+        }
     }
 
     handleClick(player, click) {
