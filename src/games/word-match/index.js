@@ -8,6 +8,10 @@ class WordMatch extends Game {
         return {
             author: 'Joseph Garcia',
             squishVersion: '0754',
+            aspectRatio: {
+                x: 16,
+                y: 9
+            },
             description: "Match the same word as the other player. Desktop keyboard input required."
         };
     }
