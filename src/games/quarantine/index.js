@@ -343,22 +343,6 @@ class Quarantine extends Game {
         this.base.addChild(cardTwoPlayerTwo);
     }
 
-    // handleNewPlayer(player) {
-    //     // const playerName = new GameNode.Text({
-    //     //     textInfo: {
-    //     //         text: player.info.name,
-    //     //         x: 1,
-    //     //         y: 4,
-    //     //         size: 2,
-    //     //         align: 'center',
-    //     //         color: COLORS.BLACK
-    //     //     }, 
-    //     //     playerIds: [player.id]
-    //     // });
-
-    //     // this.excludedNodeRoot.addChild(playerName);
-    // }
-
     tick() {
         if (Object.keys(this.players).length == 2 && !this.activeGame) {
             this.activeGame = true;

@@ -8,7 +8,9 @@ class Slaps extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0750',
             author: 'Joseph Garcia',
-            thumbnail: 'e9d61bd0a3ab307dfe077e363b24e64a'
+            thumbnail: 'e9d61bd0a3ab307dfe077e363b24e64a',
+            name: 'Slaps - Reslapstered',
+            description: 'One of the first homegames "games" ever made. Players draw cards and whoever draws a higer value wins.'
         };
     }
 
@@ -18,8 +20,7 @@ class Slaps extends Game {
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: COLORS.EMERALD,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            onClick: this.handleBackgroundClick.bind(this)
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
         });
 
         this.infoNodeRoot = new GameNode.Shape({
@@ -29,11 +30,6 @@ class Slaps extends Game {
         });
         this.base.addChild(this.infoNodeRoot);
         this.infoNodes = {};
-    }
-
-    handleBackgroundClick() {
-
-        this.clearTable();
     }
 
     initializeCards() {
@@ -53,8 +49,8 @@ class Slaps extends Game {
             this.clearTable();
             this.playerRequirementNode = new GameNode.Text({
                 textInfo: {
-                    'text': 'Need at least 2 players', 
-                    x: 45, 
+                    'text': '2 players required', 
+                    x: 50, 
                     y: 5,
                     size: 3,
                     align: 'center',
@@ -114,21 +110,32 @@ class Slaps extends Game {
             const cardNode = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 fill: COLORS.WHITE,
-                coordinates2d: ShapeUtils.rectangle((index * 16) + 20, 35, 15, 15)
+                coordinates2d: ShapeUtils.rectangle((index * 48) + 17.5, 35, 20, 15)
             });
 
             const cardText = new GameNode.Text({
                 textInfo: {
                     text: this.hands[i].toString(), 
-                    x: (index * 16) + 26, 
-                    y: 35,
-                    size: 1,
+                    x: (index * 48) + 27.5, 
+                    y: 40,
+                    size: 1.4,
                     align: 'center',
                     color: COLORS.BLACK
                 }
             }); 
 
-            cardNode.addChild(cardText);
+            const nameNode = new GameNode.Text({
+                textInfo: {
+                    text: this.players[i].info.name,
+                    x: (index * 48) + 27.5,
+                    y: 52,
+                    color: COLORS.WHITE,
+                    align: 'center',
+                    size: 1.4
+                }
+            });
+
+            cardNode.addChildren(cardText, nameNode);
 
             this.base.addChild(cardNode);
             index += 1;
@@ -139,7 +146,7 @@ class Slaps extends Game {
                 text: winner.info.name + ' wins!', 
                 x: 50, 
                 y: 10,
-                size: 1,
+                size: 2,
                 align: 'center',
                 color: COLORS.BLACK
             }
@@ -147,101 +154,45 @@ class Slaps extends Game {
 
         this.base.addChild(winnerNotification);
 
-        if (this.canStartNewGame) {
-            const newGameNode = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                fill: COLORS.GREEN,
-                coordinates2d: ShapeUtils.rectangle(80, 5, 15, 15),
-                onClick: () => {
-                    this.base.clearChildren();
-                    this.setTimeout(this.newGame.bind(this), 500);
-                }
-            });
-
-            const newGameText = new GameNode.Text({
-                textInfo: {
-                    text: 'New Game',
-                    x: 88,
-                    y: 10.5,
-                    align: 'center',
-                    size: 2,
-                    color: COLORS.BLACK
-                }
-            });
-
-            this.base.addChild(newGameNode);
-        }
-
-    }
-
-    handleNewPlayer({ playerId, info, settings }) {
-        this.updatePlayerCount();
-        const infoNode = new GameNode.Text({
-            textInfo: {
-                text: info.name, 
-                x: 80, 
-                y: 5,
-                size: 3,
-                align: 'center',
-                color: COLORS.BLACK
-            }, 
-            playerIds: [playerId]
+        const newGameNode = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: COLORS.GREEN,
+            coordinates2d: ShapeUtils.rectangle(40, 70, 20, 15),
+            onClick: () => {
+                this.base.clearChildren();
+                this.setTimeout(this.newGame.bind(this), 500);
+            }
         });
 
-        this.infoNodes[playerId] = infoNode;
-        this.infoNodeRoot.addChild(infoNode);
-
-        this.clearTable();
-    }
-
-    updatePlayerCount() {
-        let playerYIndex = 0;
-        const playerNodes = Object.values(this.players).map(player => {
-            const yIndex = ++playerYIndex * 10;
-            return new GameNode.Text({
-                textInfo: {
-                    text: this.players[player.id].info.name, 
-                    x: 15, 
-                    y: yIndex,
-                    size: 2,
-                    align: 'center',
-                    color: COLORS.BLACK
-                }
-            });
-        });
-
-        const playerInfoPanel = new GameNode.Text({
+        const newGameText = new GameNode.Text({
             textInfo: {
-                text: 'Players', 
-                x: 15, 
-                y: 5,
-                size: 3,
+                text: 'New Game',
+                x: 50,
+                y: 75,
                 align: 'center',
+                size: 1.8,
                 color: COLORS.BLACK
             }
         });
 
-        playerNodes.forEach(player => {
-            playerInfoPanel.addChild(player);
-        });
+        newGameNode.addChild(newGameText);
 
-        if (!this.playerInfoPanel) {
-            this.playerInfoPanel = playerInfoPanel;
-            this.base.addChild(this.playerInfoPanel);
-        } else {
-            this.base.removeChild(this.playerInfoPanel.id);
-            this.playerInfoPanel = playerInfoPanel;
-            this.base.addChild(this.playerInfoPanel);
-        }
+        this.base.addChild(newGameNode);
+        
     }
 
-    handlePlayerDisconnect(player) {
-        if (this.infoNodes[player.id]) { 
-            this.infoNodeRoot.removeChild(this.infoNodes[player.id].id);
+    handleNewPlayer({ playerId, info, settings }) {
+        this.players[playerId] = { info, settings };
+
+        this.clearTable();
+    }
+
+    handlePlayerDisconnect(playerId) {
+        if (this.infoNodes[playerId]) { 
+            this.infoNodeRoot.removeChild(this.infoNodes[playerId].id);
         }
-        delete this.players[player.id];
-        delete this.infoNodes[player.id];
-        this.updatePlayerCount();
+        delete this.players[playerId];
+        delete this.infoNodes[playerId];
     }
     
     getLayers() {
