@@ -38,7 +38,8 @@ class HotPotato extends Game {
                     align: 'center'
                 }
             });
-
+            
+            this.base.clearChildren();
             this.base.addChild(this.messageText);
         } else if (this.messageText) {
             this.base.removeChild(this.messageText.id);
