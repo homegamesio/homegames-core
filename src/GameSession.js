@@ -257,6 +257,7 @@ class GameSession {
                 const scaledY = shiftedY * ( 1 / ((100 - BEZEL_SIZE_Y) / 100));
 
                 realNode.node.handleClick && realNode.node.handleClick(player.id, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                
             }
         }
     }
