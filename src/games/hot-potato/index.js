@@ -1,11 +1,11 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0754');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0755');
 const COLORS = Colors.COLORS;
 
 class HotPotato extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 1, y: 2},
-            squishVersion: '0754',
+            squishVersion: '0755',
             author: 'Joseph Garcia',
             // thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96'
         };
