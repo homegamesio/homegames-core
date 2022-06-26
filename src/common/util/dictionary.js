@@ -1,7 +1,6 @@
 const https = require('https');
 const path = require('path');
 const fs = require('fs');
-const { log } = require('homegames-common');
 
 const baseDir = path.dirname(require.main.filename);
 
@@ -20,11 +19,11 @@ for (let i = 0; i < options.length; i++) {
 }
 
 if (dictPath) {
-    log.info('Using dictionary file at ' + dictPath);
+    console.log('Using dictionary file at ' + dictPath);
     const dictionaryBytes = fs.readFileSync(dictPath);
     words = dictionaryBytes.toString().split('\n').filter(w => !!w);
 } else {
-    log.info('Missing dictionary.txt file. Using default dictionary');
+    console.log('Missing dictionary.txt file. Using default dictionary');
     words = ['hello', 'world'];
 }
 
