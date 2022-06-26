@@ -53,6 +53,12 @@ class HotPotato extends Game {
 
     explode() {
         console.log('need to remove potato, show exploded potato, play explosion audio');
+        if (this.potato) {
+            this.base.removeChild(this.potato.id);
+            this.setTimeout(() => {
+                this.createPotato();
+            }, 3 * 1000);
+        }
     }
 
     createPotato(assignedPlayerId) {
@@ -66,12 +72,18 @@ class HotPotato extends Game {
             fill: COLORS.RED,
             playerIds: [assignedPlayerId || this.randomPlayerId()],
             onClick: (playerId) => {
-                console.log('player clicked potato');
                 // exclude current player
                 const newPlayerId = this.randomPlayerId(this.potato.node.playerIds);
                 this.updatePotatoState(newPlayerId);
             }
         });
+
+        // at least 5 seconds, possibly up to 30
+        const randomEndSeconds = 5 + (Math.floor(Math.random() * 25));
+
+        this.setTimeout(() => {
+            this.explode();
+        }, randomEndSeconds * 1000);
 
         this.base.addChild(this.potato);
     }
