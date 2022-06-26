@@ -25,7 +25,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require('homegames-common');
+const { getConfigValue, log } = require('homegames-common');
 
 const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
 const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);

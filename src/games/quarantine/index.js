@@ -261,8 +261,8 @@ class Quarantine extends Game {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(5, 35, 40, 40),
             fill: COLORS.WHITE,
-            playerIds: [2],
-            onClick: (player, x, y) => {
+            playerIds: [this.playerList[1]],
+            onClick: (playerId, x, y) => {
                 this.answers[playerId] = 1;
                 cardOnePlayerTwo.node.handleClick = null;
                 cardTwoPlayerTwo.node.handleClick = null;
