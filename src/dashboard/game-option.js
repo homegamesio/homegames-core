@@ -2,15 +2,13 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0755');
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0756');
 
 const unzipper = require('unzipper');
 const fs = require('fs');
 const gameModal = require('./game-modal');
 
 const COLORS = Colors.COLORS;
-
-const Asset = require('../common/Asset');
 
 const { ExpiringSet, animations } = require('../common/util');
 

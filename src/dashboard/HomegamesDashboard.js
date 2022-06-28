@@ -3,7 +3,7 @@ const http = require('http');
 const https = require('https');
 const path = require('path');
 
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0755');
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0756');
 
 const squishMap = require('../common/squish-map');
 
@@ -12,8 +12,6 @@ const fs = require('fs');
 const gameModal = require('./game-modal');
 
 const COLORS = Colors.COLORS;
-
-const Asset = require('../common/Asset');
 
 const { ExpiringSet, animations } = require('../common/util');
 
@@ -250,7 +248,7 @@ class HomegamesDashboard extends ViewableGame {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '0755'
+            squishVersion: '0756'
         };
     }
 
@@ -261,6 +259,10 @@ class HomegamesDashboard extends ViewableGame {
 
         this.addAsset = addAsset;
 
+        console.log(Asset);
+        console.log('man what the fuck');
+        console.log(new Asset({ayy: 'lmao'}));
+        console.log('ayto jkds')
         this.assets = {
             'default': new Asset({
                 'id': 'ff745468e1b725445c65245ce044da21',
@@ -335,7 +337,7 @@ class HomegamesDashboard extends ViewableGame {
             const referencedGame = this.localGames[gameKey];
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
 
-            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0755';
+            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0756';
 
             const childSession = fork(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion] }});
 

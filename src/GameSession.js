@@ -1,4 +1,4 @@
-let { Squisher } = require('squish-0755');
+let { Squisher } = require('squish-0756');
 const { generateName } = require('./common/util');
 const squishMap = require('./common/squish-map');
 
@@ -21,6 +21,8 @@ const BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y;
 
 class GameSession {
     constructor(game, port) {
+        console.log('starting game setssinosfg');
+        console.log(game);
         this.game = game;
         this.port = port;
 
