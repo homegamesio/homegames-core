@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0755');
 const Deck = require('../../common/Deck');
 const COLORS = Colors.COLORS;
 
@@ -6,7 +6,7 @@ class Slaps extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0750',
+            squishVersion: '0755',
             author: 'Joseph Garcia',
             thumbnail: 'e9d61bd0a3ab307dfe077e363b24e64a',
             name: 'Slaps - Reslapstered',

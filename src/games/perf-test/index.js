@@ -1,10 +1,10 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0755');
 
 class PerfTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0750',
+            squishVersion: '0755',
             author: 'Joseph Garcia',
             thumbnail: '14966f35c53029f6e219369038fe1ebf'
         };

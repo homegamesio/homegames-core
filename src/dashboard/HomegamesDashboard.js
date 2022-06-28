@@ -335,7 +335,7 @@ class HomegamesDashboard extends ViewableGame {
             const referencedGame = this.localGames[gameKey];
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
 
-            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0750';
+            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0755';
 
             const childSession = fork(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion] }});
 

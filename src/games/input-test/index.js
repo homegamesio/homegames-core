@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0755');
 const { dictionary } = require('../../common/util');
 const fs = require('fs');
 const Asset = require('../../common/Asset');
@@ -9,7 +9,7 @@ class InputTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0750',
+            squishVersion: '0755',
             author: 'Joseph Garcia',
             name: 'Input Test',
             thumbnail: 'c6d38aca68fed708d08d284a5d201a0a'

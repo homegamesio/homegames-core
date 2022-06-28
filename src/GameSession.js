@@ -1,4 +1,4 @@
-let { Squisher } = require('squish-0750');
+let { Squisher } = require('squish-0755');
 const { generateName } = require('./common/util');
 const squishMap = require('./common/squish-map');
 
@@ -201,6 +201,8 @@ class GameSession {
     }
 
     handlePlayerInput(player, input) {
+        console.log('player input');
+        console.log(input);
         if (input.type === 'click') {
             this.handleClick(player, input.data);
         } else if (input.type === 'keydown') {

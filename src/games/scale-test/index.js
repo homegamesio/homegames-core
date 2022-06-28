@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0755');
 const Asset = require('../../common/Asset');
 const COLORS = Colors.COLORS;
 
@@ -6,7 +6,7 @@ class ScaleTest extends Game {
     static metadata() {
         return {
             name: 'Scale test',
-            squishVersion: '0750',
+            squishVersion: '0755',
             author: 'Joseph Garcia',
             aspectRatio: {x: 1, y: 2},
             assets: {
