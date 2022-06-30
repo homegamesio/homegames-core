@@ -139,7 +139,8 @@ class GameSession {
                             playerId: player.id, 
                             settings: this.playerSettingsMap[player.id], 
                             info: this.playerInfoMap[player.id],
-                            clientInfo
+                            clientInfo,
+                            requestedGame: player.requestedGame
                         };
 
                         const rootPayload = Object.assign({

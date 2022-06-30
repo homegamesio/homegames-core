@@ -475,7 +475,7 @@ class HomegamesDashboard extends ViewableGame {
                         wat(gameDetails, withMetadata, gameVersionsWithMetadata);
                     })
                 } else {
-                    const gameVersion = Object.values(gameDetails.versions)[0];
+                    const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
                     const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail }};
                     
                     const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
@@ -565,6 +565,7 @@ class HomegamesDashboard extends ViewableGame {
         this.renderGames(playerId, {});
 
         if (requestedGame) {
+
             const { gameId, versionId } = requestedGame;
 
             networkHelper.getGameDetails(gameId).then(gameDetails => {
