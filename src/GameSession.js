@@ -204,8 +204,6 @@ class GameSession {
     }
 
     handlePlayerInput(player, input) {
-        console.log('player input');
-        console.log(input);
         if (input.type === 'click') {
             this.handleClick(player, input.data);
         } else if (input.type === 'keydown') {

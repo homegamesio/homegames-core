@@ -66,7 +66,7 @@ const infoSection = ({ gameKey, gameMetadata}) => {
     const title = new GameNode.Text({
         textInfo: {
             x: 50, 
-            y: 40,
+            y: 36.5,
             align: 'center',
             color: COLORS.HG_BLACK,
             size: 2.5,
@@ -74,10 +74,21 @@ const infoSection = ({ gameKey, gameMetadata}) => {
         }
     });
 
+    const author = new GameNode.Text({
+        textInfo: {
+            x: 50, 
+            y: 43.5,
+            align: 'center',
+            color: COLORS.HG_BLACK,
+            size: 1.5,
+            text: `By ${gameMetadata?.author || 'Unknown author'}`
+        }
+    });
+
     const descriptionText = new GameNode.Text({
         textInfo: {
             x: 50, 
-            y: 50,
+            y: 50.5,
             align: 'center',
             color: COLORS.HG_BLACK,
             size: 1.2,
@@ -85,7 +96,7 @@ const infoSection = ({ gameKey, gameMetadata}) => {
         }
     });
 
-    infoContainer.addChildren(thumbnail, title, descriptionText);
+    infoContainer.addChildren(thumbnail, title, author, descriptionText);
 
     return infoContainer;
 };

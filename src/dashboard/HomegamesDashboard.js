@@ -198,7 +198,8 @@ const getGameMap = () => {
                 metadata: {
                     name: gameMetadata.name || gameClass.name,
                     thumbnail: gameMetadata.thumbnail,
-                    description: gameMetadata.description || 'No description available'
+                    description: gameMetadata.description || 'No description available',
+                    author: gameMetadata.createdBy || 'Unknown author'
                 },
                 versions: {
                     'local-game-version': {
@@ -468,7 +469,7 @@ class HomegamesDashboard extends ViewableGame {
             networkHelper.getGameDetails(gameId).then(gameDetails => {
                 if (versionId) {
                     networkHelper.getGameVersionDetails(gameId, versionId).then(gameVersion => {
-                        const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail }};
+                        const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail, author: gameDetails.createdBy }};
                         const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
                              return {...v, metadata: { version: v.version, description: v.description, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
                         });
@@ -476,7 +477,7 @@ class HomegamesDashboard extends ViewableGame {
                     })
                 } else {
                     const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
-                    const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail }};
+                    const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail, author: gameDetails.createdBy }};
                     
                     const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
                          return {...v, metadata: { description: v.description, version: v.version, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}

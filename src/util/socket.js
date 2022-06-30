@@ -147,6 +147,9 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         }
 
         ws.on('close', closeHandler);
+        ws.on('error', (err) => {
+            log.error('Child session error', err);
+        })
 
     });
 
