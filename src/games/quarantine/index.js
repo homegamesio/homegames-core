@@ -90,7 +90,6 @@ class Quarantine extends Game {
             }
         } else if (url) {
             this.questionAsset = new Asset({ type: 'json', id: 'a552a2b63d407d5debf17c938bbb2b01'});
-            console.log('akujhdsffsd');
             this.questionAsset.getData().then(data => {
                 this.questions = JSON.parse(data);
                 this.questionIndex = 0;

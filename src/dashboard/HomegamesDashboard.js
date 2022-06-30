@@ -259,10 +259,6 @@ class HomegamesDashboard extends ViewableGame {
 
         this.addAsset = addAsset;
 
-        console.log(Asset);
-        console.log('man what the fuck');
-        console.log(new Asset({ayy: 'lmao'}));
-        console.log('ayto jkds')
         this.assets = {
             'default': new Asset({
                 'id': 'ff745468e1b725445c65245ce044da21',
