@@ -21,8 +21,6 @@ const BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y;
 
 class GameSession {
     constructor(game, port) {
-        console.log('starting game setssinosfg');
-        console.log(game);
         this.game = game;
         this.port = port;
 

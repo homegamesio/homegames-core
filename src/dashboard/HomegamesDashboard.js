@@ -198,7 +198,6 @@ const getGameMap = () => {
                 metadata: {
                     name: gameMetadata.name || gameClass.name,
                     thumbnail: gameMetadata.thumbnail,
-                    description: gameMetadata.description || 'No description available',
                     author: gameMetadata.createdBy || 'Unknown author'
                 },
                 versions: {
@@ -208,6 +207,7 @@ const getGameMap = () => {
                         metadata: {...gameMetadata },
                         gamePath,
                         versionId: 'local-game-version',
+                        description: gameMetadata.description || 'No description available',
                         version: 0,
                         isReviewed: true
                     }
@@ -425,13 +425,18 @@ class HomegamesDashboard extends ViewableGame {
                         }
                     }
 
+                    const realVersionId = gameVersion.versionId;
+                    const realVersion = versionList.filter(v => v.versionId === realVersionId)[0];
+
+                    const description = realVersion.metadata.description;
+                    
                     const modal = gameModal({ 
                         gameKey: gameId,
                         versionId: gameVersion.versionId,
                         activeSessions, 
                         playerId,
                         versions: versionList,
-                        gameMetadata: gameVersion.metadata, 
+                        gameMetadata: { ...gameVersion.metadata, description }, 
                         onVersionChange: (newVersionId) => {
                             this.showGameModalNew(playerId, gameId, newVersionId);
                         },
@@ -469,6 +474,7 @@ class HomegamesDashboard extends ViewableGame {
             networkHelper.getGameDetails(gameId).then(gameDetails => {
                 if (versionId) {
                     networkHelper.getGameVersionDetails(gameId, versionId).then(gameVersion => {
+                        
                         const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail, author: gameDetails.createdBy }};
                         const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
                              return {...v, metadata: { version: v.version, description: v.description, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
@@ -879,11 +885,11 @@ class HomegamesDashboard extends ViewableGame {
                 versionId,
                 version: version.version,
                 isReviewed,
+                description,
                 squishVersion: version.squishVersion
             },
             game: {
                gameId,
-               description,
                name,
                createdBy,
                createdAt,
