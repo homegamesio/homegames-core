@@ -1,82 +1,102 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0754');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0756');
 const dictionary = require('../../common/util/dictionary');
 
-const COLORS = Colors.COLORS;
+let COLORS = Colors.COLORS;
 
 class WordMatch extends Game {
     static metadata() {
         return {
-            aspectRatio: {x: 16, y: 9},
-            squishVersion: '0754',
-            author: 'Joseph Garcia'
+            author: 'Joseph Garcia',
+            squishVersion: '0756',
+            aspectRatio: {
+                x: 16,
+                y: 9
+            },
+            description: "Match the same word as the other player. Desktop keyboard input required."
         };
     }
 
     constructor() {
         super();
         this.base = new GameNode.Shape({
+            fill: COLORS.CREAM, 
             shapeType: Shapes.POLYGON,
-            fill: COLORS.CREAM,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
         });
 
         this.savedNodeRoot = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
-        });
-
-        this.playerList = new GameNode.Shape({
+            fill: COLORS.CREAM, 
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
         this.base.addChild(this.savedNodeRoot);
-        this.base.addChild(this.playerList);
 
         this.gameInProgress = false;
         this.infoNodes = {};
         this.responseBoxes = {};
-        this.playerReadyButtons = {};
-        this.playerListNodes = {};
+        this.playerReadyStates = {};
         this.keyCoolDowns = {};
         this.currentPlayerIndices = [];
         this.scores = {};
         this.players = {};
-        this.update();
     }
 
     clearTable() {
-        this.base.clearChildren([this.savedNodeRoot.id, this.playerList.id]);
+        this.base.clearChildren([this.savedNodeRoot.id]);
     }
 
-//    tick() {
-//        const playerCount = Object.keys(this.players).length;
-//        if (playerCount > 1 && !this.newGameButton && !this.gameInProgress) {
-//            this.newGameButton.size = {x: 20, y: 20};
-//            this.newGameButton.text = {text: 'New Game', x: 50, y: 50};
-//            this.playerRequirement.text = null;
-//        } else if (playerCount < 2 && !this.playerRequirement) {
-//            this.gameInProgress = false;
-//            // this.newGameButton = new GameNode.Shape({
-//            //     shapeType: Shapes.POLYGON,
-//            //     coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
-//            //     fill: COLORS.HG_GREEN
-//            // });
-//            console.log('wat');
-//            // console.log(this.savedNodeRoot);
-//            // console.log(this.newGameButton);
-//            // this.savedNodeRoot.addChild(this.newGameButton);
-//            //this.newGameButton.size = {x: 0, y: 0};
-//            //tis.newGameButton.text = null;
-//            //this.playerRequirement.text = {x: 50, y: 50, text: 'At least two players required'};
-//            //this.clearTable();
-//        } else if (this.gameInProgress && !this.results) {
-//            const notReadyPlayers = Object.values(this.playerReadyButtons).filter(s => !s.ready);
-//            if (notReadyPlayers.length < 1) {
-//                this.showResults();
-//            }
-//        }
-//    }
+    tick() {
+        const playerCount = Object.keys(this.players).length;
+        if (playerCount > 1 && !this.newGameButton && !this.gameInProgress) {
+            if (this.playerRequirementText) {
+                this.savedNodeRoot.removeChild(this.playerRequirementText.id);
+                this.playerRequirementText = null;
+            }
+
+            this.newGameButton = new GameNode.Shape({
+                fill: COLORS.HG_BLUE,
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),   
+                onClick: () => { 
+                    this.savedNodeRoot.removeChild(this.newGameButton.node.id);
+                    this.newGame()
+                }
+            });
+
+            const newGameText = new GameNode.Text({
+                textInfo: {
+                    text: 'Start',
+                    x: 50, 
+                    y: 50,
+                    size: 1.2,
+                    color: COLORS.WHITE,
+                    align: 'center'
+                }
+            });
+
+            this.newGameButton.addChild(newGameText);
+
+            this.savedNodeRoot.addChild(this.newGameButton);            
+        } else if (playerCount < 2 && !this.playerRequirementText && !this.gameInProgress) {
+            this.playerRequirementText = new GameNode.Text({
+                textInfo: {
+                    text: '2 players required',
+                    size: 1.8,
+                    color: COLORS.BLACK,
+                    x: 50,
+                    y: 25,
+                    align: 'center'
+                }
+            });
+            this.savedNodeRoot.addChild(this.playerRequirementText);
+        } else if (this.gameInProgress && !this.results) {
+            const notReadyPlayers = Object.values(this.playerReadyStates).filter(s => !s.ready);
+            if (notReadyPlayers.length < 1) {
+                this.showResults();
+            }
+        }
+    }
 
     finishRound() {
         const newPlayerIndices = new Array();
@@ -90,12 +110,12 @@ class WordMatch extends Game {
     }
 
     grantPlayerPoints() {
-        for (const m in this.currentPlayerIndices) {
-            const player = Object.values(this.players)[this.currentPlayerIndices[m]];
-            if (!this.scores[player.id]) {
-                this.scores[player.id] = 0;
+        for (const id in this.players) {
+            const player = this.players[id];
+            if (!this.scores[id]) {
+                this.scores[id] = 0;
             }
-            this.scores[player.id] = this.scores[player.id] + 1; 
+            this.scores[id] = this.scores[id] + 1; 
         }
     }
 
@@ -103,38 +123,105 @@ class WordMatch extends Game {
         this.results = true;
         this.clearTable();
         let countdownInt = 3;
-        const countdownNode = GameNode(COLORS.CREAM, null, {x: 50, y: 50}, {x: 20, y: 20}, {text: '', x: 50, y: 50});
+        const countdownNode = new GameNode.Text({
+            textInfo: {
+                color: COLORS.BLACK,
+                text: '', 
+                x: 50, 
+                y: 50,
+                align: 'center',
+                size: 2
+            }
+        });
+
+        this.base.addChild(countdownNode);
+
+        const me = this;
+
         const votes = {};
 
         const interval = this.setInterval(() => {
             if (countdownInt == 0) {
                 clearInterval(interval);
                 this.clearTable();
-                const resultOneText = Object.values(this.responseBoxes)[0].text.text;
-                const resultTwoText = Object.values(this.responseBoxes)[1].text.text;
+                const resultOneText = Object.values(this.responseBoxes)[0].node.text.text;
+                const resultTwoText = Object.values(this.responseBoxes)[1].node.text.text;
                 
-                const resultOne = GameNode(COLORS.WHITE, null, {x: 20, y: 30}, {x: 20, y: 20}, {text: resultOneText, x: 25, y: 35});
-                const resultTwo = GameNode(COLORS.WHITE, null, {x: 60, y: 30}, {x: 20, y: 20}, {text: resultTwoText, x: 65, y: 35});
+                const resultOne = new GameNode.Text({
+                    textInfo: {
+                        color: COLORS.HG_BLACK, 
+                        text: resultOneText, 
+                        x: 25, 
+                        y: 35,
+                        align: 'center',
+                        size: 1.2
+                    }
+                });
+
+                const resultTwo = new GameNode.Text({
+                    textInfo: {
+                        color: COLORS.HG_BLACK, 
+                        text: resultTwoText, 
+                        x: 65, 
+                        y: 35
+                    }
+                });
                 this.base.addChild(resultOne);
                 this.base.addChild(resultTwo);
 
                 const resultsMatch = resultOneText.toLowerCase().trim() === resultTwoText.toLowerCase().trim();
                 if (resultsMatch) {
-                    const results = GameNode(COLORS.GREEN, null, {x: 50, y: 60}, {x: 20, y: 20}, {text: 'Same!', x: 50, y: 60});
+                    const results = new GameNode.Text({
+                        textInfo: {
+                            color: COLORS.HG_BLUE, 
+                            text: 'Same!', 
+                            x: 50, 
+                            y: 60,
+                            align: 'center',
+                            size: 1.6
+                        }
+                    });
                     this.base.addChild(results);
                     this.grantPlayerPoints();
+
+                    const playerIdList = Object.keys(this.players);
+
+                    const scoreNode1 = new GameNode.Text({
+                        textInfo: {
+                            text: this.players[playerIdList[0]].info.name + ': ' + this.scores[playerIdList[0]],
+                            x: 25,
+                            y: 25,
+                            color: COLORS.HG_RED,
+                            align: 'center',
+                            size: 1.6
+                        }
+                    });
+                    
+                    const scoreNode2 = new GameNode.Text({
+                        textInfo: {
+                            text: this.players[playerIdList[1]].info.name + ': ' + this.scores[playerIdList[1]],
+                            x: 75,
+                            y: 25,
+                            color: COLORS.HG_RED,
+                            align: 'center',
+                            size: 1.6
+                        }
+                    });
+
+                    this.base.addChildren(scoreNode1, scoreNode2);
+
                     this.setTimeout(this.finishRound.bind(this), 3000);
                 } else {
-                    const addPlayerVote = (voteType) => (player) => {
+                    const addPlayerVote = (voteType) => (playerId) => {
                         if (!votes[voteType]) {
                             votes[voteType] = new Set();
                         }
                         for (const key in votes) {
-                            if (votes[key].has(player.id)) {
-                                votes[key].delete(player.id);
+                            if (votes[key].has(playerId)) {
+                                votes[key].delete(playerId);
                             }
                         }
-                        votes[voteType].add(player.id);
+                        votes[voteType].add(playerId);
 
                         let totalVotes = 0;
                         for (const key in votes) {
@@ -149,47 +236,85 @@ class WordMatch extends Game {
                             this.finishRound();
                         }
                     };
-                    const closeEnoughText = GameNode(COLORS.CREAM, null, {x: 50, y: 55}, {x: 10, y: 10}, {'text': 'Close Enough?', x: 50, y: 55});
-                    const btn1 = GameNode(COLORS.BLUE, addPlayerVote('yes').bind(this), {x: 55, y: 65}, {x: 10, y: 10}, {text: 'Yes', x: 60, y: 65});
-                    const btn2 = GameNode(COLORS.RED, addPlayerVote('no').bind(this), {x: 35, y: 65}, {x: 10, y: 10}, {text: 'No', x: 40, y: 65});
+                    const closeEnoughText = new GameNode.Text({
+                        textInfo: {
+                            color: COLORS.BLACK,
+                            'text': 'Close Enough?', 
+                            x: 50, 
+                            y: 55,
+                            align: 'center',
+                            size: 1.4
+                        }
+                    });
+                    const btn1 = new GameNode.Shape({
+                        fill: COLORS.BLUE, 
+                        onClick: (playerId) => addPlayerVote('yes')(playerId),
+                        shapeType: Shapes.POLYGON,
+                        coordinates2d: ShapeUtils.rectangle(55, 65, 10, 10)
+                    });
+
+                    const btn2 = new GameNode.Shape({
+                        fill: COLORS.RED, 
+                        onClick: (playerId) => addPlayerVote('no')(playerId), 
+                        shapeType: Shapes.POLYGON,
+                        coordinates2d: ShapeUtils.rectangle(35, 65, 10, 10)
+                    });
                     this.base.addChild(closeEnoughText);
                     this.base.addChild(btn1);
                     this.base.addChild(btn2);
                 }
             } else {
-                const newText = countdownNode.text;
+                const newText = countdownNode.node.text;
                 newText.text = '' + countdownInt--;
-                countdownNode.text = newText;
+                countdownNode.node.text = newText;
             }
         }, 1000);
 
         this.base.addChild(countdownNode);
+
     }
 
     newGame() {
-        this.playerReadyButtons = {};
+        // this.base.removeChild(this.playerRequirementText.node.id)
+        this.playerReadyStates = {};
+        for (const playerId in this.players) {
+            this.playerReadyStates[playerId] = {
+                ready: false
+            }
+        }
+
         this.results = false;
         if (!this.currentPlayerIndices.length) {
             this.currentPlayerIndices = [0, 1];
         }
 
-        // this.newGameButton.size = {x: 0, y: 0};
-        // this.newGameButton.text = null;
+        this.newGameButton.size = {x: 0, y: 0};
+        this.newGameButton.text = null;
         this.clearTable();
         this.gameInProgress = true;
-        this.updatePlayerList();
         const word1 = dictionary.random();
         const word2 = dictionary.random();
-        const word1Node = GameNode(COLORS.WHITE, null, 
-            {x: 10, y: 45},
-            {x: 20, y: 20},
-            {text: word1, x: 20 , y: 53}
-        );
-        const word2Node = GameNode(COLORS.WHITE, null, 
-            {x: 70, y: 45},
-            {x: 20, y: 20},
-            {text: word2, x: 80, y: 53}
-        );
+        const word1Node = new GameNode.Text({
+            textInfo: {
+                color: COLORS.HG_BLACK,
+                text: word1, 
+                x: 20, 
+                y: 53,
+                align: 'center',
+                size: 1.2
+            }
+        });
+
+        const word2Node = new GameNode.Text({
+            textInfo: {
+                color: COLORS.HG_BLACK,
+                text: word2, 
+                x: 80, 
+                y: 53,
+                align: 'center',
+                size: 1.2
+            }
+        });
 
         this.base.addChild(word1Node);
         this.base.addChild(word2Node);
@@ -207,14 +332,7 @@ class WordMatch extends Game {
             };
 
             const toggleReady = () => {
-                this.playerReadyButtons[player.id].ready = !this.playerReadyButtons[player.id].ready;
-                if (!this.playerReadyButtons[player.id].ready) {
-                    this.playerReadyButtons[player.id].color = COLORS.RED;
-                } else {
-                    this.playerReadyButtons[player.id].color = COLORS.GREEN;
-                }
-
-                this.updatePlayerList();
+                this.playerReadyStates[player.id].ready = !this.playerReadyStates[player.id].ready;
             };
 
             const textValue = {
@@ -222,31 +340,43 @@ class WordMatch extends Game {
                 x: 50,
                 y: 50
             };
-            this.responseBoxes[player.id] = GameNode(
-                COLORS.WHITE,
-                toggleEdit,
-                {x: 40, y: 40},
-                {x: 20, y: 20},
-                textValue,
-                null,
-                player.id
-            );
+
+            const responseBoxWrapper = new GameNode.Shape({
+                fill: COLORS.WHITE,
+                onClick: () => toggleEdit,
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
+                playerIds: [player.id]
+            });
+
+            this.responseBoxes[player.id] = new GameNode.Text({
+                textInfo: {
+                    color: COLORS.BLACK,
+                    text: 'ayy lmao',
+                    x: 50,
+                    y: 50,
+                    align: 'center',
+                    size: 1
+                }
+            });
             
-            this.playerReadyButtons[player.id] = GameNode(
-                COLORS.RED,
-                toggleReady,
-                {x: 40, y: 70},
-                {x: 20, y: 10},
-                {text: 'Ready', x: 50, y: 73},
-                null,
-                player.id
-            );
+            const playerReadyButton = new GameNode.Shape({
+                fill: COLORS.RED,
+                onClick: () => {
+                    toggleReady();
+                    playerReadyButton.node.fill = this.playerReadyStates[player.id].ready ? COLORS.GREEN : COLORS.RED;
+                },
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(40, 70, 20, 10),
+                playerIds: [player.id]
+            });
 
             this.responseBoxes[player.id].editing = true;
-            this.playerReadyButtons[player.id].ready = false;
 
-            this.base.addChild(this.playerReadyButtons[player.id]);
-            this.base.addChild(this.responseBoxes[player.id]);
+            this.base.addChild(playerReadyButton);
+
+            responseBoxWrapper.addChild(this.responseBoxes[player.id]);
+            this.base.addChild(responseBoxWrapper);
         }
     }
 
@@ -254,22 +384,23 @@ class WordMatch extends Game {
         return key.length == 1 && (key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z') || key === ' ' || key === 'Backspace';
     }
 
-    handleKeyDown(player, key) {
-        if (!this.gameInProgress || !this.isText(key) || !this.responseBoxes[player.id].editing) {
+    handleKeyDown(playerId, key) {
+        if (!this.gameInProgress || !this.isText(key) || !this.responseBoxes[playerId].editing) {
             return;
         }
+        const me = this;
 
-        if (!this.keyCoolDowns[player.id] || !this.keyCoolDowns[player.id][key]) {
-            const newText = this.responseBoxes[player.id].text;
+        if (!this.keyCoolDowns[playerId] || !this.keyCoolDowns[playerId][key]) {
+            const newText = this.responseBoxes[playerId].node.text;
             if (newText.text.length > 0 && key === 'Backspace') {
                 newText.text = newText.text.substring(0, newText.text.length - 1); 
             } else if(key !== 'Backspace') {
                 newText.text = newText.text + key;
             }
-            this.responseBoxes[player.id].text = newText;
-            this.keyCoolDowns[player.id][key] = this.setTimeout(() => {
-                clearTimeout(this.keyCoolDowns[player.id][key]);
-                delete this.keyCoolDowns[player.id][key];
+            this.responseBoxes[playerId].node.text = newText;
+            this.keyCoolDowns[playerId][key] = this.setTimeout(() => {
+                clearTimeout(this.keyCoolDowns[playerId][key]);
+                delete this.keyCoolDowns[playerId][key];
             }, 250);
         }
     }
@@ -281,139 +412,23 @@ class WordMatch extends Game {
         }
     }
 
-    updatePlayerList() {
-        this.playerList.clearChildren();
-        let yIndex = 0;
-        for (const playerId in this.players) {
-            const player = this.players[playerId];
-            const yPos = yIndex++;
-            const ready = this.playerReadyButtons[playerId] && this.playerReadyButtons[playerId].ready;
-            const readyStatusColor = ready ? COLORS.GREEN : Colors.RED;
-            const statusColor = this.gameInProgress ? readyStatusColor : COLORS.CREAM;
-            const playerNameText = player.name + ': ' + (playerId in this.scores ? this.scores[playerId] : 0);
-            // const playerNode = GameNode(statusColor, null, {x: 70, y: 2 + (yPos * 10)}, {x: 5, y: 5}, {x: 85, y: 2 + (yPos * 10), text: playerNameText});
-            // this.playerList.addChild(playerNode);
-        }
-    }
-//        if (playerCount > 1 && !this.newGameButton && !this.gameInProgress) {
-//            this.newGameButton.size = {x: 20, y: 20};
-//            this.newGameButton.text = {text: 'New Game', x: 50, y: 50};
-//            this.playerRequirement.text = null;
-//        } else if (playerCount < 2 && !this.playerRequirement) {
-//            this.gameInProgress = false;
-//            // this.newGameButton = new GameNode.Shape({
-//            //     shapeType: Shapes.POLYGON,
-//            //     coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
-//            //     fill: COLORS.HG_GREEN
-//            // });
-//            console.log('wat');
-//            // console.log(this.savedNodeRoot);
-//            // console.log(this.newGameButton);
-//            // this.savedNodeRoot.addChild(this.newGameButton);
-//            //this.newGameButton.size = {x: 0, y: 0};
-//            //tis.newGameButton.text = null;
-//            //this.playerRequirement.text = {x: 50, y: 50, text: 'At least two players required'};
-//            //this.clearTable();
-//        } else if (this.gameInProgress && !this.results) {
-//            const notReadyPlayers = Object.values(this.playerReadyButtons).filter(s => !s.ready);
-//            if (notReadyPlayers.length < 1) {
-//                this.showResults();
-
-    handleNewPlayer({ playerId, info }) {
+    handleNewPlayer({ playerId, info, settings }) {
         this.keyCoolDowns[playerId] = {};
-        
-        //const infoNode = GameNode(
-        //    COLORS.CREAM,
-        //    toggleNameEdit,
-        //    {
-        //        x: 12,
-        //        y: 5
-        //    },
-        //    {
-        //        x: 5,
-        //        y: 5
-        //    },
-        //    {
-        //        text: player.name,
-        //        x: 12,
-        //        y: 5
-        //    },
-        //    null,
-        //    player.id
-        //);
-        this.players[playerId] = { id: playerId, ...info };
-        this.infoNodes[playerId] = {};//infoNode;
-
-        this.update();
-        //this.savedNodeRoot.addChild(infoNode);
-        //this.updatePlayerList();
-    }
-
-    update() {
-        if (!this.gameInProgress) {
-            if (Object.keys(this.players).length == 2 && !this.newGameButton) {
-                if (this.notEnoughPlayersText) {
-                    this.base.removeChild(this.notEnoughPlayersText.id);
-                }
-                console.log('need to show play button');
-                this.playButton = new GameNode.Shape({
-                    shapeType: Shapes.POLYGON,
-                    fill: COLORS.BLACK,
-                    coordinates2d: ShapeUtils.rectangle(30, 30, 40, 40),
-                    onClick: () => {
-                        this.newGame();
-                    }
-                });
-
-                this.base.addChild(this.playButton);
-            } else if (!this.notEnoughPlayersText) {
-                console.log('not enough players');
-
-                this.notEnoughPlayersText = new GameNode.Text({
-                    textInfo: {
-                        x: 50,
-                        y: 50,
-                        align: 'center',
-                        size: 3,
-                        text: '2 players required',
-                        color: COLORS.BLACK
-                    }
-                });
-
-                this.instructionsText = new GameNode.Text({
-                    textInfo: {
-                        x: 50,
-                        y: 95,
-                        align: 'center',
-                        size: 1,
-                        text: 'Enter the word you think is the "middle" of the two words shown.',
-                        color: COLORS.BLACK
-                    }
-                });
-                // this.base.addChildren(this.instructionsText);
-
-                this.base.addChildren(this.notEnoughPlayersText, this.instructionsText);
-            }
-        } else {
-            console.log('a game is happening');
-        }
+        this.players[playerId] = { info, settings, id: playerId };
     }
 
     handlePlayerDisconnect(playerId) {
-        // this.savedNodeRoot.removeChild(this.infoNodes[playerId].id);
-        delete this.players[playerId];
         delete this.infoNodes[playerId];
         delete this.scores[playerId];
-        this.updatePlayerList();
-        this.update();
+        delete this.players[playerId];
     }
 
     getLayers() {
         return [{root: this.base}];
     }
 
-    close() {
-
+    getAssets() {
+        return this.assets;
     }
 }
 

@@ -23,7 +23,7 @@ if (dictPath) {
     const dictionaryBytes = fs.readFileSync(dictPath);
     words = dictionaryBytes.toString().split('\n').filter(w => !!w);
 } else {
-    console.warn('Missing dictionary.txt file. Using default dictionary');
+    console.log('Missing dictionary.txt file. Using default dictionary');
     words = ['hello', 'world'];
 }
 

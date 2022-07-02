@@ -8,17 +8,18 @@ if (baseDir.endsWith('/src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require('homegames-common');
+const { getConfigValue, log } = require('homegames-common');
 
 
 class Homenames {
     constructor(port) {
-        console.log('running homenames on port ' + port);
+        log.info('running homenames on port ', port);
         
         this.playerInfo = {};
         this.playerSettings = {};
         this.sessionClients = {};
         this.playerListeners = {};
+        this.clientInfo = {};
 
         const server = http.createServer((req, res) => {
             const reqPath = req.url.split('/');
@@ -36,6 +37,14 @@ class Homenames {
                     let payload = {};
                     if (this.playerSettings[playerId]) {
                         payload = this.playerSettings[playerId];
+                    } 
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(payload));
+                } else if (reqPath[reqPath.length - 2] === 'client_info') {
+                    let payload = {};
+                    if (this.clientInfo[playerId]) {
+                        payload = this.clientInfo[playerId];
                     } 
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
@@ -74,6 +83,22 @@ class Homenames {
                         res.end(JSON.stringify(this.playerSettings[playerId]));
                         this.notifyListeners(playerId);
                     });
+                } else if (reqPath[reqPath.length - 1] === 'client_info') {
+                    let body = '';
+                    req.on('data', chunk => {
+                        body += chunk.toString(); 
+                    });
+
+                    req.on('end', () => {
+                        const payload = JSON.parse(body);
+                        const newClientInfo = this.clientInfo[playerId] || {};
+                        Object.assign(newClientInfo, payload);
+                        this.clientInfo[playerId] = newClientInfo;
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(this.clientInfo[playerId]));
+                        this.notifyListeners(playerId);
+                    });
                 } else if (reqPath[reqPath.length - 1] === 'add_listener') {
                     let body = '';
                     req.on('data', chunk => {
@@ -85,7 +110,7 @@ class Homenames {
 
                         const socketSession = new WebSocket(`ws://localhost:${payload.sessionPort}`);
                         socketSession.on('open', () => {
-                            console.log('opened socket connection to session');
+                            log.info('opened socket connection to session');
                             this.sessionClients[payload.sessionPort] = socketSession;
                             if (!this.playerListeners[payload.playerId]) {
                                 this.playerListeners[payload.playerId] = new Set();

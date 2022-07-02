@@ -6,7 +6,7 @@ if (baseDir.endsWith('/src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require('homegames-common');
+const { getConfigValue, log } = require('homegames-common');
 const http = require('http');
 
 const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
@@ -73,7 +73,7 @@ class HomenamesHelper {
     getPlayerInfo(playerId) {
         return new Promise((resolve, reject) => {
             makeGet(`/info/${playerId}`).then(resolve).catch(err => {
-                console.log(err);
+                log.error('homenames helper info error', err);
             });
         });
     }
@@ -87,7 +87,15 @@ class HomenamesHelper {
     getPlayerSettings(playerId) {
         return new Promise((resolve, reject) => {
             makeGet(`/settings/${playerId}`).then(resolve).catch(err => {
-                console.log(err);
+                log.error('homenames helper settings error', err);
+            });
+        });
+    }
+
+    getClientInfo(playerId) {
+        return new Promise((resolve, reject) => {
+            makeGet(`/client_info/${playerId}`).then(resolve).catch(err => {
+                log.error('homenames helper client info error', err);
             });
         });
     }
@@ -101,6 +109,12 @@ class HomenamesHelper {
     updatePlayerSetting(playerId, settingKey, value) {
         return new Promise((resolve, reject) => {
             makePost('/' + playerId + '/settings', {[settingKey]: value}).then(resolve);
+        });
+    }
+
+    updateClientInfo(playerId, clientInfo) {
+        return new Promise((resolve, reject) => {
+            makePost('/' + playerId + '/client_info', clientInfo).then(resolve);
         });
     }
 }

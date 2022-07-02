@@ -1,6 +1,6 @@
 {
   "name": "homegames-core",
-  "version": "0.7.58",
+  "version": "0.7.62",
   "description": "Play games at home",
   "directories": {
     "lib": "lib"
@@ -27,11 +27,9 @@
   },
   "homepage": "https://github.com/homegamesio/homegames#readme",
   "dependencies": {
-    "homegames-common": "0.2.0",
+    "homegames-common": "0.3.0",
     "process-stats": "^3.5.5",
-    "squish-0750": "npm:squishjs@0.7.5",
-    "squish-0751": "npm:squishjs@0.7.51",
-    "squish-0754": "npm:squishjs@0.7.54",
+    "squish-0756": "npm:squishjs@0.7.56",
     "unzipper": "^0.10.11",
     "ws": "7.4.6"
   }

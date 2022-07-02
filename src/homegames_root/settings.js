@@ -1,4 +1,4 @@
-const { GameNode, Colors, ShapeUtils, Shapes } = require('squish-0750');
+const { GameNode, Colors, ShapeUtils, Shapes } = require('squish-0756');
 const HomenamesHelper = require('../util/homenames-helper');
 const { COLORS } = Colors;
 const PLAYER_SETTINGS = require('../common/player-settings');

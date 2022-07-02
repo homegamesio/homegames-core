@@ -1,4 +1,4 @@
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0750');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0756');
 const { ExpiringSet, animations } = require('../../common/util');
 
 const COLORS = Colors.COLORS;
@@ -7,7 +7,8 @@ class ViewTest extends ViewableGame {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            author: 'Joseph Garcia'
+            author: 'Joseph Garcia',
+            squishVersion: '0756'
         };
     }
 
@@ -38,7 +39,7 @@ class ViewTest extends ViewableGame {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(100, 100, 25, 25),
             fill: COLORS.BLUE,
-            onClick: () => {console.log('clicked a blue guy');}
+            onClick: () => {}
         });
 
         whiteBase.addChildren(redSquare, blueSquare);

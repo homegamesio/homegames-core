@@ -1,5 +1,4 @@
-const Asset = require('../../common/Asset');
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0756');
 const COLORS = Colors.COLORS;
 
 class SpriteTest extends Game {
@@ -14,7 +13,7 @@ class SpriteTest extends Game {
 
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0750',
+            squishVersion: '0756',
             author: 'Joseph Garcia',
             thumbnail: 'd8a39042ae0d7829b83f5c0280dc8230',
             assets: {
@@ -142,7 +141,6 @@ class SpriteTest extends Game {
         this.background.removeChild(this.dancers[playerId].id);
         delete this.dancers[playerId];
     }
-
     
     getLayers() {
         return [{root: this.background}];

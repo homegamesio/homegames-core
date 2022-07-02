@@ -3,7 +3,6 @@ const http = require('http');
 const https = require('https');
 const assert = require('assert');
 const Player = require('../Player');
-const logger = require('../logger');
 const fs = require('fs');
 
 const path = require('path');
@@ -13,7 +12,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require('homegames-common');
+const { getConfigValue, log } = require('homegames-common');
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
@@ -71,7 +70,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             cert: fs.readFileSync(certPath.certPath).toString()
         });
     } else { 
-        logger.info("Starting regular server on port " + port);
+        log.info("Starting regular server on port " + port);
         server = http.createServer();
     }
 
@@ -84,7 +83,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             const jsonMessage = JSON.parse(msg);
 
             if (jsonMessage.type === 'homenames_update') {
-                // console.log(jsonMessage.payload);
                 gameSession.handlePlayerUpdate(jsonMessage.playerId, { info: jsonMessage.info, settings: jsonMessage.settings });
             } else if (jsonMessage.type === 'ready') {
 
@@ -102,8 +100,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 }, res => {
                     res.on('data', d => {
                         const playerInfo = JSON.parse(d);
-                        console.log("player info from homenames for this person");
-                        console.log(playerInfo);
+                        log.debug("player info from homenames for this person", playerInfo);
                         const player = new Player(ws, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
                         ws.spectating = jsonMessage.spectating;
                         
@@ -125,13 +122,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                         // init message
                         ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
-                        // if (PERFORMANCE_PROFILING) {
-                        //     ws.send([7]);
-                        // }
-                        // if (HOTLOAD_ENABLED) {
-                        //     console.log("SENDING HOTLOAD");
-                        //     ws.send([8, 71, 01]);
-                        // }
 
                         if (jsonMessage.spectating) {
                             gameSession.addSpectator(player);
@@ -157,13 +147,15 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         }
 
         ws.on('close', closeHandler);
+        ws.on('error', (err) => {
+            log.error('Child session error', err);
+        })
 
     });
 
-    wss.on('error', (wat) => {
-        console.log('wat');
-        console.log(wat);
-    })
+    wss.on('error', (wsErr) => {
+        log.error('socket error', wsErr);
+    });
 
     
     server.listen(port, null, null, () => {

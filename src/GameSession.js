@@ -1,4 +1,4 @@
-let { Squisher } = require('squish-0750');
+let { Squisher } = require('squish-0756');
 const { generateName } = require('./common/util');
 const squishMap = require('./common/squish-map');
 
@@ -32,6 +32,7 @@ class GameSession {
         this.homenamesHelper = new HomenamesHelper(this.port);
 
         this.playerInfoMap = {};
+        this.clientInfoMap = {};
         this.playerSettingsMap = {};
 
         this.homegamesRoot = new HomegamesRoot(this, false, false);
@@ -124,29 +125,35 @@ class GameSession {
         const doThing = () => {
             this.homenamesHelper.getPlayerInfo(player.id).then(playerInfo => {
                 this.homenamesHelper.getPlayerSettings(player.id).then(playerSettings => {
-                    this.playerInfoMap[player.id] = playerInfo;
-                    this.playerSettingsMap[player.id] = playerSettings;
+                    this.homenamesHelper.getClientInfo(player.id).then(clientInfo => {
+                        
+                        this.playerInfoMap[player.id] = playerInfo;
+                        this.clientInfoMap[player.id] = clientInfo;
 
-                    this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
-                    const playerPayload = {playerId: player.id, settings: this.playerSettingsMap[player.id], info: this.playerInfoMap[player.id], requestedGame: player.requestedGame };
+                        this.playerSettingsMap[player.id] = playerSettings;
 
-                    this.homenamesHelper.addListener(player.id);
+                        this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
+                        const playerPayload = {
+                            playerId: player.id, 
+                            settings: this.playerSettingsMap[player.id], 
+                            info: this.playerInfoMap[player.id],
+                            clientInfo,
+                            requestedGame: player.requestedGame
+                        };
 
-                    this.homegamesRoot.handleNewPlayer(playerPayload);
-                    this.game.handleNewPlayer && this.game.handleNewPlayer(playerPayload);
+                        const rootPayload = Object.assign({
+                            requestedGame: player.requestedGame
+                        }, playerPayload);
 
-                    if (this.game.deviceRules && player.clientInfo) {
-                        const deviceRules = this.game.deviceRules();
-                        if (deviceRules.aspectRatio) {
-                            deviceRules.aspectRatio(player, player.clientInfo.aspectRatio);
-                        }
-                        if (deviceRules.deviceType) {
-                            deviceRules.deviceType(player, player.clientInfo.deviceType);
-                        }
-                    }
-                    player.requestedGame = null;
+                        this.homenamesHelper.addListener(player.id);
 
-                    player.addInputListener(this);
+                        this.homegamesRoot.handleNewPlayer(rootPayload);
+                        this.game.handleNewPlayer && this.game.handleNewPlayer(playerPayload);
+
+                        player.requestedGame = null;
+
+                        player.addInputListener(this);
+                    });
                 });
             });
         };
@@ -157,7 +164,9 @@ class GameSession {
             const playerName = generateName();
 
             this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
-                doThing();
+                this.homenamesHelper.updateClientInfo(player.id, player.clientInfo).then(() => {
+                    doThing();
+                });
             });
         }
     }
@@ -210,21 +219,23 @@ class GameSession {
                 }
             }
         } else if (input.type === 'clientInfo') {
-            if (this.game && this.game.deviceRules) {
-                const deviceRules = this.game.deviceRules();
-                if (deviceRules.aspectRatio) {
-                    deviceRules.aspectRatio(player.id, player.clientInfo.aspectRatio);
-                }
+            // if (this.game && this.game.deviceRules) {
+            //     const deviceRules = this.game.deviceRules();
+            //     if (deviceRules.aspectRatio) {
+            //         deviceRules.aspectRatio(player.id, player.clientInfo.aspectRatio);
+            //     }
                 
-            }
+            // }
         } else {
-            console.log('Unknown input type: ' + input.type);
+            log.info('Unknown input type: ', input.type);
         }
     }
 
     movePlayer({ playerId, port }) {
         const player = this.players[playerId];
-        player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+        if (player) {
+            player.receiveUpdate([5, Math.floor(port / 100), Math.floor(port % 100)]);
+        }
     }
 
     handleClick(player, click) {
@@ -249,6 +260,7 @@ class GameSession {
                 const scaledY = shiftedY * ( 1 / ((100 - BEZEL_SIZE_Y) / 100));
 
                 realNode.node.handleClick && realNode.node.handleClick(player.id, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                
             }
         }
     }

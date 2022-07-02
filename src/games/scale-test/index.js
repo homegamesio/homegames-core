@@ -1,12 +1,11 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
-const Asset = require('../../common/Asset');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0756');
 const COLORS = Colors.COLORS;
 
 class ScaleTest extends Game {
     static metadata() {
         return {
             name: 'Scale test',
-            squishVersion: '0750',
+            squishVersion: '0756',
             author: 'Joseph Garcia',
             aspectRatio: {x: 1, y: 2},
             assets: {
@@ -34,7 +33,6 @@ class ScaleTest extends Game {
 
         this.testAsset = new GameNode.Asset({
             onClick: (player, x, y) => {
-                console.log('clicked that thang');
             },
             coordinates2d: ShapeUtils.rectangle(20, 60, 60, 20),
             assetInfo: {

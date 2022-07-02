@@ -2,7 +2,7 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0750');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0756');
 
 const unzipper = require('unzipper');
 const fs = require('fs');
@@ -66,7 +66,7 @@ const infoSection = ({ gameKey, gameMetadata}) => {
     const title = new GameNode.Text({
         textInfo: {
             x: 50, 
-            y: 40,
+            y: 36.5,
             align: 'center',
             color: COLORS.HG_BLACK,
             size: 2.5,
@@ -74,10 +74,21 @@ const infoSection = ({ gameKey, gameMetadata}) => {
         }
     });
 
+    const author = new GameNode.Text({
+        textInfo: {
+            x: 50, 
+            y: 43.5,
+            align: 'center',
+            color: COLORS.HG_BLACK,
+            size: 1.5,
+            text: `By ${gameMetadata?.author || 'Unknown author'}`
+        }
+    });
+
     const descriptionText = new GameNode.Text({
         textInfo: {
             x: 50, 
-            y: 50,
+            y: 50.5,
             align: 'center',
             color: COLORS.HG_BLACK,
             size: 1.2,
@@ -85,7 +96,7 @@ const infoSection = ({ gameKey, gameMetadata}) => {
         }
     });
 
-    infoContainer.addChildren(thumbnail, title, descriptionText);
+    infoContainer.addChildren(thumbnail, title, author, descriptionText);
 
     return infoContainer;
 };
@@ -303,20 +314,26 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
                     onClick: () => onJoinSession(pageContent[i])
                 });
 
-                const optionText = new GameNode.Text({
-                    textInfo: {
-                        x: 61,
-                        y: startingY + (10 * i) + 3,
-                        align: 'left',
-                        size: 1,
-                        color: COLORS.HG_BLACK,
-                        text: `Session ${pageContent[i].id} - ${pageContent[i].players.length} players`
-                    }
+                const sessionPlayerCount = activeSessions.filter(s => s.id === pageContent[i].id).length;
+
+                pageContent[i].getPlayers(players => {
+
+                    const optionText = new GameNode.Text({
+                        textInfo: {
+                            x: 61,
+                            y: startingY + (10 * i) + 3,
+                            align: 'left',
+                            size: 1,
+                            color: COLORS.HG_BLACK,
+                            text: `Session ${pageContent[i].id} - ${players.length} players`
+                        }
+                    });
+
+                    optionWrapper.addChildren(optionText);
+
+                    pageContainer.addChildren(optionWrapper);
+
                 });
-
-                optionWrapper.addChildren(optionText);
-
-                pageContainer.addChildren(optionWrapper);
             }
 
             if (currentPage > 0) {
@@ -397,6 +414,7 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
 
         };
 
+
         const sessionsPage = activeSessions.slice(currentPage * pageSize, (currentPage * pageSize) + pageSize);
         renderPage(sessionsPage);
     } else {
@@ -450,7 +468,7 @@ const gameModal = ({
     const join = joinSection({ gameKey, activeSessions, onJoinSession });
     modal.addChildren(close, info, create, join);
 
-    if (versionId !== 0) {   
+    if (versionId !== 'local-game-version') {   
         const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions });
         modal.addChild(selector);
     }

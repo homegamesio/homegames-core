@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0750');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0756');
 
 const COLORS = Colors.COLORS;
 
@@ -6,7 +6,7 @@ class DeviceTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0750',
+            squishVersion: '0756',
             author: 'Joseph Garcia', 
             tickRate: 10
         };
@@ -29,7 +29,7 @@ class DeviceTest extends Game {
         });
     }
 
-    handleNewPlayer({ playerId }) {
+    handleNewPlayer({ playerId, clientInfo }) {
         const playerRootNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: [
@@ -48,6 +48,7 @@ class DeviceTest extends Game {
             screen: 0,
             root: playerRootNode
         };
+        this.deviceRules(playerId, clientInfo);
     }
 
     handlePlayerDisconnect(playerId) {
@@ -55,12 +56,11 @@ class DeviceTest extends Game {
         this.base.removeChild(playerRoot.node.id);
     }
     
-    deviceRules() {
-        return {
+    deviceRules(playerId, clientInfo) {
+        const funcMap = {
             aspectRatio: (player, x) => {
             },
-            deviceType: (playerId, type) => {
-                console.log('player is using ' + type);
+            deviceType: (type) => {
                 if (type === 'desktop') {
                     const playerNode = new GameNode.Shape({
                         shapeType: Shapes.POLYGON,
@@ -103,6 +103,8 @@ class DeviceTest extends Game {
                 } 
             }
         };
+
+        funcMap.deviceType(clientInfo.deviceType);
     }
 
     getLayers() {
