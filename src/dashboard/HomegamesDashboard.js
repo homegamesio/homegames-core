@@ -231,6 +231,7 @@ const getGameMap = () => {
 
                 games[gameId].versions[versionId] = {
                     // class: gameClass,
+                    gameId,
                     metadata: storedMetadata.version,
                     gamePath,
                     versionId,
