@@ -1,4 +1,3 @@
-const HomegamesDashboard = require('./src/dashboard/HomegamesDashboard');
 const GameSession = require('./src/GameSession');
 const { socketServer } = require('./src/util/socket');
 const Homenames = require('./src/Homenames');
@@ -21,10 +20,23 @@ const server = (certPath, squishMap) => {
         logger.debug(squishMap);
     }
 
+    const startPathOverride = getConfigValue('START_PATH', null);
+
+    const customStartModule = startPathOverride ? require(startPathOverride) : null;
+
+    const HomegamesDashboard = require('./src/dashboard/HomegamesDashboard');
+
     // hack kind of. but homegames dashbaoard is special
     let session;
 
-    const dashboard = new HomegamesDashboard({ 
+    const dashboard = customStartModule ? new customStartModule({ 
+        squishMap,
+        addAsset: (key, asset) => new Promise((resolve, reject) => {
+            // if (session) {
+            session.handleNewAsset(key, asset).then(resolve).catch(reject);
+            // }
+        })
+    }) : new HomegamesDashboard({ 
         squishMap, 
         movePlayer: (params) => {
             session && session.movePlayer(params);
@@ -35,12 +47,6 @@ const server = (certPath, squishMap) => {
             // }
         })
     });
-
-    // const dashboard = new viewtest();
-
-    // const dashboard = new PlayerVisibilityTest();//new HomegamesDashboard(squishMap);
-    
-    // const dashboard = new LayerTest();//new HomegamesDashboard(squishMap);
     
     session = new GameSession(dashboard, HOME_PORT);
     
