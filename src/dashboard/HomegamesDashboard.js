@@ -230,7 +230,6 @@ const getGameMap = () => {
                 }
 
                 games[gameId].versions[versionId] = {
-                    // class: gameClass,
                     gameId,
                     metadata: storedMetadata.version,
                     gamePath,
@@ -241,6 +240,37 @@ const getGameMap = () => {
             }
         } 
     });
+
+    if (getConfigValue('LOCAL_GAME_DIRECTORY', null)) {
+        const localGameDir = path.resolve(getConfigValue('LOCAL_GAME_DIRECTORY'));
+        const localGamePaths = getGamePathsHelper(localGameDir);
+
+        localGamePaths.forEach(gamePath => {
+            log.info('Using local game at path ' + gamePath);
+            const gameClass = require(gamePath);
+            const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
+
+            games[gameClass.name] = {
+                metadata: {
+                    name: gameMetadata.name || gameClass.name,
+                    thumbnail: gameMetadata.thumbnail,
+                    author: gameMetadata.createdBy || 'Unknown author'
+                },
+                versions: {
+                    'local-game-version': {
+                        gameId: gameClass.name,
+                        class: gameClass,
+                        metadata: {...gameMetadata },
+                        gamePath,
+                        versionId: 'local-game-version',
+                        description: gameMetadata.description || 'No description available',
+                        version: 0,
+                        isReviewed: true
+                    }
+                }
+            }
+        });
+    }
 
     return games;
 };
