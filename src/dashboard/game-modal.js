@@ -65,8 +65,8 @@ const metadataSection = ({ gameKey, gameMetadata}) => {
 
     const maxPlayers = new GameNode.Text({
         textInfo: {
-            x: 75, 
-            y: 10,
+            x: 3, 
+            y: 20,
             align: 'left',
             color: COLORS.HG_BLACK,
             size: 1.5,
