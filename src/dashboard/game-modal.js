@@ -56,6 +56,29 @@ const thumbnailSection = ({ gameKey, gameMetadata }) => {
     return thumbnail;
 };
 
+
+const metadataSection = ({ gameKey, gameMetadata}) => {
+    const section = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+    });
+
+    const maxPlayers = new GameNode.Text({
+        textInfo: {
+            x: 3, 
+            y: 20,
+            align: 'left',
+            color: COLORS.HG_BLACK,
+            size: 1.5,
+            text: 'Max players: ' + (gameMetadata?.maxPlayers || 'N/A')
+        }
+    });
+
+    section.addChildren(maxPlayers)
+
+    return section;
+};
+
 const infoSection = ({ gameKey, gameMetadata}) => {
     const infoContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
@@ -142,7 +165,7 @@ const createSection = ({ gameKey, onCreateSession, isReviewed = false }) => {
 
         const warningTextHead = new GameNode.Text({
             textInfo: {
-                text: 'This game version has not been reviewed',// by a Homegames administrator.',
+                text: 'This game version has not been reviewed',
                 x: 50,
                 y: 88.5,
                 align: 'center',
@@ -269,7 +292,7 @@ const unverifiedGameVersionWarning = () => {
     return warningContainer;
 };
 
-const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSize = 2 }) => {
+const joinSection = ({ gameKey, gameMetadata, activeSessions, onJoinSession, page = 0, pageSize = 2 }) => {
     const joinContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
@@ -307,17 +330,20 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
 
             const startingY = 67;
             for (let i = 0; i < pageContent.length; i++) {
-                const optionWrapper = new GameNode.Shape({
-                    shapeType: Shapes.POLYGON,
-                    coordinates2d: ShapeUtils.rectangle(60, startingY + (10 * i), 30, 8),
-                    fill: COLORS.WHITE,
-                    onClick: () => onJoinSession(pageContent[i])
-                });
-
-                const sessionPlayerCount = activeSessions.filter(s => s.id === pageContent[i].id).length;
-
                 pageContent[i].getPlayers(players => {
 
+                    const gameFull = gameMetadata?.maxPlayers && players.length >= gameMetadata.maxPlayers;
+
+                    const optionWrapper = new GameNode.Shape({
+                        shapeType: Shapes.POLYGON,
+                        coordinates2d: ShapeUtils.rectangle(60, startingY + (10 * i), 30, 8),
+                        fill: gameFull ? COLORS.GRAY : COLORS.WHITE,
+                        onClick: gameFull ? null : () => onJoinSession(pageContent[i])
+                    });
+
+                    const sessionPlayerCount = activeSessions.filter(s => s.id === pageContent[i].id).length;
+
+                    const playerText = gameMetadata?.maxPlayers ? `${players.length} / ${gameMetadata.maxPlayers} ${gameMetadata.maxPlayers > 1 ? 'players' : 'player'}` : `${players.length} ${players.length > 1 ? 'players' : 'player'}`
                     const optionText = new GameNode.Text({
                         textInfo: {
                             x: 61,
@@ -325,7 +351,7 @@ const joinSection = ({ gameKey, activeSessions, onJoinSession, page = 0, pageSiz
                             align: 'left',
                             size: 1,
                             color: COLORS.HG_BLACK,
-                            text: `Session ${pageContent[i].id} - ${players.length} players`
+                            text: `Session ${pageContent[i].id} - ${playerText}`
                         }
                     });
 
@@ -461,12 +487,14 @@ const gameModal = ({
 
     const info = infoSection({ gameKey, gameMetadata });
 
+    const metadata = metadataSection({ gameKey, gameMetadata });
+
     const isReviewed = thisVersion.isReviewed;
 
     const create = createSection({ gameKey, onCreateSession, isReviewed });
 
-    const join = joinSection({ gameKey, activeSessions, onJoinSession });
-    modal.addChildren(close, info, create, join);
+    const join = joinSection({ gameKey, gameMetadata, activeSessions, onJoinSession });
+    modal.addChildren(close, info, metadata, create, join);
 
     if (versionId !== 'local-game-version') {   
         const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions });
