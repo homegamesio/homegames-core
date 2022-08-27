@@ -1,6 +1,6 @@
 const dictionary = require('../../common/util/dictionary');
 
-const { Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils } = require('squish-0756');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils } = require('squish-0756');
 
 const COLORS = Colors.COLORS;
 
@@ -20,6 +20,21 @@ class Sponge extends Game {
 
     constructor() {
         super();
+
+        this.assets = {
+            'beep': new Asset({
+                'id': '9bac660eeffa7443d417cbba484e00da',
+                'type': 'audio'
+            }),
+            'boop': new Asset({
+                'id': '3f7087dfde98b0d7acd99824f3ef4626',
+                type: 'audio'
+            }),
+            'pluck': new Asset({
+                'id': 'd56e115f08d4324667f697cd2200e042',
+                type: 'audio'
+            })
+        };
 
         this.players = {};
         this.clickHandlers = {};
@@ -131,6 +146,33 @@ class Sponge extends Game {
         this.moveBall(ballPath);
    }
 
+   playSound(dir) {
+        let assetKey = 'pluck';
+        let playerIds = [];
+
+        if (dir) {
+            assetKey = dir === 'left' ? 'beep' : 'boop';
+        }
+
+        this.sound = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            assetInfo: {
+                [assetKey]: {
+                    pos: {x: 0, y: 0},
+                    size: {x: 0, y: 0},
+                    startTime: 0
+                }
+            },
+            playerIds
+        });
+        
+        this.base.addChildren(this.sound);
+
+        setTimeout(() => {
+            this.base.removeChild(this.sound.id);
+        }, 50);
+   }
+
     moveBall(path) {
         let coordIndex = 0;
         const interval = setInterval(() => {
@@ -159,7 +201,7 @@ class Sponge extends Game {
                 const newY = finalPoint[1] <= BALL_SIZE || mostRecent[1] >= (100 - BALL_SIZE - 1) ? -1 * yDiff : yDiff;
 
                 const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-
+                this.playSound(dir);
                 this.moveBall(newPath);        
             };
  
@@ -203,6 +245,10 @@ class Sponge extends Game {
             }
 
         }, 30); 
+    }
+
+    getAssets() {
+        return this.assets;
     }
 
     grantPoint(left) {
