@@ -1,6 +1,6 @@
 const dictionary = require('../../common/util/dictionary');
 
-const { Game, GameNode, Colors, Shapes, ShapeUtils, Physics } = require('squish-0756');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils } = require('squish-0756');
 
 const COLORS = Colors.COLORS;
 
@@ -95,10 +95,10 @@ class Sponge extends Game {
             this.clickHandlers[playerId] = (x, y) => {
                 if (x < 50) {
                     // controlling left
-                    this.leftPaddle.node.coordinates2d = ShapeUtils.rectangle(0, Math.min(75, y), 5, 25); // 25 is paddle height 
+                    this.leftPaddle.node.coordinates2d = ShapeUtils.rectangle(0, Math.min(Math.max(0, y - 12.5), 75), 5, 25); // 25 is paddle height 
                 } else {
                     // right
-                    this.rightPaddle.node.coordinates2d = ShapeUtils.rectangle(95, Math.min(75, y), 5, 25); // 25 is paddle height 
+                    this.rightPaddle.node.coordinates2d = ShapeUtils.rectangle(95, Math.min(Math.max(0, y - 12.5), 75), 5, 25); // 25 is paddle height 
                 }
             };
             this.startBall();
@@ -126,12 +126,7 @@ class Sponge extends Game {
             randYVel = .25;
         }
 
-        randXVel = -1;
-        randYVel = .1;
-
         const ballPath = Physics.getPath(ballX, ballY, randXVel, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
-        // const ballPath = Physics.getPath(0, 50, 1, -1, 100 - BALL_SIZE, 100 - BALL_SIZE);
-        // const ballPath = Physics.getPath(50, 0, 1, 1, 100 - BALL_SIZE, 100 - BALL_SIZE);
 
         this.moveBall(ballPath);
    }
@@ -171,20 +166,23 @@ class Sponge extends Game {
             if (coordIndex >= path.length) {
                 bounce();
             } else {
-                if (curBallX <= 5) {
-                    const leftPaddleY = this.leftPaddle.node.coordinates2d[0][1];
-                    const diffMiddle = Math.abs((curBallY - (leftPaddleY + 12.5)));
-                    console.log('the fuck left paddle is at ' + leftPaddleY + ' and ball is at ' + curBallY);
-                    if (diffMiddle > 12.5) {
+                if (curBallX <= BALL_SIZE) {
+                    const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.leftPaddle.node.coordinates2d}}, (node) => {
+                        return node.node.id !== this.base.node.id && node.node.id !== this.leftPaddle.node.id;
+                    });
+
+                    if (wouldBeCollisions.length == 0) {
                         this.grantPoint(false);
                         shouldContinue = false;
                     } else {
                         bounce('left');
                     }
-                } else if (curBallX + BALL_SIZE >= 95) {
-                    const rightPaddleY = this.rightPaddle.node.coordinates2d[0][1];
-                    const diffMiddle = Math.abs((curBallY) - (rightPaddleY + 12.5));
-                    if (diffMiddle > 12.5) {
+                } else if (curBallX + BALL_SIZE >= (100 - BALL_SIZE)) {
+                    const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.rightPaddle.node.coordinates2d}}, (node) => {
+                        return node.node.id !== this.base.node.id && node.node.id !== this.rightPaddle.node.id;
+                    });
+
+                    if (wouldBeCollisions.length == 0) {
                         this.grantPoint(true);
                         shouldContinue = false;
                     } else {
