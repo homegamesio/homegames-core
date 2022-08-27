@@ -37,47 +37,47 @@ class Sponge extends Game {
             fill: COLORS.WHITE
         });
 
-        // const leftPaddle = new GameNode.Shape({
-        //     shapeType: Shapes.POLYGON,
-        //     coordinates2d: ShapeUtils.rectangle(0, 40, 5, 25),
-        //     fill: COLORS.WHITE
-        // });
+        const leftPaddle = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 40, 5, 25),
+            fill: COLORS.WHITE
+        });
 
-        // const rightPaddle = new GameNode.Shape({
-        //     shapeType: Shapes.POLYGON,
-        //     coordinates2d: ShapeUtils.rectangle(95, 40, 5, 25),
-        //     fill: COLORS.WHITE 
-        // });
+        const rightPaddle = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(95, 40, 5, 25),
+            fill: COLORS.WHITE 
+        });
 
-        // const leftScore = new GameNode.Text({
-        //     textInfo: {
-        //         text: '0',
-        //         x: 25,
-        //         y: 1,
-        //         color: COLORS.WHITE,
-        //         size: 4,
-        //         align: 'center'
-        //     }
-        // });
+        const leftScore = new GameNode.Text({
+            textInfo: {
+                text: '0',
+                x: 25,
+                y: 1,
+                color: COLORS.WHITE,
+                size: 4,
+                align: 'center'
+            }
+        });
 
-        // const rightScore = new GameNode.Text({
-        //     textInfo: {
-        //         text: '0',
-        //         x: 75,
-        //         y: 1,
-        //         color: COLORS.WHITE,
-        //         size: 4,
-        //         align: 'center'
-        //     }
-        // });
+        const rightScore = new GameNode.Text({
+            textInfo: {
+                text: '0',
+                x: 75,
+                y: 1,
+                color: COLORS.WHITE,
+                size: 4,
+                align: 'center'
+            }
+        });
 
         this.ball = ball;
-        // this.leftPaddle = leftPaddle;
-        // this.rightPaddle = rightPaddle;
-        // this.leftScore = leftScore;
-        // this.rightScore = rightScore;
+        this.leftPaddle = leftPaddle;
+        this.rightPaddle = rightPaddle;
+        this.leftScore = leftScore;
+        this.rightScore = rightScore;
 
-        this.base.addChildren(this.ball)//, this.leftPaddle, this.rightPaddle, this.leftScore, this.rightScore); 
+        this.base.addChildren(this.ball, this.leftPaddle, this.rightPaddle, this.leftScore, this.rightScore); 
    }
 
     handleNewPlayer({ playerId, info: playerInfo }) {
@@ -92,15 +92,15 @@ class Sponge extends Game {
         } else if (playerCount == 1) {
             // just one
             const playerId = Object.keys(this.players)[0];
-            // this.clickHandlers[playerId] = (x, y) => {
-            //     if (x < 50) {
-            //         // controlling left
-            //         this.leftPaddle.node.coordinates2d = ShapeUtils.rectangle(0, Math.min(75, y), 5, 25); // 25 is paddle height 
-            //     } else {
-            //         // right
-            //         this.rightPaddle.node.coordinates2d = ShapeUtils.rectangle(95, Math.min(75, y), 5, 25); // 25 is paddle height 
-            //     }
-            // };
+            this.clickHandlers[playerId] = (x, y) => {
+                if (x < 50) {
+                    // controlling left
+                    this.leftPaddle.node.coordinates2d = ShapeUtils.rectangle(0, Math.min(75, y), 5, 25); // 25 is paddle height 
+                } else {
+                    // right
+                    this.rightPaddle.node.coordinates2d = ShapeUtils.rectangle(95, Math.min(75, y), 5, 25); // 25 is paddle height 
+                }
+            };
             this.startBall();
         }
     }
@@ -111,106 +111,90 @@ class Sponge extends Game {
         
         this.ball.node.coordinates2d = ShapeUtils.rectangle(ballX, ballY, BALL_SIZE, BALL_SIZE);
 
-        let randXVel = Math.random() > .5 ? (-1 * Math.random()) : Math.random();
-        let randYVel = Math.random() > .5 ? (-1 * Math.random()) : Math.random();
-        
-        const xSign = randXVel < 0 ? -1 : 1;
-        const ySign = randYVel < 0 ? -1 : 1;
 
-        if (Math.abs(randXVel) <= .25) {
-            randXVel += xSign * .25;
-        }
-        
-        if (Math.abs(randYVel) <= .25) {
-            randYVel += ySign * .25;
+        const xSign = Math.random() < .5 ? -1 : 1;
+        const ySign = Math.random() < .5 ? -1 : 1;
+
+        let randXVel = xSign * (Math.floor(100 * Math.random()) % 4) * .25;
+        let randYVel = ySign * (Math.floor(100 * Math.random()) % 4) * .25;
+
+        if (randXVel === 0) {
+            randXVel = .25;
         }
 
-        // const ballPath = Physics.getPath(ballX, ballY, randXVel, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
+        if (randYVel === 0) {
+            randYVel = .25;
+        }
+
+        randXVel = -1;
+        randYVel = .1;
+
+        const ballPath = Physics.getPath(ballX, ballY, randXVel, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
         // const ballPath = Physics.getPath(0, 50, 1, -1, 100 - BALL_SIZE, 100 - BALL_SIZE);
-        const ballPath = Physics.getPath(50, 0, 1, 1, 100 - BALL_SIZE, 100 - BALL_SIZE);
+        // const ballPath = Physics.getPath(50, 0, 1, 1, 100 - BALL_SIZE, 100 - BALL_SIZE);
 
         this.moveBall(ballPath);
    }
 
     moveBall(path) {
         let coordIndex = 0;
-        
         const interval = setInterval(() => {
             let shouldContinue = true;
             const curBallX = this.ball.node.coordinates2d[0][0];
             const curBallY = this.ball.node.coordinates2d[0][1];
 
-            const bounce = () => {
+            const bounce = (dir) => {
                 clearInterval(interval);
                 const secondToLast = path[coordIndex - 2];//path.length - 2];
                 const mostRecent = path[coordIndex - 1];//path.length - 1];
+                const finalPoint = path[path.length - 1];
                 const xDiff = mostRecent[0] - secondToLast[0];
                 const yDiff = mostRecent[1] - secondToLast[1];
 
-                console.log('what is y diff ' + xDiff + ', ' + yDiff);
+                if (dir && dir === 'left') {
+                    this.ball.node.coordinates2d = ShapeUtils.rectangle(5.25, curBallY, BALL_SIZE, BALL_SIZE);
+                } else if (dir && dir === 'right') {
+                    this.ball.node.coordinates2d = ShapeUtils.rectangle(89.75, curBallY, BALL_SIZE, BALL_SIZE);
+                }
 
-                const theta = Math.atan(xDiff / yDiff) * 180 / Math.PI;
-                const alpha = 90 - Math.abs(theta);
+                // invert x if left or right bounce
+                const newX = dir && dir === 'left' || dir === 'right' ? -1 * xDiff : xDiff;
 
+                // invert y if top or bottom bounce
+                const newY = finalPoint[1] <= BALL_SIZE || mostRecent[1] >= (100 - BALL_SIZE - 1) ? -1 * yDiff : yDiff;
 
-                console.log('alpha');
-                console.log(alpha);
+                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
 
-                const missingTheta = 180 - (2 * alpha) - Math.abs(theta);
-
-                const missingThetaRadians = missingTheta * (Math.PI / 180);
-                const alphaRadians = alpha * (Math.PI / 180);
-
-                console.log('the fuck ' + (-1 * yDiff * Math.tan(missingThetaRadians)));
-                console.log('what is that angle lol ' + (missingTheta));
-                // const ySign = yDiff > 0 ? -1 : 1;
-                // const xSign = curBallX + BALL_SIZE >= 95 || curBallX <= 5 ? -1 : 1;
-
-                // if (curBallX <= 5) {
-                //     this.ball.node.coordinates2d = ShapeUtils.rectangle(5.1, curBallY, BALL_SIZE, BALL_SIZE);
-                // } else if (curBallX + BALL_SIZE >= 95) {
-                //     this.ball.node.coordinates2d = ShapeUtils.rectangle(89.9, curBallY, BALL_SIZE, BALL_SIZE);
-                // }
-
-                const newX = xDiff * Math.tan(missingThetaRadians);
-                const newY = yDiff * Math.cos(alphaRadians);
-
-                console.log('new x ' + newX + ', ' + newY);
-                // const newPath = Physics.getPath(curBallX, curBallY, xSign * xDiff, ySign * Math.abs(yDiff), 100 - BALL_SIZE, 100 - BALL_SIZE);
-                const newPath = Physics.getPath(curBallX, curBallY, newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-
-                // console.log('djfdsf ' + curBallX + ', ' + curBallY + ', ' + (xSign * xDiff) + ',' + (ySign * Math.abs(yDiff)));
-                // console.log('path!!');
-                // console.log(path);
-                // this.moveBall(newPath);        
+                this.moveBall(newPath);        
             };
  
             if (coordIndex >= path.length) {
                 bounce();
             } else {
-               //  if (curBallX <= 5) {
-               //      const leftPaddleY = this.leftPaddle.node.coordinates2d[0][1];
-               //      const diffMiddle = Math.abs((curBallY - (leftPaddleY + 12.5)));
-               //      if (diffMiddle > 12.5) {
-               //          this.grantPoint(false);
-               //          shouldContinue = false;
-               //      } else {
-               //          bounce();
-               //      }
-               //  } else if (curBallX + BALL_SIZE >= 95) {
-               //      const rightPaddleY = this.rightPaddle.node.coordinates2d[0][1];
-               //      const diffMiddle = Math.abs((curBallY) - (rightPaddleY + 12.5));
-               //      if (diffMiddle > 12.5) {
-               //          this.grantPoint(true);
-               //          shouldContinue = false;
-               //      } else {
-               //          bounce();
-               //      }
-               // } else {
+                if (curBallX <= 5) {
+                    const leftPaddleY = this.leftPaddle.node.coordinates2d[0][1];
+                    const diffMiddle = Math.abs((curBallY - (leftPaddleY + 12.5)));
+                    console.log('the fuck left paddle is at ' + leftPaddleY + ' and ball is at ' + curBallY);
+                    if (diffMiddle > 12.5) {
+                        this.grantPoint(false);
+                        shouldContinue = false;
+                    } else {
+                        bounce('left');
+                    }
+                } else if (curBallX + BALL_SIZE >= 95) {
+                    const rightPaddleY = this.rightPaddle.node.coordinates2d[0][1];
+                    const diffMiddle = Math.abs((curBallY) - (rightPaddleY + 12.5));
+                    if (diffMiddle > 12.5) {
+                        this.grantPoint(true);
+                        shouldContinue = false;
+                    } else {
+                        bounce('right');
+                    }
+               } else {
                     const nextCoord = path[coordIndex];
                     this.ball.node.coordinates2d = ShapeUtils.rectangle(nextCoord[0], nextCoord[1], BALL_SIZE, BALL_SIZE)
                     coordIndex++;
-               //  }
+                }
             }
 
             if (!shouldContinue) {
