@@ -1,6 +1,6 @@
 const dictionary = require('../../common/util/dictionary');
 
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils } = require('squish-0756');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils } = require('squish-0761');
 
 const COLORS = Colors.COLORS;
 
@@ -13,7 +13,7 @@ class Sponge extends Game {
             description: 'Never heard of it.',
             author: 'Joseph Garcia',
             thumbnail: '4b5f169186bc542e14b5d001d25ce6bb',
-            squishVersion: '0756',
+            squishVersion: '0761',
             maxPlayers: 2
         };
     }
@@ -92,7 +92,7 @@ class Sponge extends Game {
         this.leftScore = leftScore;
         this.rightScore = rightScore;
 
-        this.base.addChildren(this.ball, this.leftPaddle, this.rightPaddle, this.leftScore, this.rightScore); 
+        this.base.addChildren(this.ball);//, this.leftPaddle, this.rightPaddle, this.leftScore, this.rightScore); 
    }
 
     handleNewPlayer({ playerId, info: playerInfo }) {
@@ -141,6 +141,19 @@ class Sponge extends Game {
             randYVel = .25;
         }
 
+        randXVel = Math.floor(Math.random() * 5);
+        randYVel = Math.floor(Math.random() * 5);
+
+        if (randYVel == 0) {
+            randYVel = 1;
+        }
+
+        if (randXVel == 0) {
+            randXVel = 1;
+        }
+
+        randXVel = 1;
+        randYVel = .5;
         const ballPath = Physics.getPath(ballX, ballY, randXVel, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
 
         this.moveBall(ballPath);
@@ -182,6 +195,8 @@ class Sponge extends Game {
 
             const bounce = (dir) => {
                 clearInterval(interval);
+                console.log('bouncing ' + dir);
+                // console.log(path);
                 const secondToLast = path[coordIndex - 2];//path.length - 2];
                 const mostRecent = path[coordIndex - 1];//path.length - 1];
                 const finalPoint = path[path.length - 1];
@@ -194,47 +209,52 @@ class Sponge extends Game {
                     this.ball.node.coordinates2d = ShapeUtils.rectangle(89.75, curBallY, BALL_SIZE, BALL_SIZE);
                 }
 
+                console.log("what was x diff y diff " + xDiff + ", " + yDiff);
+                console.log('final point');
+                console.log(finalPoint);
+
                 // invert x if left or right bounce
-                const newX = dir && dir === 'left' || dir === 'right' ? -1 * xDiff : xDiff;
+                const newX = finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : Math.abs(xDiff) * -1;//dir && dir === 'left' || dir === 'right' ? -1 * xDiff : xDiff;
 
                 // invert y if top or bottom bounce
-                const newY = finalPoint[1] <= BALL_SIZE || mostRecent[1] >= (100 - BALL_SIZE - 1) ? -1 * yDiff : yDiff;
+                const newY = finalPoint[1] - Math.abs(yDiff) < 0 ? Math.abs(yDiff) : Math.abs(yDiff) * -1;//finalPoint[1] <= BALL_SIZE || mostRecent[1] >= (100 - BALL_SIZE - 1) ? -1 * yDiff : yDiff;
 
                 const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
                 this.playSound(dir);
+                console.log("bouncing with new x y " + newX + ", " + newY);
                 this.moveBall(newPath);        
             };
  
             if (coordIndex >= path.length) {
                 bounce();
             } else {
-                if (curBallX <= BALL_SIZE) {
-                    const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.leftPaddle.node.coordinates2d}}, (node) => {
-                        return node.node.id !== this.base.node.id && node.node.id !== this.leftPaddle.node.id;
-                    });
+               //  if (curBallX <= BALL_SIZE) {
+               //      const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.leftPaddle.node.coordinates2d}}, (node) => {
+               //          return node.node.id !== this.base.node.id && node.node.id !== this.leftPaddle.node.id;
+               //      });
 
-                    if (wouldBeCollisions.length == 0) {
-                        this.grantPoint(false);
-                        shouldContinue = false;
-                    } else {
-                        bounce('left');
-                    }
-                } else if (curBallX + BALL_SIZE >= (100 - BALL_SIZE)) {
-                    const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.rightPaddle.node.coordinates2d}}, (node) => {
-                        return node.node.id !== this.base.node.id && node.node.id !== this.rightPaddle.node.id;
-                    });
+               //      if (wouldBeCollisions.length == 0) {
+               //          this.grantPoint(false);
+               //          shouldContinue = false;
+               //      } else {
+               //          bounce('left');
+               //      }
+               //  } else if (curBallX + BALL_SIZE >= (100 - BALL_SIZE)) {
+               //      const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.rightPaddle.node.coordinates2d}}, (node) => {
+               //          return node.node.id !== this.base.node.id && node.node.id !== this.rightPaddle.node.id;
+               //      });
 
-                    if (wouldBeCollisions.length == 0) {
-                        this.grantPoint(true);
-                        shouldContinue = false;
-                    } else {
-                        bounce('right');
-                    }
-               } else {
+               //      if (wouldBeCollisions.length == 0) {
+               //          this.grantPoint(true);
+               //          shouldContinue = false;
+               //      } else {
+               //          bounce('right');
+               //      }
+               // } else {
                     const nextCoord = path[coordIndex];
                     this.ball.node.coordinates2d = ShapeUtils.rectangle(nextCoord[0], nextCoord[1], BALL_SIZE, BALL_SIZE)
                     coordIndex++;
-                }
+               //  }
             }
 
             if (!shouldContinue) {
@@ -244,7 +264,7 @@ class Sponge extends Game {
                 }, 1000);
             }
 
-        }, 30); 
+        }, 10); 
     }
 
     getAssets() {
