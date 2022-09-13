@@ -141,8 +141,6 @@ class Sponge extends Game {
             randXVel = 1;
         }
 
-randXVel = -1;
-randYVel = 0;
         const ballPath = Physics.getPath(ballX, ballY, randXVel, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
 
         this.moveBall(ballPath);
