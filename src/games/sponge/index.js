@@ -1,6 +1,6 @@
 const dictionary = require('../../common/util/dictionary');
 
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils } = require('squish-0761');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils } = require('squish-0762');
 
 const COLORS = Colors.COLORS;
 
@@ -13,7 +13,7 @@ class Sponge extends Game {
             description: 'Never heard of it.',
             author: 'Joseph Garcia',
             thumbnail: '4b5f169186bc542e14b5d001d25ce6bb',
-            squishVersion: '0761',
+            squishVersion: '0762',
             maxPlayers: 2
         };
     }
