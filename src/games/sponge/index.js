@@ -92,8 +92,8 @@ class Sponge extends Game {
         this.leftScore = leftScore;
         this.rightScore = rightScore;
 
-        this.base.addChildren(this.ball);//, this.leftPaddle, this.rightPaddle, this.leftScore, this.rightScore); 
-   }
+        this.base.addChildren(this.ball, this.leftPaddle, this.rightPaddle, this.leftScore, this.rightScore); 
+    }
 
     handleNewPlayer({ playerId, info: playerInfo }) {
         this.players[playerId] = { playerInfo };
@@ -141,14 +141,16 @@ class Sponge extends Game {
             randXVel = 1;
         }
 
+randXVel = -1;
+randYVel = 0;
         const ballPath = Physics.getPath(ballX, ballY, randXVel, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
 
         this.moveBall(ballPath);
-   }
+    }
 
-   playSound(dir) {
+    playSound(dir) {
         let assetKey = 'pluck';
-        let playerIds = [];
+        const playerIds = [];
 
         if (dir) {
             assetKey = dir === 'left' ? 'beep' : 'boop';
@@ -171,7 +173,7 @@ class Sponge extends Game {
         setTimeout(() => {
             this.base.removeChild(this.sound.id);
         }, 50);
-   }
+    }
 
     moveBall(path) {
         let coordIndex = 0;
@@ -188,88 +190,74 @@ class Sponge extends Game {
                 const xDiff = mostRecent[0] - secondToLast[0];
                 const yDiff = mostRecent[1] - secondToLast[1];
 
+                // any corner
                 if ((finalPoint[0] + Math.abs(xDiff) + BALL_SIZE >= 100 || finalPoint[0] - Math.abs(xDiff) <= 0) && 
                     (finalPoint[1] + Math.abs(yDiff) + BALL_SIZE >= 100 || finalPoint[1] - Math.abs(yDiff) <= 0)) {
 
-                  const newX = -1 * xDiff;
-                const newY = -1 * yDiff;
+                    const newX = -1 * xDiff;
+                    const newY = -1 * yDiff;
 
 
-                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                this.playSound(dir);
-                this.moveBall(newPath);
+                    const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
+                    this.playSound();
+                    this.moveBall(newPath);
                 } else {
-                    // right down
+                    let newX, newY;
+
                     if (xDiff > 0 && yDiff > 0) {
+                        // right down
+
                         if (finalPoint[1] + yDiff + BALL_SIZE >= 100) {
-                                  const newX = xDiff;// * -1;//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : Math.abs(xDiff) * -1;//dir && dir === 'left' || dir === 'right' ? -1 * xDiff : xDiff;
-                                  const newY = -1 * Math.abs(yDiff);
-
-                                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                                this.playSound(dir);
-                                this.moveBall(newPath);
-                            
+                            // bottom wall, invert y
+                            newX = xDiff;
+                            newY = -1 * Math.abs(yDiff);
                         } else {
-                            const newX = xDiff * -1;
-                            const newY = yDiff;
-                            const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                            this.playSound(dir);
-                            this.moveBall(newPath);
+                            // right wall, invert x
+                            newX = xDiff * -1;
+                            newY = yDiff;
                         }
-                    } else if (xDiff < 0 && yDiff > 0) {
+                    } else if (xDiff < 0 && yDiff > 0) { 
+                        // left up
+
                         if (finalPoint[0] - Math.abs(xDiff) - BALL_SIZE < 0) {
-
-                            if (finalPoint[1] + Math.abs(yDiff) + BALL_SIZE > 100) {
-                                const newX = xDiff;//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : xDiff;// * -1;//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : Math.abs(xDiff) * -1;//dir && dir === 'left' || dir === 'right' ? -1 * xDiff : xDiff;
-                                const newY = -1 * yDiff;
-                                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                                this.moveBall(newPath);
-                            } else {
-                                const newX = -1 * xDiff;
-                                const newY = yDiff;
-                                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                                this.moveBall(newPath);
-                            }
+                            // left wall
+                            newX = -1 * xDiff;
+                            newY = yDiff;
                         } else {
-                            if (finalPoint[1] + yDiff > (100 - BALL_SIZE)) {
-                                const newX = xDiff;//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : xDiff;// * -1;//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : Math.abs(xDiff) * -1;//dir && dir === 'left' || dir === 'right' ? -1 * xDiff : xDiff;
-                                const newY = -1 * yDiff;
-                                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                                this.moveBall(newPath);
-                            } else {
-                                const newX = xDiff;
-                                const newY = -1 * yDiff;
-                                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                                this.moveBall(newPath);
-                            };
+                            // top wall
+                            newX = xDiff;
+                            newY = -1 * yDiff;
                         }
-                    } else {
-                        if (xDiff < 0 && yDiff < 0) {
-                            if (finalPoint[0] - Math.abs(xDiff) < 0) {
-                                const newX = Math.abs(xDiff);//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : xDiff;// * -1;//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : Math.abs(xDiff) * -1;//dir && dir === 'left' || dir === 'right' ? -1 * xDiff : xDiff;
-                                const newY = -1 * Math.abs(yDiff);
-                                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                                this.moveBall(newPath);
-                            } else {
-                                const newX = -1 * Math.abs(xDiff);//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : xDiff;// * -1;//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : Math.abs(xDiff) * -1;//dir && dir === 'left' || dir === 'right' ? -1 * xDiff : xDiff;
-                                const newY = Math.abs(yDiff);
-                                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                                this.moveBall(newPath);
-                            }
-                        } else if (xDiff > 0 && yDiff < 0) {
-                            if (finalPoint[0] + Math.abs(xDiff) + BALL_SIZE >= 100) {
-                                const newX = -1 * Math.abs(xDiff);//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : xDiff;// * -1;//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : Math.abs(xDiff) * -1;//dir && dir === 'left' || dir === 'right' ? -1 * xDiff : xDiff;
-                                const newY = -1 * Math.abs(yDiff);
-                                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                                this.moveBall(newPath);
-                            } else {
-                                const newX = Math.abs(xDiff);//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : xDiff;// * -1;//finalPoint[0] - Math.abs(xDiff) < 0 ? Math.abs(xDiff) : Math.abs(xDiff) * -1;//dir && dir === 'left' || dir === 'right' ? -1 * xDiff : xDiff;
-                                const newY = Math.abs(yDiff);
-                                const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
-                                this.moveBall(newPath);
-                            }
+                    } else if (xDiff > 0 && yDiff < 0) {
+                        // right up
 
-                        }     
+                        if (finalPoint[0] + Math.abs(xDiff) + BALL_SIZE >= 100) {
+                            // right wall
+                            newX = -1 * Math.abs(xDiff);
+                            newY = -1 * Math.abs(yDiff);
+                        } else {
+                            // top wall
+                            newX = Math.abs(xDiff);
+                            newY = Math.abs(yDiff);
+                        }
+
+                    } else if (xDiff < 0 && yDiff < 0) {
+                        // left down
+                        if (finalPoint[0] - Math.abs(xDiff) < 0) {
+                            // left wall
+                            newX = Math.abs(xDiff);
+                            newY = -1 * Math.abs(yDiff);
+                        } else {
+                            // bottom wall
+                            newX = -1 * Math.abs(xDiff);
+                            newY = Math.abs(yDiff);
+                        }
+                    }   
+
+                    if (newX && newY) {
+                        const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
+                        this.playSound();
+                        this.moveBall(newPath);
                     }
                 }
             };
@@ -277,33 +265,53 @@ class Sponge extends Game {
             if (coordIndex == path.length) {
                 bounce();
             } else {
-               //  if (curBallX <= BALL_SIZE) {
-               //      const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.leftPaddle.node.coordinates2d}}, (node) => {
-               //          return node.node.id !== this.base.node.id && node.node.id !== this.leftPaddle.node.id;
-               //      });
+                 if (curBallX <= BALL_SIZE) {
+                     const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.leftPaddle.node.coordinates2d}}, (node) => {
+                         return node.node.id !== this.base.node.id && node.node.id !== this.leftPaddle.node.id;
+                     });
 
-               //      if (wouldBeCollisions.length == 0) {
-               //          this.grantPoint(false);
-               //          shouldContinue = false;
-               //      } else {
-               //          bounce('left');
-               //      }
-               //  } else if (curBallX + BALL_SIZE >= (100 - BALL_SIZE)) {
-               //      const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.rightPaddle.node.coordinates2d}}, (node) => {
-               //          return node.node.id !== this.base.node.id && node.node.id !== this.rightPaddle.node.id;
-               //      });
+                     if (wouldBeCollisions.length == 0) {
+                         this.grantPoint(false);
+                         shouldContinue = false;
+                     } else {
+                        // bounce off of the left paddle with a random Y velocity
 
-               //      if (wouldBeCollisions.length == 0) {
-               //          this.grantPoint(true);
-               //          shouldContinue = false;
-               //      } else {
-               //          bounce('right');
-               //      }
-               // } else {
+                        const ySign = Math.random() < .5 ? -1 : 1;
+                        const randYVel = ySign * Math.floor(Math.random() * 5);
+                        this.ball.node.coordinates2d = ShapeUtils.rectangle(BALL_SIZE + .1, this.ball.node.coordinates2d[0][1], BALL_SIZE, BALL_SIZE);
+
+                        const newPath = Physics.getPath(BALL_SIZE + .1, this.ball.node.coordinates2d[0][1], 1, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
+                        clearInterval(interval);
+
+                        this.playSound('left');
+                        this.moveBall(newPath);
+
+                     }
+                 } else if (curBallX + BALL_SIZE >= (100 - BALL_SIZE)) {
+                     const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.rightPaddle.node.coordinates2d}}, (node) => {
+                         return node.node.id !== this.base.node.id && node.node.id !== this.rightPaddle.node.id;
+                     });
+
+                     if (wouldBeCollisions.length == 0) {
+                         this.grantPoint(true);
+                         shouldContinue = false;
+                     } else {
+
+                        const ySign = Math.random() < .5 ? -1 : 1;
+                        const randYVel = ySign * Math.floor(Math.random() * 5);
+                        this.ball.node.coordinates2d = ShapeUtils.rectangle(100 - (2 * BALL_SIZE) - .1, this.ball.node.coordinates2d[0][1], BALL_SIZE, BALL_SIZE);
+
+                        const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], -1, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
+                        clearInterval(interval);
+
+                        this.playSound('right');
+                        this.moveBall(newPath);
+                     }
+                } else {
                     const nextCoord = path[coordIndex];
-                    this.ball.node.coordinates2d = ShapeUtils.rectangle(nextCoord[0], nextCoord[1], BALL_SIZE, BALL_SIZE)
+                    this.ball.node.coordinates2d = ShapeUtils.rectangle(nextCoord[0], nextCoord[1], BALL_SIZE, BALL_SIZE);
                     coordIndex++;
-               //  }
+                }
             }
 
             if (!shouldContinue) {
