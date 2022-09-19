@@ -28,11 +28,27 @@ class Sponge extends Game {
             }),
             'boop': new Asset({
                 'id': '3f7087dfde98b0d7acd99824f3ef4626',
-                type: 'audio'
+                'type': 'audio'
             }),
             'pluck': new Asset({
                 'id': 'd56e115f08d4324667f697cd2200e042',
-                type: 'audio'
+                'type': 'audio'
+            }),
+            'sink': new Asset({
+                'id': '9f0c25811d212b5211512a92deb84985',
+                'type': 'image'
+            }),
+            'ball': new Asset({
+                'id': 'd250c7dae976f096f26caf97eeaf8bfa',
+                'type': 'image'
+            }),
+            'left-paddle': new Asset({
+                'id': '6bd1f090f531fbf17c34746af6696776',
+                'type': 'image'
+            }),
+            'right-paddle': new Asset({
+                'id': '4b1a650712d18a5ddfcbf08d6599d69a',
+                'type': 'image'
             })
         };
 
@@ -45,11 +61,31 @@ class Sponge extends Game {
             fill: COLORS.BLACK,
             onClick: (playerId, x, y) => this.clickHandlers[playerId] ? this.clickHandlers[playerId](x, y) : null
         });
+
+        const sinkAsset = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            assetInfo: {
+                'sink': {
+                    'pos': {x: 0, y: 0 },
+                    'size': {x: 100, y: 100}
+                }
+            }
+        });
     
         const ball = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(48, 48, BALL_SIZE, BALL_SIZE),
             fill: COLORS.WHITE
+        });
+
+        const ballAsset = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(48, 48, BALL_SIZE, BALL_SIZE),
+            assetInfo: {
+                'ball': {
+                    'pos': {x: 48, y: 48 },
+                    'size': {x: BALL_SIZE, y: BALL_SIZE}
+                }
+            }
         });
 
         const leftPaddle = new GameNode.Shape({
@@ -58,10 +94,30 @@ class Sponge extends Game {
             fill: COLORS.WHITE
         });
 
+        const leftPaddleAsset = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 40, 5, 25),
+            assetInfo: {
+                'left-paddle': {
+                    'pos': {x: 0, y: 40 },
+                    'size': {x: 5, y: 25}
+                }
+            }
+        });
+
         const rightPaddle = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(95, 40, 5, 25),
             fill: COLORS.WHITE 
+        });
+
+        const rightPaddleAsset = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 40, 5, 25),
+            assetInfo: {
+                'right-paddle': {
+                    'pos': {x: 95, y: 40 },
+                    'size': {x: 5, y: 25}
+                }
+            }
         });
 
         const leftScore = new GameNode.Text({
@@ -87,12 +143,27 @@ class Sponge extends Game {
         });
 
         this.ball = ball;
+        this.ballAsset = ballAsset;
+
         this.leftPaddle = leftPaddle;
+        this.leftPaddleAsset = leftPaddleAsset;
+
         this.rightPaddle = rightPaddle;
+        this.rightPaddleAsset = rightPaddleAsset;
+
         this.leftScore = leftScore;
         this.rightScore = rightScore;
 
-        this.base.addChildren(this.ball, this.leftPaddle, this.rightPaddle, this.leftScore, this.rightScore); 
+        this.base.addChildren(
+            sinkAsset,
+            this.ball, 
+            this.ballAsset,
+            this.leftPaddle, 
+            this.leftPaddleAsset, 
+            this.rightPaddle, 
+            this.rightPaddleAsset, 
+            this.leftScore, 
+            this.rightScore); 
     }
 
     handleNewPlayer({ playerId, info: playerInfo }) {
@@ -130,8 +201,8 @@ class Sponge extends Game {
         const xSign = Math.random() < .5 ? -1 : 1;
         const ySign = Math.random() < .5 ? -1 : 1;
 
-        let randXVel = xSign * Math.floor(Math.random() * 5);
-        let randYVel = ySign * Math.floor(Math.random() * 5);
+        let randXVel = xSign * Math.floor(Math.random() * 3);
+        let randYVel = ySign * Math.floor(Math.random() * 3);
 
         if (randYVel == 0) {
             randYVel = 1;
@@ -174,6 +245,7 @@ class Sponge extends Game {
     }
 
     moveBall(path) {
+        return;
         let coordIndex = 0;
         const interval = setInterval(() => {
             let shouldContinue = true;
@@ -214,7 +286,7 @@ class Sponge extends Game {
                             newX = xDiff * -1;
                             newY = yDiff;
                         }
-                    } else if (xDiff < 0 && yDiff > 0) { 
+                    } else if (xDiff < 0 && yDiff < 0) { 
                         // left up
 
                         if (finalPoint[0] - Math.abs(xDiff) - BALL_SIZE < 0) {
@@ -239,7 +311,7 @@ class Sponge extends Game {
                             newY = Math.abs(yDiff);
                         }
 
-                    } else if (xDiff < 0 && yDiff < 0) {
+                    } else if (xDiff < 0 && yDiff > 0) {
                         // left down
                         if (finalPoint[0] - Math.abs(xDiff) < 0) {
                             // left wall
@@ -248,7 +320,7 @@ class Sponge extends Game {
                         } else {
                             // bottom wall
                             newX = -1 * Math.abs(xDiff);
-                            newY = Math.abs(yDiff);
+                            newY = -1 * Math.abs(yDiff);
                         }
                     }   
 
@@ -275,7 +347,7 @@ class Sponge extends Game {
                         // bounce off of the left paddle with a random Y velocity
 
                         const ySign = Math.random() < .5 ? -1 : 1;
-                        const randYVel = ySign * Math.floor(Math.random() * 5);
+                        const randYVel = ySign * Math.floor(Math.random() * 3);
                         this.ball.node.coordinates2d = ShapeUtils.rectangle(BALL_SIZE + .1, this.ball.node.coordinates2d[0][1], BALL_SIZE, BALL_SIZE);
 
                         const newPath = Physics.getPath(BALL_SIZE + .1, this.ball.node.coordinates2d[0][1], 1, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
@@ -294,9 +366,10 @@ class Sponge extends Game {
                          this.grantPoint(true);
                          shouldContinue = false;
                      } else {
+                        // bounce off of the right paddle with a random Y velocity
 
                         const ySign = Math.random() < .5 ? -1 : 1;
-                        const randYVel = ySign * Math.floor(Math.random() * 5);
+                        const randYVel = ySign * Math.floor(Math.random() * 3);
                         this.ball.node.coordinates2d = ShapeUtils.rectangle(100 - (2 * BALL_SIZE) - .1, this.ball.node.coordinates2d[0][1], BALL_SIZE, BALL_SIZE);
 
                         const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], -1, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
