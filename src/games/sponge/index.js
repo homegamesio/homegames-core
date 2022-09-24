@@ -39,7 +39,7 @@ class Sponge extends Game {
                 'type': 'image'
             }),
             'ball': new Asset({
-                'id': 'd250c7dae976f096f26caf97eeaf8bfa',
+                'id': '81f534b27e5062a701cde269b5a29cec',
                 'type': 'image'
             }),
             'left-paddle': new Asset({
@@ -249,9 +249,6 @@ class Sponge extends Game {
         if (randXVel == 0) {
             randXVel = 1;
         }
-
-        randXVel = -1;
-        randYVel = 1;
 
         const ballPath = Physics.getPath(ballX, ballY, randXVel, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
 
