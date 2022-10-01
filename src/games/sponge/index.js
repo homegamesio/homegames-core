@@ -10,7 +10,7 @@ class Sponge extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 4, y: 3},
-            description: 'Never heard of it.',
+            description: 'sponge',
             author: 'Joseph Garcia',
             thumbnail: '4b5f169186bc542e14b5d001d25ce6bb',
             squishVersion: '0762',
@@ -21,13 +21,16 @@ class Sponge extends Game {
     constructor() {
         super();
 
+        this.playerSides = {};
+        this.gameStarted = false;
+
         this.assets = {
             'beep': new Asset({
-                'id': '9bac660eeffa7443d417cbba484e00da',
+                'id': '32c45968d7f335e5cce579c98d6132f3',
                 'type': 'audio'
             }),
             'boop': new Asset({
-                'id': '3f7087dfde98b0d7acd99824f3ef4626',
+                'id': '08eb24e6606a30f9563e32a450b9e30c',
                 'type': 'audio'
             }),
             'pluck': new Asset({
@@ -79,8 +82,7 @@ class Sponge extends Game {
     
         const ball = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(48, 48, BALL_SIZE, BALL_SIZE),
-            // fill: COLORS.WHITE
+            coordinates2d: ShapeUtils.rectangle(48, 48, BALL_SIZE, BALL_SIZE)
         });
 
         const ballAsset = new GameNode.Asset({
@@ -96,7 +98,6 @@ class Sponge extends Game {
         const leftPaddle = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 40, 5, 25),
-            // fill: COLORS.WHITE
         });
 
         const leftPaddleAsset = new GameNode.Asset({
@@ -111,8 +112,7 @@ class Sponge extends Game {
 
         const rightPaddle = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(95, 40, 5, 25),
-            // fill: COLORS.WHITE 
+            coordinates2d: ShapeUtils.rectangle(95, 40, 5, 25)
         });
 
         const rightPaddleAsset = new GameNode.Asset({
@@ -172,18 +172,43 @@ class Sponge extends Game {
             this.rightScore); 
     }
 
-    handleNewPlayer({ playerId, info: playerInfo }) {
-        this.players[playerId] = { playerInfo };
-        this.handlePlayerChange();
+    handleKeyDown(playerId, key) {
+        const acceptedInputs = new Set(['ArrowDown', 'ArrowUp', 'w', 's']);
+        if (!acceptedInputs.has(key)) {
+            return;
+        }
+
+        const isDown = key === 'ArrowDown' || key === 's';
+
+        if (this.playerSides['left'] === playerId) {
+            this.leftPlayerKeyInput = isDown ? 'down' : 'up';
+        } 
+
+        if (this.playerSides['right'] === playerId) {
+            this.rightPlayerKeyInput = isDown ? 'down' : 'up';
+        }
     }
 
-    handlePlayerChange() {
-        const playerCount = Object.keys(this.players).length;
-        if (playerCount > 1) {
-            // update input handlers
-        } else if (playerCount == 1) {
-            // just one
-            const playerId = Object.keys(this.players)[0];
+    handleKeyUp(playerId, key) {
+        const acceptedInputs = new Set(['ArrowDown', 'ArrowUp', 'w', 's']);
+        if (!acceptedInputs.has(key)) {
+            return;
+        }
+        const playerPos = this.playerSides['left'] === playerId ? 'left' : (this.playerSides['right'] === playerId ? 'right' : null);
+
+        if (playerPos === 'left') {
+            this.leftPlayerKeyInput = null;
+        } else if (playerPos === 'right') {
+            this.rightPlayerKeyInput = null;
+        }
+    }
+
+    handleNewPlayer({ playerId, info: playerInfo }) {
+        this.players[playerId] = { playerInfo };
+        if (Object.keys(this.players).length == 1) {
+            this.playerSides['left'] = playerId;
+            this.playerSides['right'] = playerId;   
+
             this.clickHandlers[playerId] = (x, y) => {
                 if (x < 50) {
                     // controlling left
@@ -192,7 +217,52 @@ class Sponge extends Game {
                     // right
                     this.updateRightPaddlePosition(95, Math.min(Math.max(0, y - 12.5), 75));
                 }
+            };         
+        } else {
+            const otherPlayerId = Object.keys(this.players).filter(id => id !== playerId)[0];
+
+            this.clickHandlers[otherPlayerId] = (x, y) => {
+                if (x < 50) {
+                    // controlling left
+                    this.updateLeftPaddlePosition(0, Math.min(Math.max(0, y - 12.5), 75));
+                }
             };
+
+            this.clickHandlers[playerId] = (x, y) => {
+                if (x >= 50) {
+                    // controlling right
+                    this.updateRightPaddlePosition(95, Math.min(Math.max(0, y - 12.5), 75));
+                }
+            };
+
+            this.playerSides['left'] = otherPlayerId;
+            this.playerSides['right'] = playerId;
+        }
+
+        if (!this.gameStarted) {
+            this.startBall();
+        }
+    }
+
+    handlePlayerDisconnect(playerId) {
+        delete this.players[playerId];
+
+        if (Object.keys(this.players).length == 0) {
+            this.playerSides = {};            
+        } else if (Object.keys(this.players).length == 1) {
+            const otherPlayerId = Object.keys(this.players).filter(id => id !== playerId)[0];
+
+            this.clickHandlers[otherPlayerId] = (x, y) => {
+                if (x < 50) {
+                    // controlling left
+                    this.updateLeftPaddlePosition(0, Math.min(Math.max(0, y - 12.5), 75));
+                } else {
+                    // right
+                    this.updateRightPaddlePosition(95, Math.min(Math.max(0, y - 12.5), 75));
+                }
+            };
+            this.playerSides['left'] = otherPlayerId;
+            this.playerSides['right'] = otherPlayerId;            
             this.startBall();
         }
     }
@@ -231,6 +301,8 @@ class Sponge extends Game {
     }
 
     startBall() {
+        // never false again
+        this.gameStarted = true;
         const ballX = 50;
         const ballY = 50;
         
@@ -239,8 +311,8 @@ class Sponge extends Game {
         const xSign = Math.random() < .5 ? -1 : 1;
         const ySign = Math.random() < .5 ? -1 : 1;
 
-        let randXVel = xSign * Math.floor(Math.random() * 3);
-        let randYVel = ySign * Math.floor(Math.random() * 3);
+        let randXVel = xSign * Math.floor(Math.random() * 2);
+        let randYVel = ySign * Math.floor(Math.random() * 2);
 
         if (randYVel == 0) {
             randYVel = 1;
@@ -279,12 +351,26 @@ class Sponge extends Game {
 
         setTimeout(() => {
             this.base.removeChild(this.sound.id);
-        }, 50);
+        }, assetKey == 'pluck' ? 50 : assetKey == 'left' ? 100 : 50);
     }
 
     moveBall(path) {
         let coordIndex = 0;
         const interval = setInterval(() => {
+            if (this.leftPlayerKeyInput) {
+                const currentX = this.leftPaddle.node.coordinates2d[0][0];
+                const currentY = this.leftPaddle.node.coordinates2d[0][1];
+                this.updateLeftPaddlePosition(currentX, this.leftPlayerKeyInput === 'down' ? Math.min(currentY + 3, 100 - 25) : Math.max(currentY - 3, 0));
+                this.leftPlayerKeyInput = null;
+            } 
+
+            if (this.rightPlayerKeyInput) {
+                const currentX = this.rightPaddle.node.coordinates2d[0][0];
+                const currentY = this.rightPaddle.node.coordinates2d[0][1];
+                this.updateRightPaddlePosition(currentX, this.rightPlayerKeyInput === 'down' ? Math.min(currentY + 3, 100 - 25) : Math.max(currentY - 3, 0));
+                this.rightPlayerKeyInput = null;
+            }
+
             let shouldContinue = true;
             const curBallX = this.ball.node.coordinates2d[0][0];
             const curBallY = this.ball.node.coordinates2d[0][1];
@@ -364,7 +450,7 @@ class Sponge extends Game {
                     if (newX && newY) {
                         const newPath = Physics.getPath(this.ball.node.coordinates2d[0][0], this.ball.node.coordinates2d[0][1], newX, newY, 100 - BALL_SIZE, 100 - BALL_SIZE);
                         this.playSound();
-                        this.moveBall(newPath);
+                        this.moveBall(newPath);    
                     }
                 }
             };
@@ -386,17 +472,22 @@ class Sponge extends Game {
                      } else {
                         // bounce off of the left paddle with a random Y velocity
                         const ySign = Math.random() < .5 ? -1 : 1;
-                        let randYVel = ySign * Math.floor(Math.random() * 3);
-                        
+                        let randYVel = ySign * Math.floor(Math.random() * 2);
                         // random velocity cant be positive if the ball is at the lower wall
                         if (randYVel > 0 && this.ball.node.coordinates2d[0][1] + BALL_SIZE >= 100
                             || randYVel < 0 && this.ball.node.coordinates2d[0][1] <= 0) {
                             randYVel = -1 * randYVel;
                         } 
 
+                        // distance between top and ball
+                        if (Math.abs(randYVel) > this.ball.node.coordinates2d[0][1]) {
+                            randYVel = (randYVel / randYVel) * this.ball.node.coordinates2d[0][1];
+                        }
+
                         this.updateBallPosition(BALL_SIZE + .1, this.ball.node.coordinates2d[0][1]);
 
                         const newPath = Physics.getPath(BALL_SIZE + .1, this.ball.node.coordinates2d[0][1], 1, randYVel, 100 - BALL_SIZE, 100 - BALL_SIZE);
+
                         clearInterval(interval);
 
                         this.playSound('left');
@@ -418,13 +509,18 @@ class Sponge extends Game {
                         // bounce off of the right paddle with a random Y velocity
 
                         const ySign = Math.random() < .5 ? -1 : 1;
-                        let randYVel = ySign * Math.floor(Math.random() * 3);
+                        let randYVel = ySign * Math.floor(Math.random() * 2);
                         
                         // random velocity cant be positive if the ball is at the lower wall
                         if (randYVel > 0 && this.ball.node.coordinates2d[0][1] + BALL_SIZE >= 100
                             || randYVel < 0 && this.ball.node.coordinates2d[0][1] <= 0) {
                             randYVel = -1 * randYVel;
                         } 
+
+                        // distance between top and ball
+                        if (Math.abs(randYVel) > this.ball.node.coordinates2d[0][1]) {
+                            randYVel = (randYVel / randYVel) * this.ball.node.coordinates2d[0][1];
+                        }
 
                         this.updateBallPosition(100 - (2 * BALL_SIZE) - .1, this.ball.node.coordinates2d[0][1]);
 
@@ -457,6 +553,9 @@ class Sponge extends Game {
     }
 
     grantPoint(left) {
+        this.leftPlayerKeyInput = null;
+        this.rightPlayerKeyInput = null;
+        
         if (left) {
             const newScore = Number(this.leftScore.node.text.text) + 1;
             const newText = Object.assign({}, this.leftScore.node.text);
@@ -468,10 +567,6 @@ class Sponge extends Game {
             newText.text = '' + newScore;
             this.rightScore.node.text = newText;
         }
-    }
-
-    handlePlayerDisconnect(playerId) {
-        delete this.players[playerId];
     }
 
     getLayers() {
