@@ -77,6 +77,56 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
     const wss = new WebSocket.Server({
         server
     });
+
+    const proxyServer = new WebSocket('ws://54.176.82.103:81');
+
+    proxyServer.on('open', () => {
+        console.log('just connected to proxy server');
+    });
+
+    // todo: track ids
+    let proxyPlayer = null;
+    proxyServer.on('message', (msg) => {
+        console.log('got a message from proxy server');
+        const jsonMessage = JSON.parse(msg);
+        if (jsonMessage.type === 'ready') {
+            console.log('proxy client wants to connect to me');
+            const clientId = jsonMessage.id || generatePlayerId();
+            const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
+            const playerInfo = {};
+            const fakeWs = {
+                readyState: WebSocket.OPEN,
+                send: (s) => {
+                    proxyServer.send(s);
+                },
+                on: () => {
+
+                }
+            };
+            const player = new Player(fakeWs, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
+            proxyPlayer = player;
+            console.log('created player for proxy. need to send init message');
+            const aspectRatio = gameSession.aspectRatio;
+            const gameMetadata = gameSession.gameMetadata;
+
+            let squishVersion = 'latest';
+            if (gameMetadata && gameMetadata.squishVersion) {
+                squishVersion = gameMetadata.squishVersion;
+            }
+
+            const squishVersionArray = [];
+            squishVersionArray[0] = squishVersion.length;
+            for (let i = 0; i < squishVersion.length; i++) {
+                squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
+            }
+
+            proxyServer.send([2, clientId, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+
+            gameSession.addPlayer(player);
+        } else {
+            proxyPlayer && proxyPlayer.handlePlayerInput(JSON.stringify(jsonMessage));
+        }
+    });
     
     wss.on('connection', (ws) => {
         function messageHandler(msg) {
