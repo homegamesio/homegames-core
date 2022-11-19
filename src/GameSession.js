@@ -340,6 +340,11 @@ class GameSession {
         return clicked;
     }
 
+    setServerCode(serverCode) {
+        console.log('server code in game session ' + serverCode);
+        this.homegamesRoot.handleServerCode(serverCode);
+    }
+
 }
 
 module.exports = GameSession;
