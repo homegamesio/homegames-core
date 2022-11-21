@@ -83,21 +83,21 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
     console.log('broadcastEnabled ? ' + broadcastEnabled);
 
     if (broadcastEnabled) {
-        const proxyServer = new WebSocket('ws://54.176.82.103:81');
+        const proxyServer = new WebSocket('wss://public.homegames.link:81');
 
         proxyServer.on('open', () => {
             console.log('just connected to proxy server');
         });
 
+        let id = 1000;
         // todo: track ids
         let proxyPlayer = null;
         proxyServer.on('message', (msg) => {
-            console.log('got a message from proxy server');
-            console.log(msg);
             const jsonMessage = JSON.parse(msg);
             if (jsonMessage.type === 'ready') {
                 console.log('proxy client wants to connect to me');
-                const clientId = jsonMessage.id || generatePlayerId();
+                const clientId = jsonMessage.id || id++
+                console.log('uhhhh cl' + clientId)
                 const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
                 const playerInfo = {};
                 const fakeWs = {
@@ -107,7 +107,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     },
                     on: () => {
 
-                    }
+                    },
+                    id: clientId
                 };
                 const player = new Player(fakeWs, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
                 proxyPlayer = player;

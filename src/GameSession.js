@@ -120,6 +120,9 @@ class GameSession {
         //     player.receiveUpdate([5, 70, 0]);
         // }
 
+        console.log('adding player here');
+        console.log(player);
+
         this.players[player.id] = player;
 
         const doThing = () => {
