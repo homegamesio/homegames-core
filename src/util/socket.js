@@ -81,6 +81,10 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
     const broadcastEnabled = !!getConfigValue('PUBLIC_GAMES', false);
     console.log('broadcastEnabled ? ' + broadcastEnabled);
+    console.log('dsfdsf');
+    console.log(gameSession);
+
+
 
     if (broadcastEnabled) {
         const proxyServer = new WebSocket('wss://public.homegames.link:81');

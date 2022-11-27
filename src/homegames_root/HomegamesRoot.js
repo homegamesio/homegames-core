@@ -90,7 +90,7 @@ class HomegamesRoot {
         const logoStartX = 50 - (logoSizeX / 2);
 
         this.homeButton = new GameNode.Asset({
-            onClick: onGameHomeClick,
+            onClick: isDashboard ? null : onGameHomeClick,
             coordinates2d: ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
             assetInfo: {
                 'logo-horizontal': {
@@ -375,6 +375,7 @@ class HomegamesRoot {
 
     handleServerCode(serverCode) {
         this.serverCode = serverCode;
+        this.homeButton.node.handleClick = null;
     }
 
 }
