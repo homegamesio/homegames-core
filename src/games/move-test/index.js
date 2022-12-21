@@ -46,9 +46,6 @@ class MoveTest extends Game {
     }
 
     handleGamepadInput(playerId, gamepadInput) {
-        // console.log('ndndndnd');
-        // console.log(gamepadInput);
-
         const stick1X = gamepadInput.input.sticks.STICK_1_X.value;
         const stick2X = gamepadInput.input.sticks.STICK_2_X.value;
 
@@ -56,34 +53,27 @@ class MoveTest extends Game {
         const stick2Y = gamepadInput.input.sticks.STICK_2_Y.value;
 
 
-        // console.log('lmao ' + stick1X + ', ' + stick1Y + ',, ' + stick2X + ', ' + stick2Y);
         if (stick1X < 0) {
-            // move left
             this.movePlayer(this.mover1, 'left', .1);
         } else if (stick1X > 0) {
             this.movePlayer(this.mover1, 'right', .1);
         }
 
         if (stick1Y < 0) {
-            // move up
             this.movePlayer(this.mover1, 'up', .1);
         } else if (stick1Y > 0) {
-            //move down
             this.movePlayer(this.mover1, 'down', .1);
         }
 
         if (stick2X < 0) {
-            // move left
             this.movePlayer(this.mover2, 'left', .1);
         } else if (stick2X > 0) {
             this.movePlayer(this.mover2, 'right', .1);
         }
 
         if (stick2Y < 0) {
-            // move up
             this.movePlayer(this.mover2, 'up', .1);
         } else if (stick2Y > 0) {
-            //move down
             this.movePlayer(this.mover2, 'down', .1);
         }
     }

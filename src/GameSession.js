@@ -210,7 +210,6 @@ class GameSession {
             this.game.handleKeyUp && this.game.handleKeyUp(player.id, input.key);
         } else if (input.type === 'input') {
             if (!!input.gamepad) {
-                // console.log('what');
                 this.game.handleGamepadInput && this.game.handleGamepadInput(player.id, input);
             } else {
                 const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
