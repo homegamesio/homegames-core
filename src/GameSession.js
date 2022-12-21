@@ -209,13 +209,18 @@ class GameSession {
         } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player.id, input.key);
         } else if (input.type === 'input') {
-            const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
-            if (node && node.node.input) {
-                // hilarious
-                if (node.node.input.type === 'file') {
-                    node.node.input.oninput(player.id, Object.values(input.input));
-                } else {
-                    node.node.input.oninput(player.id, input.input);
+            if (!!input.gamepad) {
+                // console.log('what');
+                this.game.handleGamepadInput && this.game.handleGamepadInput(player.id, input);
+            } else {
+                const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
+                if (node && node.node.input) {
+                    // hilarious
+                    if (node.node.input.type === 'file') {
+                        node.node.input.oninput(player.id, Object.values(input.input));
+                    } else {
+                        node.node.input.oninput(player.id, input.input);
+                    }
                 }
             }
         } else if (input.type === 'clientInfo') {

@@ -45,6 +45,49 @@ class MoveTest extends Game {
         this.keysDown[key] = true;
     }
 
+    handleGamepadInput(playerId, gamepadInput) {
+        // console.log('ndndndnd');
+        // console.log(gamepadInput);
+
+        const stick1X = gamepadInput.input.sticks.STICK_1_X.value;
+        const stick2X = gamepadInput.input.sticks.STICK_2_X.value;
+
+        const stick1Y = gamepadInput.input.sticks.STICK_1_Y.value;
+        const stick2Y = gamepadInput.input.sticks.STICK_2_Y.value;
+
+
+        // console.log('lmao ' + stick1X + ', ' + stick1Y + ',, ' + stick2X + ', ' + stick2Y);
+        if (stick1X < 0) {
+            // move left
+            this.movePlayer(this.mover1, 'left', .1);
+        } else if (stick1X > 0) {
+            this.movePlayer(this.mover1, 'right', .1);
+        }
+
+        if (stick1Y < 0) {
+            // move up
+            this.movePlayer(this.mover1, 'up', .1);
+        } else if (stick1Y > 0) {
+            //move down
+            this.movePlayer(this.mover1, 'down', .1);
+        }
+
+        if (stick2X < 0) {
+            // move left
+            this.movePlayer(this.mover2, 'left', .1);
+        } else if (stick2X > 0) {
+            this.movePlayer(this.mover2, 'right', .1);
+        }
+
+        if (stick2Y < 0) {
+            // move up
+            this.movePlayer(this.mover2, 'up', .1);
+        } else if (stick2Y > 0) {
+            //move down
+            this.movePlayer(this.mover2, 'down', .1);
+        }
+    }
+
     movePlayer(player, dir, dist = .1) {
         let newX = player.node.coordinates2d[0][0];
         let newY = player.node.coordinates2d[0][1];
@@ -95,41 +138,36 @@ class MoveTest extends Game {
         this.keysDown[key] = true;
 
         if (key === 'ArrowUp') {
-            this.movePlayer(this.mover1, 'up', .2);
+            this.movePlayer(this.mover1, 'up', .1);
         }
         
         if (key == 'ArrowDown') {
-            this.movePlayer(this.mover1, 'down', .2);
+            this.movePlayer(this.mover1, 'down', .1);
         }
         
         if (key == 'ArrowLeft') {
-            this.movePlayer(this.mover1, 'left', .2);
+            this.movePlayer(this.mover1, 'left', .1);
         }
 
         if (key == 'ArrowRight') {
-            this.movePlayer(this.mover1, 'right', .2);
+            this.movePlayer(this.mover1, 'right', .1);
         }
 
         if (key == 'w') {
-            this.movePlayer(this.mover2, 'up', .2);
+            this.movePlayer(this.mover2, 'up', .1);
         }
         
         if (key == 's') {
-            this.movePlayer(this.mover2, 'down', .2);
+            this.movePlayer(this.mover2, 'down', .1);
         }
         
         if (key == 'a') {
-            this.movePlayer(this.mover2, 'left', .2);
+            this.movePlayer(this.mover2, 'left', .1);
         }
 
         if (key == 'd') {
-            this.movePlayer(this.mover2, 'right', .2);
+            this.movePlayer(this.mover2, 'right', .1);
         }
-    }
-
-    handleLayerClick() {
-        // todo: squisher needs to update pos after original
-        this.color = Colors.randomColor();
     }
 
     getLayers() {
