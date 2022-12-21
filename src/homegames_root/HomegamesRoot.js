@@ -376,6 +376,7 @@ class HomegamesRoot {
     handleServerCode(serverCode) {
         this.serverCode = serverCode;
         this.homeButton.node.handleClick = null;
+        this.updateLabels();
     }
 
 }

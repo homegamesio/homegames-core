@@ -347,6 +347,8 @@ class GameSession {
     setServerCode(serverCode) {
         console.log('dsfdsfds sdkgfsdf ' + this.homegamesRoot.isDashboard);
         if (!this.homegamesRoot.isDashboard) {
+            console.log('handling server code!');
+            console.log(serverCode)
             this.homegamesRoot.handleServerCode(serverCode);
         }
     }

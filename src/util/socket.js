@@ -47,6 +47,7 @@ const listenable = function(obj, onChange) {
 const socketServer = (gameSession, port, cb = null, certPath = null) => {
     const playerIds = {};
 
+console.log('djkashkjasjkdas bbbbb')
     for (let i = 1; i < 256; i++) {
         playerIds[i] = false;
     }
