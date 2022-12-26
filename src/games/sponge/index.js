@@ -12,6 +12,7 @@ class Sponge extends Game {
             aspectRatio: {x: 4, y: 3},
             description: 'sponge',
             author: 'Joseph Garcia',
+            thumbnail: '4b5f169186bc542e14b5d001d25ce6bb',
             squishVersion: '0762',
             maxPlayers: 2
         };
