@@ -3,6 +3,7 @@ const { generateName } = require('./common/util');
 const squishMap = require('./common/squish-map');
 
 const HomegamesRoot = require('./homegames_root/HomegamesRoot');
+const HomegamesDashboard = require('./dashboard/HomegamesDashboard');
 
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
@@ -35,7 +36,7 @@ class GameSession {
         this.clientInfoMap = {};
         this.playerSettingsMap = {};
 
-        this.homegamesRoot = new HomegamesRoot(this, false, false);
+        this.homegamesRoot = new HomegamesRoot(this, game instanceof HomegamesDashboard, false);
         this.customBottomLayer = {
             root: this.homegamesRoot.getRoot(),
             scale: {x: 1, y: 1},
@@ -119,6 +120,9 @@ class GameSession {
         // if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
         //     player.receiveUpdate([5, 70, 0]);
         // }
+
+        console.log('adding player here');
+        console.log(player);
 
         this.players[player.id] = player;
 
@@ -342,6 +346,15 @@ class GameSession {
         }
 
         return clicked;
+    }
+
+    setServerCode(serverCode) {
+        console.log('dsfdsfds sdkgfsdf ' + this.homegamesRoot.isDashboard);
+        if (!this.homegamesRoot.isDashboard) {
+            console.log('handling server code!');
+            console.log(serverCode)
+            this.homegamesRoot.handleServerCode(serverCode);
+        }
     }
 
 }

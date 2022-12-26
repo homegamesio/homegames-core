@@ -90,7 +90,7 @@ class HomegamesRoot {
         const logoStartX = 50 - (logoSizeX / 2);
 
         this.homeButton = new GameNode.Asset({
-            onClick: onGameHomeClick,
+            onClick: isDashboard ? null : onGameHomeClick,
             coordinates2d: ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
             assetInfo: {
                 'logo-horizontal': {
@@ -239,7 +239,23 @@ class HomegamesRoot {
                 },
                 playerIds: [playerId]
             });
-        
+       
+            if (this.serverCode) {
+                const serverCodeNode = new GameNode.Text({
+                    textInfo: {
+                        text: `Server code: ${this.serverCode.split('').join(' ')}`,
+                        x: 75,
+                        y: 1,
+                        size: 1.6,
+                        color: COLORS.ORANGE,
+                        align: 'center'
+                    },
+                    playerIds: [playerId]
+                });
+
+                playerFrame.addChild(serverCodeNode)
+            }
+
             settingsButton.addChild(labelText);
                 
             playerFrame.addChild(settingsButton);
@@ -355,6 +371,12 @@ class HomegamesRoot {
         } else if (msg.type === 'renderEnd') {
             this.renderTimes[this.renderTimes.length - 1].end = msg.time;
         }
+    }
+
+    handleServerCode(serverCode) {
+        this.serverCode = serverCode;
+        this.homeButton.node.handleClick = null;
+        this.updateLabels();
     }
 
 }

@@ -262,8 +262,10 @@ class Sponge extends Game {
                 }
             };
             this.playerSides['left'] = otherPlayerId;
-            this.playerSides['right'] = otherPlayerId;            
-            this.startBall();
+            this.playerSides['right'] = otherPlayerId;     
+            if (!this.gameStarted) {       
+                this.startBall();
+            }
         }
     }
 
