@@ -94,13 +94,14 @@ console.log('djkashkjasjkdas bbbbb')
             console.log('just connected to proxy server');
         });
 
-        let id = 1000;
+        let id;// = 1000;
         // todo: track ids
         let proxyPlayer = null;
         proxyServer.on('message', (msg) => {
             const jsonMessage = JSON.parse(msg);
             if (jsonMessage.type === 'ready') {
                 console.log('proxy client wants to connect to me');
+                console.log(jsonMessage);
                 const clientId = jsonMessage.id || id++
                 console.log('uhhhh cl' + clientId)
                 const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
