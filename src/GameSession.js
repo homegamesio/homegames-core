@@ -210,7 +210,7 @@ class GameSession {
         } else if (input.type === 'keyup') {
             this.game.handleKeyUp && this.game.handleKeyUp(player.id, input.key);
         } else if (input.type === 'input') {
-            if (!!input.gamepad) {
+            if (input.gamepad) {
                 this.game.handleGamepadInput && this.game.handleGamepadInput(player.id, input);
             } else {
                 const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
@@ -349,7 +349,7 @@ class GameSession {
         console.log('dsfdsfds sdkgfsdf ' + this.homegamesRoot.isDashboard);
         if (!this.homegamesRoot.isDashboard) {
             console.log('handling server code!');
-            console.log(serverCode)
+            console.log(serverCode);
             this.homegamesRoot.handleServerCode(serverCode);
         }
     }

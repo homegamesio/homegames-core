@@ -253,7 +253,7 @@ class HomegamesRoot {
                     playerIds: [playerId]
                 });
 
-                playerFrame.addChild(serverCodeNode)
+                playerFrame.addChild(serverCodeNode);
             }
 
             settingsButton.addChild(labelText);

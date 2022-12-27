@@ -221,7 +221,7 @@ class HotPotato extends Game {
                 'type': 'audio'
             }),
             
-        }
+        };
     }
 }
 

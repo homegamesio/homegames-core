@@ -7,7 +7,7 @@ const baseDir = path.dirname(require.main.filename);
 let words = [];
 
 // need to move to squish
-const options = [process.cwd(), require.main.filename, process.mainModule.filename, __dirname]
+const options = [process.cwd(), require.main.filename, process.mainModule.filename, __dirname];
 
 let dictPath;
 

@@ -73,7 +73,7 @@ const generatePlayerId = () => {
         if (data[k] === false) {
             data[k] = true;
             fs.writeFileSync(playerDataPath, JSON.stringify(data));
-            console.log('returning id ' + k)
+            console.log('returning id ' + k);
             return Number(k);
         }
     }
@@ -91,7 +91,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             cert: fs.readFileSync(certPath.certPath).toString()
         });
     } else { 
-        log.info("Starting regular server on port " + port);
+        log.info('Starting regular server on port ' + port);
         server = http.createServer();
     }
 
@@ -110,7 +110,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             console.log('just connected to proxy server');
         });
 
-        let internalId = 1;
+        const internalId = 1;
         const playerIdMap = {};
         // todo: track ids
         let proxyPlayer = null;
@@ -168,7 +168,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     gameSession.addPlayer(player);
                 } else if(jsonMessage.type === 'code') {
                     const code = jsonMessage.code;
-                    console.log("here is my server code");
+                    console.log('here is my server code');
                     console.log(code);
                     // console.log('just sent id message');
                     // proxyServer.send('ayyylmao123');
@@ -204,7 +204,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 }, res => {
                     res.on('data', d => {
                         const playerInfo = JSON.parse(d);
-                        log.debug("player info from homenames for this person", playerInfo);
+                        log.debug('player info from homenames for this person', playerInfo);
                         const player = new Player(ws, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
                         ws.spectating = jsonMessage.spectating;
                         
@@ -254,7 +254,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         ws.on('close', closeHandler);
         ws.on('error', (err) => {
             log.error('Child session error', err);
-        })
+        });
 
     });
 

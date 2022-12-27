@@ -1,7 +1,7 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0756');
 const dictionary = require('../../common/util/dictionary');
 
-let COLORS = Colors.COLORS;
+const COLORS = Colors.COLORS;
 
 class WordMatch extends Game {
     static metadata() {
@@ -12,7 +12,7 @@ class WordMatch extends Game {
                 x: 16,
                 y: 9
             },
-            description: "Match the same word as the other player. Desktop keyboard input required."
+            description: 'Match the same word as the other player. Desktop keyboard input required.'
         };
     }
 
@@ -60,7 +60,7 @@ class WordMatch extends Game {
                 coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),   
                 onClick: () => { 
                     this.savedNodeRoot.removeChild(this.newGameButton.node.id);
-                    this.newGame()
+                    this.newGame();
                 }
             });
 
@@ -280,7 +280,7 @@ class WordMatch extends Game {
         for (const playerId in this.players) {
             this.playerReadyStates[playerId] = {
                 ready: false
-            }
+            };
         }
 
         this.results = false;
