@@ -113,15 +113,11 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 const jsonMessage = JSON.parse(msg);
                 if (jsonMessage.type === 'ready') {
                     const clientId = jsonMessage.id;
-                    console.log('jsonmessage');
-                    console.log(jsonMessage);
                     const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
                     const playerInfo = {};
                     const fakeWs = {
                         readyState: WebSocket.OPEN,
                         send: (s) => {
-                            console.log('sending this one');
-                            console.log(s);
                             proxyServer.send([199, clientId, ...s]);
                         },
                         on: (input) => {
