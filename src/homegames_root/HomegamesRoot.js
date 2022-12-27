@@ -111,13 +111,6 @@ class HomegamesRoot {
 
         this.root.addChild(this.frameRoot);
         this.root.addChild(this.homeButton);
-        // const ting = new GameNode.Shape({
-        //     shapeType: Shapes.POLYGON,
-        //     coordinates2d: ShapeUtils.rectangle(0, 0, 80, 80),
-        //     fill: COLORS.HG_BLUE,
-        //     // playerIds: [playerId]
-        // });
-        // this.topLayerRoot.addChild(ting);
     }
 
     getRoot() {
@@ -189,32 +182,6 @@ class HomegamesRoot {
         this.frameRoot.addChild(playerFrame);
 
         this.updateLabels();
-        // console.log("GOT A NEW SPECTATOR!");
-        // console.log(spectator);
-        // this.spectators[spectator.id] = spectator;
-        // const spectatorFrame = new GameNode.Asset({
-        //     coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-        //     assetInfo: {
-        //         'frame': {
-        //             pos: {x: 0, y: 0},
-        //             size: {
-        //                 x: 100,
-        //                 y: 100
-        //             }
-        //         }
-        //     },
-        //     effects: {
-        //         shadow: {
-        //             color: COLORS.HG_BLACK,
-        //             blur: 5
-        //         }
-        //     },
-        //     playerIds: [spectator.id]
-        // });
-
-        // this.frameStates[spectator.id] = spectatorFrame;
-        // // this.baseThing.addChild(spectatorFrame);
-        // this.updateLabels();
     }
 
     showSettings(playerId) {
@@ -245,13 +212,11 @@ class HomegamesRoot {
     updateLabels() {
         for (const nodeId in this.frameRoot.node.children) {
             const playerFrame = this.frameRoot.node.children[nodeId];
-            console.log('player frame!!!')
             playerFrame.clearChildren();
 
             const playerId = playerFrame.node.playerIds[0];
             const playerInfo = this.session.playerInfoMap[playerId];
 
-            console.log('for player ' + playerId)
             const settingsButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(42.5,.25, 15, 4.5),
@@ -334,10 +299,6 @@ class HomegamesRoot {
         }
     }
 
-    // spectateSession(player, session) {
-    //     player.receiveUpdate([6, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
-    // }
-
     handlePlayerDisconnect(playerId) {
         delete this.viewStates[playerId];
         if (this.playerDashboards[playerId]) {
@@ -356,12 +317,6 @@ class HomegamesRoot {
     }
 
     handleSpectatorDisconnect(spectatorId) {
-        // if (this.frameStates[spectatorId]) {
-        //     this.baseThing.removeChild(this.frameStates[spectatorId].node.id);
-        //     delete this.frameStates[spectatorId];
-        // }
-
-        // this.updateLabels();
         delete this.viewStates[spectatorId];
         if (this.playerDashboards[spectatorId]) {
             this.playerDashboards[spectatorId].intervals.forEach(interval => {
@@ -461,7 +416,6 @@ class HomegamesRoot {
 
     handleServerCode(serverCode) {
         this.serverCode = serverCode;
-        // this.homeButton.node.handleClick = null;
         this.updateLabels();
     }
 
