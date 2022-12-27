@@ -123,9 +123,6 @@ class GameSession {
 
         this.players[player.id] = player;
 
-        console.log('the hell is this');
-        console.log(player);
-
         const doThing = () => {
             this.homenamesHelper.getPlayerInfo(player.id).then(playerInfo => {
                 this.homenamesHelper.getPlayerSettings(player.id).then(playerSettings => {
