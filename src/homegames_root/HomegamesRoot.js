@@ -47,6 +47,8 @@ class HomegamesRoot {
         this.session = session;
         this.homenamesHelper = new HomenamesHelper();
 
+        this.spectators = {};
+
         this.gameAssets = {};
         this.viewStates = {};
 
@@ -123,9 +125,6 @@ class HomegamesRoot {
     }
 
     handleNewPlayer({ playerId, info: playerInfo }) {
-        console.log("PLAYER INFO");
-        console.log(playerInfo);
-        console.log(this.session.players[playerId].remoteClient);
         if (this.session.players[playerId].remoteClient) {
             this.remotePlayerIds[playerId] = true;
         }
@@ -163,7 +162,10 @@ class HomegamesRoot {
     }
 
     handleNewSpectator(spectator) {
-        const spectatorFrame = new GameNode.Asset({
+        if (this.session.spectators[spectator.id].remoteClient) {
+            this.remotePlayerIds[spectator.id] = true;
+        }
+        const playerFrame = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             assetInfo: {
                 'frame': {
@@ -183,9 +185,36 @@ class HomegamesRoot {
             playerIds: [spectator.id]
         });
 
-        this.frameStates[spectator.id] = spectatorFrame;
-        this.baseThing.addChild(spectatorFrame);
+        this.frameStates[spectator.id] = playerFrame;
+        this.frameRoot.addChild(playerFrame);
+
         this.updateLabels();
+        // console.log("GOT A NEW SPECTATOR!");
+        // console.log(spectator);
+        // this.spectators[spectator.id] = spectator;
+        // const spectatorFrame = new GameNode.Asset({
+        //     coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+        //     assetInfo: {
+        //         'frame': {
+        //             pos: {x: 0, y: 0},
+        //             size: {
+        //                 x: 100,
+        //                 y: 100
+        //             }
+        //         }
+        //     },
+        //     effects: {
+        //         shadow: {
+        //             color: COLORS.HG_BLACK,
+        //             blur: 5
+        //         }
+        //     },
+        //     playerIds: [spectator.id]
+        // });
+
+        // this.frameStates[spectator.id] = spectatorFrame;
+        // // this.baseThing.addChild(spectatorFrame);
+        // this.updateLabels();
     }
 
     showSettings(playerId) {
@@ -216,12 +245,13 @@ class HomegamesRoot {
     updateLabels() {
         for (const nodeId in this.frameRoot.node.children) {
             const playerFrame = this.frameRoot.node.children[nodeId];
-            
+            console.log('player frame!!!')
             playerFrame.clearChildren();
 
             const playerId = playerFrame.node.playerIds[0];
             const playerInfo = this.session.playerInfoMap[playerId];
 
+            console.log('for player ' + playerId)
             const settingsButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(42.5,.25, 15, 4.5),
@@ -270,11 +300,43 @@ class HomegamesRoot {
                 
             playerFrame.addChild(settingsButton);
 
+            if (this.session.spectators[playerId]) {
+                const joinButton = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    fill: COLORS.BLUE,
+                    coordinates2d: ShapeUtils.rectangle(2, 0, 5, 5),
+                    onClick: () => {
+                        console.log('want to join game')
+                        this.session.joinSession(playerId);
+                    },
+                    playerIds: [playerId]
+                });
+                playerFrame.addChild(joinButton);
+                console.log('this person is a spectator');
+            } else {
+                console.log('this person is not a spectator');
+                const spectateButton = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    fill: COLORS.GREEN,
+                    coordinates2d: ShapeUtils.rectangle(2, 0, 5, 5),
+                    onClick: () => {
+                        console.log('want to become a spectator')
+                        this.session.spectateSession(playerId);
+                    },
+                    playerIds: [playerId]
+                });
+                playerFrame.addChild(spectateButton);
+            }
+
             if (!this.isDashboard) {
                 playerFrame.node.coordinates2d = playerFrame.node.coordinates2d;
             }
         }
     }
+
+    // spectateSession(player, session) {
+    //     player.receiveUpdate([6, Math.floor(session.port / 100), Math.floor(session.port % 100)]);
+    // }
 
     handlePlayerDisconnect(playerId) {
         delete this.viewStates[playerId];
@@ -294,8 +356,22 @@ class HomegamesRoot {
     }
 
     handleSpectatorDisconnect(spectatorId) {
+        // if (this.frameStates[spectatorId]) {
+        //     this.baseThing.removeChild(this.frameStates[spectatorId].node.id);
+        //     delete this.frameStates[spectatorId];
+        // }
+
+        // this.updateLabels();
+        delete this.viewStates[spectatorId];
+        if (this.playerDashboards[spectatorId]) {
+            this.playerDashboards[spectatorId].intervals.forEach(interval => {
+                clearInterval(interval);
+            });
+            this.homeButton.removeChild(this.playerDashboards[spectatorId].dashboard.id);
+            delete this.playerDashboards[spectatorId];
+        }
         if (this.frameStates[spectatorId]) {
-            this.baseThing.removeChild(this.frameStates[spectatorId].node.id);
+            this.frameRoot.removeChild(this.frameStates[spectatorId].node.id);
             delete this.frameStates[spectatorId];
         }
 

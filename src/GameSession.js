@@ -106,6 +106,33 @@ class GameSession {
                 this.players[playerId].receiveUpdate(playerFrame.flat());
             }
         }
+
+        for (const spectatorId in this.spectators) {
+            const playerSettings = {};//this.playerSettingsMap[playerId] || {};
+            
+            let playerFrame = this.squisher.getPlayerFrame(spectatorId);
+            
+            if (playerSettings) {
+                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
+                    playerFrame = playerFrame.filter(f => {
+                        const unsquished = this.squisher.unsquish(f);
+                        if (unsquished.node.asset) {
+                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
+                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
+                                    return false;
+                                }
+                            }
+                        }
+
+                        return true;
+                    });
+                }
+            }
+
+            if (playerFrame) {
+                this.spectators[spectatorId].receiveUpdate(playerFrame.flat());
+            }
+        }
     }
 
     addSpectator(spectator) {
@@ -113,7 +140,7 @@ class GameSession {
         spectator.receiveUpdate(this.squisher.playerFrames[spectator.id]);
         spectator.addInputListener(this, true);
         this.spectators[Number(spectator.id)] = spectator;
-        this.squisher.hgRoot.handleNewSpectator(spectator);
+        this.homegamesRoot.handleNewSpectator(spectator);
     }
 
     addPlayer(player) {
@@ -181,7 +208,7 @@ class GameSession {
     }
 
     handleSpectatorDisconnect(spectatorId) {
-        this.squisher.hgRoot.handleSpectatorDisconnect(spectatorId);
+        this.homegamesRoot.handleSpectatorDisconnect(spectatorId);
         delete this.spectators[spectatorId];
     }
 
@@ -275,25 +302,29 @@ class GameSession {
 
         if (this.customBottomLayer) {
             const scale = {x: 1, y: 1};
-            clicked = this.findClickHelper(x, y, false, playerId, this.customBottomLayer.root.node, null, scale) || clicked;
+            clicked = this.findClickHelper(x, y, spectating, playerId, this.customBottomLayer.root.node, null, scale) || clicked;
         }
 
         for (const layerIndex in this.game.getLayers()) {
             const layer = this.game.getLayers()[layerIndex];
             const scale = layer.scale || this.scale;
 
-            clicked = this.findClickHelper(x, y, false, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
+            clicked = this.findClickHelper(x, y, spectating, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
         }
 
         if (this.customTopLayer) {
             const scale = {x: 1, y: 1};
-            clicked = this.findClickHelper(x, y, false, playerId, this.customTopLayer.root.node, null, scale) || clicked;
+            clicked = this.findClickHelper(x, y, spectating, playerId, this.customTopLayer.root.node, null, scale) || clicked;
         }
 
         return clicked;
     }
 
-    findClickHelper(x, y, spectating, playerId, node, clicked = null, scale) {
+    findClickHelper(x, y, spectating, playerId, node, clicked = null, scale, inGame) {
+        if (node.id === this.game.getLayers()[0].root.node.id) {
+            inGame = true;
+        }
+
         if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
             const vertices = [];
  
@@ -333,13 +364,15 @@ class GameSession {
             }
                 
             if (isInside) {
-                clicked = node;
+                if (!spectating || !inGame) {
+                    clicked = node;
+                }
             }
 
         }
 
         for (const i in node.children) {
-            clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, scale);
+            clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, scale, inGame);
         }
 
         return clicked;
@@ -349,6 +382,16 @@ class GameSession {
         if (!this.homegamesRoot.isDashboard) {
             this.homegamesRoot.handleServerCode(serverCode);
         }
+    }
+
+    spectateSession(playerId) {
+        const player = this.players[playerId];
+        player.receiveUpdate([6, Math.floor(this.port / 100), Math.floor(this.port % 100)]);
+    }
+
+    joinSession(spectatorId) {
+        const spectator = this.spectators[spectatorId];
+        spectator.receiveUpdate([5, Math.floor(this.port / 100), Math.floor(this.port % 100)]);
     }
 
 }
