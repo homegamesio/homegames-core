@@ -42,26 +42,46 @@ const listenable = function(obj, onChange) {
     return new Proxy(obj, handler);
 };
 
+const playerDataPath = baseDir + (baseDir.endsWith('/') ? '' : '/') + 'player-ids.json';
 
+if (fs.existsSync(playerDataPath)) {
+    console.log('deleting old player data');
+    // fs.unlinkSync(playerDataPath);
+}
 
-const socketServer = (gameSession, port, cb = null, certPath = null) => {
-    const playerIds = {};
+const generatePlayerId = () => {
+    // const ting = Object.keys(playerIds).filter(p => playerIds[p]).length;
 
-console.log('djkashkjasjkdas bbbbb')
-    for (let i = 1; i < 256; i++) {
-        playerIds[i] = false;
+    let data = {};
+    if (fs.existsSync(playerDataPath)) {
+        console.log('using data from the thing ' + playerDataPath);
+        data = JSON.parse(fs.readFileSync(playerDataPath));
+    } else {
+        console.log('nothing is there at ' + playerDataPath);
+        console.log(fs.existsSync(playerDataPath));
+        // const wat = fs.readFileSync(playerDataPath);
+        for (let i = 1; i < 256; i++) {
+            data[i] = false;
+        }
     }
 
-    const generatePlayerId = () => {
-        for (const k in playerIds) {
-            if (playerIds[k] === false) {
-                playerIds[k] = true;
-                return Number(k);
-            }
-        }
+    console.log('here is existing data ddddddsss');
+    // console.log(data);
 
-        throw new Error('no player IDs left in pool');
-    };
+    // console.log('ting is this ' + ting);
+    for (const k in data) {
+        if (data[k] === false) {
+            data[k] = true;
+            fs.writeFileSync(playerDataPath, JSON.stringify(data));
+            console.log('returning id ' + k)
+            return Number(k);
+        }
+    }
+
+    throw new Error('no player IDs left in pool');
+};
+
+const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
     let server;
 
@@ -82,10 +102,6 @@ console.log('djkashkjasjkdas bbbbb')
 
     const broadcastEnabled = !!getConfigValue('PUBLIC_GAMES', false);
     console.log('broadcastEnabled ? ' + broadcastEnabled);
-    console.log('dsfdsf');
-    console.log(gameSession);
-
-
 
     if (broadcastEnabled) {
         const proxyServer = new WebSocket('wss://public.homegames.link:81');
@@ -94,55 +110,72 @@ console.log('djkashkjasjkdas bbbbb')
             console.log('just connected to proxy server');
         });
 
-        let id;// = 1000;
+        let internalId = 1;
+        const playerIdMap = {};
         // todo: track ids
         let proxyPlayer = null;
         proxyServer.on('message', (msg) => {
-            const jsonMessage = JSON.parse(msg);
-            if (jsonMessage.type === 'ready') {
-                console.log('proxy client wants to connect to me');
-                console.log(jsonMessage);
-                const clientId = jsonMessage.id || id++
-                console.log('uhhhh cl' + clientId)
-                const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
-                const playerInfo = {};
-                const fakeWs = {
-                    readyState: WebSocket.OPEN,
-                    send: (s) => {
-                        proxyServer.send(s);
-                    },
-                    on: () => {
-
-                    },
-                    id: clientId
-                };
-                const player = new Player(fakeWs, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
-                proxyPlayer = player;
-                console.log('created player for proxy. need to send init message');
-                const aspectRatio = gameSession.aspectRatio;
-                const gameMetadata = gameSession.gameMetadata;
-
-                let squishVersion = 'latest';
-                if (gameMetadata && gameMetadata.squishVersion) {
-                    squishVersion = gameMetadata.squishVersion;
-                }
-
-                const squishVersionArray = [];
-                squishVersionArray[0] = squishVersion.length;
-                for (let i = 0; i < squishVersion.length; i++) {
-                    squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
-                }
-
-                proxyServer.send([2, clientId, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
-
-                gameSession.addPlayer(player);
-            } else if(jsonMessage.type === 'code') {
-                const code = jsonMessage.code;
-                console.log("here is my server code");
-                console.log(code);
-                gameSession.setServerCode(code);
+            console.log('got message from proxyxyyxyxyx ');
+            console.log(msg);
+            if (msg.startsWith && msg.startsWith('gimmeid-')) {
+                console.log('requesting id??????');
+                console.log('gonna send an id for a player theyre about to do');
+                const proxyClientId = msg.substring(8);
+                const clientId = generatePlayerId();
+                console.log('so theyre saying nnnn ' + clientId + ', ' + proxyClientId);
+                proxyServer.send('gimmeidresponse-' + proxyClientId + '-' + clientId);
             } else {
-                proxyPlayer && proxyPlayer.handlePlayerInput(JSON.stringify(jsonMessage));
+                const jsonMessage = JSON.parse(msg);
+                if (jsonMessage.type === 'ready') {
+                    console.log('proxy client wants to connect to me');
+                    console.log(jsonMessage);
+                    const clientId = jsonMessage.id; //|| generatePlayerId();//++
+                    console.log('uhhhh cl' + clientId);
+                    // proxyServer.send(':ayylmao:' + clientId);
+                    const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
+                    const playerInfo = {};
+                    const fakeWs = {
+                        readyState: WebSocket.OPEN,
+                        send: (s) => {
+                            console.log('sending a message to proxy server, i think i just need player id: ' + clientId);
+                            proxyServer.send([199, clientId, ...s]);
+                        },
+                        on: () => {
+
+                        },
+                        id: clientId
+                    };
+                    const player = new Player(fakeWs, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
+                    proxyPlayer = player;
+                    console.log('created player for proxy. need to send init message');
+                    const aspectRatio = gameSession.aspectRatio;
+                    const gameMetadata = gameSession.gameMetadata;
+
+                    let squishVersion = 'latest';
+                    if (gameMetadata && gameMetadata.squishVersion) {
+                        squishVersion = gameMetadata.squishVersion;
+                    }
+
+                    const squishVersionArray = [];
+                    squishVersionArray[0] = squishVersion.length;
+                    for (let i = 0; i < squishVersion.length; i++) {
+                        squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
+                    }
+
+                    console.log('client id is this ' + clientId);
+                    proxyServer.send([2, clientId, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+
+                    gameSession.addPlayer(player);
+                } else if(jsonMessage.type === 'code') {
+                    const code = jsonMessage.code;
+                    console.log("here is my server code");
+                    console.log(code);
+                    // console.log('just sent id message');
+                    // proxyServer.send('ayyylmao123');
+                    gameSession.setServerCode(code);
+                } else {
+                    proxyPlayer && proxyPlayer.handlePlayerInput(JSON.stringify(jsonMessage));
+                }
             }
         });
     }
@@ -154,6 +187,8 @@ console.log('djkashkjasjkdas bbbbb')
             if (jsonMessage.type === 'homenames_update') {
                 gameSession.handlePlayerUpdate(jsonMessage.playerId, { info: jsonMessage.info, settings: jsonMessage.settings });
             } else if (jsonMessage.type === 'ready') {
+                console.log('hhdhdhdhd when does this happen');
+                console.log(jsonMessage);
 
                 ws.removeListener('message', messageHandler);
 
@@ -188,6 +223,7 @@ console.log('djkashkjasjkdas bbbbb')
                             squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
                         }
 
+                        console.log('setting id here i  think');
                         // init message
                         ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
