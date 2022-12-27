@@ -24,7 +24,8 @@ const server = (certPath, squishMap) => {
 
     const customStartModule = startPathOverride ? require(startPathOverride) : null;
 
-    const HomegamesDashboard = require('./src/dashboard/HomegamesDashboard');
+    //const HomegamesDashboard = require('./src/dashboard/HomegamesDashboard');
+    const HomegamesDashboard = require('./src/games/clicktionary/index');//dashboard/HomegamesDashboard');
 
     // hack kind of. but homegames dashbaoard is special
     let session;

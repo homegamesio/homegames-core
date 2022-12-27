@@ -16,7 +16,7 @@ class Player {
     constructor(ws, playerInfo, spectating, clientInfo, requestedGame, remoteClient) {
         this.inputListeners = new Set();
         this.stateListeners = new Set();
-        this.clientInfo = clientInfo;
+        this.clientInfo = clientInfo || {};
         this.ws = ws;
         this.id = ws?.id || ++id;
         this.info = playerInfo || {};

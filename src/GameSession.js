@@ -136,8 +136,9 @@ class GameSession {
     }
 
     addSpectator(spectator) {
+        console.log('does this happen wtf ' + spectator.id);
         this.squisher.assetBundle && spectator.receiveUpdate(this.squisher.assetBundle);
-        spectator.receiveUpdate(this.squisher.playerFrames[spectator.id]);
+        // spectator.receiveUpdate(this.squisher.getPlayerFrame(spectator.id));
         spectator.addInputListener(this, true);
         this.spectators[Number(spectator.id)] = spectator;
         this.homegamesRoot.handleNewSpectator(spectator);
@@ -192,6 +193,9 @@ class GameSession {
             const playerName = generateName();
 
             this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
+                console.log('wtf');
+                console.log(player.id + ',,,, ');
+                console.log(player.clientInfo);
                 this.homenamesHelper.updateClientInfo(player.id, player.clientInfo).then(() => {
                     doThing();
                 });
@@ -275,6 +279,7 @@ class GameSession {
             return;
         }
 
+        console.log('ayooooo ' + player.spectating)
         const clickedNode = this.findClick(click.x, click.y, player.spectating, player.id);
 
         if (clickedNode) {
@@ -379,6 +384,7 @@ class GameSession {
     }
 
     setServerCode(serverCode) {
+        console.log("SERVER CODE " + serverCode)
         if (!this.homegamesRoot.isDashboard) {
             this.homegamesRoot.handleServerCode(serverCode);
         }

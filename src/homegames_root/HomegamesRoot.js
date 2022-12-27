@@ -215,7 +215,7 @@ class HomegamesRoot {
             playerFrame.clearChildren();
 
             const playerId = playerFrame.node.playerIds[0];
-            const playerInfo = this.session.playerInfoMap[playerId];
+            const playerInfo = this.session.playerInfoMap[playerId] || {};
 
             const settingsButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
@@ -439,6 +439,7 @@ class HomegamesRoot {
     handleServerCode(serverCode) {
         this.serverCode = serverCode;
         this.updateLabels();
+        console.log('server code is this' + serverCode);
     }
 
 }

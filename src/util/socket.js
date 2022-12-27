@@ -113,20 +113,28 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 const jsonMessage = JSON.parse(msg);
                 if (jsonMessage.type === 'ready') {
                     const clientId = jsonMessage.id;
+                    console.log('jsonmessage');
+                    console.log(jsonMessage);
                     const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
                     const playerInfo = {};
                     const fakeWs = {
                         readyState: WebSocket.OPEN,
                         send: (s) => {
-                            console.log('sending a message to proxy server, i think i just need player id: ' + clientId);
+                            console.log('sending this one');
+                            console.log(s);
                             proxyServer.send([199, clientId, ...s]);
                         },
-                        on: () => {
-
+                        on: (input) => {
+                            if (input == 'close') {
+                                console.log('on closososoe idkkdkdk');
+                            }
                         },
                         id: clientId
                     };
+
+
                     const player = new Player(fakeWs, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame, true);
+                    console.log('so new remote player is spectating? ' + jsonMessage.spectating);
                     proxyPlayer = player;
 
                     const aspectRatio = gameSession.aspectRatio;
@@ -145,7 +153,11 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
                     proxyServer.send([2, clientId, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
-                    gameSession.addPlayer(player);
+                    if (jsonMessage.spectating) {
+                        gameSession.addSpectator(player);
+                    } else {
+                        gameSession.addPlayer(player);
+                    }
                 } else if(jsonMessage.type === 'code') {
                     const code = jsonMessage.code;
                     gameSession.setServerCode(code);
