@@ -265,35 +265,57 @@ class HomegamesRoot {
                 
             playerFrame.addChild(settingsButton);
 
-            if (this.session.spectators[playerId]) {
-                const joinButton = new GameNode.Shape({
-                    shapeType: Shapes.POLYGON,
-                    fill: COLORS.BLUE,
-                    coordinates2d: ShapeUtils.rectangle(2, 0, 5, 5),
-                    onClick: () => {
-                        console.log('want to join game')
-                        this.session.joinSession(playerId);
-                    },
-                    playerIds: [playerId]
-                });
-                playerFrame.addChild(joinButton);
-                console.log('this person is a spectator');
-            } else {
-                console.log('this person is not a spectator');
-                const spectateButton = new GameNode.Shape({
-                    shapeType: Shapes.POLYGON,
-                    fill: COLORS.GREEN,
-                    coordinates2d: ShapeUtils.rectangle(2, 0, 5, 5),
-                    onClick: () => {
-                        console.log('want to become a spectator')
-                        this.session.spectateSession(playerId);
-                    },
-                    playerIds: [playerId]
-                });
-                playerFrame.addChild(spectateButton);
-            }
-
             if (!this.isDashboard) {
+
+                if (this.session.spectators[playerId]) {
+                    const joinButton = new GameNode.Shape({
+                        shapeType: Shapes.POLYGON,
+                        fill: COLORS.HG_BLUE,
+                        coordinates2d: ShapeUtils.rectangle(10, 0, 15, 5),
+                        onClick: () => {
+                            this.session.joinSession(playerId);
+                        },
+                        playerIds: [playerId]
+                    });
+
+                    const joinText = new GameNode.Text({
+                        textInfo: {
+                            x: 17.5,
+                            y: 1.5,
+                            text: 'Join',
+                            size: 0.9,
+                            color: COLORS.HG_BLACK,
+                            align: 'center'
+                        },
+                        playerIds: [playerId]
+                    });
+                    joinButton.addChild(joinText);
+                    playerFrame.addChild(joinButton);
+                } else {
+                    const spectateButton = new GameNode.Shape({
+                        shapeType: Shapes.POLYGON,
+                        fill: COLORS.HG_YELLOW,
+                        coordinates2d: ShapeUtils.rectangle(10, 0, 15, 5),
+                        onClick: () => {
+                            this.session.spectateSession(playerId);
+                        },
+                        playerIds: [playerId]
+                    });
+                    const spectateText = new GameNode.Text({
+                        textInfo: {
+                            x: 17.5,
+                            y: 1.5,
+                            text: 'Spectate',
+                            size: 0.9,
+                            color: COLORS.HG_BLACK,
+                            align: 'center'
+                        },
+                        playerIds: [playerId]
+                    });
+                    spectateButton.addChild(spectateText);
+                    playerFrame.addChild(spectateButton);
+                }
+
                 playerFrame.node.coordinates2d = playerFrame.node.coordinates2d;
             }
         }
