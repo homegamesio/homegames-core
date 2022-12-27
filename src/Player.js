@@ -13,7 +13,7 @@ const { getConfigValue, log } = require('homegames-common');
 let id = 0;
 
 class Player {
-    constructor(ws, playerInfo, spectating, clientInfo, requestedGame) {
+    constructor(ws, playerInfo, spectating, clientInfo, requestedGame, remoteClient) {
         this.inputListeners = new Set();
         this.stateListeners = new Set();
         this.clientInfo = clientInfo;
@@ -21,6 +21,7 @@ class Player {
         this.id = ws?.id || ++id;
         this.info = playerInfo || {};
         this.spectating = spectating;
+        this.remoteClient = remoteClient || false;
 
         this.requestedGame = requestedGame;
 

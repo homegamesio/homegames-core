@@ -51,6 +51,8 @@ class HomegamesRoot {
         this.viewStates = {};
 
         this.frameStates = {};
+
+        this.remotePlayerIds = {};
   
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -73,7 +75,9 @@ class HomegamesRoot {
         this.playerDashboards = {};
 
         const onGameHomeClick = (playerId) => {
-            this.session.movePlayer({ playerId, port: HOME_PORT });
+            if (!this.remotePlayerIds[playerId]) {
+                this.session.movePlayer({ playerId, port: HOME_PORT });
+            }
         };
 
         const gameAspectRatio = this.session.game.constructor.metadata && this.session.game.constructor.metadata().aspectRatio;
@@ -118,7 +122,13 @@ class HomegamesRoot {
         return this.root;
     }
 
-    handleNewPlayer({ playerId }) {
+    handleNewPlayer({ playerId, info: playerInfo }) {
+        console.log("PLAYER INFO");
+        console.log(playerInfo);
+        console.log(this.session.players[playerId].remoteClient);
+        if (this.session.players[playerId].remoteClient) {
+            this.remotePlayerIds[playerId] = true;
+        }
         const playerFrame = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             assetInfo: {
@@ -375,7 +385,7 @@ class HomegamesRoot {
 
     handleServerCode(serverCode) {
         this.serverCode = serverCode;
-        this.homeButton.node.handleClick = null;
+        // this.homeButton.node.handleClick = null;
         this.updateLabels();
     }
 

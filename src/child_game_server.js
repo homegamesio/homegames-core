@@ -25,9 +25,6 @@ const startServer = (sessionInfo) => {
 
     log.info('Starting server with this info', sessionInfo);
 
-    console.log('thisisisisisisiis');
-    console.log(sessionInfo);
-
     const addAsset = (key, asset) => new Promise((resolve, reject) => {
         gameSession.handleNewAsset(key, asset).then(resolve).catch(reject);
     });
