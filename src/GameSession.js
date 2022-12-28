@@ -233,24 +233,24 @@ class GameSession {
         }
     }
 
-    handlePlayerInput(player, input) {
+    handlePlayerInput(playerId, input) {
         if (input.type === 'click') {
-            this.handleClick(player, input.data);
+            this.handleClick(playerId, input.data);
         } else if (input.type === 'keydown') {
-            this.game.handleKeyDown && this.game.handleKeyDown(player.id, input.key);
+            this.game.handleKeyDown && this.game.handleKeyDown(playerId, input.key);
         } else if (input.type === 'keyup') {
-            this.game.handleKeyUp && this.game.handleKeyUp(player.id, input.key);
+            this.game.handleKeyUp && this.game.handleKeyUp(playerId, input.key);
         } else if (input.type === 'input') {
             if (input.gamepad) {
-                this.game.handleGamepadInput && this.game.handleGamepadInput(player.id, input);
+                this.game.handleGamepadInput && this.game.handleGamepadInput(playerId, input);
             } else {
                 const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
                 if (node && node.node.input) {
                     // hilarious
                     if (node.node.input.type === 'file') {
-                        node.node.input.oninput(player.id, Object.values(input.input));
+                        node.node.input.oninput(playerId, Object.values(input.input));
                     } else {
-                        node.node.input.oninput(player.id, input.input);
+                        node.node.input.oninput(playerId, input.input);
                     }
                 }
             }
@@ -274,13 +274,14 @@ class GameSession {
         }
     }
 
-    handleClick(player, click) {
+    handleClick(playerId, click) {
         if (click.x >= 100 || click.y >= 100) {
             return;
         }
 
-        console.log('ayooooo ' + player.spectating)
-        const clickedNode = this.findClick(click.x, click.y, player.spectating, player.id);
+        const spectating = this.spectators[playerId] ? true : false;
+        // console.log('ayooooo ' + player.spectating)
+        const clickedNode = this.findClick(click.x, click.y, spectating, playerId);
 
         if (clickedNode) {
             const clickedNodeId = clickedNode.id;
@@ -288,7 +289,7 @@ class GameSession {
             const realNode = this.game.findNode(clickedNodeId) || this.customBottomLayer.root.findChild(clickedNodeId) || this.customTopLayer.root.findChild(clickedNodeId);
 
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
-                realNode.node.handleClick && realNode.node.handleClick(player.id, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(playerId, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             } else {
                 const shiftedX = click.x - (BEZEL_SIZE_X / 2);
                 const shiftedY = click.y - (BEZEL_SIZE_Y / 2);
@@ -296,7 +297,7 @@ class GameSession {
                 const scaledX = shiftedX * ( 1 / ((100 - BEZEL_SIZE_X) / 100));
                 const scaledY = shiftedY * ( 1 / ((100 - BEZEL_SIZE_Y) / 100));
 
-                realNode.node.handleClick && realNode.node.handleClick(player.id, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(playerId, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
                 
             }
         }

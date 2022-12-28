@@ -51,7 +51,7 @@ class Player {
         }
         
         for (const listener of this.inputListeners) {
-            listener.handlePlayerInput(this, data);
+            listener.handlePlayerInput(this.id, data);
         }
     }
 

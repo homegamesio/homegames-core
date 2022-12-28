@@ -322,6 +322,8 @@ class HomegamesRoot {
     }
 
     handlePlayerDisconnect(playerId) {
+        console.log('huyh??');
+
         delete this.viewStates[playerId];
         if (this.playerDashboards[playerId]) {
             this.playerDashboards[playerId].intervals.forEach(interval => {
