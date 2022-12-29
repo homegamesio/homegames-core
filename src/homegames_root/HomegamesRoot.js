@@ -25,6 +25,10 @@ class HomegamesRoot {
     static metadata() {
         return {
             assets: {
+                'test-font': new Asset({
+                    'type': 'font',
+                    'id': '846b73999657425425fc39d39f9963b2'
+                }),
                 'frame': new Asset({
                     'id': 'c299f1f7e24d03e59cb569f5815bfe2f',
                     'type': 'image'
@@ -240,7 +244,8 @@ class HomegamesRoot {
                     y: 1.5,
                     size: 0.8,
                     color: COLORS.HG_BLACK,
-                    align: 'center'
+                    align: 'center',
+                    font: 'test-font'
                 },
                 playerIds: [playerId]
             });
