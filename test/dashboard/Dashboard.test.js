@@ -22,7 +22,7 @@ const movePlayer = () => {
 
 const addAsset = () => {
     console.log('adddd asset');
-}
+};
 
 const dashboard = new HomegamesDashboard({ movePlayer, addAsset });
 

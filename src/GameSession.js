@@ -3,6 +3,7 @@ const { generateName } = require('./common/util');
 const squishMap = require('./common/squish-map');
 
 const HomegamesRoot = require('./homegames_root/HomegamesRoot');
+const HomegamesDashboard = require('./dashboard/HomegamesDashboard');
 
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
@@ -11,7 +12,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require('homegames-common');
+const { getConfigValue, log } = require('homegames-common');
 const HomenamesHelper = require('./util/homenames-helper');
 
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
@@ -35,7 +36,7 @@ class GameSession {
         this.clientInfoMap = {};
         this.playerSettingsMap = {};
 
-        this.homegamesRoot = new HomegamesRoot(this, false, false);
+        this.homegamesRoot = new HomegamesRoot(this, game instanceof HomegamesDashboard, false);
         this.customBottomLayer = {
             root: this.homegamesRoot.getRoot(),
             scale: {x: 1, y: 1},
@@ -105,14 +106,41 @@ class GameSession {
                 this.players[playerId].receiveUpdate(playerFrame.flat());
             }
         }
+
+        for (const spectatorId in this.spectators) {
+            const playerSettings = {};//this.playerSettingsMap[playerId] || {};
+            
+            let playerFrame = this.squisher.getPlayerFrame(spectatorId);
+            
+            if (playerSettings) {
+                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
+                    playerFrame = playerFrame.filter(f => {
+                        const unsquished = this.squisher.unsquish(f);
+                        if (unsquished.node.asset) {
+                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
+                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
+                                    return false;
+                                }
+                            }
+                        }
+
+                        return true;
+                    });
+                }
+            }
+
+            if (playerFrame) {
+                this.spectators[spectatorId].receiveUpdate(playerFrame.flat());
+            }
+        }
     }
 
     addSpectator(spectator) {
         this.squisher.assetBundle && spectator.receiveUpdate(this.squisher.assetBundle);
-        spectator.receiveUpdate(this.squisher.playerFrames[spectator.id]);
+        // spectator.receiveUpdate(this.squisher.getPlayerFrame(spectator.id));
         spectator.addInputListener(this, true);
         this.spectators[Number(spectator.id)] = spectator;
-        this.squisher.hgRoot.handleNewSpectator(spectator);
+        this.homegamesRoot.handleNewSpectator(spectator);
     }
 
     addPlayer(player) {
@@ -180,7 +208,7 @@ class GameSession {
     }
 
     handleSpectatorDisconnect(spectatorId) {
-        this.squisher.hgRoot.handleSpectatorDisconnect(spectatorId);
+        this.homegamesRoot.handleSpectatorDisconnect(spectatorId);
         delete this.spectators[spectatorId];
     }
 
@@ -201,24 +229,24 @@ class GameSession {
         }
     }
 
-    handlePlayerInput(player, input) {
+    handlePlayerInput(playerId, input) {
         if (input.type === 'click') {
-            this.handleClick(player, input.data);
+            this.handleClick(playerId, input.data);
         } else if (input.type === 'keydown') {
-            this.game.handleKeyDown && this.game.handleKeyDown(player.id, input.key);
+            this.game.handleKeyDown && this.game.handleKeyDown(playerId, input.key);
         } else if (input.type === 'keyup') {
-            this.game.handleKeyUp && this.game.handleKeyUp(player.id, input.key);
+            this.game.handleKeyUp && this.game.handleKeyUp(playerId, input.key);
         } else if (input.type === 'input') {
-            if (!!input.gamepad) {
-                this.game.handleGamepadInput && this.game.handleGamepadInput(player.id, input);
+            if (input.gamepad) {
+                this.game.handleGamepadInput && this.game.handleGamepadInput(playerId, input);
             } else {
                 const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
                 if (node && node.node.input) {
                     // hilarious
                     if (node.node.input.type === 'file') {
-                        node.node.input.oninput(player.id, Object.values(input.input));
+                        node.node.input.oninput(playerId, Object.values(input.input));
                     } else {
-                        node.node.input.oninput(player.id, input.input);
+                        node.node.input.oninput(playerId, input.input);
                     }
                 }
             }
@@ -242,12 +270,13 @@ class GameSession {
         }
     }
 
-    handleClick(player, click) {
+    handleClick(playerId, click) {
         if (click.x >= 100 || click.y >= 100) {
             return;
         }
 
-        const clickedNode = this.findClick(click.x, click.y, player.spectating, player.id);
+        const spectating = this.spectators[playerId] ? true : false;
+        const clickedNode = this.findClick(click.x, click.y, spectating, playerId);
 
         if (clickedNode) {
             const clickedNodeId = clickedNode.id;
@@ -255,7 +284,7 @@ class GameSession {
             const realNode = this.game.findNode(clickedNodeId) || this.customBottomLayer.root.findChild(clickedNodeId) || this.customTopLayer.root.findChild(clickedNodeId);
 
             if (click.x <= (BEZEL_SIZE_X / 2) || click.x >= (100 - BEZEL_SIZE_X / 2) || click.y <= BEZEL_SIZE_Y / 2 || click.y >= (100 - BEZEL_SIZE_Y / 2)) {
-                realNode.node.handleClick && realNode.node.handleClick(player.id, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(playerId, click.x, click.y);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
             } else {
                 const shiftedX = click.x - (BEZEL_SIZE_X / 2);
                 const shiftedY = click.y - (BEZEL_SIZE_Y / 2);
@@ -263,7 +292,7 @@ class GameSession {
                 const scaledX = shiftedX * ( 1 / ((100 - BEZEL_SIZE_X) / 100));
                 const scaledY = shiftedY * ( 1 / ((100 - BEZEL_SIZE_Y) / 100));
 
-                realNode.node.handleClick && realNode.node.handleClick(player.id, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
+                realNode.node.handleClick && realNode.node.handleClick(playerId, scaledX, scaledY);//click.x, click.y);//(click.x  - (BEZEL_SIZE_X / 2)) * scaleX, (click.y  - (BEZEL_SIZE_Y / 2) * scaleY));
                 
             }
         }
@@ -274,25 +303,29 @@ class GameSession {
 
         if (this.customBottomLayer) {
             const scale = {x: 1, y: 1};
-            clicked = this.findClickHelper(x, y, false, playerId, this.customBottomLayer.root.node, null, scale) || clicked;
+            clicked = this.findClickHelper(x, y, spectating, playerId, this.customBottomLayer.root.node, null, scale) || clicked;
         }
 
         for (const layerIndex in this.game.getLayers()) {
             const layer = this.game.getLayers()[layerIndex];
             const scale = layer.scale || this.scale;
 
-            clicked = this.findClickHelper(x, y, false, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
+            clicked = this.findClickHelper(x, y, spectating, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
         }
 
         if (this.customTopLayer) {
             const scale = {x: 1, y: 1};
-            clicked = this.findClickHelper(x, y, false, playerId, this.customTopLayer.root.node, null, scale) || clicked;
+            clicked = this.findClickHelper(x, y, spectating, playerId, this.customTopLayer.root.node, null, scale) || clicked;
         }
 
         return clicked;
     }
 
-    findClickHelper(x, y, spectating, playerId, node, clicked = null, scale) {
+    findClickHelper(x, y, spectating, playerId, node, clicked = null, scale, inGame) {
+        if (node.id === this.game.getLayers()[0].root.node.id) {
+            inGame = true;
+        }
+
         if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
             const vertices = [];
  
@@ -332,16 +365,35 @@ class GameSession {
             }
                 
             if (isInside) {
-                clicked = node;
+                if (!spectating || !inGame) {
+                    clicked = node;
+                }
             }
 
         }
 
         for (const i in node.children) {
-            clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, scale);
+            clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, scale, inGame);
         }
 
         return clicked;
+    }
+
+    setServerCode(serverCode) {
+        log.info("Public server code: " + serverCode)
+        if (!this.homegamesRoot.isDashboard) {
+            this.homegamesRoot.handleServerCode(serverCode);
+        }
+    }
+
+    spectateSession(playerId) {
+        const player = this.players[playerId];
+        player.receiveUpdate([6, Math.floor(this.port / 100), Math.floor(this.port % 100)]);
+    }
+
+    joinSession(spectatorId) {
+        const spectator = this.spectators[spectatorId];
+        spectator.receiveUpdate([5, Math.floor(this.port / 100), Math.floor(this.port % 100)]);
     }
 
 }

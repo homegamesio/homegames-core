@@ -61,7 +61,6 @@ class Squarer extends Game {
         });
         this.npc = [];
         if (this.level > 9) {
-            console.log('good job');
             this.base.removeChild(this.destination.id);
             return;
         }

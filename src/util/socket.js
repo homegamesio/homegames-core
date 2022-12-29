@@ -42,25 +42,125 @@ const listenable = function(obj, onChange) {
     return new Proxy(obj, handler);
 };
 
+let _playerIds = {};
 
+for (let i = 1; i < 256; i++) {
+    _playerIds[i] = false;
+}
 
-const socketServer = (gameSession, port, cb = null, certPath = null) => {
-    const playerIds = {};
+const generatePlayerId = () => {
 
-    for (let i = 1; i < 256; i++) {
-        playerIds[i] = false;
+    for (const k in _playerIds) {
+        if (_playerIds[k] === false) {
+            _playerIds[k] = true;
+            return Number(k);
+        }
     }
 
-    const generatePlayerId = () => {
-        for (const k in playerIds) {
-            if (playerIds[k] === false) {
-                playerIds[k] = true;
-                return Number(k);
-            }
-        }
+    throw new Error('no player IDs left in pool');
+};
 
-        throw new Error('no player IDs left in pool');
-    };
+const broadcast = (gameSession) => {
+    const proxyServer = new WebSocket('wss://public.homegames.link:81');
+
+    proxyServer.on('open', () => {
+        log.info('Opened connection to proxy server');
+    });
+
+    proxyServer.on('error', () => {
+        log.info('Unable to connect to proxy server. Public games will be unavailable.');
+    });
+
+    const internalId = 1;
+    const playerIdMap = {};
+
+    const clientInfoMap = {};
+    proxyServer.on('message', (msg) => {
+        if (msg.startsWith && msg.startsWith('idreq-')) {
+            const proxyClientId = msg.substring(6);
+            const clientId = generatePlayerId();
+            proxyServer.send('idres-' + proxyClientId + '-' + clientId);
+        } else if (msg.startsWith && msg.startsWith('close-')) {
+            const pieces = msg.split('-');
+            const clientId = pieces[1];
+            
+            if (gameSession.spectators[clientId]) {
+                gameSession.handleSpectatorDisconnect(clientId);
+            } else {
+                gameSession.handlePlayerDisconnect(clientId);
+            }
+            delete _playerIds[clientId];
+        } else {
+            let isJson = msg.startsWith;
+            let sentPlayerId;
+            if (!isJson) {
+                const ting = msg.slice(1);
+                
+                // TODO: encode all json this way from broadcast server to remove this check   
+                try {
+                    JSON.parse(ting);
+                    sentPlayerId = msg[0];
+                    msg = ting;
+                    isJson = true;
+                } catch (err) {
+
+                }
+            }
+            if (isJson) {
+                const jsonMessage = JSON.parse(msg);
+                if (jsonMessage.type === 'ready') {
+                    const clientId = jsonMessage.id;
+                    const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
+                    const playerInfo = {};
+                    const fakeWs = {
+                        readyState: WebSocket.OPEN,
+                        send: (s) => {
+                            proxyServer.send([199, clientId, ...s]);
+                        },
+                        on: (input) => {
+                        },
+                        id: clientId
+                    };
+
+                    const player = new Player(fakeWs, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame, true);
+                    
+                    const aspectRatio = gameSession.aspectRatio;
+                    const gameMetadata = gameSession.gameMetadata;
+
+                    let squishVersion = 'latest';
+                    if (gameMetadata && gameMetadata.squishVersion) {
+                        squishVersion = gameMetadata.squishVersion;
+                    }
+
+                    const squishVersionArray = [];
+                    squishVersionArray[0] = squishVersion.length;
+                    for (let i = 0; i < squishVersion.length; i++) {
+                        squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
+                    }
+
+                    proxyServer.send([2, clientId, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+
+                    if (jsonMessage.spectating) {
+                        gameSession.addSpectator(player);
+                    } else {
+                        gameSession.addPlayer(player);
+                    }
+                } else if(jsonMessage.type === 'code') {
+                    const code = jsonMessage.code;
+                    gameSession.setServerCode(code);
+                } else {
+                    if (jsonMessage.clientInfo) {
+                        clientInfoMap[sentPlayerId] = jsonMessage.clientInfo;                            
+                    } else {
+                        gameSession.handlePlayerInput(sentPlayerId, jsonMessage);
+                    }
+                }
+            } 
+        }
+    });
+}
+
+const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
     let server;
 
@@ -70,14 +170,22 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
             cert: fs.readFileSync(certPath.certPath).toString()
         });
     } else { 
-        log.info("Starting regular server on port " + port);
+        log.info('Starting regular server on port ' + port);
         server = http.createServer();
     }
 
     const wss = new WebSocket.Server({
         server
     });
-    
+
+
+    const broadcastEnabled = !!getConfigValue('PUBLIC_GAMES', false);
+    log.info('broadcastEnabled: ' + broadcastEnabled);
+
+    if (broadcastEnabled) {
+        broadcast(gameSession);
+    }
+
     wss.on('connection', (ws) => {
         function messageHandler(msg) {
             const jsonMessage = JSON.parse(msg);
@@ -100,7 +208,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 }, res => {
                     res.on('data', d => {
                         const playerInfo = JSON.parse(d);
-                        log.debug("player info from homenames for this person", playerInfo);
+                        log.debug('player info from homenames for this person', playerInfo);
                         const player = new Player(ws, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
                         ws.spectating = jsonMessage.spectating;
                         
@@ -149,7 +257,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         ws.on('close', closeHandler);
         ws.on('error', (err) => {
             log.error('Child session error', err);
-        })
+        });
 
     });
 

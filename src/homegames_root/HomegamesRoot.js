@@ -47,10 +47,14 @@ class HomegamesRoot {
         this.session = session;
         this.homenamesHelper = new HomenamesHelper();
 
+        this.spectators = {};
+
         this.gameAssets = {};
         this.viewStates = {};
 
         this.frameStates = {};
+
+        this.remotePlayerIds = {};
   
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -73,7 +77,9 @@ class HomegamesRoot {
         this.playerDashboards = {};
 
         const onGameHomeClick = (playerId) => {
-            this.session.movePlayer({ playerId, port: HOME_PORT });
+            if (!this.remotePlayerIds[playerId]) {
+                this.session.movePlayer({ playerId, port: HOME_PORT });
+            }
         };
 
         const gameAspectRatio = this.session.game.constructor.metadata && this.session.game.constructor.metadata().aspectRatio;
@@ -90,7 +96,7 @@ class HomegamesRoot {
         const logoStartX = 50 - (logoSizeX / 2);
 
         this.homeButton = new GameNode.Asset({
-            onClick: onGameHomeClick,
+            onClick: isDashboard ? null : onGameHomeClick,
             coordinates2d: ShapeUtils.rectangle(logoStartX, logoStartY, logoSizeX, logoSizeY),
             assetInfo: {
                 'logo-horizontal': {
@@ -105,20 +111,16 @@ class HomegamesRoot {
 
         this.root.addChild(this.frameRoot);
         this.root.addChild(this.homeButton);
-        // const ting = new GameNode.Shape({
-        //     shapeType: Shapes.POLYGON,
-        //     coordinates2d: ShapeUtils.rectangle(0, 0, 80, 80),
-        //     fill: COLORS.HG_BLUE,
-        //     // playerIds: [playerId]
-        // });
-        // this.topLayerRoot.addChild(ting);
     }
 
     getRoot() {
         return this.root;
     }
 
-    handleNewPlayer({ playerId }) {
+    handleNewPlayer({ playerId, info: playerInfo }) {
+        if (this.session.players[playerId].remoteClient) {
+            this.remotePlayerIds[playerId] = true;
+        }
         const playerFrame = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             assetInfo: {
@@ -153,7 +155,10 @@ class HomegamesRoot {
     }
 
     handleNewSpectator(spectator) {
-        const spectatorFrame = new GameNode.Asset({
+        if (this.session.spectators[spectator.id].remoteClient) {
+            this.remotePlayerIds[spectator.id] = true;
+        }
+        const playerFrame = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             assetInfo: {
                 'frame': {
@@ -173,8 +178,9 @@ class HomegamesRoot {
             playerIds: [spectator.id]
         });
 
-        this.frameStates[spectator.id] = spectatorFrame;
-        this.baseThing.addChild(spectatorFrame);
+        this.frameStates[spectator.id] = playerFrame;
+        this.frameRoot.addChild(playerFrame);
+
         this.updateLabels();
     }
 
@@ -206,23 +212,22 @@ class HomegamesRoot {
     updateLabels() {
         for (const nodeId in this.frameRoot.node.children) {
             const playerFrame = this.frameRoot.node.children[nodeId];
-            
             playerFrame.clearChildren();
 
             const playerId = playerFrame.node.playerIds[0];
-            const playerInfo = this.session.playerInfoMap[playerId];
+            const playerInfo = this.session.playerInfoMap[playerId] || {};
 
             const settingsButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(42.5,.25, 15, 4.5),
-                fill: [187, 189, 191, 255],
+                fill: COLORS.HG_BLUE,//[187, 189, 191, 255],
                 onClick: (playerId) => {
                     this.showSettings(playerId);
                 }, 
                 playerIds: [playerId],
                 effects: {
                     shadow: {
-                        color: COLORS.BLACK,
+                        color: COLORS.HG_BLACK,
                         blur: 10
                     }
                 },
@@ -230,21 +235,87 @@ class HomegamesRoot {
 
             const labelText = new GameNode.Text({
                 textInfo: {
-                    text: playerInfo.name || 'unknown',
+                    text: playerInfo.name || 'Spectator',
                     x: 50,
                     y: 1.5,
-                    size: 0.7,
-                    color: COLORS.WHITE,
+                    size: 0.8,
+                    color: COLORS.HG_BLACK,
                     align: 'center'
                 },
                 playerIds: [playerId]
             });
-        
+       
+            if (this.serverCode) {
+                const serverCodeNode = new GameNode.Text({
+                    textInfo: {
+                        text: `homegames.link   ${this.serverCode.split('').join(' ')}`,
+                        x: 75,
+                        y: 1,
+                        size: 1.1,
+                        color: COLORS.HG_RED,
+                        align: 'center'
+                    },
+                    playerIds: [playerId]
+                });
+
+                playerFrame.addChild(serverCodeNode);
+            }
+
             settingsButton.addChild(labelText);
                 
             playerFrame.addChild(settingsButton);
 
             if (!this.isDashboard) {
+
+                if (this.session.spectators[playerId]) {
+                    const joinButton = new GameNode.Shape({
+                        shapeType: Shapes.POLYGON,
+                        fill: COLORS.HG_YELLOW,
+                        coordinates2d: ShapeUtils.rectangle(10, 0, 15, 5),
+                        onClick: () => {
+                            this.session.joinSession(playerId);
+                        },
+                        playerIds: [playerId]
+                    });
+
+                    const joinText = new GameNode.Text({
+                        textInfo: {
+                            x: 17.5,
+                            y: 1.5,
+                            text: 'Join',
+                            size: 0.9,
+                            color: COLORS.HG_BLACK,
+                            align: 'center'
+                        },
+                        playerIds: [playerId]
+                    });
+                    joinButton.addChild(joinText);
+                    playerFrame.addChild(joinButton);
+                } else {
+                    const spectateButton = new GameNode.Shape({
+                        shapeType: Shapes.POLYGON,
+                        fill: COLORS.HG_YELLOW,
+                        coordinates2d: ShapeUtils.rectangle(10, 0, 15, 5),
+                        onClick: () => {
+                            this.session.spectateSession(playerId);
+                        },
+                        playerIds: [playerId]
+                    });
+                    const spectateText = new GameNode.Text({
+                        textInfo: {
+                            x: 17.5,
+                            y: 1.5,
+                            text: 'Spectate',
+                            size: 0.9,
+                            color: COLORS.HG_BLACK,
+                            align: 'center'
+                        },
+                        playerIds: [playerId]
+                    });
+                    spectateButton.addChild(spectateText);
+                    playerFrame.addChild(spectateButton);
+                }
+
                 playerFrame.node.coordinates2d = playerFrame.node.coordinates2d;
             }
         }
@@ -268,8 +339,16 @@ class HomegamesRoot {
     }
 
     handleSpectatorDisconnect(spectatorId) {
+        delete this.viewStates[spectatorId];
+        if (this.playerDashboards[spectatorId]) {
+            this.playerDashboards[spectatorId].intervals.forEach(interval => {
+                clearInterval(interval);
+            });
+            this.homeButton.removeChild(this.playerDashboards[spectatorId].dashboard.id);
+            delete this.playerDashboards[spectatorId];
+        }
         if (this.frameStates[spectatorId]) {
-            this.baseThing.removeChild(this.frameStates[spectatorId].node.id);
+            this.frameRoot.removeChild(this.frameStates[spectatorId].node.id);
             delete this.frameStates[spectatorId];
         }
 
@@ -355,6 +434,11 @@ class HomegamesRoot {
         } else if (msg.type === 'renderEnd') {
             this.renderTimes[this.renderTimes.length - 1].end = msg.time;
         }
+    }
+
+    handleServerCode(serverCode) {
+        this.serverCode = serverCode;
+        this.updateLabels();
     }
 
 }

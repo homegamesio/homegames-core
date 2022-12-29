@@ -262,8 +262,10 @@ class Sponge extends Game {
                 }
             };
             this.playerSides['left'] = otherPlayerId;
-            this.playerSides['right'] = otherPlayerId;            
-            this.startBall();
+            this.playerSides['right'] = otherPlayerId;     
+            if (!this.gameStarted) {       
+                this.startBall();
+            }
         }
     }
 
@@ -458,18 +460,18 @@ class Sponge extends Game {
             if (coordIndex == path.length) {
                 bounce();
             } else {
-                 if (curBallX <= BALL_SIZE) {
-                     const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.leftPaddle.node.coordinates2d}}, (node) => {
-                         return (node.node.id !== this.base.node.id 
+                if (curBallX <= BALL_SIZE) {
+                    const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.leftPaddle.node.coordinates2d}}, (node) => {
+                        return (node.node.id !== this.base.node.id 
                             && node.node.id !== this.leftPaddle.node.id
                             && node.node.id !== this.mainClickHandler.node.id
                             && node.node.subType !== subtypes.ASSET);
-                     });
+                    });
 
-                     if (wouldBeCollisions.length == 0) {
-                         this.grantPoint(false);
-                         shouldContinue = false;
-                     } else {
+                    if (wouldBeCollisions.length == 0) {
+                        this.grantPoint(false);
+                        shouldContinue = false;
+                    } else {
                         // bounce off of the left paddle with a random Y velocity
                         const ySign = Math.random() < .5 ? -1 : 1;
                         let randYVel = ySign * Math.floor(Math.random() * 2);
@@ -493,19 +495,19 @@ class Sponge extends Game {
                         this.playSound('left');
                         this.moveBall(newPath);
 
-                     }
-                 } else if (curBallX + BALL_SIZE >= (100 - BALL_SIZE)) {
-                     const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.rightPaddle.node.coordinates2d}}, (node) => {
-                         return (node.node.id !== this.base.node.id 
+                    }
+                } else if (curBallX + BALL_SIZE >= (100 - BALL_SIZE)) {
+                    const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: this.rightPaddle.node.coordinates2d}}, (node) => {
+                        return (node.node.id !== this.base.node.id 
                             && node.node.id !== this.rightPaddle.node.id
                             && node.node.id !== this.mainClickHandler.node.id
                             && node.node.subType !== subtypes.ASSET);
-                     });
+                    });
 
-                     if (wouldBeCollisions.length == 0) {
-                         this.grantPoint(true);
-                         shouldContinue = false;
-                     } else {
+                    if (wouldBeCollisions.length == 0) {
+                        this.grantPoint(true);
+                        shouldContinue = false;
+                    } else {
                         // bounce off of the right paddle with a random Y velocity
 
                         const ySign = Math.random() < .5 ? -1 : 1;
@@ -529,7 +531,7 @@ class Sponge extends Game {
 
                         this.playSound('right');
                         this.moveBall(newPath);
-                     }
+                    }
                 } else {
                     const nextCoord = path[coordIndex];
                     this.updateBallPosition(nextCoord[0], nextCoord[1]);
