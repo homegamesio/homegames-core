@@ -1,5 +1,5 @@
 const process = require('process');
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH || 'squish-0756');
+let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH || 'squish-0756');
 
 const { animations } = require('../common/util');
 
@@ -45,6 +45,16 @@ class HomegamesRoot {
     }
 
     constructor(session, isDashboard, profiling) {
+        if (session.game.constructor.metadata && session.game.constructor.metadata()) {
+            let { Asset: _Asset, Game: _Game, GameNode: _GameNode, Colors: _Colors, Shapes: _Shapes, ShapeUtils: _ShapeUtils } = require("squish-" + session.game.constructor.metadata().squishVersion);
+            Asset = _Asset;
+            Game = _Game;
+            GameNode = _GameNode;
+            Colors = _Colors;
+            Shapes = _Shapes;
+            ShapeUtils = _ShapeUtils;
+        }
+
         this.isDashboard = isDashboard;
         this.profiling = profiling;
         this.renderTimes = [];
