@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0756');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0765');
 const { dictionary } = require('../../common/util');
 const fs = require('fs');
 
@@ -8,10 +8,16 @@ class InputTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0756',
+            squishVersion: '0765',
             author: 'Joseph Garcia',
             name: 'Input Test',
-            thumbnail: 'c6d38aca68fed708d08d284a5d201a0a'
+            thumbnail: 'c6d38aca68fed708d08d284a5d201a0a',
+            assets: {
+                'test-font': new Asset({
+                    'type': 'font',
+                    'id': '846b73999657425425fc39d39f9963b2'
+                })
+            }
         };
     }
 
@@ -34,7 +40,8 @@ class InputTest extends Game {
                 y: 50,
                 size: 4,
                 align: 'center',
-                color: COLORS.BLACK
+                color: COLORS.BLACK,
+                font: 'test-font'
             }
         });
 

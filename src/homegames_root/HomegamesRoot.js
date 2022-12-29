@@ -1,5 +1,5 @@
 const process = require('process');
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH || 'squish-0756');
+let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH || 'squish-0756');
 
 const { animations } = require('../common/util');
 
@@ -25,6 +25,10 @@ class HomegamesRoot {
     static metadata() {
         return {
             assets: {
+                'test-font': new Asset({
+                    'type': 'font',
+                    'id': '846b73999657425425fc39d39f9963b2'
+                }),
                 'frame': new Asset({
                     'id': 'c299f1f7e24d03e59cb569f5815bfe2f',
                     'type': 'image'
@@ -41,6 +45,16 @@ class HomegamesRoot {
     }
 
     constructor(session, isDashboard, profiling) {
+        if (session.game.constructor.metadata && session.game.constructor.metadata()) {
+            let { Asset: _Asset, Game: _Game, GameNode: _GameNode, Colors: _Colors, Shapes: _Shapes, ShapeUtils: _ShapeUtils } = require("squish-" + session.game.constructor.metadata().squishVersion);
+            Asset = _Asset;
+            Game = _Game;
+            GameNode = _GameNode;
+            Colors = _Colors;
+            Shapes = _Shapes;
+            ShapeUtils = _ShapeUtils;
+        }
+
         this.isDashboard = isDashboard;
         this.profiling = profiling;
         this.renderTimes = [];
@@ -240,7 +254,8 @@ class HomegamesRoot {
                     y: 1.5,
                     size: 0.8,
                     color: COLORS.HG_BLACK,
-                    align: 'center'
+                    align: 'center',
+                    font: 'test-font'
                 },
                 playerIds: [playerId]
             });
