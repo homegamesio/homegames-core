@@ -12,7 +12,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue } = require('homegames-common');
+const { getConfigValue, log } = require('homegames-common');
 const HomenamesHelper = require('./util/homenames-helper');
 
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
@@ -136,7 +136,6 @@ class GameSession {
     }
 
     addSpectator(spectator) {
-        console.log('does this happen wtf ' + spectator.id);
         this.squisher.assetBundle && spectator.receiveUpdate(this.squisher.assetBundle);
         // spectator.receiveUpdate(this.squisher.getPlayerFrame(spectator.id));
         spectator.addInputListener(this, true);
@@ -193,9 +192,6 @@ class GameSession {
             const playerName = generateName();
 
             this.homenamesHelper.updatePlayerInfo(player.id, { playerName }).then(() => {
-                console.log('wtf');
-                console.log(player.id + ',,,, ');
-                console.log(player.clientInfo);
                 this.homenamesHelper.updateClientInfo(player.id, player.clientInfo).then(() => {
                     doThing();
                 });
@@ -280,7 +276,6 @@ class GameSession {
         }
 
         const spectating = this.spectators[playerId] ? true : false;
-        // console.log('ayooooo ' + player.spectating)
         const clickedNode = this.findClick(click.x, click.y, spectating, playerId);
 
         if (clickedNode) {
@@ -385,7 +380,7 @@ class GameSession {
     }
 
     setServerCode(serverCode) {
-        console.log("SERVER CODE " + serverCode)
+        log.info("Public server code: " + serverCode)
         if (!this.homegamesRoot.isDashboard) {
             this.homegamesRoot.handleServerCode(serverCode);
         }

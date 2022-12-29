@@ -42,28 +42,17 @@ const listenable = function(obj, onChange) {
     return new Proxy(obj, handler);
 };
 
-const playerDataPath = baseDir + (baseDir.endsWith('/') ? '' : '/') + 'player-ids.json';
+let _playerIds = {};
 
-if (fs.existsSync(playerDataPath)) {
-    console.log('deleting old player data');
-    // fs.unlinkSync(playerDataPath);
+for (let i = 1; i < 256; i++) {
+    _playerIds[i] = false;
 }
 
 const generatePlayerId = () => {
-    let data = {};
-    if (fs.existsSync(playerDataPath)) {
-        data = JSON.parse(fs.readFileSync(playerDataPath));
-    } else {
-        for (let i = 1; i < 256; i++) {
-            data[i] = false;
-        }
-    }
 
-    for (const k in data) {
-        if (data[k] === false) {
-            data[k] = true;
-            fs.writeFileSync(playerDataPath, JSON.stringify(data));
-            console.log('returning id ' + k);
+    for (const k in _playerIds) {
+        if (_playerIds[k] === false) {
+            _playerIds[k] = true;
             return Number(k);
         }
     }
@@ -91,13 +80,17 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
 
     const broadcastEnabled = !!getConfigValue('PUBLIC_GAMES', false);
-    console.log('broadcastEnabled ? ' + broadcastEnabled);
+    log.info('broadcastEnabled: ' + broadcastEnabled);
 
     if (broadcastEnabled) {
         const proxyServer = new WebSocket('wss://public.homegames.link:81');
 
         proxyServer.on('open', () => {
-            console.log('just connected to proxy server');
+            log.info('Opend connection to proxy server');
+        });
+
+        proxyServer.on('error', () => {
+            log.warn('Unable to connect to proxy server. Public games will be unavailable.');
         });
 
         const internalId = 1;
@@ -106,35 +99,24 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
         let playerMap = {};
         const clientInfoMap = {};
         proxyServer.on('message', (msg) => {
-            if (msg.startsWith && msg.startsWith('gimmeid-')) {
-                const proxyClientId = msg.substring(8);
+            if (msg.startsWith && msg.startsWith('idreq-')) {
+                const proxyClientId = msg.substring(6);
                 const clientId = generatePlayerId();
-                proxyServer.send('gimmeidresponse-' + proxyClientId + '-' + clientId);
+                proxyServer.send('idres-' + proxyClientId + '-' + clientId);
             } else if (msg.startsWith && msg.startsWith('close-')) {
-                // console.log('clcloseosoeose');
-                // console.log(msg);
                 const pieces = msg.split('-');
                 const clientId = pieces[1];
-                // console.log(Object.keys(gameSession.spectators));
-                // console.log(Object.keys(gameSession.players));
-                // console.log(clientId);
-
+                
                 if (gameSession.spectators[clientId]) {
                     gameSession.handleSpectatorDisconnect(clientId);
                 } else {
                     gameSession.handlePlayerDisconnect(clientId);
                 }
-                // console.log('okay?');
-                // console.log('proxy????');
-                // console.log(proxyPlayer);
+                delete _playerIds[clientId];
             } else {
-                // console.log("OKAY PLEASE TELL ME THIS IS A BUF WITH A THING AT THE BEGINNING");
-                // console.log(msg);
                 let isJson = msg.startsWith;
                 let sentPlayerId;
                 if (!isJson) {
-                    console.log('plssss123');
-                    console.log(msg[0]);
                     const ting = msg.slice(1);
                     
                     // TODO: encode all json this way from broadcast server to remove this check   
@@ -146,12 +128,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                     } catch (err) {
 
                     }
-                    console.log('ayydfdnn ndd');
-                    console.log(JSON.parse(ting));
-                    console.log('need to send as this player');
-                    console.log(JSON.parse(ting));
-                    console.log(msg[0]);
-                    // gameSession.handlePlayerInput(msg[0], JSON.parse(ting));
                 }
                 if (isJson) {
                     const jsonMessage = JSON.parse(msg);
@@ -165,24 +141,14 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                                 proxyServer.send([199, clientId, ...s]);
                             },
                             on: (input) => {
-                                if (input == 'close') {
-                                    console.log('on closososoe idkkdkdk');
-                                }
                             },
                             id: clientId
                         };
 
-
-                        console.log('person connecting with id ' + clientId);
-                        console.log(Object.keys(gameSession.players));
-                        console.log(Object.keys(gameSession.spectators));
-
-
                         const player = new Player(fakeWs, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame, true);
 
                         playerMap[clientId] = player;
-                        console.log('so new remote player is spectating? ' + jsonMessage.spectating);
-
+                        
                         const aspectRatio = gameSession.aspectRatio;
                         const gameMetadata = gameSession.gameMetadata;
 
@@ -203,31 +169,16 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                             gameSession.addSpectator(player);
                         } else {
                             gameSession.addPlayer(player);
-                            console.log('the fuck');
-                            console.log(player.clientInfo)
-                            // if (clientInfoMap[clientId]) {
-                            //     gameSession.handlePlayerInput(JSON.stringify({
-                            //         type: 'clientInfo',
-                            //         data: clientInfoMap[clientId]
-                            //     }));
-                            // }
                         }
                     } else if(jsonMessage.type === 'code') {
                         const code = jsonMessage.code;
                         gameSession.setServerCode(code);
                     } else {
-                        console.log('reading input for player ' + sentPlayerId);
-                        console.log(jsonMessage)
-                        // gameSession.handlePlayerInput(sentPlayerId, jsonMessage);
                         if (jsonMessage.clientInfo) {
-                            clientInfoMap[sentPlayerId] = jsonMessage.clientInfo;
-                            
+                            clientInfoMap[sentPlayerId] = jsonMessage.clientInfo;                            
                         } else {
                             gameSession.handlePlayerInput(sentPlayerId, jsonMessage);
                         }
-                        // console.log('oh shit lol are player ids in messaegs');
-                        // console.log(jsonMessage.id);
-                        // proxyPlayer && proxyPlayer.handlePlayerInput(JSON.stringify(jsonMessage));
                     }
                 } 
             }

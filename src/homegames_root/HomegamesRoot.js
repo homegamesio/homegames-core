@@ -220,14 +220,14 @@ class HomegamesRoot {
             const settingsButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(42.5,.25, 15, 4.5),
-                fill: [187, 189, 191, 255],
+                fill: COLORS.HG_BLUE,//[187, 189, 191, 255],
                 onClick: (playerId) => {
                     this.showSettings(playerId);
                 }, 
                 playerIds: [playerId],
                 effects: {
                     shadow: {
-                        color: COLORS.BLACK,
+                        color: COLORS.HG_BLACK,
                         blur: 10
                     }
                 },
@@ -235,11 +235,11 @@ class HomegamesRoot {
 
             const labelText = new GameNode.Text({
                 textInfo: {
-                    text: playerInfo.name || 'unknown',
+                    text: playerInfo.name || 'Spectator',
                     x: 50,
                     y: 1.5,
-                    size: 0.7,
-                    color: COLORS.WHITE,
+                    size: 0.8,
+                    color: COLORS.HG_BLACK,
                     align: 'center'
                 },
                 playerIds: [playerId]
@@ -248,11 +248,11 @@ class HomegamesRoot {
             if (this.serverCode) {
                 const serverCodeNode = new GameNode.Text({
                     textInfo: {
-                        text: `Server code: ${this.serverCode.split('').join(' ')}`,
+                        text: `homegames.link   ${this.serverCode.split('').join(' ')}`,
                         x: 75,
                         y: 1,
-                        size: 1.6,
-                        color: COLORS.ORANGE,
+                        size: 1.1,
+                        color: COLORS.HG_RED,
                         align: 'center'
                     },
                     playerIds: [playerId]
@@ -270,7 +270,7 @@ class HomegamesRoot {
                 if (this.session.spectators[playerId]) {
                     const joinButton = new GameNode.Shape({
                         shapeType: Shapes.POLYGON,
-                        fill: COLORS.HG_BLUE,
+                        fill: COLORS.HG_YELLOW,
                         coordinates2d: ShapeUtils.rectangle(10, 0, 15, 5),
                         onClick: () => {
                             this.session.joinSession(playerId);
@@ -322,8 +322,6 @@ class HomegamesRoot {
     }
 
     handlePlayerDisconnect(playerId) {
-        console.log('huyh??');
-
         delete this.viewStates[playerId];
         if (this.playerDashboards[playerId]) {
             this.playerDashboards[playerId].intervals.forEach(interval => {
@@ -441,7 +439,6 @@ class HomegamesRoot {
     handleServerCode(serverCode) {
         this.serverCode = serverCode;
         this.updateLabels();
-        console.log('server code is this' + serverCode);
     }
 
 }

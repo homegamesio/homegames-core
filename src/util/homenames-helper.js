@@ -26,8 +26,6 @@ const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
 const makePost = (path, _payload) => new Promise((resolve, reject) => {
     const payload = JSON.stringify(_payload);
 
-    console.log('what is payload');
-    console.log(_payload);
     let module, hostname, port;
 
     // TODO: when we fully support HTTPS, use appropriate module + port
