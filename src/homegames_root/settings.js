@@ -45,6 +45,112 @@ const soundSettingContainer = ({ playerId, onToggle }) => {
     return soundSettingContainer;
 };
 
+const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
+    
+    const sessionPlayerInfoHeight = 55;
+
+    const homenamesHelper = new HomenamesHelper();
+    
+    const sessionInfoContainer = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(53.5, 30, 30, sessionPlayerInfoHeight),
+        playerIds: [playerId]
+    });
+
+    const spectatorCountText = new GameNode.Text({
+        textInfo: {
+            x: 74,
+            y: 17,
+            text: 'Spectators: ' + Object.keys(session.spectators).length,
+            align: 'left',
+            size: 1,
+            color: COLORS.HG_BLACK
+        },
+        playerIds: [playerId]
+    })
+
+    const playerHeight = sessionPlayerInfoHeight / 12;
+
+    const playersHeader = new GameNode.Text({
+        textInfo: {
+            text: 'Players',
+            size: 1.4,
+            color: COLORS.HG_BLACK,
+            x: 55,
+            y: 25,
+            align: 'left'
+        },
+        playerIds: [playerId]
+    });
+
+    sessionInfoContainer.addChild(playersHeader);
+
+    for (let [index, key] of Object.keys(session.players).entries()) {
+        // todo: optimize this
+
+        homenamesHelper.getPlayerInfo(key).then(playerInfo => {
+            const playerName = new GameNode.Text({
+                textInfo: {
+                    text: playerInfo.name || 'Unknown',
+                    x: 55,
+                    y: 1.025 * (30 + (playerHeight * index)),
+                    color: COLORS.HG_BLACK,
+                    size: 1.1,
+                    align: 'left',
+                },
+                playerIds: [playerId]
+            });
+
+            sessionInfoContainer.addChild(playerName);
+        });
+    }
+
+    sessionInfoContainer.addChild(spectatorCountText);
+
+    const gameName = session.gameMetadata && session.gameMetadata.name || session.game.constructor.name;
+    const squishVersion = session.gameMetadata && session.gameMetadata.squishVersion || 'Unknown';
+
+    const gameNameText = new GameNode.Text({
+        textInfo: {
+            x: 16,
+            y: 74,
+            text: 'Current game: ' + gameName,
+            align: 'left',
+            size: .7,
+            color: COLORS.HG_BLACK
+        },
+        playerIds: [playerId]
+    });
+
+    const authorText = new GameNode.Text({
+        textInfo: {
+            x: 16,
+            y: 78,
+            text: 'Author: ' + session.gameMetadata?.author,
+            align: 'left',
+            size: .7,
+            color: COLORS.HG_BLACK
+        },
+        playerIds: [playerId]
+    });
+
+    const squishVersionText = new GameNode.Text({
+        textInfo: {
+            x: 16,
+            y: 82,
+            text: 'Squish version: ' + squishVersion,
+            align: 'left',
+            size: .7,
+            color: COLORS.HG_BLACK
+        },
+        playerIds: [playerId]
+    });
+
+    sessionInfoContainer.addChildren(gameNameText, authorText, squishVersionText);
+
+    return sessionInfoContainer;
+}
+
 const nameSettingContainer = ({ playerId, onNameChange }) => {
 
     const nameSettingContainerHeight = 16;
@@ -107,7 +213,7 @@ const closeContainer = ({ playerId, onRemove }) => {
     return closeButton;
 };
 
-const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundToggle }) => {
+const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundToggle, session, playerInfo }) => {
     const settingsModal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
@@ -115,7 +221,12 @@ const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundTo
         playerIds: [playerId]
     });
 
-    settingsModal.addChildren(closeContainer({ playerId, onRemove }), nameSettingContainer({ playerId, onNameChange }), soundSettingContainer({ playerId, onToggle: onSoundToggle }));
+    settingsModal.addChildren(
+        closeContainer({ playerId, onRemove }), 
+        nameSettingContainer({ playerId, onNameChange }), 
+        soundSettingContainer({ playerId, onToggle: onSoundToggle }),
+        sessionInfoContainer({ playerId, session, playerInfo })
+    );
 
     return settingsModal;
 };
