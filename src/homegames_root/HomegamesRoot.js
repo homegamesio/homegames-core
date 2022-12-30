@@ -201,8 +201,12 @@ class HomegamesRoot {
     showSettings(playerId) {
         this.topLayerRoot.clearChildren();
         this.viewStates[playerId] = {state: 'settings'};
+        const playerInfo = this.session.playerInfoMap[playerId] || {};
+
         const modal = settingsModal({ 
             playerId,
+            session: this.session,
+            playerInfo,
             onRemove: () => {
                 this.topLayerRoot.removeChild(modal.node.id);
             }, 

@@ -45,6 +45,82 @@ const soundSettingContainer = ({ playerId, onToggle }) => {
     return soundSettingContainer;
 };
 
+const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
+
+    // const homenamesHelper = new HomenamesHelper();
+
+
+    // let _playerSettings = {};
+    // const handleClick = () => {
+    //     onToggle(!(_playerSettings && _playerSettings[PLAYER_SETTINGS.SOUND] && _playerSettings[PLAYER_SETTINGS.SOUND].enabled));
+    // };
+
+    console.log('ayyyy lmao!');
+    console.log(session.game);
+    console.log(session.gameMetadata);
+    console.log(session.players);
+    console.log(session.spectators);
+    
+    const sessionPlayerInfoHeight = 55;
+
+    const sessionInfoContainer = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(53.5, 30, 30, sessionPlayerInfoHeight),
+        // fill: COLORS.GREEN,
+        // onClick: handleClick,
+        playerIds: [playerId]
+    });
+
+    const playerHeight = sessionPlayerInfoHeight / 12;//Object.keys(session.players).length;
+
+    const playersHeader = new GameNode.Text({
+        textInfo: {
+            text: 'In this session',
+            size: 1.4,
+            color: COLORS.HG_BLACK,
+            x: 55,
+            y: 25,
+            align: 'left'
+        },
+        playerIds: [playerId]
+    });
+
+    sessionInfoContainer.addChild(playersHeader);
+
+    for (let [index, key] of Object.keys(session.players).entries()) {
+        // const playerEntry = new GameNode.Shape({
+        //     shapeType: Shapes.POLYGON,
+        //     coordinates2d: ShapeUtils.rectangle(53.5, 1 * (30 + (playerHeight * index)), 30, 1 * playerHeight),
+        //     fill: COLORS.HG_RED,
+        //     playerIds: [playerId]
+        // });
+
+        // todo: optimize this
+
+        const homenamesHelper = new HomenamesHelper();
+
+        homenamesHelper.getPlayerInfo(key).then(playerInfo => {
+            const playerName = new GameNode.Text({
+                textInfo: {
+                    text: playerInfo.name || 'Unknown',
+                    x: 55,
+                    y: 1.025 * (30 + (playerHeight * index)),
+                    color: COLORS.HG_BLACK,
+                    size: 1.1,
+                    align: 'left',
+                },
+                playerIds: [playerId]
+            });
+
+            // playerEntry.addChild(playerName);
+
+            sessionInfoContainer.addChild(playerName);
+        });
+    }
+
+    return sessionInfoContainer;
+}
+
 const nameSettingContainer = ({ playerId, onNameChange }) => {
 
     const nameSettingContainerHeight = 16;
@@ -107,7 +183,7 @@ const closeContainer = ({ playerId, onRemove }) => {
     return closeButton;
 };
 
-const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundToggle }) => {
+const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundToggle, session, playerInfo }) => {
     const settingsModal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
@@ -115,7 +191,12 @@ const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundTo
         playerIds: [playerId]
     });
 
-    settingsModal.addChildren(closeContainer({ playerId, onRemove }), nameSettingContainer({ playerId, onNameChange }), soundSettingContainer({ playerId, onToggle: onSoundToggle }));
+    settingsModal.addChildren(
+        closeContainer({ playerId, onRemove }), 
+        nameSettingContainer({ playerId, onNameChange }), 
+        soundSettingContainer({ playerId, onToggle: onSoundToggle }),
+        sessionInfoContainer({ playerId, session, playerInfo })
+    );
 
     return settingsModal;
 };
