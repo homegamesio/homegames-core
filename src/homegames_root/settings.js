@@ -46,36 +46,34 @@ const soundSettingContainer = ({ playerId, onToggle }) => {
 };
 
 const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
-
-    // const homenamesHelper = new HomenamesHelper();
-
-
-    // let _playerSettings = {};
-    // const handleClick = () => {
-    //     onToggle(!(_playerSettings && _playerSettings[PLAYER_SETTINGS.SOUND] && _playerSettings[PLAYER_SETTINGS.SOUND].enabled));
-    // };
-
-    console.log('ayyyy lmao!');
-    console.log(session.game);
-    console.log(session.gameMetadata);
-    console.log(session.players);
-    console.log(session.spectators);
     
     const sessionPlayerInfoHeight = 55;
 
+    const homenamesHelper = new HomenamesHelper();
+    
     const sessionInfoContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(53.5, 30, 30, sessionPlayerInfoHeight),
-        // fill: COLORS.GREEN,
-        // onClick: handleClick,
         playerIds: [playerId]
     });
 
-    const playerHeight = sessionPlayerInfoHeight / 12;//Object.keys(session.players).length;
+    const spectatorCountText = new GameNode.Text({
+        textInfo: {
+            x: 74,
+            y: 17,
+            text: 'Spectators: ' + Object.keys(session.spectators).length,
+            align: 'left',
+            size: 1,
+            color: COLORS.HG_BLACK
+        },
+        playerIds: [playerId]
+    })
+
+    const playerHeight = sessionPlayerInfoHeight / 12;
 
     const playersHeader = new GameNode.Text({
         textInfo: {
-            text: 'In this session',
+            text: 'Players',
             size: 1.4,
             color: COLORS.HG_BLACK,
             x: 55,
@@ -88,16 +86,7 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
     sessionInfoContainer.addChild(playersHeader);
 
     for (let [index, key] of Object.keys(session.players).entries()) {
-        // const playerEntry = new GameNode.Shape({
-        //     shapeType: Shapes.POLYGON,
-        //     coordinates2d: ShapeUtils.rectangle(53.5, 1 * (30 + (playerHeight * index)), 30, 1 * playerHeight),
-        //     fill: COLORS.HG_RED,
-        //     playerIds: [playerId]
-        // });
-
         // todo: optimize this
-
-        const homenamesHelper = new HomenamesHelper();
 
         homenamesHelper.getPlayerInfo(key).then(playerInfo => {
             const playerName = new GameNode.Text({
@@ -112,11 +101,52 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
                 playerIds: [playerId]
             });
 
-            // playerEntry.addChild(playerName);
-
             sessionInfoContainer.addChild(playerName);
         });
     }
+
+    sessionInfoContainer.addChild(spectatorCountText);
+
+    const gameName = session.gameMetadata && session.gameMetadata.name || session.game.constructor.name;
+    const squishVersion = session.gameMetadata && session.gameMetadata.squishVersion || 'Unknown';
+
+    const gameNameText = new GameNode.Text({
+        textInfo: {
+            x: 16,
+            y: 74,
+            text: 'Current game: ' + gameName,
+            align: 'left',
+            size: .7,
+            color: COLORS.HG_BLACK
+        },
+        playerIds: [playerId]
+    });
+
+    const authorText = new GameNode.Text({
+        textInfo: {
+            x: 16,
+            y: 78,
+            text: 'Author: ' + session.gameMetadata?.author,
+            align: 'left',
+            size: .7,
+            color: COLORS.HG_BLACK
+        },
+        playerIds: [playerId]
+    });
+
+    const squishVersionText = new GameNode.Text({
+        textInfo: {
+            x: 16,
+            y: 82,
+            text: 'Squish version: ' + squishVersion,
+            align: 'left',
+            size: .7,
+            color: COLORS.HG_BLACK
+        },
+        playerIds: [playerId]
+    });
+
+    sessionInfoContainer.addChildren(gameNameText, authorText, squishVersionText);
 
     return sessionInfoContainer;
 }
