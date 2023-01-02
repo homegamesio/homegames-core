@@ -230,6 +230,12 @@ class GameSession {
     }
 
     handlePlayerInput(playerId, input) {
+        const spectating = this.spectators[playerId] ? true : false;
+
+        if (spectating) {
+            return;
+        }
+        
         if (input.type === 'click') {
             this.handleClick(playerId, input.data);
         } else if (input.type === 'keydown') {

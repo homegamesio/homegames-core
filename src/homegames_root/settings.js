@@ -3,48 +3,6 @@ const HomenamesHelper = require('../util/homenames-helper');
 const { COLORS } = Colors;
 const PLAYER_SETTINGS = require('../common/player-settings');
 
-const soundSettingContainer = ({ playerId, onToggle }) => {
-
-    const homenamesHelper = new HomenamesHelper();
-
-
-    let _playerSettings = {};
-    const handleClick = () => {
-        onToggle(!(_playerSettings && _playerSettings[PLAYER_SETTINGS.SOUND] && _playerSettings[PLAYER_SETTINGS.SOUND].enabled));
-    };
-
-    const soundSettingContainer = new GameNode.Shape({
-        shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(16, 56, 35, 16),
-        fill: [251, 255, 242, 255],
-        onClick: handleClick,
-        playerIds: [playerId]
-    });
-
-    homenamesHelper.getPlayerSettings(playerId).then((playerSettings) => {
-        _playerSettings = playerSettings;
-        let soundEnabled = false;
-        if (playerSettings && playerSettings[PLAYER_SETTINGS.SOUND] && playerSettings[PLAYER_SETTINGS.SOUND].enabled) {
-            soundEnabled = true;
-        }
-
-        const soundEnabledText = new GameNode.Text({
-            textInfo: {
-                x: 17,
-                y: 62,
-                text: `Sound: ${soundEnabled ? 'on' : 'off'}`,
-                align: 'left',
-                size: 1.5,
-                color: COLORS.HG_BLACK
-            }
-        });
-
-        soundSettingContainer.addChild(soundEnabledText);
-    });
-
-    return soundSettingContainer;
-};
-
 const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
     
     const sessionPlayerInfoHeight = 55;
@@ -76,7 +34,7 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
             text: 'Players',
             size: 1.4,
             color: COLORS.HG_BLACK,
-            x: 55,
+            x: 65,
             y: 25,
             align: 'left'
         },
@@ -92,7 +50,7 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
             const playerName = new GameNode.Text({
                 textInfo: {
                     text: playerInfo.name || 'Unknown',
-                    x: 55,
+                    x: 65,
                     y: 1.025 * (30 + (playerHeight * index)),
                     color: COLORS.HG_BLACK,
                     size: 1.1,
@@ -113,11 +71,11 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
 
     const gameNameText = new GameNode.Text({
         textInfo: {
-            x: 16,
-            y: 74,
+            x: 23,
+            y: 70,
             text: 'Current game: ' + gameName,
             align: 'left',
-            size: .7,
+            size: 0.8,
             color: COLORS.HG_BLACK
         },
         playerIds: [playerId]
@@ -125,11 +83,11 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
 
     const authorText = new GameNode.Text({
         textInfo: {
-            x: 16,
-            y: 78,
+            x: 23,
+            y: 74,
             text: 'Author: ' + session.gameMetadata?.author,
             align: 'left',
-            size: .7,
+            size: 0.8,
             color: COLORS.HG_BLACK
         },
         playerIds: [playerId]
@@ -137,11 +95,11 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
 
     const squishVersionText = new GameNode.Text({
         textInfo: {
-            x: 16,
-            y: 82,
+            x: 23,
+            y: 78,
             text: 'Squish version: ' + squishVersion,
             align: 'left',
-            size: .7,
+            size: 0.8,
             color: COLORS.HG_BLACK
         },
         playerIds: [playerId]
@@ -159,8 +117,7 @@ const nameSettingContainer = ({ playerId, onNameChange }) => {
 
     const container = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(16, 32, nameSettingContainerWidth, nameSettingContainerHeight),
-        fill: [251, 255, 242, 255],
+        coordinates2d: ShapeUtils.rectangle(23, 23, 30, 6),
         input: {
             type: 'text',
             oninput: (player, text) => {
@@ -176,17 +133,103 @@ const nameSettingContainer = ({ playerId, onNameChange }) => {
     homenamesHelper.getPlayerInfo(playerId).then(playerInfo => {
         const nameText = new GameNode.Text({
             textInfo: {
-                x: 17,// + (nameSettingContainerWidth / 2),
-                y: 30 + (nameSettingContainerHeight / 2),
+                x: 23,
+                y: 25,
                 color: COLORS.HG_BLACK,
                 text: `Name: ${playerInfo.name || 'unknown'}`,
                 align: 'left',
-                size: 1.5
+                size: 1.4
             }
         });
 
         container.addChild(nameText);
     });
+
+    return container;
+};
+
+const soundSettingContainer = ({ playerId, onToggle }) => {
+
+    const homenamesHelper = new HomenamesHelper();
+
+
+    let _playerSettings = {};
+    const handleClick = () => {
+        onToggle(!(_playerSettings && _playerSettings[PLAYER_SETTINGS.SOUND] && _playerSettings[PLAYER_SETTINGS.SOUND].enabled));
+    };
+
+    const soundSettingContainer = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(23, 34, 30, 6),
+        onClick: handleClick,
+        playerIds: [playerId]
+    });
+
+    homenamesHelper.getPlayerSettings(playerId).then((playerSettings) => {
+        _playerSettings = playerSettings;
+        let soundEnabled = false;
+        if (playerSettings && playerSettings[PLAYER_SETTINGS.SOUND] && playerSettings[PLAYER_SETTINGS.SOUND].enabled) {
+            soundEnabled = true;
+        }
+
+        const soundEnabledText = new GameNode.Text({
+            textInfo: {
+                x: 23,
+                y: 36,
+                text: `Sound: ${soundEnabled ? 'on' : 'off'}`,
+                align: 'left',
+                size: 1.4,
+                color: COLORS.HG_BLACK
+            }
+        });
+
+        soundSettingContainer.addChild(soundEnabledText);
+    });
+
+    return soundSettingContainer;
+};
+
+const assetInfoContainer = ({ playerId, assetInfo, onDownload }) => {
+    const container = new GameNode.Shape({
+        coordinates2d: ShapeUtils.rectangle(23, 60, 35, 8),
+        shapeType: Shapes.POLYGON
+    });
+
+    if (assetInfo.downloadedCount < assetInfo.totalCount) {
+        const assetText = new GameNode.Text({
+            textInfo: {
+                x: 23,
+                y: 60,
+                text: `Downloaded game assets: ${assetInfo.downloadedCount} of ${assetInfo.totalCount}` ,
+                align: 'left',
+                color: COLORS.HG_BLACK,//[251, 255, 242, 255],
+                size: 1
+            }
+        });
+
+        const downloadButton = new GameNode.Shape({
+            coordinates2d: ShapeUtils.rectangle(30, 64, 8, 8),
+            fill: COLORS.PURPLE,
+            onClick: () => onDownload(),
+            shapeType: Shapes.POLYGON
+        });
+
+        container.addChild(downloadButton);
+        container.addChild(assetText);
+    } else {
+        const allAssetsDownloadedText = new GameNode.Text({
+            textInfo: {
+                x: 23,
+                y: 60,
+                text: `All game assets downloaded locally!` ,
+                align: 'left',
+                color: COLORS.HG_BLACK,//[251, 255, 242, 255],
+                size: 1
+            }
+        });
+
+        container.addChild(allAssetsDownloadedText);
+    }
 
     return container;
 };
@@ -214,7 +257,7 @@ const closeContainer = ({ playerId, onRemove }) => {
     return closeButton;
 };
 
-const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundToggle, session, playerInfo }) => {
+const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundToggle, session, playerInfo, assetInfo, onDownload }) => {
     const settingsModal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
@@ -226,7 +269,8 @@ const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundTo
         closeContainer({ playerId, onRemove }), 
         nameSettingContainer({ playerId, onNameChange }), 
         soundSettingContainer({ playerId, onToggle: onSoundToggle }),
-        sessionInfoContainer({ playerId, session, playerInfo })
+        sessionInfoContainer({ playerId, session, playerInfo }),
+        assetInfoContainer({ playerId, assetInfo, onDownload })
     );
 
     return settingsModal;

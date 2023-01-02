@@ -202,7 +202,6 @@ class HomegamesRoot {
 
         this.spectators = {};
 
-        this.gameAssets = {};
         this.viewStates = {};
 
         this.frameStates = {};
@@ -342,14 +341,16 @@ class HomegamesRoot {
         this.viewStates[playerId] = {state: 'settings'};
         const playerInfo = this.session.playerInfoMap[playerId] || {};
 
-        console.log('mdmdmdmdm')
         this.getLocalAssetInfo().then(assetInfo => {
-            console.log('asset info!');
-            console.log(assetInfo);
+
+            const onDownload = () => this.downloadAssets(assetInfo.gameAssetMap).then(() => this.showSettings(playerId));
+            
             const modal = settingsModal({ 
                 playerId,
                 session: this.session,
                 playerInfo,
+                assetInfo,
+                onDownload,
                 onRemove: () => {
                     this.topLayerRoot.removeChild(modal.node.id);
                 }, 
@@ -518,37 +519,42 @@ class HomegamesRoot {
         this.updateLabels();
     }
 
-    downloadAssets() {
+    downloadAssets(gameAssetMap) {
         return new Promise((resolve, reject) => {
             let downloadedCount = 0;
             const checkedCount = 0;
             let totalCount = 0;
             const seenCount = 0;
 
-            for (const gameKey in this.gameAssets) {
-                for (const assetKey in this.gameAssets[gameKey]) {
-                    totalCount += 1;
+            for (const gameKey in gameAssetMap) {
+                for (const versionId in gameAssetMap[gameKey]) {
+                    for (const assetKey in gameAssetMap[gameKey][versionId]) {
+                        totalCount += 1;
+                    }
                 }
             }
-            for (const gameKey in this.gameAssets) {
-                for (const assetKey in this.gameAssets[gameKey]) {
-                    const asset = this.gameAssets[gameKey][assetKey];
-                    asset.existsLocally().then(exists => {
-                        if (exists) {
-                            downloadedCount += 1;
-                        } else {
-                            asset.download().then(() => {
-                                downloadedCount += 1;
-                                if (downloadedCount == totalCount) {
-                                    resolve();
-                                }
-                            });
-                        }
 
-                        if (downloadedCount == totalCount) {
-                            resolve();
-                        }
-                    });
+            for (const gameKey in gameAssetMap) {
+                for (const versionId in gameAssetMap[gameKey]) {
+                    for (const assetKey in gameAssetMap[gameKey][versionId]) {
+                        const asset = gameAssetMap[gameKey][versionId][assetKey];
+                        asset.existsLocally().then(exists => {
+                            if (exists) {
+                                downloadedCount += 1;
+                            } else {
+                                asset.download().then(() => {
+                                    downloadedCount += 1;
+                                    if (downloadedCount == totalCount) {
+                                        resolve();
+                                    }
+                                });
+                            }
+
+                            if (downloadedCount == totalCount) {
+                                resolve();
+                            }
+                        });
+                    }
                 }
             }
 
@@ -557,12 +563,9 @@ class HomegamesRoot {
     }
 
     getLocalAssetInfo() {
-        console.log('ashhdhdhdh 123');
         const localGames = getGameMap();
             
         return new Promise((resolve, reject) => {
-            console.log('ashhdhdhdh');
-
             let downloadedCount = 0;
             const checkedCount = 0;
             let totalCount = 0;
@@ -603,8 +606,13 @@ class HomegamesRoot {
                 }
             }
 
+            const gameAssetMap = {};
+
             for (const gameKey in gameAssets) {
+                gameAssetMap[gameKey] = {};
                 for (const versionId in gameAssets[gameKey]) {
+                    gameAssetMap[gameKey][versionId] = {};
+                    let assetIndex = 0;
                     for (const assetKey in gameAssets[gameKey][versionId]) {
                         const asset = gameAssets[gameKey][versionId][assetKey];
                         asset.existsLocally().then(exists => {
@@ -612,14 +620,15 @@ class HomegamesRoot {
                                 downloadedCount += 1;
                             }
 
-                            seenCount += 1;
+                            gameAssetMap[gameKey][versionId][assetKey] = asset;
 
-                            console.log('aididi')
+                            seenCount += 1;
 
                             if (seenCount == totalCount) {
                                 resolve({
                                     totalCount,
-                                    downloadedCount
+                                    downloadedCount,
+                                    gameAssetMap
                                 });
                             }
                         });
