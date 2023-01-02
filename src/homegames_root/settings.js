@@ -34,7 +34,7 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
             text: 'Players',
             size: 1.4,
             color: COLORS.HG_BLACK,
-            x: 65,
+            x: 62.5,
             y: 25,
             align: 'left'
         },
@@ -50,7 +50,7 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
             const playerName = new GameNode.Text({
                 textInfo: {
                     text: playerInfo.name || 'Unknown',
-                    x: 65,
+                    x: 62.5,
                     y: 1.025 * (30 + (playerHeight * index)),
                     color: COLORS.HG_BLACK,
                     size: 1.1,
@@ -208,11 +208,24 @@ const assetInfoContainer = ({ playerId, assetInfo, onDownload }) => {
         });
 
         const downloadButton = new GameNode.Shape({
-            coordinates2d: ShapeUtils.rectangle(30, 64, 8, 8),
-            fill: COLORS.PURPLE,
+            coordinates2d: ShapeUtils.rectangle(45, 59, 12, 4),
+            fill: COLORS.HG_YELLOW,
             onClick: () => onDownload(),
             shapeType: Shapes.POLYGON
         });
+
+        const downloadText = new GameNode.Text({
+            textInfo: {
+                x: 51,
+                y: 60,
+                text: `Download all assets`,
+                align: 'center',
+                color: COLORS.HG_BLACK,//[251, 255, 242, 255],
+                size: 0.7
+            }
+        });
+
+        downloadButton.addChild(downloadText);
 
         container.addChild(downloadButton);
         container.addChild(assetText);

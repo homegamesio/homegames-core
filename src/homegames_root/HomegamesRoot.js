@@ -1,6 +1,6 @@
 const fs = require('fs');
 const process = require('process');
-let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH || 'squish-0756');
+let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH || 'squish-0766');
 
 const { animations } = require('../common/util');
 
