@@ -117,8 +117,6 @@ const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_D
 
 const networkHelper = {
     searchGames: (q) => new Promise((resolve, reject) => {
-                console.log('ayo3');
-
         getUrl('https://landlord.homegames.io/games?query=' + q).then(response => {
             let results;
             try {
@@ -130,31 +128,29 @@ const networkHelper = {
             resolve(results);
         }).catch(err => {
             log.error('Error searching games', err);
-            reject();
+            reject(err);
         });
     }),
     getGameDetails: (gameId) => new Promise((resolve, reject) => {
-                console.log('ayo2');
-
        getUrl('https://landlord.homegames.io/games/' + gameId).then(response => {
             let results;
             try {
                 results = JSON.parse(response);
             } catch (err) {
-                console.error('Unable to do thing');
+                log.error(err);
                 reject();
             }    
             resolve(results);
         }).catch(err => {
+            log.error(err);
             reject(err);
         }); 
     }), 
     getGameVersionDetails: (gameId, versionId) => new Promise((resolve, reject) => {
-        console.log('ayo1');
-
         getUrl('https://landlord.homegames.io/games/' + gameId + '/version/' + versionId).then(response => { 
             resolve(JSON.parse(response));
         }).catch(err => {
+            log.error(err);
             reject(err);
         }); 
     })
@@ -488,13 +484,9 @@ class HomegamesDashboard extends ViewableGame {
                             this.joinSession(playerId, session);
                         },
                         onCreateSession: () => {
-                            console.log('vvvvver ' + gameId);
-                            console.log(gameVersion);
                             if (this.localGames[gameId]?.versions[gameVersion.versionId]) {
                                 this.startSession(playerId, gameId, gameVersion.versionId);
-
                             } else {
-                                console.log('lol what');
                                 this.downloadGame({ gameDetails: game, version: gameVersion }).then(() => {
                                     this.renderGamePlane();
                                     this.startSession(playerId, gameId, gameVersion.versionId);
@@ -540,27 +532,14 @@ class HomegamesDashboard extends ViewableGame {
                 }
 
             }).catch(err => {
-                console.log('error. going to just show local versions');
-                console.log('need game details');
-                console.log(this.localGames[gameId]);
                 const gameDetails = this.localGames[gameId];
                 const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
-                console.log('blah');
-                console.log(gameDetails);
                 const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.metadata.name, thumbnail: gameDetails.metadata.thumbnail, author: gameDetails.metadata.createdBy }};
 
-                console.log('vers');
-                console.log(gameVersion);
                 const gameVersionsWithMetadata = Object.keys(gameDetails.versions).filter(v => v !== gameVersion.versionId).map(v => {
                      return {...v, metadata: { description: v.description, version: v.version, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
                 });
 
-                console.log('sdfklsg')
-                console.log(withMetadata)
-                // const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail, author: gameDetails.createdBy }};
-                // const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
-                //      return {...v, metadata: { version: v.version, description: v.description, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
-                // });
                 wat(gameDetails, withMetadata, gameVersionsWithMetadata);
             });
         }
@@ -675,7 +654,7 @@ class HomegamesDashboard extends ViewableGame {
                     }
                 });
             }).catch(err => {
-                console.log('erororororoor1');
+                log.error(err);
             });
         }
     }
