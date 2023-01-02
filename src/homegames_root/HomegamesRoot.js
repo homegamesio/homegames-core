@@ -13,7 +13,7 @@ let baseDir = path.dirname(require.main.filename);
 if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
-const { getConfigValue } = require('homegames-common');
+const { getConfigValue, log } = require('homegames-common');
 const HomenamesHelper = require('../util/homenames-helper');
 
 const settingsModal = require('./settings');
