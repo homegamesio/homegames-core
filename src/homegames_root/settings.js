@@ -104,8 +104,9 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
             sessionInfoContainer.addChild(playerName);
         });
     }
-
-    sessionInfoContainer.addChild(spectatorCountText);
+    if (Object.keys(session.spectators).length > 0) {
+        sessionInfoContainer.addChild(spectatorCountText);
+    }
 
     const gameName = session.gameMetadata && session.gameMetadata.name || session.game.constructor.name;
     const squishVersion = session.gameMetadata && session.gameMetadata.squishVersion || 'Unknown';

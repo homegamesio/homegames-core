@@ -117,18 +117,25 @@ const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_D
 
 const networkHelper = {
     searchGames: (q) => new Promise((resolve, reject) => {
+                console.log('ayo3');
+
         getUrl('https://landlord.homegames.io/games?query=' + q).then(response => {
             let results;
             try {
                 results = JSON.parse(response);
             } catch (err) {
-                console.error('Unable to do thing');
+                log.error('Error parsing search response', err);
                 reject();
             }    
             resolve(results);
+        }).catch(err => {
+            log.error('Error searching games', err);
+            reject();
         });
     }),
     getGameDetails: (gameId) => new Promise((resolve, reject) => {
+                console.log('ayo2');
+
        getUrl('https://landlord.homegames.io/games/' + gameId).then(response => {
             let results;
             try {
@@ -138,11 +145,17 @@ const networkHelper = {
                 reject();
             }    
             resolve(results);
+        }).catch(err => {
+            reject(err);
         }); 
     }), 
     getGameVersionDetails: (gameId, versionId) => new Promise((resolve, reject) => {
+        console.log('ayo1');
+
         getUrl('https://landlord.homegames.io/games/' + gameId + '/version/' + versionId).then(response => { 
             resolve(JSON.parse(response));
+        }).catch(err => {
+            reject(err);
         }); 
     })
 };
@@ -475,10 +488,13 @@ class HomegamesDashboard extends ViewableGame {
                             this.joinSession(playerId, session);
                         },
                         onCreateSession: () => {
+                            console.log('vvvvver ' + gameId);
+                            console.log(gameVersion);
                             if (this.localGames[gameId]?.versions[gameVersion.versionId]) {
                                 this.startSession(playerId, gameId, gameVersion.versionId);
 
                             } else {
+                                console.log('lol what');
                                 this.downloadGame({ gameDetails: game, version: gameVersion }).then(() => {
                                     this.renderGamePlane();
                                     this.startSession(playerId, gameId, gameVersion.versionId);
@@ -523,7 +539,30 @@ class HomegamesDashboard extends ViewableGame {
                     wat(gameDetails, withMetadata, gameVersionsWithMetadata)
                 }
 
-        });
+            }).catch(err => {
+                console.log('error. going to just show local versions');
+                console.log('need game details');
+                console.log(this.localGames[gameId]);
+                const gameDetails = this.localGames[gameId];
+                const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
+                console.log('blah');
+                console.log(gameDetails);
+                const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.metadata.name, thumbnail: gameDetails.metadata.thumbnail, author: gameDetails.metadata.createdBy }};
+
+                console.log('vers');
+                console.log(gameVersion);
+                const gameVersionsWithMetadata = Object.keys(gameDetails.versions).filter(v => v !== gameVersion.versionId).map(v => {
+                     return {...v, metadata: { description: v.description, version: v.version, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
+                });
+
+                console.log('sdfklsg')
+                console.log(withMetadata)
+                // const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail, author: gameDetails.createdBy }};
+                // const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
+                //      return {...v, metadata: { version: v.version, description: v.description, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
+                // });
+                wat(gameDetails, withMetadata, gameVersionsWithMetadata);
+            });
         }
     }
 
@@ -635,12 +674,19 @@ class HomegamesDashboard extends ViewableGame {
                             this.showGameModalNew(playerId, gameId, version.versionId);
                     }
                 });
+            }).catch(err => {
+                console.log('erororororoor1');
             });
         }
     }
 
     handleSearch(playerId) {
         const query = this.playerStates[playerId].query;
+
+        if (!query) {
+            this.renderGames(playerId, {});
+            return;
+        }
 
         const playerView = {x: 0, y: 0, w: 100, h: 100};
 
@@ -650,11 +696,28 @@ class HomegamesDashboard extends ViewableGame {
 
         const games = {};
 
+        const localGameData = this.localGames;
+
+        for (let key in localGameData) {
+            const localGameMetadata = localGameData[key].metadata;
+            const keyMatches = key.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+            const nameMatches = localGameMetadata.name && localGameMetadata.name.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+            if (keyMatches || nameMatches) {
+                games[key] = {
+                    metadata: {
+                        name: localGameMetadata.name || key,
+                        author: localGameMetadata.author,
+                        thumbnail: localGameMetadata.thumbnail
+                    }
+                }
+            }
+        }
 
         let processedEntries = 0;
+
         networkHelper.searchGames(query).then(results => {
             if (!results.games || !results.games.length) {
-                this.renderGames(playerId, {})
+                this.renderGames(playerId, { searchResults: games, searchQuery: query });
             } else {
                 results.games.forEach(game => {
                     const thumbnailId = game.thumbnail.indexOf('/') > 0 ? game.thumbnail.split('/')[game.thumbnail.split('/').length  - 1] : game.thumbnail; 
@@ -680,7 +743,6 @@ class HomegamesDashboard extends ViewableGame {
                             if (processedEntries === results.games.length) {
                                 this.renderGames(playerId, { searchResults: games, searchQuery: query });
                             }
-
                         });
                         
                     } else {
@@ -692,9 +754,9 @@ class HomegamesDashboard extends ViewableGame {
                 });
             }
 
+        }).catch(err => {
+            this.renderGames(playerId, { searchResults: games, searchQuery: query });
         });
-    
-
     }
 
     buildStaticElements(playerId, gamePlane, searchQuery = '', searchResults = null) {
