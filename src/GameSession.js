@@ -147,7 +147,7 @@ class GameSession {
         // if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
         //     player.receiveUpdate([5, 70, 0]);
         // }
-
+        this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
         this.players[player.id] = player;
 
         const doThing = () => {
@@ -160,7 +160,6 @@ class GameSession {
 
                         this.playerSettingsMap[player.id] = playerSettings;
 
-                        this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
                         const playerPayload = {
                             playerId: player.id, 
                             settings: this.playerSettingsMap[player.id], 
