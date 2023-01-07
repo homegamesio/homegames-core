@@ -229,12 +229,6 @@ class GameSession {
     }
 
     handlePlayerInput(playerId, input) {
-        const spectating = this.spectators[playerId] ? true : false;
-
-        if (spectating) {
-            return;
-        }
-
         if (input.type === 'click') {
             this.handleClick(playerId, input.data);
         } else if (input.type === 'keydown') {
@@ -308,29 +302,25 @@ class GameSession {
 
         if (this.customBottomLayer) {
             const scale = {x: 1, y: 1};
-            clicked = this.findClickHelper(x, y, spectating, playerId, this.customBottomLayer.root.node, null, scale) || clicked;
+            clicked = this.findClickHelper(x, y, spectating, playerId, this.customBottomLayer.root.node, null, scale, false) || clicked;
         }
 
         for (const layerIndex in this.game.getLayers()) {
             const layer = this.game.getLayers()[layerIndex];
             const scale = layer.scale || this.scale;
 
-            clicked = this.findClickHelper(x, y, spectating, playerId, this.game.getLayers()[layerIndex].root.node, null, scale) || clicked;
+            clicked = this.findClickHelper(x, y, spectating, playerId, this.game.getLayers()[layerIndex].root.node, null, scale, true) || clicked;
         }
 
         if (this.customTopLayer) {
             const scale = {x: 1, y: 1};
-            clicked = this.findClickHelper(x, y, spectating, playerId, this.customTopLayer.root.node, null, scale) || clicked;
+            clicked = this.findClickHelper(x, y, spectating, playerId, this.customTopLayer.root.node, null, scale, false) || clicked;
         }
 
         return clicked;
     }
 
     findClickHelper(x, y, spectating, playerId, node, clicked = null, scale, inGame) {
-        if (node.id === this.game.getLayers()[0].root.node.id) {
-            inGame = true;
-        }
-
         if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
             const vertices = [];
  
@@ -370,14 +360,18 @@ class GameSession {
             }
                 
             if (isInside) {
-                if (!spectating || !inGame) {
+                if (spectating) {
+                    if (!inGame) {
+                        clicked = node;
+                    }
+                } else {
                     clicked = node;
                 }
             }
 
         }
 
-        for (const i in node.children) {
+        for (const i in node.children) {             
             clicked = this.findClickHelper(x, y, spectating, playerId, node.children[i].node, clicked, scale, inGame);
         }
 
