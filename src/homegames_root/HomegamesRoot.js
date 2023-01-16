@@ -343,6 +343,25 @@ class HomegamesRoot {
         this.updateLabels();
     }
 
+    exportSessionData() {
+        const sessionDataPath = getConfigValue('SESSION_DATA_PATH', `hg-recordings`);
+
+        if (!fs.existsSync(sessionDataPath)) {
+            fs.mkdirSync(sessionDataPath);
+        }
+
+        const exportPath = sessionDataPath + '/' + Date.now() + '.hgdata';
+        const exportData = {
+            metadata: this.session.game.constructor.metadata(),
+            data: this.session.stateHistory,
+            assets: this.session.game.getAssets ? Object.keys(this.session.game.getAssets()).map(k => { return { name: k, data: this.session.game.getAssets()[k].info }; }) : null
+        };
+
+        fs.writeFileSync(exportPath, JSON.stringify(exportData));
+
+        return exportPath;
+    }
+
     showSettings(playerId) {
         this.topLayerRoot.clearChildren();
         this.viewStates[playerId] = {state: 'settings'};
@@ -371,6 +390,9 @@ class HomegamesRoot {
                     this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
                         enabled: newVal
                     });
+                },
+                onExportSessionData: () => {
+                    return this.exportSessionData();
                 }
             });
 
