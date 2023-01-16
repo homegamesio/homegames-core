@@ -1,6 +1,13 @@
 const fs = require('fs');
 const process = require('process');
-let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH || 'squish-0766');
+
+if (!process.env.SQUISH_PATH) {
+    const defaultVersion = 'squish-0766';
+    console.log('No SQUISH_PATH found. Using default: ' + defaultVersion);
+    process.env.SQUISH_PATH = defaultVersion;
+}
+
+let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH);
 
 const { animations } = require('../common/util');
 
@@ -564,7 +571,8 @@ class HomegamesRoot {
 
     getLocalAssetInfo() {
         const localGames = getGameMap();
-            
+        console.log('huh');
+        console.log(localGames);
         return new Promise((resolve, reject) => {
             let downloadedCount = 0;
             const checkedCount = 0;
@@ -587,6 +595,8 @@ class HomegamesRoot {
                             gameAssets[key][versionId] = _gameAssets;
                         }
                     } else {
+                        console.log('what');
+                        console.log(localGames[key].versions);
                         const _class = require(localGames[key].versions[versionId].gamePath);
                         const _gameAssets = _class.metadata && _class.metadata().assets;
 
