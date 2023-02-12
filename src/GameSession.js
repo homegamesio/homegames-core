@@ -125,11 +125,13 @@ class GameSession {
             if (playerFrame) {
 
                 this.players[playerId].receiveUpdate(playerFrame.flat());
+            } else {
+                log.error('No player frame available for player ' + playerId);
             }
         }
 
         for (const spectatorId in this.spectators) {
-            const playerSettings = {};//this.playerSettingsMap[playerId] || {};
+            const playerSettings = {};
             
             let playerFrame = this.squisher.getPlayerFrame(spectatorId);
             

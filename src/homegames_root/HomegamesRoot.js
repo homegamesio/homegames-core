@@ -351,10 +351,13 @@ class HomegamesRoot {
         }
 
         const exportPath = sessionDataPath + '/' + Date.now() + '.hgdata';
+        const cleanedMetadata = Object.assign({}, this.session?.game?.constructor?.metadata && this.session.game.constructor.metadata());
+        cleanedMetadata.assets = {};
+
         const exportData = {
-            metadata: this.session.game.constructor.metadata(),
+            metadata: cleanedMetadata,
             data: this.session.stateHistory,
-            assets: this.session.game.getAssets ? Object.keys(this.session.game.getAssets()).map(k => { return { name: k, data: this.session.game.getAssets()[k].info }; }) : null
+            assets: this.session.squisher.assetBundle
         };
 
         fs.writeFileSync(exportPath, JSON.stringify(exportData));
