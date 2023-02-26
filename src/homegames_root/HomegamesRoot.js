@@ -1,6 +1,13 @@
 const fs = require('fs');
 const process = require('process');
-let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH || 'squish-0766');
+
+if (!process.env.SQUISH_PATH) {
+    const defaultVersion = 'squish-0766';
+    console.log('No SQUISH_PATH found. Using default: ' + defaultVersion);
+    process.env.SQUISH_PATH = defaultVersion;
+}
+
+let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH);
 
 const { animations } = require('../common/util');
 
@@ -336,6 +343,28 @@ class HomegamesRoot {
         this.updateLabels();
     }
 
+    exportSessionData() {
+        const sessionDataPath = getConfigValue('SESSION_DATA_PATH', `hg-recordings`);
+
+        if (!fs.existsSync(sessionDataPath)) {
+            fs.mkdirSync(sessionDataPath);
+        }
+
+        const exportPath = sessionDataPath + '/' + Date.now() + '.hgdata';
+        const cleanedMetadata = Object.assign({}, this.session?.game?.constructor?.metadata && this.session.game.constructor.metadata());
+        cleanedMetadata.assets = {};
+
+        const exportData = {
+            metadata: cleanedMetadata,
+            data: this.session.stateHistory,
+            assets: this.session.squisher.assetBundle
+        };
+
+        fs.writeFileSync(exportPath, JSON.stringify(exportData));
+
+        return exportPath;
+    }
+
     showSettings(playerId) {
         this.topLayerRoot.clearChildren();
         this.viewStates[playerId] = {state: 'settings'};
@@ -364,6 +393,9 @@ class HomegamesRoot {
                     this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
                         enabled: newVal
                     });
+                },
+                onExportSessionData: () => {
+                    return this.exportSessionData();
                 }
             });
 
@@ -564,7 +596,6 @@ class HomegamesRoot {
 
     getLocalAssetInfo() {
         const localGames = getGameMap();
-            
         return new Promise((resolve, reject) => {
             let downloadedCount = 0;
             const checkedCount = 0;

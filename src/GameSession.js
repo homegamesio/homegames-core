@@ -35,6 +35,7 @@ class GameSession {
         this.playerInfoMap = {};
         this.clientInfoMap = {};
         this.playerSettingsMap = {};
+        this.stateHistory = [];
 
         this.homegamesRoot = new HomegamesRoot(this, game instanceof HomegamesDashboard, false);
         this.customBottomLayer = {
@@ -79,6 +80,26 @@ class GameSession {
     }
 
     handleSquisherUpdate(squished) {
+        // console.log('got squisher update of this length ' + squished.length);
+        const now = Date.now();
+        if (this.stateHistory.length === 0) {
+            // this.stateHistory
+        // } else if () {
+            // console.log('abbababa');
+            this.stateHistory.push({ timestamp: now, data: squished });
+        } else {
+            if (this.stateHistory[0].timestamp < (now - 5 * 60 * 1000)) {
+                // console.log('cuttin.')
+                this.stateHistory = this.stateHistory.slice(1);
+            }
+
+            this.stateHistory.push({ timestamp: now, data: squished });
+        }
+
+        // console.log('okay??');
+        // console.log(this.stateHistory);
+
+        // this.stateHistory.push(squished);
         for (const playerId in this.players) {
             const playerSettings = this.playerSettingsMap[playerId] || {};
             
@@ -104,11 +125,13 @@ class GameSession {
             if (playerFrame) {
 
                 this.players[playerId].receiveUpdate(playerFrame.flat());
+            } else {
+                log.error('No player frame available for player ' + playerId);
             }
         }
 
         for (const spectatorId in this.spectators) {
-            const playerSettings = {};//this.playerSettingsMap[playerId] || {};
+            const playerSettings = {};
             
             let playerFrame = this.squisher.getPlayerFrame(spectatorId);
             

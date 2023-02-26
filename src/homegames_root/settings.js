@@ -189,6 +189,38 @@ const soundSettingContainer = ({ playerId, onToggle }) => {
     return soundSettingContainer;
 };
 
+const saveRecordingContainer = ({ playerId, onExportSessionData }) => {
+    const text = new GameNode.Text({
+        textInfo: {
+            x: 23,
+            y: 46,
+            align: 'left',
+            color: COLORS.HG_BLACK,
+            size: 1,
+            text: 'Save session recording'
+        },
+        playerIds: [playerId]
+    });
+
+    const container = new GameNode.Shape({
+        coordinates2d: ShapeUtils.rectangle(23, 45, 35, 8),
+        shapeType: Shapes.POLYGON,
+        // fill: COLORS.HG_YELLOW,
+        playerIds: [playerId],
+        onClick: () => {
+            const exportPath = onExportSessionData();
+            const newText = Object.assign({}, text.node.text);
+            newText.text = 'Wrote recording to ' + exportPath;
+            newText.size = 0.8;
+            text.node.text = newText;
+        }
+    });
+
+    container.addChild(text);
+
+    return container;
+}
+
 const assetInfoContainer = ({ playerId, assetInfo, onDownload }) => {
     const container = new GameNode.Shape({
         coordinates2d: ShapeUtils.rectangle(23, 60, 35, 8),
@@ -270,7 +302,7 @@ const closeContainer = ({ playerId, onRemove }) => {
     return closeButton;
 };
 
-const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundToggle, session, playerInfo, assetInfo, onDownload }) => {
+const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundToggle, session, playerInfo, assetInfo, onDownload, onExportSessionData }) => {
     const settingsModal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
@@ -283,7 +315,8 @@ const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundTo
         nameSettingContainer({ playerId, onNameChange }), 
         soundSettingContainer({ playerId, onToggle: onSoundToggle }),
         sessionInfoContainer({ playerId, session, playerInfo }),
-        assetInfoContainer({ playerId, assetInfo, onDownload })
+        assetInfoContainer({ playerId, assetInfo, onDownload }),
+        saveRecordingContainer({ playerId, onExportSessionData })
     );
 
     return settingsModal;

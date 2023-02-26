@@ -67,7 +67,8 @@ const broadcast = (gameSession) => {
         log.info('Opened connection to proxy server');
     });
 
-    proxyServer.on('error', () => {
+    proxyServer.on('error', (err) => {
+        log.error(err);
         log.info('Unable to connect to proxy server. Public games will be unavailable.');
     });
 
