@@ -51,8 +51,6 @@ const makePost = (exc) => new Promise((resolve, reject) => {
         headers
     };
 
-    console.log(options);
-
     let responseData = '';
     
     const req = module.request(options, (res) => {
@@ -96,8 +94,6 @@ const startServer = (sessionInfo) => {
         }
         gameSession = new GameSession(gameInstance, sessionInfo.port);
     } catch (err) {
-        console.log("ERROROROROOR");
-        console.log(err);
         log.error('Error instantiating game session', err);
         if (ERROR_REPORTING_ENABLED) {
             reportBug(`Exception: ${err.message} Stack: ${err.stack}`);
