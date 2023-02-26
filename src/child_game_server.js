@@ -1,3 +1,4 @@
+const https = require('https');
 const GameSession = require('./GameSession');
 const { socketServer } = require('./util/socket');
 
@@ -16,6 +17,62 @@ if (baseDir.endsWith('src')) {
 
 const { log, getConfigValue } = require('homegames-common');
 
+const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
+
+let reportingServer = null;
+
+if (ERROR_REPORTING_ENABLED) {
+    reportingServer = getConfigValue('ERROR_REPORTING_SERVER');
+}
+
+// TODO: make this a common thing
+
+const makePost = (exc) => new Promise((resolve, reject) => {
+    const payload = exc;//JSON.stringify(exc);
+
+    let module, hostname, port;
+
+    module = https;
+    port =  443;//getConfigValue('HOMENAMES_PORT');
+    hostname = reportingServer;
+
+    const headers = {};
+
+    Object.assign(headers, {
+        'Content-Type': 'application/json',
+        'Content-Length': exc.length
+    });
+
+    const options = {
+        hostname,
+        path: '',
+        port,
+        method: 'POST',
+        headers
+    };
+
+    console.log(options);
+
+    let responseData = '';
+    
+    const req = module.request(options, (res) => {
+        res.on('data', (chunk) => {
+            responseData += chunk;
+        });
+
+        res.on('end', () => {
+            resolve(responseData);
+        });
+    });
+
+    req.write(exc);
+    req.end();
+});
+
+const reportBug = (err) => {
+    makePost(err.toString());
+};
+
 const sendProcessMessage = (msg) => {
     process.send(JSON.stringify(msg));
 };
@@ -29,23 +86,34 @@ const startServer = (sessionInfo) => {
         gameSession.handleNewAsset(key, asset).then(resolve).catch(reject);
     });
 
-    if (sessionInfo.gamePath) {
-        const _gameClass = require(sessionInfo.gamePath);
+    try {
+        if (sessionInfo.gamePath) {
+            const _gameClass = require(sessionInfo.gamePath);
 
-        gameInstance = new _gameClass({ addAsset });
-    } else {
-        gameInstance = new games[sessionInfo.key]({ addAsset });
+            gameInstance = new _gameClass({ addAsset });
+        } else {
+            gameInstance = new games[sessionInfo.key]({ addAsset });
+        }
+        gameSession = new GameSession(gameInstance, sessionInfo.port);
+    } catch (err) {
+        console.log("ERROROROROOR");
+        console.log(err);
+        log.error('Error instantiating game session', err);
+        if (ERROR_REPORTING_ENABLED) {
+            reportBug(`Exception: ${err.message} Stack: ${err.stack}`);
+        }
     }
 
-    gameSession = new GameSession(gameInstance, sessionInfo.port);
+    if (gameSession) {
 
-    gameSession.initialize(() => {
-        socketServer(gameSession, sessionInfo.port, () => {
-            sendProcessMessage({
-                'success': true
+        gameSession.initialize(() => {
+            socketServer(gameSession, sessionInfo.port, () => {
+                sendProcessMessage({
+                    'success': true
+                });
             });
         });
-    });
+    }
 
 };
 
