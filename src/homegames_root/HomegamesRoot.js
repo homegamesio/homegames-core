@@ -596,8 +596,6 @@ class HomegamesRoot {
 
     getLocalAssetInfo() {
         const localGames = getGameMap();
-        console.log('huh');
-        console.log(localGames);
         return new Promise((resolve, reject) => {
             let downloadedCount = 0;
             const checkedCount = 0;
@@ -620,8 +618,6 @@ class HomegamesRoot {
                             gameAssets[key][versionId] = _gameAssets;
                         }
                     } else {
-                        console.log('what');
-                        console.log(localGames[key].versions);
                         const _class = require(localGames[key].versions[versionId].gamePath);
                         const _gameAssets = _class.metadata && _class.metadata().assets;
 
