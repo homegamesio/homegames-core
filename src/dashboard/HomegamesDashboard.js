@@ -115,6 +115,10 @@ const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
 const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}/src/games`));
 const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
 
+if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
+    fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
+}
+
 const networkHelper = {
     searchGames: (q) => new Promise((resolve, reject) => {
         getUrl('https://landlord.homegames.io/games?query=' + q).then(response => {

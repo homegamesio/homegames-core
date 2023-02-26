@@ -34,6 +34,10 @@ const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORI
 const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
 const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 
+if (!fs.existsSync(GAME_DIRECTORY)) {
+    fs.mkdirSync(GAME_DIRECTORY);
+}
+
 const getGameMetadataMap = () => {
     if (fs.existsSync(GAME_DIRECTORY + path.sep + '.metadata')) {
         const bytes = fs.readFileSync(GAME_DIRECTORY + path.sep + '.metadata');
