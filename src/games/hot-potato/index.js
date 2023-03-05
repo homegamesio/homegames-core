@@ -1,11 +1,11 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0756');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0766');
 const COLORS = Colors.COLORS;
 
 class HotPotato extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 1, y: 1},
-            squishVersion: '0756',
+            squishVersion: '0766',
             author: 'Joseph Garcia',
             description: 'Click or tap the potato when you have the potato. Make sure you have sound turned on.',
             name: 'Hot Potato',

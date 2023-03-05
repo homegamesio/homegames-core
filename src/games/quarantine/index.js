@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0756');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0766');
 const fs = require('fs');
 
 const COLORS = Colors.COLORS;
@@ -8,7 +8,7 @@ class Quarantine extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '0756',
+            squishVersion: '0766',
             players: 2,
             name: 'Quarantine Questions',
             thumbnail: '6c7eb394c378cc82425bf5850ebaaff9'
