@@ -255,7 +255,13 @@ const getGameMap = () => {
     });
 
     if (getConfigValue('LOCAL_GAME_DIRECTORY', null)) {
-        const localGameDir = path.resolve(getConfigValue('LOCAL_GAME_DIRECTORY'));
+        const localGameDirString = getConfigValue('LOCAL_GAME_DIRECTORY');
+        const localGameDir = path.resolve(localGameDirString);
+        
+        if (!os.existsSync(localGameDirString)) {
+            fs.mkdirSync(localGameDirString);
+        }
+
         const localGamePaths = getGamePathsHelper(localGameDir);
 
         localGamePaths.forEach(gamePath => {
