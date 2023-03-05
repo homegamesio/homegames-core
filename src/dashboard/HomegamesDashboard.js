@@ -258,7 +258,7 @@ const getGameMap = () => {
         const localGameDirString = getConfigValue('LOCAL_GAME_DIRECTORY');
         const localGameDir = path.resolve(localGameDirString);
         
-        if (!os.existsSync(localGameDirString)) {
+        if (!fs.existsSync(localGameDirString)) {
             fs.mkdirSync(localGameDirString);
         }
 
