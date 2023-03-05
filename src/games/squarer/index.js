@@ -1,11 +1,11 @@
-const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-0756');
+const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-0766');
 const { BLACK, GRAY, GOLD, GREEN } = Colors.COLORS;
 
 class Squarer extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0756',
+            squishVersion: '0766',
             author: 'Yazeed Loonat',
             thumbnail: 'dcd6e74ff94d51f9f323ce00669d98d4'
         };

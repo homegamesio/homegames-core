@@ -3,7 +3,7 @@ const http = require('http');
 const https = require('https');
 const path = require('path');
 
-const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0756');
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0766');
 
 const squishMap = require('../common/squish-map');
 
@@ -255,7 +255,13 @@ const getGameMap = () => {
     });
 
     if (getConfigValue('LOCAL_GAME_DIRECTORY', null)) {
-        const localGameDir = path.resolve(getConfigValue('LOCAL_GAME_DIRECTORY'));
+        const localGameDirString = getConfigValue('LOCAL_GAME_DIRECTORY');
+        const localGameDir = path.resolve(localGameDirString);
+        
+        if (!fs.existsSync(localGameDirString)) {
+            fs.mkdirSync(localGameDirString);
+        }
+
         const localGamePaths = getGamePathsHelper(localGameDir);
 
         localGamePaths.forEach(gamePath => {
@@ -293,7 +299,7 @@ class HomegamesDashboard extends ViewableGame {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '0756'
+            squishVersion: '0766'
         };
     }
 
@@ -378,7 +384,7 @@ class HomegamesDashboard extends ViewableGame {
             const referencedGame = this.localGames[gameKey];
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
 
-            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0756';
+            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0766';
 
             const childSession = fork(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion] }});
 
