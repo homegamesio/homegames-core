@@ -19,10 +19,10 @@ const { log, getConfigValue } = require('homegames-common');
 
 const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
 
-let reportingServer = null;
+let reportingEndpoint = null;
 
 if (ERROR_REPORTING_ENABLED) {
-    reportingServer = getConfigValue('ERROR_REPORTING_SERVER');
+    reportingEndpoint = getConfigValue('ERROR_REPORTING_ENDPOINT');
 }
 
 // TODO: make this a common thing
@@ -32,10 +32,10 @@ const makePost = (exc) => new Promise((resolve, reject) => {
 
     let module, hostname, port;
 
-    module = https;
-    port =  443;//getConfigValue('HOMENAMES_PORT');
-    hostname = reportingServer;
+    module = reportingEndpoint.startsWith('https') ? https : http;
+    port =  reportingEndpoint.startsWith('https') ? 443 : 80;
 
+    hostname = new URL(reportingEndpoint).hostname;
     const headers = {};
 
     Object.assign(headers, {
@@ -45,7 +45,7 @@ const makePost = (exc) => new Promise((resolve, reject) => {
 
     const options = {
         hostname,
-        path: '',
+        path: new URL(reportingEndpoint).pathname,
         port,
         method: 'POST',
         headers
@@ -85,6 +85,7 @@ const startServer = (sessionInfo) => {
     });
 
     try {
+        dsjkhfds();
         if (sessionInfo.gamePath) {
             const _gameClass = require(sessionInfo.gamePath);
 
@@ -94,6 +95,7 @@ const startServer = (sessionInfo) => {
         }
         gameSession = new GameSession(gameInstance, sessionInfo.port);
     } catch (err) {
+        console.log('sdfsdfdsf');
         log.error('Error instantiating game session', err);
         if (ERROR_REPORTING_ENABLED) {
             reportBug(`Exception: ${err.message} Stack: ${err.stack}`);
