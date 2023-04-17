@@ -85,7 +85,6 @@ const startServer = (sessionInfo) => {
     });
 
     try {
-        dsjkhfds();
         if (sessionInfo.gamePath) {
             const _gameClass = require(sessionInfo.gamePath);
 
@@ -95,7 +94,6 @@ const startServer = (sessionInfo) => {
         }
         gameSession = new GameSession(gameInstance, sessionInfo.port);
     } catch (err) {
-        console.log('sdfsdfdsf');
         log.error('Error instantiating game session', err);
         if (ERROR_REPORTING_ENABLED) {
             reportBug(`Exception: ${err.message} Stack: ${err.stack}`);
