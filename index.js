@@ -15,7 +15,7 @@ const linkHelper = require('./src/util/link-helper');
 const { guaranteeCerts, guaranteeDir, log, authWorkflow, getConfigValue } = require('homegames-common');
 
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
-
+const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
 const linkInit = () => new Promise((resolve, reject) => {
     linkHelper.linkConnect().then((wsClient) => {
@@ -31,12 +31,12 @@ const linkInit = () => new Promise((resolve, reject) => {
 if (LINK_ENABLED) {
     linkInit().then(() => {
         log.info('starting server with link enabled');
-        server();
+        server(HTTPS_ENABLED ? `${baseDir}/hg-certs` : null);
     }).catch(() => {
         log.info('encountered error with link connection. starting server with link disabled');
-        server();
+        server(HTTPS_ENABLED ? `${baseDir}/hg-certs` : null);
     });
 } else {
     log.info('starting server with link disabled');
-    server();
+    server(HTTPS_ENABLED ? `${baseDir}/hg-certs` : null);
 }

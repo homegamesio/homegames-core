@@ -167,8 +167,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
     if (certPath) {
         server = https.createServer({
-            key: fs.readFileSync(certPath.keyPath).toString(),
-            cert: fs.readFileSync(certPath.certPath).toString()
+            key: fs.readFileSync(`${certPath}/homegames.key`).toString(),
+            cert: fs.readFileSync(`${certPath}/homegames.cert`).toString()
         });
     } else { 
         log.info('Starting regular server on port ' + port);
