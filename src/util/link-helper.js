@@ -1,7 +1,13 @@
 const WebSocket = require('ws');
 const os = require('os');
+const fs = require('fs');
 const path = require('path');
-const baseDir = path.dirname(require.main.filename);
+
+let baseDir = path.dirname(require.main.filename);
+
+if (baseDir.endsWith('src')) {
+    baseDir = baseDir.substring(0, baseDir.length - 3);
+}
 
 const { getConfigValue } = require('homegames-common');
 
@@ -30,11 +36,13 @@ const getClientInfo = () => {
     };
 };
 
-const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
+const linkConnect = (msgHandler, username) => new Promise((resolve, reject) => {
+    console.log('registering with username ' + username);
     const client = new WebSocket('wss://homegames.link');
     
     client.on('open', () => {
         const clientInfo = getClientInfo();
+        clientInfo.username = username || null;
 
         client.send(JSON.stringify({
             type: 'register',

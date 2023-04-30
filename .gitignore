@@ -3,6 +3,7 @@ node_modules
 local
 .hg_auth
 .hg_certs
+hg-certs
 hg-games
 config.json
 homegames_log.txt

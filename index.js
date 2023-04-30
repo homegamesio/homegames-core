@@ -17,8 +17,8 @@ const { guaranteeCerts, guaranteeDir, log, authWorkflow, getConfigValue } = requ
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
-const linkInit = () => new Promise((resolve, reject) => {
-    linkHelper.linkConnect().then((wsClient) => {
+const linkInit = (username) => new Promise((resolve, reject) => {
+    linkHelper.linkConnect(null, username).then((wsClient) => {
         log.info('Initialized connection to homegames.link');
         resolve();
     }).catch(err => {
@@ -27,16 +27,23 @@ const linkInit = () => new Promise((resolve, reject) => {
     });
 });
 
+const certPathArgs = process.argv.filter(a => a.startsWith('--cert-path=')).map(a => a.replace('--cert-path=', ''));
 
+const usernameArgs = process.argv.filter(a => a.startsWith('--username=')).map(a => a.replace('--username=', ''));
+
+const certPathArg = certPathArgs && certPathArgs.length > 0 ? certPathArgs[0] : null;
+const usernameArg = usernameArgs && usernameArgs.length > 0 ? usernameArgs[0] : null;
+
+console.log("USERNAME ARG " + usernameArg);
 if (LINK_ENABLED) {
-    linkInit().then(() => {
+    linkInit(usernameArg).then(() => {
         log.info('starting server with link enabled');
-        server(HTTPS_ENABLED ? `${baseDir}/hg-certs` : null);
+        server(certPathArg);
     }).catch(() => {
         log.info('encountered error with link connection. starting server with link disabled');
-        server(HTTPS_ENABLED ? `${baseDir}/hg-certs` : null);
+        server(certPathArg);
     });
 } else {
     log.info('starting server with link disabled');
-    server(HTTPS_ENABLED ? `${baseDir}/hg-certs` : null);
+    server(certPathArg);
 }
