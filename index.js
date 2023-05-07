@@ -1,4 +1,5 @@
 const server = require('./game_server');
+const fs = require('fs');
 const assert = require('assert');
 
 const process = require('process');
@@ -31,12 +32,22 @@ const certPathArgs = process.argv.filter(a => a.startsWith('--cert-path=')).map(
 
 const usernameArgs = process.argv.filter(a => a.startsWith('--username=')).map(a => a.replace('--username=', ''));
 
-const certPathArg = certPathArgs && certPathArgs.length > 0 ? certPathArgs[0] : null;
-const usernameArg = usernameArgs && usernameArgs.length > 0 ? usernameArgs[0] : null;
+let certPathArg = certPathArgs && certPathArgs.length > 0 ? certPathArgs[0] : null;
+let usernameArg = usernameArgs && usernameArgs.length > 0 ? usernameArgs[0] : null;
+
+if (fs.existsSync(`${baseDir}/.hg_auth/username`)) {
+    usernameArg = fs.readFileSync(`${baseDir}/.hg_auth/username`);
+}
+
+if (fs.existsSync(`${baseDir}/hg-certs`)) {
+    certPathArg = `${baseDir}/hg-certs`;
+}
 
 console.log("USERNAME ARG " + usernameArg);
 if (LINK_ENABLED) {
+    console.log('wtffff1');
     linkInit(usernameArg).then(() => {
+        console.log('wtffff2');
         log.info('starting server with link enabled');
         server(certPathArg);
     }).catch(() => {

@@ -53,6 +53,7 @@ const server = (certPath, squishMap) => {
     const homeNames = new Homenames(HOMENAMES_PORT);
     
     session.initialize(() => {
+        console.log('goind d didididididid');
         socketServer(session, HOME_PORT, null, certPath);
     });
 };

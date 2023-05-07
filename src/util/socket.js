@@ -165,6 +165,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
     let server;
 
+    console.log('starting with cert path! ' + certPath);
+
     if (certPath) {
         server = https.createServer({
             key: fs.readFileSync(`${certPath}/homegames.key`).toString(),

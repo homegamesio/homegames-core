@@ -10,6 +10,7 @@ if (baseDir.endsWith('/src')) {
 
 const { getConfigValue, log } = require('homegames-common');
 
+const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
 class Homenames {
     constructor(port) {
@@ -107,8 +108,11 @@ class Homenames {
 
                     req.on('end', () => {
                         const payload = JSON.parse(body);
+                        console.log(" REEEEQUESSSST ");
+                        console.log(req);
+                        const hostname = req.headers['host'].split(':')[0];
 
-                        const socketSession = new WebSocket(`ws://localhost:${payload.sessionPort}`);
+                        const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://${hostname}:${payload.sessionPort}`);
                         socketSession.on('open', () => {
                             log.info('opened socket connection to session');
                             this.sessionClients[payload.sessionPort] = socketSession;
