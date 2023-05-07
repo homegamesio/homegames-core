@@ -1,4 +1,7 @@
 const path = require('path');
+const os = require('os');
+const http = require('http');
+const https = require('https');
 
 let baseDir = path.dirname(require.main.filename);
 
@@ -6,12 +9,35 @@ if (baseDir.endsWith('/src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue, log } = require('homegames-common');
-const http = require('http');
+const { getConfigValue, getUserHash, log } = require('homegames-common');
+
+const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
+
+const getLocalIP = () => {
+    const ifaces = os.networkInterfaces();
+    let localIP;
+
+    Object.keys(ifaces).forEach((ifname) => {
+        ifaces[ifname].forEach((iface) => {
+            if ('IPv4' !== iface.family || iface.internal) {
+                return;
+            }
+            localIP = localIP || iface.address;
+        });
+    });
+
+    return localIP;
+};
+
 
 const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
-    const host = 'http://localhost:' + getConfigValue('HOMENAMES_PORT');
-    http.get(`${host}${path}`, (res) => {
+    console.log("MAKING A GET");
+    
+    const protocol = HTTPS_ENABLED ? 'https' : 'http';
+    // todo: fix
+    const host = HTTPS_ENABLED ? (getUserHash('joseph' + getLocalIP()) + '.homegames.link') : 'localhost';
+    const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;//'http://localhost:' + getConfigValue('HOMENAMES_PORT');
+    (HTTPS_ENABLED ? https : http).get(`${base}${path}`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
             buf += chunk.toString();
@@ -24,14 +50,15 @@ const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
 });
 
 const makePost = (path, _payload) => new Promise((resolve, reject) => {
+    console.log("MAKING A POST");
+
     const payload = JSON.stringify(_payload);
 
     let module, hostname, port;
 
-    // TODO: when we fully support HTTPS, use appropriate module + port
-    module = http;
+    module = HTTPS_ENABLED ? https : http;
     port =  getConfigValue('HOMENAMES_PORT');
-    hostname = 'localhost';
+    hostname = HTTPS_ENABLED ? (getUserHash('joseph' + getLocalIP()) + '.homegames.link') : 'localhost';
 
     const headers = {};
 

@@ -1,6 +1,9 @@
 const WebSocket = require('ws');
 const http = require('http');
+const https = require('https');
 const path = require('path');
+const os = require('os');
+const fs = require('fs');
 
 let baseDir = path.dirname(require.main.filename);
 
@@ -12,6 +15,23 @@ const { getConfigValue, log } = require('homegames-common');
 
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
+
+const getLocalIP = () => {
+    const ifaces = os.networkInterfaces();
+    let localIP;
+
+    Object.keys(ifaces).forEach((ifname) => {
+        ifaces[ifname].forEach((iface) => {
+            if ('IPv4' !== iface.family || iface.internal) {
+                return;
+            }
+            localIP = localIP || iface.address;
+        });
+    });
+
+    return localIP;
+};
+
 class Homenames {
     constructor(port) {
         log.info('running homenames on port ', port);
@@ -22,7 +42,8 @@ class Homenames {
         this.playerListeners = {};
         this.clientInfo = {};
 
-        const server = http.createServer((req, res) => {
+        const homenamesApp = (req, res) => {
+            console.log("GOT REQEQEQEQEQE");
             const reqPath = req.url.split('/');
             if (req.method === 'GET') {
                 const playerId = reqPath[reqPath.length - 1];
@@ -109,8 +130,10 @@ class Homenames {
                     req.on('end', () => {
                         const payload = JSON.parse(body);
                         console.log(" REEEEQUESSSST ");
-                        console.log(req);
+                        console.log(payload);
+                        console.log(req.headers)
                         const hostname = req.headers['host'].split(':')[0];
+                        console.log(hostname);
 
                         const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://${hostname}:${payload.sessionPort}`);
                         socketSession.on('open', () => {
@@ -127,7 +150,21 @@ class Homenames {
                     });
                 }
             }
-        }).listen(port); 
+        };
+
+        console.log("WHAT IS BASE DIR FDHJSKF " + baseDir)
+
+        const server = https.createServer({
+            key: fs.readFileSync(`${baseDir}/hg-certs/homegames.key`).toString(),
+            cert: fs.readFileSync(`${baseDir}/hg-certs/homegames.cert`).toString()
+        }, homenamesApp); 
+        // (HTTPS_ENABLED && false )? https.createServer(homenamesApp, {
+        //     key: fs.readFileSync(`${baseDir}/hg-certs/homegames.key`).toString(),
+        //     cert: fs.readFileSync(`${baseDir}/hg-certs/homegames.cert`).toString()
+        // }) :  http.createServer(homenamesApp);
+
+        console.log("LOSTINEDFDEDE " + port);
+        server.listen(port); 
     }
 
     notifyListeners(playerId) {

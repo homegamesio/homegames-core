@@ -39,7 +39,7 @@ if (fs.existsSync(`${baseDir}/.hg_auth/username`)) {
     usernameArg = fs.readFileSync(`${baseDir}/.hg_auth/username`);
 }
 
-if (fs.existsSync(`${baseDir}/hg-certs`)) {
+if (HTTPS_ENABLED && fs.existsSync(`${baseDir}/hg-certs`)) {
     certPathArg = `${baseDir}/hg-certs`;
 }
 

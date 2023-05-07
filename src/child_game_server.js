@@ -18,6 +18,7 @@ if (baseDir.endsWith('src')) {
 const { log, getConfigValue } = require('homegames-common');
 
 const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
+const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
 let reportingEndpoint = null;
 
@@ -107,7 +108,7 @@ const startServer = (sessionInfo) => {
                 sendProcessMessage({
                     'success': true
                 });
-            });
+            }, HTTPS_ENABLED ? (`${baseDir}/hg-certs`) : null);
         });
     }
 
