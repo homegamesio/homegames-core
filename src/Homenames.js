@@ -33,9 +33,10 @@ const getLocalIP = () => {
 };
 
 class Homenames {
-    constructor(port) {
+    constructor(port, certPath) {
         log.info('running homenames on port ', port);
         
+        this.certPath = certPath;
         this.playerInfo = {};
         this.playerSettings = {};
         this.sessionClients = {};
@@ -148,8 +149,8 @@ class Homenames {
         };
 
         const server = HTTPS_ENABLED ? https.createServer({
-            key: fs.readFileSync(`${baseDir}/hg-certs/homegames.key`).toString(),
-            cert: fs.readFileSync(`${baseDir}/hg-certs/homegames.cert`).toString()
+            key: fs.readFileSync(`${this.certPath}/homegames.key`).toString(),
+            cert: fs.readFileSync(`${this.certPath}/homegames.cert`).toString()
         }, homenamesApp) : http.createServer(homenamesApp); 
 
         server.listen(port); 
