@@ -91,7 +91,6 @@ class HomenamesHelper {
     constructor(sessionPort, username) {
         this.sessionPort = sessionPort;
         this.username = username;
-        console.log('what is username!?!! ' + username);
         this.playerListeners = {};
     }
 

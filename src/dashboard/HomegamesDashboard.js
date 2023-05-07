@@ -312,7 +312,6 @@ class HomegamesDashboard extends ViewableGame {
         this.username = username;
 
 
-        console.log("WHAT IS USERNAME! " + username)
         this.assets = {
             'default': new Asset({
                 'id': 'ff745468e1b725445c65245ce044da21',
@@ -388,8 +387,6 @@ class HomegamesDashboard extends ViewableGame {
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
 
             const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0766';
-
-            console.log('jkdsffjdks');
 
             const childSession = fork(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion] }});
 

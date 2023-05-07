@@ -85,9 +85,6 @@ const startServer = (sessionInfo) => {
         gameSession.handleNewAsset(key, asset).then(resolve).catch(reject);
     });
 
-    console.log(sessionInfo);
-    console.log("CHJILD DSUIASD " + sessionInfo.username);
-
     try {
         if (sessionInfo.gamePath) {
             const _gameClass = require(sessionInfo.gamePath);
