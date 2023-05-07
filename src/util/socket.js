@@ -183,8 +183,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
     let server;
 
-    console.log('starting with cert path! ' + certPath);
-
     if (certPath) {
         server = https.createServer({
             key: fs.readFileSync(`${certPath}/homegames.key`).toString(),
@@ -220,7 +218,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 ws.id = Number(jsonMessage.id || generatePlayerId());
 
                 const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
-                console.log('oh shid lol');
                 const req = (HTTPS_ENABLED ? https : http).request({
                     hostname: HTTPS_ENABLED ? (getUserHash('joseph' + getLocalIP()) + '.homegames.link') : 'localhost',
                     port: HOMENAMES_PORT,
