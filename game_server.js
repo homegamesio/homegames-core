@@ -52,7 +52,7 @@ const server = (certPath, squishMap, username) => {
     
     session = new GameSession(dashboard, HOME_PORT, username);
     
-    const homeNames = new Homenames(HOMENAMES_PORT);
+    const homeNames = new Homenames(HOMENAMES_PORT, certPath);
     
     session.initialize(() => {
         socketServer(session, HOME_PORT, null, certPath, username);
