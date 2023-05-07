@@ -7,7 +7,8 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
     
     const sessionPlayerInfoHeight = 55;
 
-    const homenamesHelper = new HomenamesHelper();
+    // this is a hack lol
+    const homenamesHelper = session.homenamesHelper;
     
     const sessionInfoContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
@@ -110,7 +111,7 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
     return sessionInfoContainer;
 }
 
-const nameSettingContainer = ({ playerId, onNameChange }) => {
+const nameSettingContainer = ({ playerId, onNameChange, session }) => {
 
     const nameSettingContainerHeight = 16;
     const nameSettingContainerWidth = 35;
@@ -128,7 +129,7 @@ const nameSettingContainer = ({ playerId, onNameChange }) => {
         }
     });
 
-    const homenamesHelper = new HomenamesHelper();
+    const homenamesHelper = session.homenamesHelper;
 
     homenamesHelper.getPlayerInfo(playerId).then(playerInfo => {
         const nameText = new GameNode.Text({
@@ -148,9 +149,9 @@ const nameSettingContainer = ({ playerId, onNameChange }) => {
     return container;
 };
 
-const soundSettingContainer = ({ playerId, onToggle }) => {
+const soundSettingContainer = ({ playerId, onToggle, session }) => {
 
-    const homenamesHelper = new HomenamesHelper();
+    const homenamesHelper = session.homenamesHelper;
 
 
     let _playerSettings = {};
@@ -312,8 +313,8 @@ const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundTo
 
     settingsModal.addChildren(
         closeContainer({ playerId, onRemove }), 
-        nameSettingContainer({ playerId, onNameChange }), 
-        soundSettingContainer({ playerId, onToggle: onSoundToggle }),
+        nameSettingContainer({ playerId, onNameChange, session }), 
+        soundSettingContainer({ playerId, onToggle: onSoundToggle, session }),
         sessionInfoContainer({ playerId, session, playerInfo }),
         assetInfoContainer({ playerId, assetInfo, onDownload }),
         saveRecordingContainer({ playerId, onExportSessionData })

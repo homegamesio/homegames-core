@@ -1,6 +1,9 @@
 const WebSocket = require('ws');
 const http = require('http');
+const https = require('https');
 const path = require('path');
+const os = require('os');
+const fs = require('fs');
 
 let baseDir = path.dirname(require.main.filename);
 
@@ -10,6 +13,24 @@ if (baseDir.endsWith('/src')) {
 
 const { getConfigValue, log } = require('homegames-common');
 
+const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
+
+
+const getLocalIP = () => {
+    const ifaces = os.networkInterfaces();
+    let localIP;
+
+    Object.keys(ifaces).forEach((ifname) => {
+        ifaces[ifname].forEach((iface) => {
+            if ('IPv4' !== iface.family || iface.internal) {
+                return;
+            }
+            localIP = localIP || iface.address;
+        });
+    });
+
+    return localIP;
+};
 
 class Homenames {
     constructor(port) {
@@ -21,7 +42,7 @@ class Homenames {
         this.playerListeners = {};
         this.clientInfo = {};
 
-        const server = http.createServer((req, res) => {
+        const homenamesApp = (req, res) => {
             const reqPath = req.url.split('/');
             if (req.method === 'GET') {
                 const playerId = reqPath[reqPath.length - 1];
@@ -107,8 +128,9 @@ class Homenames {
 
                     req.on('end', () => {
                         const payload = JSON.parse(body);
+                        const hostname = req.headers['host'].split(':')[0];
 
-                        const socketSession = new WebSocket(`ws://localhost:${payload.sessionPort}`);
+                        const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://${hostname}:${payload.sessionPort}`);
                         socketSession.on('open', () => {
                             log.info('opened socket connection to session');
                             this.sessionClients[payload.sessionPort] = socketSession;
@@ -123,7 +145,14 @@ class Homenames {
                     });
                 }
             }
-        }).listen(port); 
+        };
+
+        const server = HTTPS_ENABLED ? https.createServer({
+            key: fs.readFileSync(`${baseDir}/hg-certs/homegames.key`).toString(),
+            cert: fs.readFileSync(`${baseDir}/hg-certs/homegames.cert`).toString()
+        }, homenamesApp) : http.createServer(homenamesApp); 
+
+        server.listen(port); 
     }
 
     notifyListeners(playerId) {

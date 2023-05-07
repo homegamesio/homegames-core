@@ -209,7 +209,7 @@ class HomegamesRoot {
         this.profiling = profiling;
         this.renderTimes = [];
         this.session = session;
-        this.homenamesHelper = new HomenamesHelper();
+        this.homenamesHelper = new HomenamesHelper(session.port, session.username);
 
         this.spectators = {};
 

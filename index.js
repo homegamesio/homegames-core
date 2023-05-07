@@ -1,4 +1,5 @@
 const server = require('./game_server');
+const fs = require('fs');
 const assert = require('assert');
 
 const process = require('process');
@@ -15,10 +16,10 @@ const linkHelper = require('./src/util/link-helper');
 const { guaranteeCerts, guaranteeDir, log, authWorkflow, getConfigValue } = require('homegames-common');
 
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
+const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
-
-const linkInit = () => new Promise((resolve, reject) => {
-    linkHelper.linkConnect().then((wsClient) => {
+const linkInit = (username) => new Promise((resolve, reject) => {
+    linkHelper.linkConnect(null, username).then((wsClient) => {
         log.info('Initialized connection to homegames.link');
         resolve();
     }).catch(err => {
@@ -27,16 +28,30 @@ const linkInit = () => new Promise((resolve, reject) => {
     });
 });
 
+const certPathArgs = process.argv.filter(a => a.startsWith('--cert-path=')).map(a => a.replace('--cert-path=', ''));
+
+const usernameArgs = process.argv.filter(a => a.startsWith('--username=')).map(a => a.replace('--username=', ''));
+
+let certPathArg = certPathArgs && certPathArgs.length > 0 ? certPathArgs[0] : null;
+let usernameArg = usernameArgs && usernameArgs.length > 0 ? usernameArgs[0] : null;
+
+if (!usernameArg && fs.existsSync(`${baseDir}/.hg_auth/username`)) {
+    usernameArg = fs.readFileSync(`${baseDir}/.hg_auth/username`).toString();
+}
+
+if (HTTPS_ENABLED && fs.existsSync(`${baseDir}/hg-certs`)) {
+    certPathArg = `${baseDir}/hg-certs`;
+}
 
 if (LINK_ENABLED) {
-    linkInit().then(() => {
+    linkInit(usernameArg).then(() => {
         log.info('starting server with link enabled');
-        server();
+        server(certPathArg, null, usernameArg);
     }).catch(() => {
         log.info('encountered error with link connection. starting server with link disabled');
-        server();
+        server(certPathArg, null, usernameArg);
     });
 } else {
     log.info('starting server with link disabled');
-    server();
+    server(certPathArg, null, usernameArg);
 }

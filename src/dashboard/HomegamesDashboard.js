@@ -121,7 +121,7 @@ if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
 
 const networkHelper = {
     searchGames: (q) => new Promise((resolve, reject) => {
-        getUrl('https://landlord.homegames.io/games?query=' + q).then(response => {
+        getUrl('https://api.homegames.io/games?query=' + q).then(response => {
             let results;
             try {
                 results = JSON.parse(response);
@@ -136,7 +136,7 @@ const networkHelper = {
         });
     }),
     getGameDetails: (gameId) => new Promise((resolve, reject) => {
-       getUrl('https://landlord.homegames.io/games/' + gameId).then(response => {
+       getUrl('https://api.homegames.io/games/' + gameId).then(response => {
             let results;
             try {
                 results = JSON.parse(response);
@@ -151,7 +151,7 @@ const networkHelper = {
         }); 
     }), 
     getGameVersionDetails: (gameId, versionId) => new Promise((resolve, reject) => {
-        getUrl('https://landlord.homegames.io/games/' + gameId + '/version/' + versionId).then(response => { 
+        getUrl('https://api.homegames.io/games/' + gameId + '/version/' + versionId).then(response => { 
             resolve(JSON.parse(response));
         }).catch(err => {
             log.error(err);
@@ -304,11 +304,13 @@ class HomegamesDashboard extends ViewableGame {
     }
 
 
-    constructor({ movePlayer, addAsset }) {
+    constructor({ movePlayer, addAsset, username }) {
         super(1000);
         // todo: static vs. addasset
 
         this.addAsset = addAsset;
+        this.username = username;
+
 
         this.assets = {
             'default': new Asset({
@@ -397,7 +399,8 @@ class HomegamesDashboard extends ViewableGame {
                 port,
                 player: {
                     id: playerId
-                }
+                },
+                username: this.username
             }));
 
             childSession.on('message', (thang) => {

@@ -18,6 +18,7 @@ if (baseDir.endsWith('src')) {
 const { log, getConfigValue } = require('homegames-common');
 
 const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
+const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
 let reportingEndpoint = null;
 
@@ -92,7 +93,7 @@ const startServer = (sessionInfo) => {
         } else {
             gameInstance = new games[sessionInfo.key]({ addAsset });
         }
-        gameSession = new GameSession(gameInstance, sessionInfo.port);
+        gameSession = new GameSession(gameInstance, sessionInfo.port, sessionInfo.username);
     } catch (err) {
         log.error('Error instantiating game session', err);
         if (ERROR_REPORTING_ENABLED) {
@@ -107,7 +108,7 @@ const startServer = (sessionInfo) => {
                 sendProcessMessage({
                     'success': true
                 });
-            });
+            }, HTTPS_ENABLED ? (`${baseDir}/hg-certs`) : null, sessionInfo.username);
         });
     }
 

@@ -4,23 +4,41 @@ const https = require('https');
 const assert = require('assert');
 const Player = require('../Player');
 const fs = require('fs');
-
+const os = require('os');
 const path = require('path');
+
 let baseDir = path.dirname(require.main.filename);
 
 if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue, log } = require('homegames-common');
+const { getConfigValue, log, getUserHash } = require('homegames-common');
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 const HOTLOAD_ENABLED = getConfigValue('HOTLOAD_ENABLED', false);
-
+const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+
+
+const getLocalIP = () => {
+    const ifaces = os.networkInterfaces();
+    let localIP;
+
+    Object.keys(ifaces).forEach((ifname) => {
+        ifaces[ifname].forEach((iface) => {
+            if ('IPv4' !== iface.family || iface.internal) {
+                return;
+            }
+            localIP = localIP || iface.address;
+        });
+    });
+
+    return localIP;
+};
 
 const listenable = function(obj, onChange) {
     const handler = {
@@ -161,14 +179,14 @@ const broadcast = (gameSession) => {
     });
 }
 
-const socketServer = (gameSession, port, cb = null, certPath = null) => {
+const socketServer = (gameSession, port, cb = null, certPath = null, username = null) => {
 
     let server;
 
     if (certPath) {
         server = https.createServer({
-            key: fs.readFileSync(certPath.keyPath).toString(),
-            cert: fs.readFileSync(certPath.certPath).toString()
+            key: fs.readFileSync(`${certPath}/homegames.key`).toString(),
+            cert: fs.readFileSync(`${certPath}/homegames.cert`).toString()
         });
     } else { 
         log.info('Starting regular server on port ' + port);
@@ -200,9 +218,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
                 ws.id = Number(jsonMessage.id || generatePlayerId());
 
                 const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
-                
-                const req = http.request({
-                    hostname: 'localhost',
+                const req = (HTTPS_ENABLED ? https : http).request({
+                    hostname: HTTPS_ENABLED && username ? (getUserHash(username + getLocalIP()) + '.homegames.link') : 'localhost',
                     port: HOMENAMES_PORT,
                     path: `/info/${ws.id}`,
                     method: 'GET'
