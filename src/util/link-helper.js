@@ -38,14 +38,11 @@ const getClientInfo = () => {
 
 const linkConnect = (msgHandler, username) => new Promise((resolve, reject) => {
     console.log('registering with username ' + username);
-    console.log('and message handler');
-    console.log(msgHandler);
     const client = new WebSocket('wss://homegames.link');
     
     client.on('open', () => {
-        console.log('openenenene');
         const clientInfo = getClientInfo();
-        clientInfo.username = username || null;
+        clientInfo.username = username ? username.toString() : null;
 
         client.send(JSON.stringify({
             type: 'register',
@@ -59,12 +56,9 @@ const linkConnect = (msgHandler, username) => new Promise((resolve, reject) => {
         resolve(client);
     });
 
-    console.log("sdkjfhdsfkjhdsf");
-
     client.on('message', msgHandler ? msgHandler : () => {});
     
     client.on('error', (err) => {
-        console.log('sdfdsn bnnnn ');
         console.log(err);
         reject(err);
     });

@@ -30,9 +30,7 @@ const getLocalIP = () => {
 };
 
 
-const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
-    console.log("MAKING A GET");
-    
+const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {    
     const protocol = HTTPS_ENABLED ? 'https' : 'http';
     // todo: fix
     const host = HTTPS_ENABLED ? (getUserHash('joseph' + getLocalIP()) + '.homegames.link') : 'localhost';
@@ -50,8 +48,6 @@ const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
 });
 
 const makePost = (path, _payload) => new Promise((resolve, reject) => {
-    console.log("MAKING A POST");
-
     const payload = JSON.stringify(_payload);
 
     let module, hostname, port;
