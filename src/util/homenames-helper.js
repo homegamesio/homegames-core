@@ -30,10 +30,10 @@ const getLocalIP = () => {
 };
 
 
-const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {    
+const makeGet = (path = '', headers = {}, username) => new Promise((resolve, reject) => {    
     const protocol = HTTPS_ENABLED ? 'https' : 'http';
     // todo: fix
-    const host = HTTPS_ENABLED ? (getUserHash('joseph' + getLocalIP()) + '.homegames.link') : 'localhost';
+    const host = HTTPS_ENABLED && username ? (getUserHash(username + getLocalIP()) + '.homegames.link') : 'localhost';
     const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;//'http://localhost:' + getConfigValue('HOMENAMES_PORT');
     (HTTPS_ENABLED ? https : http).get(`${base}${path}`, (res) => {
         let buf = '';
@@ -47,14 +47,14 @@ const makeGet = (path = '', headers = {}) => new Promise((resolve, reject) => {
     });
 });
 
-const makePost = (path, _payload) => new Promise((resolve, reject) => {
+const makePost = (path, _payload, username) => new Promise((resolve, reject) => {
     const payload = JSON.stringify(_payload);
 
     let module, hostname, port;
 
     module = HTTPS_ENABLED ? https : http;
     port =  getConfigValue('HOMENAMES_PORT');
-    hostname = HTTPS_ENABLED ? (getUserHash('joseph' + getLocalIP()) + '.homegames.link') : 'localhost';
+    hostname = HTTPS_ENABLED && username ? (getUserHash(username + getLocalIP()) + '.homegames.link') : 'localhost';
 
     const headers = {};
 
@@ -88,14 +88,16 @@ const makePost = (path, _payload) => new Promise((resolve, reject) => {
 });
 
 class HomenamesHelper {
-    constructor(sessionPort) {
+    constructor(sessionPort, username) {
         this.sessionPort = sessionPort;
+        this.username = username;
+        console.log('what is username!?!! ' + username);
         this.playerListeners = {};
     }
 
     getPlayerInfo(playerId) {
         return new Promise((resolve, reject) => {
-            makeGet(`/info/${playerId}`).then(resolve).catch(err => {
+            makeGet(`/info/${playerId}`, null, this.username).then(resolve).catch(err => {
                 log.error('homenames helper info error', err);
             });
         });
@@ -103,13 +105,13 @@ class HomenamesHelper {
 
     addListener(playerId) {//=> new Promise((resolve, reject) => {
         return new Promise((resolve, reject) => {
-            makePost('/add_listener', { playerId, sessionPort: this.sessionPort }).then(resolve).catch(reject);
+            makePost('/add_listener', { playerId, sessionPort: this.sessionPort }, this.username).then(resolve).catch(reject);
         });
     }
 
     getPlayerSettings(playerId) {
         return new Promise((resolve, reject) => {
-            makeGet(`/settings/${playerId}`).then(resolve).catch(err => {
+            makeGet(`/settings/${playerId}`, null, this.username).then(resolve).catch(err => {
                 log.error('homenames helper settings error', err);
             });
         });
@@ -117,7 +119,7 @@ class HomenamesHelper {
 
     getClientInfo(playerId) {
         return new Promise((resolve, reject) => {
-            makeGet(`/client_info/${playerId}`).then(resolve).catch(err => {
+            makeGet(`/client_info/${playerId}`, null, this.username).then(resolve).catch(err => {
                 log.error('homenames helper client info error', err);
             });
         });
@@ -125,19 +127,19 @@ class HomenamesHelper {
 
     updatePlayerInfo(playerId, { playerName }) {
         return new Promise((resolve, reject) => {
-            makePost('/' + playerId + '/info', { name: playerName }).then(resolve);
+            makePost('/' + playerId + '/info', { name: playerName }, this.username).then(resolve);
         });
     }
 
     updatePlayerSetting(playerId, settingKey, value) {
         return new Promise((resolve, reject) => {
-            makePost('/' + playerId + '/settings', {[settingKey]: value}).then(resolve);
+            makePost('/' + playerId + '/settings', {[settingKey]: value}, this.username).then(resolve);
         });
     }
 
     updateClientInfo(playerId, clientInfo) {
         return new Promise((resolve, reject) => {
-            makePost('/' + playerId + '/client_info', clientInfo).then(resolve);
+            makePost('/' + playerId + '/client_info', clientInfo, this.username).then(resolve);
         });
     }
 }

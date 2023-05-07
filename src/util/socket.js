@@ -179,7 +179,7 @@ const broadcast = (gameSession) => {
     });
 }
 
-const socketServer = (gameSession, port, cb = null, certPath = null) => {
+const socketServer = (gameSession, port, cb = null, certPath = null, username = null) => {
 
     let server;
 
@@ -219,7 +219,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null) => {
 
                 const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
                 const req = (HTTPS_ENABLED ? https : http).request({
-                    hostname: HTTPS_ENABLED ? (getUserHash('joseph' + getLocalIP()) + '.homegames.link') : 'localhost',
+                    hostname: HTTPS_ENABLED && username ? (getUserHash(username + getLocalIP()) + '.homegames.link') : 'localhost',
                     port: HOMENAMES_PORT,
                     path: `/info/${ws.id}`,
                     method: 'GET'

@@ -35,8 +35,8 @@ const usernameArgs = process.argv.filter(a => a.startsWith('--username=')).map(a
 let certPathArg = certPathArgs && certPathArgs.length > 0 ? certPathArgs[0] : null;
 let usernameArg = usernameArgs && usernameArgs.length > 0 ? usernameArgs[0] : null;
 
-if (fs.existsSync(`${baseDir}/.hg_auth/username`)) {
-    usernameArg = fs.readFileSync(`${baseDir}/.hg_auth/username`);
+if (!usernameArg && fs.existsSync(`${baseDir}/.hg_auth/username`)) {
+    usernameArg = fs.readFileSync(`${baseDir}/.hg_auth/username`).toString();
 }
 
 if (HTTPS_ENABLED && fs.existsSync(`${baseDir}/hg-certs`)) {
@@ -46,12 +46,12 @@ if (HTTPS_ENABLED && fs.existsSync(`${baseDir}/hg-certs`)) {
 if (LINK_ENABLED) {
     linkInit(usernameArg).then(() => {
         log.info('starting server with link enabled');
-        server(certPathArg);
+        server(certPathArg, null, usernameArg);
     }).catch(() => {
         log.info('encountered error with link connection. starting server with link disabled');
-        server(certPathArg);
+        server(certPathArg, null, usernameArg);
     });
 } else {
     log.info('starting server with link disabled');
-    server(certPathArg);
+    server(certPathArg, null, usernameArg);
 }

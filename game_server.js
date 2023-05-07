@@ -12,7 +12,7 @@ const logger = require('./src/logger');
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 
-const server = (certPath, squishMap) => {
+const server = (certPath, squishMap, username) => {
     logger.debug('running server');
 
     if (squishMap) {
@@ -35,7 +35,8 @@ const server = (certPath, squishMap) => {
             // if (session) {
             session.handleNewAsset(key, asset).then(resolve).catch(reject);
             // }
-        })
+        }),
+        username
     }) : new HomegamesDashboard({ 
         squishMap, 
         movePlayer: (params) => {
@@ -45,15 +46,16 @@ const server = (certPath, squishMap) => {
             // if (session) {
             session.handleNewAsset(key, asset).then(resolve).catch(reject);
             // }
-        })
+        }),
+        username
     });
     
-    session = new GameSession(dashboard, HOME_PORT);
+    session = new GameSession(dashboard, HOME_PORT, username);
     
     const homeNames = new Homenames(HOMENAMES_PORT);
     
     session.initialize(() => {
-        socketServer(session, HOME_PORT, null, certPath);
+        socketServer(session, HOME_PORT, null, certPath, username);
     });
 };
 

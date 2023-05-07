@@ -21,16 +21,17 @@ const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 const BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y; 
 
 class GameSession {
-    constructor(game, port) {
+    constructor(game, port, username) {
         this.game = game;
         this.port = port;
+        this.username = username;
 
         const gameSquishVersion = game.constructor.metadata().squishVersion;
 
         if (squishMap[gameSquishVersion]) {
             Squisher = require(squishMap[gameSquishVersion]).Squisher; 
         }
-        this.homenamesHelper = new HomenamesHelper(this.port);
+        this.homenamesHelper = new HomenamesHelper(this.port, this.username);
 
         this.playerInfoMap = {};
         this.clientInfoMap = {};

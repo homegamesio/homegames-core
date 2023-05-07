@@ -85,6 +85,9 @@ const startServer = (sessionInfo) => {
         gameSession.handleNewAsset(key, asset).then(resolve).catch(reject);
     });
 
+    console.log(sessionInfo);
+    console.log("CHJILD DSUIASD " + sessionInfo.username);
+
     try {
         if (sessionInfo.gamePath) {
             const _gameClass = require(sessionInfo.gamePath);
@@ -93,7 +96,7 @@ const startServer = (sessionInfo) => {
         } else {
             gameInstance = new games[sessionInfo.key]({ addAsset });
         }
-        gameSession = new GameSession(gameInstance, sessionInfo.port);
+        gameSession = new GameSession(gameInstance, sessionInfo.port, sessionInfo.username);
     } catch (err) {
         log.error('Error instantiating game session', err);
         if (ERROR_REPORTING_ENABLED) {
@@ -108,7 +111,7 @@ const startServer = (sessionInfo) => {
                 sendProcessMessage({
                     'success': true
                 });
-            }, HTTPS_ENABLED ? (`${baseDir}/hg-certs`) : null);
+            }, HTTPS_ENABLED ? (`${baseDir}/hg-certs`) : null, sessionInfo.username);
         });
     }
 
