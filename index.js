@@ -43,11 +43,8 @@ if (HTTPS_ENABLED && fs.existsSync(`${baseDir}/hg-certs`)) {
     certPathArg = `${baseDir}/hg-certs`;
 }
 
-console.log("USERNAME ARG " + usernameArg);
 if (LINK_ENABLED) {
-    console.log('wtffff1');
     linkInit(usernameArg).then(() => {
-        console.log('wtffff2');
         log.info('starting server with link enabled');
         server(certPathArg);
     }).catch(() => {

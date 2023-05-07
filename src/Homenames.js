@@ -43,7 +43,6 @@ class Homenames {
         this.clientInfo = {};
 
         const homenamesApp = (req, res) => {
-            console.log("GOT REQEQEQEQEQE");
             const reqPath = req.url.split('/');
             if (req.method === 'GET') {
                 const playerId = reqPath[reqPath.length - 1];
@@ -129,11 +128,7 @@ class Homenames {
 
                     req.on('end', () => {
                         const payload = JSON.parse(body);
-                        console.log(" REEEEQUESSSST ");
-                        console.log(payload);
-                        console.log(req.headers)
                         const hostname = req.headers['host'].split(':')[0];
-                        console.log(hostname);
 
                         const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://${hostname}:${payload.sessionPort}`);
                         socketSession.on('open', () => {
@@ -152,18 +147,11 @@ class Homenames {
             }
         };
 
-        console.log("WHAT IS BASE DIR FDHJSKF " + baseDir)
-
-        const server = https.createServer({
+        const server = HTTPS_ENABLED ? https.createServer({
             key: fs.readFileSync(`${baseDir}/hg-certs/homegames.key`).toString(),
             cert: fs.readFileSync(`${baseDir}/hg-certs/homegames.cert`).toString()
-        }, homenamesApp); 
-        // (HTTPS_ENABLED && false )? https.createServer(homenamesApp, {
-        //     key: fs.readFileSync(`${baseDir}/hg-certs/homegames.key`).toString(),
-        //     cert: fs.readFileSync(`${baseDir}/hg-certs/homegames.cert`).toString()
-        // }) :  http.createServer(homenamesApp);
+        }, homenamesApp) : http.createServer(homenamesApp); 
 
-        console.log("LOSTINEDFDEDE " + port);
         server.listen(port); 
     }
 

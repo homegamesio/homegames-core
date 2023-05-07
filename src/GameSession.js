@@ -96,9 +96,6 @@ class GameSession {
             this.stateHistory.push({ timestamp: now, data: squished });
         }
 
-        // console.log('okay??');
-        // console.log(this.stateHistory);
-
         // this.stateHistory.push(squished);
         for (const playerId in this.players) {
             const playerSettings = this.playerSettingsMap[playerId] || {};
