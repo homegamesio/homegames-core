@@ -36,7 +36,8 @@ const server = (certPath, squishMap, username) => {
             session.handleNewAsset(key, asset).then(resolve).catch(reject);
             // }
         }),
-        username
+        username,
+        certPath
     }) : new HomegamesDashboard({ 
         squishMap, 
         movePlayer: (params) => {
@@ -47,7 +48,8 @@ const server = (certPath, squishMap, username) => {
             session.handleNewAsset(key, asset).then(resolve).catch(reject);
             // }
         }),
-        username
+        username,
+        certPath
     });
     
     session = new GameSession(dashboard, HOME_PORT, username);

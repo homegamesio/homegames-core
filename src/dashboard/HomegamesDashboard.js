@@ -304,13 +304,13 @@ class HomegamesDashboard extends ViewableGame {
     }
 
 
-    constructor({ movePlayer, addAsset, username }) {
+    constructor({ movePlayer, addAsset, username, certPath }) {
         super(1000);
         // todo: static vs. addasset
 
         this.addAsset = addAsset;
         this.username = username;
-
+        this.certPath = certPath;
 
         this.assets = {
             'default': new Asset({
@@ -400,7 +400,8 @@ class HomegamesDashboard extends ViewableGame {
                 player: {
                     id: playerId
                 },
-                username: this.username
+                username: this.username,
+                certPath: this.certPath
             }));
 
             childSession.on('message', (thang) => {
