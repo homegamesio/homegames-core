@@ -108,7 +108,7 @@ const startServer = (sessionInfo) => {
                 sendProcessMessage({
                     'success': true
                 });
-            }, HTTPS_ENABLED ? (`${baseDir}/hg-certs`) : null, sessionInfo.username);
+            }, HTTPS_ENABLED ? sessionInfo.certPath : null, sessionInfo.username);
         });
     }
 
