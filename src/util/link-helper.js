@@ -39,6 +39,11 @@ const getClientInfo = () => {
 const linkConnect = (msgHandler, username) => new Promise((resolve, reject) => {
     console.log('registering with username ' + username);
     const client = new WebSocket('wss://homegames.link');
+
+    let interval;
+
+    // in 30 minutes, kill and refresh websocket
+    const socketRefreshTime = Date.now() + 1000 * 30;//60 * 30;
     
     client.on('open', () => {
         const clientInfo = getClientInfo();
@@ -49,8 +54,15 @@ const linkConnect = (msgHandler, username) => new Promise((resolve, reject) => {
             data: clientInfo
         }));
 
-        setInterval(() => {
+        interval = setInterval(() => {
             client.readyState == 1 && client.send(JSON.stringify({type: 'heartbeat'}));
+            if (Date.now() > socketRefreshTime) {
+                console.log('refreshing link socket');
+                client.close();
+                clearInterval(interval);
+                linkConnect(msgHandler, username);
+            }
+
         }, 1000 * 10);
 
         resolve(client);
@@ -65,6 +77,7 @@ const linkConnect = (msgHandler, username) => new Promise((resolve, reject) => {
 
     client.on('close', () => {
         clearTimeout(this.pingTimeout);
+        clearInterval(interval);
     });
 
 });
