@@ -4,6 +4,88 @@ const WEAPONS = {
     DEFAULT: 'DEFAULT'
 };
 
+// HUNTING SLOT MACHINES
+
+const createEnemy = (enemyType) => {
+     const left = Math.random() < .5;
+     const startY = Math.max(Math.min(Math.random() * 100, 80), 20);
+
+     const enemyData = enemyTypes[enemyType];
+     const xRate = (left ? 1 : -1) * enemyData.xRate;
+
+     // it will take 100 / xRate ticks to get across the screen
+     // we want the enemy to move at most 20 units in either y direction
+     const up = Math.random() < .5;
+     const velVal = Math.random() * 20;
+
+     const yVel = (up ? 1 : -1) * (velVal / (100 / xRate));
+
+     const newPath = Physics.getPath(
+         left ? 0 : 100,
+         startY,
+         xRate,
+         yVel,
+         110, 
+         110);
+
+     return {
+         node: enemyData.create(left ? 0: 100, startY),
+         newPath
+    };
+}
+
+const enemyTypes = {
+    'w': {
+        xRate: .25,
+        value: 25,
+        create: (startX, startY) => {
+            return new GameNode.Shape({
+               shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+                fill: Colors.COLORS.BLUE
+            });
+        }
+    },
+    'x': {
+        value: 150,
+        xRate: 1.5,
+        create: (startX, startY) => {
+            return new GameNode.Shape({
+               shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(startX, startY, 2, 2),
+                fill: Colors.COLORS.GOLD
+            });
+        }
+
+    },
+    'y': {
+        value: 100,
+        xRate: 1,
+        create: (startX, startY) => {
+            return new GameNode.Shape({
+               shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(startX, startY, 3, 3),
+                fill: Colors.COLORS.CYAN
+            });
+        }
+
+    },
+    'z': {
+        value: 50,
+        xRate: .5,
+        create: (startX, startY) => {
+            return new GameNode.Shape({
+               shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(startX, startY, 4, 4),
+                fill: Colors.COLORS.GREEN
+            });
+        }
+
+    }
+};
+
+ 
+
 class Hunt {
     constructor(playerId, initialState = {}) {
         const playerScores = {
@@ -13,6 +95,7 @@ class Hunt {
         this.state = initialState;
 
         this.renderedEnemies = {};
+        this.enemyPaths = {};
 
         this.actionQueue = [];
 
@@ -24,86 +107,6 @@ class Hunt {
                 this.shoot(playerId, x, y);
             }
         });
-
-        // HUNTING SLOT MACHINES
-
-        const enemyTypes = {
-            'w': {
-                xRate: .25,
-                value: 25,
-                create: (startX, startY) => {
-                    return new GameNode.Shape({
-                       shapeType: Shapes.POLYGON,
-                        coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
-                        fill: Colors.COLORS.BLUE
-                    });
-                }
-            },
-            'x': {
-                value: 150,
-                xRate: 1.5,
-                create: (startX, startY) => {
-                    return new GameNode.Shape({
-                       shapeType: Shapes.POLYGON,
-                        coordinates2d: ShapeUtils.rectangle(startX, startY, 2, 2),
-                        fill: Colors.COLORS.GOLD
-                    });
-                }
-
-            },
-            'y': {
-                value: 100,
-                xRate: 1,
-                create: (startX, startY) => {
-                    return new GameNode.Shape({
-                       shapeType: Shapes.POLYGON,
-                        coordinates2d: ShapeUtils.rectangle(startX, startY, 3, 3),
-                        fill: Colors.COLORS.CYAN
-                    });
-                }
-
-            },
-            'z': {
-                value: 50,
-                xRate: .5,
-                create: (startX, startY) => {
-                    return new GameNode.Shape({
-                       shapeType: Shapes.POLYGON,
-                        coordinates2d: ShapeUtils.rectangle(startX, startY, 4, 4),
-                        fill: Colors.COLORS.GREEN
-                    });
-                }
-
-            }
-        };
-
-        const createEnemy = (enemyType) => {
-            const left = Math.random() < .5;
-            const startY = Math.max(Math.min(Math.random() * 100, 80), 20);
-
-            const enemyData = enemyTypes[enemyType];
-            const xRate = (left ? 1 : -1) * enemyData.xRate;
-
-            // it will take 100 / xRate ticks to get across the screen
-            // we want the enemy to move at most 20 units in either y direction
-            const up = Math.random() < .5;
-            const velVal = Math.random() * 20;
-
-            const yVel = (up ? 1 : -1) * (velVal / (100 / xRate));
-
-            const newPath = Physics.getPath(
-                left ? 0 : 100,
-                startY,
-                xRate,
-                yVel,
-                110, 
-                110);
-
-            return {
-                node: enemyData.create(left ? 0: 100, startY),
-                newPath
-           };
-        }
 
 //        const spawner = setInterval(() => {
 //            const randomKeyIndex = Math.floor(Math.random() * Object.keys(enemyTypes).length);
@@ -150,10 +153,10 @@ class Hunt {
 //  //          rightWallEnemies.forEach(e => this.root.removeChild(e.node.id));
 //        }, 1000);
 
-        setTimeout(() => {
-            clearInterval(spawner);
-            console.log('ended');
-        }, 60 * 1000);
+//        setTimeout(() => {
+//            clearInterval(spawner);
+//            console.log('ended');
+//        }, 60 * 1000);
     }
 
     shoot(playerId, x, y) {
@@ -217,11 +220,92 @@ class Hunt {
         this.root.addChild(shot);
     }
 
+    spawnEnemy(enemyType) {
+        const randomKeyIndex = enemyType ? Object.keys(enemyTypes).indexOf(enemyType) : Math.floor(Math.random() * Object.keys(enemyTypes).length);
+        const { node: enemy, newPath } = createEnemy(Object.keys(enemyTypes)[randomKeyIndex]);
+        
+        this.root.addChild(enemy);
+
+        this.enemyPaths[enemy.node.id] = {
+            currentIndex: 0,
+            path: newPath
+        };
+        
+//        let pathIndex = 0;
+//            const mover = setInterval(() => {
+//                if (pathIndex >= newPath.length) {
+//                    clearInterval(mover);
+//                    this.root.removeChild(enemy.node.id);
+//                    return;
+//                }
+//                const newCoordinates = ShapeUtils.rectangle(newPath[pathIndex][0], newPath[pathIndex][1], 5, 5);
+//                enemy.node.coordinates2d = newCoordinates;
+//                pathIndex++;
+//            }, 16);
+//
+//            const leftWallEnemies = GeometryUtils.checkCollisions(
+//                this.root, 
+//                {
+//                    node: {
+//                        coordinates2d: ShapeUtils.rectangle(0, 0, 1, 100)
+//                    }
+//                }, 
+//                (node) => {
+//                    return this.renderedEnemies[node.node.id];
+//                }
+//            );
+//
+//            const rightWallEnemies = GeometryUtils.checkCollisions(
+//                this.root, 
+//                {
+//                    node: {
+//                        coordinates2d: ShapeUtils.rectangle(99, 0, 1, 100)
+//                    }
+//                }, 
+//                (node) => {
+//                    return node.node.id !== enemy.node.id && this.renderedEnemies[node.node.id];
+//                }
+//            );
+//
+            this.renderedEnemies[enemy.node.id] = enemy;
+//            leftWallEnemies.forEach(e => this.root.removeChild(e.node.id));
+  //          rightWallEnemies.forEach(e => this.root.removeChild(e.node.id));
+
+    }
+
     tick() {
         if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - 1000)) {
-            console.log('need to spawn enemy');
-            console.log('doing something');
             this.lastSpawnTime = Date.now();
+            this.spawnEnemy();
+        }
+
+        const keysToRemove = new Set();
+        for (const key in this.renderedEnemies) {
+            // check for collisions with bullet
+
+            // move next index in path
+            if (this.enemyPaths[key]) {
+                const enemyPath = this.enemyPaths[key].path;
+                const pathIndex = this.enemyPaths[key].currentIndex;
+
+                if (pathIndex >= enemyPath.length) {
+                    keysToRemove.add(key);
+                } else {
+                    const enemy = this.renderedEnemies[key];
+                    const enemyCoords = enemy.node.coordinates2d;
+                    const newCoordinates = ShapeUtils.rectangle(enemyPath[pathIndex][0], enemyPath[pathIndex][1], enemyCoords[1][0] - enemyCoords[0][0], enemyCoords[2][1] - enemyCoords[1][1]);
+                    enemy.node.coordinates2d = newCoordinates;
+                    this.enemyPaths[key].currentIndex = pathIndex + 1;
+                }
+            } else {
+                keysToRemove.add(key);
+            }
+
+            keysToRemove.forEach(k => {
+                this.root.removeChild(k);
+                delete this.renderedEnemies[k]
+                delete this.enemyPaths[k]
+            });
         }
     }
 
