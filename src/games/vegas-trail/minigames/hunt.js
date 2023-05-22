@@ -95,7 +95,10 @@ class Hunt {
         this.state = initialState;
 
         this.renderedEnemies = {};
+        this.renderedShots = {};
+
         this.enemyPaths = {};
+        this.shotPaths = {};
 
         this.actionQueue = [];
 
@@ -192,30 +195,36 @@ class Hunt {
                 -1 * (yDiff * (weapon.rate / 100)),
                 100, 
                 100);
+
+        this.renderedShots[shot.node.id] = shot;
+        this.shotPaths[shot.node.id] = {
+            currentIndex: 0,
+            path: newPath
+        };
         
-        let pathIndex = 0;
-        const mover = setInterval(() => {
-            if (pathIndex >= newPath.length) {
-                clearInterval(mover);
-                this.root.removeChild(shot.node.id);
-                return;
-            }
-            const collidingEnemies = GeometryUtils.checkCollisions(
-                this.root, 
-                shot,
-                (node) => {
-                    return node.node.id !== shot.node.id && this.renderedEnemies[node.node.id];
-                }
-            );
-
-            if (collidingEnemies) {
-                collidingEnemies.forEach(e => this.root.removeChild(e.node.id));
-            }
-
-            const newCoordinates = ShapeUtils.rectangle(newPath[pathIndex][0], newPath[pathIndex][1], weapon.x, weapon.y);
-            shot.node.coordinates2d = newCoordinates;
-            pathIndex++;
-        }, 16);
+//        let pathIndex = 0;
+//        const mover = setInterval(() => {
+//            if (pathIndex >= newPath.length) {
+//                clearInterval(mover);
+//                this.root.removeChild(shot.node.id);
+//                return;
+//            }
+//            const collidingEnemies = GeometryUtils.checkCollisions(
+//                this.root, 
+//                shot,
+//                (node) => {
+//                    return node.node.id !== shot.node.id && this.renderedEnemies[node.node.id];
+//                }
+//            );
+//
+//            if (collidingEnemies) {
+//                collidingEnemies.forEach(e => this.root.removeChild(e.node.id));
+//            }
+//
+//            const newCoordinates = ShapeUtils.rectangle(newPath[pathIndex][0], newPath[pathIndex][1], weapon.x, weapon.y);
+//            shot.node.coordinates2d = newCoordinates;
+//            pathIndex++;
+//        }, 16);
 
         this.root.addChild(shot);
     }
@@ -279,9 +288,23 @@ class Hunt {
             this.spawnEnemy();
         }
 
-        const keysToRemove = new Set();
+        const enemyKeysToRemove = new Set();
+        const shotKeysToRemove = new Set();
         for (const key in this.renderedEnemies) {
             // check for collisions with bullet
+            const collidingBullets = GeometryUtils.checkCollisions(
+                this.root, this.renderedEnemies[key],
+                (node) => {
+                    return this.renderedShots[node.node.id];
+                }
+            );
+
+            if (collidingBullets.length) {
+                for (const i in collidingBullets) {
+                    this.root.removeChild(collidingBullets[i].node.id);
+                }
+                enemyKeysToRemove.add(key);
+            }
 
             // move next index in path
             if (this.enemyPaths[key]) {
@@ -289,7 +312,7 @@ class Hunt {
                 const pathIndex = this.enemyPaths[key].currentIndex;
 
                 if (pathIndex >= enemyPath.length) {
-                    keysToRemove.add(key);
+                    enemyKeysToRemove.add(key);
                 } else {
                     const enemy = this.renderedEnemies[key];
                     const enemyCoords = enemy.node.coordinates2d;
@@ -298,15 +321,42 @@ class Hunt {
                     this.enemyPaths[key].currentIndex = pathIndex + 1;
                 }
             } else {
-                keysToRemove.add(key);
+                enemyKeysToRemove.add(key);
             }
 
-            keysToRemove.forEach(k => {
+            enemyKeysToRemove.forEach(k => {
                 this.root.removeChild(k);
                 delete this.renderedEnemies[k]
                 delete this.enemyPaths[k]
             });
         }
+
+        for (const key in this.renderedShots) {
+            // move next index in path
+            if (this.shotPaths[key]) {
+                const shotPath = this.shotPaths[key].path;
+                const pathIndex = this.shotPaths[key].currentIndex;
+
+                if (pathIndex >= shotPath.length) {
+                    shotKeysToRemove.add(key);
+                } else {
+                    const shot = this.renderedShots[key];
+                    const shotCoords = shot.node.coordinates2d;
+                    const newCoordinates = ShapeUtils.rectangle(shotPath[pathIndex][0], shotPath[pathIndex][1], shotCoords[1][0] - shotCoords[0][0], shotCoords[2][1] - shotCoords[1][1]);
+                    shot.node.coordinates2d = newCoordinates;
+                    this.shotPaths[key].currentIndex = pathIndex + 1;
+                }
+            } else {
+                shotKeysToRemove.add(key);
+            }
+
+            shotKeysToRemove.forEach(k => {
+                this.root.removeChild(k);
+                delete this.renderedShots[k]
+                delete this.shotPaths[k]
+            });
+        }
+ 
     }
 
     getRoot() {
