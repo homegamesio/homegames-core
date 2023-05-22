@@ -4,6 +4,9 @@ const WEAPONS = {
     DEFAULT: 'DEFAULT'
 };
 
+const MAX_SHOTS = 10;
+const MAX_ENEMIES = 8;
+
 // HUNTING SLOT MACHINES
 
 const createEnemy = (enemyType) => {
@@ -82,9 +85,7 @@ const enemyTypes = {
         }
 
     }
-};
-
- 
+}; 
 
 class Hunt {
     constructor(playerId, initialState = {}) {
@@ -99,8 +100,22 @@ class Hunt {
 
         this.enemyPaths = {};
         this.shotPaths = {};
-
-        this.actionQueue = [];
+        this.scores = {};
+        this.infoNodes = [
+            {
+                type: 'score',
+                gameNode: new GameNode.Text({
+                    textInfo: {
+                        x: 6,
+                        y: 2,
+                        text: '0',
+                        color: Colors.COLORS.BLACK,
+                        size: 1,
+                        align: 'left'
+                    }
+                })
+            }
+        ];
 
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -110,6 +125,11 @@ class Hunt {
                 this.shoot(playerId, x, y);
             }
         });
+
+        for (let i in this.infoNodes) {
+            const gameNode = this.infoNodes[i].gameNode;
+            this.root.addChild(gameNode);
+        }
 
 //        const spawner = setInterval(() => {
 //            const randomKeyIndex = Math.floor(Math.random() * Object.keys(enemyTypes).length);
@@ -163,6 +183,10 @@ class Hunt {
     }
 
     shoot(playerId, x, y) {
+        if (Object.keys(this.renderedShots).length >= MAX_SHOTS) {
+            return;
+        }
+        
         const playerWeapon = this.state.weapons && this.state.weapons[playerId] || WEAPONS.DEFAULT;
         const weapons = {
             [WEAPONS.DEFAULT]: {
@@ -196,7 +220,11 @@ class Hunt {
                 100, 
                 100);
 
-        this.renderedShots[shot.node.id] = shot;
+        this.renderedShots[shot.node.id] = {
+            gameNode: shot,
+            playerId
+        };
+
         this.shotPaths[shot.node.id] = {
             currentIndex: 0,
             path: newPath
@@ -230,6 +258,9 @@ class Hunt {
     }
 
     spawnEnemy(enemyType) {
+        if (Object.keys(this.renderedEnemies).length >= MAX_ENEMIES) {
+            return;
+        }
         const randomKeyIndex = enemyType ? Object.keys(enemyTypes).indexOf(enemyType) : Math.floor(Math.random() * Object.keys(enemyTypes).length);
         const { node: enemy, newPath } = createEnemy(Object.keys(enemyTypes)[randomKeyIndex]);
         
@@ -276,7 +307,10 @@ class Hunt {
 //                }
 //            );
 //
-            this.renderedEnemies[enemy.node.id] = enemy;
+            this.renderedEnemies[enemy.node.id] = {
+                gameNode: enemy,
+                type: Object.keys(enemyTypes)[randomKeyIndex]
+            }
 //            leftWallEnemies.forEach(e => this.root.removeChild(e.node.id));
   //          rightWallEnemies.forEach(e => this.root.removeChild(e.node.id));
 
@@ -290,19 +324,30 @@ class Hunt {
 
         const enemyKeysToRemove = new Set();
         const shotKeysToRemove = new Set();
+
         for (const key in this.renderedEnemies) {
             // check for collisions with bullet
             const collidingBullets = GeometryUtils.checkCollisions(
-                this.root, this.renderedEnemies[key],
+                this.root, this.renderedEnemies[key].gameNode,
                 (node) => {
                     return this.renderedShots[node.node.id];
                 }
             );
 
             if (collidingBullets.length) {
-                for (const i in collidingBullets) {
+                let playerId;
+                for (const i in collidingBullets) { 
+                    playerId = playerId || this.renderedShots[collidingBullets[i].node.id].playerId;
                     this.root.removeChild(collidingBullets[i].node.id);
                 }
+                const enemyType = this.renderedEnemies[key].type;
+                
+                if (!this.scores[playerId]) {
+                    this.scores[playerId] = 0;
+                }
+
+                this.scores[playerId] = this.scores[playerId] + enemyTypes[enemyType].value;
+
                 enemyKeysToRemove.add(key);
             }
 
@@ -314,7 +359,7 @@ class Hunt {
                 if (pathIndex >= enemyPath.length) {
                     enemyKeysToRemove.add(key);
                 } else {
-                    const enemy = this.renderedEnemies[key];
+                    const enemy = this.renderedEnemies[key].gameNode;
                     const enemyCoords = enemy.node.coordinates2d;
                     const newCoordinates = ShapeUtils.rectangle(enemyPath[pathIndex][0], enemyPath[pathIndex][1], enemyCoords[1][0] - enemyCoords[0][0], enemyCoords[2][1] - enemyCoords[1][1]);
                     enemy.node.coordinates2d = newCoordinates;
@@ -329,6 +374,16 @@ class Hunt {
                 delete this.renderedEnemies[k]
                 delete this.enemyPaths[k]
             });
+
+            this.infoNodes.forEach(infoNode => {
+
+                if (infoNode.type === 'score') {
+                    const gameNode = infoNode.gameNode;
+                    const textInfo = Object.assign({}, gameNode.node.text);
+                    textInfo.text = Object.keys(this.scores).length > 0 ? '' + Object.values(this.scores)[0] : '0'; // todo: support multiple player scores? prob not
+                    gameNode.node.text = textInfo;
+                }
+            });
         }
 
         for (const key in this.renderedShots) {
@@ -340,7 +395,7 @@ class Hunt {
                 if (pathIndex >= shotPath.length) {
                     shotKeysToRemove.add(key);
                 } else {
-                    const shot = this.renderedShots[key];
+                    const shot = this.renderedShots[key].gameNode;
                     const shotCoords = shot.node.coordinates2d;
                     const newCoordinates = ShapeUtils.rectangle(shotPath[pathIndex][0], shotPath[pathIndex][1], shotCoords[1][0] - shotCoords[0][0], shotCoords[2][1] - shotCoords[1][1]);
                     shot.node.coordinates2d = newCoordinates;
@@ -355,6 +410,10 @@ class Hunt {
                 delete this.renderedShots[k]
                 delete this.shotPaths[k]
             });
+        }
+
+        for (const key in this.scores) {
+
         }
  
     }
