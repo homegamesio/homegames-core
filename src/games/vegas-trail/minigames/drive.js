@@ -1,6 +1,6 @@
 const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-0766');
 
-class Run {
+class Drive {
     constructor() {
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -64,4 +64,4 @@ class Run {
     }
 }
 
-module.exports = Run;
+module.exports = Drive;
