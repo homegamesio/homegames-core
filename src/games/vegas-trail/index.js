@@ -1,5 +1,5 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0766');
-const { Run, GridDefense, Hunt } = require('./minigames/index.js');
+const { Illness, Run, GridDefense, Hunt } = require('./minigames/index.js');
 const COLORS = Colors.COLORS;
 
 class VegasTrail extends Game {
@@ -27,15 +27,18 @@ class VegasTrail extends Game {
     handleNewPlayer({ playerId }) {
 //        const hunt = new Hunt(playerId);
 //        const run = new Run(playerId);
-        const gridDefense = new GridDefense(playerId);
-        this.activeGame = gridDefense;
+//        const gridDefense = new GridDefense(playerId);
+        const fightIllness = new Illness(playerId);
+        this.activeGame = fightIllness;
+//        this.activeGame = gridDefense;
 //  this.activeGame = hunt;
 
         // todo: add view here for each player
 //        this.base.addChild(hunt.getRoot());
 //        this.base.addChild(run.getRoot());
 
-        this.base.addChild(gridDefense.getRoot());
+//        this.base.addChild(gridDefense.getRoot());
+        this.base.addChild(fightIllness.getRoot());
     }
 
     handleKeyUp(player, key) {
