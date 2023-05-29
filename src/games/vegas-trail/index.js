@@ -1,5 +1,5 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0766');
-const { Hunt } = require('./minigames/index.js');
+const { Run, GridDefense, Hunt } = require('./minigames/index.js');
 const COLORS = Colors.COLORS;
 
 class VegasTrail extends Game {
@@ -8,7 +8,8 @@ class VegasTrail extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0766',
             author: 'Joseph Garcia',
-            thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96'
+            thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
+            tickRate: 100,
         };
     }
 
@@ -24,14 +25,17 @@ class VegasTrail extends Game {
     }
 
     handleNewPlayer({ playerId }) {
-        console.log('player joined!');
-        console.log(playerId);
+//        const hunt = new Hunt(playerId);
+//        const run = new Run(playerId);
+        const gridDefense = new GridDefense(playerId);
+        this.activeGame = gridDefense;
+//  this.activeGame = hunt;
 
-        const hunt = new Hunt(playerId);
-        console.log('dsfdsfdsf');
-        console.log(hunt.getRoot());
-        this.activeGame = hunt;
-        this.base.addChild(hunt.getRoot());
+        // todo: add view here for each player
+//        this.base.addChild(hunt.getRoot());
+//        this.base.addChild(run.getRoot());
+
+        this.base.addChild(gridDefense.getRoot());
     }
 
     handleKeyUp(player, key) {
