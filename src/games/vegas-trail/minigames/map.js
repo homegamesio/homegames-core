@@ -9,6 +9,16 @@ class MapGame {
             fill: Colors.COLORS.WHITE
         });
 
+        // a game should take ~10 minutes from start to finish.
+
+        this.coordCount = mapData.mapCoords.length;
+
+        // i want to go through coordCount points over 10 minutes
+
+        this.moveInterval = (10 * 60 * 1000) / this.coordCount;
+
+        // console.log('need to move every ' + moveInterval + ', ,,, ' + coordCount);
+
         const map = this.constructMap(mapData);
         
         this.root.addChild(map);
@@ -26,7 +36,7 @@ class MapGame {
         const now = Date.now();
         for (let key in playerStates) {
             const playerState = playerStates[key];
-            if (!playerState.lastMovementTime || playerState.lastMovementTime + playerState.movementInterval <= now) {
+            if (!playerState.lastMovementTime || playerState.lastMovementTime + this.moveInterval <= now) {
                 if (playerState.currentIndex >= playerState.path.length) {
                     continue;
                 }

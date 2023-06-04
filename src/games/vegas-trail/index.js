@@ -2,6 +2,24 @@ const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('s
 const { MapGame, Drive, Fight, Hunt, Stats } = require('./minigames/index.js');
 const COLORS = Colors.COLORS;
 
+const defaultResources = () => {
+    return {
+        scrap: 50,
+        wheels: 3,
+        ammo: 10,
+        medpack: 1
+    }
+};
+
+const defaultUpgrades = () => {
+    return {
+        strength: 2,
+        resilience: 2,
+        weapons: 2,
+        magnetism: 2
+    }
+};
+
 const mapData = {
     mapCoords: [
        [92, 92],
@@ -111,7 +129,7 @@ const mapOptionNode = (onClick) => {
     return new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(42, 0, 8, 10),
-        fill: COLORS.WHITE,
+        fill: COLORS.RED,
         onClick
     });
 };
@@ -120,7 +138,7 @@ const driveOptionNode = (onClick) => {
     return new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(54, 0, 8, 10),
-        fill: COLORS.WHITE,
+        fill: COLORS.RED,
         onClick
     });
 };
@@ -129,7 +147,7 @@ const huntOptionNode = (onClick) => {
     return new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(66, 0, 8, 10),
-        fill: COLORS.WHITE,
+        fill: COLORS.RED,
         onClick
     });
 };
@@ -138,16 +156,18 @@ const fightOptionNode = (onClick) => {
     return new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(78, 0, 8, 10),
-        fill: COLORS.WHITE,
+        fill: COLORS.RED,
         onClick
     });
 };
 
 const statsOptionNode = (onClick) => {
+    console.log('ayo what');
+    console.log(onClick);
     return new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(90, 0, 8, 10),
-        fill: COLORS.WHITE,
+        fill: COLORS.RED,
         onClick
     });
 };
@@ -187,11 +207,32 @@ class VegasTrail extends Game {
 
         this.optionsLayer = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+        });
+
+        this.statsLayer = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
         this.base.addChild(this.gameLayer);
         this.base.addChild(this.optionsLayer);
+        this.base.addChild(this.statsLayer);
+
+        this.setCurrentGame(this.map);
+
+        this.renderOptionsLayer();
+        this.renderStatsLayer();
+    }
+
+    setCurrentGame(minigame) {
+       this.gameLayer.clearChildren(); 
+       this.activeGame = minigame;
+       this.gameLayer.addChild(minigame.getRoot());
+    }
+
+    renderOptionsLayer() {        
+        this.optionsLayer.clearChildren();
 
         this.menuOptions = [
             mapOptionNode(() => this.setCurrentGame(this.map)),
@@ -204,14 +245,18 @@ class VegasTrail extends Game {
         for (let i in this.menuOptions) {
             this.optionsLayer.addChild(this.menuOptions[i]);
         }
-
-        this.setCurrentGame(this.map);
     }
 
-    setCurrentGame(minigame) {
-       this.gameLayer.clearChildren(); 
-       this.activeGame = minigame;
-       this.gameLayer.addChild(minigame.getRoot());
+    renderStatsLayer() {
+        this.statsLayer.clearChildren();
+
+        const statsBox = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 35, 10),
+            fill: Colors.COLORS.BLUE
+        });
+
+        this.statsLayer.addChild(statsBox);
     }
 
     handleNewPlayer({ playerId }) {
@@ -225,7 +270,9 @@ class VegasTrail extends Game {
             path: Object.assign(new Array(), mapData.mapCoords),
             currentIndex: 0,
             movementInterval: 100,
-            node
+            node,
+            score: 0,
+            ...defaultResources()
         }
 
         this.map.getRoot().addChild(node);
