@@ -54,6 +54,9 @@ const listenable = function(obj, onChange) {
             const change = Reflect.deleteProperty(target, property);
             onChange && onChange();
             return change;
+        },
+        ayy() {
+            console.log('i am ayy');
         }
     };
 

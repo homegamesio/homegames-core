@@ -317,10 +317,10 @@ class Hunt {
     }
 
     tick() {
-        if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - 1000)) {
+        // if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - 1000)) {
             this.lastSpawnTime = Date.now();
             this.spawnEnemy();
-        }
+        // }
 
         const enemyKeysToRemove = new Set();
         const shotKeysToRemove = new Set();
@@ -338,7 +338,9 @@ class Hunt {
                 let playerId;
                 for (const i in collidingBullets) { 
                     playerId = playerId || this.renderedShots[collidingBullets[i].node.id].playerId;
-                    this.root.removeChild(collidingBullets[i].node.id);
+                    // this.root.removeChild(collidingBullets[i].node.id);
+                    shotKeysToRemove.add(collidingBullets[i].node.id);
+                    // collidingBullets[i].node.ayy();
                 }
                 const enemyType = this.renderedEnemies[key].type;
                 
@@ -370,9 +372,22 @@ class Hunt {
             }
 
             enemyKeysToRemove.forEach(k => {
-                this.root.removeChild(k);
-                delete this.renderedEnemies[k]
-                delete this.enemyPaths[k]
+                if (!this.renderedEnemies[k] || !this.renderedEnemies[k].gameNode) {
+                    // continue;
+                } else {
+                    this.root.removeChild(k);
+                    const node = this.renderedEnemies[k].gameNode;
+
+                    console.log('just revoked');
+                    delete this.renderedEnemies[k]
+                    delete this.enemyPaths[k];
+
+                    console.log('removed enemy ' + k);
+                    console.log(node);
+                    node.node.ayy();
+                }
+                // k.node.coordinates2d = k.node.coordinates2d;
+                // throw new Error('ay lmao');
             });
 
             this.infoNodes.forEach(infoNode => {
@@ -407,8 +422,24 @@ class Hunt {
 
             shotKeysToRemove.forEach(k => {
                 this.root.removeChild(k);
-                delete this.renderedShots[k]
-                delete this.shotPaths[k]
+
+                console.log("here is ting1111");
+                console.log(this.renderedShots[k]);
+                console.log('aboutt otosdfgods')
+                const node = this.renderedShots[k];
+                console.log("THIS IS NOE!!!!");
+                console.log(node);
+                delete this.renderedShots[k];
+                delete this.shotPaths[k];
+                this.root.removeChild(k);
+
+
+                console.log("here is ting12222");
+                console.log('ayththdshfhsd!');
+                console.log(node);
+                if (node) {
+                    node.gameNode.node.ayy();
+                }
             });
         }
 
