@@ -1,4 +1,4 @@
-let { Squisher } = require('squish-0766');
+let { Squisher } = require('squish-0767');
 const { generateName } = require('./common/util');
 const squishMap = require('./common/squish-map');
 
@@ -87,14 +87,14 @@ class GameSession {
             // this.stateHistory
         // } else if () {
             // console.log('abbababa');
-            this.stateHistory.push({ timestamp: now, data: squished });
+//            this.stateHistory.push({ timestamp: now, data: squished });
         } else {
             if (this.stateHistory[0].timestamp < (now - 5 * 60 * 1000)) {
                 // console.log('cuttin.')
-                this.stateHistory = this.stateHistory.slice(1);
+  //              this.stateHistory = this.stateHistory.slice(1);
             }
 
-            this.stateHistory.push({ timestamp: now, data: squished });
+    //        this.stateHistory.push({ timestamp: now, data: squished });
         }
 
         // this.stateHistory.push(squished);

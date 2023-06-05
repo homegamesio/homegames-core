@@ -2,7 +2,7 @@ const fs = require('fs');
 const process = require('process');
 
 if (!process.env.SQUISH_PATH) {
-    const defaultVersion = 'squish-0766';
+    const defaultVersion = 'squish-0767';
     console.log('No SQUISH_PATH found. Using default: ' + defaultVersion);
     process.env.SQUISH_PATH = defaultVersion;
 }
@@ -675,10 +675,11 @@ class HomegamesRoot {
     }
 
     handleSquisherMessage(msg) {
+        console.log('uhhh ayy');
         if (msg.type === 'renderStart') {
-            this.renderTimes.push({start: msg.time});
+//            this.renderTimes.push({start: msg.time});
         } else if (msg.type === 'renderEnd') {
-            this.renderTimes[this.renderTimes.length - 1].end = msg.time;
+//            this.renderTimes[this.renderTimes.length - 1].end = msg.time;
         }
     }
 
