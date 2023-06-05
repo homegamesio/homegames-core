@@ -384,7 +384,7 @@ class Hunt {
 
                     console.log('removed enemy ' + k);
                     console.log(node);
-                    node.node.ayy();
+                    node.free();
                 }
                 // k.node.coordinates2d = k.node.coordinates2d;
                 // throw new Error('ay lmao');
@@ -422,23 +422,14 @@ class Hunt {
 
             shotKeysToRemove.forEach(k => {
                 this.root.removeChild(k);
-
-                console.log("here is ting1111");
-                console.log(this.renderedShots[k]);
-                console.log('aboutt otosdfgods')
                 const node = this.renderedShots[k];
-                console.log("THIS IS NOE!!!!");
-                console.log(node);
                 delete this.renderedShots[k];
                 delete this.shotPaths[k];
                 this.root.removeChild(k);
 
 
-                console.log("here is ting12222");
-                console.log('ayththdshfhsd!');
-                console.log(node);
                 if (node) {
-                    node.gameNode.node.ayy();
+                    node.gameNode.free();
                 }
             });
         }
