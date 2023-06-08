@@ -5,13 +5,13 @@ const WEAPONS = {
 };
 
 const MAX_SHOTS = 10;
-const MAX_ENEMIES = 8;
+const MAX_ENEMIES = 6;
 
 // HUNTING SLOT MACHINES
 
 const createEnemy = (enemyType) => {
      const left = Math.random() < .5;
-     const startY = Math.max(Math.min(Math.random() * 100, 80), 20);
+     const startY = Math.max(Math.min(Math.random() * 100, 80), 30);
 
      const enemyData = enemyTypes[enemyType];
      const xRate = (left ? 1 : -1) * enemyData.xRate;
@@ -88,10 +88,12 @@ const enemyTypes = {
 }; 
 
 class Hunt {
-    constructor(playerId, initialState = {}) {
+    constructor({ playerId, depleteAmmo, initialState = {} }) {
         const playerScores = {
             [playerId]: 0
         }
+
+        this.depleteAmmo = depleteAmmo;
         
         this.state = initialState;
 
@@ -101,6 +103,7 @@ class Hunt {
         this.enemyPaths = {};
         this.shotPaths = {};
         this.scores = {};
+        this.lastResources = {};
         this.infoNodes = [
             {
                 type: 'score',
@@ -186,6 +189,10 @@ class Hunt {
         if (Object.keys(this.renderedShots).length >= MAX_SHOTS) {
             return;
         }
+
+        if (!this.lastResources.ammo) {
+            return;
+        } 
         
         const playerWeapon = this.state.weapons && this.state.weapons[playerId] || WEAPONS.DEFAULT;
         const weapons = {
@@ -255,6 +262,7 @@ class Hunt {
 //        }, 16);
 
         this.root.addChild(shot);
+        this.depleteAmmo(1);
     }
 
     spawnEnemy(enemyType) {
@@ -316,11 +324,13 @@ class Hunt {
 
     }
 
-    tick() {
-        // if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - 1000)) {
+    tick({ playerStates, resources }) {
+        this.lastResources = resources;
+
+        if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - 1000)) {
             this.lastSpawnTime = Date.now();
             this.spawnEnemy();
-        // }
+        }
 
         const enemyKeysToRemove = new Set();
         const shotKeysToRemove = new Set();
@@ -378,12 +388,9 @@ class Hunt {
                     this.root.removeChild(k);
                     const node = this.renderedEnemies[k].gameNode;
 
-                    console.log('just revoked');
                     delete this.renderedEnemies[k]
                     delete this.enemyPaths[k];
 
-                    console.log('removed enemy ' + k);
-                    console.log(node);
                     node.free();
                 }
                 // k.node.coordinates2d = k.node.coordinates2d;

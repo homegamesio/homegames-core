@@ -49,7 +49,7 @@ class Stats {
         }
     }
 
-    tick() {
+    tick({ playerStates, resources}) {
         if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - 1000)) {
             this.lastSpawnTime = Date.now();
             this.spawnObstacle();

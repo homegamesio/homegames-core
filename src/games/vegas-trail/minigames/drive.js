@@ -8,6 +8,12 @@ class Drive {
             fill: Colors.COLORS.WHITE
         });
 
+        this.car = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(50, 80, 3, 3),
+            fill: Colors.COLORS.PINK
+        });
+
         this.columns = [
             {
                 key: 'left',
@@ -49,7 +55,7 @@ class Drive {
         }
     }
 
-    tick() {
+    tick({ playerStates, resources}) {
         if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - 1000)) {
             this.lastSpawnTime = Date.now();
             this.spawnObstacle();

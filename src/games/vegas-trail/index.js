@@ -1,13 +1,18 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0767');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-0767');
 const { MapGame, Drive, Fight, Hunt, Stats } = require('./minigames/index.js');
 const COLORS = Colors.COLORS;
 
+const TOTAL_DISTANCE = 420;
+
 const defaultResources = () => {
     return {
-        scrap: 50,
-        wheels: 3,
-        ammo: 10,
-        medpack: 1
+        scrap: 50, // money
+        wheels: 3, // 2 needed to drive
+        ammo: 10, // depleted when hunting
+        health: 100, // falls due to illness
+        antibiotics: 0, // increase health
+        springs: 0, // jump river
+        treats: 1 // give to dogs
     }
 };
 
@@ -29,7 +34,7 @@ const mapData = {
        [75, 80],
        [70, 80],
        [70, 78],
-       [75, 74],
+       [78, 74],
        [75, 70],
        [72, 68],
        [71, 67],
@@ -121,7 +126,61 @@ const mapData = {
        [92, 94]
    ],
    landmarks: [
-       
+       {
+            coord: [92, 94],
+            textCoord: [74.5, 94],
+            name: `St. Mary's Mexican Food`,
+            assetKey: 'placeholder',
+            descriptionLines: [
+                'ayy lmao i will write this',
+                'or will i',
+                'time will tell'
+            ]
+       },
+       {
+            coord: [78, 74],
+            textCoord: [80.5, 74],
+            name: 'Phoenix',
+            assetKey: 'placeholder',
+            descriptionLines: [
+                'ayy lmao i will write this',
+                'or will i',
+                'time will tell'
+            ]
+       },
+       {
+            coord: [54, 46],
+            textCoord: [52, 49],
+            name: 'Gas Station',
+            assetKey: 'placeholder',
+            descriptionLines: [
+                'ayy lmao i will write this',
+                'or will i',
+                'time will tell'
+            ]
+       },
+       {
+            coord: [32, 42],
+            textCoord: [34.5, 41.5],
+            name: 'Hoover Dam',
+            assetKey: 'placeholder',
+            descriptionLines: [
+                'ayy lmao i will write this',
+                'or will i',
+                'time will tell'
+            ]
+       },
+       {
+            coord: [8, 10],
+            textCoord: [11, 10],
+            name: 'Las Vegas Strip',
+            assetKey: 'placeholder',
+            descriptionLines: [
+                'ayy lmao i will write this',
+                'or will i',
+                'time will tell'
+            ]
+       }
    ]
 };
 
@@ -162,8 +221,6 @@ const fightOptionNode = (onClick) => {
 };
 
 const statsOptionNode = (onClick) => {
-    console.log('ayo what');
-    console.log(onClick);
     return new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(90, 0, 8, 10),
@@ -179,7 +236,13 @@ class VegasTrail extends Game {
             squishVersion: '0767',
             author: 'Joseph Garcia',
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
-            tickRate: 30,
+            tickRate: 20,
+            assets: {
+                'placeholder': new Asset({
+                    'id': '3b16c6d6ee6d3709bf827b61e61003b1',
+                    'type': 'image'
+                })
+            }
         };
     }
 
@@ -187,11 +250,28 @@ class VegasTrail extends Game {
         super();
     
         this.playerStates = {};
-        this.map = new MapGame(this, mapData);
+
+        this.distanceTraveled = 0;
+
+        this.travelUpdateInterval = 1000; // update distance traveled every one second
+
+        // if the trip to vegas takes ~ 10 minutes and that trip is TOTAL_DISTANCE, then we have 10 minutes / travel update interval ticks to travel TOTAL_DISTANCE
+        this.travelTickDistance = (TOTAL_DISTANCE / (10 * 60 * 1000 / this.travelUpdateInterval));
+
+        this.map = new MapGame(this, mapData, TOTAL_DISTANCE);
         this.drive = new Drive();
-        this.hunt = new Hunt();
+        this.hunt = new Hunt({
+            depleteAmmo: (count) => {
+                this.resources.ammo = this.resources.ammo - count;
+                const textInfo = Object.assign({}, this.ammoText.node.text);
+                textInfo.text = `Ammo: ${this.resources.ammo}`;
+                this.ammoText.node.text = textInfo;
+            }
+        });
         this.fight = new Fight();
         this.stats = new Stats();
+
+        this.resources = { ...defaultResources() }
 
         this.state = initialState;
         this.base = new GameNode.Shape({
@@ -215,9 +295,16 @@ class VegasTrail extends Game {
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
+        this.grayThing = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 10),
+            fill: Colors.COLORS.GRAY
+        });
+
+        this.grayThing.addChildren(this.optionsLayer, this.statsLayer);
+
         this.base.addChild(this.gameLayer);
-        this.base.addChild(this.optionsLayer);
-        this.base.addChild(this.statsLayer);
+        this.base.addChild(this.grayThing);
 
         this.setCurrentGame(this.map);
 
@@ -256,6 +343,99 @@ class VegasTrail extends Game {
             fill: Colors.COLORS.BLUE
         });
 
+        const scrapText = new GameNode.Text({
+            textInfo: {
+                x: 2,
+                y: 1,
+                color: Colors.COLORS.PINK,
+                text: `Scrap: ${this.resources.scrap}`,
+                align: 'left',
+                size: 0.8
+            },
+        });
+
+        this.ammoText = new GameNode.Text({
+            textInfo: {
+                x: 10,
+                y: 1,
+                color: Colors.COLORS.PINK,
+                text: `Ammo: ${this.resources.ammo}`,
+                align: 'left',
+                size: 0.8
+            },
+        });
+
+        const healthText = new GameNode.Text({
+            textInfo: {
+                x: 19,
+                y: 1,
+                color: Colors.COLORS.PINK,
+                text: `Health: ${this.resources.health}`,
+                align: 'left',
+                size: 0.8
+            },
+        });
+
+        const wheelsText = new GameNode.Text({
+            textInfo: {
+                x: 28,
+                y: 1,
+                color: Colors.COLORS.PINK,
+                text: `Wheels: ${this.resources.wheels}`,
+                align: 'left',
+                size: 0.8
+            },
+        });
+
+        const antibioticsText = new GameNode.Text({
+            textInfo: {
+                x: 10,
+                y: 5,
+                color: Colors.COLORS.PINK,
+                text: `Antibiotics: ${this.resources.antibiotics}`,
+                align: 'left',
+                size: 0.8
+            },
+        });
+
+        const springsText = new GameNode.Text({
+            textInfo: {
+                x: 19,
+                y: 5,
+                color: Colors.COLORS.PINK,
+                text: `Springs: ${this.resources.springs}`,
+                align: 'left',
+                size: 0.8
+            },
+        });
+
+        const treatsText = new GameNode.Text({
+            textInfo: {
+                x: 28,
+                y: 5,
+                color: Colors.COLORS.PINK,
+                text: `Treats: ${this.resources.treats}`,
+                align: 'left',
+                size: 0.8
+            },
+        });
+
+        // this.progressText = new GameNode.Text({
+        //     textInfo: {
+        //         x: 1,
+        //         y: 5,
+        //         color: Colors.COLORS.PINK,
+        //         text: `${this.distanceTraveled.toFixed(2)} / ${TOTAL_DISTANCE} miles`,
+        //         align: 'left',
+        //         size: 0.8
+        //     },
+        // });
+
+        statsBox.addChildren(
+            scrapText, this.ammoText, healthText, wheelsText,
+            antibioticsText, springsText, treatsText);
+        // , this.progressText);
+
         this.statsLayer.addChild(statsBox);
     }
 
@@ -271,8 +451,7 @@ class VegasTrail extends Game {
             currentIndex: 0,
             movementInterval: 100,
             node,
-            score: 0,
-            ...defaultResources()
+            score: 0
         }
 
         this.map.getRoot().addChild(node);
@@ -297,11 +476,44 @@ class VegasTrail extends Game {
     }
 
     tick() {
-        this.map.tick(this.playerStates);
-        this.drive.tick(this.playerStates);
-        this.hunt.tick(this.playerStates); 
-        this.fight.tick(this.playerStates);
-        this.stats.tick(this.playerStates); 
+
+        if (!this.lastTravelUpdate || this.lastTravelUpdate + this.travelUpdateInterval <= Date.now()) {
+            this.distanceTraveled = this.distanceTraveled + this.travelTickDistance;
+            this.lastTravelUpdate = Date.now();
+            // const newProgress = Object.assign({}, this.progressText.node.text);
+            // newProgress.text = `${this.distanceTraveled.toFixed(2)} / ${TOTAL_DISTANCE} miles`;
+            // this.progressText.node.text = newProgress;
+        }
+
+        this.map.tick({ 
+            resources: this.resources,
+            playerStates: this.playerStates,
+            distanceTraveled: this.distanceTraveled
+        });
+        
+        this.drive.tick({ 
+            resources: this.resources,
+            playerStates: this.playerStates,
+            distanceTraveled: this.distanceTraveled
+        });
+
+        this.hunt.tick({ 
+            resources: this.resources,
+            playerStates: this.playerStates,
+            distanceTraveled: this.distanceTraveled
+        }); 
+
+        this.fight.tick({ 
+            resources: this.resources,
+            playerStates: this.playerStates,
+            distanceTraveled: this.distanceTraveled
+        });
+
+        this.stats.tick({ 
+            resources: this.resources,
+            playerStates: this.playerStates,
+            distanceTraveled: this.distanceTraveled
+        }); 
     }
 
     getLayers() {

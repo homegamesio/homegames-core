@@ -81,7 +81,7 @@ class Fight {
         }
     }
 
-    tick() {
+    tick({ playerStates, resources}) {
         const now = Date.now();
         for (let key in this.enemies) {
             const enemy = this.enemies[key];
