@@ -8,21 +8,17 @@ class Fight {
             fill: Colors.COLORS.WHITE
         });
 
-        const enemy = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(48, 48, 4, 4),
-            fill: Colors.COLORS.RED
-        });
+        this.clickCounts = {};
 
         this.enemyConfig = {
             'x': {
                 increaseInterval: 1000,
                 initialWidth: 4,
-                maxWidth: 80,
+                maxWidth: 16,
                 timeout: 3000, // wait 3 seconds after hitting max size
                 widthIncrement: 2,
                 initialHeight: 4,
-                maxHeight: 12,
+                maxHeight: 16,
                 heightIncrement: 2,
                 health: 100,
                 value: 100
@@ -42,18 +38,7 @@ class Fight {
             }
         });
 
-        this.enemies = {
-            [enemy.node.id]: {
-                node: enemy,
-                lastIncrease: null,
-                type: 'x',
-                health: this.enemyConfig['x'].health,
-                spawnedAt: Date.now()
-//                increaseInterval: 500 // every 500ms get bigger
-            }
-        };
-
-        this.enemyLayer.addChild(enemy);
+        this.enemies = {};
         
         this.root.addChild(this.enemyLayer);
         this.root.addChild(this.attackLayer);
@@ -66,23 +51,26 @@ class Fight {
             fill: Colors.COLORS.ORANGE
         });
 
+        // console.log('asdasdsa');
+        // this.attackLayer.addChild(attackThing);
         const wouldBeCollisions = GeometryUtils.checkCollisions(this.enemyLayer, attackThing);
         for (let i = 0; i < wouldBeCollisions.length; i++) {
             const enemy = this.enemies[wouldBeCollisions[i].node.id];
-            console.log("enemy!");
-            console.log(enemy);
-            const attackValue = 10;
-            const newHealth = enemy.health - attackValue;
-            if (newHealth <= 0) {
-                console.log('is kill');
-            }
-            this.enemies[wouldBeCollisions[i].node.id].health = newHealth;
-            console.log(newHealth);
+            console.log('hiisfgfdg');
+            console.log(this.clickCounts[enemy.node.id]);
+            this.clickCounts[enemy.node.id].count = this.clickCounts[enemy.node.id].count - 1;
+            this.clickCounts[enemy.node.id].lastClickTime = Date.now();
+            const newTextInfo = Object.assign({}, this.clickCounts[enemy.node.id].node.node.text);
+            newTextInfo.text = this.clickCounts[enemy.node.id].count + '';
+            this.clickCounts[enemy.node.id].node.node.text = newTextInfo;
         }
     }
 
     tick({ playerStates, resources}) {
         const now = Date.now();
+
+        const enemiesToRemove = new Set();
+
         for (let key in this.enemies) {
             const enemy = this.enemies[key];
             const enemyConfig = this.enemyConfig[enemy.type];
@@ -105,11 +93,97 @@ class Fight {
 
                 this.enemies[key].node.node.coordinates2d = newCoords; 
                 this.enemies[key].lastIncrease = Date.now();
+            } else if (enemy.spawnedAt + 5000 <= Date.now()) {
+                this.enemyLayer.removeChild(enemy.node.id);
+                enemy.node.free();
+                enemiesToRemove.add(key);
             }
+        }
+
+        const clickCountsToRemove = new Set();
+
+        for (let key of enemiesToRemove) {
+            delete this.enemies[key];
+            if (this.clickCounts[key]) {
+                this.clickCounts[key].node.node.free();
+                delete this.clickCounts[key];
+            }
+        }
+
+        if (!this.lastEnemySpawn || this.lastEnemySpawn + 1500 <= Date.now()) {
+            this.spawnEnemy();
+            this.lastEnemySpawn = Date.now();
+        }
+
+
+        for (let key in this.clickCounts) {
+            // console.log('cliock counts');
+            // console.log(this.clickCounts);
+            if (this.clickCounts[key].lastClickTime && this.clickCounts[key].lastClickTime + 1000 <= Date.now()) {
+                // need to reset or clear enemy
+                
+                // clicked too many times, reset
+                if (this.clickCounts[key].count < 0) {
+
+                }
+
+                if (this.clickCounts[key].count > 0) {
+                    // not enough clicks, reset
+                }
+
+                if (this.clickCounts[key].count === 0) {
+                    this.enemyLayer.removeChild(key);
+                    console.log('this.dsfdsf?');
+                    console.log(key);
+                    console.log(this.enemies);
+                    clickCountsToRemove.add(key);
+                }
+            }
+        }
+
+        for (let key of clickCountsToRemove) {
+            this.clickCounts[key].node.node.free();
+            delete this.clickCounts[key];
         }
     }
 
-    spawnObstacle() {
+    spawnEnemy() {
+        const randX = Math.min(Math.max(20, (Math.random() * 100)), 80);
+        const randY = Math.min(Math.max(20, (Math.random() * 100)), 80);
+
+        const enemy = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(randX, randY, 4, 4),
+            fill: Colors.COLORS.RED
+        });
+
+        this.enemies[enemy.node.id] = {
+            node: enemy,
+            lastIncrease: null,
+            type: 'x',
+            health: this.enemyConfig['x'].health,
+            spawnedAt: Date.now()
+        };
+
+        const clickCountText = new GameNode.Text({
+            textInfo: {
+                x: randX,
+                y: randY,
+                text: '3',
+                size: 1.3,
+                color: Colors.COLORS.WHITE,
+                align: 'center'
+            }
+        });
+
+        this.clickCounts[enemy.node.id] = {
+            node: clickCountText,
+            count: 3
+        };
+
+        enemy.addChild(clickCountText);
+
+        this.enemyLayer.addChild(enemy);
     }
 
     getRoot() {

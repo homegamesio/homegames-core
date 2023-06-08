@@ -124,7 +124,6 @@ class Drive {
     spawnObstacle() {
         const isReward = Math.random() <= 0.5;
         const xVal = Math.floor(Math.random() * 100);
-        console.log("gonna spawn at " + xVal);
         
         if (isReward) {
             const gameNode = new GameNode.Shape({
