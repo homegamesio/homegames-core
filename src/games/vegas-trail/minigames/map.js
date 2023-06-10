@@ -1,10 +1,9 @@
 const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-0767');
 
 const landmarkModal = (playerId, landmarkData, onClose) => {
-    console.log('landmark node! ' + playerId);
     const modal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(20, 20, 60, 60),
+        coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
         fill: Colors.COLORS.RED,
         playerIds: [playerId]
     });
@@ -68,6 +67,42 @@ const landmarkModal = (playerId, landmarkData, onClose) => {
     return modal;
 }
 
+
+
+
+const shopModal = (playerIds, onClose) => {
+    console.log('for which players though');
+    console.log(playerIds);
+    const modal = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
+        fill: Colors.COLORS.RED,
+        playerIds
+    });
+
+    const closeButton = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(20, 20, 10, 10),
+        fill: Colors.COLORS.CYAN,
+        onClick: onClose
+    });
+
+    const titleText = new GameNode.Text({
+        textInfo: {
+            text: 'Shop with me and get ya order',
+            x: 50,
+            y: 45,
+            align: 'center',
+            size: 2,
+            color: Colors.COLORS.WHITE
+        }
+    });
+
+    modal.addChildren(closeButton, titleText);
+
+    return modal;
+}
+
 class MapGame {
     constructor(mainGame, mapData, distanceMiles) {
         this.mainGame = mainGame;
@@ -80,10 +115,12 @@ class MapGame {
         this.modalRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
-            fill: Colors.COLORS.WHITE
+            fill: Colors.COLORS.WHITE,
+            // playerIds: 
         });
 
         this.playerModals = {};
+        this.playerStates = {};
 
         // a game should take ~10 minutes to get to vegas. all coords are for vegas and back
 
@@ -95,9 +132,43 @@ class MapGame {
 
         // console.log('need to move every ' + moveInterval + ', ,,, ' + coordCount);
 
-        const map = this.constructMap(mapData);
+        this.map = this.constructMap(mapData);
+
+        const shopButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(80, 20, 5, 5),
+            fill: Colors.COLORS.BLUE,
+            onClick: (playerId) => this.callShop(playerId)
+        })
         
-        this.root.addChildren(map, this.modalRoot);
+        this.root.addChildren(this.map, shopButton, this.modalRoot);
+    }
+
+    callShop(playerId) {    
+        console.log('player wants to shop ' + playerId);
+        if (this.movingShop) {
+            this.movingShop.playerIds.push(playerId);
+        } else {
+            const shopNode = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(0, 50, 2, 2),
+                fill: Colors.COLORS.YELLOW
+            });
+
+            const playerState = Object.values(this.playerStates)[0];
+            const currentPos = [playerState.path[playerState.currentIndex][0], playerState.path[playerState.currentIndex][1]]
+
+            const shopPath = Physics.getPath(0, 50, (currentPos[0] / 8), (currentPos[1] - 50) / 8, currentPos[0], 100);
+
+            this.root.addChild(shopNode);
+
+            this.movingShop = {
+                node: shopNode,
+                path: shopPath,
+                currentIndex: 0,
+                playerIds: [playerId]
+            };
+        }
     }
 
     constructMap(mapData) {
@@ -106,6 +177,8 @@ class MapGame {
             coordinates2d: mapData.mapCoords,
             fill: Colors.COLORS.PINK
         });
+
+        this.mapData = mapData;
 
         for (let i = 0; i < mapData.landmarks.length; i++) {
             const landmarkData = mapData.landmarks[i];
@@ -123,8 +196,6 @@ class MapGame {
                     });
                     
                     if (this.playerModals[playerId]) {
-                        console.log('what is there');
-                        console.log(this.playerModals[playerId]);
                         this.modalRoot.removeChild(this.playerModals[playerId].node.id);
                         this.playerModals[playerId].node.free();
                     }
@@ -153,6 +224,21 @@ class MapGame {
     }
 
     tick({ playerStates, resources }) {
+
+        // if (!this.hackTime) {
+        //     this.hackTime = Date.now() + 5000;
+        // }
+
+        // if (this.hackTime < Date.now()) {
+
+        //     const playerShopModal = shopModal([1], () => {
+        //         this.modalRoot.removeChild(playerShopModal.node.id);
+        //         playerShopModal.node.free();
+        //     })
+        //     this.modalRoot.addChild(playerShopModal);
+        //     this.hackTime = Date.now() + 500000;
+        // }
+        this.playerStates = playerStates;
         const now = Date.now();
         for (let key in playerStates) {
             const playerState = playerStates[key];
@@ -166,6 +252,32 @@ class MapGame {
                 playerStates[key].node.node.coordinates2d = newCoords;
                 playerStates[key].lastMovementTime = now;
                 playerStates[key].currentIndex = playerStates[key].currentIndex + 1;
+            }
+        }
+
+        if (this.movingShop) {
+            if (!this.movingShop.lastShopMovement || this.movingShop.lastShopMovement + 200 <= now) {
+                if (this.movingShop.currentIndex >= this.movingShop.path.length) {
+                    const node = this.movingShop.node;
+                    this.root.removeChild(node.id);
+                    const playerIds = this.movingShop.playerIds;
+                    this.movingShop = null;
+                    node.node.free();
+
+                    const playerShopModal = shopModal(playerIds, () => {
+                        this.modalRoot.removeChild(playerShopModal.node.id);
+                        playerShopModal.node.free();
+                    })
+
+                    this.modalRoot.addChild(playerShopModal);
+                } else {
+
+                    const newCoords = ShapeUtils.rectangle(this.movingShop.path[this.movingShop.currentIndex][0], this.movingShop.path[this.movingShop.currentIndex][1], 2, 2);
+                    // feels filthy but hey you know
+                    this.movingShop.node.node.coordinates2d = newCoords;
+                    this.movingShop.lastShopMovement = now;
+                    this.movingShop.currentIndex = this.movingShop.currentIndex + 1;
+                }
             }
         }
  

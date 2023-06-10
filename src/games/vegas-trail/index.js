@@ -1,5 +1,5 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-0767');
-const { MapGame, Drive, Fight, Hunt, Stats } = require('./minigames/index.js');
+const { MapGame, Drive, Fight, Hunt, Talk } = require('./minigames/index.js');
 const COLORS = Colors.COLORS;
 
 const TOTAL_DISTANCE = 420;
@@ -220,7 +220,7 @@ const fightOptionNode = (onClick) => {
     });
 };
 
-const statsOptionNode = (onClick) => {
+const talkOptionNode = (onClick) => {
     return new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(90, 0, 8, 10),
@@ -236,7 +236,7 @@ class VegasTrail extends Game {
             squishVersion: '0767',
             author: 'Joseph Garcia',
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
-            tickRate: 20,
+            tickRate: 40,
             assets: {
                 'placeholder': new Asset({
                     'id': '3b16c6d6ee6d3709bf827b61e61003b1',
@@ -269,7 +269,7 @@ class VegasTrail extends Game {
             }
         });
         this.fight = new Fight();
-        this.stats = new Stats();
+        this.talk = new Talk();
 
         this.resources = { ...defaultResources() }
 
@@ -277,7 +277,7 @@ class VegasTrail extends Game {
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: COLORS.GRAY 
+            fill: COLORS.GRAY
         });
 
         this.gameLayer = new GameNode.Shape({
@@ -301,32 +301,45 @@ class VegasTrail extends Game {
             fill: Colors.COLORS.GRAY
         });
 
+        // player ids 254 is a hack to make the nodes effectively invisible to all players
+        this.map.getRoot().showFor(254);
+        this.drive.getRoot().showFor(254);
+        this.hunt.getRoot().showFor(254);
+        this.fight.getRoot().showFor(254);
+        this.talk.getRoot().showFor(254);
+
         this.grayThing.addChildren(this.optionsLayer, this.statsLayer);
 
         this.base.addChild(this.gameLayer);
         this.base.addChild(this.grayThing);
 
-        this.setCurrentGame(this.map);
+        this.gameLayer.addChildren(this.map.getRoot(), this.drive.getRoot(), this.hunt.getRoot(), this.fight.getRoot(), this.talk.getRoot());
 
         this.renderOptionsLayer();
         this.renderStatsLayer();
     }
 
-    setCurrentGame(minigame) {
-       this.gameLayer.clearChildren(); 
-       this.activeGame = minigame;
-       this.gameLayer.addChild(minigame.getRoot());
+    setCurrentGame(playerId, minigame) {
+        if (this.playerStates[playerId].currentGame) {
+            this.playerStates[playerId].currentGame.getRoot().hideFor(playerId);
+        }
+        this.playerStates[playerId].currentGame = minigame;
+        
+        minigame.getRoot().showFor(playerId);
+       // this.gameLayer.clearChildren(); 
+       // this.activeGame = minigame;
+       // this.gameLayer.addChild(minigame.getRoot());
     }
 
     renderOptionsLayer() {        
         this.optionsLayer.clearChildren();
 
         this.menuOptions = [
-            mapOptionNode(() => this.setCurrentGame(this.map)),
-            driveOptionNode(() => this.setCurrentGame(this.drive)),
-            huntOptionNode(() => this.setCurrentGame(this.hunt)),
-            fightOptionNode(() => this.setCurrentGame(this.fight)),
-            statsOptionNode(() => this.setCurrentGame(this.stats))
+            mapOptionNode((playerId) => this.setCurrentGame(playerId, this.map)),
+            driveOptionNode((playerId) => this.setCurrentGame(playerId, this.drive)),
+            huntOptionNode((playerId) => this.setCurrentGame(playerId, this.hunt)),
+            fightOptionNode((playerId) => this.setCurrentGame(playerId, this.fight)),
+            talkOptionNode((playerId) => this.setCurrentGame(playerId, this.talk))
         ];
 
         for (let i in this.menuOptions) {
@@ -454,7 +467,11 @@ class VegasTrail extends Game {
             score: 0
         }
 
-        this.map.getRoot().addChild(node);
+        console.log('new player joined ' + playerId);
+
+        this.setCurrentGame(playerId, this.map);
+
+        this.map.map.addChild(node);
 //        const hunt = new Hunt(playerId);
 //        const run = new Run(playerId);
 //        const gridDefense = new GridDefense(playerId);
@@ -475,7 +492,16 @@ class VegasTrail extends Game {
 //        this.keysDown[key] = true;
     }
 
+    getTravelBlockers() {
+        return [];
+    }
+
     tick() {
+
+        if (this.getTravelBlockers().length > 0) {
+            console.log('paused ticks');
+            return;
+        }
 
         if (!this.lastTravelUpdate || this.lastTravelUpdate + this.travelUpdateInterval <= Date.now()) {
             this.distanceTraveled = this.distanceTraveled + this.travelTickDistance;
@@ -509,7 +535,7 @@ class VegasTrail extends Game {
             distanceTraveled: this.distanceTraveled
         });
 
-        this.stats.tick({ 
+        this.talk.tick({ 
             resources: this.resources,
             playerStates: this.playerStates,
             distanceTraveled: this.distanceTraveled

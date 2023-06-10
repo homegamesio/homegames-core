@@ -82,20 +82,20 @@ class GameSession {
 
     handleSquisherUpdate(squished) {
         // console.log('got squisher update of this length ' + squished.length);
-        const now = Date.now();
-        if (this.stateHistory.length === 0) {
-            // this.stateHistory
-        // } else if () {
-            // console.log('abbababa');
-//            this.stateHistory.push({ timestamp: now, data: squished });
-        } else {
-            if (this.stateHistory[0].timestamp < (now - 5 * 60 * 1000)) {
-                // console.log('cuttin.')
-  //              this.stateHistory = this.stateHistory.slice(1);
-            }
+//         const now = Date.now();
+//         if (this.stateHistory.length === 0) {
+//             // this.stateHistory
+//         // } else if () {
+//             // console.log('abbababa');
+// //            this.stateHistory.push({ timestamp: now, data: squished });
+//         } else {
+//             if (this.stateHistory[0].timestamp < (now - 5 * 60 * 1000)) {
+//                 // console.log('cuttin.')
+//   //              this.stateHistory = this.stateHistory.slice(1);
+//             }
 
-    //        this.stateHistory.push({ timestamp: now, data: squished });
-        }
+//     //        this.stateHistory.push({ timestamp: now, data: squished });
+//         }
 
         // this.stateHistory.push(squished);
         for (const playerId in this.players) {
@@ -342,7 +342,11 @@ class GameSession {
     }
 
     findClickHelper(x, y, spectating, playerId, node, clicked = null, scale, inGame) {
-        if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+        if (node.playerIds.length > 0 && !node.playerIds.find(x => x === playerId)) {
+            return clicked;
+        }
+
+        if ((node.playerIds.length === 0 || node.playerIds.find(x => x === playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
             const vertices = [];
  
             for (const i in node.coordinates2d) {

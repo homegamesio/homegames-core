@@ -1,5 +1,7 @@
 const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-0767');
 
+const MAX_THINGS = 4;
+
 class Drive {
     constructor() {
         this.spawnedEnemies = {};
@@ -49,8 +51,10 @@ class Drive {
         }
 
         if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - 500)) {
-            this.lastSpawnTime = Date.now();
-            this.spawnObstacle();
+            if (Object.keys(this.spawnedEnemies).length + Object.keys(this.spawnedRewards).length < MAX_THINGS) {
+                this.lastSpawnTime = Date.now();
+                this.spawnObstacle();
+            }
         }
 
         const enemiesToRemove = new Set();

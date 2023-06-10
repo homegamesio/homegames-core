@@ -28,8 +28,8 @@ const createEnemy = (enemyType) => {
          startY,
          xRate,
          yVel,
-         110, 
-         110);
+         100, 
+         100);
 
      return {
          node: enemyData.create(left ? 0: 100, startY),

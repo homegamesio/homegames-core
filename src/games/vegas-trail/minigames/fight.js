@@ -133,9 +133,6 @@ class Fight {
 
                 if (this.clickCounts[key].count === 0) {
                     this.enemyLayer.removeChild(key);
-                    console.log('this.dsfdsf?');
-                    console.log(key);
-                    console.log(this.enemies);
                     clickCountsToRemove.add(key);
                 }
             }
