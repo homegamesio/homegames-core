@@ -56,8 +56,6 @@ class Fight {
         const wouldBeCollisions = GeometryUtils.checkCollisions(this.enemyLayer, attackThing);
         for (let i = 0; i < wouldBeCollisions.length; i++) {
             const enemy = this.enemies[wouldBeCollisions[i].node.id];
-            console.log('hiisfgfdg');
-            console.log(this.clickCounts[enemy.node.id]);
             this.clickCounts[enemy.node.id].count = this.clickCounts[enemy.node.id].count - 1;
             this.clickCounts[enemy.node.id].lastClickTime = Date.now();
             const newTextInfo = Object.assign({}, this.clickCounts[enemy.node.id].node.node.text);

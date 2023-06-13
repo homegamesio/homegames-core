@@ -7,52 +7,74 @@ class Talk {
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             fill: Colors.COLORS.WHITE
         });
-
-        this.columns = [
-            {
-                key: 'left',
-                gameNode: new GameNode.Shape({
-                    shapeType: Shapes.POLYGON,
-                    coordinates2d: ShapeUtils.rectangle(0.5, 0, 33, 100),
-                    fill: Colors.COLORS.RED,
-                    onClick: (playerId) => {
-                        console.log('clicked left');
-                    }
-                })
-            },
-            {
-                key: 'center',
-                gameNode: new GameNode.Shape({
-                    shapeType: Shapes.POLYGON,
-                    coordinates2d: ShapeUtils.rectangle(33.5, 0, 33, 100),
-                    fill: Colors.COLORS.GREEN,
-                    onClick: (playerId) => {
-                        console.log('clicked center');
-                    }
-                })
-            },
-            {
-                key: 'right',
-                gameNode: new GameNode.Shape({
-                    shapeType: Shapes.POLYGON,
-                    coordinates2d: ShapeUtils.rectangle(66.5, 0, 33, 100),
-                    fill: Colors.COLORS.BLUE,
-                    onClick: (playerId) => {
-                        console.log('clicked right');
-                    }
-                })
-            }
-        ];
-
-        for (let i in this.columns) {
-            this.root.addChild(this.columns[i].gameNode);
-        }
     }
 
     tick({ playerStates, resources}) {
-        if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - 1000)) {
-            this.lastSpawnTime = Date.now();
-            this.spawnObstacle();
+        if (!this.scene) {
+
+            this.scene = new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    0,
+                    10,
+                    100,
+                    90
+                ),
+                assetInfo: {
+                    'background-1': {
+                        pos: {
+                            x: 0,
+                            y: 10
+                        },
+                        size: {
+                            x: 100,
+                            y: 90
+                        }
+                    }
+                }
+            });
+
+            const blackBox = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(25, 25, 50, 75),
+                fill: Colors.COLORS.HG_BLACK
+            });
+
+
+            const guy = new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    30,
+                    30,
+                    10,
+                    10
+                ),
+                assetInfo: {
+                    'guy-1': {
+                        pos: {
+                            x: 40,
+                            y: 40
+                        },
+                        size: {
+                            x: 20,
+                            y: 20
+                        }
+                    }
+                }
+            });
+
+            const text = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 70,
+                    align: 'center',
+                    size: 1.6,
+                    text: 'ayy lmao! this will be more interesting.',
+                    color: Colors.COLORS.WHITE
+                }
+            });
+
+            blackBox.addChildren(guy, text);
+            this.scene.addChildren(blackBox);
+            this.root.addChild(this.scene);
         }
     }
 

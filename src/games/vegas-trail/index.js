@@ -236,10 +236,30 @@ class VegasTrail extends Game {
             squishVersion: '0767',
             author: 'Joseph Garcia',
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
-            tickRate: 40,
+            tickRate: 50,
             assets: {
                 'placeholder': new Asset({
                     'id': '3b16c6d6ee6d3709bf827b61e61003b1',
+                    'type': 'image'
+                }),
+                'map-background': new Asset({
+                    'id': '7d91010e0edc1816a3e357e4c6d57355',
+                    'type': 'image'
+                }),
+                'gas-car': new Asset({
+                    'id': 'b8c5271ff6ec2feddac9b39cd10cdcf0',
+                    'type': 'image'
+                }),
+                'big-saguaro': new Asset({
+                    'id': '93fd2644a9b2540cb25cfee8c5f6ee74',
+                    'type': 'image'
+                }),
+                'guy-1': new Asset({
+                    'id': '97d2c51811fade5b7cf467bc7521c145',
+                    'type': 'image'
+                }),
+                'background-1': new Asset({
+                    'id': '2d77edffbb38980ad5556c56219bffdb',
                     'type': 'image'
                 })
             }

@@ -42,49 +42,70 @@ const enemyTypes = {
         xRate: .25,
         value: 25,
         create: (startX, startY) => {
-            return new GameNode.Shape({
-               shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
-                fill: Colors.COLORS.BLUE
+
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'big-saguaro': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
             });
+            // return new GameNode.Shape({
+            //    shapeType: Shapes.POLYGON,
+            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+            //     fill: Colors.COLORS.BLUE
+            // });
         }
     },
-    'x': {
-        value: 150,
-        xRate: 1.5,
-        create: (startX, startY) => {
-            return new GameNode.Shape({
-               shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(startX, startY, 2, 2),
-                fill: Colors.COLORS.GOLD
-            });
-        }
+    // 'x': {
+    //     value: 150,
+    //     xRate: 1.5,
+    //     create: (startX, startY) => {
+    //         return new GameNode.Shape({
+    //            shapeType: Shapes.POLYGON,
+    //             coordinates2d: ShapeUtils.rectangle(startX, startY, 2, 2),
+    //             fill: Colors.COLORS.GOLD
+    //         });
+    //     }
 
-    },
-    'y': {
-        value: 100,
-        xRate: 1,
-        create: (startX, startY) => {
-            return new GameNode.Shape({
-               shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(startX, startY, 3, 3),
-                fill: Colors.COLORS.CYAN
-            });
-        }
+    // },
+    // 'y': {
+    //     value: 100,
+    //     xRate: 1,
+    //     create: (startX, startY) => {
+    //         return new GameNode.Shape({
+    //            shapeType: Shapes.POLYGON,
+    //             coordinates2d: ShapeUtils.rectangle(startX, startY, 3, 3),
+    //             fill: Colors.COLORS.CYAN
+    //         });
+    //     }
 
-    },
-    'z': {
-        value: 50,
-        xRate: .5,
-        create: (startX, startY) => {
-            return new GameNode.Shape({
-               shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(startX, startY, 4, 4),
-                fill: Colors.COLORS.GREEN
-            });
-        }
+    // },
+    // 'z': {
+    //     value: 50,
+    //     xRate: .5,
+    //     create: (startX, startY) => {
+    //         return new GameNode.Shape({
+    //            shapeType: Shapes.POLYGON,
+    //             coordinates2d: ShapeUtils.rectangle(startX, startY, 4, 4),
+    //             fill: Colors.COLORS.GREEN
+    //         });
+    //     }
 
-    }
+    // }
 }; 
 
 class Hunt {
@@ -375,6 +396,19 @@ class Hunt {
                     const enemyCoords = enemy.node.coordinates2d;
                     const newCoordinates = ShapeUtils.rectangle(enemyPath[pathIndex][0], enemyPath[pathIndex][1], enemyCoords[1][0] - enemyCoords[0][0], enemyCoords[2][1] - enemyCoords[1][1]);
                     enemy.node.coordinates2d = newCoordinates;
+                    const newAsset = {
+                        'big-saguaro': {
+                            'pos': {
+                                x: enemyPath[pathIndex][0],
+                                y: enemyPath[pathIndex][1]
+                            },
+                            'size': {
+                                x: 6,
+                                y: 6
+                            }
+                        }
+                    }
+                    enemy.node.asset = newAsset;
                     this.enemyPaths[key].currentIndex = pathIndex + 1;
                 }
             } else {

@@ -35,11 +35,31 @@ class Drive {
         this.carPath = [];
         this.carPathIndex = null;
 
-        this.car = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(50, 85, 4, 4),
-            fill: Colors.COLORS.PINK
+        this.car = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                50,
+                85,
+                4,
+                8
+            ),
+            assetInfo: {
+                'gas-car': {
+                    pos: {
+                        x: 50,
+                        y: 85
+                    },
+                    size: {
+                        x: 6,
+                        y: 12
+                    }
+                }
+            }
         });
+        // this.car = new GameNode.Shape({
+        //     shapeType: Shapes.POLYGON,
+        //     coordinates2d: ShapeUtils.rectangle(50, 85, 4, 4),
+        //     fill: Colors.COLORS.PINK
+        // });
 
         this.root.addChild(this.car);
     }
@@ -47,6 +67,24 @@ class Drive {
     tick({ playerStates, resources}) {
         if (this.carPath && this.carPathIndex !== null && this.carPathIndex < this.carPath.length) {
             this.car.node.coordinates2d = ShapeUtils.rectangle(this.carPath[this.carPathIndex][0], this.carPath[this.carPathIndex][1], 4, 4);
+            console.log('what is this');
+            console.log(this.car.node.asset);
+            const asset = {
+                'gas-car': {
+                    pos: {
+                        x: this.carPath[this.carPathIndex][0], 
+                        y: this.carPath[this.carPathIndex][1]
+                    },
+                    size: {
+                        x: 6,
+                        y: 12
+                    }
+                }
+            };
+            this.car.node.asset = asset;
+            //Object.assign({}, this.car.node.asset);
+            // asset['gas-car'].pos = 
+            // {x: this.carPath[this.carPathIndex][0], y: this.carPath[this.carPathIndex][1]}
             this.carPathIndex = this.carPathIndex + 1;
         }
 
