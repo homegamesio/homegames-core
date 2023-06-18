@@ -153,7 +153,8 @@ const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
             y: 40,
             align: 'center',
             size: 1.6,
-            color: Colors.COLORS.WHITE
+            color: Colors.COLORS.WHITE,
+            font: 'heavy-amateur'
         }
     });
 
@@ -322,7 +323,7 @@ class MapGame {
         const mapPath = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: mapData.mapCoords,
-            fill: Colors.COLORS.PINK
+            fill: [194, 151, 90, 255]//[106, 147, 70, 255]
         });
 
         this.mapData = mapData;
@@ -332,7 +333,6 @@ class MapGame {
             const landmarkNode = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(landmarkData.coord[0], landmarkData.coord[1], 2, 2),
-                fill: Colors.COLORS.BLACK,
                 onClick: (playerId) => {
                     const modalNode = landmarkModal(playerId, mapData.landmarks[i], (playerId) => { 
                         if (this.playerModals[playerId]) {
@@ -352,19 +352,43 @@ class MapGame {
                 }
             });
 
+            const landmarkStar = new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    landmarkData.coord[0],
+                    landmarkData.coord[1],
+                    4,
+                    4
+                ),
+                assetInfo: {
+                    'star': {
+                        pos: {
+                            x: landmarkData.coord[0],
+                            y: landmarkData.coord[1]
+                        },
+                        size: {
+                            x: 4,
+                            y: 4
+                        }
+                    }
+                }
+            });
+
+
             const landmarkText = new GameNode.Text({
                 textInfo: {
                     x: landmarkData.textCoord[0],
                     y: landmarkData.textCoord[1],
                     align: 'left',
                     size: 1.1,
-                    color: Colors.COLORS.GREEN,
-                    text: landmarkData.name
+                    color: Colors.COLORS.HG_BLACK,
+                    text: landmarkData.name,
+                    font: 'amateur'
                 }
             });
-            landmarkNode.addChild(landmarkText);
+            // landmarkNode.addChild(landmarkText);
+            landmarkStar.addChildren(landmarkNode, landmarkText);
 
-            mapPath.addChild(landmarkNode);
+            mapPath.addChild(landmarkStar);
         }
 
         map.addChild(mapPath);
@@ -436,6 +460,7 @@ class MapGame {
                     (playerId, key) => {
                         console.log('player wants to buy ' + playerId + ', ' + key);
                         this.mainGame.resources.scrap -= this.shopInventory.consumables[key] ? this.shopInventory.consumables[key].cost : this.shopInventory.upgrades[key].cost;
+                        this.mainGame.resources[key] = this.mainGame.resources[key] + 1;
                         this.mainGame.renderStatsLayer();
                     })
 

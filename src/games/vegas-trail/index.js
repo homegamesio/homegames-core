@@ -11,8 +11,9 @@ const defaultResources = () => {
         ammo: 10, // depleted when hunting
         health: 100, // falls due to illness
         antibiotics: 0, // increase health
-        springs: 0, // jump river
-        treats: 1 // give to dogs
+        food: 0, // jump river
+        weapon: 'blaster',
+        vehicle: 'gas-car'
     }
 };
 
@@ -184,47 +185,146 @@ const mapData = {
    ]
 };
 
+const optionColor = [255, 245, 158, 255];
+
 const mapOptionNode = (onClick) => {
-    return new GameNode.Shape({
+    const mapIcon = new GameNode.Asset({
+        coordinates2d:  ShapeUtils.rectangle(
+            42,
+            0,
+            8,
+            10
+        ),
+        assetInfo: {
+            'map': {
+                pos: {
+                    x: 42,
+                    y: 0
+                },
+                size: {
+                    x: 8,
+                    y: 10
+                }
+            }
+        }
+    });
+
+    const transparentNode = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(42, 0, 8, 10),
-        fill: COLORS.RED,
+        // fill: optionColor,//COLORS.RED,
         onClick
     });
+
+    mapIcon.addChildren(transparentNode);
+
+    return mapIcon;
 };
 
 const driveOptionNode = (onClick) => {
-    return new GameNode.Shape({
+    const driveIcon = new GameNode.Asset({
+        coordinates2d:  ShapeUtils.rectangle(
+            54,
+            0,
+            8,
+            10
+        ),
+        assetInfo: {
+            'steering-wheel': {
+                pos: {
+                    x: 54,
+                    y: 0
+                },
+                size: {
+                    x: 8,
+                    y: 10
+                }
+            }
+        }
+    });
+
+    const transparentNode = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(54, 0, 8, 10),
-        fill: COLORS.RED,
         onClick
     });
+
+    driveIcon.addChildren(transparentNode);
+
+    return driveIcon;
 };
 
 const huntOptionNode = (onClick) => {
-    return new GameNode.Shape({
+    const huntIcon = new GameNode.Asset({
+        coordinates2d:  ShapeUtils.rectangle(
+            66,
+            0,
+            8,
+            10
+        ),
+        assetInfo: {
+            'crosshairs': {
+                pos: {
+                    x: 66,
+                    y: 0
+                },
+                size: {
+                    x: 8,
+                    y: 10
+                }
+            }
+        }
+    });
+
+    const transparentNode = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(66, 0, 8, 10),
-        fill: COLORS.RED,
         onClick
     });
+
+    huntIcon.addChildren(transparentNode);
+
+    return huntIcon;
 };
 
 const fightOptionNode = (onClick) => {
-    return new GameNode.Shape({
+    const fightIcon = new GameNode.Asset({
+        coordinates2d:  ShapeUtils.rectangle(
+            78,
+            0,
+            8,
+            10
+        ),
+        assetInfo: {
+            'gloves': {
+                pos: {
+                    x: 78,
+                    y: 0
+                },
+                size: {
+                    x: 8,
+                    y: 10
+                }
+            }
+        }
+    });
+
+    const transparentNode = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(78, 0, 8, 10),
-        fill: COLORS.RED,
         onClick
     });
+
+    fightIcon.addChildren(transparentNode);
+
+    return fightIcon;
 };
 
 const talkOptionNode = (onClick) => {
     return new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(90, 0, 8, 10),
-        fill: COLORS.RED,
+        fill: optionColor,//COLORS.RED,
         onClick
     });
 };
@@ -236,7 +336,7 @@ class VegasTrail extends Game {
             squishVersion: '0767',
             author: 'Joseph Garcia',
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
-            tickRate: 50,
+            tickRate: 30,
             assets: {
                 'placeholder': new Asset({
                     'id': '3b16c6d6ee6d3709bf827b61e61003b1',
@@ -261,6 +361,62 @@ class VegasTrail extends Game {
                 'background-1': new Asset({
                     'id': '2d77edffbb38980ad5556c56219bffdb',
                     'type': 'image'
+                }),
+                'star': new Asset({
+                    'id': 'e589f6e4386525e196be44adfba439be',
+                    'type': 'image'
+                }),
+                'scrap': new Asset({
+                    'id': 'aa6193eb014bb836e373e2a43d379ffa',
+                    'type': 'image'
+                }),
+                'map': new Asset({
+                    'id': '523c0373732b73ad2349fff03f9aad3c',
+                    'type': 'image'
+                }),
+                'amateur': new Asset({
+                    'type': 'font',
+                    'id': '026a26ef0dd340681f62565eb5bf08fb'
+                }),
+                'heavy-amateur': new Asset({
+                    'type': 'font',
+                    'id': '9f11fac62df9c1559f6bd32de1382c20'
+                }),
+                'gloves': new Asset({
+                    'type': 'image',
+                    'id': '4290252f9a55404862259e48b06f579b'
+                }),
+                'glove-left': new Asset({
+                    'type': 'image',
+                    'id': '4be556742e51360b8b487d98edae3849'
+                }),
+                'glove-right': new Asset({
+                    'type': 'image',
+                    'id': 'f8e5aaa273de52b87cc3c2a133b2067c'
+                }),
+                'steering-wheel': new Asset({
+                    'type': 'image',
+                    'id': '4a4adaffc2659622b986520775f5d01c'
+                }),
+                'crosshairs': new Asset({
+                    'type': 'image',
+                    'id': 'b9242e687e1d87df131740fa2266cbdb'
+                }),
+                'legs-left-1': new Asset({
+                    'type': 'image',
+                    'id': '3ec531a99ef4c5c1b8632d89b91600dd'
+                }),
+                'legs-left-2': new Asset({
+                    'type': 'image',
+                    'id': 'ae57bf24a6e35234751aa98be0c64430'
+                }),
+                'legs-right-1': new Asset({
+                    'type': 'image',
+                    'id': 'd30326a41961a5bf872500a4492f1623'
+                }),
+                'legs-right-2': new Asset({
+                    'type': 'image',
+                    'id': '2c5a4fffc1c0efbdd9a13a90011c506d'
                 })
             }
         };
@@ -281,6 +437,7 @@ class VegasTrail extends Game {
         this.map = new MapGame(this, mapData, TOTAL_DISTANCE);
         this.drive = new Drive();
         this.hunt = new Hunt({
+            mainGame: this,
             depleteAmmo: (count) => {
                 this.resources.ammo = this.resources.ammo - count;
                 const textInfo = Object.assign({}, this.ammoText.node.text);
@@ -318,7 +475,7 @@ class VegasTrail extends Game {
         this.grayThing = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 10),
-            fill: Colors.COLORS.GRAY
+            fill: Colors.COLORS.HG_BLACK//[192, 180, 144, 255],//Colors.COLORS.GRAY
         });
 
         // player ids 254 is a hack to make the nodes effectively invisible to all players
@@ -373,15 +530,36 @@ class VegasTrail extends Game {
         const statsBox = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 35, 10),
-            fill: Colors.COLORS.BLUE
+            // fill: Colors.COLORS.BLUE
+        });
+
+        const scrapIcon = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                2,
+                1,
+                4,
+                4
+            ),
+            assetInfo: {
+                'scrap': {
+                    pos: {
+                        x: 2,
+                        y: 1
+                    },
+                    size: {
+                        x: 4,
+                        y: 4
+                    }
+                }
+            }
         });
 
         const scrapText = new GameNode.Text({
             textInfo: {
-                x: 2,
+                x: 4,
                 y: 1,
-                color: Colors.COLORS.PINK,
-                text: `Scrap: ${this.resources.scrap}`,
+                color: Colors.COLORS.WHITE,
+                text: `${this.resources.scrap}`,
                 align: 'left',
                 size: 0.8
             },
@@ -431,12 +609,12 @@ class VegasTrail extends Game {
             },
         });
 
-        const springsText = new GameNode.Text({
+        const foodText = new GameNode.Text({
             textInfo: {
                 x: 19,
                 y: 5,
                 color: Colors.COLORS.PINK,
-                text: `Springs: ${this.resources.springs}`,
+                text: `Food: ${this.resources.food}`,
                 align: 'left',
                 size: 0.8
             },
@@ -465,8 +643,8 @@ class VegasTrail extends Game {
         // });
 
         statsBox.addChildren(
-            scrapText, this.ammoText, healthText, wheelsText,
-            antibioticsText, springsText, treatsText);
+            scrapIcon, scrapText, this.ammoText, healthText, wheelsText,
+            antibioticsText, foodText, treatsText);
         // , this.progressText);
 
         this.statsLayer.addChild(statsBox);

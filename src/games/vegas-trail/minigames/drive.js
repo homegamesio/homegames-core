@@ -10,7 +10,7 @@ class Drive {
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: Colors.COLORS.WHITE,
+            fill: Colors.COLORS.HG_BLACK,
             onClick: (player, x, y) => {
                 const currentCarCoords = this.car.node.coordinates2d;
 
@@ -117,6 +117,7 @@ class Drive {
                 rewardsToRemove.add(key);
             } else {
                 this.spawnedRewards[key].node.coordinates2d = ShapeUtils.rectangle(currentCoords[0][0], currentCoords[0][1] + 1, 4, 4);
+                this.spawnedRewards[key].node.asset = {'scrap': { pos: {x: currentCoords[0][0], y: currentCoords[0][1] + 1}, size: {x: 4, y: 4 }}};
             }
         }
 
@@ -168,11 +169,32 @@ class Drive {
         const xVal = Math.floor(Math.random() * 100);
         
         if (isReward) {
-            const gameNode = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(xVal, 10, 5, 5),
-                fill: Colors.COLORS.ORANGE
+            const gameNode = new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    xVal,
+                    10,
+                    5,
+                    5
+                ),
+                assetInfo: {
+                    'scrap': {
+                        pos: {
+                            x: xVal,
+                            y: 10
+                        },
+                        size: {
+                            x: 5,
+                            y: 5
+                        }
+                    }
+                }
             });
+
+            // new GameNode.Shape({
+            //     shapeType: Shapes.POLYGON,
+            //     coordinates2d: ShapeUtils.rectangle(xVal, 10, 5, 5),
+            //     fill: Colors.COLORS.ORANGE
+            // });
 
             this.spawnedRewards[gameNode.node.id] = gameNode;
             this.root.addChild(gameNode);
