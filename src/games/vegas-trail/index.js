@@ -453,6 +453,22 @@ class VegasTrail extends Game {
                 'chat': new Asset({
                     'type': 'image',
                     'id': '8a4a88365cd755fc539d3561f8c1610c'
+                }),
+                'wheel': new Asset({
+                    'type': 'image',
+                    'id': 'bc5097c2433267ca967cb90d5ae87d60'
+                }),
+                'ammo': new Asset({
+                    'type': 'image',
+                    'id': 'd5b124e21dd8bccdad0f09b3f56efac5'
+                }),
+                'antibiotic': new Asset({
+                    'type': 'image',
+                    'id': 'e1e22728cae4837907a513ce8ce8e249'
+                }),
+                'cookie': new Asset({
+                    'type': 'image',
+                    'id': '4da57d98625f9b61b6f939e3c2d1129b'
                 })
             }
         };
@@ -477,7 +493,7 @@ class VegasTrail extends Game {
             depleteAmmo: (count) => {
                 this.resources.ammo = this.resources.ammo - count;
                 const textInfo = Object.assign({}, this.ammoText.node.text);
-                textInfo.text = `Ammo: ${this.resources.ammo}`;
+                textInfo.text = `${this.resources.ammo}`;
                 this.ammoText.node.text = textInfo;
             }
         });
@@ -574,98 +590,164 @@ class VegasTrail extends Game {
         const scrapIcon = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
                 2,
-                1,
-                4,
-                4
+                0.5,
+                6,
+                6
             ),
             assetInfo: {
                 'scrap': {
                     pos: {
                         x: 2,
-                        y: 1
+                        y: 0.5
                     },
                     size: {
-                        x: 4,
-                        y: 4
+                        x: 6,
+                        y: 6
                     }
                 }
             }
         });
 
-        const scrapText = new GameNode.Text({
+        this.scrapText = new GameNode.Text({
             textInfo: {
-                x: 4,
-                y: 1,
+                x: 5,
+                y: 7,
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.scrap}`,
-                align: 'left',
-                size: 0.8
+                align: 'center',
+                font: 'amateur',
+                size: 1.2
             },
+        });
+
+        const ammoIcon = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                10,
+                0.5,
+                6,
+                6
+            ),
+            assetInfo: {
+                'ammo': {
+                    pos: {
+                        x: 10,
+                        y: 0.5
+                    },
+                    size: {
+                        x: 6,
+                        y: 6
+                    }
+                }
+            }
         });
 
         this.ammoText = new GameNode.Text({
             textInfo: {
-                x: 10,
-                y: 1,
-                color: Colors.COLORS.PINK,
-                text: `Ammo: ${this.resources.ammo}`,
-                align: 'left',
-                size: 0.8
+                x: 13,
+                y: 7,
+                font: 'amateur',
+                color: Colors.COLORS.WHITE,
+                text: `${this.resources.ammo}`,
+                align: 'center',
+                size: 1.2
             },
         });
 
-        const healthText = new GameNode.Text({
+        const wheelIcon = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                18,
+                0.5,
+                6,
+                6
+            ),
+            assetInfo: {
+                'wheel': {
+                    pos: {
+                        x: 18,
+                        y: 0.5
+                    },
+                    size: {
+                        x: 6,
+                        y: 6
+                    }
+                }
+            }
+        });
+
+        this.wheelsText = new GameNode.Text({
             textInfo: {
-                x: 19,
-                y: 1,
-                color: Colors.COLORS.PINK,
-                text: `Health: ${this.resources.health}`,
-                align: 'left',
-                size: 0.8
+                x: 21,
+                y: 7,
+                color: Colors.COLORS.WHITE,
+                text: `${this.resources.wheels}`,
+                align: 'center',
+                size: 1.2,
+                font: 'amateur'
             },
         });
 
-        const wheelsText = new GameNode.Text({
+        const antibioticsIcon = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                26,
+                0.5,
+                6,
+                6
+            ),
+            assetInfo: {
+                'antibiotic': {
+                    pos: {
+                        x: 26,
+                        y: 0.5
+                    },
+                    size: {
+                        x: 6,
+                        y: 6
+                    }
+                }
+            }
+        });
+
+        this.antibioticsText = new GameNode.Text({
             textInfo: {
-                x: 28,
-                y: 1,
-                color: Colors.COLORS.PINK,
-                text: `Wheels: ${this.resources.wheels}`,
-                align: 'left',
-                size: 0.8
+                x: 29,
+                y: 7,
+                color: Colors.COLORS.WHITE,
+                text: `${this.resources.antibiotics}`,
+                align: 'center',
+                size: 1.2
             },
         });
 
-        const antibioticsText = new GameNode.Text({
-            textInfo: {
-                x: 10,
-                y: 5,
-                color: Colors.COLORS.PINK,
-                text: `Antibiotics: ${this.resources.antibiotics}`,
-                align: 'left',
-                size: 0.8
-            },
+        const foodIcon = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                34,
+                0.5,
+                6,
+                6
+            ),
+            assetInfo: {
+                'cookie': {
+                    pos: {
+                        x: 34,
+                        y: 0.5
+                    },
+                    size: {
+                        x: 6,
+                        y: 6
+                    }
+                }
+            }
         });
 
-        const foodText = new GameNode.Text({
+        this.foodText = new GameNode.Text({
             textInfo: {
-                x: 19,
-                y: 5,
-                color: Colors.COLORS.PINK,
-                text: `Food: ${this.resources.food}`,
-                align: 'left',
-                size: 0.8
-            },
-        });
-
-        const treatsText = new GameNode.Text({
-            textInfo: {
-                x: 28,
-                y: 5,
-                color: Colors.COLORS.PINK,
-                text: `Treats: ${this.resources.treats}`,
-                align: 'left',
-                size: 0.8
+                x: 37,
+                y: 7,
+                color: Colors.COLORS.WHITE,
+                text: `${this.resources.food}`,
+                align: 'center',
+                font: 'amateur',
+                size: 1.2
             },
         });
 
@@ -681,9 +763,11 @@ class VegasTrail extends Game {
         // });
 
         statsBox.addChildren(
-            scrapIcon, scrapText, this.ammoText, healthText, wheelsText,
-            antibioticsText, foodText, treatsText);
-        // , this.progressText);
+            scrapIcon, this.scrapText, 
+            ammoIcon, this.ammoText, 
+            wheelIcon, this.wheelsText,
+            antibioticsIcon, this.antibioticsText,
+            foodIcon, this.foodText);
 
         this.statsLayer.addChild(statsBox);
     }
