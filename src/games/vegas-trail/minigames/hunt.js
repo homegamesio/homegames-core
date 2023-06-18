@@ -622,6 +622,7 @@ class Hunt {
                 text: `- ${hitValue}`,
                 color: isCritical ? Colors.COLORS.HG_RED : Colors.COLORS.HG_BLACK,
                 size: 1,
+                font: 'amateur',
                 align: 'center'
             }
         });

@@ -135,30 +135,52 @@ const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
     const modal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
-        fill: Colors.COLORS.RED,
+        fill: Colors.COLORS.HG_BLACK,//[194, 151, 90, 255],//[106, 147, 70, 255]
         playerIds
+    });
+
+    const closeIcon = new GameNode.Asset({
+        coordinates2d:  ShapeUtils.rectangle(
+            16,
+            16,
+            10,
+            10
+        ),
+        assetInfo: {
+            'close': {
+                pos: {
+                    x: 16,
+                    y: 16
+                },
+                size: {
+                    x: 5,
+                    y: 5
+                }
+            }
+        }
     });
 
     const closeButton = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(20, 20, 10, 10),
-        fill: Colors.COLORS.CYAN,
+        coordinates2d: ShapeUtils.rectangle(16, 16, 5, 5),
         onClick: onClose
     });
 
     const upgradesText = new GameNode.Text({
         textInfo: {
-            text: `Stinky's Shop`,
+            text: `Desmond's Desert Shop`,
             x: 50,
-            y: 40,
+            y: 20,
             align: 'center',
-            size: 1.6,
+            size: 2,
             color: Colors.COLORS.WHITE,
             font: 'heavy-amateur'
         }
     });
 
-    modal.addChildren(closeButton, upgradesText);
+    closeIcon.addChild(closeButton);
+
+    modal.addChildren(closeIcon, upgradesText);
 
     let i = 0;
     for (let key in shopInventory.consumables) {
@@ -229,6 +251,7 @@ const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
 class MapGame {
     constructor(mainGame, mapData, distanceMiles) {
         this.mainGame = mainGame;
+        this.distanceMiles = distanceMiles;
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
@@ -239,6 +262,19 @@ class MapGame {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
             fill: Colors.COLORS.WHITE,
+            // playerIds: 
+        });
+
+        this.currentStatusNode = new GameNode.Text({
+            textInfo: {
+                x: 2,
+                y: 94,
+                color: Colors.COLORS.BLACK,
+                text: `Distance traveled: 0 of ${distanceMiles} miles`,
+                align: 'left',
+                font: 'amateur',
+                size: 1.1
+            }
             // playerIds: 
         });
 
@@ -261,14 +297,37 @@ class MapGame {
 
         this.map = this.constructMap(mapData);
 
+        const shopIcon = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                80,
+                20,
+                15,
+                15
+            ),
+            assetInfo: {
+                'shop': {
+                    pos: {
+                        x: 80,
+                        y: 20
+                    },
+                    size: {
+                        x: 15,
+                        y: 15
+                    }
+                }
+            }
+        });
+
         const shopButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(80, 20, 5, 5),
-            fill: Colors.COLORS.BLUE,
+            coordinates2d: ShapeUtils.rectangle(80, 20, 15, 15),
+            // fill: [255, 51, 25, 255],//Colors.COLORS.BLUE,
             onClick: (playerId) => this.callShop(playerId)
         })
         
-        this.root.addChildren(this.map, shopButton, this.modalRoot);
+        shopIcon.addChild(shopButton);
+
+        this.root.addChildren(this.map, shopIcon, this.modalRoot, this.currentStatusNode);
     }
 
     callShop(playerId) {    
@@ -332,7 +391,7 @@ class MapGame {
             const landmarkData = mapData.landmarks[i];
             const landmarkNode = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(landmarkData.coord[0], landmarkData.coord[1], 2, 2),
+                coordinates2d: ShapeUtils.rectangle(landmarkData.coord[0], landmarkData.coord[1], 6, 6),
                 onClick: (playerId) => {
                     const modalNode = landmarkModal(playerId, mapData.landmarks[i], (playerId) => { 
                         if (this.playerModals[playerId]) {
@@ -356,8 +415,8 @@ class MapGame {
                 coordinates2d:  ShapeUtils.rectangle(
                     landmarkData.coord[0],
                     landmarkData.coord[1],
-                    4,
-                    4
+                    6,
+                    6
                 ),
                 assetInfo: {
                     'star': {
@@ -366,8 +425,8 @@ class MapGame {
                             y: landmarkData.coord[1]
                         },
                         size: {
-                            x: 4,
-                            y: 4
+                            x: 6,
+                            y: 6
                         }
                     }
                 }
@@ -379,10 +438,10 @@ class MapGame {
                     x: landmarkData.textCoord[0],
                     y: landmarkData.textCoord[1],
                     align: 'left',
-                    size: 1.1,
+                    size: 1,
                     color: Colors.COLORS.HG_BLACK,
                     text: landmarkData.name,
-                    font: 'amateur'
+                    font: 'heavy-amateur'
                 }
             });
             // landmarkNode.addChild(landmarkText);
@@ -474,6 +533,12 @@ class MapGame {
                     this.movingShop.currentIndex = this.movingShop.currentIndex + 1;
                 }
             }
+        }
+
+        if (!this.lastDistanceUpdate || this.lastDistanceUpdate + 500 <= now) {
+            const newText = Object.assign({}, this.currentStatusNode.node.text);
+            newText.text = `Distance traveled: ${this.mainGame.distanceTraveled.toFixed(2)} of ${this.distanceMiles} miles`;
+            this.currentStatusNode.node.text = newText;
         }
  
     }

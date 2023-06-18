@@ -129,7 +129,7 @@ const mapData = {
    landmarks: [
        {
             coord: [92, 94],
-            textCoord: [74.5, 94],
+            textCoord: [75, 95],
             name: `St. Mary's Mexican Food`,
             assetKey: 'placeholder',
             descriptionLines: [
@@ -140,7 +140,7 @@ const mapData = {
        },
        {
             coord: [78, 74],
-            textCoord: [80.5, 74],
+            textCoord: [78.5, 71],
             name: 'Phoenix',
             assetKey: 'placeholder',
             descriptionLines: [
@@ -151,7 +151,7 @@ const mapData = {
        },
        {
             coord: [54, 46],
-            textCoord: [52, 49],
+            textCoord: [52.5, 52],
             name: 'Gas Station',
             assetKey: 'placeholder',
             descriptionLines: [
@@ -162,7 +162,7 @@ const mapData = {
        },
        {
             coord: [32, 42],
-            textCoord: [34.5, 41.5],
+            textCoord: [33, 39.5],
             name: 'Hoover Dam',
             assetKey: 'placeholder',
             descriptionLines: [
@@ -173,7 +173,7 @@ const mapData = {
        },
        {
             coord: [8, 10],
-            textCoord: [11, 10],
+            textCoord: [14, 11.5],
             name: 'Las Vegas Strip',
             assetKey: 'placeholder',
             descriptionLines: [
@@ -321,12 +321,36 @@ const fightOptionNode = (onClick) => {
 };
 
 const talkOptionNode = (onClick) => {
-    return new GameNode.Shape({
+    const chatIcon = new GameNode.Asset({
+        coordinates2d:  ShapeUtils.rectangle(
+            90,
+            0,
+            8,
+            10
+        ),
+        assetInfo: {
+            'chat': {
+                pos: {
+                    x: 90,
+                    y: 0
+                },
+                size: {
+                    x: 8,
+                    y: 10
+                }
+            }
+        }
+    });
+
+    const transparentNode = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(90, 0, 8, 10),
-        fill: optionColor,//COLORS.RED,
         onClick
     });
+
+    chatIcon.addChildren(transparentNode);
+
+    return chatIcon;
 };
 
 class VegasTrail extends Game {
@@ -363,7 +387,7 @@ class VegasTrail extends Game {
                     'type': 'image'
                 }),
                 'star': new Asset({
-                    'id': 'e589f6e4386525e196be44adfba439be',
+                    'id': 'c1c029155f2af909e55de2486058e32d',
                     'type': 'image'
                 }),
                 'scrap': new Asset({
@@ -402,6 +426,14 @@ class VegasTrail extends Game {
                     'type': 'image',
                     'id': 'b9242e687e1d87df131740fa2266cbdb'
                 }),
+                'shop': new Asset({
+                    'type': 'image',
+                    'id': '98776d66c2f07a58d51db719acb12e63'
+                }),
+                'close': new Asset({
+                    'type': 'image',
+                    'id': '270fbe2ef81b5e1c66090d5c4716f307'
+                }),
                 'legs-left-1': new Asset({
                     'type': 'image',
                     'id': '3ec531a99ef4c5c1b8632d89b91600dd'
@@ -417,6 +449,10 @@ class VegasTrail extends Game {
                 'legs-right-2': new Asset({
                     'type': 'image',
                     'id': '2c5a4fffc1c0efbdd9a13a90011c506d'
+                }),
+                'chat': new Asset({
+                    'type': 'image',
+                    'id': '8a4a88365cd755fc539d3561f8c1610c'
                 })
             }
         };
@@ -475,7 +511,9 @@ class VegasTrail extends Game {
         this.grayThing = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 10),
-            fill: Colors.COLORS.HG_BLACK//[192, 180, 144, 255],//Colors.COLORS.GRAY
+            fill: [194, 151, 90, 255]//[106, 147, 70, 255]
+
+            // fill: [179, 232, 194, 255]//Colors.COLORS.HG_BLACK//[192, 180, 144, 255],//Colors.COLORS.GRAY
         });
 
         // player ids 254 is a hack to make the nodes effectively invisible to all players
