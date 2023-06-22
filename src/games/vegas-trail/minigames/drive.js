@@ -3,33 +3,16 @@ const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtil
 const MAX_THINGS = 4;
 
 class Drive {
-    constructor() {
+    constructor({mainGame}) {
+        this.mainGame = mainGame;
+
         this.spawnedEnemies = {};
         this.spawnedRewards = {};
 
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
             fill: Colors.COLORS.HG_BLACK,
-            onClick: (player, x, y) => {
-                const currentCarCoords = this.car.node.coordinates2d;
-
-                const xDiff = Math.abs(currentCarCoords[0][0] - x);
-                const yDiff = Math.abs(currentCarCoords[0][0] - y);
-
-                const newPath = Physics.getPath(
-                        currentCarCoords[0][0],
-                        currentCarCoords[0][1],
-                        x < currentCarCoords[0][0] ? -1 : 1,
-                        0,
-                        100, 
-                        100);
-
-                // this is a hack. path stuff should be more robust
-                this.carPath = newPath.filter(p => x < currentCarCoords[0][0] ? p[0] >= x : p[0] <= x);// && p[1] <= y); 
-
-                this.carPathIndex = 0;
-            }
         });
 
         this.carPath = [];
@@ -55,20 +38,102 @@ class Drive {
                 }
             }
         });
+
+        this.road = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                0,
+                0,
+                100,
+                100
+            ),
+            assetInfo: {
+                'drive-1-1': {
+                    pos: {
+                        x: 0,
+                        y: 0
+                    },
+                    size: {
+                        x: 100,
+                        y: 100
+                    }
+                }
+            }
+        });
+
+        this.clickLayer = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            onClick: (player, x, y) => {
+                const currentCarCoords = this.car.node.coordinates2d;
+
+                const xDiff = Math.abs(currentCarCoords[0][0] - x);
+                const yDiff = Math.abs(currentCarCoords[0][0] - y);
+
+                const newPath = Physics.getPath(
+                        currentCarCoords[0][0],
+                        currentCarCoords[0][1],
+                        x < currentCarCoords[0][0] ? -1 : 1,
+                        0,
+                        100, 
+                        100);
+
+                // this is a hack. path stuff should be more robust
+                this.carPath = newPath.filter(p => x < currentCarCoords[0][0] ? p[0] >= x : p[0] <= x);// && p[1] <= y); 
+
+                this.carPathIndex = 0;
+            }
+        });
+
         // this.car = new GameNode.Shape({
         //     shapeType: Shapes.POLYGON,
         //     coordinates2d: ShapeUtils.rectangle(50, 85, 4, 4),
         //     fill: Colors.COLORS.PINK
         // });
 
-        this.root.addChild(this.car);
+        this.road.addChildren(this.car, this.clickLayer);
+        this.root.addChild(this.road);
     }
 
     tick({ playerStates, resources}) {
+        if (!this.lastRoadTransition || this.lastRoadTransition + 500 < Date.now()) {
+            let currentAssetPieces = Object.keys(this.road.node.asset)[0].split('-');
+            let zone = this.zone || 1;
+            let currentFrame = Number(currentAssetPieces[2]);
+
+            // console.log('okay');
+            // console.log(`drive-${zone}-${(currentFrame + 1) % 4}`);
+            // if (this.road.node.asset['drive-1-1']) {
+                this.road.node.asset = {
+                    [`drive-${zone}-${(currentFrame + 1) % 2}`]: {
+                        pos: {
+                            x: 0,
+                            y: 0
+                        },
+                        size: {
+                            x: 100,
+                            y: 100
+                        }
+                    }
+                };
+            // } else {
+            //     this.road.node.asset = {
+            //         'drive-1-1': {
+            //             pos: {
+            //                 x: 0,
+            //                 y: 0
+            //             },
+            //             size: {
+            //                 x: 100,
+            //                 y: 100
+            //             }
+            //         }
+            //     };
+            // }
+
+            this.lastRoadTransition = Date.now();
+        }
         if (this.carPath && this.carPathIndex !== null && this.carPathIndex < this.carPath.length) {
             this.car.node.coordinates2d = ShapeUtils.rectangle(this.carPath[this.carPathIndex][0], this.carPath[this.carPathIndex][1], 4, 4);
-            console.log('what is this');
-            console.log(this.car.node.asset);
             const asset = {
                 'gas-car': {
                     pos: {
@@ -159,6 +224,9 @@ class Drive {
             this.root.removeChild(key);
             this.spawnedRewards[key].node.free();
             delete this.spawnedRewards[key]; 
+
+            this.mainGame.resources.scrap = this.mainGame.resources.scrap + 1;
+            this.mainGame.renderStatsLayer();
         }
 
         

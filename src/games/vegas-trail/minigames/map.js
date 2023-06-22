@@ -8,11 +8,30 @@ const COLORS = {
     DARK: [83, 34, 92, 255]
 }
 
+const descriptions = {
+    'food': 'Fresh baked cookies',
+    'wheels': 'Required for movement',
+    'ammo': 'Things to throw',
+    'antibiotics': 'Heals infections',
+    'rock': 'Like a baseball, but more destructive.',
+    'biscuit': `Drier than a desert. Harder than diamonds.`,
+    'truck': '',
+    'suv': ''
+};
+
 const landmarkModal = (playerId, landmarkData, onClose) => {
+
+    const modalBase = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(14, 14, 72, 72),
+        fill: Colors.COLORS.HG_BLACK,//[194, 151, 90, 255],//[106, 147, 70, 255]
+        playerIds: [playerId],
+    });
+
     const modal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
-        fill: Colors.COLORS.RED,
+        fill: [194, 151, 90, 255],//Colors.COLORS.RED,
         playerIds: [playerId]
     });
 
@@ -72,7 +91,9 @@ const landmarkModal = (playerId, landmarkData, onClose) => {
 
     modal.addChildren(landmarkImage, titleText, closeButton);
 
-    return modal;
+    modalBase.addChild(modal);
+
+    return modalBase;
 }
 
 const shopInventoryMap = () => {
@@ -98,19 +119,16 @@ const shopInventoryMap = () => {
             }, 
             "upgrades": {
                 // "weapons": {
-                    "blower": {
+                    "rock": {
                         "cost": 200
                     },
                 // },
                 // "vehicle": {
-                    "truck": {
+                    "biscuit": {
                         "cost": 2000
                     },
                 // },
                 // "resilience": {
-                    "air_filter": {
-                        "cost": 150
-                    }
                 // }
             }
         },
@@ -132,12 +150,175 @@ const shopInventoryMap = () => {
 const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
     console.log('for which players though');
     console.log(playerIds);
-    const modal = new GameNode.Shape({
+
+    let selectedKey;
+    const modalBase = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
+        coordinates2d: ShapeUtils.rectangle(14, 14, 72, 72),
         fill: Colors.COLORS.HG_BLACK,//[194, 151, 90, 255],//[106, 147, 70, 255]
         playerIds
     });
+
+    const modal = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
+        fill: [194, 151, 90, 255],//Colors.COLORS.HG_BLACK,//[194, 151, 90, 255],//[106, 147, 70, 255]
+        playerIds
+    });
+
+    const assetWindow = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(52.5, 75, 0, 0),
+        fill: Colors.COLORS.BLACK
+    });
+
+    const buyButton = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(57.5, 75, 0, 0),
+        fill: [106, 147, 70, 255],//Colors.COLORS.GREEN,
+        onClick: (playerId) => selectedKey && onBuy(playerId, selectedKey)
+    });
+
+    const buyText = new GameNode.Text({
+        textInfo: {
+            x: 66,
+            y: 77.5,
+            font: 'heavy-amateur',
+            size: 1.2,
+            text: 'Buy',
+            align: 'center',
+            color: [194, 151, 90, 255]
+        }
+    });
+
+    buyButton.addChild(buyText);
+
+    const showBuyButton = () => {
+        buyButton.node.coordinates2d = ShapeUtils.rectangle(57.5, 75, 15, 8);
+        const visibleText = Object.assign({}, buyText.node.text);
+        visibleText.color = Colors.COLORS.WHITE;
+        buyText.node.text = visibleText;
+    }
+
+    const hideBuyButton = () => {
+        buyButton.node.coordinates2d = ShapeUtils.rectangle(57.5, 75, 0, 0);
+    }
+
+    const desmondTvBase = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(50, 30, 30, 30),
+        fill: Colors.COLORS.HG_BLACK,
+        playerIds
+    });
+
+    const desmondTvScreen = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(52, 32, 26, 26),
+        fill: Colors.COLORS.BLACK,
+        playerIds
+    });
+
+    desmondTvBase.addChild(desmondTvScreen);
+
+    const desmondAsset = new GameNode.Asset({
+        coordinates2d:  ShapeUtils.rectangle(
+            55,
+            38,
+            20,
+            20
+        ),
+        assetInfo: {
+            'desmond-1': {
+                pos: {
+                    x: 55,
+                    y: 38
+                },
+                size: {
+                    x: 20,
+                    y: 20
+                }
+            }
+        }
+    });
+
+    desmondTvScreen.addChild(desmondAsset);
+
+    const introMessages = [
+        'Welcome!',
+        'Hello!',
+        'Hi there!'
+    ];
+
+    const randIndex = Math.floor(Math.random() * 3);
+
+    const desmondText = new GameNode.Text({
+        textInfo: {
+            x: 65,
+            y: 65,
+            text: introMessages[randIndex],
+            size: 1.4,
+            font: 'amateur',
+            align: 'center',
+            color: Colors.COLORS.BLACK
+        }
+    });
+
+    const currentItemAsset = new GameNode.Asset({
+        coordinates2d:  ShapeUtils.rectangle(
+            60,
+            60,
+            0,
+            0
+        ),
+        assetInfo: {
+            'rock-1': {
+                pos: {
+                    x: 60,
+                    y: 60
+                },
+                size: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        }
+    });
+
+    const showAsset = (assetKey) => {
+        assetWindow.node.coordinates2d = ShapeUtils.rectangle(52.5, 75, 8, 8);
+        currentItemAsset.node.asset = {
+            [assetKey]: {
+                pos: {
+                    x: 52.5,
+                    y: 75
+                }, 
+                size: {
+                    x: 8,
+                    y: 8
+                }
+            }
+        } 
+    }
+
+    const hideAsset = (assetKey) => {
+        assetWindow.node.coordinates2d = ShapeUtils.rectangle(52.5, 60, 0, 0);
+
+        currentItemAsset.node.asset = {
+            [assetKey]: {
+                pos: {
+                    x: 60,
+                    y: 60
+                }, 
+                size: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        } 
+    }
+
+    assetWindow.addChild(currentItemAsset);
+    modal.addChildren(desmondTvBase, desmondText, buyButton, assetWindow);
 
     const closeIcon = new GameNode.Asset({
         coordinates2d:  ShapeUtils.rectangle(
@@ -168,7 +349,7 @@ const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
 
     const upgradesText = new GameNode.Text({
         textInfo: {
-            text: `Desmond's Desert Shop`,
+            text: `Desmond's Things & Upgrades`,
             x: 50,
             y: 20,
             align: 'center',
@@ -180,54 +361,134 @@ const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
 
     closeIcon.addChild(closeButton);
 
+    modalBase.addChild(modal);
     modal.addChildren(closeIcon, upgradesText);
+
+    const thingsLabel = new GameNode.Text({
+        textInfo: {
+            x: 23,
+            y: 35,
+            text: 'Things',
+            size: 2,
+            font: 'heavy-amateur',
+            align: 'center',
+            color: Colors.COLORS.HG_BLACK
+        }
+    });
+
+    const upgradesLabel = new GameNode.Text({
+        textInfo: {
+            x: 41,
+            y: 35,
+            text: 'Upgrades',
+            size: 2,
+            font: 'heavy-amateur',
+            align: 'center',
+            color: Colors.COLORS.HG_BLACK
+        }
+    });
+
+    modal.addChildren(thingsLabel, upgradesLabel);
+
+    const itemAssetMap = {
+        'antibiotics': 'antibiotic',
+        'rock': 'rock-1',
+        'wheels': 'wheel',
+        'food': 'cookie',
+        'ammo': 'ammo',
+        'biscuit': 'biscuit-1'
+    };
+
+    const setCurrentItem = (key) => {
+        const updatedText = Object.assign({}, desmondText.node.text);
+        updatedText.text = descriptions[key];
+        desmondText.node.text = updatedText;
+        selectedKey = key;
+        showBuyButton();
+        if (itemAssetMap[key]) {
+            showAsset(itemAssetMap[key]);
+        } else {
+            hideAsset();
+        }
+    }
 
     let i = 0;
     for (let key in shopInventory.consumables) {
         const consumableEntry = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(30, 40 + (5 * i), 10, 4),
-            fill: Colors.COLORS.ORANGE,
-            onClick: (playerId) => onBuy(playerId, key)
+            coordinates2d: ShapeUtils.rectangle(16, 43 + (6 * i), 15, 4),
+            onClick: (playerId) => {
+                setCurrentItem(key);
+            }//onBuy(playerId, key)
         });
 
         const consumableText = new GameNode.Text({
             textInfo: {
-                x: 31,
-                y: 40 + (5 * i),
+                x: 17,
+                y: 43 + (6 * i),
                 size: 1.1,
                 color: Colors.COLORS.WHITE,
                 text: key,
+                font: 'amateur',
                 align: 'left'
             }
         });
 
-        consumableEntry.addChild(consumableText);
+        const consumableCostText = new GameNode.Text({
+            textInfo: {
+                x: 28,
+                y: 43 + (6 * i),
+                size: 1.1,
+                color: Colors.COLORS.BLACK,
+                text: `${shopInventory.consumables[key].cost}`,
+                font: 'amateur',
+                align: 'left'
+            }
+        });
+
+
+        consumableEntry.addChildren(consumableText, consumableCostText);
 
         modal.addChild(consumableEntry);
         i++;
     }
 
+    i = 0;
+
     for (let key in shopInventory.upgrades) {
         const consumableEntry = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(30, 40 + (5 * i), 10, 4),
-            fill: Colors.COLORS.PURPLE,
-            onClick: (playerId) => onBuy(playerId, key)
+            coordinates2d: ShapeUtils.rectangle(34, 43 + (6 * i), 15, 4),
+            onClick: (playerId) => {
+                setCurrentItem(key)
+            }
         });
 
         const consumableText = new GameNode.Text({
             textInfo: {
-                x: 31,
-                y: 40 + (5 * i),
+                x: 34,
+                y: 43 + (6 * i),
                 size: 1.1,
                 color: Colors.COLORS.WHITE,
                 text: key,
+                font: 'amateur',
                 align: 'left'
             }
         });
 
-        consumableEntry.addChild(consumableText);
+        const upgradeCostText = new GameNode.Text({
+            textInfo: {
+                x: 45,
+                y: 43 + (6 * i),
+                size: 1.1,
+                color: Colors.COLORS.BLACK,
+                text: `${shopInventory.upgrades[key].cost}`,
+                font: 'amateur',
+                align: 'left'
+            }
+        });
+
+        consumableEntry.addChildren(consumableText, upgradeCostText);
 
         modal.addChild(consumableEntry);
         i++;
@@ -245,7 +506,7 @@ const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
     // });
 
 
-    return modal;
+    return modalBase;
 }
 
 class MapGame {
@@ -299,20 +560,20 @@ class MapGame {
 
         const shopIcon = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
-                80,
+                75,
                 20,
-                15,
-                15
+                20,
+                20
             ),
             assetInfo: {
                 'shop': {
                     pos: {
-                        x: 80,
+                        x: 75,
                         y: 20
                     },
                     size: {
-                        x: 15,
-                        y: 15
+                        x: 20,
+                        y: 20
                     }
                 }
             }
@@ -484,16 +745,22 @@ class MapGame {
                 if (currentLandmarks.length > 0) {
                     this.mostRecentLandmark = currentLandmarks[0];
                     const landmarkInventory = shopInventoryMap()[this.mostRecentLandmark.name];
-                    this.shopInventory.consumables = Object.assign({}, landmarkInventory.consumables);
+                    for (const key in landmarkInventory.consumables) {
+                        if (!this.shopInventory.consumables[key]) {
+                            this.shopInventory.consumables[key] = {
+                                amount: 0
+                            };
+                        }
+                        this.shopInventory.consumables[key].amount += landmarkInventory.consumables[key].amount;
+                        this.shopInventory.consumables[key].cost = landmarkInventory.consumables[key].cost;
+                    }
+
                     for (let key in landmarkInventory.upgrades) {
-                        console.log("these are consumables and i should set the inventory to this");
-                        console.log(key);
+                        // console.log("these are consumables and i should set the inventory to this");
+                        // console.log(key);
                         this.shopInventory.upgrades[key] = Object.assign({}, landmarkInventory.upgrades[key]);
                     }
                 }
-
-                console.log("this is inventory now");
-                console.log(this.shopInventory);
 
                 const newCoords = ShapeUtils.rectangle(playerState.path[playerState.currentIndex][0], playerState.path[playerState.currentIndex][1], 2, 2);
                 // feels filthy but hey you know
@@ -519,7 +786,16 @@ class MapGame {
                     (playerId, key) => {
                         console.log('player wants to buy ' + playerId + ', ' + key);
                         this.mainGame.resources.scrap -= this.shopInventory.consumables[key] ? this.shopInventory.consumables[key].cost : this.shopInventory.upgrades[key].cost;
-                        this.mainGame.resources[key] = this.mainGame.resources[key] + 1;
+                        if (this.mainGame.resources[key]) {
+                            this.mainGame.resources[key] = this.mainGame.resources[key] + 1;
+                        } else {
+                            if (key === 'rock' || key === 'biscuit') {
+                                this.mainGame.resources.weapon = key;
+                                // horrific hack
+                                this.mainGame.hunt.lastResources.weapon = key;
+                                this.mainGame.hunt.renderWeaponNode();
+                            } 
+                        }
                         this.mainGame.renderStatsLayer();
                     })
 
@@ -542,6 +818,14 @@ class MapGame {
         }
  
     }
+
+    // handlePause() {
+    //     console.log('just paused!');
+    //     this.paused = true;
+
+    //     // const newText = Object.assign({}, this.currentStatusNode.node.text);
+    //     // newText.text = `Distance traveled: ${this.mainGame.distanceTraveled.toFixed(2)} of ${this.distanceMiles} miles (paused)`;
+    // }
 
     getRoot() {
         return this.root;

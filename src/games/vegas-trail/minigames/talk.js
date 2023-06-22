@@ -35,23 +35,23 @@ class Talk {
 
             const blackBox = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(25, 25, 50, 75),
+                coordinates2d: ShapeUtils.rectangle(25, 75, 50, 25),
                 fill: Colors.COLORS.HG_BLACK
             });
 
 
             const guy = new GameNode.Asset({
                 coordinates2d:  ShapeUtils.rectangle(
-                    30,
-                    30,
-                    10,
-                    10
+                    40,
+                    55,
+                    20,
+                    20
                 ),
                 assetInfo: {
                     'guy-1': {
                         pos: {
                             x: 40,
-                            y: 40
+                            y: 55
                         },
                         size: {
                             x: 20,
@@ -64,9 +64,10 @@ class Talk {
             const text = new GameNode.Text({
                 textInfo: {
                     x: 50,
-                    y: 70,
+                    y: 80,
                     align: 'center',
                     size: 1.6,
+                    font: 'amateur',
                     text: 'ayy lmao! this will be more interesting.',
                     color: Colors.COLORS.WHITE
                 }

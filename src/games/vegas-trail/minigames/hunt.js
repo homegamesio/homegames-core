@@ -12,7 +12,7 @@ const MAX_ENEMIES = 3;
 
 const createEnemy = (enemyType) => {
      const left = Math.random() < .5;
-     const startY = Math.max(Math.min(Math.random() * 100, 80), 30);
+     const startY = Math.max(Math.min(Math.random() * 100, 70), 30);
 
      const enemyData = enemyTypes[enemyType];
      const xRate = (left ? 1 : -1) * enemyData.xRate;
@@ -306,6 +306,50 @@ class Hunt {
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
         });
 
+        this.assetNode = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                0,
+                10,
+                100,
+                90
+            ),
+            assetInfo: {
+                'hunt-1': {
+                    pos: {
+                        x: 0,
+                        y: 10
+                    },
+                    size: {
+                        x: 100,
+                        y: 90
+                    }
+                }
+            }
+        });
+
+        this.weaponNode = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                48,
+                94,
+                weapons['baseball'].x,
+                weapons['baseball'].y
+            ),
+            assetInfo: {
+                'baseball-1': {
+                    pos: {
+                        x: 48,
+                        y: 94
+                    },
+                    size: {
+                        x: weapons['baseball'].x,
+                        y: weapons['baseball'].y
+                    }
+                }
+            }
+        });
+
+        this.gameLayer.addChildren(this.assetNode, this.weaponNode);
+
         this.clickLayer = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
@@ -376,6 +420,41 @@ class Hunt {
         this.mode = mode;
     }
 
+    renderWeaponNode() {
+        const playerWeapon = this.lastResources.weapon || 'baseball';
+
+        if (this.weaponNode) {
+            this.gameLayer.removeChild(this.weaponNode.id);
+            this.weaponNode.node.free();
+        }        
+
+        const assetKey = playerWeapon + '-1';
+
+        this.weaponNode = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                48,
+                94,
+                weapons[playerWeapon].x,
+                weapons[playerWeapon].y
+            ),
+            assetInfo: {
+                [assetKey]: {
+                    pos: {
+                        x: 48,
+                        y: 94
+                    },
+                    size: {
+                        x: weapons[playerWeapon].x,
+                        y: weapons[playerWeapon].y
+                    }
+                }
+            }
+        });
+
+        this.gameLayer.addChild(this.weaponNode);
+
+    }
+
     shoot(playerId, x, y) {
         // if (this.mode === 'select') {
             // const fakeNode = new GameNode.Shape({
@@ -401,7 +480,7 @@ class Hunt {
                 return;
             } 
             
-            const playerWeapon = this.lastResources.weapon || 'blaster';
+            const playerWeapon = this.lastResources.weapon || 'baseball';
             // const weapons = {
             //     [WEAPONS.DEFAULT]: {
             //         x: 1,
@@ -419,9 +498,33 @@ class Hunt {
             const shot = new GameNode.Shape({
                 // todo: move all of these intervals to tick
                 shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(50, 100, weapon.x, weapon.y),//playerWeapon.x, playerWeapon.y),
-                fill: Colors.COLORS.PURPLE
+                coordinates2d: ShapeUtils.rectangle(48, 94, weapon.x, weapon.y),//playerWeapon.x, playerWeapon.y),
             });
+
+            const assetKey = playerWeapon + '-1';
+
+            const shotAsset = new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    48,
+                    94,
+                    weapon.x,
+                    weapon.y
+                ),
+                assetInfo: {
+                    [assetKey]: {
+                        pos: {
+                            x: 48,
+                            y: 94
+                        },
+                        size: {
+                            x: weapon.x,
+                            y: weapon.y
+                        }
+                    }
+                }
+            });
+
+            shot.addChildren(shotAsset);
 
             // end needs to be x, y
             // start is 50, 100
@@ -432,8 +535,8 @@ class Hunt {
             const yDiff = Math.abs(100 - y);
             // moving at rate each tick
             const newPath = Physics.getPath(
-                    50,
-                    100,
+                    48,
+                    94,
                     (x > 50 ? 1 : -1) * ((xDiff) * (weapon.velocity / 100)),
                     -1 * (yDiff * (weapon.velocity / 100)),
                     100, 
@@ -621,8 +724,8 @@ class Hunt {
                 y: Math.floor(y + (height * 1.8)),
                 text: `- ${hitValue}`,
                 color: isCritical ? Colors.COLORS.HG_RED : Colors.COLORS.HG_BLACK,
-                size: 1,
-                font: 'amateur',
+                size: 1.2,
+                font: 'heavy-amateur',
                 align: 'center'
             }
         });
@@ -815,6 +918,26 @@ class Hunt {
                     const shotCoords = shot.node.coordinates2d;
                     const newCoordinates = ShapeUtils.rectangle(shotPath[pathIndex][0], shotPath[pathIndex][1], shotCoords[1][0] - shotCoords[0][0], shotCoords[2][1] - shotCoords[1][1]);
                     shot.node.coordinates2d = newCoordinates;
+                    if (shot.node.children.length) {
+                        const existingAssetKey = Object.keys(shot.node.children[0].node.asset)[0];
+                        const newAssetKey = existingAssetKey.substring(0, existingAssetKey.length - 1) + (existingAssetKey.endsWith('1') ? '2' : '1');
+                        const newAsset = {
+                            [newAssetKey]: {
+                                pos: {
+                                    x: shotPath[pathIndex][0],
+                                    y: shotPath[pathIndex][1]
+                                },
+                                size: {
+                                    x: weapons[this.renderedShots[key].weapon].x,
+                                    y: weapons[this.renderedShots[key].weapon].y
+                                }
+                            }
+                        };
+
+                        shot.node.children[0].node.coordinates2d = newCoordinates;
+                        shot.node.children[0].node.asset = newAsset;
+                    }
+
                     this.shotPaths[key].currentIndex = pathIndex + 1;
                 }
             } else {
@@ -828,8 +951,6 @@ class Hunt {
                 delete this.shotPaths[k];
 
                 if (node) {
-                        console.log('ayo2');
-
                     node.gameNode.free();
                 }
             });
@@ -861,7 +982,6 @@ class Hunt {
         for (const key of scrapKeysToRemove) {
             const node = this.renderedScrap[key].node;
             this.gameLayer.removeChild(node.id);
-                                console.log('ayo55');
 
             node.node.free();
             delete this.renderedScrap[key];

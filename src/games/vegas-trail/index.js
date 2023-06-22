@@ -12,7 +12,7 @@ const defaultResources = () => {
         health: 100, // falls due to illness
         antibiotics: 0, // increase health
         food: 0, // jump river
-        weapon: 'blaster',
+        weapon: 'baseball',
         vehicle: 'gas-car'
     }
 };
@@ -353,6 +353,50 @@ const talkOptionNode = (onClick) => {
     return chatIcon;
 };
 
+// welcome modal
+const buildInitialModal = (onStart) => {
+    const modal = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(12.5, 12.5, 75, 75),
+        fill: Colors.COLORS.HG_BLACK
+    });
+
+    const textOne = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 25,
+            align: 'center',
+            size: 1.2,
+            font: 'amateur',
+            text: 'Hello! I will put intro text here eventually',
+            color: Colors.COLORS.WHITE
+        }
+    });
+
+    const startButton = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(45, 45, 10, 10),
+        onClick: onStart,
+        fill: Colors.COLORS.HG_BLUE
+    });
+
+    const startText = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 49,
+            align: 'center',
+            size: 1.2,
+            font: 'heavy-amateur',
+            text: 'Embark',
+            color: Colors.COLORS.HG_BLACK
+        }
+    });
+
+    modal.addChildren(textOne, startButton, startText);
+
+    return modal;
+}
+
 class VegasTrail extends Game {
     static metadata() {
         return {
@@ -360,14 +404,14 @@ class VegasTrail extends Game {
             squishVersion: '0767',
             author: 'Joseph Garcia',
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
-            tickRate: 30,
+            tickRate: 24,
             assets: {
                 'placeholder': new Asset({
                     'id': '3b16c6d6ee6d3709bf827b61e61003b1',
                     'type': 'image'
                 }),
                 'map-background': new Asset({
-                    'id': '7d91010e0edc1816a3e357e4c6d57355',
+                    'id': '3e1a48e2ad3ed304eff1d91ca46f8202',
                     'type': 'image'
                 }),
                 'gas-car': new Asset({
@@ -383,7 +427,7 @@ class VegasTrail extends Game {
                     'type': 'image'
                 }),
                 'background-1': new Asset({
-                    'id': '2d77edffbb38980ad5556c56219bffdb',
+                    'id': 'e5042f6d6837e7bc9412b7e0e8c70aa3',
                     'type': 'image'
                 }),
                 'star': new Asset({
@@ -469,6 +513,66 @@ class VegasTrail extends Game {
                 'cookie': new Asset({
                     'type': 'image',
                     'id': '4da57d98625f9b61b6f939e3c2d1129b'
+                }),
+                'bug-1-0': new Asset({
+                    'type': 'image',
+                    'id': 'dd9b60db4d265c264e0909bf8b121198'
+                }),
+                'bug-1-1': new Asset({
+                    'type': 'image',
+                    'id': 'dd9b60db4d265c264e0909bf8b121198'
+                }),
+                'biscuit-1': new Asset({
+                    'type': 'image',
+                    'id': 'a164b9aadc788a8e659e977417ec7ec1'
+                }),
+                'biscuit-2': new Asset({
+                    'type': 'image',
+                    'id': 'c958bbe0022fdb367a52c3e5fb384307'
+                }),
+                'rock-1': new Asset({
+                    'type': 'image',
+                    'id': 'cb230f24577fdaad5324de5f4ee32c0b'
+                }),
+                'rock-2': new Asset({
+                    'type': 'image',
+                    'id': 'bcec761b00b100b9273a63cdf7332efb'
+                }),
+                'baseball-1': new Asset({
+                    'type': 'image',
+                    'id': 'ce4ff6a45c5067a6de2428bae13a885d'
+                }),
+                'baseball-2': new Asset({
+                    'type': 'image',
+                    'id': '9c40ee345797d85c5324ac4fdc3ffab2'
+                }),
+                'desmond-1': new Asset({
+                    'type': 'image',
+                    'id': 'f6f6df5eb5daa2313485a543679e5b38'
+                }),
+                'desmond-2': new Asset({
+                    'type': 'image',
+                    'id': 'f48fd7cd35b64e26e02c076963acb450'
+                }),
+                'desmond-smile': new Asset({
+                    'type': 'image',
+                    'id': 'c4ad0eaf0074c9cbf1588f26ad655054'
+                }),
+                'drive-1-0': new Asset({
+                    'type': 'image',
+                    'id': '8d616b824ffa1f1f03a6cfd8259fed74'
+                }),
+                'drive-1-1': new Asset({
+                    'type': 'image',
+                    'id': 'a31a9bf93bfff116198a74d8a3f09a46'
+                }),
+                'hunt-1': new Asset({
+                    'type': 'image',
+                    'id': '9a2221e21fbe77a93c926d1c70d6ece0'
+                }),
+                'fight-1': new Asset({
+                    'type': 'image',
+                    'id': 'c2ced3c16e0fd21d999eefb0bb89593f'
                 })
             }
         };
@@ -480,6 +584,9 @@ class VegasTrail extends Game {
         this.playerStates = {};
 
         this.distanceTraveled = 0;
+        
+        // main modal will pause game until closed
+        this.mainModal = buildInitialModal(this.clearMainModal.bind(this));
 
         this.travelUpdateInterval = 1000; // update distance traveled every one second
 
@@ -487,7 +594,7 @@ class VegasTrail extends Game {
         this.travelTickDistance = (TOTAL_DISTANCE / (10 * 60 * 1000 / this.travelUpdateInterval));
 
         this.map = new MapGame(this, mapData, TOTAL_DISTANCE);
-        this.drive = new Drive();
+        this.drive = new Drive({mainGame: this});
         this.hunt = new Hunt({
             mainGame: this,
             depleteAmmo: (count) => {
@@ -524,6 +631,11 @@ class VegasTrail extends Game {
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
+        this.mainModalLayer = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+        });
+
         this.grayThing = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 10),
@@ -544,10 +656,23 @@ class VegasTrail extends Game {
         this.base.addChild(this.gameLayer);
         this.base.addChild(this.grayThing);
 
-        this.gameLayer.addChildren(this.map.getRoot(), this.drive.getRoot(), this.hunt.getRoot(), this.fight.getRoot(), this.talk.getRoot());
+        this.gameLayer.addChildren(this.map.getRoot(), this.drive.getRoot(), this.hunt.getRoot(), this.fight.getRoot(), this.talk.getRoot(), this.mainModalLayer);
 
         this.renderOptionsLayer();
         this.renderStatsLayer();
+
+        this.mainModalLayer.addChild(this.mainModal);
+    }
+
+    clearMainModal() {
+        console.log('aaaa');
+        if (this.mainModal) {
+            console.log('aaaabbb');
+            console.log(this.mainModal);
+            this.mainModalLayer.removeChild(this.mainModal.id);
+            this.mainModal.node.free();
+            this.mainModal = null;
+        }
     }
 
     setCurrentGame(playerId, minigame) {
@@ -566,11 +691,11 @@ class VegasTrail extends Game {
         this.optionsLayer.clearChildren();
 
         this.menuOptions = [
-            mapOptionNode((playerId) => this.setCurrentGame(playerId, this.map)),
-            driveOptionNode((playerId) => this.setCurrentGame(playerId, this.drive)),
-            huntOptionNode((playerId) => this.setCurrentGame(playerId, this.hunt)),
-            fightOptionNode((playerId) => this.setCurrentGame(playerId, this.fight)),
-            talkOptionNode((playerId) => this.setCurrentGame(playerId, this.talk))
+            mapOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.map)),
+            driveOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.drive)),
+            huntOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.hunt)),
+            fightOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.fight)),
+            talkOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.talk))
         ];
 
         for (let i in this.menuOptions) {
@@ -590,19 +715,19 @@ class VegasTrail extends Game {
         const scrapIcon = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
                 2,
-                0.5,
-                6,
-                6
+                1,
+                3,
+                4
             ),
             assetInfo: {
                 'scrap': {
                     pos: {
                         x: 2,
-                        y: 0.5
+                        y: 1
                     },
                     size: {
-                        x: 6,
-                        y: 6
+                        x: 3,
+                        y: 4
                     }
                 }
             }
@@ -610,32 +735,32 @@ class VegasTrail extends Game {
 
         this.scrapText = new GameNode.Text({
             textInfo: {
-                x: 5,
+                x: 3.5,
                 y: 7,
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.scrap}`,
                 align: 'center',
                 font: 'amateur',
-                size: 1.2
+                size: 1
             },
         });
 
         const ammoIcon = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
-                10,
-                0.5,
-                6,
-                6
+                8,
+                1,
+                3,
+                4
             ),
             assetInfo: {
                 'ammo': {
                     pos: {
-                        x: 10,
-                        y: 0.5
+                        x: 8,
+                        y: 1
                     },
                     size: {
-                        x: 6,
-                        y: 6
+                        x: 3,
+                        y: 4
                     }
                 }
             }
@@ -643,32 +768,32 @@ class VegasTrail extends Game {
 
         this.ammoText = new GameNode.Text({
             textInfo: {
-                x: 13,
+                x: 9.5,
                 y: 7,
                 font: 'amateur',
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.ammo}`,
                 align: 'center',
-                size: 1.2
+                size: 1
             },
         });
 
         const wheelIcon = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
-                18,
-                0.5,
-                6,
-                6
+                14,
+                1,
+                3,
+                4
             ),
             assetInfo: {
                 'wheel': {
                     pos: {
-                        x: 18,
-                        y: 0.5
+                        x: 14,
+                        y: 1
                     },
                     size: {
-                        x: 6,
-                        y: 6
+                        x: 3,
+                        y: 4
                     }
                 }
             }
@@ -676,32 +801,32 @@ class VegasTrail extends Game {
 
         this.wheelsText = new GameNode.Text({
             textInfo: {
-                x: 21,
+                x: 15.5,
                 y: 7,
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.wheels}`,
                 align: 'center',
-                size: 1.2,
+                size: 1,
                 font: 'amateur'
             },
         });
 
         const antibioticsIcon = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
-                26,
-                0.5,
-                6,
-                6
+                20,
+                1,
+                3,
+                4
             ),
             assetInfo: {
                 'antibiotic': {
                     pos: {
-                        x: 26,
-                        y: 0.5
+                        x: 20,
+                        y: 1
                     },
                     size: {
-                        x: 6,
-                        y: 6
+                        x: 3,
+                        y: 4
                     }
                 }
             }
@@ -709,31 +834,32 @@ class VegasTrail extends Game {
 
         this.antibioticsText = new GameNode.Text({
             textInfo: {
-                x: 29,
+                x: 21.5,
                 y: 7,
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.antibiotics}`,
                 align: 'center',
-                size: 1.2
+                font: 'amateur',
+                size: 1
             },
         });
 
         const foodIcon = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
-                34,
-                0.5,
-                6,
-                6
+                26,
+                1,
+                3,
+                4
             ),
             assetInfo: {
                 'cookie': {
                     pos: {
-                        x: 34,
-                        y: 0.5
+                        x: 26,
+                        y: 1
                     },
                     size: {
-                        x: 6,
-                        y: 6
+                        x: 3,
+                        y: 4
                     }
                 }
             }
@@ -741,13 +867,13 @@ class VegasTrail extends Game {
 
         this.foodText = new GameNode.Text({
             textInfo: {
-                x: 37,
+                x: 27.5,
                 y: 7,
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.food}`,
                 align: 'center',
                 font: 'amateur',
-                size: 1.2
+                size: 1
             },
         });
 
@@ -812,14 +938,10 @@ class VegasTrail extends Game {
 //        this.keysDown[key] = true;
     }
 
-    getTravelBlockers() {
-        return [];
-    }
-
     tick() {
 
-        if (this.getTravelBlockers().length > 0) {
-            console.log('paused ticks');
+        if (this.mainModal) {//} && !this.map.paused) {
+            // this.map.handlePause();
             return;
         }
 
