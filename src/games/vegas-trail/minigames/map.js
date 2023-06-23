@@ -735,15 +735,18 @@ class MapGame {
         const now = Date.now();
         for (let key in playerStates) {
             const playerState = playerStates[key];
-            if (!playerState.lastMovementTime || playerState.lastMovementTime + this.moveInterval <= now) {
+            if (!playerState.lastMovementTime || playerState.lastMovementTime + (0 * this.moveInterval) <= now) {
                 if (playerState.currentIndex >= playerState.path.length) {
-                    continue;
+                    playerState.currentIndex = 0;
+                    // continue;
                 }
 
                 const currentCoords = playerState.path[playerState.currentIndex];
                 const currentLandmarks = this.mapData.landmarks.filter(l => l.coord[0] == currentCoords[0] && l.coord[1] == currentCoords[1]);
                 if (currentLandmarks.length > 0) {
                     this.mostRecentLandmark = currentLandmarks[0];
+
+                    this.mainGame.handleNewLandmark(this.mostRecentLandmark);
                     const landmarkInventory = shopInventoryMap()[this.mostRecentLandmark.name];
                     for (const key in landmarkInventory.consumables) {
                         if (!this.shopInventory.consumables[key]) {

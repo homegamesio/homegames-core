@@ -397,6 +397,50 @@ const buildInitialModal = (onStart) => {
     return modal;
 }
 
+
+const buildWinModal = (onClose) => {
+    const modal = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(12.5, 12.5, 75, 75),
+        fill: Colors.COLORS.BLUE
+    });
+
+    const textOne = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 25,
+            align: 'center',
+            size: 1.2,
+            font: 'amateur',
+            text: 'You won!',
+            color: Colors.COLORS.WHITE
+        }
+    });
+
+    const startButton = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(45, 45, 10, 10),
+        onClick: onClose,
+        fill: Colors.COLORS.HG_BLUE
+    });
+
+    const startText = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 49,
+            align: 'center',
+            size: 1.2,
+            font: 'heavy-amateur',
+            text: 'Thanks',
+            color: Colors.COLORS.HG_BLACK
+        }
+    });
+
+    modal.addChildren(textOne, startButton, startText);
+
+    return modal;
+}
+
 class VegasTrail extends Game {
     static metadata() {
         return {
@@ -661,7 +705,11 @@ class VegasTrail extends Game {
         this.renderOptionsLayer();
         this.renderStatsLayer();
 
-        this.mainModalLayer.addChild(this.mainModal);
+        this.renderMainModal();
+    }
+
+    renderMainModal() {
+        this.mainModal && this.mainModalLayer.addChild(this.mainModal);
     }
 
     clearMainModal() {
@@ -936,6 +984,16 @@ class VegasTrail extends Game {
 
     handleKeyUp(player, key) {
 //        this.keysDown[key] = true;
+    }
+
+    handleNewLandmark(landmarkData) {
+        if (landmarkData.name === 'Las Vegas Strip' && !this.won) {
+            this.won = true;
+            this.mainModal = buildWinModal(this.clearMainModal.bind(this));
+            this.renderMainModal();
+        }
+        // this.mainModal = buildLandmarkModal(landmarkData, this.clearMainModal.bind(this));
+        // this.renderMainModal();
     }
 
     tick() {
