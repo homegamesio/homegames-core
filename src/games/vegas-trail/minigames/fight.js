@@ -1,7 +1,8 @@
 const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-0767');
 
 class Fight {
-    constructor() {
+    constructor({mainGame}) {
+        this.mainGame = mainGame;
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
@@ -109,29 +110,6 @@ class Fight {
         });
 
         this.attackLayer.addChildren(this.leftGloveAsset, this.rightGloveAsset);
-
-        const sampleEnemy = new GameNode.Asset({
-            coordinates2d:  ShapeUtils.rectangle(
-                40,
-                40,
-                20,
-                20
-            ),
-            assetInfo: {
-                'bug-1-0': {
-                    pos: {
-                        x: 37.5,
-                        y: 37.5
-                    },
-                    size: {
-                        x: 25,
-                        y: 25
-                    }
-                }
-            }
-        });
-
-        this.enemyLayer.addChild(sampleEnemy);
     }
 
     attack(playerId, x, y) {
@@ -149,6 +127,19 @@ class Fight {
                 }
             }
             this.resetLeftTime = Date.now() + 250;
+
+            if (this.enemy && this.enemy.state === 'left') {
+                this.enemy.hits += 1;
+
+                if (this.enemy.hits >= 3) {
+                    this.enemyLayer.clearChildren();
+                    this.enemy.node.node.free();
+                    this.enemy = null;
+                } else {
+                    this.updateEnemy('default');
+                }
+
+            }
         } else {
             this.rightGloveAsset.node.asset = {
                 'glove-right': {
@@ -164,6 +155,19 @@ class Fight {
             }
 
             this.resetRightTime = Date.now() + 250;
+
+            if (this.enemy && this.enemy.state === 'right') {
+                this.enemy.hits += 1;
+
+                if (this.enemy.hits >= 3) {
+                    this.enemyLayer.clearChildren();
+                    this.enemy.node.node.free();
+                    this.enemy = null;
+                } else {
+                    this.updateEnemy('default');
+                }
+
+            }
         }
         // const attackThing = new GameNode.Shape({
         //     shapeType: Shapes.POLYGON,
@@ -184,8 +188,61 @@ class Fight {
         // }
     }
 
+    handleNewZone(zone) {
+        const newId = `fight-${zone}`;
+
+        const newAssetInfo = {
+            [newId]: {
+                pos: {
+                    x: 0,
+                    y: 10
+                },
+                size: {
+                    x: 100,
+                    y: 90
+                }
+            }
+        };
+
+        this.backgroundAssetNode.node.asset = newAssetInfo;
+    }
+
+    updateEnemy(state = 'default') {
+        const assetKey = 'bug-1-' + state;
+        
+        const newAssetInfo = {
+            [assetKey]: {
+                pos: {
+                    x: 37.5,
+                    y: 37.5
+                },
+                size: {
+                    x: 25,
+                    y: 25
+                }
+            }
+        }
+        this.enemy.node.node.asset = newAssetInfo;
+        this.enemy.state = state;
+        this.lastEnemyMoveTime = Date.now();
+    }
+
     tick({ playerStates, resources}) {
         const now = Date.now();
+
+        if (!this.enemy) {
+            this.spawnEnemy();
+        } else if (!this.lastEnemyMoveTime || this.lastEnemyMoveTime + 500 < Date.now()) {
+            if (this.enemy.state === 'default') {
+                const left = Math.random() < .5;
+
+                this.updateEnemy(left ? 'left' : 'right');
+            } else {
+                this.mainGame.handleSickHit();
+
+                this.updateEnemy('default');
+            }
+        }
 
         // const enemiesToRemove = new Set();
 
@@ -292,42 +349,71 @@ class Fight {
     }
 
     spawnEnemy() {
-        const randX = Math.min(Math.max(20, (Math.random() * 100)), 80);
-        const randY = Math.min(Math.max(20, (Math.random() * 100)), 80);
 
-        const enemy = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(randX, randY, 4, 4),
-            fill: Colors.COLORS.RED
-        });
-
-        this.enemies[enemy.node.id] = {
-            node: enemy,
-            lastIncrease: null,
-            type: 'x',
-            health: this.enemyConfig['x'].health,
-            spawnedAt: Date.now()
-        };
-
-        const clickCountText = new GameNode.Text({
-            textInfo: {
-                x: randX,
-                y: randY,
-                text: '3',
-                size: 1.3,
-                color: Colors.COLORS.WHITE,
-                align: 'center'
+        const sampleEnemy = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                40,
+                40,
+                20,
+                20
+            ),
+            assetInfo: {
+                'bug-1-default': {
+                    pos: {
+                        x: 37.5,
+                        y: 37.5
+                    },
+                    size: {
+                        x: 25,
+                        y: 25
+                    }
+                }
             }
         });
 
-        this.clickCounts[enemy.node.id] = {
-            node: clickCountText,
-            count: 3
-        };
+        this.enemyLayer.addChild(sampleEnemy);
 
-        enemy.addChild(clickCountText);
+        this.enemy = {
+            node: sampleEnemy,
+            hits: 0,
+            state: 'default'
+        }
+        // const randX = Math.min(Math.max(20, (Math.random() * 100)), 80);
+        // const randY = Math.min(Math.max(20, (Math.random() * 100)), 80);
 
-        this.enemyLayer.addChild(enemy);
+        // const enemy = new GameNode.Shape({
+        //     shapeType: Shapes.POLYGON,
+        //     coordinates2d: ShapeUtils.rectangle(randX, randY, 4, 4),
+        //     fill: Colors.COLORS.RED
+        // });
+
+        // this.enemies[enemy.node.id] = {
+        //     node: enemy,
+        //     lastIncrease: null,
+        //     type: 'x',
+        //     health: this.enemyConfig['x'].health,
+        //     spawnedAt: Date.now()
+        // };
+
+        // const clickCountText = new GameNode.Text({
+        //     textInfo: {
+        //         x: randX,
+        //         y: randY,
+        //         text: '3',
+        //         size: 1.3,
+        //         color: Colors.COLORS.WHITE,
+        //         align: 'center'
+        //     }
+        // });
+
+        // this.clickCounts[enemy.node.id] = {
+        //     node: clickCountText,
+        //     count: 3
+        // };
+
+        // enemy.addChild(clickCountText);
+
+        // this.enemyLayer.addChild(enemy);
     }
 
     getRoot() {

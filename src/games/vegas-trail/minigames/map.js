@@ -349,7 +349,7 @@ const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
 
     const upgradesText = new GameNode.Text({
         textInfo: {
-            text: `Desmond's Things & Upgrades`,
+            text: `Mr. Stick's Shop`,
             x: 50,
             y: 20,
             align: 'center',
@@ -735,7 +735,7 @@ class MapGame {
         const now = Date.now();
         for (let key in playerStates) {
             const playerState = playerStates[key];
-            if (!playerState.lastMovementTime || playerState.lastMovementTime + (0 * this.moveInterval) <= now) {
+            if (!playerState.lastMovementTime || playerState.lastMovementTime + (this.moveInterval) <= now) {
                 if (playerState.currentIndex >= playerState.path.length) {
                     playerState.currentIndex = 0;
                     // continue;

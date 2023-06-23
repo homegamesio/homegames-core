@@ -209,6 +209,7 @@ class Drive {
 
             if (collidingEnemies) {
                 for (let i in collidingEnemies) {
+                    this.mainGame.handleCarHit(50);
                     enemiesToRemove.add(collidingEnemies[i].node.id);
                 }
             }
@@ -228,9 +229,30 @@ class Drive {
             this.mainGame.resources.scrap = this.mainGame.resources.scrap + 1;
             this.mainGame.renderStatsLayer();
         }
-
-        
     }
+
+
+    handleNewZone(zone) {
+        this.zone = zone;
+        const newId = `drive-${zone}-0`;
+
+        const newAssetInfo = {
+            [newId]: {
+                pos: {
+                    x: 0,
+                    y: 10
+                },
+                size: {
+                    x: 100,
+                    y: 90
+                }
+            }
+        };
+
+        this.road.node.asset = newAssetInfo;
+    }
+
+
 
     spawnObstacle() {
         const isReward = Math.random() <= 0.5;

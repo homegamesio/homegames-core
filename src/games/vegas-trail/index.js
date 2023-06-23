@@ -10,8 +10,8 @@ const defaultResources = () => {
         wheels: 3, // 2 needed to drive
         ammo: 10, // depleted when hunting
         health: 100, // falls due to illness
-        antibiotics: 0, // increase health
-        food: 0, // jump river
+        antibiotics: 2, // increase health
+        food: 100, // jump river
         weapon: 'baseball',
         vehicle: 'gas-car'
     }
@@ -441,6 +441,30 @@ const buildWinModal = (onClose) => {
     return modal;
 }
 
+const buildFailModal = (reason) => {
+    const modal = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(12.5, 12.5, 75, 75),
+        fill: Colors.COLORS.BLUE
+    });
+
+    const textOne = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 25,
+            align: 'center',
+            size: 1.2,
+            font: 'amateur',
+            text: 'You died! ' + reason,
+            color: Colors.COLORS.WHITE
+        }
+    });
+
+    modal.addChildren(textOne);
+
+    return modal;
+}
+
 class VegasTrail extends Game {
     static metadata() {
         return {
@@ -473,6 +497,14 @@ class VegasTrail extends Game {
                 'background-1': new Asset({
                     'id': 'e5042f6d6837e7bc9412b7e0e8c70aa3',
                     'type': 'image'
+                }),
+                'background-2': new Asset({
+                    'type': 'image',
+                    'id': '7fcfe0852e627765d7d25d50ac207163'
+                }),
+                'background-3': new Asset({
+                    'type': 'image',
+                    'id': '4ab0946f2e7812e410a256092267bfc4'
                 }),
                 'star': new Asset({
                     'id': 'c1c029155f2af909e55de2486058e32d',
@@ -558,13 +590,17 @@ class VegasTrail extends Game {
                     'type': 'image',
                     'id': '4da57d98625f9b61b6f939e3c2d1129b'
                 }),
-                'bug-1-0': new Asset({
+                'bug-1-default': new Asset({
                     'type': 'image',
                     'id': 'dd9b60db4d265c264e0909bf8b121198'
                 }),
-                'bug-1-1': new Asset({
+                'bug-1-left': new Asset({
                     'type': 'image',
-                    'id': 'dd9b60db4d265c264e0909bf8b121198'
+                    'id': '7a06b7527ab816ce569773c253050b7e'
+                }),
+                'bug-1-right': new Asset({
+                    'type': 'image',
+                    'id': 'bf42c7112d5150e0795099068fd024a2'
                 }),
                 'biscuit-1': new Asset({
                     'type': 'image',
@@ -610,13 +646,45 @@ class VegasTrail extends Game {
                     'type': 'image',
                     'id': 'a31a9bf93bfff116198a74d8a3f09a46'
                 }),
+                'drive-2-0': new Asset({
+                    'type': 'image',
+                    'id': '9d0030fe577bf1db16c2e4eeb3fb35ba'
+                }),
+                'drive-2-1': new Asset({
+                    'type': 'image',
+                    'id': 'b6e9d6d21f541e4cebf3e005a9c7ae35'
+                }),
+                'drive-3-0': new Asset({
+                    'type': 'image',
+                    'id': '04ec60cd67401cf1d2cc6d8fe610b794'
+                }),
+                'drive-3-1': new Asset({
+                    'type': 'image',
+                    'id': '5de41cd5fbc5ed8fbb585368f760c4dc'
+                }),
                 'hunt-1': new Asset({
                     'type': 'image',
                     'id': '9a2221e21fbe77a93c926d1c70d6ece0'
                 }),
+                'hunt-2': new Asset({
+                    'type': 'image',
+                    'id': '705e4b2bd1ea5a01cfdd37ecd56253e9'
+                }),
+                'hunt-3': new Asset({
+                    'type': 'image',
+                    'id': 'df8c8807751828f55e78df47fc3d6f22'
+                }),
                 'fight-1': new Asset({
                     'type': 'image',
                     'id': 'c2ced3c16e0fd21d999eefb0bb89593f'
+                }),
+                'fight-2': new Asset({
+                    'type': 'image',
+                    'id': 'f95cbc8df61b7373d7bedb4ae5f8b549'
+                }),
+                'fight-3': new Asset({
+                    'type': 'image',
+                    'id': 'c0180cb139e5c3599180e5a751611dd1'
                 })
             }
         };
@@ -624,7 +692,12 @@ class VegasTrail extends Game {
 
     constructor(initialState ={}) {
         super();
-    
+        
+        this.sickHealth = 100;
+        this.carHealth = 100;
+
+        this.zone = 1;
+
         this.playerStates = {};
 
         this.distanceTraveled = 0;
@@ -648,7 +721,7 @@ class VegasTrail extends Game {
                 this.ammoText.node.text = textInfo;
             }
         });
-        this.fight = new Fight();
+        this.fight = new Fight({mainGame: this});
         this.talk = new Talk();
 
         this.resources = { ...defaultResources() }
@@ -723,6 +796,39 @@ class VegasTrail extends Game {
         }
     }
 
+    handleSickHit(dmg = 1) {
+        this.sickHealth -= dmg;
+        if (this.sickHealth <= 0) {
+            console.log('need to use antibiotic ' + this.resources.antibiotics);
+            if (this.resources.antibiotics > 0) {
+                this.sickHealth = 100;
+                this.resources.antibiotics -= 1;
+                this.renderStatsLayer();
+            } else {
+                this.handleFailure('sick');
+            }
+        }
+    }
+
+    handleCarHit(dmg = 1) {
+        this.carHealth -= dmg;
+        if (this.carHealth <= 0) {
+            console.log('need to use wheel replacement ' + this.resources.wheels);
+            if (this.resources.wheels > 0) {
+                this.carHealth = 100;
+                this.resources.wheels -= 1;
+                this.renderStatsLayer();
+            } else {
+                this.handleFailure('wheels');
+            }
+        }
+    }
+
+    handleFailure(reason) {
+        this.mainModal = buildFailModal(reason);
+        this.renderMainModal();
+    }
+
     setCurrentGame(playerId, minigame) {
         if (this.playerStates[playerId].currentGame) {
             this.playerStates[playerId].currentGame.getRoot().hideFor(playerId);
@@ -743,7 +849,12 @@ class VegasTrail extends Game {
             driveOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.drive)),
             huntOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.hunt)),
             fightOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.fight)),
-            talkOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.talk))
+            talkOptionNode((playerId) => {
+                if (!this.mainModal) {
+                    this.talk.update();
+                    this.setCurrentGame(playerId, this.talk);
+                }
+            })
         ];
 
         for (let i in this.menuOptions) {
@@ -987,10 +1098,26 @@ class VegasTrail extends Game {
     }
 
     handleNewLandmark(landmarkData) {
-        if (landmarkData.name === 'Las Vegas Strip' && !this.won) {
-            this.won = true;
-            this.mainModal = buildWinModal(this.clearMainModal.bind(this));
-            this.renderMainModal();
+        const prevZone = this.zone;
+        if (landmarkData.name === 'Phoenix') {
+            this.zone = 2;
+        } else if (landmarkData.name === 'Hoover Dam') {
+            this.zone = 3;
+        } else if (landmarkData.name === 'Las Vegas Strip') {
+            this.zone = 1;
+            if (!this.won) {
+                this.won = true;
+                this.mainModal = buildWinModal(this.clearMainModal.bind(this));
+                this.renderMainModal();
+            }
+
+        }
+
+        if (this.zone !== prevZone) {
+            this.drive.handleNewZone(this.zone);
+            this.hunt.handleNewZone(this.zone);
+            this.fight.handleNewZone(this.zone);
+            this.talk.handleNewZone(this.zone);
         }
         // this.mainModal = buildLandmarkModal(landmarkData, this.clearMainModal.bind(this));
         // this.renderMainModal();

@@ -416,6 +416,26 @@ class Hunt {
 //        }, 60 * 1000);
     }
 
+    handleNewZone(zone) {
+        const newId = `hunt-${zone}`;
+
+        const newAssetInfo = {
+            [newId]: {
+                pos: {
+                    x: 0,
+                    y: 10
+                },
+                size: {
+                    x: 100,
+                    y: 90
+                }
+            }
+        };
+
+        this.assetNode.node.asset = newAssetInfo;
+    }
+
+
     setMode(mode) {
         this.mode = mode;
     }
