@@ -37,7 +37,7 @@ class Talk {
 
             this.blackBox = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(25, 75, 50, 25),
+                coordinates2d: ShapeUtils.rectangle(15, 75, 70, 25),
                 fill: Colors.COLORS.HG_BLACK
             });
 
@@ -70,7 +70,7 @@ class Talk {
                     align: 'center',
                     size: 1.6,
                     font: 'amateur',
-                    text: 'ayy lmao! this will be more interesting.',
+                    text: 'Hello! You should not be able to read this yet.',
                     color: Colors.COLORS.WHITE
                 }
             });
@@ -82,24 +82,48 @@ class Talk {
     }
 
     update() {
-        console.log('sdfdsfdsf')
         const options = talkOptions.items.filter(o => !o.zones || !o.zones.length || o.zones.indexOf(this.zone) >= 0);
         const randIndex = Math.floor(options.length * Math.random()); 
         const randOption = options[randIndex];
-        console.log('option!');
-        console.log(randOption);
 
+        const textNodes = [];
 
-        this.text.node.text = {
-            x: 50,
-            y: 80,
-            align: 'center',
-            size: 1.6,
-            font: 'amateur',
-            text: randOption.text,
-            color: Colors.COLORS.WHITE
+        const lines = randOption.lines;
+
+        const mainTextNode = new GameNode.Text({
+            textInfo: {
+                x: 50, 
+                y: 76,
+                align: 'center',
+                size: 1.6,
+                font: 'amateur',
+                text: lines[0],
+                color: Colors.COLORS.WHITE
+            }
+        });
+
+        const newNodes = [];
+        for (let i = 1; i < lines.length; i++) {
+            const newNode = new GameNode.Text({
+                textInfo: {
+                    x: 50, 
+                    y: 76 + (i * 7),
+                    align: 'center',
+                    size: 1.6,
+                    font: 'amateur',
+                    text: lines[i],
+                    color: Colors.COLORS.WHITE
+                }
+            });
+
+            mainTextNode.addChild(newNode);
         }
 
+        this.blackBox.removeChild(this.text.id);
+        this.text.node.free();
+
+        this.text = mainTextNode;
+        this.blackBox.addChild(mainTextNode);
     }
 
     handleNewZone(zone) {

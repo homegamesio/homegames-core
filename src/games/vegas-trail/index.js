@@ -490,6 +490,10 @@ class VegasTrail extends Game {
                     'id': '93fd2644a9b2540cb25cfee8c5f6ee74',
                     'type': 'image'
                 }),
+                'little-saguaro': new Asset({
+                    'id': '24fd68e8f511f6fafe45da852ac7e95d',
+                    'type': 'image'
+                }),
                 'guy-1': new Asset({
                     'id': '97d2c51811fade5b7cf467bc7521c145',
                     'type': 'image'
@@ -511,11 +515,11 @@ class VegasTrail extends Game {
                     'type': 'image'
                 }),
                 'scrap': new Asset({
-                    'id': 'aa6193eb014bb836e373e2a43d379ffa',
+                    'id': 'cb2d71ae46849cd18b257f7b968e0c18',
                     'type': 'image'
                 }),
                 'map': new Asset({
-                    'id': '523c0373732b73ad2349fff03f9aad3c',
+                    'id': '8de0a87b189d3faf9d88d0d0f5de8cfb',
                     'type': 'image'
                 }),
                 'amateur': new Asset({
@@ -540,11 +544,11 @@ class VegasTrail extends Game {
                 }),
                 'steering-wheel': new Asset({
                     'type': 'image',
-                    'id': '4a4adaffc2659622b986520775f5d01c'
+                    'id': '34295b338e6fc3244b2b8d09906abf80'
                 }),
                 'crosshairs': new Asset({
                     'type': 'image',
-                    'id': 'b9242e687e1d87df131740fa2266cbdb'
+                    'id': '076105ecc5a699ff1027fcdabd6c1b86'
                 }),
                 'shop': new Asset({
                     'type': 'image',
@@ -554,25 +558,57 @@ class VegasTrail extends Game {
                     'type': 'image',
                     'id': '270fbe2ef81b5e1c66090d5c4716f307'
                 }),
-                'legs-left-1': new Asset({
+                'legs-1-left-1': new Asset({
                     'type': 'image',
                     'id': '3ec531a99ef4c5c1b8632d89b91600dd'
                 }),
-                'legs-left-2': new Asset({
+                'legs-1-left-2': new Asset({
                     'type': 'image',
                     'id': 'ae57bf24a6e35234751aa98be0c64430'
                 }),
-                'legs-right-1': new Asset({
+                'legs-1-right-1': new Asset({
                     'type': 'image',
                     'id': 'd30326a41961a5bf872500a4492f1623'
                 }),
-                'legs-right-2': new Asset({
+                'legs-1-right-2': new Asset({
                     'type': 'image',
                     'id': '2c5a4fffc1c0efbdd9a13a90011c506d'
                 }),
+                'legs-2-left-1': new Asset({
+                    'type': 'image',
+                    'id': '8dbf4b1df72edb31323b7b71c05ef98a'
+                }),
+                'legs-2-left-2': new Asset({
+                    'type': 'image',
+                    'id': 'f865be0349099d904b1f0be7212afac0'
+                }),
+                'legs-2-right-1': new Asset({
+                    'type': 'image',
+                    'id': '8dbf4b1df72edb31323b7b71c05ef98a'
+                }),
+                'legs-2-right-2': new Asset({
+                    'type': 'image',
+                    'id': 'f865be0349099d904b1f0be7212afac0'
+                }),
+                'legs-3-left-1': new Asset({
+                    'type': 'image',
+                    'id': '1c805ec41df459ae3c793d6e14682247'
+                }),
+                'legs-3-left-2': new Asset({
+                    'type': 'image',
+                    'id': '34778726c6bfbc040268ab01e15d3b6b'
+                }),
+                'legs-3-right-1': new Asset({
+                    'type': 'image',
+                    'id': 'ab870956179cb728d3e6c27be8a58f33'
+                }),
+                'legs-3-right-2': new Asset({
+                    'type': 'image',
+                    'id': 'b22930bf1f228e3ff495c69a1f9a76ab'
+                }),
                 'chat': new Asset({
                     'type': 'image',
-                    'id': '8a4a88365cd755fc539d3561f8c1610c'
+                    'id': 'f25324ca423d1c1c9d37b058231d1766'
                 }),
                 'wheel': new Asset({
                     'type': 'image',
@@ -580,7 +616,7 @@ class VegasTrail extends Game {
                 }),
                 'ammo': new Asset({
                     'type': 'image',
-                    'id': 'd5b124e21dd8bccdad0f09b3f56efac5'
+                    'id': 'b3ff302f3419228fb3783f6a2158f297'
                 }),
                 'antibiotic': new Asset({
                     'type': 'image',
@@ -592,15 +628,39 @@ class VegasTrail extends Game {
                 }),
                 'bug-1-default': new Asset({
                     'type': 'image',
-                    'id': 'dd9b60db4d265c264e0909bf8b121198'
+                    'id': 'b38a862769e5b691e853f0d77a87c3eb'
                 }),
                 'bug-1-left': new Asset({
                     'type': 'image',
-                    'id': '7a06b7527ab816ce569773c253050b7e'
+                    'id': '5d89c5014c9f7a30d75aff244efdfa08'
                 }),
                 'bug-1-right': new Asset({
                     'type': 'image',
-                    'id': 'bf42c7112d5150e0795099068fd024a2'
+                    'id': '6acf1518d2bc3f3671bc7946995708c3'
+                }),
+                'bug-2-default': new Asset({
+                    'type': 'image',
+                    'id': 'e2dcc4c488df274a847c2a74662f44bd'
+                }),
+                'bug-2-left': new Asset({
+                    'type': 'image',
+                    'id': 'ba16fd27e310a452d782e95dc62ab3ff'
+                }),
+                'bug-2-right': new Asset({
+                    'type': 'image',
+                    'id': 'f5d3b11023a3fd3ed32b39cb084b7c39'
+                }),
+                'bug-3-default': new Asset({
+                    'type': 'image',
+                    'id': 'feb4d5e63ede48064e31da251c228bdd'
+                }),
+                'bug-3-left': new Asset({
+                    'type': 'image',
+                    'id': 'ce852844ffff8199637d6950935c8de4'
+                }),
+                'bug-3-right': new Asset({
+                    'type': 'image',
+                    'id': 'f972480121a9762ff73671544d8f7b4c'
                 }),
                 'biscuit-1': new Asset({
                     'type': 'image',
@@ -685,7 +745,31 @@ class VegasTrail extends Game {
                 'fight-3': new Asset({
                     'type': 'image',
                     'id': 'c0180cb139e5c3599180e5a751611dd1'
-                })
+                }),
+                'tumbleweed': new Asset({
+                    'type': 'image',
+                    'id': '8063f98069472686db090fdbc544009e'
+                }),
+                'drone': new Asset({
+                    'type': 'image',
+                    'id': '3e250e3bbe22f1046f8e4c6b0f0a89fe'
+                }),
+                'gas-pump': new Asset({
+                    'type': 'image',
+                    'id': 'ad1777daa4e45ab700a8ddc5ddaaa698'
+                }),
+                'gas-canister': new Asset({
+                    'type': 'image',
+                    'id': '24620620ff8fc10f7458ce33199040f2'
+                }),
+                'senor-die': new Asset({
+                    'type': 'image',
+                    'id': '315077ebc9f8e3eba69e68fe9bdf8170'
+                }),
+                'slot-enemy': new Asset({
+                    'type': 'image',
+                    'id': '99ece53d641bbe28d2ddaa22c06ba521'
+                }),
             }
         };
     }

@@ -208,7 +208,8 @@ class Fight {
     }
 
     updateEnemy(state = 'default') {
-        const assetKey = 'bug-1-' + state;
+        const existingEnemyType = this.enemy ? Object.keys(this.enemy.node.node.asset)[0].split('-')[1] : 1;
+        const assetKey = `bug-${existingEnemyType}-${state}`;
         
         const newAssetInfo = {
             [assetKey]: {
@@ -350,6 +351,21 @@ class Fight {
 
     spawnEnemy() {
 
+        let bugType = 1;
+        
+        const rand = Math.random();
+
+        if (rand >= .33) {
+        
+            bugType = 2;
+
+            if (rand >= .66) {
+                bugType = 3;
+            }
+        }
+
+        const bugKey = `bug-${Math.max(1, bugType)}-default`;
+
         const sampleEnemy = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
                 40,
@@ -358,7 +374,7 @@ class Fight {
                 20
             ),
             assetInfo: {
-                'bug-1-default': {
+                [bugKey]: {
                     pos: {
                         x: 37.5,
                         y: 37.5

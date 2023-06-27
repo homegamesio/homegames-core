@@ -44,9 +44,9 @@ const createLegs = (legType, left, y) => {
     const pieces = legType.split('-');
     
     if (left) {
-        pieces[1] = 'right';
+        pieces[2] = 'right';
     } else {
-        pieces[1] = 'left';
+        pieces[2] = 'left';
     }
 
     legType = pieces.join('-');
@@ -59,12 +59,22 @@ const createLegs = (legType, left, y) => {
 }
 
 const legTypes = {
-    'legs-left-1': {
+    'legs-1-left-1': {
         yOffsets: {
-            'big-saguaro': 6
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
         },
         xOffsets: {
-            'big-saguaro': -0.5
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
         },
         create: (startX, startY) => {
             return new GameNode.Asset({
@@ -75,7 +85,7 @@ const legTypes = {
                     6
                 ),
                 assetInfo: {
-                    'legs-left-1': {
+                    'legs-1-left-1': {
                         pos: {
                             x: startX,
                             y: startY
@@ -89,12 +99,22 @@ const legTypes = {
             });            
         }
     },
-    'legs-left-2': {
+    'legs-1-left-2': {
         xOffsets: {
-            'big-saguaro': -0.5
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
         },
         yOffsets: {
-            'big-saguaro': 6
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
         },
         create: (startX, startY) => {
             return new GameNode.Asset({
@@ -105,7 +125,7 @@ const legTypes = {
                     6
                 ),
                 assetInfo: {
-                    'legs-left-2': {
+                    'legs-1-left-2': {
                         pos: {
                             x: startX,
                             y: startY
@@ -119,12 +139,22 @@ const legTypes = {
             });            
         }
     },
-    'legs-right-1': {
+    'legs-1-right-1': {
         yOffsets: {
-            'big-saguaro': 6
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
         },
         xOffsets: {
-            'big-saguaro': -0.5
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
         },
         create: (startX, startY) => {
             return new GameNode.Asset({
@@ -135,7 +165,7 @@ const legTypes = {
                     6
                 ),
                 assetInfo: {
-                    'legs-right-1': {
+                    'legs-1-right-1': {
                         pos: {
                             x: startX,
                             y: startY
@@ -149,12 +179,22 @@ const legTypes = {
             });            
         }
     },
-    'legs-right-2': {
+    'legs-1-right-2': {
         xOffsets: {
-            'big-saguaro': -0.5
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
         },
         yOffsets: {
-            'big-saguaro': 6
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
         },
         create: (startX, startY) => {
             return new GameNode.Asset({
@@ -165,7 +205,7 @@ const legTypes = {
                     6
                 ),
                 assetInfo: {
-                    'legs-right-2': {
+                    'legs-1-right-2': {
                         pos: {
                             x: startX,
                             y: startY
@@ -179,16 +219,332 @@ const legTypes = {
             });            
         }
     },
-    // '2': {
 
-    // },
-    // '3': {
+    'legs-2-left-1': {
+        yOffsets: {
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
+        },
+        xOffsets: {
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
+        },
+        create: (startX, startY) => {
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'legs-2-left-1': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });            
+        }
+    },
+    'legs-2-left-2': {
+        xOffsets: {
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
+        },
+        yOffsets: {
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
+        },
+        create: (startX, startY) => {
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'legs-2-left-2': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });            
+        }
+    },
+    'legs-2-right-1': {
+        yOffsets: {
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
+        },
+        xOffsets: {
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
+        },
+        create: (startX, startY) => {
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'legs-2-right-1': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });            
+        }
+    },
+    'legs-2-right-2': {
+        xOffsets: {
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
+        },
+        yOffsets: {
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
+        },
+        create: (startX, startY) => {
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'legs-2-right-2': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });            
+        }
+    },
 
-    // }
+    'legs-3-left-1': {
+        yOffsets: {
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
+        },
+        xOffsets: {
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
+        },
+        create: (startX, startY) => {
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'legs-3-left-1': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });            
+        }
+    },
+    'legs-3-left-2': {
+        xOffsets: {
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
+        },
+        yOffsets: {
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
+        },
+        create: (startX, startY) => {
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'legs-3-left-2': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });            
+        }
+    },
+    'legs-3-right-1': {
+        yOffsets: {
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
+        },
+        xOffsets: {
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
+        },
+        create: (startX, startY) => {
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'legs-3-right-1': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });            
+        }
+    },
+    'legs-3-right-2': {
+        xOffsets: {
+            'big-saguaro': -0.5,
+            'little-saguaro': -0.5,
+            'gas-pump': -0.5,
+            'gas-canister': -0.5,
+            'senor-die': -0.5,
+            'slot-enemy': -0.5
+        },
+        yOffsets: {
+            'big-saguaro': 6,
+            'little-saguaro': 6,
+            'gas-pump': 6,
+            'gas-canister': 6,
+            'senor-die': 6,
+            'slot-enemy': 6
+        },
+        create: (startX, startY) => {
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'legs-3-right-2': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });            
+        }
+    }
 }
 
 const enemyTypes = {
-    'w': {
+    'big-saguaro': {
         xRate: .25,
         value: 25,
         health: 50,
@@ -203,6 +559,172 @@ const enemyTypes = {
                 ),
                 assetInfo: {
                     'big-saguaro': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });
+            // return new GameNode.Shape({
+            //    shapeType: Shapes.POLYGON,
+            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+            //     fill: Colors.COLORS.BLUE
+            // });
+        }
+    },
+    'little-saguaro': {
+        xRate: .25,
+        value: 25,
+        health: 50,
+        create: (startX, startY) => {
+
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    4,
+                    4
+                ),
+                assetInfo: {
+                    'little-saguaro': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 4,
+                            y: 4
+                        }
+                    }
+                }
+            });
+            // return new GameNode.Shape({
+            //    shapeType: Shapes.POLYGON,
+            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+            //     fill: Colors.COLORS.BLUE
+            // });
+        }
+    },
+    'gas-canister': {
+        xRate: .25,
+        value: 25,
+        health: 50,
+        create: (startX, startY) => {
+
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'gas-canister': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });
+            // return new GameNode.Shape({
+            //    shapeType: Shapes.POLYGON,
+            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+            //     fill: Colors.COLORS.BLUE
+            // });
+        }
+    },
+
+    'gas-pump': {
+        xRate: .25,
+        value: 25,
+        health: 50,
+        create: (startX, startY) => {
+
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'gas-pump': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });
+            // return new GameNode.Shape({
+            //    shapeType: Shapes.POLYGON,
+            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+            //     fill: Colors.COLORS.BLUE
+            // });
+        }
+    },
+    'senor-die': {
+        xRate: .25,
+        value: 25,
+        health: 50,
+        create: (startX, startY) => {
+
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'senor-die': {
+                        pos: {
+                            x: startX,
+                            y: startY
+                        },
+                        size: {
+                            x: 6,
+                            y: 6
+                        }
+                    }
+                }
+            });
+            // return new GameNode.Shape({
+            //    shapeType: Shapes.POLYGON,
+            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+            //     fill: Colors.COLORS.BLUE
+            // });
+        }
+    },
+    'slot-enemy': {
+        xRate: .25,
+        value: 25,
+        health: 50,
+        create: (startX, startY) => {
+
+            return new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    startX,
+                    startY,
+                    6,
+                    6
+                ),
+                assetInfo: {
+                    'slot-enemy': {
                         pos: {
                             x: startX,
                             y: startY
