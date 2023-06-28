@@ -1,4 +1,5 @@
 const WebSocket = require('ws');
+const https = require('https');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -10,6 +11,19 @@ if (baseDir.endsWith('src')) {
 }
 
 const { getConfigValue } = require('homegames-common');
+
+const getPublicIP = () => new Promise((resolve, reject) => {
+    https.get(`https://api.homegames.io/ip`, (res) => {
+        let buf = '';
+        res.on('data', (chunk) => {
+            buf += chunk.toString();
+        });
+
+        res.on('end', () => {
+            resolve(buf.toString());
+        });
+    });
+});
 
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();
@@ -27,45 +41,48 @@ const getLocalIP = () => {
     return localIP;
 };
 
-const getClientInfo = () => {
+const getClientInfo = () => new Promise((resolve, reject) => {
     const localIp = getLocalIP();
+    getPublicIP().then(publicIp => {
 
-    return {
-        localIp,
-        https: getConfigValue('HTTPS_ENABLED', false)
-    };
-};
+        resolve({
+            localIp,
+            publicIp,
+            https: getConfigValue('HTTPS_ENABLED', false)
+        });
+    });
+});
 
-const linkConnect = (msgHandler, username) => new Promise((resolve, reject) => {
-    console.log('registering with username ' + username);
+const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
     const client = new WebSocket('wss://homegames.link');
 
     let interval;
 
     // in 30 minutes, kill and refresh websocket
-    const socketRefreshTime = Date.now() + 1000 * 30;//60 * 30;
+    const socketRefreshTime = Date.now() + (1000 * 60 * 30);
     
     client.on('open', () => {
-        const clientInfo = getClientInfo();
-        clientInfo.username = username ? username.toString() : null;
+        getClientInfo().then(clientInfo => {
+//        clientInfo.username = username ? username.toString() : null;
 
-        client.send(JSON.stringify({
-            type: 'register',
-            data: clientInfo
-        }));
+            client.send(JSON.stringify({
+                type: 'register',
+                data: clientInfo
+            }));
 
-        interval = setInterval(() => {
-            client.readyState == 1 && client.send(JSON.stringify({type: 'heartbeat'}));
-            if (Date.now() > socketRefreshTime) {
-                console.log('refreshing link socket');
-                client.close();
-                clearInterval(interval);
-                linkConnect(msgHandler, username);
-            }
+            interval = setInterval(() => {
+                client.readyState == 1 && client.send(JSON.stringify({type: 'heartbeat'}));
+                if (Date.now() > socketRefreshTime) {
+                    console.log('refreshing link socket');
+                    client.close();
+                    clearInterval(interval);
+                    linkConnect(msgHandler);///, username);
+                }
 
-        }, 1000 * 10);
+            }, 1000 * 10);
 
-        resolve(client);
+            resolve(client);
+        });
     });
 
     client.on('message', msgHandler ? msgHandler : () => {});
@@ -83,13 +100,13 @@ const linkConnect = (msgHandler, username) => new Promise((resolve, reject) => {
 });
 
 let msgId = 0;
-const verifyDNS = (client, username, accessToken, localIp) => new Promise((resolve, reject) => {
+const verifyDNS = (client, accessToken, localIp) => new Promise((resolve, reject) => {
     msgId++;
 
     client.send(JSON.stringify({
         type: 'verify-dns',
         localIp,
-        username,
+        //username,
         accessToken,
         msgId
     }));

@@ -23,6 +23,18 @@ const HOTLOAD_ENABLED = getConfigValue('HOTLOAD_ENABLED', false);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
+const getPublicIP = () => new Promise((resolve, reject) => {
+    https.get(`https://api.homegames.io/ip`, (res) => {
+        let buf = '';
+        res.on('data', (chunk) => {
+            buf += chunk.toString();
+        });
+
+        res.on('end', () => {
+            resolve(buf.toString());
+        });
+    });
+});
 
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();
@@ -200,95 +212,97 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
         server
     });
 
+    getPublicIP().then(publicIp => {
 
-    const broadcastEnabled = !!getConfigValue('PUBLIC_GAMES', false);
-    log.info('broadcastEnabled: ' + broadcastEnabled);
+        const broadcastEnabled = !!getConfigValue('PUBLIC_GAMES', false);
+        log.info('broadcastEnabled: ' + broadcastEnabled);
 
-    if (broadcastEnabled) {
-        broadcast(gameSession);
-    }
+        if (broadcastEnabled) {
+            broadcast(gameSession);
+        }
 
-    wss.on('connection', (ws) => {
-        function messageHandler(msg) {
-            const jsonMessage = JSON.parse(msg);
+        wss.on('connection', (ws) => {
+            function messageHandler(msg) {
+                const jsonMessage = JSON.parse(msg);
 
-            if (jsonMessage.type === 'homenames_update') {
-                gameSession.handlePlayerUpdate(jsonMessage.playerId, { info: jsonMessage.info, settings: jsonMessage.settings });
-            } else if (jsonMessage.type === 'ready') {
+                if (jsonMessage.type === 'homenames_update') {
+                    gameSession.handlePlayerUpdate(jsonMessage.playerId, { info: jsonMessage.info, settings: jsonMessage.settings });
+                } else if (jsonMessage.type === 'ready') {
 
-                ws.removeListener('message', messageHandler);
+                    ws.removeListener('message', messageHandler);
 
-                ws.id = Number(jsonMessage.id || generatePlayerId());
+                    ws.id = Number(jsonMessage.id || generatePlayerId());
 
-                const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
-                const req = (HTTPS_ENABLED ? https : http).request({
-                    hostname: HTTPS_ENABLED && username ? (getUserHash(username + getLocalIP()) + '.homegames.link') : 'localhost',
-                    port: HOMENAMES_PORT,
-                    path: `/info/${ws.id}`,
-                    method: 'GET'
-                }, res => {
-                    res.on('data', d => {
-                        const playerInfo = JSON.parse(d);
-                        log.debug('player info from homenames for this person', playerInfo);
-                        const player = new Player(ws, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
-                        ws.spectating = jsonMessage.spectating;
-                        
-                        const aspectRatio = gameSession.aspectRatio;
-                        const gameMetadata = gameSession.gameMetadata;
+                    const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
+                    const req = (HTTPS_ENABLED ? https : http).request({
+                        hostname: HTTPS_ENABLED ? (getUserHash(publicIp)+ '.homegames.link') : 'localhost',
+                        port: HOMENAMES_PORT,
+                        path: `/info/${ws.id}`,
+                        method: 'GET'
+                    }, res => {
+                        res.on('data', d => {
+                            const playerInfo = JSON.parse(d);
+                            log.debug('player info from homenames for this person', playerInfo);
+                            const player = new Player(ws, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
+                            ws.spectating = jsonMessage.spectating;
+                            
+                            const aspectRatio = gameSession.aspectRatio;
+                            const gameMetadata = gameSession.gameMetadata;
 
-                        // TODO: remove 'latest'
-                        let squishVersion = 'latest';
-                        if (gameMetadata && gameMetadata.squishVersion) {
-                            squishVersion = gameMetadata.squishVersion;
-                        }
+                            // TODO: remove 'latest'
+                            let squishVersion = 'latest';
+                            if (gameMetadata && gameMetadata.squishVersion) {
+                                squishVersion = gameMetadata.squishVersion;
+                            }
 
-                        const squishVersionArray = [];
-                        squishVersionArray[0] = squishVersion.length;
-                        for (let i = 0; i < squishVersion.length; i++) {
-                            squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
-                        }
+                            const squishVersionArray = [];
+                            squishVersionArray[0] = squishVersion.length;
+                            for (let i = 0; i < squishVersion.length; i++) {
+                                squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
+                            }
 
-                        // init message
-                        ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+                            // init message
+                            ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
 
-                        if (jsonMessage.spectating) {
-                            gameSession.addSpectator(player);
-                        } else {
-                            gameSession.addPlayer(player);
-                        }
+                            if (jsonMessage.spectating) {
+                                gameSession.addSpectator(player);
+                            } else {
+                                gameSession.addPlayer(player);
+                            }
 
+                        });
                     });
-                });
-                req.end();
+                    req.end();
+                }
             }
-        }
 
-        ws.on('message', messageHandler);
+            ws.on('message', messageHandler);
 
-        function closeHandler() {
-            if (ws.spectating) {
-                gameSession.handleSpectatorDisconnect(ws.id);
-            } else {
-                gameSession.handlePlayerDisconnect(ws.id);
+            function closeHandler() {
+                if (ws.spectating) {
+                    gameSession.handleSpectatorDisconnect(ws.id);
+                } else {
+                    gameSession.handlePlayerDisconnect(ws.id);
+                }
+                
             }
-            
-        }
 
-        ws.on('close', closeHandler);
-        ws.on('error', (err) => {
-            log.error('Child session error', err);
+            ws.on('close', closeHandler);
+            ws.on('error', (err) => {
+                log.error('Child session error', err);
+            });
+
         });
 
-    });
+        wss.on('error', (wsErr) => {
+            log.error('socket error', wsErr);
+        });
 
-    wss.on('error', (wsErr) => {
-        log.error('socket error', wsErr);
-    });
-
-    
-    server.listen(port, null, null, () => {
-        cb && cb();
+        
+        server.listen(port, null, null, () => {
+            cb && cb();
+        });
     });
 };
 

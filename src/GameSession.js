@@ -195,6 +195,7 @@ class GameSession {
 
                         this.homenamesHelper.addListener(player.id);
 
+                        console.log('dsfjlkdsjflkdsjfldks');
                         this.homegamesRoot.handleNewPlayer(rootPayload);
                         this.game.handleNewPlayer && this.game.handleNewPlayer(playerPayload);
 
