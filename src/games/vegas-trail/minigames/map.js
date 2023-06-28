@@ -558,6 +558,12 @@ class MapGame {
 
         this.map = this.constructMap(mapData);
 
+        const shopBase = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(75, 20, 20, 20),
+            fill: Colors.COLORS.HG_BLACK
+        });
+
         const shopIcon = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
                 75,
@@ -588,7 +594,9 @@ class MapGame {
         
         shopIcon.addChild(shopButton);
 
-        this.root.addChildren(this.map, shopIcon, this.modalRoot, this.currentStatusNode);
+        shopBase.addChild(shopIcon);
+
+        this.root.addChildren(this.map, shopBase, this.modalRoot, this.currentStatusNode);
     }
 
     callShop(playerId) {    
