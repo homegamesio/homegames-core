@@ -26,7 +26,7 @@ class Drive {
                 8
             ),
             assetInfo: {
-                'gas-car': {
+                'car-default': {
                     pos: {
                         x: 50,
                         y: 85
@@ -92,6 +92,19 @@ class Drive {
 
         this.road.addChildren(this.car, this.clickLayer);
         this.root.addChild(this.road);
+
+        const songNode = new GameNode.Asset({
+                    coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                    assetInfo: {
+                        'driveSong': {
+                            'pos': Object.assign({}, { x: 0, y: 0 }),
+                            'size': Object.assign({}, { x: 0, y: 0 }),
+                            'startTime': 0
+                        }
+                    }
+                });
+
+                this.root.addChild(songNode);
     }
 
     tick({ playerStates, resources}) {
@@ -134,15 +147,31 @@ class Drive {
         }
         if (this.carPath && this.carPathIndex !== null && this.carPathIndex < this.carPath.length) {
             this.car.node.coordinates2d = ShapeUtils.rectangle(this.carPath[this.carPathIndex][0], this.carPath[this.carPathIndex][1], 4, 4);
+
+            let assetKey = 'car-default';
+            let assetWidth = 6;
+            let assetHeight = 12;
+
+
+            if (this.carPath[this.carPathIndex + 1] && this.carPath[this.carPathIndex + 1][0] < this.carPath[this.carPathIndex][0]) {
+                assetKey = 'car-left';
+                assetWidth = 8;
+                assetHeight = 16;
+            } else if (this.carPath[this.carPathIndex + 1] && this.carPath[this.carPathIndex + 1][0] > this.carPath[this.carPathIndex][0]) {
+                assetKey = 'car-right';
+                assetWidth = 8;
+                assetHeight = 16;
+            }
+
             const asset = {
-                'gas-car': {
+                [assetKey]: {
                     pos: {
                         x: this.carPath[this.carPathIndex][0], 
                         y: this.carPath[this.carPathIndex][1]
                     },
                     size: {
-                        x: 6,
-                        y: 12
+                        x: assetWidth,
+                        y: assetHeight
                     }
                 }
             };
@@ -183,6 +212,19 @@ class Drive {
             } else {
                 this.spawnedRewards[key].node.coordinates2d = ShapeUtils.rectangle(currentCoords[0][0], currentCoords[0][1] + 1, 4, 4);
                 this.spawnedRewards[key].node.asset = {'scrap': { pos: {x: currentCoords[0][0], y: currentCoords[0][1] + 1}, size: {x: 4, y: 4 }}};
+            }
+        }
+
+        for (let key in this.spawnedEnemies) {
+            // console.log('need to move rewards');
+            const currentCoords = this.spawnedEnemies[key].node.coordinates2d;
+
+            if (currentCoords[0][1] + 1 >= 96) {
+                enemiesToRemove.add(key);
+            } else {
+                const assetKey = Object.keys(this.spawnedEnemies[key].node.asset)[0];
+                this.spawnedEnemies[key].node.coordinates2d = ShapeUtils.rectangle(currentCoords[0][0], currentCoords[0][1] + 1, 4, 4);
+                this.spawnedEnemies[key].node.asset = {[assetKey]: { pos: {x: currentCoords[0][0], y: currentCoords[0][1] + 1}, size: {x: 4, y: 4 }}};
             }
         }
 
@@ -289,10 +331,26 @@ class Drive {
             this.spawnedRewards[gameNode.node.id] = gameNode;
             this.root.addChild(gameNode);
         } else {
-            const gameNode = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(xVal, 10, 5, 5),
-                fill: Colors.COLORS.HG_BLACK
+            const assetKey = Math.random() <= .5 ? 'tumbleweed' : 'rock-1';
+            const gameNode = new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    xVal,
+                    10,
+                    5,
+                    5
+                ),
+                assetInfo: {
+                    [assetKey]: {
+                        pos: {
+                            x: xVal,
+                            y: 10
+                        },
+                        size: {
+                            x: 5,
+                            y: 5
+                        }
+                    }
+                }
             });
 
             this.spawnedEnemies[gameNode.node.id] = gameNode;

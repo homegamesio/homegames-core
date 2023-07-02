@@ -165,6 +165,10 @@ class GameSession {
     }
 
     addPlayer(player) {
+
+        this.playerSettingsMap[player.id] = {
+            'SOUND': true
+        }
         // if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
         //     player.receiveUpdate([5, 70, 0]);
         // }

@@ -135,6 +135,30 @@ class Fight {
                     this.enemyLayer.clearChildren();
                     this.enemy.node.node.free();
                     this.enemy = null;
+
+                    const dustAssetKey = 'dust-' + (Math.random() < .5 ? '1' : '2');
+
+                    this.dustAsset = {
+                        node: new GameNode.Asset({
+                            coordinates2d: ShapeUtils.rectangle(35, 35, 30, 30),
+                            assetInfo: {
+                                [dustAssetKey]: {
+                                    pos: {
+                                        x: 35, 
+                                        y: 35
+                                    },
+                                    size: {
+                                        x: 30,
+                                        y: 30
+                                    }
+                                }
+                            }
+                        }),
+                        createdAt: Date.now()
+                    };
+
+                    this.enemyLayer.addChild(this.dustAsset.node);
+
                 } else {
                     this.updateEnemy('default');
                 }
@@ -163,6 +187,29 @@ class Fight {
                     this.enemyLayer.clearChildren();
                     this.enemy.node.node.free();
                     this.enemy = null;
+
+                    const dustAssetKey = 'dust-' + (Math.random() < .5 ? '1' : '2');
+
+                    this.dustAsset = {
+                        node: new GameNode.Asset({
+                            coordinates2d: ShapeUtils.rectangle(35, 35, 30, 30),
+                            assetInfo: {
+                                [dustAssetKey]: {
+                                    pos: {
+                                        x: 35, 
+                                        y: 35
+                                    },
+                                    size: {
+                                        x: 30,
+                                        y: 30
+                                    }
+                                }
+                            }
+                        }),
+                        createdAt: Date.now()
+                    };
+
+                    this.enemyLayer.addChild(this.dustAsset.node);
                 } else {
                     this.updateEnemy('default');
                 }
@@ -214,12 +261,12 @@ class Fight {
         const newAssetInfo = {
             [assetKey]: {
                 pos: {
-                    x: 37.5,
-                    y: 37.5
+                    x: 35,
+                    y: 35
                 },
                 size: {
-                    x: 25,
-                    y: 25
+                    x: 30,
+                    y: 30
                 }
             }
         }
@@ -232,8 +279,16 @@ class Fight {
         const now = Date.now();
 
         if (!this.enemy) {
-            this.spawnEnemy();
-        } else if (!this.lastEnemyMoveTime || this.lastEnemyMoveTime + 500 < Date.now()) {
+            if (this.dustAsset) {
+                if (this.dustAsset.createdAt + 500 <= now) {
+                    this.enemyLayer.removeChild(this.dustAsset.node.id);
+                    this.dustAsset.node.free();
+                    this.dustAsset = null;
+                }
+            } else {
+                this.spawnEnemy();
+            }
+        } else if (!this.lastEnemyMoveTime || this.lastEnemyMoveTime + 750 < Date.now()) {
             if (this.enemy.state === 'default') {
                 const left = Math.random() < .5;
 
@@ -368,20 +423,20 @@ class Fight {
 
         const sampleEnemy = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
-                40,
-                40,
-                20,
-                20
+                35,
+                35,
+                30,
+                30
             ),
             assetInfo: {
                 [bugKey]: {
                     pos: {
-                        x: 37.5,
-                        y: 37.5
+                        x: 35,
+                        y: 35
                     },
                     size: {
-                        x: 25,
-                        y: 25
+                        x: 30,
+                        y: 30
                     }
                 }
             }

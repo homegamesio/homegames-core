@@ -463,7 +463,7 @@ const legTypes = {
     },
     'legs-3-right-1': {
         yOffsets: {
-            'big-saguaro': 6,
+            'big-saguaro': 4.7,
             'little-saguaro': 6,
             'gas-pump': 6,
             'gas-canister': 6,
@@ -471,7 +471,7 @@ const legTypes = {
             'slot-enemy': 6
         },
         xOffsets: {
-            'big-saguaro': -0.5,
+            'big-saguaro': -1,
             'little-saguaro': -0.5,
             'gas-pump': -0.5,
             'gas-canister': -0.5,
@@ -493,8 +493,8 @@ const legTypes = {
                             y: startY
                         },
                         size: {
-                            x: 6,
-                            y: 6
+                            x: 9,
+                            y: 9
                         }
                     }
                 }
@@ -503,7 +503,7 @@ const legTypes = {
     },
     'legs-3-right-2': {
         xOffsets: {
-            'big-saguaro': -0.5,
+            'big-saguaro': -1,
             'little-saguaro': -0.5,
             'gas-pump': -0.5,
             'gas-canister': -0.5,
@@ -511,7 +511,7 @@ const legTypes = {
             'slot-enemy': -0.5
         },
         yOffsets: {
-            'big-saguaro': 6,
+            'big-saguaro': 4.7,
             'little-saguaro': 6,
             'gas-pump': 6,
             'gas-canister': 6,
@@ -533,8 +533,8 @@ const legTypes = {
                             y: startY
                         },
                         size: {
-                            x: 6,
-                            y: 6
+                            x: 9,
+                            y: 9
                         }
                     }
                 }
@@ -549,7 +549,6 @@ const enemyTypes = {
         value: 25,
         health: 50,
         create: (startX, startY) => {
-
             return new GameNode.Asset({
                 coordinates2d:  ShapeUtils.rectangle(
                     startX,
@@ -570,11 +569,6 @@ const enemyTypes = {
                     }
                 }
             });
-            // return new GameNode.Shape({
-            //    shapeType: Shapes.POLYGON,
-            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
-            //     fill: Colors.COLORS.BLUE
-            // });
         }
     },
     'little-saguaro': {
@@ -743,42 +737,6 @@ const enemyTypes = {
             // });
         }
     },
-    // 'x': {
-    //     value: 150,
-    //     xRate: 1.5,
-    //     create: (startX, startY) => {
-    //         return new GameNode.Shape({
-    //            shapeType: Shapes.POLYGON,
-    //             coordinates2d: ShapeUtils.rectangle(startX, startY, 2, 2),
-    //             fill: Colors.COLORS.GOLD
-    //         });
-    //     }
-
-    // },
-    // 'y': {
-    //     value: 100,
-    //     xRate: 1,
-    //     create: (startX, startY) => {
-    //         return new GameNode.Shape({
-    //            shapeType: Shapes.POLYGON,
-    //             coordinates2d: ShapeUtils.rectangle(startX, startY, 3, 3),
-    //             fill: Colors.COLORS.CYAN
-    //         });
-    //     }
-
-    // },
-    // 'z': {
-    //     value: 50,
-    //     xRate: .5,
-    //     create: (startX, startY) => {
-    //         return new GameNode.Shape({
-    //            shapeType: Shapes.POLYGON,
-    //             coordinates2d: ShapeUtils.rectangle(startX, startY, 4, 4),
-    //             fill: Colors.COLORS.GREEN
-    //         });
-    //     }
-
-    // }
 }; 
 
 class Hunt {

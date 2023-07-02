@@ -42,7 +42,7 @@ class Talk {
             });
 
 
-            const guy = new GameNode.Asset({
+            this.guy = new GameNode.Asset({
                 coordinates2d:  ShapeUtils.rectangle(
                     40,
                     55,
@@ -75,7 +75,7 @@ class Talk {
                 }
             });
 
-            this.blackBox.addChildren(guy, this.text);
+            this.blackBox.addChildren(this.guy, this.text);
             this.scene.addChildren(this.blackBox);
             this.root.addChild(this.scene);
         }
@@ -118,6 +118,25 @@ class Talk {
 
             mainTextNode.addChild(newNode);
         }
+
+        const newAssetKey = 'guy-' + Math.max(1, Math.floor(Math.random() * 10 % 5));
+
+        console.log('sdfdsf ' + newAssetKey);
+
+        const newAssetInfo = {
+            [newAssetKey]: {
+                pos: {
+                    x: 40,
+                    y: 55
+                },
+                size: {
+                    x: 20,
+                    y: 20
+                }
+            }
+        };
+
+        this.guy.node.asset = newAssetInfo;
 
         this.blackBox.removeChild(this.text.id);
         this.text.node.free();

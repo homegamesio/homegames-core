@@ -402,7 +402,7 @@ const buildWinModal = (onClose) => {
     const modal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(12.5, 12.5, 75, 75),
-        fill: Colors.COLORS.BLUE
+        fill: [106, 147, 71, 255]
     });
 
     const textOne = new GameNode.Text({
@@ -474,6 +474,14 @@ class VegasTrail extends Game {
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
             tickRate: 24,
             assets: {
+                'mainSong': new Asset({
+                    'id': 'a0afee5abd5ac487a3bb8ad2f242c131',
+                    type: 'audio'
+                }),
+                'driveSong': new Asset({
+                    'id': '3a4125e402945c2762e965fd95dc8ccd',
+                    type: 'audio'
+                }),
                 'placeholder': new Asset({
                     'id': '3b16c6d6ee6d3709bf827b61e61003b1',
                     'type': 'image'
@@ -482,8 +490,16 @@ class VegasTrail extends Game {
                     'id': '3e1a48e2ad3ed304eff1d91ca46f8202',
                     'type': 'image'
                 }),
-                'gas-car': new Asset({
-                    'id': 'b8c5271ff6ec2feddac9b39cd10cdcf0',
+                'car-default': new Asset({
+                    'id': '0baf045b1c122bada75aacd03318c269',
+                    'type': 'image'
+                }),
+                'car-left': new Asset({
+                    'id': 'ced4e66928666c6e25d7a2464cd039c0',
+                    'type': 'image'
+                }),
+                'car-right': new Asset({
+                    'id': 'f5540376383f7ae23a42347f908a6120',
                     'type': 'image'
                 }),
                 'big-saguaro': new Asset({
@@ -495,7 +511,31 @@ class VegasTrail extends Game {
                     'type': 'image'
                 }),
                 'guy-1': new Asset({
-                    'id': '97d2c51811fade5b7cf467bc7521c145',
+                    'id': 'a507a7cfeb28960ba7257f5b7571e5db',
+                    'type': 'image'
+                }),
+                'guy-2': new Asset({
+                    'id': '7171191eab30d0bf5a57ef5d67fff8ad',
+                    'type': 'image'
+                }),
+                'guy-3': new Asset({
+                    'id': 'daee835aa61ff73c93a363d0e3867dab',
+                    'type': 'image'
+                }),
+                'guy-4': new Asset({
+                    'id': '88867ca5b2910ce55f29ffaadec4363f',
+                    'type': 'image'
+                }),
+                'dust-1': new Asset({
+                    'id': '4dcd1561824ad8a3b974020bd24d81ed',
+                    'type': 'image'
+                }),
+                'dust-2': new Asset({
+                    'id': 'c1e2d192f4b2d50f92f99c172cc17a6f',
+                    'type': 'image'
+                }),
+                'tumbleweed': new Asset({
+                    'id': '119aef7e7e1c3e3caf44caf2c306c299',
                     'type': 'image'
                 }),
                 'background-1': new Asset({
@@ -560,19 +600,19 @@ class VegasTrail extends Game {
                 }),
                 'legs-1-left-1': new Asset({
                     'type': 'image',
-                    'id': '3ec531a99ef4c5c1b8632d89b91600dd'
+                    'id': 'a2212e9540f5ac523514f1ec3585d428'
                 }),
                 'legs-1-left-2': new Asset({
                     'type': 'image',
-                    'id': 'ae57bf24a6e35234751aa98be0c64430'
+                    'id': '9f1db961b099e44df6d8bc63efef93f0'
                 }),
                 'legs-1-right-1': new Asset({
                     'type': 'image',
-                    'id': 'd30326a41961a5bf872500a4492f1623'
+                    'id': 'f504e5d0aadf199d0fb9f6df077f6844'
                 }),
                 'legs-1-right-2': new Asset({
                     'type': 'image',
-                    'id': '2c5a4fffc1c0efbdd9a13a90011c506d'
+                    'id': 'f5707943a14d3d1696073396cd487ce3'
                 }),
                 'legs-2-left-1': new Asset({
                     'type': 'image',
@@ -1144,7 +1184,7 @@ class VegasTrail extends Game {
     handleNewPlayer({ playerId }) {
         const node = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            fill: Colors.COLORS.PURPLE,
+            fill: Colors.COLORS.RED,
             coordinates2d: ShapeUtils.rectangle(mapData.mapCoords[0][0], mapData.mapCoords[0][1], 2, 2)
         });
 
@@ -1214,7 +1254,7 @@ class VegasTrail extends Game {
             return;
         }
 
-        if (!this.lastTravelUpdate || this.lastTravelUpdate + this.travelUpdateInterval <= Date.now()) {
+        if (!this.lastTravelUpdate || this.lastTravelUpdate + (0 * this.travelUpdateInterval) <= Date.now()) {
             this.distanceTraveled = this.distanceTraveled + this.travelTickDistance;
             this.lastTravelUpdate = Date.now();
             // const newProgress = Object.assign({}, this.progressText.node.text);

@@ -155,7 +155,7 @@ const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
     const modalBase = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(14, 14, 72, 72),
-        fill: Colors.COLORS.HG_BLACK,//[194, 151, 90, 255],//[106, 147, 70, 255]
+        // fill: Colors.COLORS.HG_BLACK,//[194, 151, 90, 255],//[106, 147, 70, 255]
         playerIds
     });
 
@@ -561,7 +561,7 @@ class MapGame {
         const shopBase = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(75, 20, 20, 20),
-            fill: Colors.COLORS.HG_BLACK
+            // fill: Colors.COLORS.HG_BLACK
         });
 
         const shopIcon = new GameNode.Asset({
@@ -597,6 +597,20 @@ class MapGame {
         shopBase.addChild(shopIcon);
 
         this.root.addChildren(this.map, shopBase, this.modalRoot, this.currentStatusNode);
+
+        const songNode = new GameNode.Asset({
+                    coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                    assetInfo: {
+                        'mainSong': {
+                            'pos': Object.assign({}, { x: 0, y: 0 }),
+                            'size': Object.assign({}, { x: 0, y: 0 }),
+                            'startTime': 0
+                        }
+                    }
+                });
+
+                this.root.addChild(songNode);
+
     }
 
     callShop(playerId) {    
@@ -604,10 +618,26 @@ class MapGame {
         if (this.movingShop) {
             this.movingShop.playerIds.push(playerId);
         } else {
-            const shopNode = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(0, 50, 2, 2),
-                fill: Colors.COLORS.YELLOW
+
+            const shopNode = new GameNode.Asset({
+                coordinates2d:  ShapeUtils.rectangle(
+                    0,
+                    50,
+                    3,
+                    3
+                ),
+                assetInfo: {
+                    'drone': {
+                        pos: {
+                            x: 0,
+                            y: 50
+                        },
+                        size: {
+                            x: 3,
+                            y: 3
+                        }
+                    }
+                }
             });
 
             const playerState = Object.values(this.playerStates)[0];
@@ -795,19 +825,22 @@ class MapGame {
                         playerShopModal.node.free();
                     }, 
                     (playerId, key) => {
-                        console.log('player wants to buy ' + playerId + ', ' + key);
-                        this.mainGame.resources.scrap -= this.shopInventory.consumables[key] ? this.shopInventory.consumables[key].cost : this.shopInventory.upgrades[key].cost;
-                        if (this.mainGame.resources[key]) {
-                            this.mainGame.resources[key] = this.mainGame.resources[key] + 1;
-                        } else {
-                            if (key === 'rock' || key === 'biscuit') {
-                                this.mainGame.resources.weapon = key;
-                                // horrific hack
-                                this.mainGame.hunt.lastResources.weapon = key;
-                                this.mainGame.hunt.renderWeaponNode();
-                            } 
+                        const cost = this.shopInventory.consumables[key] ? this.shopInventory.consumables[key].cost : this.shopInventory.upgrades[key].cost;
+                        // if (this.mainGame.resources.scrap - )
+                        if (this.mainGame.resources.scrap - cost >= 0) {
+                            this.mainGame.resources.scrap -= cost;
+                            if (this.mainGame.resources[key] !== null && this.mainGame.resources[key] !== undefined) {
+                                this.mainGame.resources[key] = this.mainGame.resources[key] + 1;
+                            } else {
+                                if (key === 'rock' || key === 'biscuit') {
+                                    this.mainGame.resources.weapon = key;
+                                    // horrific hack
+                                    this.mainGame.hunt.lastResources.weapon = key;
+                                    this.mainGame.hunt.renderWeaponNode();
+                                } 
+                            }
+                            this.mainGame.renderStatsLayer();
                         }
-                        this.mainGame.renderStatsLayer();
                     })
 
                     this.modalRoot.addChild(playerShopModal);
@@ -816,6 +849,19 @@ class MapGame {
                     const newCoords = ShapeUtils.rectangle(this.movingShop.path[this.movingShop.currentIndex][0], this.movingShop.path[this.movingShop.currentIndex][1], 2, 2);
                     // feels filthy but hey you know
                     this.movingShop.node.node.coordinates2d = newCoords;
+                    const newAssetInfo = {
+                        'drone': {
+                            pos: {
+                                x: this.movingShop.path[this.movingShop.currentIndex][0],
+                                y: this.movingShop.path[this.movingShop.currentIndex][1]
+                            },
+                            size: {
+                                x: 3,
+                                y: 3
+                            }
+                        }
+                    };
+                    this.movingShop.node.node.asset = newAssetInfo;
                     this.movingShop.lastShopMovement = now;
                     this.movingShop.currentIndex = this.movingShop.currentIndex + 1;
                 }

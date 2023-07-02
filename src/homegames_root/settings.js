@@ -168,9 +168,9 @@ const soundSettingContainer = ({ playerId, onToggle, session }) => {
 
     homenamesHelper.getPlayerSettings(playerId).then((playerSettings) => {
         _playerSettings = playerSettings;
-        let soundEnabled = false;
-        if (playerSettings && playerSettings[PLAYER_SETTINGS.SOUND] && playerSettings[PLAYER_SETTINGS.SOUND].enabled) {
-            soundEnabled = true;
+        let soundEnabled = true;
+        if (playerSettings && playerSettings[PLAYER_SETTINGS.SOUND] && !playerSettings[PLAYER_SETTINGS.SOUND].enabled) {
+            soundEnabled = false;
         }
 
         const soundEnabledText = new GameNode.Text({
