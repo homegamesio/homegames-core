@@ -313,7 +313,16 @@ class HomegamesRoot {
     handlePlayerUpdate(playerId, newData) {
         this.updateLabels();
         if (this.viewStates[playerId] && this.viewStates[playerId].state === 'settings') {
-            this.showSettings(playerId);
+            // console.log('new data idk');
+            // console.log(newData);
+            // console.log(this.viewStates[playerId])
+            // console.log('view state?');
+            // console.log(this.viewStates[playerId])
+            this.topLayerRoot.removeChild(this.viewStates[playerId].node.id);
+            // this.topLayerRoot.node.coordinates2d = this.topLayerRoot.node.coordinates2d;
+            // // this.viewStates[playerId].node.node.free();
+            // // delete this.viewStates[playerId];
+            // this.showSettings(playerId);
         }
     }
 
@@ -396,6 +405,8 @@ class HomegamesRoot {
                 onSoundToggle: (newVal) => {
                     this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
                         enabled: newVal
+                    }).then(() => {
+                        console.log('just updated setting??');
                     });
                 },
                 onExportSessionData: () => {
@@ -405,6 +416,7 @@ class HomegamesRoot {
 
             
             this.topLayerRoot.addChild(modal);
+            this.viewStates[playerId].node = modal;
         });
     }
 

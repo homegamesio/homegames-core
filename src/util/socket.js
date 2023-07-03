@@ -92,6 +92,25 @@ const generatePlayerId = () => {
 
     throw new Error('no player IDs left in pool');
 };
+// horrible hack. its actually difficult to have a pool of IDs for all sessions on a host. 
+// instead of trying to manage one pool of IDs for all processes, just randomly generate an ID > 128 for proxy clients. unlikely to clash with local IDs
+let _proxyPlayerIds = {};
+
+for (let i = 128; i < 256; i++) {
+    _proxyPlayerIds[i] = false;
+}
+
+const generateProxyPlayerId = () => {
+
+    for (const k in _proxyPlayerIds) {
+        if (_proxyPlayerIds[k] === false) {
+            _proxyPlayerIds[k] = true;
+            return Number(k);
+        }
+    }
+
+    throw new Error('no proxy player IDs left in pool');
+};
 
 const broadcast = (gameSession) => {
     const proxyServer = new WebSocket('wss://public.homegames.link:81');
@@ -112,7 +131,8 @@ const broadcast = (gameSession) => {
     proxyServer.on('message', (msg) => {
         if (msg.startsWith && msg.startsWith('idreq-')) {
             const proxyClientId = msg.substring(6);
-            const clientId = generatePlayerId();
+            const clientId = generateProxyPlayerId();
+            console.log("KUST GENERATED CLIENT ID " + clientId);
             proxyServer.send('idres-' + proxyClientId + '-' + clientId);
         } else if (msg.startsWith && msg.startsWith('close-')) {
             const pieces = msg.split('-');
@@ -123,6 +143,7 @@ const broadcast = (gameSession) => {
             } else {
                 gameSession.handlePlayerDisconnect(clientId);
             }
+            console.log('whwhwhwhwhwhwh the fuck ' + clientId);
             delete _playerIds[clientId];
         } else {
             let isJson = msg.startsWith;
@@ -233,6 +254,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 
                     ws.id = Number(jsonMessage.id || generatePlayerId());
 
+                    console.log("JSON MESSAGE ID WAS " + jsonMessage.id + " AND NOW ID IS " + ws.id);
                     const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
                     const req = (HTTPS_ENABLED ? https : http).request({
                         hostname: HTTPS_ENABLED ? (getUserHash(publicIp)+ '.homegames.link') : 'localhost',

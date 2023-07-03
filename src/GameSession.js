@@ -166,6 +166,7 @@ class GameSession {
 
     addPlayer(player) {
 
+        console.log("ADDING PLAYER WITH ID " + player.id);
         this.playerSettingsMap[player.id] = {
             'SOUND': true
         }

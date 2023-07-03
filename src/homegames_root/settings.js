@@ -154,9 +154,12 @@ const soundSettingContainer = ({ playerId, onToggle, session }) => {
     const homenamesHelper = session.homenamesHelper;
 
 
+    let soundEnabled = true;
     let _playerSettings = {};
     const handleClick = () => {
-        onToggle(!(_playerSettings && _playerSettings[PLAYER_SETTINGS.SOUND] && _playerSettings[PLAYER_SETTINGS.SOUND].enabled));
+        console.log("PLAYUER SETTING!S");
+        console.log(_playerSettings)
+        onToggle(!soundEnabled);//(_playerSettings && _playerSettings[PLAYER_SETTINGS.SOUND] && _playerSettings[PLAYER_SETTINGS.SOUND].enabled));
     };
 
     const soundSettingContainer = new GameNode.Shape({
@@ -168,7 +171,9 @@ const soundSettingContainer = ({ playerId, onToggle, session }) => {
 
     homenamesHelper.getPlayerSettings(playerId).then((playerSettings) => {
         _playerSettings = playerSettings;
-        let soundEnabled = true;
+        console.log("GOT PLAYER SETTINGS!");
+        console.log(playerSettings);
+        // let soundEnabled = true;
         if (playerSettings && playerSettings[PLAYER_SETTINGS.SOUND] && !playerSettings[PLAYER_SETTINGS.SOUND].enabled) {
             soundEnabled = false;
         }

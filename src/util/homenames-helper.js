@@ -45,7 +45,6 @@ const getPublicIP = () => new Promise((resolve, reject) => {
 const makeGet = (path = '', headers = {}, username) => new Promise((resolve, reject) => {    
     const protocol = HTTPS_ENABLED ? 'https' : 'http';
     // todo: fix
-    console.log('dfjgndf!');
     getPublicIP().then(publicIp => {
         const host = HTTPS_ENABLED ? (getUserHash(publicIp) + '.homegames.link') : 'localhost';
         const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;//'http://localhost:' + getConfigValue('HOMENAMES_PORT');
