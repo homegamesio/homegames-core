@@ -388,7 +388,7 @@ const legTypes = {
             'gas-pump': 6,
             'gas-canister': 6,
             'senor-die': 6,
-            'slot-enemy': 6
+            'slot-enemy': 5
         },
         xOffsets: {
             'big-saguaro': -0.5,
@@ -396,7 +396,7 @@ const legTypes = {
             'gas-pump': -0.5,
             'gas-canister': -0.5,
             'senor-die': -0.5,
-            'slot-enemy': -0.5
+            'slot-enemy': 0.3
         },
         create: (startX, startY) => {
             return new GameNode.Asset({
@@ -428,7 +428,7 @@ const legTypes = {
             'gas-pump': -0.5,
             'gas-canister': -0.5,
             'senor-die': -0.5,
-            'slot-enemy': -0.5
+            'slot-enemy': 0.3
         },
         yOffsets: {
             'big-saguaro': 6,
@@ -436,7 +436,7 @@ const legTypes = {
             'gas-pump': 6,
             'gas-canister': 6,
             'senor-die': 6,
-            'slot-enemy': 6
+            'slot-enemy': 5
         },
         create: (startX, startY) => {
             return new GameNode.Asset({
@@ -544,166 +544,166 @@ const legTypes = {
 }
 
 const enemyTypes = {
-    'big-saguaro': {
-        xRate: .25,
-        value: 25,
-        health: 50,
-        create: (startX, startY) => {
-            return new GameNode.Asset({
-                coordinates2d:  ShapeUtils.rectangle(
-                    startX,
-                    startY,
-                    6,
-                    6
-                ),
-                assetInfo: {
-                    'big-saguaro': {
-                        pos: {
-                            x: startX,
-                            y: startY
-                        },
-                        size: {
-                            x: 6,
-                            y: 6
-                        }
-                    }
-                }
-            });
-        }
-    },
-    'little-saguaro': {
-        xRate: .25,
-        value: 25,
-        health: 50,
-        create: (startX, startY) => {
+    // 'big-saguaro': {
+    //     xRate: .25,
+    //     value: 25,
+    //     health: 50,
+    //     create: (startX, startY) => {
+    //         return new GameNode.Asset({
+    //             coordinates2d:  ShapeUtils.rectangle(
+    //                 startX,
+    //                 startY,
+    //                 6,
+    //                 6
+    //             ),
+    //             assetInfo: {
+    //                 'big-saguaro': {
+    //                     pos: {
+    //                         x: startX,
+    //                         y: startY
+    //                     },
+    //                     size: {
+    //                         x: 6,
+    //                         y: 6
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //     }
+    // },
+    // 'little-saguaro': {
+    //     xRate: .25,
+    //     value: 25,
+    //     health: 50,
+    //     create: (startX, startY) => {
 
-            return new GameNode.Asset({
-                coordinates2d:  ShapeUtils.rectangle(
-                    startX,
-                    startY,
-                    4,
-                    4
-                ),
-                assetInfo: {
-                    'little-saguaro': {
-                        pos: {
-                            x: startX,
-                            y: startY
-                        },
-                        size: {
-                            x: 4,
-                            y: 4
-                        }
-                    }
-                }
-            });
-            // return new GameNode.Shape({
-            //    shapeType: Shapes.POLYGON,
-            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
-            //     fill: Colors.COLORS.BLUE
-            // });
-        }
-    },
-    'gas-canister': {
-        xRate: .25,
-        value: 25,
-        health: 50,
-        create: (startX, startY) => {
+    //         return new GameNode.Asset({
+    //             coordinates2d:  ShapeUtils.rectangle(
+    //                 startX,
+    //                 startY,
+    //                 4,
+    //                 4
+    //             ),
+    //             assetInfo: {
+    //                 'little-saguaro': {
+    //                     pos: {
+    //                         x: startX,
+    //                         y: startY
+    //                     },
+    //                     size: {
+    //                         x: 4,
+    //                         y: 4
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //         // return new GameNode.Shape({
+    //         //    shapeType: Shapes.POLYGON,
+    //         //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+    //         //     fill: Colors.COLORS.BLUE
+    //         // });
+    //     }
+    // },
+    // 'gas-canister': {
+    //     xRate: .25,
+    //     value: 25,
+    //     health: 50,
+    //     create: (startX, startY) => {
 
-            return new GameNode.Asset({
-                coordinates2d:  ShapeUtils.rectangle(
-                    startX,
-                    startY,
-                    6,
-                    6
-                ),
-                assetInfo: {
-                    'gas-canister': {
-                        pos: {
-                            x: startX,
-                            y: startY
-                        },
-                        size: {
-                            x: 6,
-                            y: 6
-                        }
-                    }
-                }
-            });
-            // return new GameNode.Shape({
-            //    shapeType: Shapes.POLYGON,
-            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
-            //     fill: Colors.COLORS.BLUE
-            // });
-        }
-    },
+    //         return new GameNode.Asset({
+    //             coordinates2d:  ShapeUtils.rectangle(
+    //                 startX,
+    //                 startY,
+    //                 6,
+    //                 6
+    //             ),
+    //             assetInfo: {
+    //                 'gas-canister': {
+    //                     pos: {
+    //                         x: startX,
+    //                         y: startY
+    //                     },
+    //                     size: {
+    //                         x: 6,
+    //                         y: 6
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //         // return new GameNode.Shape({
+    //         //    shapeType: Shapes.POLYGON,
+    //         //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+    //         //     fill: Colors.COLORS.BLUE
+    //         // });
+    //     }
+    // },
 
-    'gas-pump': {
-        xRate: .25,
-        value: 25,
-        health: 50,
-        create: (startX, startY) => {
+    // 'gas-pump': {
+    //     xRate: .25,
+    //     value: 25,
+    //     health: 50,
+    //     create: (startX, startY) => {
 
-            return new GameNode.Asset({
-                coordinates2d:  ShapeUtils.rectangle(
-                    startX,
-                    startY,
-                    6,
-                    6
-                ),
-                assetInfo: {
-                    'gas-pump': {
-                        pos: {
-                            x: startX,
-                            y: startY
-                        },
-                        size: {
-                            x: 6,
-                            y: 6
-                        }
-                    }
-                }
-            });
-            // return new GameNode.Shape({
-            //    shapeType: Shapes.POLYGON,
-            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
-            //     fill: Colors.COLORS.BLUE
-            // });
-        }
-    },
-    'senor-die': {
-        xRate: .25,
-        value: 25,
-        health: 50,
-        create: (startX, startY) => {
+    //         return new GameNode.Asset({
+    //             coordinates2d:  ShapeUtils.rectangle(
+    //                 startX,
+    //                 startY,
+    //                 6,
+    //                 6
+    //             ),
+    //             assetInfo: {
+    //                 'gas-pump': {
+    //                     pos: {
+    //                         x: startX,
+    //                         y: startY
+    //                     },
+    //                     size: {
+    //                         x: 6,
+    //                         y: 6
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //         // return new GameNode.Shape({
+    //         //    shapeType: Shapes.POLYGON,
+    //         //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+    //         //     fill: Colors.COLORS.BLUE
+    //         // });
+    //     }
+    // },
+    // 'senor-die': {
+    //     xRate: .25,
+    //     value: 25,
+    //     health: 50,
+    //     create: (startX, startY) => {
 
-            return new GameNode.Asset({
-                coordinates2d:  ShapeUtils.rectangle(
-                    startX,
-                    startY,
-                    6,
-                    6
-                ),
-                assetInfo: {
-                    'senor-die': {
-                        pos: {
-                            x: startX,
-                            y: startY
-                        },
-                        size: {
-                            x: 6,
-                            y: 6
-                        }
-                    }
-                }
-            });
-            // return new GameNode.Shape({
-            //    shapeType: Shapes.POLYGON,
-            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
-            //     fill: Colors.COLORS.BLUE
-            // });
-        }
-    },
+    //         return new GameNode.Asset({
+    //             coordinates2d:  ShapeUtils.rectangle(
+    //                 startX,
+    //                 startY,
+    //                 6,
+    //                 6
+    //             ),
+    //             assetInfo: {
+    //                 'senor-die': {
+    //                     pos: {
+    //                         x: startX,
+    //                         y: startY
+    //                     },
+    //                     size: {
+    //                         x: 6,
+    //                         y: 6
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //         // return new GameNode.Shape({
+    //         //    shapeType: Shapes.POLYGON,
+    //         //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
+    //         //     fill: Colors.COLORS.BLUE
+    //         // });
+    //     }
+    // },
     'slot-enemy': {
         xRate: .25,
         value: 25,
@@ -894,6 +894,19 @@ class Hunt {
 //            clearInterval(spawner);
 //            console.log('ended');
 //        }, 60 * 1000);
+
+        const songNode = new GameNode.Asset({
+                    coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                    assetInfo: {
+                        'huntSong': {
+                            'pos': Object.assign({}, { x: 0, y: 0 }),
+                            'size': Object.assign({}, { x: 0, y: 0 }),
+                            'startTime': 0
+                        }
+                    }
+                });
+
+                this.root.addChild(songNode);
     }
 
     handleNewZone(zone) {
@@ -1148,8 +1161,6 @@ class Hunt {
     }
 
     spawnScrap(x, y) {
-        console.log('need to spawn scrap at ' + x + ',  ' + y);
-
         const scrapIcon = new GameNode.Asset({
             coordinates2d:  ShapeUtils.rectangle(
                 x - 1,

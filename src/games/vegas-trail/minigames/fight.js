@@ -110,6 +110,19 @@ class Fight {
         });
 
         this.attackLayer.addChildren(this.leftGloveAsset, this.rightGloveAsset);
+
+        const songNode = new GameNode.Asset({
+                    coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                    assetInfo: {
+                        'fightSong': {
+                            'pos': Object.assign({}, { x: 0, y: 0 }),
+                            'size': Object.assign({}, { x: 0, y: 0 }),
+                            'startTime': 0
+                        }
+                    }
+                });
+
+                this.root.addChild(songNode);
     }
 
     attack(playerId, x, y) {

@@ -102,11 +102,11 @@ const shopInventoryMap = () => {
             "consumables": {
                 "food": {
                     "amount": 40,
-                    "cost": 10
+                    "cost": 1
                 },
                 "wheels": {
                     "amount": 1,
-                    "cost": 100
+                    "cost": 50
                 },
                 "ammo": {
                     "amount": 100,
@@ -120,12 +120,12 @@ const shopInventoryMap = () => {
             "upgrades": {
                 // "weapons": {
                     "rock": {
-                        "cost": 200
+                        "cost": 50
                     },
                 // },
                 // "vehicle": {
                     "biscuit": {
-                        "cost": 2000
+                        "cost": 100
                     },
                 // },
                 // "resilience": {
@@ -148,9 +148,6 @@ const shopInventoryMap = () => {
 }
 
 const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
-    console.log('for which players though');
-    console.log(playerIds);
-
     let selectedKey;
     const modalBase = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
@@ -597,20 +594,6 @@ class MapGame {
         shopBase.addChild(shopIcon);
 
         this.root.addChildren(this.map, shopBase, this.modalRoot, this.currentStatusNode);
-
-        const songNode = new GameNode.Asset({
-                    coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
-                    assetInfo: {
-                        'mainSong': {
-                            'pos': Object.assign({}, { x: 0, y: 0 }),
-                            'size': Object.assign({}, { x: 0, y: 0 }),
-                            'startTime': 0
-                        }
-                    }
-                });
-
-                this.root.addChild(songNode);
-
     }
 
     callShop(playerId) {    
@@ -773,7 +756,7 @@ class MapGame {
         const now = Date.now();
         for (let key in playerStates) {
             const playerState = playerStates[key];
-            if (!playerState.lastMovementTime || playerState.lastMovementTime + (0 * this.moveInterval) <= now) {
+            if (!playerState.lastMovementTime || playerState.lastMovementTime + (this.moveInterval) <= now) {
                 if (playerState.currentIndex >= playerState.path.length) {
                     playerState.currentIndex = 0;
                     // continue;

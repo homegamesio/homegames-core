@@ -373,6 +373,20 @@ const buildInitialModal = (onStart) => {
         }
     });
 
+
+    const songNode = new GameNode.Asset({
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                assetInfo: {
+                    'introSong': {
+                        'pos': Object.assign({}, { x: 0, y: 0 }),
+                        'size': Object.assign({}, { x: 0, y: 0 }),
+                        'startTime': 0
+                    }
+                }
+            });
+
+            modal.addChild(songNode);
+
     const startButton = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(45, 45, 10, 10),
@@ -474,8 +488,20 @@ class VegasTrail extends Game {
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
             tickRate: 24,
             assets: {
+                'introSong': new Asset({
+                    'id': '6f31e20f5a1acd20b3d7872e6da6ff7b',
+                    type: 'audio'
+                }),
+                'fightSong': new Asset({
+                    'id': '8e07e7e52fccf272363de4c7c0190b8f',
+                    type: 'audio'
+                }),
+                'huntSong': new Asset({
+                    'id': 'b4233fd87368ad7bc275dedb2c680683',
+                    type: 'audio'
+                }),
                 'mainSong': new Asset({
-                    'id': 'a0afee5abd5ac487a3bb8ad2f242c131',
+                    'id': '6df9eba1d3489e201328ebf1e0300491',
                     type: 'audio'
                 }),
                 'driveSong': new Asset({
@@ -487,7 +513,7 @@ class VegasTrail extends Game {
                     'type': 'image'
                 }),
                 'map-background': new Asset({
-                    'id': '3e1a48e2ad3ed304eff1d91ca46f8202',
+                    'id': '4e450b680f10d27ddf6575258d031f16',
                     'type': 'image'
                 }),
                 'car-default': new Asset({
@@ -680,7 +706,7 @@ class VegasTrail extends Game {
                 }),
                 'bug-2-default': new Asset({
                     'type': 'image',
-                    'id': 'e2dcc4c488df274a847c2a74662f44bd'
+                    'id': 'f02e67d1a1308b04aeee85df0eec8154'
                 }),
                 'bug-2-left': new Asset({
                     'type': 'image',
@@ -827,7 +853,22 @@ class VegasTrail extends Game {
         this.distanceTraveled = 0;
         
         // main modal will pause game until closed
-        this.mainModal = buildInitialModal(this.clearMainModal.bind(this));
+        this.mainModal = buildInitialModal(() => {
+            this.clearMainModal();
+
+        const songNode = new GameNode.Asset({
+                    coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                    assetInfo: {
+                        'mainSong': {
+                            'pos': Object.assign({}, { x: 0, y: 0 }),
+                            'size': Object.assign({}, { x: 0, y: 0 }),
+                            'startTime': 0
+                        }
+                    }
+                });
+
+                this.map.root.addChild(songNode);
+        });
 
         this.travelUpdateInterval = 1000; // update distance traveled every one second
 
@@ -917,7 +958,7 @@ class VegasTrail extends Game {
         }
     }
 
-    handleSickHit(dmg = 1) {
+    handleSickHit(dmg = 5) {
         this.sickHealth -= dmg;
         if (this.sickHealth <= 0) {
             if (this.resources.antibiotics > 0) {
@@ -982,6 +1023,7 @@ class VegasTrail extends Game {
     }
 
     renderStatsLayer() {
+
         this.statsLayer.clearChildren();
 
         const statsBox = new GameNode.Shape({
@@ -1177,9 +1219,11 @@ class VegasTrail extends Game {
     }
 
     handleNewPlayer({ playerId }) {
+
+        // if we already have a map node add a new one but its invisible lol
         const node = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            fill: Colors.COLORS.RED,
+            fill: this.addedMapNode ? undefined : Colors.COLORS.RED,
             coordinates2d: ShapeUtils.rectangle(mapData.mapCoords[0][0], mapData.mapCoords[0][1], 2, 2)
         });
 
@@ -1194,6 +1238,8 @@ class VegasTrail extends Game {
         this.setCurrentGame(playerId, this.map);
 
         this.map.map.addChild(node);
+
+        this.addedMapNode = true;
 //        const hunt = new Hunt(playerId);
 //        const run = new Run(playerId);
 //        const gridDefense = new GridDefense(playerId);
@@ -1240,6 +1286,20 @@ class VegasTrail extends Game {
         // this.renderMainModal();
     }
 
+    depleteFood() {
+        const val = Object.keys(this.playerStates).length;
+        this.resources.food -= val;
+        if (this.resources.food < 0) {
+            this.handleFailure('food');
+        }
+        
+        if (this.foodText) {
+            const newText = Object.assign({}, this.foodText.node.text);
+            newText.text = `${this.resources.food}`;
+            this.foodText.node.text = newText;
+        }
+    }
+
     tick() {
 
         if (this.mainModal) {//} && !this.map.paused) {
@@ -1247,9 +1307,11 @@ class VegasTrail extends Game {
             return;
         }
 
-        if (!this.lastTravelUpdate || this.lastTravelUpdate + (0 * this.travelUpdateInterval) <= Date.now()) {
+        if (!this.lastTravelUpdate || this.lastTravelUpdate + (this.travelUpdateInterval) <= Date.now()) {
             this.distanceTraveled = this.distanceTraveled + this.travelTickDistance;
             this.lastTravelUpdate = Date.now();
+
+            this.depleteFood();
             // const newProgress = Object.assign({}, this.progressText.node.text);
             // newProgress.text = `${this.distanceTraveled.toFixed(2)} / ${TOTAL_DISTANCE} miles`;
             // this.progressText.node.text = newProgress;
