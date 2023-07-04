@@ -29,9 +29,6 @@ const server = (certPath, squishMap, username) => {
     // hack kind of. but homegames dashbaoard is special
     let session;
 
-    console.log('certttt path');
-    console.log(certPath);
-
     const dashboard = customStartModule ? new customStartModule({ 
         squishMap,
         addAsset: (key, asset) => new Promise((resolve, reject) => {
