@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-0767');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-1000');
 const { MapGame, Drive, Fight, Hunt, Talk } = require('./minigames/index.js');
 const COLORS = Colors.COLORS;
 
