@@ -131,55 +131,54 @@ const mapData = {
             coord: [92, 94],
             textCoord: [75, 95],
             name: `St. Mary's Mexican Food`,
-            assetKey: 'placeholder',
+            assetKey: 'little-saguaro',
             descriptionLines: [
-                'ayy lmao i will write this',
-                'or will i',
-                'time will tell'
+                'The last bastion of hope in Tucson.',
+                'After the Berto-Beto civil war, the taco community was in disarray.',
+                `St. Mary's beans brought us all together when we needed each other the most.`
             ]
        },
        {
             coord: [78, 74],
             textCoord: [78.5, 71],
             name: 'Phoenix',
-            assetKey: 'placeholder',
+            assetKey: 'big-saguaro',
             descriptionLines: [
-                'ayy lmao i will write this',
-                'or will i',
-                'time will tell'
+                'Some say Phoenix is the worst place in the world.'
             ]
        },
        {
             coord: [54, 46],
             textCoord: [52.5, 52],
             name: 'Gas Station',
-            assetKey: 'placeholder',
+            assetKey: 'gas-canister',
             descriptionLines: [
-                'ayy lmao i will write this',
-                'or will i',
-                'time will tell'
+                `The only civilization for miles.`,
+                `The long road is lonely and dry.`,
+                `For some reason, this one gas station is the only memorable landmark for hours.`
             ]
        },
        {
             coord: [32, 42],
             textCoord: [33, 39.5],
             name: 'Hoover Dam',
-            assetKey: 'placeholder',
+            assetKey: 'bug-1-default',
             descriptionLines: [
-                'ayy lmao i will write this',
-                'or will i',
-                'time will tell'
+                'No one really knows what happens here.',
+                'Some say the machine uprising started at the Hoover dam, but no one knows for sure.',
+                `They built a "bypass route" for "convenience" way back when.`,
+                `I always thought it was about more than convenience.`
             ]
        },
        {
             coord: [8, 10],
             textCoord: [14, 11.5],
             name: 'Las Vegas Strip',
-            assetKey: 'placeholder',
+            assetKey: 'slot-enemy',
             descriptionLines: [
-                'ayy lmao i will write this',
-                'or will i',
-                'time will tell'
+                `The belly of the beast.`,
+                `The titan of terror.`,
+                `The colossus of clout!`
             ]
        }
    ]
@@ -364,15 +363,86 @@ const buildInitialModal = (onStart) => {
     const textOne = new GameNode.Text({
         textInfo: {
             x: 50,
-            y: 25,
+            y: 23,
             align: 'center',
-            size: 1.2,
+            size: 1.6,
             font: 'amateur',
-            text: 'Hello! I will put intro text here eventually',
+            text: 'Welcome to the Vegas Trail! Stuff is pretty messed up out here.',
             color: Colors.COLORS.WHITE
         }
     });
 
+    const textTwo = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 30,
+            align: 'center',
+            size: 1.2,
+            font: 'amateur',
+            text: 'The flora and fauna have gone mad.',
+            color: Colors.COLORS.WHITE
+        }
+    });
+
+    const textThree = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 37,
+            align: 'center',
+            size: 1.2,
+            font: 'amateur',
+            text: `Machines have risen up and started making demands.`,
+            color: Colors.COLORS.WHITE
+        }
+    });
+
+    const textFour = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 44,
+            align: 'center',
+            size: 1.2,
+            font: 'amateur',
+            text: `Legend has it that there's a cure for the madness in Vegas.`,
+            color: Colors.COLORS.WHITE
+        }
+    });
+
+    const textFive = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 51,
+            align: 'center',
+            size: 1.2,
+            font: 'amateur',
+            text: `You will need to drive, hunt for scraps, and fight illness to survive.`,
+            color: Colors.COLORS.WHITE
+        }
+    });
+
+    const textSix = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 58,
+            align: 'center',
+            size: 1.2,
+            font: 'amateur',
+            text: `It won't be easy but it might be cool.`,
+            color: Colors.COLORS.WHITE
+        }
+    });
+
+    const textSeven = new GameNode.Text({
+        textInfo: {
+            x: 50,
+            y: 65,
+            align: 'center',
+            size: 1.2,
+            font: 'amateur',
+            text: 'Are you ready to start your journey?',
+            color: Colors.COLORS.WHITE
+        }
+    });
 
     const songNode = new GameNode.Asset({
                 coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
@@ -389,7 +459,7 @@ const buildInitialModal = (onStart) => {
 
     const startButton = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(45, 45, 10, 10),
+        coordinates2d: ShapeUtils.rectangle(45, 75, 10, 10),
         onClick: onStart,
         fill: Colors.COLORS.HG_BLUE
     });
@@ -397,7 +467,7 @@ const buildInitialModal = (onStart) => {
     const startText = new GameNode.Text({
         textInfo: {
             x: 50,
-            y: 49,
+            y: 79,
             align: 'center',
             size: 1.2,
             font: 'heavy-amateur',
@@ -406,7 +476,7 @@ const buildInitialModal = (onStart) => {
         }
     });
 
-    modal.addChildren(textOne, startButton, startText);
+    modal.addChildren(textOne, textTwo, textThree, textFour, textFive, textSix, textSeven, startButton, startText);
 
     return modal;
 }
@@ -426,7 +496,7 @@ const buildWinModal = (onClose) => {
             align: 'center',
             size: 1.2,
             font: 'amateur',
-            text: 'You won!',
+            text: 'You defeated Las Vegas! Now drive back and forth forever to flex.',
             color: Colors.COLORS.WHITE
         }
     });
@@ -462,6 +532,12 @@ const buildFailModal = (reason) => {
         fill: Colors.COLORS.BLUE
     });
 
+    const textMap = {
+        'sick': 'You have fallen victim to the sickness',
+        'food': 'You ran out of food and died.',
+        'wheels': 'You rode until the wheels fell off. Then you died.'
+    }
+
     const textOne = new GameNode.Text({
         textInfo: {
             x: 50,
@@ -469,7 +545,7 @@ const buildFailModal = (reason) => {
             align: 'center',
             size: 1.2,
             font: 'amateur',
-            text: 'You died! ' + reason,
+            text: textMap[reason],
             color: Colors.COLORS.WHITE
         }
     });

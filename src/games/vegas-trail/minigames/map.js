@@ -56,12 +56,41 @@ const landmarkModal = (playerId, landmarkData, onClose) => {
         }
     });
 
+    const closeIcon = new GameNode.Asset({
+        coordinates2d:  ShapeUtils.rectangle(
+            16,
+            16,
+            10,
+            10
+        ),
+        assetInfo: {
+            'close': {
+                pos: {
+                    x: 16,
+                    y: 16
+                },
+                size: {
+                    x: 5,
+                    y: 5
+                }
+            }
+        }
+    });
+
     const closeButton = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(20, 20, 10, 10),
-        fill: Colors.COLORS.CYAN,
+        coordinates2d: ShapeUtils.rectangle(16, 16, 5, 5),
         onClick: onClose
     });
+
+    closeIcon.addChild(closeButton);
+
+    // const closeButton = new GameNode.Shape({
+    //     shapeType: Shapes.POLYGON,
+    //     coordinates2d: ShapeUtils.rectangle(20, 20, 10, 10),
+    //     fill: Colors.COLORS.CYAN,
+    //     onClick: onClose
+    // });
 
     const titleText = new GameNode.Text({
         textInfo: {
@@ -69,6 +98,7 @@ const landmarkModal = (playerId, landmarkData, onClose) => {
             x: 50,
             y: 45,
             align: 'center',
+            font: 'heavy-amateur',
             size: 2,
             color: Colors.COLORS.WHITE
         }
@@ -81,6 +111,7 @@ const landmarkModal = (playerId, landmarkData, onClose) => {
                 x: 50,
                 y: 55 + (i * 5),
                 align: 'center',
+                font: 'heavy-amateur',
                 size: 1.2,
                 color: Colors.COLORS.WHITE
             }
@@ -89,7 +120,7 @@ const landmarkModal = (playerId, landmarkData, onClose) => {
         modal.addChild(descriptionLine);
     }
 
-    modal.addChildren(landmarkImage, titleText, closeButton);
+    modal.addChildren(landmarkImage, titleText, closeIcon);
 
     modalBase.addChild(modal);
 

@@ -384,7 +384,7 @@ const legTypes = {
     'legs-3-left-1': {
         yOffsets: {
             'big-saguaro': 6,
-            'little-saguaro': 6,
+            'little-saguaro': 5,
             'gas-pump': 6,
             'gas-canister': 5,
             'senor-die': 6,
@@ -432,7 +432,7 @@ const legTypes = {
         },
         yOffsets: {
             'big-saguaro': 6,
-            'little-saguaro': 6,
+            'little-saguaro': 5,
             'gas-pump': 6,
             'gas-canister': 5,
             'senor-die': 6,
@@ -464,7 +464,7 @@ const legTypes = {
     'legs-3-right-1': {
         yOffsets: {
             'big-saguaro': 4.7,
-            'little-saguaro': 6,
+            'little-saguaro': 5,
             'gas-pump': 6,
             'gas-canister': 5,
             'senor-die': 6,
@@ -512,7 +512,7 @@ const legTypes = {
         },
         yOffsets: {
             'big-saguaro': 4.7,
-            'little-saguaro': 6,
+            'little-saguaro': 5,
             'gas-pump': 6,
             'gas-canister': 5,
             'senor-die': 6,
