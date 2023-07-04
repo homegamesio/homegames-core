@@ -8,7 +8,7 @@ const defaultResources = () => {
     return {
         scrap: 50, // money
         wheels: 3, // 2 needed to drive
-        ammo: 10, // depleted when hunting
+        ammo: 20, // depleted when hunting
         health: 100, // falls due to illness
         antibiotics: 2, // increase health
         food: 100, // jump river
@@ -1010,7 +1010,8 @@ class VegasTrail extends Game {
             huntOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.hunt)),
             fightOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.fight)),
             talkOptionNode((playerId) => {
-                if (!this.mainModal) {
+                if (!this.mainModal && (!this.lastTalkUpdate || this.lastTalkUpdate + 3000 < Date.now())) {
+                    this.lastTalkUpdate = Date.now();
                     this.talk.update();
                     this.setCurrentGame(playerId, this.talk);
                 }

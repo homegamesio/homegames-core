@@ -121,8 +121,6 @@ class Talk {
 
         const newAssetKey = 'guy-' + Math.max(1, Math.floor(Math.random() * 10 % 5));
 
-        console.log('sdfdsf ' + newAssetKey);
-
         const newAssetInfo = {
             [newAssetKey]: {
                 pos: {
