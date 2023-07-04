@@ -132,7 +132,6 @@ const broadcast = (gameSession) => {
         if (msg.startsWith && msg.startsWith('idreq-')) {
             const proxyClientId = msg.substring(6);
             const clientId = generateProxyPlayerId();
-            console.log("KUST GENERATED CLIENT ID " + clientId);
             proxyServer.send('idres-' + proxyClientId + '-' + clientId);
         } else if (msg.startsWith && msg.startsWith('close-')) {
             const pieces = msg.split('-');
@@ -143,7 +142,6 @@ const broadcast = (gameSession) => {
             } else {
                 gameSession.handlePlayerDisconnect(clientId);
             }
-            console.log('whwhwhwhwhwhwh the fuck ' + clientId);
             delete _playerIds[clientId];
         } else {
             let isJson = msg.startsWith;
@@ -254,7 +252,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 
                     ws.id = Number(jsonMessage.id || generatePlayerId());
 
-                    console.log("JSON MESSAGE ID WAS " + jsonMessage.id + " AND NOW ID IS " + ws.id);
                     const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
                     const req = (HTTPS_ENABLED ? https : http).request({
                         hostname: HTTPS_ENABLED ? (getUserHash(publicIp)+ '.homegames.link') : 'localhost',

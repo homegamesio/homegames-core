@@ -58,7 +58,6 @@ class Squarer extends Game {
         this.npc.forEach(npc => {
             clearInterval(npc.interval);
             this.base.removeChild(npc.id);
-            console.log('fsdfdsfds!"');
             npc.free();
         });
         this.npc = [];

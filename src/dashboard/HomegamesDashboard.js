@@ -174,8 +174,12 @@ const getGamePathsHelper = (dir) => {
         
         const metadata = fs.statSync(entryPath);
         if (metadata.isFile()) {
-            if (entryPath.endsWith('index.js')) {
-                results.add(entryPath);
+            console.log(entryPath)
+            if (entryPath.match('games/[a-zA-Z0-9\\-_]+/index.js')) {
+
+                if (entryPath.endsWith('index.js')) {
+                    results.add(entryPath);
+                }
             }
         } else if (metadata.isDirectory()) {
             const nestedPaths = getGamePathsHelper(entryPath);
@@ -202,6 +206,7 @@ const getGameMap = () => {
         const isLocal = sourceGames.has(gamePath);
 
 
+            console.log("GAME PATH " + gamePath);
         if (isLocal) {
 
             const gameClass = require(gamePath);
@@ -508,7 +513,8 @@ class HomegamesDashboard extends ViewableGame {
                             }
                         },
                         onClose: () => {
-                            playerRoot.removeChild(modal.node.id);  
+                            playerRoot.removeChild(modal.node.id);
+                            this.clearAllChildren(modal);  
                         }
                     });
 
@@ -1018,10 +1024,32 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     handlePlayerDisconnect(playerId) {
-        const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].root;
+        const playerViewRoot = this.playerRoots[playerId] && this.playerRoots[playerId].node;
         if (playerViewRoot) {
-            this.getViewRoot().removeChild(playerViewRoot.node.id);
+            const node = playerViewRoot.node;
+            this.playerRootNode.removeChild(node.id);
+            delete this.playerRoots[playerId];
+            this.clearAllChildren(node);
         }
+    }
+    
+    clearAllChildren(node) {
+        const proxiesToRevoke = this.clearAllChildrenHelper(node);
+
+        proxiesToRevoke.forEach(p => {
+            p.free();
+        });
+    }
+    
+    clearAllChildrenHelper(_node, proxiesToRevoke = []) {
+        const node = _node.node || _node;
+        proxiesToRevoke.push(node);
+
+        for (let i = 0; i < node.children.length; i++) {
+            this.clearAllChildrenHelper(node.children[i], proxiesToRevoke);
+        }
+
+        return proxiesToRevoke;
     }
 
 }

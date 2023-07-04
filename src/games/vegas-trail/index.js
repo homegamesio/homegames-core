@@ -910,10 +910,7 @@ class VegasTrail extends Game {
     }
 
     clearMainModal() {
-        console.log('aaaa');
         if (this.mainModal) {
-            console.log('aaaabbb');
-            console.log(this.mainModal);
             this.mainModalLayer.removeChild(this.mainModal.id);
             this.mainModal.node.free();
             this.mainModal = null;
@@ -923,7 +920,6 @@ class VegasTrail extends Game {
     handleSickHit(dmg = 1) {
         this.sickHealth -= dmg;
         if (this.sickHealth <= 0) {
-            console.log('need to use antibiotic ' + this.resources.antibiotics);
             if (this.resources.antibiotics > 0) {
                 this.sickHealth = 100;
                 this.resources.antibiotics -= 1;
@@ -937,7 +933,6 @@ class VegasTrail extends Game {
     handleCarHit(dmg = 1) {
         this.carHealth -= dmg;
         if (this.carHealth <= 0) {
-            console.log('need to use wheel replacement ' + this.resources.wheels);
             if (this.resources.wheels > 0) {
                 this.carHealth = 100;
                 this.resources.wheels -= 1;
@@ -1195,8 +1190,6 @@ class VegasTrail extends Game {
             node,
             score: 0
         }
-
-        console.log('new player joined ' + playerId);
 
         this.setCurrentGame(playerId, this.map);
 

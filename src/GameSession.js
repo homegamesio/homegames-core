@@ -165,8 +165,6 @@ class GameSession {
     }
 
     addPlayer(player) {
-
-        console.log("ADDING PLAYER WITH ID " + player.id);
         this.playerSettingsMap[player.id] = {
             'SOUND': true
         }
@@ -200,7 +198,6 @@ class GameSession {
 
                         this.homenamesHelper.addListener(player.id);
 
-                        console.log('dsfjlkdsjflkdsjfldks');
                         this.homegamesRoot.handleNewPlayer(rootPayload);
                         this.game.handleNewPlayer && this.game.handleNewPlayer(playerPayload);
 

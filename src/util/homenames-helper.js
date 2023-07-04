@@ -68,7 +68,6 @@ const makePost = (path, _payload, username) => new Promise((resolve, reject) => 
 
     module = HTTPS_ENABLED ? https : http;
     port =  getConfigValue('HOMENAMES_PORT');
-    console.log('dfjgndf! dsffgdg');
 
     getPublicIP().then(publicIp => {
         hostname = HTTPS_ENABLED ? (getUserHash(publicIp) + '.homegames.link') : 'localhost';

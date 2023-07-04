@@ -18,7 +18,10 @@ class HotPotato extends Game {
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: [87, 42, 19, 255]
+            fill: [87, 42, 19, 255],
+            onClick: () => {
+                console.log('fuck 123');
+            },
         });
 
         this.players = {};
@@ -94,17 +97,19 @@ class HotPotato extends Game {
     }
 
     createPotato(assignedPlayerId) {
+        if (!assignedPlayerId) {
+            assignedPlayerId = Number(this.randomPlayerId());
+        }
         if (this.potato) {
             this.base.removeChild(this.potato.node.id);
         }
 
         const potatoOverlay = new GameNode.Shape({ 
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(25, 25, 50, 50),
-            // fill: COLORS.RED,
+            coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
             onClick: (playerId) => {
                 // exclude current player
-                const newPlayerId = this.randomPlayerId(this.potato.node.playerIds);
+                const newPlayerId = Number(this.randomPlayerId(this.potato.node.playerIds));
                 this.updatePotatoState(newPlayerId);
             }
         });
@@ -117,7 +122,7 @@ class HotPotato extends Game {
                     'size': {x: 40, y: 30}
                 }
             },
-            playerIds: [assignedPlayerId || this.randomPlayerId()]
+            playerIds: [assignedPlayerId]
         });
         
         this.songPlayedAt = Date.now();
@@ -133,9 +138,8 @@ class HotPotato extends Game {
             }
         });
 
-        this.potato.addChildren(potatoOverlay, this.potatoSound);
+        this.potato.addChildren(this.potatoSound, potatoOverlay);
 
-        // this.potato.addChild(potatoAsset);
 
         // at least 5 seconds, possibly up to 20
         const randomEndSeconds = 5 + (Math.floor(Math.random() * 15));
