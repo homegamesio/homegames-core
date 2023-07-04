@@ -18,10 +18,7 @@ class HotPotato extends Game {
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: [87, 42, 19, 255],
-            onClick: () => {
-                console.log('fuck 123');
-            },
+            fill: [87, 42, 19, 255]
         });
 
         this.players = {};
