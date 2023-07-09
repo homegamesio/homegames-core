@@ -68,6 +68,12 @@ class GameSession {
 
         this.players = {};
         this.spectators = {};
+        
+        setInterval(() => {
+            if (this.lastSentTime && this.lastSentTime + 30 < Date.now()) {
+                this.doSendUpdate();
+            }
+        }, 50);
     }
 
     handleNewAsset(key, asset) {
@@ -82,16 +88,15 @@ class GameSession {
         });
     }
 
-
-    handleSquisherUpdate(squished) {
-        this.lastSquished = squished;
+    doSendUpdate() {
+            // cons
 
         // squisherUpdateTimes.push(Date.now());
-        
+
         // if (squisherUpdateTimes.length % 100 === 0) {
         //     console.log(squisherUpdateTimes.length + ' sent 100 frames in ' + (squisherUpdateTimes[squisherUpdateTimes.length - 1] - squisherUpdateTimes[squisherUpdateTimes.length - 101]));
         // }
-        if (!this.lastSentTime || this.lastSentTime + 50 < Date.now()) {
+            this.lastSentTime = Date.now();
             for (const playerId in this.players) {
                 const playerSettings = this.playerSettingsMap[playerId] || {};
                 
@@ -148,6 +153,14 @@ class GameSession {
                     this.spectators[spectatorId].receiveUpdate(playerFrame.flat());
                 }
             }
+        
+    }
+
+    handleSquisherUpdate(squished) {
+        this.lastSquished = squished;
+
+        if (!this.lastSentTime || this.lastSentTime + 30 < Date.now()) {
+            this.doSendUpdate();
         }
         // console.log('got squisher update of this length ' + squished.length);
 //         const now = Date.now();
