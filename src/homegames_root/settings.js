@@ -1,4 +1,4 @@
-const { GameNode, Colors, ShapeUtils, Shapes } = require('squish-0766');
+const { GameNode, Colors, ShapeUtils, Shapes } = require('squish-0767');
 const HomenamesHelper = require('../util/homenames-helper');
 const { COLORS } = Colors;
 const PLAYER_SETTINGS = require('../common/player-settings');
@@ -154,9 +154,10 @@ const soundSettingContainer = ({ playerId, onToggle, session }) => {
     const homenamesHelper = session.homenamesHelper;
 
 
+    let soundEnabled = true;
     let _playerSettings = {};
     const handleClick = () => {
-        onToggle(!(_playerSettings && _playerSettings[PLAYER_SETTINGS.SOUND] && _playerSettings[PLAYER_SETTINGS.SOUND].enabled));
+        onToggle(!soundEnabled);
     };
 
     const soundSettingContainer = new GameNode.Shape({
@@ -168,9 +169,8 @@ const soundSettingContainer = ({ playerId, onToggle, session }) => {
 
     homenamesHelper.getPlayerSettings(playerId).then((playerSettings) => {
         _playerSettings = playerSettings;
-        let soundEnabled = false;
-        if (playerSettings && playerSettings[PLAYER_SETTINGS.SOUND] && playerSettings[PLAYER_SETTINGS.SOUND].enabled) {
-            soundEnabled = true;
+        if (playerSettings && playerSettings[PLAYER_SETTINGS.SOUND] && !playerSettings[PLAYER_SETTINGS.SOUND].enabled) {
+            soundEnabled = false;
         }
 
         const soundEnabledText = new GameNode.Text({

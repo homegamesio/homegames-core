@@ -1,6 +1,6 @@
 const dictionary = require('../../common/util/dictionary');
 
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0766');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0767');
 
 const COLORS = Colors.COLORS;
 
@@ -8,10 +8,10 @@ class Clicktionary extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            description: 'ayy lmao this is a test',
+            description: 'Take turns drawing and guessing the word',
             author: 'Joseph Garcia',
             thumbnail: '4b5f169186bc542e14b5d001d25ce6bb',
-            squishVersion: '0766',
+            squishVersion: '0767',
             maxPlayers: 2
         };
     }

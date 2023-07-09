@@ -29,20 +29,34 @@ const getLocalIP = () => {
     return localIP;
 };
 
-
-const makeGet = (path = '', headers = {}, username) => new Promise((resolve, reject) => {    
-    const protocol = HTTPS_ENABLED ? 'https' : 'http';
-    // todo: fix
-    const host = HTTPS_ENABLED && username ? (getUserHash(username + getLocalIP()) + '.homegames.link') : 'localhost';
-    const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;//'http://localhost:' + getConfigValue('HOMENAMES_PORT');
-    (HTTPS_ENABLED ? https : http).get(`${base}${path}`, (res) => {
+const getPublicIP = () => new Promise((resolve, reject) => {
+    https.get(`https://api.homegames.io/ip`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
             buf += chunk.toString();
         });
 
         res.on('end', () => {
-            resolve(JSON.parse(buf));
+            resolve(buf.toString());
+        });
+    });
+});
+
+const makeGet = (path = '', headers = {}, username) => new Promise((resolve, reject) => {    
+    const protocol = HTTPS_ENABLED ? 'https' : 'http';
+    // todo: fix
+    getPublicIP().then(publicIp => {
+        const host = HTTPS_ENABLED ? (getUserHash(publicIp) + '.homegames.link') : 'localhost';
+        const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;//'http://localhost:' + getConfigValue('HOMENAMES_PORT');
+        (HTTPS_ENABLED ? https : http).get(`${base}${path}`, (res) => {
+            let buf = '';
+            res.on('data', (chunk) => {
+                buf += chunk.toString();
+            });
+
+            res.on('end', () => {
+                resolve(JSON.parse(buf));
+            });
         });
     });
 });
@@ -54,37 +68,40 @@ const makePost = (path, _payload, username) => new Promise((resolve, reject) => 
 
     module = HTTPS_ENABLED ? https : http;
     port =  getConfigValue('HOMENAMES_PORT');
-    hostname = HTTPS_ENABLED && username ? (getUserHash(username + getLocalIP()) + '.homegames.link') : 'localhost';
 
-    const headers = {};
+    getPublicIP().then(publicIp => {
+        hostname = HTTPS_ENABLED ? (getUserHash(publicIp) + '.homegames.link') : 'localhost';
 
-    Object.assign(headers, {
-        'Content-Type': 'application/json',
-        'Content-Length': payload.length
-    });
+        const headers = {};
 
-    const options = {
-        hostname,
-        path,
-        port,
-        method: 'POST',
-        headers
-    };
-
-    let responseData = '';
-    
-    const req = module.request(options, (res) => {
-        res.on('data', (chunk) => {
-            responseData += chunk;
+        Object.assign(headers, {
+            'Content-Type': 'application/json',
+            'Content-Length': payload.length
         });
 
-        res.on('end', () => {
-            resolve(responseData);
-        });
-    });
+        const options = {
+            hostname,
+            path,
+            port,
+            method: 'POST',
+            headers
+        };
 
-    req.write(payload);
-    req.end();
+        let responseData = '';
+        
+        const req = module.request(options, (res) => {
+            res.on('data', (chunk) => {
+                responseData += chunk;
+            });
+
+            res.on('end', () => {
+                resolve(responseData);
+            });
+        });
+
+        req.write(payload);
+        req.end();
+    });
 });
 
 class HomenamesHelper {

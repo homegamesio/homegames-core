@@ -1,23 +1,24 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0766');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0767');
 const fs = require('fs');
 
 const COLORS = Colors.COLORS;
 
-class Quarantine extends Game {
+class Testions extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '0766',
+            squishVersion: '0767',
+            description: 'Take turns guessing how the other person would respond to questions. Upload your own JSON file with the green button.',
             players: 2,
-            name: 'Quarantine Questions',
+            name: 'Testions',
             thumbnail: '6c7eb394c378cc82425bf5850ebaaff9'
         };
     }
 
     constructor() {
         super();
-        this.defaultQuestionUrl = 'https://assets.homegames.io/a552a2b63d407d5debf17c938bbb2b01';
+        this.defaultQuestionUrl = 'https://assets.homegames.io/5b572606196726d24a1e3310ad1c98fe';
         this.baseColor = [245, 126, 66, 255];
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -89,7 +90,7 @@ class Quarantine extends Game {
                 this.newTurn();
             }
         } else if (url) {
-            this.questionAsset = new Asset({ type: 'json', id: 'a552a2b63d407d5debf17c938bbb2b01'});
+            this.questionAsset = new Asset({ type: 'json', id: '5b572606196726d24a1e3310ad1c98fe'});
             this.questionAsset.getData().then(data => {
                 this.questions = JSON.parse(data);
                 this.questionIndex = 0;
@@ -120,7 +121,7 @@ class Quarantine extends Game {
 
     newTurn() {
         this.waitingForTransition = false;
-        this.playerList = Object.keys(this.players);
+        this.playerList = Object.keys(this.players).map(p => Number(p));
         this.base.clearChildren([this.excludedNodeRoot.id]);
         if (!this.currentPlayerId) {
             this.currentPlayerId = this.playerList[0];
@@ -417,4 +418,4 @@ class Quarantine extends Game {
     }
 }
 
-module.exports = Quarantine;
+module.exports = Testions;

@@ -1,9 +1,11 @@
-let { Squisher } = require('squish-0766');
+let { Squisher } = require('squish-0767');
 const { generateName } = require('./common/util');
 const squishMap = require('./common/squish-map');
 
 const HomegamesRoot = require('./homegames_root/HomegamesRoot');
 const HomegamesDashboard = require('./dashboard/HomegamesDashboard');
+
+const squisherUpdateTimes = [];
 
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
@@ -66,6 +68,12 @@ class GameSession {
 
         this.players = {};
         this.spectators = {};
+        
+        setInterval(() => {
+            if (this.lastSentTime && this.lastSentTime + 30 < Date.now()) {
+                this.doSendUpdate();
+            }
+        }, 50);
     }
 
     handleNewAsset(key, asset) {
@@ -80,24 +88,8 @@ class GameSession {
         });
     }
 
-    handleSquisherUpdate(squished) {
-        // console.log('got squisher update of this length ' + squished.length);
-        const now = Date.now();
-        if (this.stateHistory.length === 0) {
-            // this.stateHistory
-        // } else if () {
-            // console.log('abbababa');
-            this.stateHistory.push({ timestamp: now, data: squished });
-        } else {
-            if (this.stateHistory[0].timestamp < (now - 5 * 60 * 1000)) {
-                // console.log('cuttin.')
-                this.stateHistory = this.stateHistory.slice(1);
-            }
-
-            this.stateHistory.push({ timestamp: now, data: squished });
-        }
-
-        // this.stateHistory.push(squished);
+    doSendUpdate() {
+        this.lastSentTime = Date.now();
         for (const playerId in this.players) {
             const playerSettings = this.playerSettingsMap[playerId] || {};
             
@@ -154,6 +146,16 @@ class GameSession {
                 this.spectators[spectatorId].receiveUpdate(playerFrame.flat());
             }
         }
+        
+    }
+
+    handleSquisherUpdate(squished) {
+        this.lastSquished = squished;
+
+        if (!this.lastSentTime || this.lastSentTime + 30 < Date.now()) {
+            this.doSendUpdate();
+        }
+       
     }
 
     addSpectator(spectator) {
@@ -165,9 +167,10 @@ class GameSession {
     }
 
     addPlayer(player) {
-        // if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
-        //     player.receiveUpdate([5, 70, 0]);
-        // }
+        this.playerSettingsMap[player.id] = {
+            'SOUND': true
+        }
+        
         this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
         this.players[player.id] = player;
 
@@ -342,7 +345,11 @@ class GameSession {
     }
 
     findClickHelper(x, y, spectating, playerId, node, clicked = null, scale, inGame) {
-        if ((node.playerIds.length === 0 || node.playerIds.find(x => x == playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
+        if (node.playerIds.length > 0 && !node.playerIds.find(x => x === playerId)) {
+            return clicked;
+        }
+
+        if ((node.playerIds.length === 0 || node.playerIds.find(x => x === playerId)) && node.coordinates2d !== undefined && node.coordinates2d !== null) {
             const vertices = [];
  
             for (const i in node.coordinates2d) {

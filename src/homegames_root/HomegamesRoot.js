@@ -2,7 +2,7 @@ const fs = require('fs');
 const process = require('process');
 
 if (!process.env.SQUISH_PATH) {
-    const defaultVersion = 'squish-0766';
+    const defaultVersion = 'squish-0767';
     console.log('No SQUISH_PATH found. Using default: ' + defaultVersion);
     process.env.SQUISH_PATH = defaultVersion;
 }
@@ -313,7 +313,7 @@ class HomegamesRoot {
     handlePlayerUpdate(playerId, newData) {
         this.updateLabels();
         if (this.viewStates[playerId] && this.viewStates[playerId].state === 'settings') {
-            this.showSettings(playerId);
+            this.topLayerRoot.removeChild(this.viewStates[playerId].node.id);
         }
     }
 
@@ -396,6 +396,8 @@ class HomegamesRoot {
                 onSoundToggle: (newVal) => {
                     this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
                         enabled: newVal
+                    }).then(() => {
+                        console.log('just updated setting??');
                     });
                 },
                 onExportSessionData: () => {
@@ -405,6 +407,7 @@ class HomegamesRoot {
 
             
             this.topLayerRoot.addChild(modal);
+            this.viewStates[playerId].node = modal;
         });
     }
 
@@ -676,9 +679,9 @@ class HomegamesRoot {
 
     handleSquisherMessage(msg) {
         if (msg.type === 'renderStart') {
-            this.renderTimes.push({start: msg.time});
+//            this.renderTimes.push({start: msg.time});
         } else if (msg.type === 'renderEnd') {
-            this.renderTimes[this.renderTimes.length - 1].end = msg.time;
+//            this.renderTimes[this.renderTimes.length - 1].end = msg.time;
         }
     }
 

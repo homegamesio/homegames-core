@@ -1,11 +1,11 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0766');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0767');
 const COLORS = Colors.COLORS;
 
 class HotPotato extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 1, y: 1},
-            squishVersion: '0766',
+            squishVersion: '0767',
             author: 'Joseph Garcia',
             description: 'Click or tap the potato when you have the potato. Make sure you have sound turned on.',
             name: 'Hot Potato',
@@ -47,7 +47,7 @@ class HotPotato extends Game {
     }
 
     randomPlayerId(excludedIds = []) {
-        const playerIdList = Object.keys(this.players).filter(k => excludedIds.indexOf(k) < 0);
+        const playerIdList = Object.keys(this.players).filter(k => excludedIds.indexOf(Number(k)) < 0);
         const max = playerIdList.length;
         const randIndex = Math.floor(Math.random() * max);
         return playerIdList[randIndex];
@@ -94,17 +94,19 @@ class HotPotato extends Game {
     }
 
     createPotato(assignedPlayerId) {
+        if (!assignedPlayerId) {
+            assignedPlayerId = Number(this.randomPlayerId());
+        }
         if (this.potato) {
             this.base.removeChild(this.potato.node.id);
         }
 
         const potatoOverlay = new GameNode.Shape({ 
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(25, 25, 50, 50),
-            // fill: COLORS.RED,
+            coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
             onClick: (playerId) => {
                 // exclude current player
-                const newPlayerId = this.randomPlayerId(this.potato.node.playerIds);
+                const newPlayerId = Number(this.randomPlayerId(this.potato.node.playerIds));
                 this.updatePotatoState(newPlayerId);
             }
         });
@@ -117,7 +119,7 @@ class HotPotato extends Game {
                     'size': {x: 40, y: 30}
                 }
             },
-            playerIds: [assignedPlayerId || this.randomPlayerId()]
+            playerIds: [assignedPlayerId]
         });
         
         this.songPlayedAt = Date.now();
@@ -133,9 +135,8 @@ class HotPotato extends Game {
             }
         });
 
-        this.potato.addChildren(potatoOverlay, this.potatoSound);
+        this.potato.addChildren(this.potatoSound, potatoOverlay);
 
-        // this.potato.addChild(potatoAsset);
 
         // at least 5 seconds, possibly up to 20
         const randomEndSeconds = 5 + (Math.floor(Math.random() * 15));

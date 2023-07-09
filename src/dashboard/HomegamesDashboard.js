@@ -3,7 +3,7 @@ const http = require('http');
 const https = require('https');
 const path = require('path');
 
-const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0766');
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0767');
 
 const squishMap = require('../common/squish-map');
 
@@ -174,8 +174,11 @@ const getGamePathsHelper = (dir) => {
         
         const metadata = fs.statSync(entryPath);
         if (metadata.isFile()) {
-            if (entryPath.endsWith('index.js')) {
-                results.add(entryPath);
+            if (entryPath.match('games/[a-zA-Z0-9\\-_]+/index.js')) {
+
+                if (entryPath.endsWith('index.js')) {
+                    results.add(entryPath);
+                }
             }
         } else if (metadata.isDirectory()) {
             const nestedPaths = getGamePathsHelper(entryPath);
@@ -200,8 +203,6 @@ const getGameMap = () => {
     const gameMetadataMap = getGameMetadataMap();
     gamePaths.forEach(gamePath => {
         const isLocal = sourceGames.has(gamePath);
-
-
         if (isLocal) {
 
             const gameClass = require(gamePath);
@@ -211,7 +212,8 @@ const getGameMap = () => {
                 metadata: {
                     name: gameMetadata.name || gameClass.name,
                     thumbnail: gameMetadata.thumbnail,
-                    author: gameMetadata.createdBy || 'Unknown author'
+                    author: gameMetadata.createdBy || 'Unknown author',
+                    isTest: gameMetadata.isTest || false
                 },
                 versions: {
                     'local-game-version': {
@@ -299,7 +301,7 @@ class HomegamesDashboard extends ViewableGame {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '0766'
+            squishVersion: '0767'
         };
     }
 
@@ -386,7 +388,7 @@ class HomegamesDashboard extends ViewableGame {
             const referencedGame = this.localGames[gameKey];
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
 
-            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0766';
+            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0767';
 
             const childSession = fork(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion] }});
 
@@ -508,7 +510,8 @@ class HomegamesDashboard extends ViewableGame {
                             }
                         },
                         onClose: () => {
-                            playerRoot.removeChild(modal.node.id);  
+                            playerRoot.removeChild(modal.node.id);
+                            this.clearAllChildren(modal);  
                         }
                     });
 
@@ -585,10 +588,18 @@ class HomegamesDashboard extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
+        const testGamesEnabled = getConfigValue('TESTS_ENABLED', false);
+
         for (const key in gameCollection) {
             const xIndex = gameIndex % columnsPerPage === 0 ? 0 : ((gameIndex % columnsPerPage) / columnsPerPage) * 100; 
             const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
             let assetKey = this.assets[key] ? key : 'default';
+
+            const gameMetadata = gameCollection[key]?.metadata || null;
+
+            if (!testGamesEnabled && gameMetadata && gameMetadata.isTest) {
+                continue;
+            }
 
             const gameName = gameCollection[key]?.metadata?.name || key;
 
@@ -1018,10 +1029,32 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     handlePlayerDisconnect(playerId) {
-        const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].root;
+        const playerViewRoot = this.playerRoots[playerId] && this.playerRoots[playerId].node;
         if (playerViewRoot) {
-            this.getViewRoot().removeChild(playerViewRoot.node.id);
+            const node = playerViewRoot.node;
+            this.playerRootNode.removeChild(node.id);
+            delete this.playerRoots[playerId];
+            this.clearAllChildren(node);
         }
+    }
+    
+    clearAllChildren(node) {
+        const proxiesToRevoke = this.clearAllChildrenHelper(node);
+
+        proxiesToRevoke.forEach(p => {
+            p.free();
+        });
+    }
+    
+    clearAllChildrenHelper(_node, proxiesToRevoke = []) {
+        const node = _node.node || _node;
+        proxiesToRevoke.push(node);
+
+        for (let i = 0; i < node.children.length; i++) {
+            this.clearAllChildrenHelper(node.children[i], proxiesToRevoke);
+        }
+
+        return proxiesToRevoke;
     }
 
 }
