@@ -313,16 +313,7 @@ class HomegamesRoot {
     handlePlayerUpdate(playerId, newData) {
         this.updateLabels();
         if (this.viewStates[playerId] && this.viewStates[playerId].state === 'settings') {
-            // console.log('new data idk');
-            // console.log(newData);
-            // console.log(this.viewStates[playerId])
-            // console.log('view state?');
-            // console.log(this.viewStates[playerId])
             this.topLayerRoot.removeChild(this.viewStates[playerId].node.id);
-            // this.topLayerRoot.node.coordinates2d = this.topLayerRoot.node.coordinates2d;
-            // // this.viewStates[playerId].node.node.free();
-            // // delete this.viewStates[playerId];
-            // this.showSettings(playerId);
         }
     }
 
@@ -687,7 +678,6 @@ class HomegamesRoot {
     }
 
     handleSquisherMessage(msg) {
-        console.log('uhhh ayy');
         if (msg.type === 'renderStart') {
 //            this.renderTimes.push({start: msg.time});
         } else if (msg.type === 'renderEnd') {

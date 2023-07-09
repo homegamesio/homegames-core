@@ -582,8 +582,6 @@ class MapGame {
 
         this.moveInterval = (10 * 60 * 1000) / (this.coordCount / 2);
 
-        // console.log('need to move every ' + moveInterval + ', ,,, ' + coordCount);
-
         this.map = this.constructMap(mapData);
 
         const shopBase = new GameNode.Shape({
@@ -628,7 +626,6 @@ class MapGame {
     }
 
     callShop(playerId) {    
-        console.log('player wants to shop ' + playerId);
         if (this.movingShop) {
             this.movingShop.playerIds.push(playerId);
         } else {
@@ -769,20 +766,6 @@ class MapGame {
     }
 
     tick({ playerStates, resources }) {
-
-        // if (!this.hackTime) {
-        //     this.hackTime = Date.now() + 5000;
-        // }
-
-        // if (this.hackTime < Date.now()) {
-
-        //     const playerShopModal = shopModal([1], () => {
-        //         this.modalRoot.removeChild(playerShopModal.node.id);
-        //         playerShopModal.node.free();
-        //     })
-        //     this.modalRoot.addChild(playerShopModal);
-        //     this.hackTime = Date.now() + 500000;
-        // }
         this.playerStates = playerStates;
         const now = Date.now();
         for (let key in playerStates) {
@@ -811,8 +794,6 @@ class MapGame {
                     }
 
                     for (let key in landmarkInventory.upgrades) {
-                        // console.log("these are consumables and i should set the inventory to this");
-                        // console.log(key);
                         this.shopInventory.upgrades[key] = Object.assign({}, landmarkInventory.upgrades[key]);
                     }
                 }
@@ -889,14 +870,6 @@ class MapGame {
         }
  
     }
-
-    // handlePause() {
-    //     console.log('just paused!');
-    //     this.paused = true;
-
-    //     // const newText = Object.assign({}, this.currentStatusNode.node.text);
-    //     // newText.text = `Distance traveled: ${this.mainGame.distanceTraveled.toFixed(2)} of ${this.distanceMiles} miles (paused)`;
-    // }
 
     getRoot() {
         return this.root;

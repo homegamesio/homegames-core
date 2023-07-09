@@ -113,35 +113,18 @@ class Drive {
             let zone = this.zone || 1;
             let currentFrame = Number(currentAssetPieces[2]);
 
-            // console.log('okay');
-            // console.log(`drive-${zone}-${(currentFrame + 1) % 4}`);
-            // if (this.road.node.asset['drive-1-1']) {
-                this.road.node.asset = {
-                    [`drive-${zone}-${(currentFrame + 1) % 2}`]: {
-                        pos: {
-                            x: 0,
-                            y: 0
-                        },
-                        size: {
-                            x: 100,
-                            y: 100
-                        }
+            this.road.node.asset = {
+                [`drive-${zone}-${(currentFrame + 1) % 2}`]: {
+                    pos: {
+                        x: 0,
+                        y: 0
+                    },
+                    size: {
+                        x: 100,
+                        y: 100
                     }
-                };
-            // } else {
-            //     this.road.node.asset = {
-            //         'drive-1-1': {
-            //             pos: {
-            //                 x: 0,
-            //                 y: 0
-            //             },
-            //             size: {
-            //                 x: 100,
-            //                 y: 100
-            //             }
-            //         }
-            //     };
-            // }
+                }
+            };
 
             this.lastRoadTransition = Date.now();
         }
@@ -176,9 +159,7 @@ class Drive {
                 }
             };
             this.car.node.asset = asset;
-            //Object.assign({}, this.car.node.asset);
-            // asset['gas-car'].pos = 
-            // {x: this.carPath[this.carPathIndex][0], y: this.carPath[this.carPathIndex][1]}
+
             this.carPathIndex = this.carPathIndex + 1;
         }
 
@@ -193,7 +174,6 @@ class Drive {
         const rewardsToRemove = new Set();
 
         for (let key in this.spawnedEnemies) {
-            // console.log('need to move or kill or hit');
             const currentCoords = this.spawnedEnemies[key].node.coordinates2d;
 
             if (currentCoords[0][1] + 1 >= 96) {
@@ -204,7 +184,6 @@ class Drive {
         }
 
         for (let key in this.spawnedRewards) {
-            // console.log('need to move rewards');
             const currentCoords = this.spawnedRewards[key].node.coordinates2d;
 
             if (currentCoords[0][1] + 1 >= 96) {
@@ -216,7 +195,6 @@ class Drive {
         }
 
         for (let key in this.spawnedEnemies) {
-            // console.log('need to move rewards');
             const currentCoords = this.spawnedEnemies[key].node.coordinates2d;
 
             if (currentCoords[0][1] + 1 >= 96) {
@@ -321,12 +299,6 @@ class Drive {
                     }
                 }
             });
-
-            // new GameNode.Shape({
-            //     shapeType: Shapes.POLYGON,
-            //     coordinates2d: ShapeUtils.rectangle(xVal, 10, 5, 5),
-            //     fill: Colors.COLORS.ORANGE
-            // });
 
             this.spawnedRewards[gameNode.node.id] = gameNode;
             this.root.addChild(gameNode);

@@ -89,70 +89,63 @@ class GameSession {
     }
 
     doSendUpdate() {
-            // cons
-
-        // squisherUpdateTimes.push(Date.now());
-
-        // if (squisherUpdateTimes.length % 100 === 0) {
-        //     console.log(squisherUpdateTimes.length + ' sent 100 frames in ' + (squisherUpdateTimes[squisherUpdateTimes.length - 1] - squisherUpdateTimes[squisherUpdateTimes.length - 101]));
-        // }
-            this.lastSentTime = Date.now();
-            for (const playerId in this.players) {
-                const playerSettings = this.playerSettingsMap[playerId] || {};
-                
-                let playerFrame = this.squisher.getPlayerFrame(playerId);
-                
-                if (playerSettings) {
-                    if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
-                        playerFrame = playerFrame.filter(f => {
-                            const unsquished = this.squisher.unsquish(f);
-                            if (unsquished.node.asset) {
-                                if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
-                                    if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
-                                        return false;
-                                    }
+        this.lastSentTime = Date.now();
+        for (const playerId in this.players) {
+            const playerSettings = this.playerSettingsMap[playerId] || {};
+            
+            let playerFrame = this.squisher.getPlayerFrame(playerId);
+            
+            if (playerSettings) {
+                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
+                    playerFrame = playerFrame.filter(f => {
+                        const unsquished = this.squisher.unsquish(f);
+                        if (unsquished.node.asset) {
+                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
+                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
+                                    return false;
                                 }
                             }
+                        }
 
-                            return true;
-                        });
-                    }
-                }
-
-                if (playerFrame) {
-
-                    this.players[playerId].receiveUpdate(playerFrame.flat());
-                } else {
-                    log.error('No player frame available for player ' + playerId);
+                        return true;
+                    });
                 }
             }
 
-            for (const spectatorId in this.spectators) {
-                const playerSettings = {};
-                
-                let playerFrame = this.squisher.getPlayerFrame(spectatorId);
-                
-                if (playerSettings) {
-                    if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
-                        playerFrame = playerFrame.filter(f => {
-                            const unsquished = this.squisher.unsquish(f);
-                            if (unsquished.node.asset) {
-                                if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
-                                    if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
-                                        return false;
-                                    }
+            if (playerFrame) {
+
+                this.players[playerId].receiveUpdate(playerFrame.flat());
+            } else {
+                log.error('No player frame available for player ' + playerId);
+            }
+        }
+
+        for (const spectatorId in this.spectators) {
+            const playerSettings = {};
+            
+            let playerFrame = this.squisher.getPlayerFrame(spectatorId);
+            
+            if (playerSettings) {
+                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
+                    playerFrame = playerFrame.filter(f => {
+                        const unsquished = this.squisher.unsquish(f);
+                        if (unsquished.node.asset) {
+                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
+                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
+                                    return false;
                                 }
                             }
+                        }
 
-                            return true;
-                        });
-                    }
-                }
-
-                if (playerFrame) {
-                    this.spectators[spectatorId].receiveUpdate(playerFrame.flat());
+                        return true;
+                    });
                 }
             }
+
+            if (playerFrame) {
+                this.spectators[spectatorId].receiveUpdate(playerFrame.flat());
+            }
+        }
         
     }
 
@@ -162,23 +155,6 @@ class GameSession {
         if (!this.lastSentTime || this.lastSentTime + 30 < Date.now()) {
             this.doSendUpdate();
         }
-        // console.log('got squisher update of this length ' + squished.length);
-//         const now = Date.now();
-//         if (this.stateHistory.length === 0) {
-//             // this.stateHistory
-//         // } else if () {
-//             // console.log('abbababa');
-// //            this.stateHistory.push({ timestamp: now, data: squished });
-//         } else {
-//             if (this.stateHistory[0].timestamp < (now - 5 * 60 * 1000)) {
-//                 // console.log('cuttin.')
-//   //              this.stateHistory = this.stateHistory.slice(1);
-//             }
-
-//     //        this.stateHistory.push({ timestamp: now, data: squished });
-//         }
-
-        // this.stateHistory.push(squished);
        
     }
 
@@ -194,9 +170,7 @@ class GameSession {
         this.playerSettingsMap[player.id] = {
             'SOUND': true
         }
-        // if (this.game.canAddPlayer && !this.game.canAddPlayer()) {
-        //     player.receiveUpdate([5, 70, 0]);
-        // }
+        
         this.squisher.assetBundle && player.receiveUpdate(this.squisher.assetBundle);
         this.players[player.id] = player;
 

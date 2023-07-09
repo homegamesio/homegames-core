@@ -697,11 +697,6 @@ const enemyTypes = {
                     }
                 }
             });
-            // return new GameNode.Shape({
-            //    shapeType: Shapes.POLYGON,
-            //     coordinates2d: ShapeUtils.rectangle(startX, startY, 5, 5),
-            //     fill: Colors.COLORS.BLUE
-            // });
         }
     },
     'slot-enemy': {
@@ -845,56 +840,6 @@ class Hunt {
 
         this.root.addChildren(this.gameLayer, this.clickLayer);
 
-//        const spawner = setInterval(() => {
-//            const randomKeyIndex = Math.floor(Math.random() * Object.keys(enemyTypes).length);
-//            const { node: enemy, newPath } = createEnemy(Object.keys(enemyTypes)[randomKeyIndex]);
-//            this.root.addChild(enemy);
-//            let pathIndex = 0;
-//            const mover = setInterval(() => {
-//                if (pathIndex >= newPath.length) {
-//                    clearInterval(mover);
-//                    this.root.removeChild(enemy.node.id);
-//                    return;
-//                }
-//                const newCoordinates = ShapeUtils.rectangle(newPath[pathIndex][0], newPath[pathIndex][1], 5, 5);
-//                enemy.node.coordinates2d = newCoordinates;
-//                pathIndex++;
-//            }, 16);
-//
-//            const leftWallEnemies = GeometryUtils.checkCollisions(
-//                this.root, 
-//                {
-//                    node: {
-//                        coordinates2d: ShapeUtils.rectangle(0, 0, 1, 100)
-//                    }
-//                }, 
-//                (node) => {
-//                    return this.renderedEnemies[node.node.id];
-//                }
-//            );
-//
-//            const rightWallEnemies = GeometryUtils.checkCollisions(
-//                this.root, 
-//                {
-//                    node: {
-//                        coordinates2d: ShapeUtils.rectangle(99, 0, 1, 100)
-//                    }
-//                }, 
-//                (node) => {
-//                    return node.node.id !== enemy.node.id && this.renderedEnemies[node.node.id];
-//                }
-//            );
-//
-//            this.renderedEnemies[enemy.node.id] = enemy;
-////            leftWallEnemies.forEach(e => this.root.removeChild(e.node.id));
-//  //          rightWallEnemies.forEach(e => this.root.removeChild(e.node.id));
-//        }, 1000);
-
-//        setTimeout(() => {
-//            clearInterval(spawner);
-//            console.log('ended');
-//        }, 60 * 1000);
-
         const songNode = new GameNode.Asset({
                     coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
                     assetInfo: {
@@ -969,130 +914,77 @@ class Hunt {
     }
 
     shoot(playerId, x, y) {
-        // if (this.mode === 'select') {
-            // const fakeNode = new GameNode.Shape({
-            //     shapeType: Shapes.POLYGON,
-            //     coordinates2d: ShapeUtils.rectangle(x - 2, y - 2, 4, 4)
-            // });
+        if (Object.keys(this.renderedShots).length >= MAX_SHOTS) {
+            return;
+        }
 
-            // const collidingScrap = GeometryUtils.checkCollisions(
-            //     this.root, fakeNode,
-            //     (node) => {
-            //         return this.renderedScrap[node.node.id];
-            //     }
-            // );
+        if (!this.lastResources.ammo) {
+            return;
+        } 
+        
+        const playerWeapon = this.lastResources.weapon || 'baseball';
 
-            // console.log('colliding with this scrap');
-            // console.log(collidingScrap);
-        // } else if (this.mode === 'shoot') {
-            if (Object.keys(this.renderedShots).length >= MAX_SHOTS) {
-                return;
-            }
+        const weapon = Object.assign({}, weapons[playerWeapon]);
+       
+        const shot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(48, 94, weapon.x, weapon.y),
+        });
 
-            if (!this.lastResources.ammo) {
-                return;
-            } 
-            
-            const playerWeapon = this.lastResources.weapon || 'baseball';
-            // const weapons = {
-            //     [WEAPONS.DEFAULT]: {
-            //         x: 1,
-            //         y: 1,
-            //         rate: 2
-            //     }
-            // };
+        const assetKey = playerWeapon + '-1';
 
-            // console.log('weijweijowe!');
-            // console.log(this.lastResources);
-            // console.log(weapons);
-            const weapon = Object.assign({}, weapons[playerWeapon]);
-            // console.log('weapon');
-            // console.log(weapon);
-            const shot = new GameNode.Shape({
-                // todo: move all of these intervals to tick
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(48, 94, weapon.x, weapon.y),//playerWeapon.x, playerWeapon.y),
-            });
-
-            const assetKey = playerWeapon + '-1';
-
-            const shotAsset = new GameNode.Asset({
-                coordinates2d:  ShapeUtils.rectangle(
-                    48,
-                    94,
-                    weapon.x,
-                    weapon.y
-                ),
-                assetInfo: {
-                    [assetKey]: {
-                        pos: {
-                            x: 48,
-                            y: 94
-                        },
-                        size: {
-                            x: weapon.x,
-                            y: weapon.y
-                        }
+        const shotAsset = new GameNode.Asset({
+            coordinates2d:  ShapeUtils.rectangle(
+                48,
+                94,
+                weapon.x,
+                weapon.y
+            ),
+            assetInfo: {
+                [assetKey]: {
+                    pos: {
+                        x: 48,
+                        y: 94
+                    },
+                    size: {
+                        x: weapon.x,
+                        y: weapon.y
                     }
                 }
-            });
+            }
+        });
 
-            shot.addChildren(shotAsset);
+        shot.addChildren(shotAsset);
 
-            // end needs to be x, y
-            // start is 50, 100
-            // xVel is 50 +/- x
-            // yVel is 1
+        // end needs to be x, y
+        // start is 50, 100
+        // xVel is 50 +/- x
+        // yVel is 1
 
-            const xDiff = Math.abs(50 - x);
-            const yDiff = Math.abs(100 - y);
-            // moving at rate each tick
-            const newPath = Physics.getPath(
-                    48,
-                    94,
-                    (x > 50 ? 1 : -1) * ((xDiff) * (weapon.velocity / 100)),
-                    -1 * (yDiff * (weapon.velocity / 100)),
-                    100, 
-                    100);
+        const xDiff = Math.abs(50 - x);
+        const yDiff = Math.abs(100 - y);
+        // moving at rate each tick
+        const newPath = Physics.getPath(
+                48,
+                94,
+                (x > 50 ? 1 : -1) * ((xDiff) * (weapon.velocity / 100)),
+                -1 * (yDiff * (weapon.velocity / 100)),
+                100, 
+                100);
 
-            this.renderedShots[shot.node.id] = {
-                gameNode: shot,
-                playerId,
-                weapon: playerWeapon
-            };
+        this.renderedShots[shot.node.id] = {
+            gameNode: shot,
+            playerId,
+            weapon: playerWeapon
+        };
 
-            this.shotPaths[shot.node.id] = {
-                currentIndex: 0,
-                path: newPath
-            };
-            
-    //        let pathIndex = 0;
-    //        const mover = setInterval(() => {
-    //            if (pathIndex >= newPath.length) {
-    //                clearInterval(mover);
-    //                this.root.removeChild(shot.node.id);
-    //                return;
-    //            }
-    //            const collidingEnemies = GeometryUtils.checkCollisions(
-    //                this.root, 
-    //                shot,
-    //                (node) => {
-    //                    return node.node.id !== shot.node.id && this.renderedEnemies[node.node.id];
-    //                }
-    //            );
-    //
-    //            if (collidingEnemies) {
-    //                collidingEnemies.forEach(e => this.root.removeChild(e.node.id));
-    //            }
-    //
-    //            const newCoordinates = ShapeUtils.rectangle(newPath[pathIndex][0], newPath[pathIndex][1], weapon.x, weapon.y);
-    //            shot.node.coordinates2d = newCoordinates;
-    //            pathIndex++;
-    //        }, 16);
-
-            this.gameLayer.addChild(shot);
-            this.depleteAmmo(1);
-        // }
+        this.shotPaths[shot.node.id] = {
+            currentIndex: 0,
+            path: newPath
+        };
+    
+        this.gameLayer.addChild(shot);
+        this.depleteAmmo(1);
     }
 
     spawnEnemy(enemyType, legType) {
@@ -1111,52 +1003,14 @@ class Hunt {
             currentIndex: 0,
             path: newPath
         };
-        
-//        let pathIndex = 0;
-//            const mover = setInterval(() => {
-//                if (pathIndex >= newPath.length) {
-//                    clearInterval(mover);
-//                    this.root.removeChild(enemy.node.id);
-//                    return;
-//                }
-//                const newCoordinates = ShapeUtils.rectangle(newPath[pathIndex][0], newPath[pathIndex][1], 5, 5);
-//                enemy.node.coordinates2d = newCoordinates;
-//                pathIndex++;
-//            }, 16);
-//
-//            const leftWallEnemies = GeometryUtils.checkCollisions(
-//                this.root, 
-//                {
-//                    node: {
-//                        coordinates2d: ShapeUtils.rectangle(0, 0, 1, 100)
-//                    }
-//                }, 
-//                (node) => {
-//                    return this.renderedEnemies[node.node.id];
-//                }
-//            );
-//
-//            const rightWallEnemies = GeometryUtils.checkCollisions(
-//                this.root, 
-//                {
-//                    node: {
-//                        coordinates2d: ShapeUtils.rectangle(99, 0, 1, 100)
-//                    }
-//                }, 
-//                (node) => {
-//                    return node.node.id !== enemy.node.id && this.renderedEnemies[node.node.id];
-//                }
-//            );
-//
+
         const realType = Object.keys(enemyTypes)[randomKeyIndex];
-            this.renderedEnemies[enemy.node.id] = {
-                gameNode: enemy,
-                type: realType,
-                health: enemyTypes[realType].health,
-                legs: legsNode
-            }
-//            leftWallEnemies.forEach(e => this.root.removeChild(e.node.id));
-  //          rightWallEnemies.forEach(e => this.root.removeChild(e.node.id));
+        this.renderedEnemies[enemy.node.id] = {
+            gameNode: enemy,
+            type: realType,
+            health: enemyTypes[realType].health,
+            legs: legsNode
+        }
 
     }
 
@@ -1218,17 +1072,6 @@ class Hunt {
         const width = Math.floor(coords[1][0]) - x;
         const height = Math.floor(coords[2][1]) - y;
 
-        // const enemyHealthNode = new GameNode.Text({
-        //     textInfo: {
-        //         x: Math.floor(x + (width / 2)),
-        //         y: Math.floor(y + (height * 1.2)),
-        //         text: `${enemyHealth}`,
-        //         color: Colors.COLORS.WHITE,
-        //         size: 1,
-        //         align: 'center'
-        //     }
-        // });
-
         const textNode = new GameNode.Text({
             textInfo: {
                 x: Math.floor(x + (width / 2) + .5),
@@ -1242,8 +1085,6 @@ class Hunt {
         });
         this.gameLayer.addChildren(textNode);
 
-        // this.gameLayer.addChildren(enemyHealthNode, textNode);
-
         const now = Date.now();
 
         this.expiringNodes[textNode.id] = {
@@ -1252,11 +1093,6 @@ class Hunt {
             createdAt: now
         }
 
-        // this.expiringNodes[enemyHealthNode.id] = {
-        //     node: enemyHealthNode,
-        //     lifetime: 500,
-        //     createdAt: now
-        // }
     }
 
     tick({ playerStates, resources }) {
@@ -1505,8 +1341,6 @@ class Hunt {
         for (let key in this.expiringNodes) {
             if (now >= this.expiringNodes[key].createdAt + this.expiringNodes[key].lifetime) {
                 const node = this.expiringNodes[key].node;
-                // console.log('what the heck');
-                // console.log(node);
                 this.gameLayer.removeChild(node.id);
                 expiringNodesToDelete.add(key);
                 node.node.free();

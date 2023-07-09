@@ -229,23 +229,6 @@ class Fight {
 
             }
         }
-        // const attackThing = new GameNode.Shape({
-        //     shapeType: Shapes.POLYGON,
-        //     coordinates2d: ShapeUtils.rectangle(x - 1, y - 1, 2, 2),
-        //     fill: Colors.COLORS.ORANGE
-        // });
-
-        // // console.log('asdasdsa');
-        // // this.attackLayer.addChild(attackThing);
-        // const wouldBeCollisions = GeometryUtils.checkCollisions(this.enemyLayer, attackThing);
-        // for (let i = 0; i < wouldBeCollisions.length; i++) {
-        //     const enemy = this.enemies[wouldBeCollisions[i].node.id];
-        //     this.clickCounts[enemy.node.id].count = this.clickCounts[enemy.node.id].count - 1;
-        //     this.clickCounts[enemy.node.id].lastClickTime = Date.now();
-        //     const newTextInfo = Object.assign({}, this.clickCounts[enemy.node.id].node.node.text);
-        //     newTextInfo.text = this.clickCounts[enemy.node.id].count + '';
-        //     this.clickCounts[enemy.node.id].node.node.text = newTextInfo;
-        // }
     }
 
     handleNewZone(zone) {
@@ -344,77 +327,6 @@ class Fight {
                 }
             }
         }
-        // for (let key in this.enemies) {
-        //     const enemy = this.enemies[key];
-        //     const enemyConfig = this.enemyConfig[enemy.type];
-        //     if (!enemy.lastIncrease || enemy.lastIncrease + enemyConfig.increaseInterval <= now) {
-        //         const coords = enemy.node.node.coordinates2d;
-        //         const oldXStart = coords[0][0];
-        //         const oldYStart = coords[0][1];
-        //         const oldWidth = coords[1][0] - oldXStart;
-        //         const oldHeight = coords[2][1] - oldYStart;
-
-        //         if (oldWidth >= enemyConfig.maxWidth || oldHeight >= enemyConfig.maxHeight) {
-        //             continue;
-        //         }
-
-        //         const newCoords = ShapeUtils.rectangle(
-        //             oldXStart - (enemyConfig.widthIncrement / 2), 
-        //             oldYStart - (enemyConfig.heightIncrement / 2), 
-        //             oldWidth + (enemyConfig.widthIncrement), 
-        //             oldHeight + (enemyConfig.heightIncrement));
-
-        //         this.enemies[key].node.node.coordinates2d = newCoords; 
-        //         this.enemies[key].lastIncrease = Date.now();
-        //     } else if (enemy.spawnedAt + 5000 <= Date.now()) {
-        //         this.enemyLayer.removeChild(enemy.node.id);
-        //         enemy.node.free();
-        //         enemiesToRemove.add(key);
-        //     }
-        // }
-
-        // const clickCountsToRemove = new Set();
-
-        // for (let key of enemiesToRemove) {
-        //     delete this.enemies[key];
-        //     if (this.clickCounts[key]) {
-        //         this.clickCounts[key].node.node.free();
-        //         delete this.clickCounts[key];
-        //     }
-        // }
-
-        // if (!this.lastEnemySpawn || this.lastEnemySpawn + 1500 <= Date.now()) {
-        //     // this.spawnEnemy();
-        //     this.lastEnemySpawn = Date.now();
-        // }
-
-
-        // for (let key in this.clickCounts) {
-        //     // console.log('cliock counts');
-        //     // console.log(this.clickCounts);
-        //     if (this.clickCounts[key].lastClickTime && this.clickCounts[key].lastClickTime + 1000 <= Date.now()) {
-        //         // need to reset or clear enemy
-                
-        //         // clicked too many times, reset
-        //         if (this.clickCounts[key].count < 0) {
-
-        //         }
-
-        //         if (this.clickCounts[key].count > 0) {
-        //             // not enough clicks, reset
-        //         }
-
-        //         if (this.clickCounts[key].count === 0) {
-        //             this.enemyLayer.removeChild(key);
-        //             clickCountsToRemove.add(key);
-        //         }
-        //     }
-        // }
-
-        // for (let key of clickCountsToRemove) {
-        //     this.clickCounts[key].node.node.free();
-        //     delete this.clickCounts[key];
-        // }
     }
 
     spawnEnemy() {
@@ -462,42 +374,6 @@ class Fight {
             hits: 0,
             state: 'default'
         }
-        // const randX = Math.min(Math.max(20, (Math.random() * 100)), 80);
-        // const randY = Math.min(Math.max(20, (Math.random() * 100)), 80);
-
-        // const enemy = new GameNode.Shape({
-        //     shapeType: Shapes.POLYGON,
-        //     coordinates2d: ShapeUtils.rectangle(randX, randY, 4, 4),
-        //     fill: Colors.COLORS.RED
-        // });
-
-        // this.enemies[enemy.node.id] = {
-        //     node: enemy,
-        //     lastIncrease: null,
-        //     type: 'x',
-        //     health: this.enemyConfig['x'].health,
-        //     spawnedAt: Date.now()
-        // };
-
-        // const clickCountText = new GameNode.Text({
-        //     textInfo: {
-        //         x: randX,
-        //         y: randY,
-        //         text: '3',
-        //         size: 1.3,
-        //         color: Colors.COLORS.WHITE,
-        //         align: 'center'
-        //     }
-        // });
-
-        // this.clickCounts[enemy.node.id] = {
-        //     node: clickCountText,
-        //     count: 3
-        // };
-
-        // enemy.addChild(clickCountText);
-
-        // this.enemyLayer.addChild(enemy);
     }
 
     getRoot() {
