@@ -5,6 +5,8 @@ const squishMap = require('./common/squish-map');
 const HomegamesRoot = require('./homegames_root/HomegamesRoot');
 const HomegamesDashboard = require('./dashboard/HomegamesDashboard');
 
+const squisherUpdateTimes = [];
+
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
 
@@ -80,7 +82,73 @@ class GameSession {
         });
     }
 
+
     handleSquisherUpdate(squished) {
+        this.lastSquished = squished;
+
+        // squisherUpdateTimes.push(Date.now());
+        
+        // if (squisherUpdateTimes.length % 100 === 0) {
+        //     console.log(squisherUpdateTimes.length + ' sent 100 frames in ' + (squisherUpdateTimes[squisherUpdateTimes.length - 1] - squisherUpdateTimes[squisherUpdateTimes.length - 101]));
+        // }
+        if (!this.lastSentTime || this.lastSentTime + 50 < Date.now()) {
+            for (const playerId in this.players) {
+                const playerSettings = this.playerSettingsMap[playerId] || {};
+                
+                let playerFrame = this.squisher.getPlayerFrame(playerId);
+                
+                if (playerSettings) {
+                    if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
+                        playerFrame = playerFrame.filter(f => {
+                            const unsquished = this.squisher.unsquish(f);
+                            if (unsquished.node.asset) {
+                                if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
+                                    if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
+                                        return false;
+                                    }
+                                }
+                            }
+
+                            return true;
+                        });
+                    }
+                }
+
+                if (playerFrame) {
+
+                    this.players[playerId].receiveUpdate(playerFrame.flat());
+                } else {
+                    log.error('No player frame available for player ' + playerId);
+                }
+            }
+
+            for (const spectatorId in this.spectators) {
+                const playerSettings = {};
+                
+                let playerFrame = this.squisher.getPlayerFrame(spectatorId);
+                
+                if (playerSettings) {
+                    if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
+                        playerFrame = playerFrame.filter(f => {
+                            const unsquished = this.squisher.unsquish(f);
+                            if (unsquished.node.asset) {
+                                if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
+                                    if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
+                                        return false;
+                                    }
+                                }
+                            }
+
+                            return true;
+                        });
+                    }
+                }
+
+                if (playerFrame) {
+                    this.spectators[spectatorId].receiveUpdate(playerFrame.flat());
+                }
+            }
+        }
         // console.log('got squisher update of this length ' + squished.length);
 //         const now = Date.now();
 //         if (this.stateHistory.length === 0) {
@@ -98,62 +166,7 @@ class GameSession {
 //         }
 
         // this.stateHistory.push(squished);
-        for (const playerId in this.players) {
-            const playerSettings = this.playerSettingsMap[playerId] || {};
-            
-            let playerFrame = this.squisher.getPlayerFrame(playerId);
-            
-            if (playerSettings) {
-                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
-                    playerFrame = playerFrame.filter(f => {
-                        const unsquished = this.squisher.unsquish(f);
-                        if (unsquished.node.asset) {
-                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
-                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
-                                    return false;
-                                }
-                            }
-                        }
-
-                        return true;
-                    });
-                }
-            }
-
-            if (playerFrame) {
-
-                this.players[playerId].receiveUpdate(playerFrame.flat());
-            } else {
-                log.error('No player frame available for player ' + playerId);
-            }
-        }
-
-        for (const spectatorId in this.spectators) {
-            const playerSettings = {};
-            
-            let playerFrame = this.squisher.getPlayerFrame(spectatorId);
-            
-            if (playerSettings) {
-                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
-                    playerFrame = playerFrame.filter(f => {
-                        const unsquished = this.squisher.unsquish(f);
-                        if (unsquished.node.asset) {
-                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
-                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
-                                    return false;
-                                }
-                            }
-                        }
-
-                        return true;
-                    });
-                }
-            }
-
-            if (playerFrame) {
-                this.spectators[spectatorId].receiveUpdate(playerFrame.flat());
-            }
-        }
+       
     }
 
     addSpectator(spectator) {
