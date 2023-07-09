@@ -8,7 +8,7 @@ class Clicktionary extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            description: 'ayy lmao this is a test',
+            description: 'Take turns drawing and guessing the word',
             author: 'Joseph Garcia',
             thumbnail: '4b5f169186bc542e14b5d001d25ce6bb',
             squishVersion: '0767',

@@ -47,7 +47,7 @@ class HotPotato extends Game {
     }
 
     randomPlayerId(excludedIds = []) {
-        const playerIdList = Object.keys(this.players).filter(k => excludedIds.indexOf(k) < 0);
+        const playerIdList = Object.keys(this.players).filter(k => excludedIds.indexOf(Number(k)) < 0);
         const max = playerIdList.length;
         const randIndex = Math.floor(Math.random() * max);
         return playerIdList[randIndex];

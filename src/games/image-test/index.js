@@ -7,7 +7,8 @@ class ImageTest extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0767',
             author: 'Joseph Garcia',
-            thumbnail: '2a0cf606567326c6c40df592ee1358ca'
+            thumbnail: '2a0cf606567326c6c40df592ee1358ca',
+            isTest: true
         };
     }
 

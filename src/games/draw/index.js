@@ -8,7 +8,7 @@ class Draw extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0767',
             author: 'Joseph Garcia',
-            thumbnail: 'c7b7df6b3a90ccfde66f20e759093ea6'
+            thumbnail: '1e844026921f7662a62ce72da869da63'
         };
     }
 

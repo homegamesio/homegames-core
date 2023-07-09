@@ -17,7 +17,8 @@ class InputTest extends Game {
                     'type': 'font',
                     'id': '846b73999657425425fc39d39f9963b2'
                 })
-            }
+            },
+            isTest: true
         };
     }
 

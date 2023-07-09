@@ -12,7 +12,8 @@ class WordMatch extends Game {
                 x: 16,
                 y: 9
             },
-            description: 'Match the same word as the other player. Desktop keyboard input required.'
+            description: 'Match the same word as the other player. Desktop keyboard input required.',
+            isTest: true
         };
     }
 

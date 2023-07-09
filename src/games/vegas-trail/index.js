@@ -561,7 +561,7 @@ class VegasTrail extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0767',
             author: 'Joseph Garcia',
-            thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
+            thumbnail: '7ce8c9285df969a93a0d186474a42fb7',
             tickRate: 24,
             assets: {
                 'introSong': new Asset({

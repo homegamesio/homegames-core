@@ -37,7 +37,8 @@ class SpriteTest extends Game {
                     'id': danceFrames['dance_right'],
                     'type': 'image'
                 })
-            }
+            },
+            isTest: true
         };
     }
 

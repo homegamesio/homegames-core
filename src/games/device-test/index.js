@@ -8,7 +8,8 @@ class DeviceTest extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0767',
             author: 'Joseph Garcia', 
-            tickRate: 10
+            tickRate: 10,
+            isTest: true
         };
     }
 

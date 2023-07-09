@@ -7,7 +7,8 @@ class MoveTest extends Game {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0767',
             author: 'Joseph Garcia',
-            thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96'
+            thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
+            isTest: true
         };
     }
 

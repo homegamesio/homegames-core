@@ -6,7 +6,8 @@ class LayerTest extends Game {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             thumbnail: 'f103961541614b68c503a9ae2fd4cc47',
-            squishVersion: '0767'
+            squishVersion: '0767',
+            isTest: true
         };
     }
 

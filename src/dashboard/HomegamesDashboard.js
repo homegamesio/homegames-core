@@ -174,7 +174,6 @@ const getGamePathsHelper = (dir) => {
         
         const metadata = fs.statSync(entryPath);
         if (metadata.isFile()) {
-            console.log(entryPath)
             if (entryPath.match('games/[a-zA-Z0-9\\-_]+/index.js')) {
 
                 if (entryPath.endsWith('index.js')) {
@@ -204,9 +203,6 @@ const getGameMap = () => {
     const gameMetadataMap = getGameMetadataMap();
     gamePaths.forEach(gamePath => {
         const isLocal = sourceGames.has(gamePath);
-
-
-            console.log("GAME PATH " + gamePath);
         if (isLocal) {
 
             const gameClass = require(gamePath);
@@ -216,7 +212,8 @@ const getGameMap = () => {
                 metadata: {
                     name: gameMetadata.name || gameClass.name,
                     thumbnail: gameMetadata.thumbnail,
-                    author: gameMetadata.createdBy || 'Unknown author'
+                    author: gameMetadata.createdBy || 'Unknown author',
+                    isTest: gameMetadata.isTest || false
                 },
                 versions: {
                     'local-game-version': {
@@ -591,10 +588,18 @@ class HomegamesDashboard extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
+        const testGamesEnabled = getConfigValue('TESTS_ENABLED', false);
+
         for (const key in gameCollection) {
             const xIndex = gameIndex % columnsPerPage === 0 ? 0 : ((gameIndex % columnsPerPage) / columnsPerPage) * 100; 
             const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
             let assetKey = this.assets[key] ? key : 'default';
+
+            const gameMetadata = gameCollection[key]?.metadata || null;
+
+            if (!testGamesEnabled && gameMetadata && gameMetadata.isTest) {
+                continue;
+            }
 
             const gameName = gameCollection[key]?.metadata?.name || key;
 

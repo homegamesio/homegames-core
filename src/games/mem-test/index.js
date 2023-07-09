@@ -8,7 +8,8 @@ class MemTest extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '0767'
+            squishVersion: '0767',
+            isTest: true
         };
     }
 

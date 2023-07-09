@@ -8,7 +8,8 @@ class PlayerVisibilityTest extends Game {
             squishVersion: '0767',
             author: 'Joseph Garcia',
             aspectRatio: {x: 1, y: 2},
-            description: 'Test that multiple players can view/hide game nodes'
+            description: 'Test that multiple players can view/hide game nodes',
+            isTest: true
         };
     }
 
