@@ -120,7 +120,7 @@ class Quarantine extends Game {
 
     newTurn() {
         this.waitingForTransition = false;
-        this.playerList = Object.keys(this.players);
+        this.playerList = Object.keys(this.players).map(p => Number(p));
         this.base.clearChildren([this.excludedNodeRoot.id]);
         if (!this.currentPlayerId) {
             this.currentPlayerId = this.playerList[0];
