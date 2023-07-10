@@ -174,7 +174,7 @@ const getGamePathsHelper = (dir) => {
         
         const metadata = fs.statSync(entryPath);
         if (metadata.isFile()) {
-            if (entryPath.match('games/[a-zA-Z0-9\\-_]+/index.js')) {
+            if (entryPath.match(`games${path.sep}[a-zA-Z0-9\\-_]+${path.sep}index.js`)) {
 
                 if (entryPath.endsWith('index.js')) {
                     results.add(entryPath);
