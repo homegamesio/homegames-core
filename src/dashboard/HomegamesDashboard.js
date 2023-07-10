@@ -112,7 +112,7 @@ const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
  
 });
 
-const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}/src/games`));
+const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}${path.sep}src${path.sep}games`));
 const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
 
 if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
