@@ -148,7 +148,7 @@ class Homenames {
             }
         };
 
-        const server = HTTPS_ENABLED ? https.createServer({
+        const server = HTTPS_ENABLED && this.certPath ? https.createServer({
             key: fs.readFileSync(`${this.certPath}/homegames.key`).toString(),
             cert: fs.readFileSync(`${this.certPath}/homegames.cert`).toString()
         }, homenamesApp) : http.createServer(homenamesApp); 

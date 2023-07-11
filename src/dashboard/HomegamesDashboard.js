@@ -174,8 +174,15 @@ const getGamePathsHelper = (dir) => {
         
         const metadata = fs.statSync(entryPath);
         if (metadata.isFile()) {
-            if (entryPath.match(`games${path.sep}[a-zA-Z0-9\\-_]+${path.sep}index.js`)) {
+            let isMatch = false;
+            if (path.sep === '\\') {
+                const regex = new RegExp(/games\\[a-zA-Z0-9-_]+\\index.js/);
+                isMatch = !!regex.exec(entryPath);
+            } else {
+                isMatch = entryPath.match(`games${path.sep}[a-zA-Z0-9\\-_]+${path.sep}index.js`);
+            }
 
+            if (isMatch) {
                 if (entryPath.endsWith('index.js')) {
                     results.add(entryPath);
                 }
