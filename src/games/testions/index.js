@@ -138,7 +138,7 @@ class Testions extends Game {
 
         const nonCurrentPlayerInfoNode = new GameNode.Text({
             textInfo: {
-                text: `How would player ${this.currentPlayerId} respond to:`, 
+                text: `How would ${this.players[this.currentPlayerId].info.name} respond to:`, 
                 x: 50, 
                 y: 15, 
                 size: 1,
@@ -348,6 +348,7 @@ class Testions extends Game {
             this.newTurn();
         } else if (Object.keys(this.players).length == 1 && !this.waiting) {
             this.waiting = true;
+            
             const waitingNode = new GameNode.Text({
                 textInfo: {
                     text: 'Waiting for another player',
@@ -360,46 +361,51 @@ class Testions extends Game {
             });
             this.base.addChild(waitingNode);
         } else if (this.activeGame && !this.waitingForTransition) {
-            if (this.answers[1] && this.answers[2]) {
-                this.waitingForTransition = true;
-                this.base.clearChildren([this.excludedNodeRoot.id]);
-                if (this.answers[1] == this.answers[2]) {
-                    const sameAnswerNode = new GameNode.Text({
-                        textInfo: {
-                            text: `Player ${this.nonCurrentPlayerId} got it!`, 
-                            x: 50, 
-                            y: 40, 
-                            size: 3,
-                            align: 'center',
-                            color: COLORS.BLACK
+            const keys = Object.keys(this.answers);
+            if (keys.length == 2) {
+                const key1 = keys[0];
+                const key2 = keys[1];
+                if (this.answers[key1] && this.answers[key2]) {
+                    this.waitingForTransition = true;
+                    this.base.clearChildren([this.excludedNodeRoot.id]);
+                    if (this.answers[key1] == this.answers[key2]) {
+                        const sameAnswerNode = new GameNode.Text({
+                            textInfo: {
+                                text: `${this.players[this.nonCurrentPlayerId].info.name} was correct!`, 
+                                x: 50, 
+                                y: 40, 
+                                size: 3,
+                                align: 'center',
+                                color: COLORS.BLACK
+                            }
+                        });
+                        this.base.addChild(sameAnswerNode);
+                        this.questionIndex++;
+                        if (this.questionIndex >= Object.values(this.questions).length) {
+                            this.questionIndex = 0;
                         }
-                    });
-                    this.base.addChild(sameAnswerNode);
-                    this.questionIndex++;
-                    if (this.questionIndex >= Object.values(this.questions).length) {
-                        this.questionIndex = 0;
-                    }
-                    this.updateQuestionCounter();
-                    this.setTimeout(this.newTurn.bind(this), 2250);
-                } else {
-                    const notSameAnswerNode = new GameNode.Text({
-                        textInfo: {
-                            text: `Player ${this.nonCurrentPlayerId} was wrong`,
-                            x: 50, 
-                            y: 40,
-                            size: 3,
-                            align: 'center',
-                            color: COLORS.BLACK, 
-                        }
-                    });
+                        this.updateQuestionCounter();
+                        this.setTimeout(this.newTurn.bind(this), 2250);
+                    } else {
+                        const notSameAnswerNode = new GameNode.Text({
+                            textInfo: {
+                                text: `${this.players[this.nonCurrentPlayerId].info.name} was incorrect`,
+                                x: 50, 
+                                y: 40,
+                                size: 3,
+                                align: 'center',
+                                color: COLORS.BLACK, 
+                            }
+                        });
 
-                    this.base.addChild(notSameAnswerNode);
-                    this.questionIndex++;
-                    if (this.questionIndex >= Object.values(this.questions).length) {
-                        this.questionIndex = 0;
+                        this.base.addChild(notSameAnswerNode);
+                        this.questionIndex++;
+                        if (this.questionIndex >= Object.values(this.questions).length) {
+                            this.questionIndex = 0;
+                        }
+                        this.updateQuestionCounter();
+                        this.setTimeout(this.newTurn.bind(this), 2250);
                     }
-                    this.updateQuestionCounter();
-                    this.setTimeout(this.newTurn.bind(this), 2250);
                 }
             }
         }
