@@ -363,11 +363,11 @@ const buildInitialModal = (onStart) => {
     const textOne = new GameNode.Text({
         textInfo: {
             x: 50,
-            y: 23,
+            y: 20,
             align: 'center',
-            size: 1.6,
+            size: 2.4,
             font: 'amateur',
-            text: 'Welcome to the Vegas Trail! Stuff is pretty messed up out here.',
+            text: 'Welcome to the Vegas Trail!',// Stuff is pretty messed up out here.',
             color: Colors.COLORS.WHITE
         }
     });
@@ -560,9 +560,10 @@ class VegasTrail extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '0767',
-            author: 'Joseph Garcia',
+            author: 'Joseph & Senovia Garcia',
             thumbnail: '7ce8c9285df969a93a0d186474a42fb7',
-            tickRate: 24,
+            tickRate: 30,
+            description: 'Attempt to survive the journey from Tucson to Las Vegas. @nytan on bandcamp did the music.',
             assets: {
                 'introSong': new Asset({
                     'id': '6f31e20f5a1acd20b3d7872e6da6ff7b',
@@ -1034,7 +1035,7 @@ class VegasTrail extends Game {
         }
     }
 
-    handleSickHit(dmg = 5) {
+    handleSickHit(dmg = 2) {
         this.sickHealth -= dmg;
         if (this.sickHealth <= 0) {
             if (this.resources.antibiotics > 0) {
@@ -1387,11 +1388,14 @@ class VegasTrail extends Game {
         if (!this.lastTravelUpdate || this.lastTravelUpdate + (this.travelUpdateInterval) <= Date.now()) {
             this.distanceTraveled = this.distanceTraveled + this.travelTickDistance;
             this.lastTravelUpdate = Date.now();
-
-            this.depleteFood();
             // const newProgress = Object.assign({}, this.progressText.node.text);
             // newProgress.text = `${this.distanceTraveled.toFixed(2)} / ${TOTAL_DISTANCE} miles`;
             // this.progressText.node.text = newProgress;
+        }
+
+        if (!this.foodLastEaten || this.foodLastEaten + 2000 <= Date.now()) {
+            this.depleteFood();
+            this.foodLastEaten = Date.now();
         }
 
         this.map.tick({ 

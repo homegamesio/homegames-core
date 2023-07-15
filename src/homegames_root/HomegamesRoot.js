@@ -175,10 +175,6 @@ class HomegamesRoot {
     static metadata() {
         return {
             assets: {
-                'test-font': new Asset({
-                    'type': 'font',
-                    'id': '846b73999657425425fc39d39f9963b2'
-                }),
                 'frame': new Asset({
                     'id': 'c299f1f7e24d03e59cb569f5815bfe2f',
                     'type': 'image'
@@ -186,6 +182,14 @@ class HomegamesRoot {
                 'logo-horizontal': new Asset({
                     'id': '31b81479f187d9ab6aa6845e0794b4be',
                     'type': 'image'
+                }),
+                'amateur': new Asset({
+                    'type': 'font',
+                    'id': '026a26ef0dd340681f62565eb5bf08fb'
+                }),
+                'heavy-amateur': new Asset({
+                    'type': 'font',
+                    'id': '9f11fac62df9c1559f6bd32de1382c20'
                 })
             }
         };
@@ -443,7 +447,7 @@ class HomegamesRoot {
                     size: 0.8,
                     color: COLORS.HG_BLACK,
                     align: 'center',
-                    font: 'test-font'
+                    font: 'heavy-amateur'
                 },
                 playerIds: [playerId]
             });

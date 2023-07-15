@@ -798,7 +798,7 @@ class HomegamesDashboard extends ViewableGame {
                 y: 5.5,
                 text: IS_DEMO ? 'Search - disabled in demo' : searchQuery || 'Search',
                 color: SEARCH_TEXT_COLOR,
-                size:1.8
+                size: 1.8
             },
             playerIds: [playerId]
         });
