@@ -9,7 +9,25 @@ class HotPotato extends Game {
             author: 'Joseph Garcia',
             description: 'Click or tap the potato when you have the potato. Make sure you have sound turned on.',
             name: 'Hot Potato',
-            thumbnail: 'adfd7a7b28e1e4e5b6ae3dc0b07a5784'
+            thumbnail: 'adfd7a7b28e1e4e5b6ae3dc0b07a5784',
+            assets: {
+                'potato': new Asset({
+                    id: '48685183f94c7a3c14f315444c6460bd',
+                    type: 'image'
+                }),
+                'potato-dead': new Asset({
+                    id: '5fc598f08a887c8cd437bb3d9cdca197',
+                    type: 'image'
+                }),
+                'hiss': new Asset({
+                    'id': '9de51f059a02e37356da0faefcabe643',
+                    'type': 'audio'
+                }),
+                'potato-bleh': new Asset({
+                    'id': '600513b2cbd50c1f8c465b3098c22c56',
+                    'type': 'audio'
+                })
+            }
         };
     }
 
@@ -124,6 +142,7 @@ class HotPotato extends Game {
         
         this.songPlayedAt = Date.now();
         this.soundTimestamp = 0;
+
         this.potatoSound = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
             assetInfo: {
@@ -201,28 +220,6 @@ class HotPotato extends Game {
         return [{
             root: this.base
         }];
-    }
-
-    getAssets() {
-        return {
-            'potato': new Asset({
-                id: '48685183f94c7a3c14f315444c6460bd',
-                type: 'image'
-            }),
-            'potato-dead': new Asset({
-                id: '5fc598f08a887c8cd437bb3d9cdca197',
-                type: 'image'
-            }),
-            'hiss': new Asset({
-                'id': '9de51f059a02e37356da0faefcabe643',
-                'type': 'audio'
-            }),
-            'potato-bleh': new Asset({
-                'id': '600513b2cbd50c1f8c465b3098c22c56',
-                'type': 'audio'
-            }),
-            
-        };
     }
 }
 
