@@ -27,6 +27,8 @@
   },
   "homepage": "https://github.com/homegamesio/homegames#readme",
   "dependencies": {
+    "electron": "^26.0.0",
+    "electron-log": "^4.4.8",
     "homegames-common": "0.9.9",
     "process-stats": "^3.5.5",
     "squish-0762": "npm:squishjs@0.7.62",
