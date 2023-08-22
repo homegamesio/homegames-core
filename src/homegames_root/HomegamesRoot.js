@@ -20,7 +20,8 @@ let baseDir = path.dirname(require.main.filename);
 if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
-const { getConfigValue, log } = require('homegames-common');
+
+const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 const HomenamesHelper = require('../util/homenames-helper');
 
 const settingsModal = require('./settings');
@@ -28,7 +29,7 @@ const COLORS = Colors.COLORS;
 
 const procStats = require('process-stats')();
 
-const GAME_DIRECTORY = path.resolve(getConfigValue('GAME_DIRECTORY', 'hg-games'));
+const GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
 const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}/src/games`));
 const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
@@ -352,7 +353,7 @@ class HomegamesRoot {
     }
 
     exportSessionData() {
-        const sessionDataPath = getConfigValue('SESSION_DATA_PATH', `hg-recordings`);
+        const sessionDataPath = path.join(getAppDataPath(), 'hg-recordings');
 
         if (!fs.existsSync(sessionDataPath)) {
             fs.mkdirSync(sessionDataPath);

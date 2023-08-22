@@ -1,8 +1,3 @@
-const { app, BrowserWindow } = require('electron');
-const log = require('electron-log');
-
-log.info('CORE GETSA HERERE');
-
 const server = require('./game_server');
 const fs = require('fs');
 const assert = require('assert');
@@ -18,7 +13,7 @@ if (baseDir.endsWith('src')) {
 
 const linkHelper = require('./src/util/link-helper');
 
-const { guaranteeCerts, guaranteeDir, authWorkflow, getConfigValue } = require('homegames-common');
+const { guaranteeCerts, log, guaranteeDir, authWorkflow, getConfigValue } = require('homegames-common');
 
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);

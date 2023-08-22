@@ -23,7 +23,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue, log } = require('homegames-common');
+const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 
 const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
 const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
@@ -72,7 +72,7 @@ const optionHeight = (gameContainerHeight - ((rowsPerPage - 1) * gameTopYMargin)
 
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 500);
 
-const GAME_DIRECTORY = path.resolve(getConfigValue('GAME_DIRECTORY', 'hg-games'));
+const GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
 const updateGameMetadataMap = (newMetadata) => {
     fs.writeFileSync(GAME_DIRECTORY + path.sep + '.metadata', JSON.stringify(newMetadata));
@@ -113,7 +113,8 @@ const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
 });
 
 const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}${path.sep}src${path.sep}games`));
-const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
+
+const DOWNLOADED_GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
 if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
     fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
