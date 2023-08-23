@@ -1,4 +1,5 @@
 const { fork } = require('child_process');
+const electron = process.env.USE_ELECTRON ? require('electron') : null;
 const http = require('http');
 const https = require('https');
 const path = require('path');
@@ -9,6 +10,7 @@ const squishMap = require('../common/squish-map');
 
 const unzipper = require('unzipper');
 const fs = require('fs');
+fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', 'sanitititit');
 const gameModal = require('./game-modal');
 
 const COLORS = Colors.COLORS;
@@ -387,18 +389,33 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     startSession(playerId, gameKey, versionKey = null) { 
+
+    fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', 'sanitititit2222');
         const sessionId = sessionIdCounter++;
         const port = getServerPort();
 
         const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
     
         if (this.localGames[gameKey]) {
+    fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', 'sanitititit33333 ' + childGameServerPath);
             const referencedGame = this.localGames[gameKey];
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
 
             const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0767';
 
-            const childSession = fork(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion] }});
+            fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', '\nsantititititi bah\n');
+fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', 'sanitititit wat');
+            let childSession;
+            try {
+            const func = electron ? electron.utilityProcess.fork : fork;
+        fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', 'here is func ' + func);
+            const tingEnv = process.env;
+            childSession = func(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion], ...tingEnv}});
+            } catch (err)  {
+                fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', 'santititititi sdbfksdjf 222 ' + err);
+            }
+            fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', 'santititititi 4455');
+//            const childSession = fork(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion] }});
 
             sessions[port] = childSession;
 
@@ -415,6 +432,7 @@ class HomegamesDashboard extends ViewableGame {
             }));
 
             childSession.on('message', (thang) => {
+            fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', '\nsantititititi bah ananannaananna' + thang + '\n');
                 const jsonMessage = JSON.parse(thang);
                 if (jsonMessage.success) {
                     this.movePlayer({ playerId, port });
@@ -425,12 +443,15 @@ class HomegamesDashboard extends ViewableGame {
             });
 
             childSession.on('error', (err) => {
+
+            fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', '\nsantititititi bah ananannaananna 2284uoisjnf' + err + '\n');
                 this.sessions[sessionId] = {};
                 childSession.kill();
                 log.error('child session error', err);
             });
             
             childSession.on('close', (err) => {
+            fs.writeFileSync('/Users/josephgarcia/sanity3.timestamp', '\nsantititititi bah ananannaananna kdfsjhdfjkg ' + err + '\n');
                 this.sessions[sessionId] = {};
             });
             
