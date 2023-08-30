@@ -1,6 +1,7 @@
 const server = require('./game_server');
 const fs = require('fs');
 const assert = require('assert');
+const { reportBug } = require('./src/common/util');
 
 const process = require('process');
 
