@@ -5,6 +5,7 @@ const { reportBug } = require('./src/common/util');
 
 const process = require('process');
 
+reportBug('starting up core');
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
 
@@ -50,9 +51,20 @@ if (LINK_ENABLED) {
         server(certPathArg, null, usernameArg);
     }).catch(() => {
         log.info('encountered error with link connection. starting server with link disabled');
-        server(certPathArg, null, usernameArg);
+        try {
+            server(certPathArg, null, usernameArg);
+        } catch (serverErr) {
+            console.error('Server error: ' + serverErr);
+            reportBug('ayyyy lmao ' + serverErr);
+        }
     });
 } else {
     log.info('starting server with link disabled');
-    server(certPathArg, null, usernameArg);
+    try { 
+        server(certPathArg, null, usernameArg);
+    } catch (serverErr) {
+        console.error('Server error: ' + serverErr);
+        reportBug('ayyyy no link lmao ' + serverErr);
+    }
+    
 }
