@@ -1,5 +1,5 @@
-# Fetch image of node v14
-FROM node:14
+# Fetch image of node v18
+FROM node:18
 
 # Create app directory
 WORKDIR /usr/src/app
