@@ -73,7 +73,7 @@ const optionHeight = (gameContainerHeight - ((rowsPerPage - 1) * gameTopYMargin)
 
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 500);
 
-const GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
+const GAME_DIRECTORY = path.join(baseDir, 'hg-games');
 
 const updateGameMetadataMap = (newMetadata) => {
     fs.writeFileSync(GAME_DIRECTORY + path.sep + '.metadata', JSON.stringify(newMetadata));
