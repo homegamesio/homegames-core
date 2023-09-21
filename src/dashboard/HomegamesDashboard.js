@@ -177,7 +177,13 @@ if (!fs.existsSync(GAME_DIRECTORY)) {
 }
 
 const getGamePathsHelper = (dir) => {
-    const entries = fs.readdirSync(dir);
+    let entries = [];
+    try {
+        entries = fs.readdirSync(dir);
+    } catch (err) {
+        console.error('Unable to read game directory');
+        console.error(err);
+    }
     const results = new Set();
     const processedEntries = {};
 
