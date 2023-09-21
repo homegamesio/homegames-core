@@ -113,7 +113,7 @@ const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
  
 });
 
-const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}${path.sep}src${path.sep}games`));
+const SOURCE_GAME_DIRECTORY = path.resolve(`${baseDir}${path.sep}src${path.sep}games`);
 
 const DOWNLOADED_GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
