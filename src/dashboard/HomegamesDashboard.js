@@ -118,7 +118,12 @@ const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORI
 const DOWNLOADED_GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
 if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
-    fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
+    try {
+        fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
+    } catch (err) {
+        console.error('Unable to create downloaded game directory');
+        console.error(err);
+    }
 }
 
 const networkHelper = {
