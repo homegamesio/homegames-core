@@ -168,7 +168,12 @@ const networkHelper = {
 };
 
 if (!fs.existsSync(GAME_DIRECTORY)) {
-    fs.mkdirSync(GAME_DIRECTORY);
+    try {
+        fs.mkdirSync(GAME_DIRECTORY);
+    } catch (err) {
+        console.error('Unable to create game directory');
+        console.error(err);
+    }
 }
 
 const getGamePathsHelper = (dir) => {
