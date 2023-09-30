@@ -1083,7 +1083,6 @@ class HomegamesDashboard extends ViewableGame {
                         resolve(indexPath);
                     });
                 });
-                });
 
             });
         });
