@@ -11,6 +11,7 @@ try {
 const electronOverrideVersion = require.resolve('squish-1004');
 
 module.exports = {
+    '0756': isMain ? require.resolve('squish-0756') : electronOverrideVersion,
     '0762': isMain ? require.resolve('squish-0762') : electronOverrideVersion,
     '0765': isMain ? require.resolve('squish-0765') : electronOverrideVersion,
     '0766': isMain ? require.resolve('squish-0766') : electronOverrideVersion,

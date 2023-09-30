@@ -73,15 +73,16 @@ const optionHeight = (gameContainerHeight - ((rowsPerPage - 1) * gameTopYMargin)
 
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 500);
 
-const GAME_DIRECTORY = path.join(baseDir, 'hg-games');
+const SOURCE_GAME_DIRECTORY = path.resolve(`${baseDir}${path.sep}src${path.sep}games`);
+const DOWNLOADED_GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
 const updateGameMetadataMap = (newMetadata) => {
-    fs.writeFileSync(GAME_DIRECTORY + path.sep + '.metadata', JSON.stringify(newMetadata));
+    fs.writeFileSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata', JSON.stringify(newMetadata));
 }
 
 const getGameMetadataMap = () => {
-    if (fs.existsSync(GAME_DIRECTORY + path.sep + '.metadata')) {
-        const bytes = fs.readFileSync(GAME_DIRECTORY + path.sep + '.metadata');
+    if (fs.existsSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata')) {
+        const bytes = fs.readFileSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata');
         return JSON.parse(bytes);
     }
 
@@ -112,10 +113,6 @@ const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
     });
  
 });
-
-const SOURCE_GAME_DIRECTORY = path.resolve(`${baseDir}${path.sep}src${path.sep}games`);
-
-const DOWNLOADED_GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
 if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
     try {
@@ -167,9 +164,9 @@ const networkHelper = {
     })
 };
 
-if (!fs.existsSync(GAME_DIRECTORY)) {
+if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
     try {
-        fs.mkdirSync(GAME_DIRECTORY);
+        fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
     } catch (err) {
         console.error('Unable to create game directory');
         console.error(err);
@@ -189,6 +186,10 @@ const getGamePathsHelper = (dir) => {
 
     entries.forEach(entry => {
         const entryPath = path.resolve(`${dir}${path.sep}${entry}`);
+
+        console.log("THIS IS ENTRY PATRH");
+        console.log(entry);
+        console.log(entryPath);
         
         const metadata = fs.statSync(entryPath);
         if (metadata.isFile()) {
@@ -197,13 +198,18 @@ const getGamePathsHelper = (dir) => {
                 const regex = new RegExp(/games\\[a-zA-Z0-9-_]+\\index.js/);
                 isMatch = !!regex.exec(entryPath);
             } else {
-                isMatch = entryPath.match(`games${path.sep}[a-zA-Z0-9\\-_]+${path.sep}index.js`);
+                isMatch = entryPath.match(`${path.sep}[a-zA-Z0-9\\-_]+${path.sep}index.js`);
             }
 
             if (isMatch) {
                 if (entryPath.endsWith('index.js')) {
+                    console.log("RESULTTLTLTLTL! ");
                     results.add(entryPath);
+                } else {
+                    console.log("nooeoeoeoeoe 3");
                 }
+            } else {
+                console.log("nooeoeoeoeoe 2");
             }
         } else if (metadata.isDirectory()) {
             const nestedPaths = getGamePathsHelper(entryPath);
@@ -218,6 +224,9 @@ const getGamePathsHelper = (dir) => {
 const getGameMap = () => {
     const sourceGames = getGamePathsHelper(SOURCE_GAME_DIRECTORY);
     const downloadedGames = getGamePathsHelper(DOWNLOADED_GAME_DIRECTORY);
+
+    console.log("DOWNLOADED GAMES IN DIR " + DOWNLOADED_GAME_DIRECTORY);
+    console.log(downloadedGames);
 
     const gamePaths = Array.from(new Set([...sourceGames, ...downloadedGames])).sort();
 
@@ -410,6 +419,8 @@ class HomegamesDashboard extends ViewableGame {
         const port = getServerPort();
 
         const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
+            console.log("DAMGSSE KEY " + gameKey);
+            console.log(this.localGames);
     
         if (this.localGames[gameKey]) {
             const referencedGame = this.localGames[gameKey];
@@ -419,6 +430,12 @@ class HomegamesDashboard extends ViewableGame {
 
             const func = electron ? electron.utilityProcess.fork : fork;
             const tingEnv = process.env;
+
+            console.log("about to send didididi");
+            // referenced game file needs to use our dependencies
+            tingEnv.NODE_PATH = `${process.cwd()}${path.sep}node_modules`;
+            console.log(tingEnv);
+            
             const childSession = func(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion], ...tingEnv}});
 
             sessions[port] = childSession;
@@ -445,14 +462,17 @@ class HomegamesDashboard extends ViewableGame {
                 }
             });
 
-            childSession.on('error', (err) => {
-
+            childSession.on('error', (err) => { 
+                console.log('cloococoosed');
+                console.log(err);
                 this.sessions[sessionId] = {};
                 childSession.kill();
                 log.error('child session error', err);
             });
             
             childSession.on('close', (err) => {
+                console.log('LCOSDSRED!');
+                console.log(err);
                 this.sessions[sessionId] = {};
             });
             
@@ -530,13 +550,23 @@ class HomegamesDashboard extends ViewableGame {
                             this.joinSession(playerId, session);
                         },
                         onCreateSession: () => {
+                            console.log('jdsfkdsf');
+                            console.log(game);
+                            console.log(gameVersion);
                             if (this.localGames[gameId]?.versions[gameVersion.versionId]) {
                                 this.startSession(playerId, gameId, gameVersion.versionId);
                             } else {
+                                console.log('dskufdsfdsf');
                                 this.downloadGame({ gameDetails: game, version: gameVersion }).then(() => {
+                                    console.log("dsf;dsfdsf");
                                     this.renderGamePlane();
+                                    console.log("dsf;dsfdsf 2");
                                     this.startSession(playerId, gameId, gameVersion.versionId);
-                                })
+                                    console.log("dsf;dsfdsf 3");
+                                }).catch(err => {
+                                    console.log('eroeororor');
+                                    console.log(err);
+                                });
                             }
                         },
                         onClose: () => {
@@ -1024,10 +1054,10 @@ class HomegamesDashboard extends ViewableGame {
             }
         }
         return new Promise((resolve, reject) => {
-            const gamePath = `${GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}`;
+            const gamePath = `${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}`;
 
-            if (!fs.existsSync(`${GAME_DIRECTORY}${path.sep}${gameId}`)) {
-                fs.mkdirSync(`${GAME_DIRECTORY}${path.sep}${gameId}`);
+            if (!fs.existsSync(`${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}`)) {
+                fs.mkdirSync(`${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}`);
             }
 
             https.get(location, (res) => {
@@ -1052,6 +1082,7 @@ class HomegamesDashboard extends ViewableGame {
                         });
                         resolve(indexPath);
                     });
+                });
                 });
 
             });
