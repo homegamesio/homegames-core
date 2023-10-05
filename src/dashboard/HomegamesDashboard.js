@@ -203,13 +203,8 @@ const getGamePathsHelper = (dir) => {
 
             if (isMatch) {
                 if (entryPath.endsWith('index.js')) {
-                    console.log("RESULTTLTLTLTL! ");
                     results.add(entryPath);
-                } else {
-                    console.log("nooeoeoeoeoe 3");
                 }
-            } else {
-                console.log("nooeoeoeoeoe 2");
             }
         } else if (metadata.isDirectory()) {
             const nestedPaths = getGamePathsHelper(entryPath);
@@ -224,9 +219,6 @@ const getGamePathsHelper = (dir) => {
 const getGameMap = () => {
     const sourceGames = getGamePathsHelper(SOURCE_GAME_DIRECTORY);
     const downloadedGames = getGamePathsHelper(DOWNLOADED_GAME_DIRECTORY);
-
-    console.log("DOWNLOADED GAMES IN DIR " + DOWNLOADED_GAME_DIRECTORY);
-    console.log(downloadedGames);
 
     const gamePaths = Array.from(new Set([...sourceGames, ...downloadedGames])).sort();
 
@@ -348,7 +340,6 @@ class HomegamesDashboard extends ViewableGame {
         this.username = username;
         this.certPath = certPath;
 
-        console.log('i am homegames core dashboard ayyyyyy lmao 123')
         this.assets = {
             'default': new Asset({
                 'id': 'adfd7a7b28e1e4e5b6ae3dc0b07a5784',
@@ -419,8 +410,6 @@ class HomegamesDashboard extends ViewableGame {
         const port = getServerPort();
 
         const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
-            console.log("DAMGSSE KEY " + gameKey);
-            console.log(this.localGames);
     
         if (this.localGames[gameKey]) {
             const referencedGame = this.localGames[gameKey];
@@ -431,10 +420,8 @@ class HomegamesDashboard extends ViewableGame {
             const func = electron ? electron.utilityProcess.fork : fork;
             const tingEnv = process.env;
 
-            console.log("about to send didididi");
             // referenced game file needs to use our dependencies
             tingEnv.NODE_PATH = `${process.cwd()}${path.sep}node_modules`;
-            console.log(tingEnv);
             
             const childSession = func(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion], ...tingEnv}});
 
@@ -463,15 +450,12 @@ class HomegamesDashboard extends ViewableGame {
             });
 
             childSession.on('error', (err) => { 
-                console.log('cloococoosed');
-                console.log(err);
                 this.sessions[sessionId] = {};
                 childSession.kill();
                 log.error('child session error', err);
             });
             
             childSession.on('close', (err) => {
-                console.log('LCOSDSRED!');
                 console.log(err);
                 this.sessions[sessionId] = {};
             });
@@ -550,19 +534,12 @@ class HomegamesDashboard extends ViewableGame {
                             this.joinSession(playerId, session);
                         },
                         onCreateSession: () => {
-                            console.log('jdsfkdsf');
-                            console.log(game);
-                            console.log(gameVersion);
                             if (this.localGames[gameId]?.versions[gameVersion.versionId]) {
                                 this.startSession(playerId, gameId, gameVersion.versionId);
                             } else {
-                                console.log('dskufdsfdsf');
                                 this.downloadGame({ gameDetails: game, version: gameVersion }).then(() => {
-                                    console.log("dsf;dsfdsf");
                                     this.renderGamePlane();
-                                    console.log("dsf;dsfdsf 2");
                                     this.startSession(playerId, gameId, gameVersion.versionId);
-                                    console.log("dsf;dsfdsf 3");
                                 }).catch(err => {
                                     console.log('eroeororor');
                                     console.log(err);
