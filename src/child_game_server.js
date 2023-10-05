@@ -44,8 +44,6 @@ const startServer = (sessionInfo) => {
         }
         gameSession = new GameSession(gameInstance, sessionInfo.port, sessionInfo.username);
     } catch (err) {
-        console.log("EYAYSDYFYDSF");
-        console.log(err);
         log.error('Error instantiating game session', err);
         if (ERROR_REPORTING_ENABLED) {
             reportBug(`Exception: ${err.message} Stack: ${err.stack}`);
