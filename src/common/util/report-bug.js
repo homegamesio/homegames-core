@@ -3,14 +3,14 @@ const https = require('https');
 
 const { getConfigValue } = require('homegames-common');
 
-const ERROR_REPORTING_ENABLED = true;//getConfigValue('ERROR_REPORTING', false);
+const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
 const HTTPS_ENABLED = true;//'https://api.homegames.io/bugs';//getConfigValue('HTTPS_ENABLED', false);
 
-let reportingEndpoint = 'https://api.homegames.io/bugs';
+let reportingEndpoint;
 
-// if (ERROR_REPORTING_ENABLED) {
-    // reportingEndpoint = getConfigValue('ERROR_REPORTING_ENDPOINT');
-// }
+if (ERROR_REPORTING_ENABLED) {
+    reportingEndpoint = getConfigValue('ERROR_REPORTING_ENDPOINT', 'https://api.homegames.io/bugs');
+}
 
 const makePost = (exc) => new Promise((resolve, reject) => {
     const payload = exc;//JSON.stringify(exc);
