@@ -187,10 +187,6 @@ const getGamePathsHelper = (dir) => {
     entries.forEach(entry => {
         const entryPath = path.resolve(`${dir}${path.sep}${entry}`);
 
-        console.log("THIS IS ENTRY PATRH");
-        console.log(entry);
-        console.log(entryPath);
-        
         const metadata = fs.statSync(entryPath);
         if (metadata.isFile()) {
             let isMatch = false;
