@@ -27,8 +27,6 @@ const HomenamesHelper = require('../util/homenames-helper');
 const settingsModal = require('./settings');
 const COLORS = Colors.COLORS;
 
-const procStats = require('process-stats')();
-
 const GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 // const GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
