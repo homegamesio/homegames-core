@@ -337,7 +337,7 @@ class HomegamesDashboard extends ViewableGame {
 
         this.assets = {
             'default': new Asset({
-                'id': 'adfd7a7b28e1e4e5b6ae3dc0b07a5784',
+                'id': 'ff745468e1b725445c65245ce044da21',
                 'type': 'image'
             }),
             'dashboardSong': new Asset({
