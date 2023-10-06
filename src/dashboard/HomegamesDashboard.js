@@ -1,5 +1,4 @@
 const { fork } = require('child_process');
-const electron = process.env.USE_ELECTRON ? require('electron') : null;
 const http = require('http');
 const https = require('https');
 const path = require('path');
@@ -413,7 +412,7 @@ class HomegamesDashboard extends ViewableGame {
 
             const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0767';
 
-            const func = electron ? electron.utilityProcess.fork : fork;
+            const func = fork;
             const tingEnv = process.env;
 
             // referenced game file needs to use our dependencies
