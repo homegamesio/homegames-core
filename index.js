@@ -5,7 +5,6 @@ const { reportBug } = require('./src/common/util');
 
 const process = require('process');
 
-reportBug('starting up core');
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
 
