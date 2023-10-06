@@ -55,7 +55,7 @@ if (LINK_ENABLED) {
             server(certPathArg, null, usernameArg);
         } catch (serverErr) {
             console.error('Server error: ' + serverErr);
-            reportBug('ayyyy lmao ' + serverErr);
+            reportBug(`Error starting server: ${serverErr}`);
         }
     });
 } else {
@@ -64,7 +64,6 @@ if (LINK_ENABLED) {
         server(certPathArg, null, usernameArg);
     } catch (serverErr) {
         console.error('Server error: ' + serverErr);
-        reportBug('ayyyy no link lmao ' + serverErr);
+        reportBug(`Error starting server: ${serverErr}`);
     }
-    
 }
