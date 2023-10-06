@@ -248,6 +248,9 @@ class GameSession {
             this.squisher.initialize().then(() => {
                 this.initialized = true;
                 cb && cb();
+            }).catch(err => {
+                console.error('Error initializing squisher');
+                console.error(err);
             });
         }
     }

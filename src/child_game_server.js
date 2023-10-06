@@ -1,6 +1,7 @@
 const https = require('https');
 const GameSession = require('./GameSession');
 const { socketServer } = require('./util/socket');
+const { reportBug } = require('./common/util');
 
 const process = require('process');
 
@@ -19,58 +20,6 @@ const { log, getConfigValue } = require('homegames-common');
 
 const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
-
-let reportingEndpoint = null;
-
-if (ERROR_REPORTING_ENABLED) {
-    reportingEndpoint = getConfigValue('ERROR_REPORTING_ENDPOINT');
-}
-
-// TODO: make this a common thing
-
-const makePost = (exc) => new Promise((resolve, reject) => {
-    const payload = exc;//JSON.stringify(exc);
-
-    let module, hostname, port;
-
-    module = reportingEndpoint.startsWith('https') ? https : http;
-    port =  reportingEndpoint.startsWith('https') ? 443 : 80;
-
-    hostname = new URL(reportingEndpoint).hostname;
-    const headers = {};
-
-    Object.assign(headers, {
-        'Content-Type': 'application/json',
-        'Content-Length': exc.length
-    });
-
-    const options = {
-        hostname,
-        path: new URL(reportingEndpoint).pathname,
-        port,
-        method: 'POST',
-        headers
-    };
-
-    let responseData = '';
-    
-    const req = module.request(options, (res) => {
-        res.on('data', (chunk) => {
-            responseData += chunk;
-        });
-
-        res.on('end', () => {
-            resolve(responseData);
-        });
-    });
-
-    req.write(exc);
-    req.end();
-});
-
-const reportBug = (err) => {
-    makePost(err.toString());
-};
 
 const sendProcessMessage = (msg) => {
     process.send(JSON.stringify(msg));

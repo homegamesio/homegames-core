@@ -1,6 +1,7 @@
 const server = require('./game_server');
 const fs = require('fs');
 const assert = require('assert');
+const { reportBug } = require('./src/common/util');
 
 const process = require('process');
 
@@ -13,7 +14,7 @@ if (baseDir.endsWith('src')) {
 
 const linkHelper = require('./src/util/link-helper');
 
-const { guaranteeCerts, guaranteeDir, log, authWorkflow, getConfigValue } = require('homegames-common');
+const { guaranteeCerts, log, guaranteeDir, authWorkflow, getConfigValue } = require('homegames-common');
 
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
@@ -49,9 +50,19 @@ if (LINK_ENABLED) {
         server(certPathArg, null, usernameArg);
     }).catch(() => {
         log.info('encountered error with link connection. starting server with link disabled');
-        server(certPathArg, null, usernameArg);
+        try {
+            server(certPathArg, null, usernameArg);
+        } catch (serverErr) {
+            console.error('Server error: ' + serverErr);
+            reportBug(`Error starting server: ${serverErr}`);
+        }
     });
 } else {
     log.info('starting server with link disabled');
-    server(certPathArg, null, usernameArg);
+    try { 
+        server(certPathArg, null, usernameArg);
+    } catch (serverErr) {
+        console.error('Server error: ' + serverErr);
+        reportBug(`Error starting server: ${serverErr}`);
+    }
 }

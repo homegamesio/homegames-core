@@ -9,7 +9,7 @@ if (!process.env.SQUISH_PATH) {
 
 let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH);
 
-const { animations } = require('../common/util');
+const { animations, reportBug } = require('../common/util');
 
 const PLAYER_SETTINGS = require('../common/player-settings.js');
 
@@ -20,18 +20,19 @@ let baseDir = path.dirname(require.main.filename);
 if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
-const { getConfigValue, log } = require('homegames-common');
+
+const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 const HomenamesHelper = require('../util/homenames-helper');
 
 const settingsModal = require('./settings');
 const COLORS = Colors.COLORS;
 
-const procStats = require('process-stats')();
+const GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
+// const GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
-const GAME_DIRECTORY = path.resolve(getConfigValue('GAME_DIRECTORY', 'hg-games'));
 
 const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}/src/games`));
-const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
+const DOWNLOADED_GAME_DIRECTORY = GAME_DIRECTORY;//path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
 const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 
 if (!fs.existsSync(GAME_DIRECTORY)) {
@@ -352,7 +353,7 @@ class HomegamesRoot {
     }
 
     exportSessionData() {
-        const sessionDataPath = getConfigValue('SESSION_DATA_PATH', `hg-recordings`);
+        const sessionDataPath = path.join(getAppDataPath(), 'hg-recordings');
 
         if (!fs.existsSync(sessionDataPath)) {
             fs.mkdirSync(sessionDataPath);
@@ -379,7 +380,6 @@ class HomegamesRoot {
         const playerInfo = this.session.playerInfoMap[playerId] || {};
 
         this.getLocalAssetInfo().then(assetInfo => {
-
             const onDownload = () => this.downloadAssets(assetInfo.gameAssetMap).then(() => this.showSettings(playerId));
             
             const modal = settingsModal({ 
@@ -606,7 +606,13 @@ class HomegamesRoot {
     }
 
     getLocalAssetInfo() {
-        const localGames = getGameMap();
+        let localGames = {};
+        try {
+            localGames = getGameMap();
+        } catch (err) {
+            reportBug('Error getting local game map:\n' + err.toString());
+        }
+
         return new Promise((resolve, reject) => {
             let downloadedCount = 0;
             const checkedCount = 0;

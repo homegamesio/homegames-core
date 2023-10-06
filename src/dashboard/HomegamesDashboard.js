@@ -23,7 +23,7 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue, log } = require('homegames-common');
+const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 
 const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
 const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
@@ -72,15 +72,16 @@ const optionHeight = (gameContainerHeight - ((rowsPerPage - 1) * gameTopYMargin)
 
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 500);
 
-const GAME_DIRECTORY = path.resolve(getConfigValue('GAME_DIRECTORY', 'hg-games'));
+const SOURCE_GAME_DIRECTORY = path.resolve(`${baseDir}${path.sep}src${path.sep}games`);
+const DOWNLOADED_GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
 const updateGameMetadataMap = (newMetadata) => {
-    fs.writeFileSync(GAME_DIRECTORY + path.sep + '.metadata', JSON.stringify(newMetadata));
+    fs.writeFileSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata', JSON.stringify(newMetadata));
 }
 
 const getGameMetadataMap = () => {
-    if (fs.existsSync(GAME_DIRECTORY + path.sep + '.metadata')) {
-        const bytes = fs.readFileSync(GAME_DIRECTORY + path.sep + '.metadata');
+    if (fs.existsSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata')) {
+        const bytes = fs.readFileSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata');
         return JSON.parse(bytes);
     }
 
@@ -112,11 +113,13 @@ const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
  
 });
 
-const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}${path.sep}src${path.sep}games`));
-const DOWNLOADED_GAME_DIRECTORY = path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
-
 if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
-    fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
+    try {
+        fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
+    } catch (err) {
+        console.error('Unable to create downloaded game directory');
+        console.error(err);
+    }
 }
 
 const networkHelper = {
@@ -160,18 +163,29 @@ const networkHelper = {
     })
 };
 
-if (!fs.existsSync(GAME_DIRECTORY)) {
-    fs.mkdirSync(GAME_DIRECTORY);
+if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
+    try {
+        fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
+    } catch (err) {
+        console.error('Unable to create game directory');
+        console.error(err);
+    }
 }
 
 const getGamePathsHelper = (dir) => {
-    const entries = fs.readdirSync(dir);
+    let entries = [];
+    try {
+        entries = fs.readdirSync(dir);
+    } catch (err) {
+        console.error('Unable to read game directory');
+        console.error(err);
+    }
     const results = new Set();
     const processedEntries = {};
 
     entries.forEach(entry => {
         const entryPath = path.resolve(`${dir}${path.sep}${entry}`);
-        
+
         const metadata = fs.statSync(entryPath);
         if (metadata.isFile()) {
             let isMatch = false;
@@ -179,7 +193,7 @@ const getGamePathsHelper = (dir) => {
                 const regex = new RegExp(/games\\[a-zA-Z0-9-_]+\\index.js/);
                 isMatch = !!regex.exec(entryPath);
             } else {
-                isMatch = entryPath.match(`games${path.sep}[a-zA-Z0-9\\-_]+${path.sep}index.js`);
+                isMatch = entryPath.match(`${path.sep}[a-zA-Z0-9\\-_]+${path.sep}index.js`);
             }
 
             if (isMatch) {
@@ -386,6 +400,7 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     startSession(playerId, gameKey, versionKey = null) { 
+
         const sessionId = sessionIdCounter++;
         const port = getServerPort();
 
@@ -397,7 +412,13 @@ class HomegamesDashboard extends ViewableGame {
 
             const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0767';
 
-            const childSession = fork(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion] }});
+            const func = fork;
+            const tingEnv = process.env;
+
+            // referenced game file needs to use our dependencies
+            tingEnv.NODE_PATH = `${process.cwd()}${path.sep}node_modules`;
+            
+            const childSession = func(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion], ...tingEnv}});
 
             sessions[port] = childSession;
 
@@ -423,13 +444,14 @@ class HomegamesDashboard extends ViewableGame {
                 }
             });
 
-            childSession.on('error', (err) => {
+            childSession.on('error', (err) => { 
                 this.sessions[sessionId] = {};
                 childSession.kill();
                 log.error('child session error', err);
             });
             
             childSession.on('close', (err) => {
+                console.log(err);
                 this.sessions[sessionId] = {};
             });
             
@@ -513,7 +535,10 @@ class HomegamesDashboard extends ViewableGame {
                                 this.downloadGame({ gameDetails: game, version: gameVersion }).then(() => {
                                     this.renderGamePlane();
                                     this.startSession(playerId, gameId, gameVersion.versionId);
-                                })
+                                }).catch(err => {
+                                    console.log('eroeororor');
+                                    console.log(err);
+                                });
                             }
                         },
                         onClose: () => {
@@ -1001,10 +1026,10 @@ class HomegamesDashboard extends ViewableGame {
             }
         }
         return new Promise((resolve, reject) => {
-            const gamePath = `${GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}`;
+            const gamePath = `${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}`;
 
-            if (!fs.existsSync(`${GAME_DIRECTORY}${path.sep}${gameId}`)) {
-                fs.mkdirSync(`${GAME_DIRECTORY}${path.sep}${gameId}`);
+            if (!fs.existsSync(`${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}`)) {
+                fs.mkdirSync(`${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}`);
             }
 
             https.get(location, (res) => {
