@@ -1,3 +1,5 @@
+const { log } = require('homegames-common');
+
 const WebSocket = require('ws');
 const https = require('https');
 const os = require('os');
@@ -63,8 +65,6 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
     
     client.on('open', () => {
         getClientInfo().then(clientInfo => {
-//        clientInfo.username = username ? username.toString() : null;
-
             client.send(JSON.stringify({
                 type: 'register',
                 data: clientInfo
@@ -73,10 +73,10 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
             interval = setInterval(() => {
                 client.readyState == 1 && client.send(JSON.stringify({type: 'heartbeat'}));
                 if (Date.now() > socketRefreshTime) {
-                    console.log('refreshing link socket');
+                    log.info('refreshing link socket');
                     client.close();
                     clearInterval(interval);
-                    linkConnect(msgHandler);///, username);
+                    linkConnect(msgHandler);
                 }
 
             }, 1000 * 10);
@@ -88,7 +88,8 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
     client.on('message', msgHandler ? msgHandler : () => {});
     
     client.on('error', (err) => {
-        console.log(err);
+        log.error('Link client error');
+        log.error(err);
         reject(err);
     });
 

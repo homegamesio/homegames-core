@@ -34,7 +34,7 @@ const getLocalIP = () => {
 
 class Homenames {
     constructor(port, certPath) {
-        log.info('running homenames on port ', port);
+        log.info('running homenames on port ' + port);
         
         this.certPath = certPath;
         this.playerInfo = {};

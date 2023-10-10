@@ -19,7 +19,6 @@ class Sponge extends Game {
     }
 
     constructor() {
-        console.log("SDKJFHKDSJFHDSF");
         super();
 
         this.playerSides = {};

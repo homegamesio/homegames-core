@@ -1,9 +1,11 @@
+const { getConfigValue, getAppDataPath, log } = require('homegames-common');
+
 const fs = require('fs');
 const process = require('process');
 
 if (!process.env.SQUISH_PATH) {
     const defaultVersion = 'squish-0767';
-    console.log('No SQUISH_PATH found. Using default: ' + defaultVersion);
+    log.info('No SQUISH_PATH found. Using default: ' + defaultVersion);
     process.env.SQUISH_PATH = defaultVersion;
 }
 
@@ -21,18 +23,17 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 const HomenamesHelper = require('../util/homenames-helper');
 
 const settingsModal = require('./settings');
 const COLORS = Colors.COLORS;
 
 const GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
-// const GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
 
 const SOURCE_GAME_DIRECTORY = path.resolve(getConfigValue('SOURCE_GAME_DIRECTORIES', `${baseDir}/src/games`));
-const DOWNLOADED_GAME_DIRECTORY = GAME_DIRECTORY;//path.resolve(getConfigValue('DOWNLOADED_GAME_DIRECTORY', `hg-games`));
+const DOWNLOADED_GAME_DIRECTORY = GAME_DIRECTORY;
+
 const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 
 if (!fs.existsSync(GAME_DIRECTORY)) {
@@ -401,7 +402,7 @@ class HomegamesRoot {
                     this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
                         enabled: newVal
                     }).then(() => {
-                        console.log('just updated setting??');
+                        log.info('just updated setting??');
                     });
                 },
                 onExportSessionData: () => {

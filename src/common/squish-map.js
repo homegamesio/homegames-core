@@ -1,10 +1,12 @@
+const { log } = require('homegames-common');
+
 let isMain = true;
 
 try {
     require.resolve('homegames-core');
     isMain = false;
 } catch (err) {
-    console.log('Running web as main module');
+    log.info('Running web as main module');
 }
 
 // versions before 1004 will fail when using electron because they use the wrong base data directory. when running in electron (not as main process), use 1004 instead of those older versions

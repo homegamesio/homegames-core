@@ -218,6 +218,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
     let server;
 
     if (certPath) {
+        log.info('Starting secure server on port ' + port);
+
         server = https.createServer({
             key: fs.readFileSync(`${certPath}/homegames.key`).toString(),
             cert: fs.readFileSync(`${certPath}/homegames.cert`).toString()
@@ -232,7 +234,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
     });
 
     getPublicIP().then(publicIp => {
-
         const broadcastEnabled = !!getConfigValue('PUBLIC_GAMES', false);
         log.info('broadcastEnabled: ' + broadcastEnabled);
 

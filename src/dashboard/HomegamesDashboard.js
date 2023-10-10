@@ -117,8 +117,8 @@ if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
     try {
         fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
     } catch (err) {
-        console.error('Unable to create downloaded game directory');
-        console.error(err);
+        log.error('Unable to create downloaded game directory');
+        log.error(err);
     }
 }
 
@@ -451,7 +451,8 @@ class HomegamesDashboard extends ViewableGame {
             });
             
             childSession.on('close', (err) => {
-                console.log(err);
+                log.error('Child session closed');
+                log.error(err);
                 this.sessions[sessionId] = {};
             });
             
@@ -536,8 +537,8 @@ class HomegamesDashboard extends ViewableGame {
                                     this.renderGamePlane();
                                     this.startSession(playerId, gameId, gameVersion.versionId);
                                 }).catch(err => {
-                                    console.log('eroeororor');
-                                    console.log(err);
+                                    log.error('Error downloading game');
+                                    log.error(err);
                                 });
                             }
                         },
