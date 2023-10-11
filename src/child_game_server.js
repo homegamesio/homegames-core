@@ -35,6 +35,8 @@ const startServer = (sessionInfo) => {
     });
 
     try {
+        log.info("THIS IS SESSION INFO");
+        log.info(sessionInfo);
         if (sessionInfo.gamePath) {
             const _gameClass = require(sessionInfo.gamePath);
 
