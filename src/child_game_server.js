@@ -33,10 +33,13 @@ const startServer = (sessionInfo) => {
     const addAsset = (key, asset) => new Promise((resolve, reject) => {
         gameSession.handleNewAsset(key, asset).then(resolve).catch(reject);
     });
+    
+    process.env.SQUISH_PATH = require.resolve(`squish-${sessionInfo.squishVersion}`);
 
     try {
         log.info("THIS IS SESSION INFO");
         log.info(sessionInfo);
+        
         if (sessionInfo.gamePath) {
             const _gameClass = require(sessionInfo.gamePath);
 
@@ -97,3 +100,4 @@ const checkPulse = () => {
 setTimeout(() => {
     setInterval(checkPulse, 10 * 1000);
 }, 2000);
+
