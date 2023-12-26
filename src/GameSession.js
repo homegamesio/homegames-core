@@ -284,6 +284,8 @@ class GameSession {
             //     }
                 
             // }
+        } else if (input.type === 'mouseup') {
+            this.game.handleMouseUp && this.game.handleMouseUp(playerId, input.data);
         } else {
             log.info('Unknown input type: ', input.type);
         }
