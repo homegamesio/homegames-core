@@ -1,5 +1,7 @@
 const https = require('https');
 const GameSession = require('./GameSession');
+const crypto = require('crypto');
+const fs = require('fs');
 const { socketServer } = require('./util/socket');
 const { reportBug } = require('./common/util');
 
@@ -10,13 +12,7 @@ let gameSession;
 
 const path = require('path');
 
-let baseDir = path.dirname(require.main.filename);
-
-if (baseDir.endsWith('src')) {
-    baseDir = baseDir.substring(0, baseDir.length - 3);
-}
-
-const { log, getConfigValue } = require('homegames-common');
+const { log, getConfigValue, getAppDataPath } = require('homegames-common');
 
 const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
@@ -33,6 +29,8 @@ const startServer = (sessionInfo) => {
     const addAsset = (key, asset) => new Promise((resolve, reject) => {
         gameSession.handleNewAsset(key, asset).then(resolve).catch(reject);
     });
+
+    const appDataPath = getAppDataPath();
     
     process.env.SQUISH_PATH = require.resolve(`squish-${sessionInfo.squishVersion}`);
 
@@ -42,10 +40,30 @@ const startServer = (sessionInfo) => {
         
         if (sessionInfo.gamePath) {
             const _gameClass = require(sessionInfo.gamePath);
+            let saveData;
+            const savePath = crypto.createHash('md5').update(sessionInfo.gamePath).digest('hex');
+    
+            const existingGameSaveDataPath = path.join(path.join(appDataPath, '.save-data'), savePath);
+    
+            const saveGame = (data) => new Promise((resolve, reject) => {
+                // lol. read parsed json to validate json
+                const jsonData = JSON.stringify(JSON.parse(JSON.stringify(data)));
+                fs.writeFileSync(existingGameSaveDataPath, jsonData);
+            });
 
-            gameInstance = new _gameClass({ addAsset });
+            if (fs.existsSync(existingGameSaveDataPath)) {
+                try {
+                    const stuff = fs.readFileSync(existingGameSaveDataPath);
+                    saveData = JSON.parse(stuff);
+                } catch (err) {
+                    console.log("Error reading save data");
+                    console.log(err);
+                }
+            }
+            gameInstance = new _gameClass({ addAsset, saveGame, saveData });
         } else {
             gameInstance = new games[sessionInfo.key]({ addAsset });
+
         }
         gameSession = new GameSession(gameInstance, sessionInfo.port, sessionInfo.username);
     } catch (err) {
