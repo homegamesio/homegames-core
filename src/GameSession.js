@@ -73,7 +73,7 @@ class GameSession {
             if (this.lastSentTime && this.lastSentTime + 30 < Date.now()) {
                 this.doSendUpdate();
             }
-        }, 50);
+        }, 1000 / (this.gameMetadata.tickRate ? this.gameMetadata.tickRate : 20));
     }
 
     handleNewAsset(key, asset) {
@@ -113,7 +113,6 @@ class GameSession {
             }
 
             if (playerFrame) {
-
                 this.players[playerId].receiveUpdate(playerFrame.flat());
             } else {
                 log.error('No player frame available for player ' + playerId);

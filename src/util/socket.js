@@ -20,7 +20,6 @@ const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 const HOTLOAD_ENABLED = getConfigValue('HOTLOAD_ENABLED', false);
-const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
 const getPublicIP = () => new Promise((resolve, reject) => {
@@ -254,8 +253,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                     ws.id = Number(jsonMessage.id || generatePlayerId());
 
                     const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
-                    const req = (HTTPS_ENABLED ? https : http).request({
-                        hostname: HTTPS_ENABLED ? (getUserHash(publicIp)+ '.homegames.link') : 'localhost',
+                    const req = (certPath ? https : http).request({
+                        hostname: certPath ? (getUserHash(publicIp)+ '.homegames.link') : 'localhost',
                         port: HOMENAMES_PORT,
                         path: `/info/${ws.id}`,
                         method: 'GET'
