@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1000');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1006');
 
 class Fight {
     constructor({mainGame}) {
@@ -146,7 +146,6 @@ class Fight {
 
                 if (this.enemy.hits >= 3) {
                     this.enemyLayer.clearChildren();
-                    this.enemy.node.node.free();
                     this.enemy = null;
 
                     const dustAssetKey = 'dust-' + (Math.random() < .5 ? '1' : '2');
@@ -198,7 +197,6 @@ class Fight {
 
                 if (this.enemy.hits >= 3) {
                     this.enemyLayer.clearChildren();
-                    this.enemy.node.node.free();
                     this.enemy = null;
 
                     const dustAssetKey = 'dust-' + (Math.random() < .5 ? '1' : '2');
@@ -278,7 +276,6 @@ class Fight {
             if (this.dustAsset) {
                 if (this.dustAsset.createdAt + 500 <= now) {
                     this.enemyLayer.removeChild(this.dustAsset.node.id);
-                    this.dustAsset.node.free();
                     this.dustAsset = null;
                 }
             } else {

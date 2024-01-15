@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1000');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1006');
 
 const talkOptions = require('../talk-options.js');
 
@@ -137,7 +137,6 @@ class Talk {
         this.guy.node.asset = newAssetInfo;
 
         this.blackBox.removeChild(this.text.id);
-        this.text.node.free();
 
         this.text = mainTextNode;
         this.blackBox.addChild(mainTextNode);

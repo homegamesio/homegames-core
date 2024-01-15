@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1000');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1006');
 
 const MAX_THINGS = 4;
 
@@ -237,13 +237,11 @@ class Drive {
 
         for (let key of enemiesToRemove) {
             this.root.removeChild(key);
-            this.spawnedEnemies[key].node.free();
             delete this.spawnedEnemies[key];
         }
 
         for (let key of rewardsToRemove) {
             this.root.removeChild(key);
-            this.spawnedRewards[key].node.free();
             delete this.spawnedRewards[key]; 
 
             this.mainGame.resources.scrap = this.mainGame.resources.scrap + 1;

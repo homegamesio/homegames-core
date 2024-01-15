@@ -36,6 +36,7 @@
     "squish-1000": "npm:squishjs@1.0.4",
     "squish-1004": "npm:squishjs@1.0.4",
     "squish-1005": "npm:squishjs@1.0.5",
+    "squish-1006": "file:../squish",
     "unzipper": "^0.10.11",
     "ws": "7.4.6"
   }
