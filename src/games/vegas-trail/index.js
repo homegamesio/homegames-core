@@ -562,7 +562,7 @@ class VegasTrail extends Game {
             squishVersion: '1006',
             author: 'Joseph & Senovia Garcia',
             thumbnail: '7ce8c9285df969a93a0d186474a42fb7',
-            tickRate: 30,
+            tickRate: 60,
             description: 'Attempt to survive the journey from Tucson to Las Vegas. @nytan on bandcamp did the music.',
             assets: {
                 'introSong': new Asset({
