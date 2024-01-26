@@ -3,7 +3,7 @@ const http = require('http');
 const https = require('https');
 const path = require('path');
 
-const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0767');
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-1006');
 
 const squishMap = require('../common/squish-map');
 
@@ -322,7 +322,7 @@ class HomegamesDashboard extends ViewableGame {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '0767'
+            squishVersion: '1006'
         };
     }
 
@@ -410,7 +410,7 @@ class HomegamesDashboard extends ViewableGame {
             const referencedGame = this.localGames[gameKey];
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
 
-            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0767';
+            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '1006';
 
             const func = fork;
             const tingEnv = process.env;
@@ -544,7 +544,6 @@ class HomegamesDashboard extends ViewableGame {
                         },
                         onClose: () => {
                             playerRoot.removeChild(modal.node.id);
-                            this.clearAllChildren(modal);  
                         }
                     });
 
@@ -1067,29 +1066,9 @@ class HomegamesDashboard extends ViewableGame {
             const node = playerViewRoot.node;
             this.playerRootNode.removeChild(node.id);
             delete this.playerRoots[playerId];
-            this.clearAllChildren(node);
         }
     }
     
-    clearAllChildren(node) {
-        const proxiesToRevoke = this.clearAllChildrenHelper(node);
-
-        proxiesToRevoke.forEach(p => {
-            p.free();
-        });
-    }
-    
-    clearAllChildrenHelper(_node, proxiesToRevoke = []) {
-        const node = _node.node || _node;
-        proxiesToRevoke.push(node);
-
-        for (let i = 0; i < node.children.length; i++) {
-            this.clearAllChildrenHelper(node.children[i], proxiesToRevoke);
-        }
-
-        return proxiesToRevoke;
-    }
-
 }
 
 module.exports = HomegamesDashboard;
