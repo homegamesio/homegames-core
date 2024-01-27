@@ -287,7 +287,7 @@ class HomegamesRoot {
     }
 
     handleNewPlayer({ playerId, info: playerInfo }) {
-        if (this.session.players[playerId].remoteClient) {
+        if (this.session.players[playerId]?.remoteClient) {
             this.remotePlayerIds[playerId] = true;
         }
         const playerFrame = new GameNode.Asset({
