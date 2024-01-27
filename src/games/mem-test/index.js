@@ -1,4 +1,4 @@
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-1006');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0767');
 const { ExpiringSet, animations } = require('../../common/util');
 
 const COLORS = Colors.COLORS;
@@ -8,7 +8,7 @@ class MemTest extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '1006',
+            squishVersion: '0767',
             isTest: true
         };
     }
@@ -35,12 +35,12 @@ class MemTest extends Game {
 
         if (this.lastNode) {
             this.whiteBase.removeChild(this.lastNode.id);
+            this.lastNode.free();
         }
 
         this.lastNode = newNode;
 
         this.whiteBase.addChild(newNode);
-        this.whiteBase.node.onStateChange();
     }
 
     handleLayerClick() {

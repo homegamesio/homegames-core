@@ -3,11 +3,11 @@ const http = require('http');
 const https = require('https');
 const path = require('path');
 
-const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-1006');
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-0767');
 
 const squishMap = require('../common/squish-map');
 
-const decompress = require('decompress');
+const unzipper = require('unzipper');
 const fs = require('fs');
 const gameModal = require('./game-modal');
 
@@ -322,7 +322,7 @@ class HomegamesDashboard extends ViewableGame {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '1006'
+            squishVersion: '0767'
         };
     }
 
@@ -410,14 +410,14 @@ class HomegamesDashboard extends ViewableGame {
             const referencedGame = this.localGames[gameKey];
             const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
 
-            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '1006';
+            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '0767';
 
             const func = fork;
             const tingEnv = process.env;
 
             // referenced game file needs to use our dependencies
             tingEnv.NODE_PATH = `${process.cwd()}${path.sep}node_modules`;
-
+            
             const childSession = func(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion], ...tingEnv}});
 
             sessions[port] = childSession;
@@ -445,15 +445,12 @@ class HomegamesDashboard extends ViewableGame {
             });
 
             childSession.on('error', (err) => { 
-                console.log('error!');
-                console.log(err);
                 this.sessions[sessionId] = {};
                 childSession.kill();
                 log.error('child session error', err);
             });
             
             childSession.on('close', (err) => {
-                console.log(err);
                 log.error('Child session closed');
                 log.error(err);
                 this.sessions[sessionId] = {};
@@ -547,6 +544,7 @@ class HomegamesDashboard extends ViewableGame {
                         },
                         onClose: () => {
                             playerRoot.removeChild(modal.node.id);
+                            this.clearAllChildren(modal);  
                         }
                     });
 
@@ -1030,19 +1028,20 @@ class HomegamesDashboard extends ViewableGame {
         }
         return new Promise((resolve, reject) => {
             const gamePath = `${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}`;
-            const zipPath = `${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}.zip`;
 
             if (!fs.existsSync(`${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}`)) {
                 fs.mkdirSync(`${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}`);
             }
 
-            const zipWriteStream = fs.createWriteStream(zipPath);
-            
-            zipWriteStream.on('close', () => {
-                decompress(zipPath, gamePath).then((files) => {
+            https.get(location, (res) => {
+                const stream = res.pipe(unzipper.Extract({
+                    path: gamePath
+                }));
+
+                stream.on('close', () => {
+                    fs.readdir(gamePath, (err, files) => {
                         const currentMetadata = getGameMetadataMap();
-		        const foundIndex = files.filter(f => f.type === 'file' && f.path.endsWith('index.js'))[0];
-                        const indexPath = path.join(gamePath, foundIndex.path);//`${gamePath}${path.sep}index.js`;
+                        const indexPath = `${gamePath}${path.sep}index.js`;
                     
                         currentMetadata[indexPath] = metadataToStore;
                         updateGameMetadataMap(currentMetadata);
@@ -1055,14 +1054,9 @@ class HomegamesDashboard extends ViewableGame {
                             });
                         });
                         resolve(indexPath);
+                    });
                 });
-            });
 
-            https.get(location, (res) => {
-                res.pipe(zipWriteStream);
-                zipWriteStream.on('finish', () => {
-                    zipWriteStream.close();
-                });
             });
         });
     }
@@ -1073,9 +1067,29 @@ class HomegamesDashboard extends ViewableGame {
             const node = playerViewRoot.node;
             this.playerRootNode.removeChild(node.id);
             delete this.playerRoots[playerId];
+            this.clearAllChildren(node);
         }
     }
     
+    clearAllChildren(node) {
+        const proxiesToRevoke = this.clearAllChildrenHelper(node);
+
+        proxiesToRevoke.forEach(p => {
+            p.free();
+        });
+    }
+    
+    clearAllChildrenHelper(_node, proxiesToRevoke = []) {
+        const node = _node.node || _node;
+        proxiesToRevoke.push(node);
+
+        for (let i = 0; i < node.children.length; i++) {
+            this.clearAllChildrenHelper(node.children[i], proxiesToRevoke);
+        }
+
+        return proxiesToRevoke;
+    }
+
 }
 
 module.exports = HomegamesDashboard;

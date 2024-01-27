@@ -1,6 +1,6 @@
 const dictionary = require('../../common/util/dictionary');
 
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1006');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1005');
 
 const COLORS = Colors.COLORS;
 
@@ -13,14 +13,9 @@ class Sponge extends Game {
             description: 'sponge',
             author: 'Joseph Garcia',
             thumbnail: '8727eec293b562692fa6c7e3901a2274',
-            squishVersion: '1006',
-            maxPlayers: 2,
-            tickRate: 60
+            squishVersion: '1005',
+            maxPlayers: 2
         };
-    }
-
-    tick() {
-        this.base.node.onStateChange();
     }
 
     constructor() {

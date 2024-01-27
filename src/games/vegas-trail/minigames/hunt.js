@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1006');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1000');
 const weapons = require('../weapons');
 
 // const WEAPONS = {
@@ -883,6 +883,7 @@ class Hunt {
 
         if (this.weaponNode) {
             this.gameLayer.removeChild(this.weaponNode.id);
+            this.weaponNode.node.free();
         }        
 
         const assetKey = playerWeapon + '-1';
@@ -1235,6 +1236,8 @@ class Hunt {
 
                     delete this.renderedEnemies[k]
                     delete this.enemyPaths[k];
+                    node.node.free();
+                    legsNode.node.free();
                 }
             });
 
@@ -1293,6 +1296,10 @@ class Hunt {
                 const node = this.renderedShots[k];
                 delete this.renderedShots[k];
                 delete this.shotPaths[k];
+
+                if (node) {
+                    node.gameNode.free();
+                }
             });
         }
 
@@ -1323,6 +1330,7 @@ class Hunt {
             const node = this.renderedScrap[key].node;
             this.gameLayer.removeChild(node.id);
 
+            node.node.free();
             delete this.renderedScrap[key];
             this.mainGame.resources.scrap = this.mainGame.resources.scrap + 1;
             this.mainGame.renderStatsLayer();
@@ -1335,6 +1343,7 @@ class Hunt {
                 const node = this.expiringNodes[key].node;
                 this.gameLayer.removeChild(node.id);
                 expiringNodesToDelete.add(key);
+                node.node.free();
             }
         }
 

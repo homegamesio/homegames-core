@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1006');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-1000');
 
 const COLORS = {
     BLURPLE: [71, 51, 255, 255],
@@ -706,12 +706,14 @@ class MapGame {
                     const modalNode = landmarkModal(playerId, mapData.landmarks[i], (playerId) => { 
                         if (this.playerModals[playerId]) {
                             this.modalRoot.removeChild(this.playerModals[playerId].node.id);
+                            this.playerModals[playerId].node.free();
                             delete this.playerModals[playerId];
                         }
                     });
                     
                     if (this.playerModals[playerId]) {
                         this.modalRoot.removeChild(this.playerModals[playerId].node.id);
+                        this.playerModals[playerId].node.free();
                     }
                 
                     this.playerModals[playerId] = modalNode;
@@ -811,9 +813,11 @@ class MapGame {
                     this.root.removeChild(node.id);
                     const playerIds = this.movingShop.playerIds;
                     this.movingShop = null;
+                    node.node.free();
 
                     const playerShopModal = shopModal(this.shopInventory, playerIds, () => {
                         this.modalRoot.removeChild(playerShopModal.node.id);
+                        playerShopModal.node.free();
                     }, 
                     (playerId, key) => {
                         const cost = this.shopInventory.consumables[key] ? this.shopInventory.consumables[key].cost : this.shopInventory.upgrades[key].cost;

@@ -68,6 +68,12 @@ class GameSession {
 
         this.players = {};
         this.spectators = {};
+        
+        setInterval(() => {
+            if (this.lastSentTime && this.lastSentTime + 30 < Date.now()) {
+                this.doSendUpdate();
+            }
+        }, 1000 / (this.gameMetadata.tickRate ? this.gameMetadata.tickRate : 20));
     }
 
     handleNewAsset(key, asset) {
@@ -83,6 +89,7 @@ class GameSession {
     }
 
     doSendUpdate() {
+        this.lastSentTime = Date.now();
         for (const playerId in this.players) {
             const playerSettings = this.playerSettingsMap[playerId] || {};
             
@@ -142,7 +149,12 @@ class GameSession {
     }
 
     handleSquisherUpdate(squished) {
-        this.doSendUpdate(); 
+        this.lastSquished = squished;
+
+        if (!this.lastSentTime || this.lastSentTime + 30 < Date.now()) {
+            this.doSendUpdate();
+        }
+       
     }
 
     addSpectator(spectator) {
