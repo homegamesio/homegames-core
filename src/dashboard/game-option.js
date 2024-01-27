@@ -4,7 +4,6 @@ const https = require('https');
 const path = require('path');
 const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-1006');
 
-const unzipper = require('unzipper');
 const fs = require('fs');
 const gameModal = require('./game-modal');
 
