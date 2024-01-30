@@ -1,15 +1,20 @@
-const { Asset, Game, GameNode, Colors, Shapes } = require('squish-0767');
+const { Asset, Game, GameNode, Colors, Shapes } = require('squish-1006');
 const COLORS = Colors.COLORS;
 
 class ImageTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0767',
+            squishVersion: '1006',
             author: 'Joseph Garcia',
             thumbnail: '2a0cf606567326c6c40df592ee1358ca',
-            isTest: true
+            isTest: true,
+            tickRate: 60
         };
+    }
+
+    tick() {
+        this.base.node.onStateChange();
     }
 
     constructor() {

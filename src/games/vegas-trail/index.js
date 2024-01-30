@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-1000');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-1006');
 const { MapGame, Drive, Fight, Hunt, Talk } = require('./minigames/index.js');
 const COLORS = Colors.COLORS;
 
@@ -559,10 +559,10 @@ class VegasTrail extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0767',
+            squishVersion: '1006',
             author: 'Joseph & Senovia Garcia',
             thumbnail: '7ce8c9285df969a93a0d186474a42fb7',
-            tickRate: 30,
+            tickRate: 60,
             description: 'Attempt to survive the journey from Tucson to Las Vegas. @nytan on bandcamp did the music.',
             assets: {
                 'introSong': new Asset({
@@ -1030,7 +1030,6 @@ class VegasTrail extends Game {
     clearMainModal() {
         if (this.mainModal) {
             this.mainModalLayer.removeChild(this.mainModal.id);
-            this.mainModal.node.free();
             this.mainModal = null;
         }
     }
@@ -1313,11 +1312,13 @@ class VegasTrail extends Game {
             score: 0
         }
 
-        this.setCurrentGame(playerId, this.map);
+        this.setCurrentGame(playerId, this.hunt);
 
         this.map.map.addChild(node);
 
         this.addedMapNode = true;
+
+        this.clearMainModal();
 //        const hunt = new Hunt(playerId);
 //        const run = new Run(playerId);
 //        const gridDefense = new GridDefense(playerId);
@@ -1427,6 +1428,8 @@ class VegasTrail extends Game {
             playerStates: this.playerStates,
             distanceTraveled: this.distanceTraveled
         }); 
+
+        this.base.node.onStateChange();
     }
 
     getLayers() {
