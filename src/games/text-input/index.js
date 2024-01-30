@@ -30,11 +30,11 @@ class TextInputTest extends Game {
     handleKeyDown(player, key) {
         const now = Date.now();
         
-//        let debounceMillis = 20;
+        let debounceMillis = 20;
 
-//        if (this.currentKey && this.currentKey === key) {
-//            debounceMillis = 250;
-//        }
+        if (this.currentKey && this.currentKey === key) {
+            debounceMillis = 250;
+        }
 
         if (!this.lastKeyDown || this.lastKeyDown + debounceMillis < now) {
             this.lastKeyDown = now;
