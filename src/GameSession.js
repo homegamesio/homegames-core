@@ -17,10 +17,13 @@ if (baseDir.endsWith('src')) {
 const { getConfigValue, log } = require('homegames-common');
 const HomenamesHelper = require('./util/homenames-helper');
 
-const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
-const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
-const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
-const BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y; 
+//const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
+//const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
+//const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
+//const BEZEL_SIZE_Y = PERFORMANCE_PROFILING ? _BEZEL_SIZE_Y + 20 : _BEZEL_SIZE_Y; 
+
+const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 10);
+const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 10);
 
 class GameSession {
     constructor(game, port, username) {
@@ -52,7 +55,6 @@ class GameSession {
             scale: {x: 1, y: 1}
         };
 
-        // TODO: make this configurable per player (eg. configurable bezel size)
         this.scale = {x: (100 - BEZEL_SIZE_X) / 100, y:  (100 - BEZEL_SIZE_Y) / 100};
 
         this.squisher = new Squisher({ game, scale: this.scale, customBottomLayer: this.customBottomLayer, customTopLayer: this.customTopLayer, onAssetUpdate: (newAssetBundle) => {

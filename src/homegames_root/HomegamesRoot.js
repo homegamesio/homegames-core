@@ -36,6 +36,9 @@ const DOWNLOADED_GAME_DIRECTORY = GAME_DIRECTORY;
 
 const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 
+const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 10);
+const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 10);
+
 if (!fs.existsSync(GAME_DIRECTORY)) {
     fs.mkdirSync(GAME_DIRECTORY);
 }
@@ -179,6 +182,8 @@ class HomegamesRoot {
             assets: {
                 'frame': new Asset({
                     'id': 'c299f1f7e24d03e59cb569f5815bfe2f',
+                    // no gloss on frame
+                    //'8fcdf21f0a48f98840775cf9dc453d49',
                     'type': 'image'
                 }),
                 'logo-horizontal': new Asset({
@@ -260,8 +265,8 @@ class HomegamesRoot {
         }
 
         const logoSizeX = 17 * (aspectRatio.y / aspectRatio.x);
-        const logoSizeY = 5;
-        const logoStartY = 94.5;
+        const logoSizeY = BEZEL_SIZE_Y / 2;
+        const logoStartY = 100 - (BEZEL_SIZE_Y / 2);
         const logoStartX = 50 - (logoSizeX / 2);
 
         this.homeButton = new GameNode.Asset({
@@ -426,7 +431,7 @@ class HomegamesRoot {
 
             const settingsButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(42.5,.25, 15, 4.5),
+                coordinates2d: ShapeUtils.rectangle(42.5, 0, 15, BEZEL_SIZE_Y / 2),
                 fill: COLORS.HG_BLUE,//[187, 189, 191, 255],
                 onClick: (playerId) => {
                     this.showSettings(playerId);

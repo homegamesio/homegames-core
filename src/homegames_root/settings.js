@@ -291,7 +291,7 @@ const closeContainer = ({ playerId, onRemove }) => {
     const closeX = new GameNode.Text({
         textInfo: {
             x: 18,
-            y: 16,
+            y: 15,
             text: 'X',
             align: 'center',
             color: [251, 255, 242, 255],
@@ -304,6 +304,19 @@ const closeContainer = ({ playerId, onRemove }) => {
 };
 
 const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundToggle, session, playerInfo, assetInfo, onDownload, onExportSessionData }) => {
+    
+    const paddingSize = 1;
+
+    const paddingWidth = paddingSize;
+    const paddingHeight = paddingSize * (16 / 9);
+
+    const settingsBase = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(15 - paddingWidth, 15 - paddingHeight, 70 + (2 * paddingWidth), 70 + (2 * paddingHeight)),
+        fill: COLORS.HG_BLACK,
+        playerIds: [playerId]
+    });
+
     const settingsModal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
@@ -320,7 +333,9 @@ const settingsModal = ({ playerId, playerName, onRemove, onNameChange, onSoundTo
         saveRecordingContainer({ playerId, onExportSessionData })
     );
 
-    return settingsModal;
+    settingsBase.addChild(settingsModal);
+
+    return settingsBase;
 };
 
 module.exports = settingsModal;
