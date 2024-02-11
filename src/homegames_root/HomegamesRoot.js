@@ -18,8 +18,6 @@ const HomenamesHelper = require('../util/homenames-helper');
 const settingsModal = require('./settings');
 const COLORS = Colors.COLORS;
 
-const procStats = require('process-stats')();
-
 const HOME_PORT = getConfigValue('HOME_PORT', 7001);
 class HomegamesRoot {
     static metadata() {
