@@ -660,7 +660,6 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     handleNewPlayer({ playerId, settings: playerSettings, info: playerInfo, requestedGame }) {
-    
         const playerView = {x: 0, y: 0, w: 100, h: 100};
 
         const playerNodeRoot = new GameNode.Shape({
@@ -682,9 +681,15 @@ class HomegamesDashboard extends ViewableGame {
 
         if (requestedGame) {
 
-            const { gameId, versionId } = requestedGame;
+            let { gameId, versionId } = requestedGame;
 
             networkHelper.getGameDetails(gameId).then(gameDetails => {
+                if (!versionId) {
+                    if (gameDetails.versions.length > 0) {
+                        versionId = gameDetails.versions[gameDetails.versions.length - 1].versionId;
+                    }
+                }
+
                 networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
                     const ting = { 
                         [gameId]: {
