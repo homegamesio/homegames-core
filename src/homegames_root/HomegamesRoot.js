@@ -1,5 +1,7 @@
 const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 
+const { Parser } = require('acorn');
+
 const fs = require('fs');
 const process = require('process');
 
@@ -42,6 +44,45 @@ const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 10);
 if (!fs.existsSync(GAME_DIRECTORY)) {
     fs.mkdirSync(GAME_DIRECTORY);
 }
+
+const parseSquishVersion = (codePath) => {
+    const parsed = Parser.parse(fs.readFileSync(codePath));
+    
+    const foundGameClasses = parsed.body.filter(n => n.type === 'ClassDeclaration' && n.superClass?.name === 'Game');
+    
+    if (foundGameClasses.length !== 1) {
+        throw new Error('Top-level file should have one defined game class');
+    }
+    
+    const foundGame = foundGameClasses[0];
+    
+    const foundConstructors = foundGame.body.body.filter(n => n.key?.name === 'metadata' && n.kind === 'method');
+    
+    if (foundConstructors.length !== 1) {
+        throw new Error('Game needs one constructor');
+    }
+    
+    const foundConstructor = foundConstructors[0];
+    
+    let foundSquishVersion;
+    
+    foundConstructor.value.body.body.forEach(n => {
+        const squishVersionNodes = n.argument.properties.filter(n => n.key?.name === 'squishVersion');
+        if (squishVersionNodes.length > 1 || (foundSquishVersion && squishVersionNodes.length == 1)) {
+            throw new Error('Multiple squish versions found');
+        } 
+    
+        if (squishVersionNodes.length === 1) {
+            foundSquishVersion = squishVersionNodes[0].value.value;
+        }
+    });
+    
+    if (!foundSquishVersion) {
+        throw new Error('No squish version found');
+    }
+    
+    return foundSquishVersion;
+};
 
 const getGameMetadataMap = () => {
     if (fs.existsSync(GAME_DIRECTORY + path.sep + '.metadata')) {
@@ -641,7 +682,11 @@ class HomegamesRoot {
                             gameAssets[key][versionId] = _gameAssets;
                         }
                     } else {
-                        const _class = require(localGames[key].versions[versionId].gamePath);
+                        const gamePath = localGames[key].versions[versionId].gamePath;
+
+                        const squishVersion = parseSquishVersion(gamePath);
+                        process.env.SQUISH_PATH = require.resolve(`squish-${squishVersion}`);
+                        const _class = require(gamePath);
                         const _gameAssets = _class.metadata && _class.metadata().assets;
 
                         if (_gameAssets) {
