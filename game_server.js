@@ -1,5 +1,6 @@
 const GameSession = require('./src/GameSession');
 const http = require('http');
+const https = require('https');
 const { socketServer } = require('./src/util/socket');
 const Homenames = require('./src/Homenames');
 const path = require('path');
@@ -35,15 +36,14 @@ const server = (certPath, squishMap, username) => {
     const supportedServices = {
         'contentGenerator': {
             requestContent: (request) => new Promise((resolve, reject) => {
-                console.log("balls");
                 const makePost = (path, _payload) => new Promise((resolve, reject) => {
                     const payload = JSON.stringify(_payload);
 
                     let module, hostname, port;
                 
-                    module = http;
-                    port = 8001;
-                    hostname = 'localhost';
+                    module = https;
+                    port = 443;
+                    hostname = 'api.homegames.io';
                 
                     const headers = {};
                 
@@ -76,7 +76,7 @@ const server = (certPath, squishMap, username) => {
                     req.end();
                 });
 
-                makePost('http://localhost:8001/services', request).then((response) => {
+                makePost('https://api.homegames.io/services', request).then((response) => {
                     if (!response.startsWith('{')) {
                         reject(response);
                     } else {
@@ -84,7 +84,7 @@ const server = (certPath, squishMap, username) => {
                         const requestId = JSON.parse(response).requestId;
                         console.log('request id is ' + requestId);
                         const interval = setInterval(() => {
-                            http.get(`http://localhost:8001/service_requests/${requestId}`, {}, (res) => {
+                            https.get(`https://api.homegames.io/service_requests/${requestId}`, {}, (res) => {
                                 let bufs = [];
                                 res.on('data', (chunk) => {
                                     bufs.push(chunk);

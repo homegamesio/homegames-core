@@ -203,6 +203,12 @@ class InfiniteQuestions extends Game {
     }
 
     requestQuestions() {
+        if (this.lastRequest && this.lastRequest + (30 * 1000) >= Date.now()) {
+            return;
+        }
+
+        this.lastRequest = Date.now();
+
         this.loading = true;
         this.error = null;
         this.renderContent();
@@ -210,8 +216,6 @@ class InfiniteQuestions extends Game {
 
         const allPlayerIds = Object.keys(this.playerStates);
         allPlayerIds.sort((a, b) => Math.random() - Math.random());
-        console.log('alllllplayu');
-        console.log(allPlayerIds);
         let keywords = [];
         for (let playerId in this.playerStates) {
             if (this.playerStates[playerId].text) {
