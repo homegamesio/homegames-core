@@ -7,7 +7,6 @@ class InfiniteQuestions extends Game {
             author: 'Joseph Garcia',
             thumbnail: 'f103961541614b68c503a9ae2fd4cc47',
             squishVersion: '1006',
-            isTest: true,
             tickRate: 60,
             services: ['contentGenerator']
         };
