@@ -80,9 +80,7 @@ const server = (certPath, squishMap, username) => {
                     if (!response.startsWith('{')) {
                         reject(response);
                     } else {
-                        console.log('amde request');
                         const requestId = JSON.parse(response).requestId;
-                        console.log('request id is ' + requestId);
                         const interval = setInterval(() => {
                             https.get(`https://api.homegames.io/service_requests/${requestId}`, {}, (res) => {
                                 let bufs = [];
@@ -92,8 +90,6 @@ const server = (certPath, squishMap, username) => {
 
                                 res.on('end', () => {
                                     const fin = JSON.parse(Buffer.concat(bufs));
-                                    console.log("response!?");
-                                    console.log(fin);
                                     const parsed = fin;//JSON.parse(fin);
                                     if (parsed.response) {
                                         clearInterval(interval);
@@ -111,12 +107,9 @@ const server = (certPath, squishMap, username) => {
     };
 
     if (customStartModule?.metadata) {
-        console.log('they want');
         const requestedServices = customStartModule.metadata().services || [];
         services = {};
         requestedServices.forEach(s => services[s] = supportedServices[s]);
-        console.log(customStartModule.metadata);//.constructor.metadata());
-        console.log(services);
     }
 
     const dashboard = customStartModule ? new customStartModule({ 
