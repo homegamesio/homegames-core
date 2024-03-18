@@ -8,7 +8,7 @@ Requirements:
 - Node.js >= 18
 
 ```
-npm i
+npm install
 node index.js
 ```
 
@@ -62,8 +62,11 @@ A game session (`src/GameSession.js`) will run a `Game` on a given port. It hand
 
 The game session is responsible for:
 - Instantiating a `HomegamesRoot` which is responsible for stuff like the Homegames frame
+  - src/homegames_root
 - Creating a `Squisher` and notifying players when updates occur
+  - The squisher comes from our game library - [squishjs](https://github.com/homegamesio/squish)
+  - It's responsible for serializing ("squishing") game state. 
 - Managing player connections to the session
 
 ## Homenames
-Homenames is an HTTP API that runs alongside a Homegames core instance. It is responsible for maintaining user metadata (eg. name, settings) across game sessions. It maintains a map of player IDs to player names and settings, allowing clients to say "hey I'm player ID x" and a session can say "I know you, you're booty slayer".
+Homenames is an HTTP API that runs alongside a Homegames core instance. It is responsible for maintaining user metadata (eg. name, settings) across game sessions. It maintains an in-memory map of player IDs to player names and settings. This allows a client to say "hey I'm player ID x" and a game session can say "I know you, you're booty slayer and you want sound muted."
