@@ -1,28 +1,61 @@
-# homegames
-#### Play games at home
+# Homegames Core
+Homegames core contains Homegames server stuff. The Homegames server is responsible for providing game sessions clients can connect to.
 
-Play simple browser-based games on a local network. 
+## Setup
+**Note: You probably don't want to run homegames-core directly if you're just trying to play games. The best way to do that is via the executables available at homegames.io**
 
-![homegames diagram](https://d3lgoy70hwd3pc.cloudfront.net/homegames.png)
+Requirements: 
+- Node.JS >= 18
 
-Download binaries at https://homegames.io or just:
-`npm install` followed by `npm run start`.
+```
+npm i
+node index.js
+```
 
-Navigate to http://homegames.link in your browser. If it doesn't work, create an issue at https://github.com/homegamesio/homegames
+By default, this will run a Homegames game server on port 7001. You can override this in your config.
 
-Sometimes there's a demo running at http://picodeg.io
+## Games 
+Built-in games are located in src/games.
+Downloaded community games are in different places depending on your operating system.
 
-#### Run with Docker
+Windows:
+`C:\Users\<username>\AppData\homegames\hg-games`
 
-Want to run homegames core easily with docker? Well here ya go bud:
+MacOS:
+`${HOME}/Library/Application Support/homegames/hg-games`
 
+Linux:
+`/path/to/home/.homegames/hg-games`
 
-1. Navigate to root directory of homegames project
+## Config
+Homegames will look for a `config.json` file in the root project directory. If present, it will override defaults. Here's an example config.json:
 
-2. Run `docker build -t homegames .`
+```
+{
+    "LINK_ENABLED": true,
+    "HOMENAMES_PORT": 7400,
+    "HOME_PORT": 9801,
+    "LOG_LEVEL": "INFO",
+    "GAME_SERVER_PORT_RANGE_MIN": 8300,
+    "GAME_SERVER_PORT_RANGE_MAX": 8400,
+    "HTTPS_ENABLED": false,
+    "BEZEL_SIZE_X": 9,
+    "BEZEL_SIZE_Y": 9,
+    "DOWNLOADED_GAME_DIRECTORY": "hg-games",
+    "LOG_PATH": "homegames_log.txt",
+    "PUBLIC_GAMES": false,
+    "ERROR_REPORTING": true,
+    "ERROR_REPORTING_ENDPOINT": "https://api.homegames.io/bugs",
+    "START_PATH": "/Users/josephgarcia/weed-smoke-willie/index.js",
+    "TESTS_ENABLED": true,
+    "ERROR_REPORTING_ENDPOINT": "https://api.homegames.io/bugs"
+}
+```
 
-3. Run `docker run -dp 7000-7100:7000-7100 homegames`
+## Dashboard
+By default, the Homegames core server will serve the Homegames dashboard on HOME_PORT. If you're developing a game locally and want to start it directly instead of navigating through the dashboard, set `START_PATH` in your config.json.
 
-4. That's it! The docker container should be up and running, and exposed/published on ports 7000-7100 on whatever machine you ran the above commands on
+The dashboard is rendered like any game but has special knowledge about game sessions and players.
 
-test update
+## Game Session
+## Homenames
