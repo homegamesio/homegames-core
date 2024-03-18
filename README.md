@@ -58,4 +58,12 @@ By default, the Homegames core server will serve the Homegames dashboard on `HOM
 The dashboard is rendered like any game but has special knowledge about game sessions and players.
 
 ## Game Session
+A game session (`src/GameSession.js`) will run a `Game` on a given port. It handles all of the networking and input stuff as well as Homegames-specific logic like rendering the frame around a game and letting users update their names.
+
+The game session is responsible for:
+- Instantiating a `HomegamesRoot` which is responsible for stuff like the Homegames frame
+- Creating a `Squisher` and notifying players when updates occur
+- Managing player connections to the session
+
 ## Homenames
+Homenames is an HTTP API that runs alongside a Homegames core instance. It is responsible for maintaining user metadata (eg. name, settings) across game sessions. It maintains a map of player IDs to player names and settings, allowing clients to say "hey I'm player ID x" and a session can say "I know you, you're booty slayer".
