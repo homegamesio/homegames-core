@@ -69,4 +69,4 @@ The game session is responsible for:
 - Managing player connections to the session
 
 ## Homenames
-Homenames is an HTTP API that runs alongside a Homegames core instance. It is responsible for maintaining user metadata (eg. name, settings) across game sessions. It maintains an in-memory map of player IDs to player names and settings. This allows a client to say "hey I'm player ID x" and a game session can say "I know you, you're booty slayer and you want sound muted."
+Homenames is an HTTP API that runs alongside a Homegames core instance. It maintains an in-memory map of player IDs to player names and settings. This allows a client to say "hey I'm player ID x" and a game session can say "I know you, you're booty slayer and you want sound muted."
