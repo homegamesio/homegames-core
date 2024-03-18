@@ -5,7 +5,7 @@ Homegames core contains Homegames server stuff. The Homegames server is responsi
 **Note: You probably don't want to run homegames-core directly if you're just trying to play games. The best way to do that is via the executables available at homegames.io**
 
 Requirements: 
-- Node.JS >= 18
+- Node.js >= 18
 
 ```
 npm i
@@ -53,7 +53,7 @@ Homegames will look for a `config.json` file in the root project directory. If p
 ```
 
 ## Dashboard
-By default, the Homegames core server will serve the Homegames dashboard on HOME_PORT. If you're developing a game locally and want to start it directly instead of navigating through the dashboard, set `START_PATH` in your config.json.
+By default, the Homegames core server will serve the Homegames dashboard on `HOME_PORT`. If you're developing a game locally and want to start it directly instead of navigating through the dashboard, set `START_PATH` in your config.json.
 
 The dashboard is rendered like any game but has special knowledge about game sessions and players.
 
