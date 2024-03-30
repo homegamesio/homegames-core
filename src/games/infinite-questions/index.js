@@ -34,7 +34,15 @@ class InfiniteQuestions extends Game {
             shapeType: Shapes.POLYGON,
             fill: Colors.COLORS.PINK,
             coordinates2d: ShapeUtils.rectangle(40, 15, 20, 10),
-            onClick: this.requestQuestions.bind(this)
+            onClick: this.requestQuestions.bind(this),
+            onHover: (playerId) => {
+                this.generateButton.node.fill = Colors.COLORS.WHITE;
+                this.generateButton.node.onStateChange();
+            },
+            offHover: (playerId) => {
+                this.generateButton.node.fill = Colors.COLORS.PINK;
+                this.generateButton.node.onStateChange();
+            } 
         });
 
         const generateText = new GameNode.Text({
