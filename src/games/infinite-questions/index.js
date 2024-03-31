@@ -239,8 +239,7 @@ class InfiniteQuestions extends Game {
         } else {
             keywords = keywords.slice(0, 2);
         }
-        console.log('key words');
-        console.log(keywords);
+
         this.contentGenerator.requestContent({
             type: 'trivia_questions',
             keywords
