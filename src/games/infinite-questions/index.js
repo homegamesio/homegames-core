@@ -116,8 +116,6 @@ class InfiniteQuestions extends Game {
         } else {
             const curQuestionIndex = this.questionIndex || 0;
 
-            console.log('fhfhfh');
-            console.log(this.content);
             const curQuestionText = this.content.questions[curQuestionIndex];
 
             const textNode = new GameNode.Text({

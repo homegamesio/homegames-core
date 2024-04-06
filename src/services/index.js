@@ -11,9 +11,9 @@ const supportedServices = {
 
                 let module, hostname, port;
             
-                module = http;//https;
-                port = 8080;//443;
-                hostname = 'localhost';//'api.homegames.io';
+                module = https;
+                port = 443;
+                hostname = 'api.homegames.io';
             
                 const headers = {};
             
@@ -46,13 +46,13 @@ const supportedServices = {
                 req.end();
             });
 
-            makePost('http://localhost:8080/services', { type: 'content-generation', ...request }).then((response) => {
+            makePost('https://api.homegames.io/services', { type: 'content-generation', ...request }).then((response) => {
                 if (!response.startsWith('{')) {
                     reject(response);
                 } else {
                     const requestId = JSON.parse(response).requestId;
                     const interval = setInterval(() => {
-                        http.get(`http://localhost:8080/service_requests/${requestId}`, {}, (res) => {
+                        https.get(`https://api.homegames.io/service_requests/${requestId}`, {}, (res) => {
                             let bufs = [];
                             res.on('data', (chunk) => {
                                 bufs.push(chunk);
