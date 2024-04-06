@@ -116,6 +116,8 @@ class InfiniteQuestions extends Game {
         } else {
             const curQuestionIndex = this.questionIndex || 0;
 
+            console.log('fhfhfh');
+            console.log(this.content);
             const curQuestionText = this.content.questions[curQuestionIndex];
 
             const textNode = new GameNode.Text({
@@ -239,10 +241,16 @@ class InfiniteQuestions extends Game {
             keywords = keywords.slice(0, 2);
         }
 
+        const keywordString = keywords.join(',');
+
         this.contentGenerator.requestContent({
-            type: 'trivia_questions',
-            keywords
-        }).then((contentJson) => {
+            model: 'mistral-7b-instruct-v0.2',
+            prompt: `Generate 5 questions in JSON format. The response should contain only JSON with a single key "questions" containing a list of strings. The questions should be about the following topics: ${keywordString}.`
+        }).then((_contentJson) => {
+            // it doesnt _just_ give json of course
+            const leftParenIndex = _contentJson.response.lastIndexOf('{');
+            const rightParenIndex = _contentJson.response.lastIndexOf('}');
+            const contentJson = JSON.parse(_contentJson.response.substring(leftParenIndex, rightParenIndex + 1));
             this.content = contentJson;
             this.error = null;
             this.loading = false;
