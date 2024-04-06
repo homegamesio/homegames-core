@@ -219,7 +219,6 @@ class InfiniteQuestions extends Game {
         this.loading = true;
         this.error = null;
         this.renderContent();
-        const randFillers = ['sloths', 'gelato', 'basketball'];
 
         const allPlayerIds = Object.keys(this.playerStates);
         allPlayerIds.sort((a, b) => Math.random() - Math.random());
@@ -233,9 +232,9 @@ class InfiniteQuestions extends Game {
             }
         }
         if (keywords.length < 1) {
-            keywords = ['sloths', 'gelato'];
+            return;
         } else if (keywords.length < 2) {
-            keywords.push('basketball');
+            keywords.push(keywords[0]);
         } else {
             keywords = keywords.slice(0, 2);
         }
