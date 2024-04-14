@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-1006');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-1007');
 
 class InfiniteQuestions extends Game {
     static metadata() {
@@ -6,7 +6,7 @@ class InfiniteQuestions extends Game {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             thumbnail: 'f103961541614b68c503a9ae2fd4cc47',
-            squishVersion: '1006',
+            squishVersion: '1007',
             tickRate: 60,
             services: ['contentGenerator']
         };
@@ -34,7 +34,15 @@ class InfiniteQuestions extends Game {
             shapeType: Shapes.POLYGON,
             fill: Colors.COLORS.PINK,
             coordinates2d: ShapeUtils.rectangle(40, 15, 20, 10),
-            onClick: this.requestQuestions.bind(this)
+            onClick: this.requestQuestions.bind(this),
+            onHover: (playerId) => {
+                this.generateButton.node.fill = Colors.COLORS.WHITE;
+                this.generateButton.node.onStateChange();
+            },
+            offHover: (playerId) => {
+                this.generateButton.node.fill = Colors.COLORS.PINK;
+                this.generateButton.node.onStateChange();
+            } 
         });
 
         const generateText = new GameNode.Text({
@@ -211,7 +219,6 @@ class InfiniteQuestions extends Game {
         this.loading = true;
         this.error = null;
         this.renderContent();
-        const randFillers = ['sloths', 'gelato', 'basketball'];
 
         const allPlayerIds = Object.keys(this.playerStates);
         allPlayerIds.sort((a, b) => Math.random() - Math.random());
@@ -225,18 +232,23 @@ class InfiniteQuestions extends Game {
             }
         }
         if (keywords.length < 1) {
-            keywords = ['sloths', 'gelato'];
+            return;
         } else if (keywords.length < 2) {
-            keywords.push('basketball');
+            keywords.push(keywords[0]);
         } else {
             keywords = keywords.slice(0, 2);
         }
-        console.log('key words');
-        console.log(keywords);
+
+        const keywordString = keywords.join(',');
+
         this.contentGenerator.requestContent({
-            type: 'trivia_questions',
-            keywords
-        }).then((contentJson) => {
+            model: 'mistral-7b-instruct-v0.2',
+            prompt: `Generate 5 conversation starter questions in JSON format. The response should contain only JSON with a single key "questions" containing a list of strings. The questions should be about the following topics: ${keywordString}.`
+        }).then((_contentJson) => {
+            // it doesnt _just_ give json of course
+            const leftParenIndex = _contentJson.response.lastIndexOf('{');
+            const rightParenIndex = _contentJson.response.lastIndexOf('}');
+            const contentJson = JSON.parse(_contentJson.response.substring(leftParenIndex, rightParenIndex + 1));
             this.content = contentJson;
             this.error = null;
             this.loading = false;

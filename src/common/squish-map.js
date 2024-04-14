@@ -21,5 +21,6 @@ module.exports = {
     '1000': isMain ? require.resolve('squish-1000') : electronOverrideVersion,
     '1004': require.resolve('squish-1004'),
     '1005': require.resolve('squish-1005'),
-    '1006': require.resolve('squish-1006')
+    '1006': require.resolve('squish-1006'),
+    '1007': require.resolve('squish-1007')
 };

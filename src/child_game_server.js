@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const { socketServer } = require('./util/socket');
 const { reportBug } = require('./common/util');
+const { getService } = require('./services/index');
 
 const process = require('process');
 
@@ -37,9 +38,17 @@ const startServer = (sessionInfo) => {
     try {
         log.info("THIS IS SESSION INFO");
         log.info(sessionInfo);
-        
+
+        let services = {};
+
         if (sessionInfo.gamePath) {
             const _gameClass = require(sessionInfo.gamePath);
+
+            if (_gameClass.metadata) {
+                const requestedServices = _gameClass.metadata().services || [];
+                requestedServices.forEach(s => services[s] = getService(s));
+            }
+
             let saveData;
             const savePath = crypto.createHash('md5').update(sessionInfo.gamePath).digest('hex');
     
@@ -60,9 +69,15 @@ const startServer = (sessionInfo) => {
                     console.log(err);
                 }
             }
-            gameInstance = new _gameClass({ addAsset, saveGame, saveData });
+            gameInstance = new _gameClass({ addAsset, saveGame, saveData, services });
         } else {
-            gameInstance = new games[sessionInfo.key]({ addAsset });
+            const _gameClass = games[sessionInfo.key];
+
+            if (_gameClass.metadata) {
+                const requestedServices = _gameClass.metadata().services || [];
+                requestedServices.forEach(s => services[s] = getService(s));
+            }
+            gameInstance = new _gameClass({ addAsset, services });
 
         }
         gameSession = new GameSession(gameInstance, sessionInfo.port, sessionInfo.username);

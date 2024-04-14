@@ -275,6 +275,17 @@ class GameSession {
             // }
         } else if (input.type === 'mouseup') {
             this.game.handleMouseUp && this.game.handleMouseUp(playerId, input.data);
+        } else if (input.type === 'onhover') {
+            const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
+            if (node && node.node?.onHover) {
+                node.node.onHover(playerId);
+            }
+        } else if (input.type === 'offhover') {
+            const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
+            if (node && node.node?.offHover) {
+                node.node.offHover(playerId);
+            }
+
         } else {
             log.info('Unknown input type: ', input.type);
         }
