@@ -682,45 +682,53 @@ class HomegamesDashboard extends ViewableGame {
         if (requestedGame) {
 
             let { gameId, versionId } = requestedGame;
-
-            networkHelper.getGameDetails(gameId).then(gameDetails => {
-                if (!versionId) {
-                    if (gameDetails.versions.length > 0) {
-                        versionId = gameDetails.versions[gameDetails.versions.length - 1].versionId;
-                    }
-                }
-
-                networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
-                    const ting = { 
-                        [gameId]: {
-                            metadata: {
-                                game: gameDetails,
-                                version
-                            },
-                            versions: {
-                                [versionId]: version
-                            }
-                        }
-                    };
-
-                    if (!this.assets[gameId]) {
-                        const asset = new Asset({
-                            'id': gameDetails.thumbnail,
-                            'type': 'image'
-                        }); 
-
-                        this.assets[gameId] = asset;    
-
-                        this.addAsset(gameId, asset).then(() => {
-                            this.showGameModalNew(playerId, gameId, version.versionId);
-                        });
-                    } else {
-                            this.showGameModalNew(playerId, gameId, version.versionId);
-                    }
-                });
-            }).catch(err => {
-                log.error(err);
+            
+            const lowerCaseToOriginalKey = {};
+            Object.keys(this.localGames).forEach(k => {
+                lowerCaseToOriginalKey[k.toLowerCase()] = k;
             });
+            if (lowerCaseToOriginalKey[gameId.toLowerCase()] && this.localGames[lowerCaseToOriginalKey[gameId.toLowerCase()]].versions?.['local-game-version']) {
+                this.showGameModalNew(playerId, lowerCaseToOriginalKey[gameId.toLowerCase()], 'local-game-version');
+            } else {
+                networkHelper.getGameDetails(gameId).then(gameDetails => {
+                    if (!versionId) {
+                        if (gameDetails.versions.length > 0) {
+                            versionId = gameDetails.versions[gameDetails.versions.length - 1].versionId;
+                        }
+                    }
+
+                    networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
+                        const ting = { 
+                            [gameId]: {
+                                metadata: {
+                                    game: gameDetails,
+                                    version
+                                },
+                                versions: {
+                                    [versionId]: version
+                                }
+                            }
+                        };
+
+                        if (!this.assets[gameId]) {
+                            const asset = new Asset({
+                                'id': gameDetails.thumbnail,
+                                'type': 'image'
+                            }); 
+
+                            this.assets[gameId] = asset;    
+
+                            this.addAsset(gameId, asset).then(() => {
+                                this.showGameModalNew(playerId, gameId, version.versionId);
+                            });
+                        } else {
+                                this.showGameModalNew(playerId, gameId, version.versionId);
+                        }
+                    });
+                }).catch(err => {
+                    log.error(err);
+                });
+            }
         }
     }
 
