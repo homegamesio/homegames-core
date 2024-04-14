@@ -227,25 +227,30 @@ const getGameMap = () => {
         if (isLocal) {
 
             const gameClass = require(gamePath);
-            const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
 
-            games[gameClass.name] = {
-                metadata: {
-                    name: gameMetadata.name || gameClass.name,
-                    thumbnail: gameMetadata.thumbnail,
-                    author: gameMetadata.createdBy || 'Unknown author',
-                    isTest: gameMetadata.isTest || false
-                },
-                versions: {
-                    'local-game-version': {
-                        gameId: gameClass.name,
-                        class: gameClass,
-                        metadata: {...gameMetadata },
-                        gamePath,
-                        versionId: 'local-game-version',
-                        description: gameMetadata.description || 'No description available',
-                        version: 0,
-                        isReviewed: true
+            if (!gameClass.name || !gameClass.metadata) {
+                log.info('Unknown game at path ' + gamePath);
+            } else {
+                const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
+
+                games[gameClass.name] = {
+                    metadata: {
+                        name: gameMetadata.name || gameClass.name,
+                        thumbnail: gameMetadata.thumbnail,
+                        author: gameMetadata.createdBy || 'Unknown author',
+                        isTest: gameMetadata.isTest || false
+                    },
+                    versions: {
+                        'local-game-version': {
+                            gameId: gameClass.name,
+                            class: gameClass,
+                            metadata: {...gameMetadata },
+                            gamePath,
+                            versionId: 'local-game-version',
+                            description: gameMetadata.description || 'No description available',
+                            version: 0,
+                            isReviewed: true
+                        }
                     }
                 }
             }
