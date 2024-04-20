@@ -90,7 +90,12 @@ class Hangman extends Game {
             ],
         });
 
-        this.base.addChild(this.gameBase);
+        this.playerOverrideRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+        });
+
+        this.base.addChildren(this.gameBase, this.playerOverrideRoot);
 
         this.layers = [
             {
@@ -99,13 +104,31 @@ class Hangman extends Game {
         ];
     }
 
+    showHangmanOptions(playerId, actionPayload) {
+        const fullScreenTakeOver = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: BLACK,
+            onClick: () => {
+
+            },
+            playerIds: [playerId]
+        });
+
+        this.playerOverrideRoot.addChildren(fullScreenTakeOver);
+    }
+
     handleNewPlayer({ playerId, info, settings }) {
-        this.players[playerId] = {
-            correctGuesses: 0,
-            incorrectGuesses: 0,
-            kills: 0,
-            info
-        };
+        if (Object.keys(this.players).filter(k => k !== 'cpu').length == 0) {
+            this.players[playerId] = {
+                correctGuesses: 0,
+                incorrectGuesses: 0,
+                kills: 0,
+                info
+            };
+        } else {
+            this.showHangmanOptions(playerId, {'type': 'addPlayer', payload: {correctGuesses: 0, incorrectGuesses: 0, kills: 0, info} });
+        }
     }
 
     handlePlayerDisconnect(playerId) {
@@ -144,7 +167,7 @@ class Hangman extends Game {
     }
 
     newGame() {
-        this.base.clearChildren([this.gameBase.node.id]);
+        this.base.clearChildren([this.gameBase.node.id, this.playerOverrideRoot.node.id]); 
         const playerOrder = Object.keys(this.players).sort((a, b) => Math.random() - Math.random());
         this.playerOrder = playerOrder;
         this.activeGame = true;
@@ -167,11 +190,15 @@ class Hangman extends Game {
             let secretPhraseText = "";
             for (let i = 0; i < w.length; i++) {
                 const currentChar = w.charAt(i).toLowerCase();
+                if (currentChar <= 'z' && currentChar >= 'a') {
                     if (showMissingCharacters || correctGuesses.has(currentChar)) {
-                        secretPhraseText += currentChar;
+                        secretPhraseText += w.charAt(i);
                     } else {
                         secretPhraseText += " _ ";
                     }
+                } else {
+                    secretPhraseText += currentChar;
+                }
             }
             return secretPhraseText;
         });
@@ -392,7 +419,7 @@ class Hangman extends Game {
             return;
         }
 
-        if (secretPhrase.indexOf(guessChar) > -1) {
+        if (secretPhrase.toLowerCase().indexOf(guessChar) > -1) {
             correctGuesses.push(guessChar);
             this.players[playerId].correctGuesses++;
         } else {
@@ -409,6 +436,7 @@ class Hangman extends Game {
 
     endRound() {
         this.gameBase.clearChildren();
+//        this.base.clearChildren([this.0gameBase.node.id, this.playerOverrideRoot.node.id]); 
         let count = 0;
 
         const playerHeader = new GameNode.Text({
@@ -520,8 +548,9 @@ class Hangman extends Game {
         let charsGuessed = {};
 
         for (let i = 0; i < this.currentRound.secretPhrase.length; i++) {
-            if (this.currentRound.secretPhrase.charAt(i) !== ' ') {
-                charsGuessed[this.currentRound.secretPhrase.charAt(i).toLowerCase()] = false;
+            const currentChar = this.currentRound.secretPhrase.charAt(i).toLowerCase();
+            if (currentChar !== ' ' && currentChar <= 'z' && currentChar >= 'a') {
+                charsGuessed[currentChar.toLowerCase()] = false;
             }
         }
         
@@ -591,7 +620,7 @@ class Hangman extends Game {
     }
 
     startRound(playerKey) {
-        this.base.clearChildren([this.gameBase.node.id]);
+        this.base.clearChildren([this.gameBase.node.id, this.playerOverrideRoot.node.id]); 
         this.nextRoundStartTime = null;
 
         // if cpu is the only possible guesser, force the only player to be the guesser
@@ -620,7 +649,7 @@ class Hangman extends Game {
         if (player === 'cpu') {
             const randomIndex = Math.floor(Math.random() * questions.length);
             const randomPhrase = questions[randomIndex];
-            this.currentRound.secretPhrase = randomPhrase.toLowerCase();
+            this.currentRound.secretPhrase = randomPhrase;
             this.nextTurn();
         } else {
             this.currentRound.secretPhrase = 'balls';
