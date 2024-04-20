@@ -148,10 +148,10 @@ class Hangman extends Game {
         const playerOrder = Object.keys(this.players).sort((a, b) => Math.random() - Math.random());
         this.playerOrder = playerOrder;
         this.activeGame = true;
-        this.needsNewRound = true;
+        this.nextRoundStartTime = Date.now();
     }
 
-    renderHangmanSection() {
+    renderHangmanSection(showMissingCharacters) {
         const container = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(5, 5, 25, 95)
@@ -161,48 +161,146 @@ class Hangman extends Game {
 
         const correctGuesses = new Set(this.currentRound.correctGuesses);
         const incorrectGuesses = new Set(this.currentRound.incorrectGuesses);
-        for (let i = 0; i < this.currentRound.secretPhrase.length; i++) {
-            const currentChar = this.currentRound.secretPhrase.charAt(i).toLowerCase();
-            if (currentChar === ' ') {
-                for (let s = 0; s < 5; s++) {
-                    secretPhraseText += " ";
-                }
-            } else {
-                if (correctGuesses.has(currentChar)) {
-                    secretPhraseText += currentChar;
-                } else {
-                    secretPhraseText += " _ ";
-                }
-            }
-        }
 
-        const secretPhraseNode = new GameNode.Text({
-            textInfo: {
-                x: 50,
-                y: 40,
-                align: 'center',
-                size: 4,
-                text: secretPhraseText,
-                font: 'amateur',
-                color: BLACK
+        const secretPhraseWords = this.currentRound.secretPhrase.split(' ');
+        console.log('sdhjksdhksjd');
+        console.log(secretPhraseWords);
+        const secretPhrasePieces = secretPhraseWords.map(w => {
+            let secretPhraseText = "";
+            for (let i = 0; i < w.length; i++) {
+                const currentChar = w.charAt(i).toLowerCase();
+                //if (currentChar === ' ') {
+                //    for (let s = 0; s < 5; s++) {
+                //        secretPhraseText += " ";
+                //    }
+                //} else {
+                    if (showMissingCharacters || correctGuesses.has(currentChar)) {
+                        secretPhraseText += currentChar;
+                    } else {
+                        secretPhraseText += " _ ";
+                    }
+                //}
             }
+            return secretPhraseText;
         });
 
-        container.addChildren(secretPhraseNode);
+        console.log('dsfjdfhdf');
+        console.log(secretPhrasePieces);
+
+        if (secretPhrasePieces.length < 3) {
+            const secretPhraseNode = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 40,
+                    align: 'center',
+                    size: 4,
+                    text: secretPhraseText,
+                    font: 'amateur',
+                    color: BLACK
+                }
+            });
+
+            container.addChildren(secretPhraseNode);
+        } else if (secretPhrasePieces.length < 5) {
+            const secretPhraseNode1 = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 36,
+                    align: 'center',
+                    size: 4,
+                    text: secretPhrasePieces.slice(0, 2).join('    '),
+                    font: 'amateur',
+                    color: BLACK
+                }
+            });
+
+            const secretPhraseNode2 = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 42,
+                    align: 'center',
+                    size: 4,
+                    text: secretPhrasePieces.slice(2).join('    '),
+                    font: 'amateur',
+                    color: BLACK
+                }
+            });
+
+            container.addChildren(secretPhraseNode1, secretPhraseNode2);
+
+        } else {
+            const secretPhraseNode1 = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 30,
+                    align: 'center',
+                    size: 4,
+                    text: secretPhrasePieces.slice(0, 2).join('    '),
+                    font: 'amateur',
+                    color: BLACK
+                }
+            });
+
+            const secretPhraseNode2 = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 36,
+                    align: 'center',
+                    size: 4,
+                    text: secretPhrasePieces.slice(2, 4).join('    '),
+                    font: 'amateur',
+                    color: BLACK
+                }
+            });
+
+            const secretPhraseNode3 = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 42,
+                    align: 'center',
+                    size: 4,
+                    text: secretPhrasePieces.slice(4).join('    '),
+                    font: 'amateur',
+                    color: BLACK
+                }
+            });
+
+            container.addChildren(secretPhraseNode1, secretPhraseNode2, secretPhraseNode3);
+
+
+        }
 
         const key = `hangman_${this.currentRound.incorrectGuesses.length}`;
 
         const image = new GameNode.Asset({
-            coordinates2d: ShapeUtils.rectangle(30, 5, 30, 25),
+            coordinates2d: ShapeUtils.rectangle(30, 4, 30, 25),
             assetInfo: {
                 [key]: {
-                    pos: {x: 30, y: 5},
+                    pos: {x: 30, y: 4},
                     size: {x: 30, y: 25}
                 }
             }
         });
 
         container.addChild(image);
+
+        const currentPlayerId = this.currentRound.player;
+
+        const currentPlayerName = currentPlayerId === 'cpu' ? 'CPU' : this.players[currentPlayerId].info.name;
+
+        const currentPlayerTextNode = new GameNode.Text({
+            textInfo: {
+                text: `${currentPlayerName}`,
+                x: 50,
+                y: 1,
+                align: 'center',
+                font: 'amateur',
+                color: BLACK,
+                size: 3
+            }
+        });
+
+        container.addChild(currentPlayerTextNode);
 
         return container;
     }
@@ -426,84 +524,100 @@ class Hangman extends Game {
         });
 
         this.base.addChildren(...playerScoreList);
-
-        if (this.currentRound.incorrectGuesses.length >= 5) {
-            // show leaderboard also
-        } else {
-            // show leaderboard for this session
-        }
+        this.nextRoundStartTime = Date.now() + 5000;
     }
 
-    nextTurn() {
-        const currentGuesserId = this.currentRound.guessers[this.currentRound.guesserIndex % (Object.keys(this.players).length - 1)]; // - 1 for cpu "player"
+    nextTurn() { 
+        let charsGuessed = {};
 
-        if (!currentGuesserId) {
-            console.log('unable to guess.');
-            this.gameBase.clearChildren();
-                if (!this.currentRound.round) {
-                    this.currentRound.round = 1;
-                } else {
-                    this.currentRound.round++;
+        for (let i = 0; i < this.currentRound.secretPhrase.length; i++) {
+            if (this.currentRound.secretPhrase.charAt(i) !== ' ') {
+                charsGuessed[this.currentRound.secretPhrase.charAt(i).toLowerCase()] = false;
+            }
+        }
+        
+        for (let i = 0; i < this.currentRound.correctGuesses.length; i++) {
+           charsGuessed[this.currentRound.correctGuesses[i].toLowerCase()] = true; 
+        }
+
+        const allLettersGuessed = Object.keys(charsGuessed).filter(k => !charsGuessed[k]).length === 0;
+
+        if (this.currentRound.incorrectGuesses.length >= 5) {
+            if (this.lettersSection) {
+                this.gameBase.removeChild(this.lettersSection.node.id);
+            }
+
+            const ripText = new GameNode.Text({
+                textInfo: {
+                    font: 'heavy-amateur',
+                    text: 'R.I.P',
+                    size: 6,
+                    color: BLACK,
+                    x: 50, 
+                    y: 60,
+                    align: 'center'
                 }
-            this.nextTurn();
-
-        } else {
-            if (this.currentRound.incorrectGuesses.length >= 5) {
-                if (this.lettersSection) {
-                    this.gameBase.removeChild(this.lettersSection.node.id);
-                }
-
-                const ripText = new GameNode.Text({
+            });
+            
+            if (this.currentRound.killer) {
+                const killedByName = this.players[this.currentRound.killer].info.name;
+                const killedByText = new GameNode.Text({
                     textInfo: {
                         font: 'heavy-amateur',
-                        text: 'R.I.P',
-                        size: 6,
+                        text: `killed by ${killedByName}`,
+                        size: 4,
                         color: BLACK,
                         x: 50, 
-                        y: 60,
+                        y: 75,
                         align: 'center'
                     }
                 });
-                
-                if (this.currentRound.killer) {
-                    const killedByName = this.players[this.currentRound.killer].info.name;
-                    const killedByText = new GameNode.Text({
-                        textInfo: {
-                            font: 'heavy-amateur',
-                            text: `killed by ${killedByName}`,
-                            size: 4,
-                            color: BLACK,
-                            x: 50, 
-                            y: 75,
-                            align: 'center'
-                        }
-                    });
 
-                    this.gameBase.addChild(killedByText);
-                }
+                this.gameBase.addChild(killedByText);
+            }
 
-                this.gameBase.addChild(ripText);
+            this.gameBase.removeChild(this.hangmanSection.node.id);
+            this.hangmanSection = this.renderHangmanSection(true);
+            this.gameBase.addChildren(ripText, this.hangmanSection);
+            this.action = {'type': 'endRound', 'timestamp': Date.now() + 3000};
+        } else {
+            this.gameBase.clearChildren();
+            if (!this.currentRound.round) {
+                this.currentRound.round = 1;
+            } else {
+                this.currentRound.round++;
+            }
+
+            this.hangmanSection = this.renderHangmanSection();
+            this.gameBase.addChildren(this.hangmanSection);
+            
+            if (allLettersGuessed) {
                 this.action = {'type': 'endRound', 'timestamp': Date.now() + 3000};
             } else {
-                this.gameBase.clearChildren();
-                if (!this.currentRound.round) {
-                    this.currentRound.round = 1;
-                } else {
-                    this.currentRound.round++;
-                }
-
-                this.hangmanSection = this.renderHangmanSection();
                 this.lettersSection = this.renderLettersSection();
-                this.gameBase.addChildren(this.hangmanSection, this.lettersSection);
+                this.gameBase.addChildren(this.lettersSection);
             }
         }
+        
     }
 
     startRound(playerKey) {
-        this.needsNewRound = false;
+        this.base.clearChildren([this.gameBase.node.id]);
+        this.nextRoundStartTime = null;
+
+        // if cpu is the only possible guesser, force the only player to be the guesser
+        let nonCpuPlayers = Object.keys(this.players).filter(k => k !== 'cpu').sort((a, b) => Math.random() - Math.random());
+        let guessers = nonCpuPlayers.filter(k => k !== playerKey).sort((a, b) => Math.random() - Math.random());
+        let player = playerKey;
+
+        if (nonCpuPlayers.length == 1) {
+            player = 'cpu';
+            guessers = nonCpuPlayers;
+        }
+
         this.currentRound = {
-            players: Object.keys(this.players).sort((a, b) => Math.random() - Math.random()),
-            guessers: Object.keys(this.players).filter(k => k !== 'cpu' && k !== playerKey).sort((a, b) => Math.random() - Math.random()),
+            player,// players,// Object.keys(this.players).sort((a, b) => Math.random() - Math.random()),
+            guessers,
             correctGuesses: [],
             incorrectGuesses: [],
             strikethroughs: {},
@@ -511,9 +625,9 @@ class Hangman extends Game {
             playerIndex: 0
         };
 
-        if (playerKey === 'cpu') {
+        if (player === 'cpu') {
             const randomIndex = Math.floor(Math.random() * questions.length);
-            const randomPhrase = questions[randomIndex];
+            const randomPhrase = 'a big ole fucking thing';// questions[randomIndex];
             this.currentRound.secretPhrase = randomPhrase.toLowerCase();
             this.nextTurn();
         } else {
@@ -535,7 +649,7 @@ class Hangman extends Game {
                 this.waitForPlayers();
             }
         } else {
-            if (this.needsNewRound) {
+            if (this.nextRoundStartTime && this.nextRoundStartTime < Date.now()) {
                 const popped = this.playerOrder.pop();
                 this.startRound(popped);
             }
