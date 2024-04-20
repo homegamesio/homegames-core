@@ -163,29 +163,18 @@ class Hangman extends Game {
         const incorrectGuesses = new Set(this.currentRound.incorrectGuesses);
 
         const secretPhraseWords = this.currentRound.secretPhrase.split(' ');
-        console.log('sdhjksdhksjd');
-        console.log(secretPhraseWords);
         const secretPhrasePieces = secretPhraseWords.map(w => {
             let secretPhraseText = "";
             for (let i = 0; i < w.length; i++) {
                 const currentChar = w.charAt(i).toLowerCase();
-                //if (currentChar === ' ') {
-                //    for (let s = 0; s < 5; s++) {
-                //        secretPhraseText += " ";
-                //    }
-                //} else {
                     if (showMissingCharacters || correctGuesses.has(currentChar)) {
                         secretPhraseText += currentChar;
                     } else {
                         secretPhraseText += " _ ";
                     }
-                //}
             }
             return secretPhraseText;
         });
-
-        console.log('dsfjdfhdf');
-        console.log(secretPhrasePieces);
 
         if (secretPhrasePieces.length < 3) {
             const secretPhraseNode = new GameNode.Text({
@@ -194,7 +183,7 @@ class Hangman extends Game {
                     y: 40,
                     align: 'center',
                     size: 4,
-                    text: secretPhraseText,
+                    text: secretPhrasePieces.join('     '),
                     font: 'amateur',
                     color: BLACK
                 }
@@ -621,13 +610,16 @@ class Hangman extends Game {
             correctGuesses: [],
             incorrectGuesses: [],
             strikethroughs: {},
-            guesserIndex: 0,
-            playerIndex: 0
+            guesserIndex: 0
         };
+
+        // handle last player dropping out (only cpu left with _my_ word)
+        // player should not be able to click letters on their own word
+        // players should be able to set their own hangmans
 
         if (player === 'cpu') {
             const randomIndex = Math.floor(Math.random() * questions.length);
-            const randomPhrase = 'a big ole fucking thing';// questions[randomIndex];
+            const randomPhrase = questions[randomIndex];
             this.currentRound.secretPhrase = randomPhrase.toLowerCase();
             this.nextTurn();
         } else {
@@ -650,8 +642,12 @@ class Hangman extends Game {
             }
         } else {
             if (this.nextRoundStartTime && this.nextRoundStartTime < Date.now()) {
-                const popped = this.playerOrder.pop();
-                this.startRound(popped);
+                if (!this.playerIndex) {
+                    this.playerIndex = 0;
+                }
+                const nextPlayer = this.playerOrder[this.playerIndex % this.playerOrder.length];
+                this.playerIndex += 1;
+                this.startRound(nextPlayer);
             }
         }
     }
