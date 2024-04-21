@@ -66,6 +66,9 @@ class Hangman extends Game {
     constructor() {
         super();
         this.players = {};
+        this.overrideRoots = {};
+        this.customHangmen = {};
+        this.actions = [];
 
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -108,14 +111,107 @@ class Hangman extends Game {
         const fullScreenTakeOver = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: BLACK,
-            onClick: () => {
-
-            },
+            fill: WHITE,
             playerIds: [playerId]
         });
 
+        const useDefaultHangman = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: BLACK,
+            coordinates2d: ShapeUtils.rectangle(40, 40, 10, 10),
+            onClick: () => {
+                this.actions.push(actionPayload);
+            }
+        });
+
+        const createMyOwnHangman = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: BLACK,
+            coordinates2d: ShapeUtils.rectangle(40, 60, 10, 10),
+            onClick: () => {
+                const hangmanCreator = this.hangmanCreator(playerId, actionPayload);
+                fullScreenTakeOver.clearChildren();
+                fullScreenTakeOver.addChild(hangmanCreator);
+            }
+        });
+
+        fullScreenTakeOver.addChildren(useDefaultHangman, createMyOwnHangman);
+
+        this.overrideRoots[playerId] = fullScreenTakeOver;
+
         this.playerOverrideRoot.addChildren(fullScreenTakeOver);
+    }
+
+    hangmanCreator(playerId, actionPayload) {
+        const container = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+        });
+
+        const canvasContainer = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(2, 5, 96, 80),
+            fill: BLACK
+        });
+
+        let currentStep = 0;
+        const frameHistories = {};
+
+        for (let i = 0; i < 30; i++) {
+            for (let j = 0; j < 20; j++) {
+                const curNode = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    fill: WHITE,
+                    onClick: () => {
+                        curNode.node.fill = BLACK;
+                        curNode.node.onStateChange();
+                        if (!frameHistories[currentStep]) {
+                            frameHistories[currentStep] = {};
+                        }
+                        if (!frameHistories[currentStep][i]) {
+                            frameHistories[currentStep][i] = {};
+                        }
+                        frameHistories[currentStep][i][j] = true;
+                    },
+                    coordinates2d: ShapeUtils.rectangle(5 + (i * 3), 15 + (j * 3), 3, 3)
+                });
+                canvasContainer.addChild(curNode);
+            }
+        }
+
+        const currentTextLabel = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 5,
+                text: `Frame ${currentStep + 1} of 6`,
+                color: BLACK,
+                size: 5,
+                align: 'center',
+                font: 'amateur'
+            }
+        });
+
+        const doneButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: BLACK,
+            coordinates2d: ShapeUtils.rectangle(60, 85, 10, 10),
+            onClick: () => {
+                if (currentStep === 5) {
+                    this.customHangmen[playerId] = frameHistories;
+                    this.actions.push(actionPayload);
+                } else {
+                    currentStep += 1;
+                    const newText = Object.assign({}, currentTextLabel.node.text);
+                    newText.text = `Frame ${currentStep + 1} of 6`;
+                    currentTextLabel.node.text = newText;
+                    currentTextLabel.node.onStateChange();
+                }
+            }
+        });
+
+        container.addChildren(canvasContainer, currentTextLabel, doneButton);
+
+        return container;
     }
 
     handleNewPlayer({ playerId, info, settings }) {
@@ -127,7 +223,7 @@ class Hangman extends Game {
                 info
             };
         } else {
-            this.showHangmanOptions(playerId, {'type': 'addPlayer', payload: {correctGuesses: 0, incorrectGuesses: 0, kills: 0, info} });
+            this.showHangmanOptions(playerId, {'type': 'addPlayer', payload: { playerId, correctGuesses: 0, incorrectGuesses: 0, kills: 0, info} });
         }
     }
 
@@ -286,21 +382,40 @@ class Hangman extends Game {
 
         }
 
-        const key = `hangman_${this.currentRound.incorrectGuesses.length}`;
+        const currentPlayerId = this.currentRound.player;
 
-        const image = new GameNode.Asset({
-            coordinates2d: ShapeUtils.rectangle(30, 4, 30, 25),
-            assetInfo: {
-                [key]: {
-                    pos: {x: 30, y: 4},
-                    size: {x: 30, y: 25}
+        if (currentPlayerId === 'cpu' || !this.customHangmen[currentPlayerId]) {
+            const key = `hangman_${this.currentRound.incorrectGuesses.length}`;
+
+            const image = new GameNode.Asset({
+                coordinates2d: ShapeUtils.rectangle(30, 4, 30, 25),
+                assetInfo: {
+                    [key]: {
+                        pos: {x: 30, y: 4},
+                        size: {x: 30, y: 25}
+                    }
+                }
+            });
+
+            container.addChild(image);
+        } else {
+            for (let k = 0; k <= this.currentRound.incorrectGuesses.length; k++) {
+                const frameHistory = this.customHangmen[currentPlayerId][k];//this.currentRound.incorrectGuesses.length];
+                for (let i = 0; i < 30; i++) {
+                    for (let j = 0; j < 20; j++) {
+                        if (frameHistory[i] && frameHistory[i][j]) {
+                            const curNode = new GameNode.Shape({
+                                shapeType: Shapes.POLYGON,
+                                fill: BLACK,//frameHistory[i]?.[j] ? BLACK : WHITE,
+                                coordinates2d: ShapeUtils.rectangle(12 + (i * 1.5), 4 + (j * 1.5), 1.5, 1.5)
+                            });
+                            container.addChild(curNode);
+                        }
+                    }
                 }
             }
-        });
 
-        container.addChild(image);
-
-        const currentPlayerId = this.currentRound.player;
+        }
 
         const currentPlayerName = currentPlayerId === 'cpu' ? 'CPU' : this.players[currentPlayerId].info.name;
 
@@ -597,7 +712,7 @@ class Hangman extends Game {
             this.gameBase.removeChild(this.hangmanSection.node.id);
             this.hangmanSection = this.renderHangmanSection(true);
             this.gameBase.addChildren(ripText, this.hangmanSection);
-            this.action = {'type': 'endRound', 'timestamp': Date.now() + 3000};
+            this.actions.push({'type': 'endRound', 'timestamp': Date.now() + 3000});
         } else {
             this.gameBase.clearChildren();
             if (!this.currentRound.round) {
@@ -610,7 +725,7 @@ class Hangman extends Game {
             this.gameBase.addChildren(this.hangmanSection);
             
             if (allLettersGuessed) {
-                this.action = {'type': 'endRound', 'timestamp': Date.now() + 3000};
+                this.actions.push({'type': 'endRound', 'timestamp': Date.now() + 3000});
             } else {
                 this.lettersSection = this.renderLettersSection();
                 this.gameBase.addChildren(this.lettersSection);
@@ -658,10 +773,17 @@ class Hangman extends Game {
     }
 
     tick() {
-        if (this.action && this.action.timestamp < Date.now()) {
-            if (this.action.type == 'endRound') {
-                this.action = null;
+        if (this.actions.length && (!this.actions[0].timestamp || this.actions[0].timestamp < Date.now())) {
+            const action = this.actions.shift();
+            if (action.type == 'endRound') {
                 this.endRound();
+            } else if (action.type == 'addPlayer') {
+                this.players[action.payload.playerId] = action.payload;
+                if (this.overrideRoots[action.payload.playerId]) {
+                    this.playerOverrideRoot.removeChild(this.overrideRoots[action.payload.playerId].node.id);
+                }
+                const playerOrder = Object.keys(this.players).sort((a, b) => Math.random() - Math.random());
+                this.playerOrder = playerOrder;
             }
         }
 
