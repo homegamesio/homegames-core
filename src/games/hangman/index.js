@@ -150,7 +150,7 @@ class Hangman extends Game {
 
         const canvasContainer = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(2, 5, 96, 80),
+            coordinates2d: ShapeUtils.rectangle(4, 14, 92, 62),
             fill: BLACK
         });
 
@@ -215,16 +215,16 @@ class Hangman extends Game {
     }
 
     handleNewPlayer({ playerId, info, settings }) {
-        if (Object.keys(this.players).filter(k => k !== 'cpu').length == 0) {
-            this.players[playerId] = {
-                correctGuesses: 0,
-                incorrectGuesses: 0,
-                kills: 0,
-                info
-            };
-        } else {
+//        if (Object.keys(this.players).filter(k => k !== 'cpu').length == 0) {
+//            this.players[playerId] = {
+//                correctGuesses: 0,
+//                incorrectGuesses: 0,
+//                kills: 0,
+//                info
+//            };
+//        } else {
             this.showHangmanOptions(playerId, {'type': 'addPlayer', payload: { playerId, correctGuesses: 0, incorrectGuesses: 0, kills: 0, info} });
-        }
+//        }
     }
 
     handlePlayerDisconnect(playerId) {
@@ -290,7 +290,7 @@ class Hangman extends Game {
                     if (showMissingCharacters || correctGuesses.has(currentChar)) {
                         secretPhraseText += w.charAt(i);
                     } else {
-                        secretPhraseText += " _ ";
+                        secretPhraseText += " _";
                     }
                 } else {
                     secretPhraseText += currentChar;
@@ -306,7 +306,7 @@ class Hangman extends Game {
                     y: 40,
                     align: 'center',
                     size: 4,
-                    text: secretPhrasePieces.join('     '),
+                    text: secretPhrasePieces.join('    '),
                     font: 'amateur',
                     color: BLACK
                 }
@@ -655,7 +655,7 @@ class Hangman extends Game {
             return node;
         });
 
-        this.base.addChildren(...playerScoreList);
+        this.gameBase.addChildren(...playerScoreList);
         this.nextRoundStartTime = Date.now() + 5000;
     }
 
@@ -784,14 +784,19 @@ class Hangman extends Game {
                 }
                 const playerOrder = Object.keys(this.players).sort((a, b) => Math.random() - Math.random());
                 this.playerOrder = playerOrder;
+                if (!this.players['cpu']) {
+                    this.players['cpu'] = {};
+                    this.newGame();
+                }
+ 
             }
         }
 
-        if (!this.activeGame) {
-            if (!this.waitingForPlayers && Object.keys(this.players).length < 2) {
-                this.waitForPlayers();
-            }
-        } else {
+//        if (!this.activeGame) {
+//            if (!this.waitingForPlayers && Object.keys(this.players).length < 2) {
+//                this.waitForPlayers();
+//            }
+//        } else {
             if (this.nextRoundStartTime && this.nextRoundStartTime < Date.now()) {
                 if (!this.playerIndex) {
                     this.playerIndex = 0;
@@ -800,7 +805,7 @@ class Hangman extends Game {
                 this.playerIndex += 1;
                 this.startRound(nextPlayer);
             }
-        }
+//        }
     }
 }
 
