@@ -749,7 +749,7 @@ class Hangman extends Game {
         }
 
         this.currentRound = {
-            player,// players,// Object.keys(this.players).sort((a, b) => Math.random() - Math.random()),
+            player,
             guessers,
             correctGuesses: [],
             incorrectGuesses: [],
@@ -759,7 +759,6 @@ class Hangman extends Game {
 
         // handle last player dropping out (only cpu left with _my_ word)
         // player should not be able to click letters on their own word
-        // players should be able to set their own hangmans
 
         if (player === 'cpu') {
             const randomIndex = Math.floor(Math.random() * questions.length);
@@ -767,16 +766,90 @@ class Hangman extends Game {
             this.currentRound.secretPhrase = randomPhrase;
             this.nextTurn();
         } else {
-            this.currentRound.secretPhrase = 'balls';
-            this.nextTurn(); 
+//            this.currentRound.secretPhrase = 'balls';
+            const waitingForPlayerMessage = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                fill: WHITE,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+            });
+
+            const waitingText1 = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 45,
+                    align: 'center',
+                    text: `Waiting for`,
+                    color: BLACK,
+                    font: 'amateur',
+                    size: 5
+                }
+            });
+
+            const waitingText2 = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 55,
+                    align: 'center',
+                    text: `${this.players[player].info.name}...`,
+                    color: BLACK,
+                    font: 'amateur',
+                    size: 5
+                }
+            });
+
+            const userPromptRoot = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                fill: WHITE,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+                playerIds: [player]
+            });
+
+            const userPromptMessage = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                fill: BLACK,
+                coordinates2d: ShapeUtils.rectangle(15, 40, 70, 20),
+                input: {
+                    type: 'text',
+                    oninput: (_, text) => {
+                        if (text?.trim().length) {
+                            this.currentRound.secretPhrase = text.trim();
+                            this.actions.push({type: 'nextTurn'});
+                            this.playerOverrideRoot.removeChild(userPromptRoot.node.id);
+                        }
+                    }
+                },
+                playerIds: [player]
+            });
+
+            const promptInputText = new GameNode.Text({
+                textInfo: {
+                    x: 50, 
+                    y: 50,
+                    text: 'Enter your secret phrase',
+                    color: WHITE,
+                    align: 'center',
+                    font: 'amateur',
+                    size: 3
+                }
+            });
+
+            userPromptMessage.addChild(promptInputText);
+            userPromptRoot.addChild(userPromptMessage);
+
+            waitingForPlayerMessage.addChildren(waitingText1, waitingText2);
+
+            this.gameBase.addChildren(waitingForPlayerMessage);
+            this.playerOverrideRoot.addChild(userPromptRoot);
         }
     }
-
+    
     tick() {
         if (this.actions.length && (!this.actions[0].timestamp || this.actions[0].timestamp < Date.now())) {
             const action = this.actions.shift();
             if (action.type == 'endRound') {
                 this.endRound();
+            } else if (action.type === 'nextTurn') {
+                this.nextTurn();
             } else if (action.type == 'addPlayer') {
                 this.players[action.payload.playerId] = action.payload;
                 if (this.overrideRoots[action.payload.playerId]) {
@@ -792,20 +865,14 @@ class Hangman extends Game {
             }
         }
 
-//        if (!this.activeGame) {
-//            if (!this.waitingForPlayers && Object.keys(this.players).length < 2) {
-//                this.waitForPlayers();
-//            }
-//        } else {
-            if (this.nextRoundStartTime && this.nextRoundStartTime < Date.now()) {
-                if (!this.playerIndex) {
-                    this.playerIndex = 0;
-                }
-                const nextPlayer = this.playerOrder[this.playerIndex % this.playerOrder.length];
-                this.playerIndex += 1;
-                this.startRound(nextPlayer);
+        if (this.nextRoundStartTime && this.nextRoundStartTime < Date.now()) {
+            if (!this.playerIndex) {
+                this.playerIndex = 0;
             }
-//        }
+            const nextPlayer = this.playerOrder[this.playerIndex % this.playerOrder.length];
+            this.playerIndex += 1;
+            this.startRound(nextPlayer);
+        }
     }
 }
 
