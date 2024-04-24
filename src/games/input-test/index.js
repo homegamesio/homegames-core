@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0765');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-1009');
 const { dictionary } = require('../../common/util');
 const fs = require('fs');
 
@@ -8,7 +8,7 @@ class InputTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '0765',
+            squishVersion: '1009',
             author: 'Joseph Garcia',
             name: 'Input Test',
             thumbnail: 'c6d38aca68fed708d08d284a5d201a0a',
@@ -59,9 +59,11 @@ class InputTest extends Game {
                         const newText = this.textNode.node.text;
                         newText.text = text;
                         this.textNode.node.textInfo = newText;
+                        this.textNode.node.onStateChange();
                     }
                 }
-            }
+            },
+            playerIds: [1]
         });
 
         const fileInputShape = ShapeUtils.rectangle(60, 10, 20, 20);

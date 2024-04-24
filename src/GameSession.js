@@ -90,22 +90,23 @@ class GameSession {
             
             let playerFrame = this.squisher.getPlayerFrame(playerId);
             
-            if (playerSettings) {
-                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
-                    playerFrame = playerFrame.filter(f => {
-                        const unsquished = this.squisher.unsquish(f);
-                        if (unsquished.node.asset) {
-                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
-                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
-                                    return false;
-                                }
-                            }
-                        }
-
-                        return true;
-                    });
-                }
-            }
+//            if (playerSettings) {
+//                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
+//                    playerFrame = playerFrame.filter(f => {
+//                        console.log('dsjfdjsfffufuf 2');
+//                        const unsquished = this.squisher.unsquish(f);
+//                        if (unsquished.node.asset) {
+//                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
+//                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
+//                                    return false;
+//                                }
+//                            }
+//                        }
+//
+//                        return true;
+//                    });
+//                }
+//            }
 
             if (playerFrame) {
                 this.players[playerId].receiveUpdate(playerFrame.flat());
@@ -245,8 +246,6 @@ class GameSession {
     }
 
     handlePlayerInput(playerId, input) {
-        console.log('got player input ' + playerId);
-        console.log(input);
         if (input.type === 'click') {
             this.handleClick(playerId, input.data);
         } else if (input.type === 'keydown') {
@@ -258,10 +257,7 @@ class GameSession {
                 this.game.handleGamepadInput && this.game.handleGamepadInput(playerId, input);
             } else {
                 const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
-                console.log('found noe?');
-                console.log(node);
                 if (node && node.node.input) {
-                    console.log('he fuck!');
                     // hilarious
                     if (node.node.input.type === 'file') {
                         node.node.input.oninput(playerId, Object.values(input.input));

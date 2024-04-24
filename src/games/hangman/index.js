@@ -215,6 +215,51 @@ class Hangman extends Game {
     }
 
     handleNewPlayer({ playerId, info, settings }) {
+
+        const doIt = () => {
+            this.playerOverrideRoot.clearChildren();
+            const userPromptRoot = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                fill: WHITE,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+                playerIds: [playerId]
+            });
+
+            const userPromptMessage = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                fill: BLACK,
+                onHover: () => {
+                    userPromptMessage.node.fill = [255, 0, 0, 255];
+                    userPromptMessage.node.onStateChange();
+                },
+                coordinates2d: ShapeUtils.rectangle(15, 40, 70, 20),
+                input: {
+                    type: 'text',
+                    oninput: (_, text) => {
+                        console.log('got in put' + text);
+                        doIt();
+                    }
+                },
+                playerIds: [playerId]
+            });
+
+            const promptInputText = new GameNode.Text({
+                textInfo: {
+                    x: 50, 
+                    y: 50,
+                    text: 'Enter your secret phrase',
+                    color: WHITE,
+                    align: 'center',
+                    font: 'heavy-amateur',
+                    size: 3
+                }
+            });
+
+            userPromptMessage.addChild(promptInputText);
+            userPromptRoot.addChild(userPromptMessage);
+            this.playerOverrideRoot.addChild(userPromptRoot);
+        }
+        doIt();
 //        if (Object.keys(this.players).filter(k => k !== 'cpu').length == 0) {
 //            this.players[playerId] = {
 //                correctGuesses: 0,
@@ -223,15 +268,15 @@ class Hangman extends Game {
 //                info
 //            };
 //        } else {
-            this.showHangmanOptions(playerId, {'type': 'addPlayer', payload: { playerId, correctGuesses: 0, incorrectGuesses: 0, kills: 0, info} });
+//            this.showHangmanOptions(playerId, {'type': 'addPlayer', payload: { playerId, correctGuesses: 0, incorrectGuesses: 0, kills: 0, info} });
 //        }
     }
 
     handlePlayerDisconnect(playerId) {
         delete this.players[playerId];
-        if (playerId == this.currentRound.player) {
-            this.endRound();
-        } 
+//        if (playerId == this.currentRound.player) {
+//            this.endRound();
+//        } 
     }
 
     getLayers() {
@@ -808,7 +853,7 @@ class Hangman extends Game {
                         }
                     }
                 },
-                playerIds: [player]
+//                playerIds: [player]
             });
 
             const promptInputText = new GameNode.Text({
