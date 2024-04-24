@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-1007');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-1009');
 
 const { data: questionsBase64 } = require('./questions');// not sure if i want to do it like this
 
@@ -12,7 +12,7 @@ class Hangman extends Game {
             aspectRatio: {x: 2, y: 3},
             author: 'Joseph Garcia',
             thumbnail: 'f103961541614b68c503a9ae2fd4cc47',
-            squishVersion: '1007',
+            squishVersion: '1009',
             tickRate: 60,
             assets: {
                 'amateur': new Asset({
@@ -187,7 +187,7 @@ class Hangman extends Game {
                 color: BLACK,
                 size: 5,
                 align: 'center',
-                font: 'amateur'
+                font: 'heavy-amateur'
             }
         });
 
@@ -229,44 +229,19 @@ class Hangman extends Game {
 
     handlePlayerDisconnect(playerId) {
         delete this.players[playerId];
+        if (playerId == this.currentRound.player) {
+            this.endRound();
+        } 
     }
 
     getLayers() {
         return this.layers;
     }
 
-    waitForPlayers() {
-        this.waitingForPlayers = true;
-        const waitingForPlayersText = new GameNode.Text({
-            textInfo: {
-                x: 40,
-                y: 40,
-                size: 2,
-                text: 'no one else is here yet.',
-                color: BLACK,
-                align: 'center',
-                font: 'amateur'
-            }
-        });
-
-        const playAgainstCpuButton = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(50, 60, 10, 10),
-            fill: BLACK,
-            onClick: (playerId) => {
-                this.players['cpu'] = {};
-                this.newGame();
-            }
-        });
-
-        this.base.addChildren(waitingForPlayersText, playAgainstCpuButton);
-    }
-
     newGame() {
         this.base.clearChildren([this.gameBase.node.id, this.playerOverrideRoot.node.id]); 
         const playerOrder = Object.keys(this.players).sort((a, b) => Math.random() - Math.random());
         this.playerOrder = playerOrder;
-        this.activeGame = true;
         this.nextRoundStartTime = Date.now();
     }
 
@@ -400,14 +375,14 @@ class Hangman extends Game {
             container.addChild(image);
         } else {
             for (let k = 0; k <= this.currentRound.incorrectGuesses.length; k++) {
-                const frameHistory = this.customHangmen[currentPlayerId][k];//this.currentRound.incorrectGuesses.length];
+                const frameHistory = this.customHangmen[currentPlayerId][k];
                 for (let i = 0; i < 30; i++) {
                     for (let j = 0; j < 20; j++) {
                         if (frameHistory[i] && frameHistory[i][j]) {
                             const curNode = new GameNode.Shape({
                                 shapeType: Shapes.POLYGON,
-                                fill: BLACK,//frameHistory[i]?.[j] ? BLACK : WHITE,
-                                coordinates2d: ShapeUtils.rectangle(12 + (i * 1.5), 4 + (j * 1.5), 1.5, 1.5)
+                                fill: BLACK,
+                                coordinates2d: ShapeUtils.rectangle(27.5 + (i * 1.5), 5 + (j * 1.5), 1.5, 1.5)
                             });
                             container.addChild(curNode);
                         }
@@ -492,9 +467,16 @@ class Hangman extends Game {
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(xPos - 5, yPos, 10, 10),
                 onClick: (playerId) => {
+                    if (this.currentRound?.player == playerId) {
+                        return;
+                    }
+ 
                     this.guess(playerId, a);
                 },
                 onHover: (playerId) => {
+                    if (this.currentRound?.player == playerId) {
+                        return;
+                    }
                     if (!this.currentRound.strikethroughs[a] && this.currentRound.incorrectGuesses.length < 5) {
                         const textInfo = Object.assign({}, node.node.text);
                         textInfo.font = 'heavy-amateur';
@@ -503,6 +485,10 @@ class Hangman extends Game {
                     }
                 },
                 offHover: (playerId) => {
+                    if (this.currentRound?.player == playerId) {
+                        return;
+                    }
+ 
                     const textInfo = Object.assign({}, node.node.text);
                     textInfo.font = 'amateur';
                     node.node.text = textInfo;
@@ -537,16 +523,21 @@ class Hangman extends Game {
         if (secretPhrase.toLowerCase().indexOf(guessChar) > -1) {
             correctGuesses.push(guessChar);
             this.players[playerId].correctGuesses++;
+            this.nextTurn();
         } else {
             incorrectGuesses.push(guessChar);
             this.players[playerId].incorrectGuesses++;
             if (incorrectGuesses.length == 5) {
                 this.currentRound.killer = playerId;
                 this.players[playerId].kills++;
+                this.nextTurn();
+            } else if (incorrectGuesses.length > 5) {
+                console.log('this shouldnt happen');
+            } else {
+                this.nextTurn();
             }
         }
 
-        this.nextTurn();
     }
 
     endRound() {
@@ -660,6 +651,7 @@ class Hangman extends Game {
     }
 
     nextTurn() { 
+//        this.gameBase.clearChildren();
         let charsGuessed = {};
 
         for (let i = 0; i < this.currentRound.secretPhrase.length; i++) {
@@ -715,6 +707,7 @@ class Hangman extends Game {
             this.actions.push({'type': 'endRound', 'timestamp': Date.now() + 3000});
         } else {
             this.gameBase.clearChildren();
+            console.log('just cleared all children');
             if (!this.currentRound.round) {
                 this.currentRound.round = 1;
             } else {
@@ -757,16 +750,12 @@ class Hangman extends Game {
             guesserIndex: 0
         };
 
-        // handle last player dropping out (only cpu left with _my_ word)
-        // player should not be able to click letters on their own word
-
         if (player === 'cpu') {
             const randomIndex = Math.floor(Math.random() * questions.length);
             const randomPhrase = questions[randomIndex];
             this.currentRound.secretPhrase = randomPhrase;
             this.nextTurn();
         } else {
-//            this.currentRound.secretPhrase = 'balls';
             const waitingForPlayerMessage = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 fill: WHITE,
@@ -790,7 +779,7 @@ class Hangman extends Game {
                     x: 50,
                     y: 55,
                     align: 'center',
-                    text: `${this.players[player].info.name}...`,
+                    text: `${this.players[player]?.info?.name || 'Unknown player'}...`,
                     color: BLACK,
                     font: 'amateur',
                     size: 5
@@ -811,6 +800,7 @@ class Hangman extends Game {
                 input: {
                     type: 'text',
                     oninput: (_, text) => {
+                        console.log('got in put' + text);
                         if (text?.trim().length) {
                             this.currentRound.secretPhrase = text.trim();
                             this.actions.push({type: 'nextTurn'});
@@ -828,7 +818,7 @@ class Hangman extends Game {
                     text: 'Enter your secret phrase',
                     color: WHITE,
                     align: 'center',
-                    font: 'amateur',
+                    font: 'heavy-amateur',
                     size: 3
                 }
             });
@@ -849,6 +839,7 @@ class Hangman extends Game {
             if (action.type == 'endRound') {
                 this.endRound();
             } else if (action.type === 'nextTurn') {
+                console.log('doing next turn here');
                 this.nextTurn();
             } else if (action.type == 'addPlayer') {
                 this.players[action.payload.playerId] = action.payload;

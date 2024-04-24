@@ -245,6 +245,8 @@ class GameSession {
     }
 
     handlePlayerInput(playerId, input) {
+        console.log('got player input ' + playerId);
+        console.log(input);
         if (input.type === 'click') {
             this.handleClick(playerId, input.data);
         } else if (input.type === 'keydown') {
@@ -256,7 +258,10 @@ class GameSession {
                 this.game.handleGamepadInput && this.game.handleGamepadInput(playerId, input);
             } else {
                 const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
+                console.log('found noe?');
+                console.log(node);
                 if (node && node.node.input) {
+                    console.log('he fuck!');
                     // hilarious
                     if (node.node.input.type === 'file') {
                         node.node.input.oninput(playerId, Object.values(input.input));

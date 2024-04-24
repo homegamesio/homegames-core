@@ -22,5 +22,7 @@ module.exports = {
     '1004': require.resolve('squish-1004'),
     '1005': require.resolve('squish-1005'),
     '1006': require.resolve('squish-1006'),
-    '1007': require.resolve('squish-1007')
+    '1007': require.resolve('squish-1007'),
+    '1008': require.resolve('squish-1008'),
+    '1009': require.resolve('squishjs')
 };
