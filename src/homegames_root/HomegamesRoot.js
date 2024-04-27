@@ -363,12 +363,7 @@ class HomegamesRoot {
     }
 
     handlePlayerUpdate(playerId, newData) {
-//        this.updateLabels();
-        if (this.viewStates[playerId] && this.viewStates[playerId].state === 'settings' && this.viewStates[playerId].node) {
-            console.log('didididi');
-//            this.topLayerRoot.removeChild(this.viewStates[playerId].node.id);
-            this.showSettings(playerId);
-        }
+        this.updateLabels();
     }
 
     handleNewSpectator(spectator) {
@@ -447,21 +442,22 @@ class HomegamesRoot {
                 assetInfo,
                 onDownload,
                 onRemove: () => {
-//                    this.topLayerRoot.removeChild(modal.node.id);
+                    this.topLayerRoot.removeChild(modal.node.id);
                 }, 
-                onNameChange: (text) => {
+                onNameChange: (text) => new Promise((resolve, reject) => {
                     this.homenamesHelper.updatePlayerInfo(playerId,
                         {
                             playerName: text
-                        });
-                },
-                onSoundToggle: (newVal) => {
+                        }).then(resolve);
+                }),
+                onSoundToggle: (newVal) => new Promise((resolve, reject) => {
                     this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
                         enabled: newVal
                     }).then(() => {
                         log.info('just updated setting??');
+                        resolve();
                     });
-                },
+                }),
                 onExportSessionData: () => {
                     return this.exportSessionData();
                 }

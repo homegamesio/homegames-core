@@ -58,6 +58,38 @@ class Hangman extends Game {
                 'strikethrough_2': new Asset({
                     'type': 'image',
                     'id': '25fa2a38b52580789082a224a66f3ad7'
+                }),
+                'scribbles_1': new Asset({
+                    'type': 'audio',
+                    'id': '28f764486fc2e5d6747d0d7a872cc760'
+                }),
+                'scribbles_2': new Asset({
+                    'type': 'audio',
+                    'id': 'ec68b3be88ba9d892ff29103385fd401'
+                }),
+                'scribbles_3': new Asset({
+                    'type': 'audio',
+                    'id': 'baf78f36dcd7a49390e77e88738e7203'
+                }),
+                'draw_1': new Asset({
+                    'type': 'audio',
+                    'id': '05e6272cef124629be96f307bb823364'
+                }),
+                'draw_2': new Asset({
+                    'type': 'audio',
+                    'id': '62ea5de70258b91885ebfb3c7f92b806'
+                }),
+                'draw_3': new Asset({
+                    'type': 'audio',
+                    'id': '0c8e915b699dd69030259e46f8686d16'
+                }),
+                'draw_4': new Asset({
+                    'type': 'audio',
+                    'id': 'a7f538196b8ff80514fca9b6efa7a74a'
+                }),
+                'draw_5': new Asset({
+                    'type': 'audio',
+                    'id': '9b21e76ea32e1bc8510dc520b32d8686'
                 })
             }
         };
@@ -85,13 +117,12 @@ class Hangman extends Game {
 
         this.gameBase = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: [
-                [0, 0],
-                [100, 0],
-                [100, 100],
-                [0, 100],
-                [0, 0]
-            ],
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+        });
+
+        this.soundRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
         this.playerOverrideRoot = new GameNode.Shape({
@@ -99,7 +130,7 @@ class Hangman extends Game {
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
-        this.base.addChildren(this.gameBase, this.playerOverrideRoot);
+        this.base.addChildren(this.gameBase, this.playerOverrideRoot, this.soundRoot);
 
         this.layers = [
             {
@@ -296,7 +327,7 @@ class Hangman extends Game {
     }
 
     newGame() {
-        this.base.clearChildren([this.gameBase.node.id, this.playerOverrideRoot.node.id]); 
+        this.base.clearChildren([this.gameBase.node.id, this.playerOverrideRoot.node.id, this.soundRoot.node.id]); 
         const playerOrder = Object.keys(this.players).sort((a, b) => Math.random() - Math.random());
         this.playerOrder = playerOrder;
         this.nextRoundStartTime = Date.now();
@@ -580,6 +611,22 @@ class Hangman extends Game {
         }
 
         if (secretPhrase.toLowerCase().indexOf(guessChar) > -1) {
+            const songNode = new GameNode.Asset({
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                assetInfo: {
+                    [`scribbles_${(Math.floor(Math.random() * 3)) + 1}`]: {
+                        'pos': Object.assign({}, { x: 0, y: 0 }),
+                        'size': Object.assign({}, { x: 0, y: 0 }),
+                        'startTime': 0,
+                        // loop : boolean
+                    }
+                }
+            });
+
+            this.soundRoot.clearChildren();
+            this.soundRoot.addChild(songNode);
+            console.log('dsfjkhdsf');
+ 
             correctGuesses.push(guessChar);
             this.players[playerId].correctGuesses++;
             this.nextTurn();
@@ -786,7 +833,7 @@ class Hangman extends Game {
     }
 
     startRound(playerKey) {
-        this.base.clearChildren([this.gameBase.node.id, this.playerOverrideRoot.node.id]); 
+        this.base.clearChildren([this.gameBase.node.id, this.playerOverrideRoot.node.id, this.soundRoot.node.id]); 
         this.nextRoundStartTime = null;
 
         // if cpu is the only possible guesser, force the only player to be the guesser
