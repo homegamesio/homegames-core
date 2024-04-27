@@ -70,26 +70,6 @@ class Hangman extends Game {
                 'scribbles_3': new Asset({
                     'type': 'audio',
                     'id': 'baf78f36dcd7a49390e77e88738e7203'
-                }),
-                'draw_1': new Asset({
-                    'type': 'audio',
-                    'id': '05e6272cef124629be96f307bb823364'
-                }),
-                'draw_2': new Asset({
-                    'type': 'audio',
-                    'id': '62ea5de70258b91885ebfb3c7f92b806'
-                }),
-                'draw_3': new Asset({
-                    'type': 'audio',
-                    'id': '0c8e915b699dd69030259e46f8686d16'
-                }),
-                'draw_4': new Asset({
-                    'type': 'audio',
-                    'id': 'a7f538196b8ff80514fca9b6efa7a74a'
-                }),
-                'draw_5': new Asset({
-                    'type': 'audio',
-                    'id': '9b21e76ea32e1bc8510dc520b32d8686'
                 })
             }
         };
@@ -196,9 +176,9 @@ class Hangman extends Game {
         const orText = new GameNode.Text({
             textInfo: {
                 text: 'or',
-                size: 5,
+                size: 8,
                 x: 50,
-                y: 48,
+                y: 47,
                 font: 'amateur',
                 align: 'center',
                 color: BLACK
@@ -610,27 +590,36 @@ class Hangman extends Game {
             return;
         }
 
-        if (secretPhrase.toLowerCase().indexOf(guessChar) > -1) {
+        const scribbleSound = () => {
+            const randIndex = Math.floor(Math.random() * 3) + 1;
+            if (this.actions?.[0]?.type === 'clearSound') {
+                this.actions.shift();
+            }
             const songNode = new GameNode.Asset({
                 coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
                 assetInfo: {
-                    [`scribbles_${(Math.floor(Math.random() * 3)) + 1}`]: {
+                    [`scribbles_${randIndex}`]: {
                         'pos': Object.assign({}, { x: 0, y: 0 }),
                         'size': Object.assign({}, { x: 0, y: 0 }),
                         'startTime': 0,
-                        // loop : boolean
+                        'loop': false 
                     }
                 }
             });
 
             this.soundRoot.clearChildren();
             this.soundRoot.addChild(songNode);
-            console.log('dsfjkhdsf');
- 
+
+            this.actions.push({'type': 'clearSound', 'timestamp': Date.now() + 1000}); 
+        };
+
+        if (secretPhrase.toLowerCase().indexOf(guessChar) > -1) {
+            scribbleSound();
             correctGuesses.push(guessChar);
             this.players[playerId].correctGuesses++;
             this.nextTurn();
         } else {
+            scribbleSound();
             incorrectGuesses.push(guessChar);
             this.players[playerId].incorrectGuesses++;
             if (incorrectGuesses.length == 5) {
@@ -648,7 +637,6 @@ class Hangman extends Game {
 
     endRound() {
         this.gameBase.clearChildren();
-//        this.base.clearChildren([this.0gameBase.node.id, this.playerOverrideRoot.node.id]); 
         let count = 0;
 
         const playerHeader = new GameNode.Text({
@@ -757,7 +745,6 @@ class Hangman extends Game {
     }
 
     nextTurn() { 
-//        this.gameBase.clearChildren();
         let charsGuessed = {};
 
         for (let i = 0; i < this.currentRound.secretPhrase.length; i++) {
@@ -867,6 +854,51 @@ class Hangman extends Game {
                 coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
             });
 
+            const timerNode = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 80,
+                    text: '30',
+                    align: 'center',
+                    size: 10,
+                    font: 'heavy-amateur',
+                    color: BLACK
+                }
+            });
+
+            let c = 0;
+
+            let userPromptRoot;
+
+            let ting = () => {
+                this.timerNodeInfo = {
+                    node: timerNode,
+                    expireAt: Date.now() + (1000),
+                    onExpire: () => {
+                        if (c == 30) {    
+                            this.timerNodeInfo = null;
+                            const randomIndex = Math.floor(Math.random() * questions.length);
+                            const randomPhrase = questions[randomIndex];
+                            this.currentRound.secretPhrase = randomPhrase.trim();
+                            this.actions.push({type: 'nextTurn'});
+                            if (userPromptRoot) {
+                                this.playerOverrideRoot.removeChild(userPromptRoot.node.id);
+                            }
+                        } else {
+                            const curText = Object.assign({}, timerNode.node.text);
+                            curText.text = `${30 - c}`;
+                            timerNode.node.text = curText;
+                            timerNode.node.onStateChange();
+                            ting();
+                        }
+                    }
+               }
+
+               c++
+            }
+
+            ting();
+
             const waitingText1 = new GameNode.Text({
                 textInfo: {
                     x: 50,
@@ -891,10 +923,10 @@ class Hangman extends Game {
                 }
             });
 
-            const userPromptRoot = new GameNode.Shape({
+            userPromptRoot = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 fill: WHITE,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 80),
                 playerIds: [player]
             });
 
@@ -911,8 +943,7 @@ class Hangman extends Game {
                             this.playerOverrideRoot.removeChild(userPromptRoot.node.id);
                         }
                     }
-                },
-//                playerIds: [player]
+                }
             });
 
             const promptInputText = new GameNode.Text({
@@ -932,7 +963,7 @@ class Hangman extends Game {
 
             waitingForPlayerMessage.addChildren(waitingText1, waitingText2);
 
-            this.gameBase.addChildren(waitingForPlayerMessage);
+            this.gameBase.addChildren(waitingForPlayerMessage, timerNode);
             this.playerOverrideRoot.addChild(userPromptRoot);
         }
     }
@@ -954,8 +985,9 @@ class Hangman extends Game {
                 if (!this.players['cpu']) {
                     this.players['cpu'] = {};
                     this.newGame();
-                }
- 
+                } 
+            } else if (action.type == 'clearSound') {
+//                this.soundRoot.clearChildren();
             }
         }
 
@@ -966,6 +998,12 @@ class Hangman extends Game {
             const nextPlayer = this.playerOrder[this.playerIndex % this.playerOrder.length];
             this.playerIndex += 1;
             this.startRound(nextPlayer);
+        }
+
+        if (this.timerNodeInfo?.expireAt <= Date.now()) {
+            if (this.timerNodeInfo.onExpire) {
+                this.timerNodeInfo.onExpire();
+            } 
         }
     }
 }
