@@ -69,6 +69,7 @@ class Hangman extends Game {
         this.overrideRoots = {};
         this.customHangmen = {};
         this.actions = [];
+        this.needsMouseUp = {};
 
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -191,23 +192,40 @@ class Hangman extends Game {
             }
         });
 
+        const doneText = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 85,
+                font: 'heavy-amateur',
+                text: 'next',
+                color: WHITE,
+                size: 4,
+                align: 'center'
+            }
+        });
+
         const doneButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: BLACK,
-            coordinates2d: ShapeUtils.rectangle(60, 85, 10, 10),
+            coordinates2d: ShapeUtils.rectangle(40, 82, 20, 10),
             onClick: () => {
-                if (currentStep === 5) {
-                    this.customHangmen[playerId] = frameHistories;
-                    this.actions.push(actionPayload);
-                } else {
-                    currentStep += 1;
-                    const newText = Object.assign({}, currentTextLabel.node.text);
-                    newText.text = `Frame ${currentStep + 1} of 6`;
-                    currentTextLabel.node.text = newText;
-                    currentTextLabel.node.onStateChange();
+                if (!this.needsMouseUp[playerId]) {
+                    this.needsMouseUp[playerId] = true;
+                    if (currentStep === 5) {
+                        this.customHangmen[playerId] = frameHistories;
+                        this.actions.push(actionPayload);
+                    } else {
+                        currentStep += 1;
+                        const newText = Object.assign({}, currentTextLabel.node.text);
+                        newText.text = `Frame ${currentStep + 1} of 6`;
+                        currentTextLabel.node.text = newText;
+                        currentTextLabel.node.onStateChange();
+                    }
                 }
             }
         });
+
+        doneButton.addChild(doneText);
 
         container.addChildren(canvasContainer, currentTextLabel, doneButton);
 
@@ -219,10 +237,17 @@ class Hangman extends Game {
     }
 
     handlePlayerDisconnect(playerId) {
-        delete this.players[playerId];
-        if (playerId == this.currentRound.player) {
+        if (this.players[playerId]) {
+            delete this.players[playerId];
+        }
+
+        if (this.currentRound && playerId == this.currentRound.player) {
             this.endRound();
         } 
+    }
+
+    handleMouseUp(playerId) {
+        this.needsMouseUp[playerId] = false;
     }
 
     getLayers() {
@@ -367,15 +392,17 @@ class Hangman extends Game {
         } else {
             for (let k = 0; k <= this.currentRound.incorrectGuesses.length; k++) {
                 const frameHistory = this.customHangmen[currentPlayerId][k];
-                for (let i = 0; i < 30; i++) {
-                    for (let j = 0; j < 20; j++) {
-                        if (frameHistory[i] && frameHistory[i][j]) {
-                            const curNode = new GameNode.Shape({
-                                shapeType: Shapes.POLYGON,
-                                fill: BLACK,
-                                coordinates2d: ShapeUtils.rectangle(27.5 + (i * 1.5), 5 + (j * 1.5), 1.5, 1.5)
-                            });
-                            container.addChild(curNode);
+                if (frameHistory) {
+                    for (let i = 0; i < 30; i++) {
+                        for (let j = 0; j < 20; j++) {
+                            if (frameHistory[i] && frameHistory[i][j]) {
+                                const curNode = new GameNode.Shape({
+                                    shapeType: Shapes.POLYGON,
+                                    fill: BLACK,
+                                    coordinates2d: ShapeUtils.rectangle(27.5 + (i * 1.5), 5 + (j * 1.5), 1.5, 1.5)
+                                });
+                                container.addChild(curNode);
+                            }
                         }
                     }
                 }
