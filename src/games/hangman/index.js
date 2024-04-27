@@ -119,22 +119,52 @@ class Hangman extends Game {
         const useDefaultHangman = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: BLACK,
-            coordinates2d: ShapeUtils.rectangle(40, 40, 10, 10),
+            coordinates2d: ShapeUtils.rectangle(15, 20, 70, 20),
             onClick: () => {
                 this.actions.push(actionPayload);
             }
         });
 
+        const useDefaultHangmanText = new GameNode.Text({
+            textInfo: {
+                text: 'use default hangman',
+                font: 'heavy-amateur',
+                color: WHITE,
+                x: 50,
+                y: 30,
+                align: 'center',
+                size: 4
+            }
+        });
+
+        useDefaultHangman.addChild(useDefaultHangmanText);
+
         const createMyOwnHangman = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: BLACK,
-            coordinates2d: ShapeUtils.rectangle(40, 60, 10, 10),
+            coordinates2d: ShapeUtils.rectangle(15, 60, 70, 20),
             onClick: () => {
                 const hangmanCreator = this.hangmanCreator(playerId, actionPayload);
                 fullScreenTakeOver.clearChildren();
                 fullScreenTakeOver.addChild(hangmanCreator);
             }
         });
+    
+        const createCustomHangmanText = new GameNode.Text({
+            textInfo: {
+                text: 'create custom hangman',
+                font: 'heavy-amateur',
+                color: WHITE,
+                x: 50,
+                y: 70,
+                align: 'center',
+                size: 4
+            }
+        });
+
+        createMyOwnHangman.addChild(createCustomHangmanText);
+
+ 
 
         fullScreenTakeOver.addChildren(useDefaultHangman, createMyOwnHangman);
 
