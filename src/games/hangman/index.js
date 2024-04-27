@@ -434,13 +434,13 @@ class Hangman extends Game {
             for (let k = 0; k <= this.currentRound.incorrectGuesses.length; k++) {
                 const frameHistory = this.customHangmen[currentPlayerId][k];
                 if (frameHistory) {
-                    for (let i = 0; i < 30; i++) {
-                        for (let j = 0; j < 20; j++) {
+                    for (let i = 0; i < 45; i++) {
+                        for (let j = 0; j < 30; j++) {
                             if (frameHistory[i] && frameHistory[i][j]) {
                                 const curNode = new GameNode.Shape({
                                     shapeType: Shapes.POLYGON,
                                     fill: BLACK,
-                                    coordinates2d: ShapeUtils.rectangle(27.5 + (i * 1.5), 5 + (j * 1.5), 1.5, 1.5)
+                                    coordinates2d: ShapeUtils.rectangle(27.5 + (i), 5 + (j), 1, 1)
                                 });
                                 container.addChild(curNode);
                             }
