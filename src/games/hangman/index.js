@@ -131,7 +131,7 @@ class Hangman extends Game {
                 font: 'heavy-amateur',
                 color: WHITE,
                 x: 50,
-                y: 30,
+                y: 29,
                 align: 'center',
                 size: 4
             }
@@ -156,17 +156,27 @@ class Hangman extends Game {
                 font: 'heavy-amateur',
                 color: WHITE,
                 x: 50,
-                y: 70,
+                y: 69,
                 align: 'center',
                 size: 4
             }
         });
 
+        const orText = new GameNode.Text({
+            textInfo: {
+                text: 'or',
+                size: 5,
+                x: 50,
+                y: 48,
+                font: 'amateur',
+                align: 'center',
+                color: BLACK
+            }
+        });
+
         createMyOwnHangman.addChild(createCustomHangmanText);
 
- 
-
-        fullScreenTakeOver.addChildren(useDefaultHangman, createMyOwnHangman);
+        fullScreenTakeOver.addChildren(useDefaultHangman, createMyOwnHangman, orText);
 
         this.overrideRoots[playerId] = fullScreenTakeOver;
 
@@ -186,10 +196,11 @@ class Hangman extends Game {
         });
 
         let currentStep = 0;
+
         const frameHistories = {};
 
-        for (let i = 0; i < 30; i++) {
-            for (let j = 0; j < 20; j++) {
+        for (let i = 0; i < 45; i++) {
+            for (let j = 0; j < 30; j++) {
                 const curNode = new GameNode.Shape({
                     shapeType: Shapes.POLYGON,
                     fill: WHITE,
@@ -204,7 +215,7 @@ class Hangman extends Game {
                         }
                         frameHistories[currentStep][i][j] = true;
                     },
-                    coordinates2d: ShapeUtils.rectangle(5 + (i * 3), 15 + (j * 3), 3, 3)
+                    coordinates2d: ShapeUtils.rectangle(5 + (i * 2), 15 + (j * 2), 2, 2)
                 });
                 canvasContainer.addChild(curNode);
             }
