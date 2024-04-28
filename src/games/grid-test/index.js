@@ -2,7 +2,7 @@ const { Asset, Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-10
 
 const COLORS = Colors.COLORS;
 
-class Draw extends Game {
+class GridTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
@@ -52,4 +52,4 @@ class Draw extends Game {
     }
 }
 
-module.exports = Draw;
+module.exports = GridTest;
