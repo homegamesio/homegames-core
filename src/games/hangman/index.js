@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-1009');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-1010');
 
 const { data: questionsBase64 } = require('./questions');// not sure if i want to do it like this
 
@@ -12,7 +12,7 @@ class Hangman extends Game {
             aspectRatio: {x: 2, y: 3},
             author: 'Joseph Garcia',
             thumbnail: 'f103961541614b68c503a9ae2fd4cc47',
-            squishVersion: '1009',
+            squishVersion: '1010',
             tickRate: 60,
             assets: {
                 'amateur': new Asset({
@@ -987,7 +987,7 @@ class Hangman extends Game {
                     this.newGame();
                 } 
             } else if (action.type == 'clearSound') {
-//                this.soundRoot.clearChildren();
+                this.soundRoot.clearChildren();
             }
         }
 

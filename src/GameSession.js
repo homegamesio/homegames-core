@@ -89,24 +89,6 @@ class GameSession {
             const playerSettings = this.playerSettingsMap[playerId] || {};
             
             let playerFrame = this.squisher.getPlayerFrame(playerId);
-            
-//            if (playerSettings) {
-//                if ((!playerSettings.SOUND || !playerSettings.SOUND.enabled) && playerFrame) {
-//                    playerFrame = playerFrame.filter(f => {
-//                        console.log('dsjfdjsfffufuf 2');
-//                        const unsquished = this.squisher.unsquish(f);
-//                        if (unsquished.node.asset) {
-//                            if (this.game.getAssets && this.game.getAssets() && this.game.getAssets()[Object.keys(unsquished.node.asset)[0]]) {
-//                                if (this.game.getAssets()[Object.keys(unsquished.node.asset)[0]].info.type === 'audio') {
-//                                    return false;
-//                                }
-//                            }
-//                        }
-//
-//                        return true;
-//                    });
-//                }
-//            }
 
             if (playerFrame) {
                 this.players[playerId].receiveUpdate(playerFrame.flat());

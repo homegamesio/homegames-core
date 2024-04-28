@@ -420,14 +420,8 @@ class HomegamesRoot {
 
     showSettings(playerId) {
         if (this.viewStates[playerId]?.state == 'settings') {
-            console.log("removing old one");
             const oldNodeId = this.viewStates[playerId].node.id;
-            console.log("DSKJHFDSF " + (this.topLayerRoot.node.children.map(c => c.id)));
-            console.log("is this in there " + oldNodeId);
-//            console.log('dddd ' + this.topLayerRoot.node.children.map(c => c.node.id).indexOf(this.viewStates[playerId].node.id) >= 0);
             this.topLayerRoot.removeChild(this.viewStates[playerId].node.id);
-
-            console.log("DSKJHFDSF after" + (this.topLayerRoot.node.children.map(c => c.id)));
         }
         this.viewStates[playerId] = {state: 'settings'};
         const playerInfo = this.session.playerInfoMap[playerId] || {};
@@ -451,6 +445,8 @@ class HomegamesRoot {
                         }).then(resolve);
                 }),
                 onSoundToggle: (newVal) => new Promise((resolve, reject) => {
+                    // used to filter out audio nodes when muted and stuff like that
+                    this.session.squisher.updatePlayerSettings(playerId, {[PLAYER_SETTINGS.SOUND]: {enabled: newVal}});
                     this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
                         enabled: newVal
                     }).then(() => {

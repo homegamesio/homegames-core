@@ -176,8 +176,6 @@ const soundSettingContainer = ({ playerId, onToggle, session }) => {
         onClick: () => {
             soundEnabled = !soundEnabled;
             onToggle(soundEnabled).then(() => {
-                console.log("SDFHSDKJFHSDF");
-                console.log(soundEnabledText.node.text);
                 const currentText = soundEnabledText?.node?.text ? Object.assign({}, soundEnabledText.node.text) : null;
                 if (currentText) {
                     currentText.text = `Sound: ${soundEnabled ? 'on' : 'off'}`;
