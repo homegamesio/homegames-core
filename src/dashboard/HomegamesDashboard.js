@@ -4,7 +4,7 @@ const https = require('https');
 const path = require('path');
 const fs = require('fs');
 
-const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-1006');
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-1009');
 
 const squishMap = require('../common/squish-map');
 
@@ -227,25 +227,30 @@ const getGameMap = () => {
         if (isLocal) {
 
             const gameClass = require(gamePath);
-            const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
 
-            games[gameClass.name] = {
-                metadata: {
-                    name: gameMetadata.name || gameClass.name,
-                    thumbnail: gameMetadata.thumbnail,
-                    author: gameMetadata.createdBy || 'Unknown author',
-                    isTest: gameMetadata.isTest || false
-                },
-                versions: {
-                    'local-game-version': {
-                        gameId: gameClass.name,
-                        class: gameClass,
-                        metadata: {...gameMetadata },
-                        gamePath,
-                        versionId: 'local-game-version',
-                        description: gameMetadata.description || 'No description available',
-                        version: 0,
-                        isReviewed: true
+            if (!gameClass.name || !gameClass.metadata) {
+                log.info('Unknown game at path ' + gamePath);
+            } else {
+                const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
+
+                games[gameClass.name] = {
+                    metadata: {
+                        name: gameMetadata.name || gameClass.name,
+                        thumbnail: gameMetadata.thumbnail,
+                        author: gameMetadata.createdBy || 'Unknown author',
+                        isTest: gameMetadata.isTest || false
+                    },
+                    versions: {
+                        'local-game-version': {
+                            gameId: gameClass.name,
+                            class: gameClass,
+                            metadata: {...gameMetadata },
+                            gamePath,
+                            versionId: 'local-game-version',
+                            description: gameMetadata.description || 'No description available',
+                            version: 0,
+                            isReviewed: true
+                        }
                     }
                 }
             }
@@ -322,7 +327,7 @@ class HomegamesDashboard extends ViewableGame {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '1006'
+            squishVersion: '1009'
         };
     }
 
@@ -682,45 +687,53 @@ class HomegamesDashboard extends ViewableGame {
         if (requestedGame) {
 
             let { gameId, versionId } = requestedGame;
-
-            networkHelper.getGameDetails(gameId).then(gameDetails => {
-                if (!versionId) {
-                    if (gameDetails.versions.length > 0) {
-                        versionId = gameDetails.versions[gameDetails.versions.length - 1].versionId;
-                    }
-                }
-
-                networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
-                    const ting = { 
-                        [gameId]: {
-                            metadata: {
-                                game: gameDetails,
-                                version
-                            },
-                            versions: {
-                                [versionId]: version
-                            }
-                        }
-                    };
-
-                    if (!this.assets[gameId]) {
-                        const asset = new Asset({
-                            'id': gameDetails.thumbnail,
-                            'type': 'image'
-                        }); 
-
-                        this.assets[gameId] = asset;    
-
-                        this.addAsset(gameId, asset).then(() => {
-                            this.showGameModalNew(playerId, gameId, version.versionId);
-                        });
-                    } else {
-                            this.showGameModalNew(playerId, gameId, version.versionId);
-                    }
-                });
-            }).catch(err => {
-                log.error(err);
+            
+            const lowerCaseToOriginalKey = {};
+            Object.keys(this.localGames).forEach(k => {
+                lowerCaseToOriginalKey[k.toLowerCase()] = k;
             });
+            if (lowerCaseToOriginalKey[gameId.toLowerCase()] && this.localGames[lowerCaseToOriginalKey[gameId.toLowerCase()]].versions?.['local-game-version']) {
+                this.showGameModalNew(playerId, lowerCaseToOriginalKey[gameId.toLowerCase()], 'local-game-version');
+            } else {
+                networkHelper.getGameDetails(gameId).then(gameDetails => {
+                    if (!versionId) {
+                        if (gameDetails.versions.length > 0) {
+                            versionId = gameDetails.versions[gameDetails.versions.length - 1].versionId;
+                        }
+                    }
+
+                    networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
+                        const ting = { 
+                            [gameId]: {
+                                metadata: {
+                                    game: gameDetails,
+                                    version
+                                },
+                                versions: {
+                                    [versionId]: version
+                                }
+                            }
+                        };
+
+                        if (!this.assets[gameId]) {
+                            const asset = new Asset({
+                                'id': gameDetails.thumbnail,
+                                'type': 'image'
+                            }); 
+
+                            this.assets[gameId] = asset;    
+
+                            this.addAsset(gameId, asset).then(() => {
+                                this.showGameModalNew(playerId, gameId, version.versionId);
+                            });
+                        } else {
+                                this.showGameModalNew(playerId, gameId, version.versionId);
+                        }
+                    });
+                }).catch(err => {
+                    log.error(err);
+                });
+            }
         }
     }
 

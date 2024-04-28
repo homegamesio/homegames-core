@@ -1,4 +1,4 @@
-const { GameNode, Colors, ShapeUtils, Shapes } = require('squish-0767');
+const { GameNode, Colors, ShapeUtils, Shapes } = require(process.env.SQUISH_PATH);
 const HomenamesHelper = require('../util/homenames-helper');
 const { COLORS } = Colors;
 const PLAYER_SETTINGS = require('../common/player-settings');
@@ -116,6 +116,8 @@ const nameSettingContainer = ({ playerId, onNameChange, session }) => {
     const nameSettingContainerHeight = 16;
     const nameSettingContainerWidth = 35;
 
+    let nameText;
+
     const container = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(23, 23, 30, 6),
@@ -123,7 +125,16 @@ const nameSettingContainer = ({ playerId, onNameChange, session }) => {
             type: 'text',
             oninput: (player, text) => {
                 if (text) {
-                    onNameChange && onNameChange(text);
+                    if (onNameChange) {
+                        onNameChange(text).then(() => {
+                            if (nameText) {
+                                const curText = Object.assign({}, nameText.node.text);
+                                curText.text = `Name: ${text}`;
+                                nameText.node.text = curText;
+                                nameText.node.onStateChange();
+                            }
+                        });
+                    }
                 }
             }
         }
@@ -132,7 +143,7 @@ const nameSettingContainer = ({ playerId, onNameChange, session }) => {
     const homenamesHelper = session.homenamesHelper;
 
     homenamesHelper.getPlayerInfo(playerId).then(playerInfo => {
-        const nameText = new GameNode.Text({
+        nameText = new GameNode.Text({
             textInfo: {
                 x: 23,
                 y: 25,
@@ -156,14 +167,23 @@ const soundSettingContainer = ({ playerId, onToggle, session }) => {
 
     let soundEnabled = true;
     let _playerSettings = {};
-    const handleClick = () => {
-        onToggle(!soundEnabled);
-    };
+
+    let soundEnabledText;
 
     const soundSettingContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(23, 34, 30, 6),
-        onClick: handleClick,
+        onClick: () => {
+            soundEnabled = !soundEnabled;
+            onToggle(soundEnabled).then(() => {
+                const currentText = soundEnabledText?.node?.text ? Object.assign({}, soundEnabledText.node.text) : null;
+                if (currentText) {
+                    currentText.text = `Sound: ${soundEnabled ? 'on' : 'off'}`;
+                    soundEnabledText.node.text = currentText;
+                    soundEnabledText.node.onStateChange();
+                }
+            });
+        },
         playerIds: [playerId]
     });
 
@@ -173,7 +193,7 @@ const soundSettingContainer = ({ playerId, onToggle, session }) => {
             soundEnabled = false;
         }
 
-        const soundEnabledText = new GameNode.Text({
+        soundEnabledText = new GameNode.Text({
             textInfo: {
                 x: 23,
                 y: 36,
@@ -206,7 +226,6 @@ const saveRecordingContainer = ({ playerId, onExportSessionData }) => {
     const container = new GameNode.Shape({
         coordinates2d: ShapeUtils.rectangle(23, 45, 35, 8),
         shapeType: Shapes.POLYGON,
-        // fill: COLORS.HG_YELLOW,
         playerIds: [playerId],
         onClick: () => {
             const exportPath = onExportSessionData();
@@ -214,6 +233,7 @@ const saveRecordingContainer = ({ playerId, onExportSessionData }) => {
             newText.text = 'Wrote recording to ' + exportPath;
             newText.size = 0.8;
             text.node.text = newText;
+            text.node.onStateChange();
         }
     });
 

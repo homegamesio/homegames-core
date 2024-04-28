@@ -6,7 +6,7 @@ const fs = require('fs');
 const process = require('process');
 
 if (!process.env.SQUISH_PATH) {
-    const defaultVersion = 'squish-0767';
+    const defaultVersion = 'squish-1009';
     log.info('No SQUISH_PATH found. Using default: ' + defaultVersion);
     process.env.SQUISH_PATH = defaultVersion;
 }
@@ -364,9 +364,6 @@ class HomegamesRoot {
 
     handlePlayerUpdate(playerId, newData) {
         this.updateLabels();
-        if (this.viewStates[playerId] && this.viewStates[playerId].state === 'settings') {
-            this.topLayerRoot.removeChild(this.viewStates[playerId].node.id);
-        }
     }
 
     handleNewSpectator(spectator) {
@@ -422,7 +419,10 @@ class HomegamesRoot {
     }
 
     showSettings(playerId) {
-        this.topLayerRoot.clearChildren();
+        if (this.viewStates[playerId]?.state == 'settings') {
+            const oldNodeId = this.viewStates[playerId].node.id;
+            this.topLayerRoot.removeChild(this.viewStates[playerId].node.id);
+        }
         this.viewStates[playerId] = {state: 'settings'};
         const playerInfo = this.session.playerInfoMap[playerId] || {};
 
@@ -438,27 +438,29 @@ class HomegamesRoot {
                 onRemove: () => {
                     this.topLayerRoot.removeChild(modal.node.id);
                 }, 
-                onNameChange: (text) => {
+                onNameChange: (text) => new Promise((resolve, reject) => {
                     this.homenamesHelper.updatePlayerInfo(playerId,
                         {
                             playerName: text
-                        });
-                },
-                onSoundToggle: (newVal) => {
+                        }).then(resolve);
+                }),
+                onSoundToggle: (newVal) => new Promise((resolve, reject) => {
+                    // used to filter out audio nodes when muted and stuff like that
+                    this.session.squisher.updatePlayerSettings(playerId, {[PLAYER_SETTINGS.SOUND]: {enabled: newVal}});
                     this.homenamesHelper.updatePlayerSetting(playerId, PLAYER_SETTINGS.SOUND, {
                         enabled: newVal
                     }).then(() => {
                         log.info('just updated setting??');
+                        resolve();
                     });
-                },
+                }),
                 onExportSessionData: () => {
                     return this.exportSessionData();
                 }
             });
-
-            
-            this.topLayerRoot.addChild(modal);
+ 
             this.viewStates[playerId].node = modal;
+            this.topLayerRoot.addChild(modal);
         });
     }
 
