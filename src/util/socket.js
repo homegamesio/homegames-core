@@ -22,6 +22,8 @@ const PERFORMANCE_PROFILING = getConfigValue('PERFORMANCE_PROFILING', false);
 const HOTLOAD_ENABLED = getConfigValue('HOTLOAD_ENABLED', false);
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
+const DOMAIN_NAME = getConfigValue('DOMAIN_NAME', null);
+
 const getPublicIP = () => new Promise((resolve, reject) => {
     https.get(`https://api.homegames.io/ip`, (res) => {
         let buf = '';
@@ -254,7 +256,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 
                     const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
                     const req = (certPath ? https : http).request({
-                        hostname: certPath ? (getUserHash(publicIp)+ '.homegames.link') : 'localhost',
+                        hostname: certPath ? (DOMAIN_NAME || (getUserHash(publicIp)+ '.homegames.link')) : 'localhost',
                         port: HOMENAMES_PORT,
                         path: `/info/${ws.id}`,
                         method: 'GET'

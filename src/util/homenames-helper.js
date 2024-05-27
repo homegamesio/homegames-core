@@ -13,6 +13,8 @@ const { getConfigValue, getUserHash, log } = require('homegames-common');
 
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
+const DOMAIN_NAME = getConfigValue('DOMAIN_NAME', null);
+
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();
     let localIP;
@@ -47,6 +49,7 @@ const makeGet = (path = '', headers = {}, username) => new Promise((resolve, rej
     // todo: fix
     getPublicIP().then(publicIp => {
         const host = HTTPS_ENABLED ? (getUserHash(publicIp) + '.homegames.link') : 'localhost';
+        const host = HTTPS_ENABLED ? (DOMAIN_NAME || (getUserHash(publicIp) + '.homegames.link')) : 'localhost';
         const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;//'http://localhost:' + getConfigValue('HOMENAMES_PORT');
         (HTTPS_ENABLED ? https : http).get(`${base}${path}`, (res) => {
             let buf = '';
@@ -70,7 +73,7 @@ const makePost = (path, _payload, username) => new Promise((resolve, reject) => 
     port =  getConfigValue('HOMENAMES_PORT');
 
     getPublicIP().then(publicIp => {
-        hostname = HTTPS_ENABLED ? (getUserHash(publicIp) + '.homegames.link') : 'localhost';
+        hostname = HTTPS_ENABLED ? (DOMAIN_NAME || (getUserHash(publicIp) + '.homegames.link')) : 'localhost';
 
         const headers = {};
 

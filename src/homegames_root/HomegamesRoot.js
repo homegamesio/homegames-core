@@ -13,6 +13,8 @@ if (!process.env.SQUISH_PATH) {
 
 let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH);
 
+const squishMap = require('../common/squish-map');
+
 const { animations, reportBug } = require('../common/util');
 
 const PLAYER_SETTINGS = require('../common/player-settings.js');
@@ -687,7 +689,9 @@ class HomegamesRoot {
                         const gamePath = localGames[key].versions[versionId].gamePath;
 
                         const squishVersion = parseSquishVersion(gamePath);
-                        process.env.SQUISH_PATH = require.resolve(`squish-${squishVersion}`);
+
+                        process.env.SQUISH_PATH = squishMap[squishVersion];
+
                         const _class = require(gamePath);
                         const _gameAssets = _class.metadata && _class.metadata().assets;
 
