@@ -48,9 +48,9 @@ const makeGet = (path = '', headers = {}, username) => new Promise((resolve, rej
     const protocol = HTTPS_ENABLED ? 'https' : 'http';
     // todo: fix
     getPublicIP().then(publicIp => {
-        const host = HTTPS_ENABLED ? (getUserHash(publicIp) + '.homegames.link') : 'localhost';
         const host = HTTPS_ENABLED ? (DOMAIN_NAME || (getUserHash(publicIp) + '.homegames.link')) : 'localhost';
-        const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;//'http://localhost:' + getConfigValue('HOMENAMES_PORT');
+        const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;
+
         (HTTPS_ENABLED ? https : http).get(`${base}${path}`, (res) => {
             let buf = '';
             res.on('data', (chunk) => {
