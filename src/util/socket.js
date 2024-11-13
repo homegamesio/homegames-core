@@ -120,7 +120,6 @@ const generateProxyPlayerId = () => {
 
 const broadcast = (gameSession) => {
     const proxyServer = new WebSocket(LINK_PROXY_URL);
-    'wss://public.codingcowboys.io:81');
 
     proxyServer.on('open', () => {
         log.info('Opened connection to proxy server');
