@@ -1,6 +1,7 @@
 const { log } = require('homegames-common');
 
 const WebSocket = require('ws');
+const http = require('http');
 const https = require('https');
 const os = require('os');
 const fs = require('fs');
@@ -14,8 +15,12 @@ if (baseDir.endsWith('src')) {
 
 const { getConfigValue } = require('homegames-common');
 
+const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
+const parsedUrl = new URL(API_URL);
+const isSecure = parsedUrl.protocol == 'https:';
+
 const getPublicIP = () => new Promise((resolve, reject) => {
-    https.get(`https://api.homegames.io/ip`, (res) => {
+    (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
             buf += chunk.toString();
@@ -55,8 +60,10 @@ const getClientInfo = () => new Promise((resolve, reject) => {
     });
 });
 
+const LINK_URL = getConfigValue('LINK_URL', `wss://homegames.link`);
+
 const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
-    const client = new WebSocket('wss://homegames.link');
+    const client = new WebSocket(LINK_URL);
 
     let interval;
 
@@ -88,6 +95,7 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
     client.on('message', msgHandler ? msgHandler : () => {});
     
     client.on('error', (err) => {
+        console.log(err);
         log.error('Link client error');
         log.error(err);
         reject(err);

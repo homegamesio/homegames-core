@@ -1,7 +1,14 @@
 const http = require('http');
 const https = require('https');
 
+const { getConfigValue } = require('homegames-common');
+
 const services = {};
+
+const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
+
+const parsedUrl = new URL(API_URL);
+const isSecure = parsedUrl.protocol == 'https:';
 
 const supportedServices = {
     'contentGenerator': {
@@ -9,11 +16,9 @@ const supportedServices = {
             const makePost = (path, _payload) => new Promise((resolve, reject) => {
                 const payload = JSON.stringify(_payload);
 
-                let module, hostname, port;
-            
-                module = https;
-                port = 443;
-                hostname = 'api.homegames.io';
+                const module = isSecure ? https : http;
+                const port = parsedUrl.port || isSecure ? 443 : 80;
+                const hostname = parsedUrl.hostname;
             
                 const headers = {};
             
@@ -46,24 +51,23 @@ const supportedServices = {
                 req.end();
             });
 
-            makePost('https://api.homegames.io/services', { type: 'content-generation', ...request }).then((response) => {
+            makePost(`${API_URL}/services`, { type: 'content-generation', ...request }).then((response) => {
                 if (!response.startsWith('{')) {
                     reject(response);
                 } else {
                     const requestId = JSON.parse(response).requestId;
                     const interval = setInterval(() => {
-                        https.get(`https://api.homegames.io/service_requests/${requestId}`, {}, (res) => {
+                        https.get(`${API_URL}/service_requests/${requestId}`, {}, (res) => {
                             let bufs = [];
                             res.on('data', (chunk) => {
                                 bufs.push(chunk);
                             });
 
                             res.on('end', () => {
-                                const fin = JSON.parse(Buffer.concat(bufs));
-                                const parsed = fin;//JSON.parse(fin);
-                                if (parsed.response) {
+                                const r = JSON.parse(Buffer.concat(bufs));
+                                if (r.response) {
                                     clearInterval(interval);
-                                    resolve(parsed.response);
+                                    resolve(r.response);
                                 }
                             });
                         });
