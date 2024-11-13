@@ -17,6 +17,8 @@ const { getConfigValue, log, getUserHash } = require('homegames-common');
 
 const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
 
+const LINK_PROXY_URL = getConfigValue('LINK_PROXY_URL', 'wss://public.homegames.link:81');
+
 const parsedUrl = new URL(API_URL);
 const isSecure = parsedUrl.protocol == 'https:';
 
@@ -117,7 +119,8 @@ const generateProxyPlayerId = () => {
 };
 
 const broadcast = (gameSession) => {
-    const proxyServer = new WebSocket('wss://public.codingcowboys.io:81');
+    const proxyServer = new WebSocket(LINK_PROXY_URL);
+    'wss://public.codingcowboys.io:81');
 
     proxyServer.on('open', () => {
         log.info('Opened connection to proxy server');
