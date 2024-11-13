@@ -43,6 +43,6 @@
     "squish-1008": "npm:squishjs@1.0.8",
     "squish-1009": "npm:squishjs@1.0.9",
     "squish-1010": "npm:squishjs@1.0.10",
-    "ws": "7.4.6"
+    "ws": "7.5.10"
   }
 }
