@@ -242,13 +242,13 @@ class InfiniteQuestions extends Game {
         const keywordString = keywords.join(',');
 
         this.contentGenerator.requestContent({
-            model: 'mistral-7b-instruct-v0.2',
+            model: 'mistral-7b-v0.2',
             prompt: `Generate 5 conversation starter questions in JSON format. The response should contain only JSON with a single key "questions" containing a list of strings. The questions should be about the following topics: ${keywordString}.`
-        }).then((_contentJson) => {
+        }).then((_content) => {
             // it doesnt _just_ give json of course
-            const leftParenIndex = _contentJson.response.lastIndexOf('{');
-            const rightParenIndex = _contentJson.response.lastIndexOf('}');
-            const contentJson = JSON.parse(_contentJson.response.substring(leftParenIndex, rightParenIndex + 1));
+            const leftParenIndex = _content.lastIndexOf('{');
+            const rightParenIndex = _content.lastIndexOf('}');
+            const contentJson = JSON.parse(_content.substring(leftParenIndex, rightParenIndex + 1));
             this.content = contentJson;
             this.error = null;
             this.loading = false;

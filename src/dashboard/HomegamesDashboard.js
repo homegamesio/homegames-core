@@ -4,6 +4,8 @@ const https = require('https');
 const path = require('path');
 const fs = require('fs');
 
+const { getConfigValue, getAppDataPath, log } = require('homegames-common');
+
 const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-1009');
 
 const squishMap = require('../common/squish-map');
@@ -12,6 +14,13 @@ const decompress = require('decompress');
 const gameModal = require('./game-modal');
 
 const COLORS = Colors.COLORS;
+
+const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
+
+console.log("API URL " + API_URL);
+
+const parsedUrl = new URL(API_URL);
+const isSecure = parsedUrl.protocol == 'https:';
 
 const { ExpiringSet, animations } = require('../common/util');
 
@@ -22,8 +31,6 @@ let baseDir = path.dirname(require.main.filename);
 if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
-
-const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 
 const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
 const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
@@ -124,7 +131,7 @@ if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
 
 const networkHelper = {
     searchGames: (q) => new Promise((resolve, reject) => {
-        getUrl('https://api.homegames.io/games?query=' + q).then(response => {
+        getUrl(`${API_URL}/games?query=${q}`).then(response => {
             let results;
             try {
                 results = JSON.parse(response);
@@ -135,11 +142,13 @@ const networkHelper = {
             resolve(results);
         }).catch(err => {
             log.error('Error searching games', err);
+            console.log('huh lol');
+            console.log(err);
             reject(err);
         });
     }),
     getGameDetails: (gameId) => new Promise((resolve, reject) => {
-       getUrl('https://api.homegames.io/games/' + gameId).then(response => {
+       getUrl(`${API_URL}/games/${gameId}`).then(response => {
             let results;
             try {
                 results = JSON.parse(response);
@@ -154,7 +163,7 @@ const networkHelper = {
         }); 
     }), 
     getGameVersionDetails: (gameId, versionId) => new Promise((resolve, reject) => {
-        getUrl('https://api.homegames.io/games/' + gameId + '/version/' + versionId).then(response => { 
+        getUrl(`${API_URL}/games/${gameId}/version/${versionId}`).then(response => { 
             resolve(JSON.parse(response));
         }).catch(err => {
             log.error(err);
@@ -237,6 +246,7 @@ const getGameMap = () => {
                     metadata: {
                         name: gameMetadata.name || gameClass.name,
                         thumbnail: gameMetadata.thumbnail,
+                        thumbnailSource: gameMetadata.thumbnailSource,
                         author: gameMetadata.createdBy || 'Unknown author',
                         isTest: gameMetadata.isTest || false
                     },
@@ -301,6 +311,7 @@ const getGameMap = () => {
                 metadata: {
                     name: gameMetadata.name || gameClass.name,
                     thumbnail: gameMetadata.thumbnail,
+                    thumbnailSource: gameMetadata.thumbnailSource,
                     author: gameMetadata.createdBy || 'Unknown author'
                 },
                 versions: {
@@ -366,6 +377,7 @@ class HomegamesDashboard extends ViewableGame {
         Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
             this.assets[key] = new Asset({
                 'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                'source': this.localGames[key].metadata && this.localGames[key].metadata.thumbnailSource,
                 'type': 'image'
             });
         });
@@ -764,7 +776,8 @@ class HomegamesDashboard extends ViewableGame {
                     metadata: {
                         name: localGameMetadata.name || key,
                         author: localGameMetadata.author,
-                        thumbnail: localGameMetadata.thumbnail
+                        thumbnail: localGameMetadata.thumbnail,
+                        thumbnailSource: localGameMetadata.thumbnailSource
                     }
                 }
             }
@@ -1027,8 +1040,9 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     downloadGame({ gameDetails, version }) {
-        const { id: gameId, description, name, createdBy, createdAt } = gameDetails;
-        const { versionId, location, isReviewed } = version;
+        const { id: gameId, description, name, developerId: createdBy, created: createdAt } = gameDetails.game;
+        const { id: versionId, assetId, isReviewed } = version;
+        const location = `${API_URL}/assets/${assetId}`;
 
         const metadataToStore = {
             version: {
@@ -1069,6 +1083,7 @@ class HomegamesDashboard extends ViewableGame {
                         Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
                             this.assets[key] = new Asset({
                                 'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                                'source': this.localGames[key].metadata && this.localGames[key].metadata.thumbnailSource,
                                 'type': 'image'
                             });
                         });
@@ -1076,7 +1091,7 @@ class HomegamesDashboard extends ViewableGame {
                 });
             });
 
-            https.get(location, (res) => {
+            (API_URL.startsWith('https') ? https : http).get(location, (res) => {
                 res.pipe(zipWriteStream);
                 zipWriteStream.on('finish', () => {
                     zipWriteStream.close();

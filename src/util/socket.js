@@ -15,6 +15,13 @@ if (baseDir.endsWith('src')) {
 
 const { getConfigValue, log, getUserHash } = require('homegames-common');
 
+const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
+
+const LINK_PROXY_URL = getConfigValue('LINK_PROXY_URL', 'wss://public.homegames.link:81');
+
+const parsedUrl = new URL(API_URL);
+const isSecure = parsedUrl.protocol == 'https:';
+
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 15);
 const _BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
@@ -23,9 +30,10 @@ const HOTLOAD_ENABLED = getConfigValue('HOTLOAD_ENABLED', false);
 const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 15);
 
 const DOMAIN_NAME = getConfigValue('DOMAIN_NAME', null);
+const CERT_DOMAIN = getConfigValue('CERT_DOMAIN', null);
 
 const getPublicIP = () => new Promise((resolve, reject) => {
-    https.get(`https://api.homegames.io/ip`, (res) => {
+    (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
             buf += chunk.toString();
@@ -67,9 +75,6 @@ const listenable = function(obj, onChange) {
             const change = Reflect.deleteProperty(target, property);
             onChange && onChange();
             return change;
-        },
-        ayy() {
-            console.log('i am ayy');
         }
     };
 
@@ -114,13 +119,14 @@ const generateProxyPlayerId = () => {
 };
 
 const broadcast = (gameSession) => {
-    const proxyServer = new WebSocket('wss://public.homegames.link:81');
+    const proxyServer = new WebSocket(LINK_PROXY_URL);
 
     proxyServer.on('open', () => {
         log.info('Opened connection to proxy server');
     });
 
     proxyServer.on('error', (err) => {
+        console.log(err);
         log.error(err);
         log.info('Unable to connect to proxy server. Public games will be unavailable.');
     });
@@ -256,7 +262,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 
                     const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
                     const req = (certPath ? https : http).request({
-                        hostname: certPath ? (DOMAIN_NAME || (getUserHash(publicIp)+ '.homegames.link')) : 'localhost',
+                        hostname: certPath ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost',
                         port: HOMENAMES_PORT,
                         path: `/info/${ws.id}`,
                         method: 'GET'

@@ -11,9 +11,15 @@ if (baseDir.endsWith('/src')) {
 
 const { getConfigValue, getUserHash, log } = require('homegames-common');
 
+const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
+const parsedUrl = new URL(API_URL);
+
+const isSecure = parsedUrl.protocol == 'https:';
+
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
 const DOMAIN_NAME = getConfigValue('DOMAIN_NAME', null);
+const CERT_DOMAIN = getConfigValue('CERT_DOMAIN', null);
 
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();
@@ -32,7 +38,7 @@ const getLocalIP = () => {
 };
 
 const getPublicIP = () => new Promise((resolve, reject) => {
-    https.get(`https://api.homegames.io/ip`, (res) => {
+    (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
             buf += chunk.toString();
@@ -48,7 +54,7 @@ const makeGet = (path = '', headers = {}, username) => new Promise((resolve, rej
     const protocol = HTTPS_ENABLED ? 'https' : 'http';
     // todo: fix
     getPublicIP().then(publicIp => {
-        const host = HTTPS_ENABLED ? (DOMAIN_NAME || (getUserHash(publicIp) + '.homegames.link')) : 'localhost';
+        const host = HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
         const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;
 
         (HTTPS_ENABLED ? https : http).get(`${base}${path}`, (res) => {
@@ -73,7 +79,7 @@ const makePost = (path, _payload, username) => new Promise((resolve, reject) => 
     port =  getConfigValue('HOMENAMES_PORT');
 
     getPublicIP().then(publicIp => {
-        hostname = HTTPS_ENABLED ? (DOMAIN_NAME || (getUserHash(publicIp) + '.homegames.link')) : 'localhost';
+        hostname = HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
 
         const headers = {};
 
