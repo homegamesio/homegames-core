@@ -1,9 +1,13 @@
 const server = require('./game_server');
+console.log("WHAT IS LOGGER");
 const fs = require('fs');
 const assert = require('assert');
 const { reportBug } = require('./src/common/util');
 
 const process = require('process');
+
+console.log("HEHHEHEHEHE FUUFUFUFUFUF");
+console.log(process.env.LOGGER_LOCATION);
 
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
@@ -14,7 +18,11 @@ if (baseDir.endsWith('src')) {
 
 const linkHelper = require('./src/util/link-helper');
 
-const { guaranteeCerts, log, guaranteeDir, authWorkflow, getConfigValue } = require('homegames-common');
+const { guaranteeCerts, guaranteeDir, authWorkflow, getConfigValue } = require('homegames-common');
+
+const log = process.env.LOGGER_LOCATION ? require(process.env.LOGGER_LOCATION) : { info: (msg) => console.log(msg), error: (msg) => console.error(msg)};
+
+log.info("THIS IS A TEST HEEREREERER");
 
 const LINK_ENABLED = getConfigValue('LINK_ENABLED', true);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
@@ -57,7 +65,7 @@ if (LINK_ENABLED) {
         try {
             server(certPathArg, null, usernameArg);
         } catch (serverErr) {
-            console.error('Server error: ' + serverErr);
+            log.error('Server error: ' + serverErr);
             reportBug(`Error starting server: ${serverErr}`);
         }
     });
@@ -66,7 +74,7 @@ if (LINK_ENABLED) {
     try { 
         server(certPathArg, null, usernameArg);
     } catch (serverErr) {
-        console.error('Server error: ' + serverErr);
+        log.error('Server error: ' + serverErr);
         reportBug(`Error starting server: ${serverErr}`);
     }
 }
