@@ -226,6 +226,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 
     if (certPath) {
         log.info('Starting secure server on port ' + port);
+        log.info('this is my cert path: ' + certPath);
 
         server = https.createServer({
             key: fs.readFileSync(`${certPath}/homegames.key`).toString(),
@@ -249,10 +250,13 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
         }
 
         wss.on('connection', (ws) => {
+            log.info('got connection on websocket');
             function messageHandler(msg) {
                 const jsonMessage = JSON.parse(msg);
 
                 if (jsonMessage.type === 'homenames_update') {
+                    log.info('got homenames update');
+                    log.info(jsonMessage);
                     gameSession.handlePlayerUpdate(jsonMessage.playerId, { info: jsonMessage.info, settings: jsonMessage.settings });
                 } else if (jsonMessage.type === 'ready') {
 
@@ -261,6 +265,10 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                     ws.id = Number(jsonMessage.id || generatePlayerId());
 
                     const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
+                    log.info("WHAT IS DOMAIN NAME");
+                    log.info(DOMAIN_NAME);
+                    log.info(CERT_DOMAIN);
+                    log.info(certPath ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost');
                     const req = (certPath ? https : http).request({
                         hostname: certPath ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost',
                         port: HOMENAMES_PORT,
@@ -269,7 +277,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                     }, res => {
                         res.on('data', d => {
                             const playerInfo = JSON.parse(d);
-                            log.debug('player info from homenames for this person', playerInfo);
+                            log.info('player info from homenames for this person');
+                            log.info(playerInfo);
                             const player = new Player(ws, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
                             ws.spectating = jsonMessage.spectating;
                             
@@ -288,6 +297,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                                 squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
                             }
 
+                            log.info('about to send init message');
                             // init message
                             ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
