@@ -72,9 +72,11 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
     
     client.on('open', () => {
         getClientInfo().then(clientInfo => {
+            const toSend = Object.assign({}, clientInfo);
+            toSend.mapEnabled = true;//process.env.MAP_ENABLED ? true : false;
             client.send(JSON.stringify({
                 type: 'register',
-                data: clientInfo
+                data: toSend 
             }));
 
             interval = setInterval(() => {

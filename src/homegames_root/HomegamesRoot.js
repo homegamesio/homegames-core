@@ -692,11 +692,15 @@ class HomegamesRoot {
 
                         process.env.SQUISH_PATH = squishMap[squishVersion];
 
-                        const _class = require(gamePath);
-                        const _gameAssets = _class.metadata && _class.metadata().assets;
+                        try {
+                            const _class = require(gamePath);
+                            const _gameAssets = _class.metadata && _class.metadata().assets;
 
-                        if (_gameAssets) {
-                            gameAssets[key][versionId] = _gameAssets;
+                            if (_gameAssets) {
+                                gameAssets[key][versionId] = _gameAssets;
+                            }
+                        } catch (err) {
+                            console.error('Unable to import game at ' + gamePath);
                         }
                     }
                 }
