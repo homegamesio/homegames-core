@@ -20,7 +20,8 @@ const parsedUrl = new URL(API_URL);
 const isSecure = parsedUrl.protocol == 'https:';
 
 const getPublicIP = () => new Promise((resolve, reject) => {
-    (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
+    console.log("DSFHJDSKFHDSKJFHDS");
+    const req = (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
             buf += chunk.toString();
@@ -30,6 +31,12 @@ const getPublicIP = () => new Promise((resolve, reject) => {
             resolve(buf.toString());
         });
     });
+    req.on('error', (err) => {
+        console.log('ereoreorer');
+        console.log(err);
+        resolve();
+    });
+
 });
 
 const getLocalIP = () => {
@@ -57,6 +64,10 @@ const getClientInfo = () => new Promise((resolve, reject) => {
             publicIp,
             https: getConfigValue('HTTPS_ENABLED', false)
         });
+    }).catch(err => {
+        console.log('fjsdfdsf');
+        console.log('couldnt get local iup');
+        console.error(err);
     });
 });
 

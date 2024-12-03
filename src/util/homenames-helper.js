@@ -38,7 +38,8 @@ const getLocalIP = () => {
 };
 
 const getPublicIP = () => new Promise((resolve, reject) => {
-    (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
+    console.log("HDSFUHDSFDFS");
+    const req = (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
             buf += chunk.toString();
@@ -48,6 +49,12 @@ const getPublicIP = () => new Promise((resolve, reject) => {
             resolve(buf.toString());
         });
     });
+    req.on('error', (err) => {
+        console.log('ereoreorer');
+        console.log(err);
+        resolve();
+    });
+
 });
 
 const makeGet = (path = '', headers = {}, username) => new Promise((resolve, reject) => {    
