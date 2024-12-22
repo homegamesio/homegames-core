@@ -477,6 +477,10 @@ const gameModal = ({
 
     const metadata = metadataSection({ gameKey, gameMetadata });
 
+    console.log("VERSIONS?");
+    console.log(versions);
+    console.log(thisVersion);
+
     const isReviewed = thisVersion.isReviewed;
 
     const create = createSection({ gameKey, onCreateSession, isReviewed });

@@ -163,10 +163,13 @@ const networkHelper = {
         }); 
     }), 
     getGameVersionDetails: (gameId, versionId) => new Promise((resolve, reject) => {
+        console.log("THEHEHEHEH FUFUFU");
         getUrl(`${API_URL}/games/${gameId}/version/${versionId}`).then(response => { 
+            console.log('got response');
+            console.log(response);
             resolve(JSON.parse(response));
         }).catch(err => {
-            log.error(err);
+            log.error(err.toString());
             reject(err);
         }); 
     })
@@ -510,18 +513,25 @@ class HomegamesDashboard extends ViewableGame {
 
     showGameModalNew(playerId, gameId, versionId) {
         const playerRoot = this.playerRoots[playerId].node;
+        console.log("DSFLDSKFJDSLFJK");
 
 
-        const isSourceGame = this.localGames[gameId] && this.localGames[gameId].versions['local-game-version'] ? true : false;
+
+        const isSourceGame = this.localGames[gameId] && this.localGames[gameId]['local-game-version'] ? true : false;
+
+        console.log('is this a source game ' + gameId + ": " + isSourceGame);
 
         const wat = (game, gameVersion, versions = []) => {
                     const activeSessions = Object.values(this.sessions).filter(session => {
-                        return session.game === gameVersion.gameId && session.versionId === gameVersion.versionId;
+                        return session.game === gameVersion.gameId && session.versionId === gameVersion.id;
                     });
 
                     const versionList = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions) : [];
                     
-                    if (versionList.filter(v => v.versionId === gameVersion.versionId).length === 0) {
+                    console.log("GGG");
+                    console.log(versionList);
+                    console.log(gameVersion);
+                    if (versionList.filter(v => v.id === gameVersion.versionId).length === 0) {
                         versionList.push({...gameVersion});
                     }
 
@@ -576,41 +586,60 @@ class HomegamesDashboard extends ViewableGame {
 
 
             }
+            console.log('idsifidsf');
+            console.log(isSourceGame);
         if (isSourceGame) {
             wat(this.localGames[gameId].metadata.game, this.localGames[gameId].versions['local-game-version']);
         } else {
-            networkHelper.getGameDetails(gameId).then(gameDetails => {
-                if (versionId) {
-                    networkHelper.getGameVersionDetails(gameId, versionId).then(gameVersion => {
-                        
+            // todo: refactor this mess
+            if (this.localGames[gameId]) {
+                console.log('have that game');
+                console.log(versionId);
+                console.log(this.localGames[gameId]);
+                if (!versionId) {
+                    versionId = Object.values(this.localGames[gameId].versions)[0].versionId;
+                }
+                wat(this.localGames[gameId].metadata.game, this.localGames[gameId].versions[versionId]);
+            } else {
+ 
+                networkHelper.getGameDetails(gameId).then(gameDetails => {
+                    console.log('the fuck is verison idd ddd' + versionId);
+                    console.log(gameDetails);
+                    if (versionId) {
+                        console.log('ayylmao22222');
+                        networkHelper.getGameVersionDetails(gameId, versionId).then(gameVersion => {
+                            
+                            const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail, author: gameDetails.createdBy }};
+                            const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
+                                 return {...v, metadata: { version: v.version, description: v.description, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
+                            });
+                            wat(gameDetails, withMetadata, gameVersionsWithMetadata);
+                        })
+                    } else {
+                        const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
+                        console.log("GGKJDFHGKJDFHGKJDFGHFDK 222");
+                        console.log(gameVersion);
                         const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail, author: gameDetails.createdBy }};
-                        const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
-                             return {...v, metadata: { version: v.version, description: v.description, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
+                        
+                        const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.id !== gameVersion.versionId).map(v => {
+                             return {...v, metadata: { description: v.description, version: v.version, versionId: v.id, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
                         });
-                        wat(gameDetails, withMetadata, gameVersionsWithMetadata);
-                    })
-                } else {
+
+                        wat(gameDetails, withMetadata, gameVersionsWithMetadata)
+                    }
+
+                }).catch(err => {
+                    const gameDetails = this.localGames[gameId];
                     const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
-                    const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.name, thumbnail: gameDetails.thumbnail, author: gameDetails.createdBy }};
-                    
-                    const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.versionId !== gameVersion.versionId).map(v => {
-                         return {...v, metadata: { description: v.description, version: v.version, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
+                    const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.metadata.name, thumbnail: gameDetails.metadata.thumbnail, author: gameDetails.metadata.createdBy }};
+
+                    const gameVersionsWithMetadata = Object.keys(gameDetails.versions).filter(v => v !== gameVersion.versionId).map(v => {
+                         return {...v, metadata: { description: v.description, version: v.version, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.game.thumbnail }}
                     });
 
-                    wat(gameDetails, withMetadata, gameVersionsWithMetadata)
-                }
-
-            }).catch(err => {
-                const gameDetails = this.localGames[gameId];
-                const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
-                const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.metadata.name, thumbnail: gameDetails.metadata.thumbnail, author: gameDetails.metadata.createdBy }};
-
-                const gameVersionsWithMetadata = Object.keys(gameDetails.versions).filter(v => v !== gameVersion.versionId).map(v => {
-                     return {...v, metadata: { description: v.description, version: v.version, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
+                    wat(gameDetails, withMetadata, gameVersionsWithMetadata);
                 });
-
-                wat(gameDetails, withMetadata, gameVersionsWithMetadata);
-            });
+            }
         }
     }
 
@@ -707,44 +736,63 @@ class HomegamesDashboard extends ViewableGame {
             if (lowerCaseToOriginalKey[gameId.toLowerCase()] && this.localGames[lowerCaseToOriginalKey[gameId.toLowerCase()]].versions?.['local-game-version']) {
                 this.showGameModalNew(playerId, lowerCaseToOriginalKey[gameId.toLowerCase()], 'local-game-version');
             } else {
-                networkHelper.getGameDetails(gameId).then(gameDetails => {
+                console.log(this.localGames[gameId]);
+                console.log(gameId);
+                if (this.localGames[gameId]) {
+                    console.log('have that game');
+                    console.log(versionId);
+                    console.log(this.localGames[gameId]);
                     if (!versionId) {
-                        if (gameDetails.versions.length > 0) {
-                            versionId = gameDetails.versions[gameDetails.versions.length - 1].versionId;
-                        }
+                        versionId = Object.values(this.localGames[gameId].versions)[0].versionId;
                     }
-
-                    networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
-                        const ting = { 
-                            [gameId]: {
-                                metadata: {
-                                    game: gameDetails,
-                                    version
-                                },
-                                versions: {
-                                    [versionId]: version
-                                }
+                    this.showGameModalNew(playerId, gameId, versionId);
+                } else {
+                    networkHelper.getGameDetails(gameId).then(gameDetails => {
+                        console.log("GAME DETAILS");
+                        console.log(gameDetails);
+                        if (!versionId) {
+                            if (gameDetails.versions.length > 0) {
+                                versionId = gameDetails.versions[gameDetails.versions.length - 1].id;
                             }
-                        };
-
-                        if (!this.assets[gameId]) {
-                            const asset = new Asset({
-                                'id': gameDetails.thumbnail,
-                                'type': 'image'
-                            }); 
-
-                            this.assets[gameId] = asset;    
-
-                            this.addAsset(gameId, asset).then(() => {
-                                this.showGameModalNew(playerId, gameId, version.versionId);
-                            });
-                        } else {
-                                this.showGameModalNew(playerId, gameId, version.versionId);
                         }
+                        console.log('ayyyyylmao1 ' + gameId + ", " + versionId);
+                        networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
+                            const ting = { 
+                                [gameId]: {
+                                    metadata: {
+                                        game: gameDetails,
+                                        version
+                                    },
+                                    versions: {
+                                        [versionId]: version
+                                    }
+                                }
+                            };
+
+                            console.log("GAME DETIALSAS");
+                            console.log(gameId);
+
+                            console.log(gameDetails);
+
+                            if (!this.assets[gameId]) {
+                                const asset = new Asset({
+                                    'id': gameDetails.game.thumbnail,
+                                    'type': 'image'
+                                }); 
+
+                                this.assets[gameId] = asset;    
+
+                                this.addAsset(gameId, asset).then(() => {
+                                    this.showGameModalNew(playerId, gameId, version.versionId);
+                                });
+                            } else {
+                                    this.showGameModalNew(playerId, gameId, version.versionId);
+                            }
+                        });
+                    }).catch(err => {
+                        log.error(err);
                     });
-                }).catch(err => {
-                    log.error(err);
-                });
+                }
             }
         }
     }
