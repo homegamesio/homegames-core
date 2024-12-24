@@ -8,6 +8,7 @@ class TextInputTest extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
+            thumbnail: '60ec3952ee0466086329b9be33582511',
             squishVersion: '112',
             isTest: true
         };
