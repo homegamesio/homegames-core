@@ -6,7 +6,7 @@ const fs = require('fs');
 const process = require('process');
 
 if (!process.env.SQUISH_PATH) {
-    const defaultVersion = 'squish-1009';
+    const defaultVersion = 'squish-112';
     log.info('No SQUISH_PATH found. Using default: ' + defaultVersion);
     process.env.SQUISH_PATH = defaultVersion;
 }
@@ -230,7 +230,7 @@ class HomegamesRoot {
                     'type': 'image'
                 }),
                 'logo-horizontal': new Asset({
-                    'id': '31b81479f187d9ab6aa6845e0794b4be',
+                    'id': 'fcb652fab2a4cfe76fe1b6868e3ca7a1',
                     'type': 'image'
                 }),
                 'amateur': new Asset({
@@ -307,7 +307,7 @@ class HomegamesRoot {
             aspectRatio = {x: 16, y: 9};
         }
 
-        const logoSizeX = 17 * (aspectRatio.y / aspectRatio.x);
+        const logoSizeX = 5 * (aspectRatio.y / aspectRatio.x);
         const logoSizeY = BEZEL_SIZE_Y / 2;
         const logoStartY = 100 - (BEZEL_SIZE_Y / 2);
         const logoStartX = 50 - (logoSizeX / 2);

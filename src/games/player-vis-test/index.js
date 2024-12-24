@@ -9,6 +9,7 @@ class PlayerVisibilityTest extends Game {
             author: 'Joseph Garcia',
             aspectRatio: {x: 1, y: 2},
             description: 'Test that multiple players can view/hide game nodes',
+            thumbnail: '8551719e2561f2c240193e5bf48d4f04',
             isTest: true
         };
     }

@@ -2,7 +2,7 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-1009');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-112');
 
 const fs = require('fs');
 
@@ -35,7 +35,7 @@ const closeSection = ({ onClose, playerId }) => {
 
 const thumbnailSection = ({ gameKey, gameMetadata }) => {
     const assetKey = gameMetadata?.thumbnail ? gameKey : 'default';
-    
+    console.log("GAME KEY " + gameKey); 
     const thumbnail = new GameNode.Asset({
         coordinates2d: ShapeUtils.rectangle(35, 5, 30, 30),
         assetInfo: {
@@ -96,6 +96,9 @@ const infoSection = ({ gameKey, gameMetadata}) => {
         }
     });
 
+    console.log('gigiiggi');
+    console.log(gameMetadata);
+
     const author = new GameNode.Text({
         textInfo: {
             x: 50, 
@@ -123,11 +126,11 @@ const infoSection = ({ gameKey, gameMetadata}) => {
     return infoContainer;
 };
 
-const createSection = ({ gameKey, onCreateSession, isReviewed = false }) => {
+const createSection = ({ gameKey, onCreateSession, approved = false }) => {
     const createContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(8, 67, 20, 20),
-        fill: isReviewed ? [160, 235, 93, 255] : COLORS.HG_YELLOW,
+        fill: approved ? [160, 235, 93, 255] : COLORS.HG_YELLOW,
         onClick: onCreateSession
     });
 
@@ -144,7 +147,7 @@ const createSection = ({ gameKey, onCreateSession, isReviewed = false }) => {
 
     createContainer.addChildren(createText);
 
-    if (!isReviewed) {
+    if (!approved) {
         const warningContainer = new GameNode.Shape({
             fill: COLORS.HG_RED,
             coordinates2d: ShapeUtils.rectangle(30, 87.5, 40, 10),
@@ -481,9 +484,9 @@ const gameModal = ({
     console.log(versions);
     console.log(thisVersion);
 
-    const isReviewed = thisVersion.isReviewed;
+    const approved = thisVersion.approved;
 
-    const create = createSection({ gameKey, onCreateSession, isReviewed });
+    const create = createSection({ gameKey, onCreateSession, approved });
 
     const join = joinSection({ gameKey, gameMetadata, activeSessions, onJoinSession });
     modal.addChildren(close, info, metadata, create, join);
