@@ -29,29 +29,10 @@ class TextInputTest extends Game {
     }
 
     handleKeyDown(player, key) {
-        //const now = Date.now();
-        //
-        //let debounceMillis = 20;
-
-        //if (this.currentKey && this.currentKey === key) {
-        //    debounceMillis = 250;
-        //}
-
-        //if (!this.lastKeyDown || this.lastKeyDown + debounceMillis < now) {
-        //    this.lastKeyDown = now;
-        //    this.currentKey = key;
-        //}
-
-        //const now = Date.now();
-        //this.lastKeyDown = now;
         this.currentKeys.push(key);
     }
 
     handleKeyUp(playerId, key) {
-    //    this.lastKeyDown = null;
-    //    this.currentKey = null;
-        
-        //this.currentKeys = [];
     }
 
     tick() {
@@ -65,10 +46,16 @@ class TextInputTest extends Game {
                     counts[cur] = 0;
                 }
                 counts[cur] += 1;
-                if (!highest || 
+                if (!highest || highest.count < counts[cur]) {
+                    highest = { count: counts[cur], key: cur };
+                }
             }
+            if (highest) {
+                this.currentKey = highest.key;
+            }
+            this.currentKeys = [];
         }
-        if (this.currentKey && (!this.lastKeyDown || this.lastKeyDown < (now - 100))) {
+        if (this.currentKey) {
             this.allText += this.currentKey;
             const rowLength = 24;
             const textSize = 4;
