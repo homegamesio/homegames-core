@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 
-const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-112');
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-113');
 
 const squishMap = require('../common/squish-map');
 
@@ -344,7 +344,7 @@ class HomegamesDashboard extends ViewableGame {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '112'
+            squishVersion: '113'
         };
     }
 

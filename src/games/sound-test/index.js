@@ -1,11 +1,11 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-112');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-113');
 const COLORS = Colors.COLORS;
 
 class SoundTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '112',
+            squishVersion: '113',
             author: 'Joseph Garcia',
             thumbnail: '18a17230e3b5b8edad5f44d73a496a2c',
             isTest: true

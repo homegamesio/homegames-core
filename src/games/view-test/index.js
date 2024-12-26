@@ -1,4 +1,4 @@
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-112');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-113');
 const { ExpiringSet, animations } = require('../../common/util');
 
 const COLORS = Colors.COLORS;
@@ -8,7 +8,7 @@ class ViewTest extends ViewableGame {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '112',
+            squishVersion: '113',
             thumbnail: '0bb938289d7473b8f2a2184031f38935',
             isTest: true
         };

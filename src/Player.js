@@ -45,6 +45,8 @@ class Player {
     }
 
     handlePlayerInput(msg) {
+        console.log('opllffl');
+        console.log(msg);
         const data = JSON.parse(msg);
         if (!data.type) {
             return;

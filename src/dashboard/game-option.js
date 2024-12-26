@@ -33,6 +33,7 @@ const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
         onClick
     });
 
+    console.log('this is asset key ' + assetKey);
     const gameOption = new GameNode.Asset({
         coordinates2d:  ShapeUtils.rectangle(
             x + optionXMargin,
