@@ -60,6 +60,8 @@ const startServer = (sessionInfo) => {
                 fs.mkdirSync(saveDataRoot);
             }
 
+            console.log('loflfl');
+
             const saveGame = (data) => new Promise((resolve, reject) => {
                 console.log("FFIFIFIF");
                 console.log(data);
@@ -69,6 +71,7 @@ const startServer = (sessionInfo) => {
                 fs.writeFileSync(existingGameSaveDataPath, jsonData);
             });
 
+            console.log("DSKJFHDSKF");
             if (fs.existsSync(existingGameSaveDataPath)) {
                 try {
                     const stuff = fs.readFileSync(existingGameSaveDataPath);
@@ -78,6 +81,7 @@ const startServer = (sessionInfo) => {
                     console.log(err);
                 }
             }
+            console.log("DSUFHUDSHFDSF");
             gameInstance = new _gameClass({ addAsset, saveGame, saveData, services });
         } else {
             const _gameClass = games[sessionInfo.key];
@@ -91,7 +95,8 @@ const startServer = (sessionInfo) => {
         }
         gameSession = new GameSession(gameInstance, sessionInfo.port, sessionInfo.username);
     } catch (err) {
-        log.error('Error instantiating game session', err);
+        log.error('Error instantiating game session');
+        log.error(err);
         if (ERROR_REPORTING_ENABLED) {
             reportBug(`Exception: ${err.message} Stack: ${err.stack}`);
         }

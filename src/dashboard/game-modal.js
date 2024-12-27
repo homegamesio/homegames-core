@@ -8,6 +8,11 @@ const fs = require('fs');
 
 const COLORS = Colors.COLORS;
 
+const formatDate = (ting) => {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${months[ting.getMonth()]} ${ting.getDate()}, ${ting.getFullYear()}`;
+};
+
 const closeSection = ({ onClose, playerId }) => {
     const closeButton = new GameNode.Shape({
         coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 10, 10),
@@ -192,25 +197,27 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
         fill: COLORS.HG_RED
     });
 
+    const publishedDateVal = currentVersion.published || currentVersion.metadata?.published;
+    const publishedDate = new Date(publishedDateVal);
     const currentVersionText = new GameNode.Text({
         textInfo: {
-            text: 'Version ' + currentVersion.version,
+            text: publishedDateVal ? `Published ${formatDate(publishedDate)}` : 'Local game' ,
             x: 80,
             y: 12.5,
             color: COLORS.HG_BLACK,
-            size: 2,
+            size: 1.4,
             align: 'center'
         }
     });
 
-    const previousVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version < currentVersion.version).sort((a, b) => b.metadata.version - a.metadata.version);
-    const subsequentVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version > currentVersion.version).sort((a, b) => a.metadata.version - b.metadata.version);
+    const previousVersions = otherVersions.filter(v => v.published !== null && v.published < currentVersion.published).sort((a, b) => b.published - a.published);
+    const subsequentVersions = otherVersions.filter(v => v.published !== null && v.published > currentVersion.published).sort((a, b) => a.published - b.published);
 
     if (previousVersions.length > 0) {
         const leftButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: COLORS.HG_BLUE,
-            coordinates2d: ShapeUtils.rectangle(65, 10, 10, 10),
+            coordinates2d: ShapeUtils.rectangle(65, 15, 10, 10),
             onClick: () => onVersionChange(previousVersions[0].metadata.versionId)
         });
 
@@ -234,7 +241,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
         const rightButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: COLORS.HG_BLUE,
-            coordinates2d: ShapeUtils.rectangle(85, 10, 10, 10),
+            coordinates2d: ShapeUtils.rectangle(85, 15, 10, 10),
             onClick: () => onVersionChange(subsequentVersions[0].metadata.versionId)
         });
 
@@ -470,9 +477,9 @@ const gameModal = ({
         playerIds: [playerId]
     });
 
-    const thisVersion = versions.filter(version => version.versionId === versionId)[0];
+    const thisVersion = versions.filter(version => version.id === versionId)[0];
 
-    const otherVersions = versions.filter(version => version.versionId !== versionId);
+    const otherVersions = versions.filter(version => version.id !== versionId);
 
     const close = closeSection({ playerId, onClose });
 
@@ -481,8 +488,11 @@ const gameModal = ({
     const metadata = metadataSection({ gameKey, gameMetadata });
 
     console.log("VERSIONS?");
+    console.log(versionId);
     console.log(versions);
     console.log(thisVersion);
+    console.log("OTHER VERISON");
+    console.log(otherVersions);
 
     const approved = thisVersion.approved;
 
