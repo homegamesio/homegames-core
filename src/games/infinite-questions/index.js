@@ -80,7 +80,6 @@ class InfiniteQuestions extends Game {
 
     renderContent() {
         if (!this.content && !this.error && !this.loading) {
-            console.log('ayy lmao no content');
             return;
         }
 
@@ -100,8 +99,6 @@ class InfiniteQuestions extends Game {
 
             this.base.addChild(textNode);    
         } else if (this.loading) {
-            console.log("KJEYETE?:");
-            console.log(this.keywordString);
             const textNode = new GameNode.Text({
                 textInfo: {
                     text: `Generating conversation starters from: ${this.keywordString}`,
@@ -235,7 +232,6 @@ class InfiniteQuestions extends Game {
         }
 
         this.keywordString = keywords.join(',');
-        console.log('this keyword string? ' + this.keywordString)
 
         this.renderContent();
 

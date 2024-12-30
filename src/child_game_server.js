@@ -54,24 +54,16 @@ const startServer = (sessionInfo) => {
     
             const saveDataRoot = path.join(appDataPath, '.save-data');
             const existingGameSaveDataPath = path.join(saveDataRoot, savePath);
-            console.log("EXISISING");
-            console.log(existingGameSaveDataPath);
             if (!fs.existsSync(saveDataRoot)) {
                 fs.mkdirSync(saveDataRoot);
             }
 
-            console.log('loflfl');
-
             const saveGame = (data) => new Promise((resolve, reject) => {
-                console.log("FFIFIFIF");
-                console.log(data);
-                console.log(existingGameSaveDataPath);
                 // lol. read parsed json to validate json
                 const jsonData = JSON.stringify(JSON.parse(JSON.stringify(data)));
                 fs.writeFileSync(existingGameSaveDataPath, jsonData);
             });
 
-            console.log("DSKJFHDSKF");
             if (fs.existsSync(existingGameSaveDataPath)) {
                 try {
                     const stuff = fs.readFileSync(existingGameSaveDataPath);
@@ -81,7 +73,6 @@ const startServer = (sessionInfo) => {
                     console.log(err);
                 }
             }
-            console.log("DSUFHUDSHFDSF");
             gameInstance = new _gameClass({ addAsset, saveGame, saveData, services });
         } else {
             const _gameClass = games[sessionInfo.key];

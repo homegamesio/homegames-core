@@ -40,7 +40,6 @@ const closeSection = ({ onClose, playerId }) => {
 
 const thumbnailSection = ({ gameKey, gameMetadata }) => {
     const assetKey = gameMetadata?.thumbnail ? gameKey : 'default';
-    console.log("GAME KEY " + gameKey); 
     const thumbnail = new GameNode.Asset({
         coordinates2d: ShapeUtils.rectangle(35, 5, 30, 30),
         assetInfo: {
@@ -100,9 +99,6 @@ const infoSection = ({ gameKey, gameMetadata}) => {
             text: gameMetadata?.name || gameKey
         }
     });
-
-    console.log('gigiiggi');
-    console.log(gameMetadata);
 
     const author = new GameNode.Text({
         textInfo: {
@@ -486,13 +482,6 @@ const gameModal = ({
     const info = infoSection({ gameKey, gameMetadata });
 
     const metadata = metadataSection({ gameKey, gameMetadata });
-
-    console.log("VERSIONS?");
-    console.log(versionId);
-    console.log(versions);
-    console.log(thisVersion);
-    console.log("OTHER VERISON");
-    console.log(otherVersions);
 
     const approved = thisVersion.approved;
 

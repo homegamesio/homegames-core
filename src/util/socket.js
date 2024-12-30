@@ -33,10 +33,8 @@ const DOMAIN_NAME = getConfigValue('DOMAIN_NAME', null);
 const CERT_DOMAIN = getConfigValue('CERT_DOMAIN', null);
 
 const getPublicIP = () => new Promise((resolve, reject) => {
-    console.log("SDFJDSJFDSJFJSDF");
     const req = (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
         let buf = '';
-        console.log('sdfdsfdsf');
         console.log(res.statusCode);
         res.on('data', (chunk) => {
             buf += chunk.toString();
@@ -251,7 +249,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
     });
 
     getPublicIP().then(publicIp => {
-    console.log('dsfidsf');
         const broadcastEnabled = !!getConfigValue('PUBLIC_GAMES', false);
         log.info('broadcastEnabled: ' + broadcastEnabled);
 
