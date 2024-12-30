@@ -15,6 +15,8 @@ if (baseDir.endsWith('src')) {
 
 const { getConfigValue } = require('homegames-common');
 
+const MAP_ENABLED = getConfigValue('MAP_ENABLED', false);
+
 const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
 const parsedUrl = new URL(API_URL);
 const isSecure = parsedUrl.protocol == 'https:';
@@ -82,7 +84,8 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
     client.on('open', () => {
         getClientInfo().then(clientInfo => {
             const toSend = Object.assign({}, clientInfo);
-            toSend.mapEnabled = true;//process.env.MAP_ENABLED ? true : false;
+            toSend.mapEnabled = MAP_ENABLED;
+            
             client.send(JSON.stringify({
                 type: 'register',
                 data: toSend 
