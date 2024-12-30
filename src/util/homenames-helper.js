@@ -40,12 +40,14 @@ const getLocalIP = () => {
 const getPublicIP = () => new Promise((resolve, reject) => {
     console.log("HDSFUHDSFDFS");
     const req = (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
+        console.log("HJDSJKF");
         let buf = '';
         res.on('data', (chunk) => {
             buf += chunk.toString();
         });
 
         res.on('end', () => {
+            console.log('coolclc');
             resolve(buf.toString());
         });
     });
@@ -61,8 +63,12 @@ const makeGet = (path = '', headers = {}, username) => new Promise((resolve, rej
     const protocol = HTTPS_ENABLED ? 'https' : 'http';
     // todo: fix
     getPublicIP().then(publicIp => {
+        console.log('dsfjkhdskjfhdskff 11i1i1');
         const host = HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
         const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;
+        console.log("host and base");
+        console.log(host);
+        console.log(base);
 
         (HTTPS_ENABLED ? https : http).get(`${base}${path}`, (res) => {
             let buf = '';
@@ -86,6 +92,8 @@ const makePost = (path, _payload, username) => new Promise((resolve, reject) => 
     port =  getConfigValue('HOMENAMES_PORT');
 
     getPublicIP().then(publicIp => {
+        console.log('sdhjkfhskg j11');
+        console.log('butt ' + publicIp + ':' + HTTPS_ENABLED)
         hostname = HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
 
         const headers = {};

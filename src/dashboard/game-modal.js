@@ -225,7 +225,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
             textInfo: {
                 text: '\u2190',
                 x: 70,
-                y: 10,
+                y: 17.5,
                 color: COLORS.HG_BLACK,
                 align: 'center',
                 size: 4
@@ -249,7 +249,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
             textInfo: {
                 text: '\u2192',
                 x: 90,
-                y: 10,
+                y: 17.5,
                 color: COLORS.HG_BLACK,
                 align: 'center',
                 size: 4
