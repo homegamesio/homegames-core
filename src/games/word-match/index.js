@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-0767');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-120');
 const dictionary = require('../../common/util/dictionary');
 
 const COLORS = Colors.COLORS;
@@ -7,7 +7,8 @@ class WordMatch extends Game {
     static metadata() {
         return {
             author: 'Joseph Garcia',
-            squishVersion: '0767',
+            thumbnail: '4def116d896ddf06311b8b0954fa8d6b',
+            squishVersion: '120',
             aspectRatio: {
                 x: 16,
                 y: 9
@@ -97,6 +98,8 @@ class WordMatch extends Game {
                 this.showResults();
             }
         }
+
+        this.base.node.onStateChange();
     }
 
     finishRound() {
@@ -322,14 +325,15 @@ class WordMatch extends Game {
 
         for (const j in this.currentPlayerIndices) {
             const player = Object.values(this.players)[this.currentPlayerIndices[j]];
-
             const toggleEdit = () => {
                 this.responseBoxes[player.id].editing = !this.responseBoxes[player.id].editing;
-                if (this.responseBoxes[player.id].editing) {
-                    this.responseBoxes[player.id].color = COLORS.WHITE;
-                } else {
-                    this.responseBoxes[player.id].color = COLORS.CREAM;
-                }
+                //if (this.responseBoxes[player.id].editing) {
+                //    this.responseBoxes[player.id].node.color = COLORS.WHITE;
+                //} else {
+                //    this.responseBoxes[player.id].node.color = COLORS.CREAM;
+                //}
+                //console.log(this.responseBoxes[player.id].node);
+                this.base.node.onStateChange();
             };
 
             const toggleReady = () => {
@@ -344,7 +348,7 @@ class WordMatch extends Game {
 
             const responseBoxWrapper = new GameNode.Shape({
                 fill: COLORS.WHITE,
-                onClick: () => toggleEdit,
+                onClick: toggleEdit,
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(40, 40, 20, 20),
                 playerIds: [player.id]
@@ -366,6 +370,7 @@ class WordMatch extends Game {
                 onClick: () => {
                     toggleReady();
                     playerReadyButton.node.fill = this.playerReadyStates[player.id].ready ? COLORS.GREEN : COLORS.RED;
+                    this.base.node.onStateChange();
                 },
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(40, 70, 20, 10),
@@ -404,6 +409,7 @@ class WordMatch extends Game {
                 delete this.keyCoolDowns[playerId][key];
             }, 250);
         }
+        this.base.node.onStateChange();
     }
 
     handleKeyUp(playerId, key) {

@@ -20,7 +20,7 @@ const parsedUrl = new URL(API_URL);
 const isSecure = parsedUrl.protocol == 'https:';
 
 const getPublicIP = () => new Promise((resolve, reject) => {
-    (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
+    const req = (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
         let buf = '';
         res.on('data', (chunk) => {
             buf += chunk.toString();
@@ -30,6 +30,12 @@ const getPublicIP = () => new Promise((resolve, reject) => {
             resolve(buf.toString());
         });
     });
+    req.on('error', (err) => {
+        console.log('ereoreorer');
+        console.log(err);
+        resolve();
+    });
+
 });
 
 const getLocalIP = () => {
@@ -57,6 +63,9 @@ const getClientInfo = () => new Promise((resolve, reject) => {
             publicIp,
             https: getConfigValue('HTTPS_ENABLED', false)
         });
+    }).catch(err => {
+        console.log('couldnt get local ip');
+        console.error(err);
     });
 });
 
@@ -72,9 +81,11 @@ const linkConnect = (msgHandler) => new Promise((resolve, reject) => {
     
     client.on('open', () => {
         getClientInfo().then(clientInfo => {
+            const toSend = Object.assign({}, clientInfo);
+            toSend.mapEnabled = true;//process.env.MAP_ENABLED ? true : false;
             client.send(JSON.stringify({
                 type: 'register',
-                data: clientInfo
+                data: toSend 
             }));
 
             interval = setInterval(() => {

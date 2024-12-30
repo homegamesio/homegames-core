@@ -33,8 +33,9 @@ const DOMAIN_NAME = getConfigValue('DOMAIN_NAME', null);
 const CERT_DOMAIN = getConfigValue('CERT_DOMAIN', null);
 
 const getPublicIP = () => new Promise((resolve, reject) => {
-    (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
+    const req = (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
         let buf = '';
+        console.log(res.statusCode);
         res.on('data', (chunk) => {
             buf += chunk.toString();
         });
@@ -42,6 +43,12 @@ const getPublicIP = () => new Promise((resolve, reject) => {
         res.on('end', () => {
             resolve(buf.toString());
         });
+    });
+
+    req.on('error', (err) => {
+        console.log('ereoreorer');
+        console.log(err);
+        resolve();
     });
 });
 

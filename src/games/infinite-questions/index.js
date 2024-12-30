@@ -5,7 +5,7 @@ class InfiniteQuestions extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            thumbnail: 'f103961541614b68c503a9ae2fd4cc47',
+            thumbnail: '3f53eca329cd04b60a916e3859c2e813',
             squishVersion: '1007',
             tickRate: 60,
             services: ['contentGenerator']
@@ -80,7 +80,6 @@ class InfiniteQuestions extends Game {
 
     renderContent() {
         if (!this.content && !this.error && !this.loading) {
-            console.log('ayy lmao no content');
             return;
         }
 
@@ -102,7 +101,7 @@ class InfiniteQuestions extends Game {
         } else if (this.loading) {
             const textNode = new GameNode.Text({
                 textInfo: {
-                    text: `Generating conversation starters from ${Object.keys(this.playerStates).length} players...`,
+                    text: `Generating conversation starters from: ${this.keywordString}`,
                     x: 50,
                     y: 50,
                     color: Colors.COLORS.WHITE,
@@ -218,10 +217,7 @@ class InfiniteQuestions extends Game {
 
         this.loading = true;
         this.error = null;
-        this.renderContent();
 
-        const allPlayerIds = Object.keys(this.playerStates);
-        allPlayerIds.sort((a, b) => Math.random() - Math.random());
         let keywords = [];
         for (let playerId in this.playerStates) {
             if (this.playerStates[playerId].text) {
@@ -233,17 +229,15 @@ class InfiniteQuestions extends Game {
         }
         if (keywords.length < 1) {
             return;
-        } else if (keywords.length < 2) {
-            keywords.push(keywords[0]);
-        } else {
-            keywords = keywords.slice(0, 2);
         }
 
-        const keywordString = keywords.join(',');
+        this.keywordString = keywords.join(',');
+
+        this.renderContent();
 
         this.contentGenerator.requestContent({
             model: 'mistral-7b-v0.2',
-            prompt: `Generate 5 conversation starter questions in JSON format. The response should contain only JSON with a single key "questions" containing a list of strings. The questions should be about the following topics: ${keywordString}.`
+            prompt: `Generate 5 conversation starter questions in JSON format. The response should contain only JSON with a single key "questions" containing a list of strings. The questions should be about the following topics: ${this.keywordString}.`
         }).then((_content) => {
             // it doesnt _just_ give json of course
             const leftParenIndex = _content.lastIndexOf('{');

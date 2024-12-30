@@ -52,8 +52,12 @@ const startServer = (sessionInfo) => {
             let saveData;
             const savePath = crypto.createHash('md5').update(sessionInfo.gamePath).digest('hex');
     
-            const existingGameSaveDataPath = path.join(path.join(appDataPath, '.save-data'), savePath);
-    
+            const saveDataRoot = path.join(appDataPath, '.save-data');
+            const existingGameSaveDataPath = path.join(saveDataRoot, savePath);
+            if (!fs.existsSync(saveDataRoot)) {
+                fs.mkdirSync(saveDataRoot);
+            }
+
             const saveGame = (data) => new Promise((resolve, reject) => {
                 // lol. read parsed json to validate json
                 const jsonData = JSON.stringify(JSON.parse(JSON.stringify(data)));
@@ -82,7 +86,8 @@ const startServer = (sessionInfo) => {
         }
         gameSession = new GameSession(gameInstance, sessionInfo.port, sessionInfo.username);
     } catch (err) {
-        log.error('Error instantiating game session', err);
+        log.error('Error instantiating game session');
+        log.error(err);
         if (ERROR_REPORTING_ENABLED) {
             reportBug(`Exception: ${err.message} Stack: ${err.stack}`);
         }

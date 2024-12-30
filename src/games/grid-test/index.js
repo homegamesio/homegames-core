@@ -1,4 +1,4 @@
-const { Asset, Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-1009');
+const { Asset, Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-120');
 
 const COLORS = Colors.COLORS;
 
@@ -6,9 +6,9 @@ class GridTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '1009',
+            squishVersion: '120',
             author: 'Joseph Garcia',
-            thumbnail: '1e844026921f7662a62ce72da869da63'
+            thumbnail: 'd7030620196a2d0ba41a6bcabaa9f00f'
         };
     }
 

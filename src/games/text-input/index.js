@@ -1,4 +1,4 @@
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-1006');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-120');
 const { ExpiringSet, animations } = require('../../common/util');
 
 const COLORS = Colors.COLORS;
@@ -8,7 +8,8 @@ class TextInputTest extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '1006',
+            thumbnail: '60ec3952ee0466086329b9be33582511',
+            squishVersion: '120',
             isTest: true
         };
     }
@@ -16,6 +17,7 @@ class TextInputTest extends Game {
     constructor() {
         super();
 
+        this.currentKeys = [];
         this.whiteBase = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
@@ -28,28 +30,33 @@ class TextInputTest extends Game {
     }
 
     handleKeyDown(player, key) {
-        const now = Date.now();
-        
-        let debounceMillis = 20;
-
-        if (this.currentKey && this.currentKey === key) {
-            debounceMillis = 250;
-        }
-
-        if (!this.lastKeyDown || this.lastKeyDown + debounceMillis < now) {
-            this.lastKeyDown = now;
-            this.currentKey = key;
-        }
+        this.currentKeys.push(key);
     }
 
     handleKeyUp(playerId, key) {
-    //    this.lastKeyDown = null;
-    //    this.currentKey = null;
     }
 
     tick() {
         const now = Date.now();
-        if (this.currentKey && (!this.allText || this.currentKey !== this.allText.charAt(this.allText.length - 1))) {// && (this.lastKeyDown && this.lastKeyDown + 250 < now)) {
+        if (this.currentKeys.length > 0) {
+            const counts = {};
+            let highest = null;
+            for (let i = 0; i < this.currentKeys.length; i++) {
+                const cur = this.currentKeys[i];
+                if (!counts[cur]) {
+                    counts[cur] = 0;
+                }
+                counts[cur] += 1;
+                if (!highest || highest.count < counts[cur]) {
+                    highest = { count: counts[cur], key: cur };
+                }
+            }
+            if (highest) {
+                this.currentKey = highest.key;
+            }
+            this.currentKeys = [];
+        }
+        if (this.currentKey) {
             this.allText += this.currentKey;
             const rowLength = 24;
             const textSize = 4;
@@ -67,12 +74,40 @@ class TextInputTest extends Game {
                     font: 'amateur'
                 }
             });
+
             this.whiteBase.addChild(textNode);
+            this.lastKeyDown = now;
             this.currentKey = null;
         }
-
-        this.whiteBase.node.onStateChange();
+        
     }
+
+    //tick() {
+    //    const now = Date.now();
+    //    if (this.currentKey && (!this.allText || this.currentKey !== this.allText.charAt(this.allText.length - 1))) {// && (this.lastKeyDown && this.lastKeyDown + 250 < now)) {
+    //        this.allText += this.currentKey;
+    //        const rowLength = 24;
+    //        const textSize = 4;
+
+    //        const textX = textSize * (this.allText.length % rowLength);
+    //        const textY = 2.6 * textSize * Math.floor(this.allText.length / rowLength);
+    //        const textNode = new GameNode.Text({
+    //            textInfo: {
+    //                x: textX,
+    //                y: textY,
+    //                text: this.currentKey,
+    //                align: 'left',
+    //                color: COLORS.BLACK,
+    //                size: 5,
+    //                font: 'amateur'
+    //            }
+    //        });
+    //        this.whiteBase.addChild(textNode);
+    //        this.currentKey = null;
+    //    }
+
+    //    this.whiteBase.node.onStateChange();
+    //}
 
     getLayers() {
         return [{root: this.whiteBase}];

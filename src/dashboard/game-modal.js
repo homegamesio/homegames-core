@@ -2,11 +2,16 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-1009');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-120');
 
 const fs = require('fs');
 
 const COLORS = Colors.COLORS;
+
+const formatDate = (ting) => {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${months[ting.getMonth()]} ${ting.getDate()}, ${ting.getFullYear()}`;
+};
 
 const closeSection = ({ onClose, playerId }) => {
     const closeButton = new GameNode.Shape({
@@ -35,7 +40,6 @@ const closeSection = ({ onClose, playerId }) => {
 
 const thumbnailSection = ({ gameKey, gameMetadata }) => {
     const assetKey = gameMetadata?.thumbnail ? gameKey : 'default';
-    
     const thumbnail = new GameNode.Asset({
         coordinates2d: ShapeUtils.rectangle(35, 5, 30, 30),
         assetInfo: {
@@ -123,11 +127,11 @@ const infoSection = ({ gameKey, gameMetadata}) => {
     return infoContainer;
 };
 
-const createSection = ({ gameKey, onCreateSession, isReviewed = false }) => {
+const createSection = ({ gameKey, onCreateSession, approved = false }) => {
     const createContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
         coordinates2d: ShapeUtils.rectangle(8, 67, 20, 20),
-        fill: isReviewed ? [160, 235, 93, 255] : COLORS.HG_YELLOW,
+        fill: approved ? [160, 235, 93, 255] : COLORS.HG_YELLOW,
         onClick: onCreateSession
     });
 
@@ -144,7 +148,7 @@ const createSection = ({ gameKey, onCreateSession, isReviewed = false }) => {
 
     createContainer.addChildren(createText);
 
-    if (!isReviewed) {
+    if (!approved) {
         const warningContainer = new GameNode.Shape({
             fill: COLORS.HG_RED,
             coordinates2d: ShapeUtils.rectangle(30, 87.5, 40, 10),
@@ -189,25 +193,27 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
         fill: COLORS.HG_RED
     });
 
+    const publishedDateVal = currentVersion.published || currentVersion.metadata?.published;
+    const publishedDate = new Date(publishedDateVal);
     const currentVersionText = new GameNode.Text({
         textInfo: {
-            text: 'Version ' + currentVersion.version,
+            text: publishedDateVal ? `Published ${formatDate(publishedDate)}` : 'Local game' ,
             x: 80,
             y: 12.5,
             color: COLORS.HG_BLACK,
-            size: 2,
+            size: 1.4,
             align: 'center'
         }
     });
 
-    const previousVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version < currentVersion.version).sort((a, b) => b.metadata.version - a.metadata.version);
-    const subsequentVersions = otherVersions.filter(v => v.metadata.version !== null && v.metadata.version > currentVersion.version).sort((a, b) => a.metadata.version - b.metadata.version);
+    const previousVersions = otherVersions.filter(v => v.published !== null && v.published < currentVersion.published).sort((a, b) => b.published - a.published);
+    const subsequentVersions = otherVersions.filter(v => v.published !== null && v.published > currentVersion.published).sort((a, b) => a.published - b.published);
 
     if (previousVersions.length > 0) {
         const leftButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: COLORS.HG_BLUE,
-            coordinates2d: ShapeUtils.rectangle(65, 10, 10, 10),
+            coordinates2d: ShapeUtils.rectangle(65, 15, 10, 10),
             onClick: () => onVersionChange(previousVersions[0].metadata.versionId)
         });
 
@@ -215,7 +221,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
             textInfo: {
                 text: '\u2190',
                 x: 70,
-                y: 10,
+                y: 17.5,
                 color: COLORS.HG_BLACK,
                 align: 'center',
                 size: 4
@@ -231,7 +237,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
         const rightButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: COLORS.HG_BLUE,
-            coordinates2d: ShapeUtils.rectangle(85, 10, 10, 10),
+            coordinates2d: ShapeUtils.rectangle(85, 15, 10, 10),
             onClick: () => onVersionChange(subsequentVersions[0].metadata.versionId)
         });
 
@@ -239,7 +245,7 @@ const versionSelector = ({ gameKey, currentVersion, onVersionChange, otherVersio
             textInfo: {
                 text: '\u2192',
                 x: 90,
-                y: 10,
+                y: 17.5,
                 color: COLORS.HG_BLACK,
                 align: 'center',
                 size: 4
@@ -467,9 +473,9 @@ const gameModal = ({
         playerIds: [playerId]
     });
 
-    const thisVersion = versions.filter(version => version.versionId === versionId)[0];
+    const thisVersion = versions.filter(version => version.id === versionId)[0];
 
-    const otherVersions = versions.filter(version => version.versionId !== versionId);
+    const otherVersions = versions.filter(version => version.id !== versionId);
 
     const close = closeSection({ playerId, onClose });
 
@@ -477,9 +483,9 @@ const gameModal = ({
 
     const metadata = metadataSection({ gameKey, gameMetadata });
 
-    const isReviewed = thisVersion.isReviewed;
+    const approved = thisVersion.approved;
 
-    const create = createSection({ gameKey, onCreateSession, isReviewed });
+    const create = createSection({ gameKey, onCreateSession, approved });
 
     const join = joinSection({ gameKey, gameMetadata, activeSessions, onJoinSession });
     modal.addChildren(close, info, metadata, create, join);
