@@ -239,9 +239,6 @@ class GameSession {
                 this.game.handleGamepadInput && this.game.handleGamepadInput(playerId, input);
             } else {
                 const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
-                console.log('input node');
-                console.log(node);
-                console.log(input.nodeId);
                 if (node && node.node.input) {
                     // hilarious
                     if (node.node.input.type === 'file') {
