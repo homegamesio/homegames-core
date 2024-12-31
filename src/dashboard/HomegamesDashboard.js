@@ -194,13 +194,9 @@ const getGamePathsHelper = (dir) => {
 
         const metadata = fs.statSync(entryPath);
         if (metadata.isFile()) {
-            let isMatch = false;
-            if (path.sep === '\\') {
-                const regex = new RegExp(/games\\[a-zA-Z0-9-_]+\\index.js/);
-                isMatch = !!regex.exec(entryPath);
-            } else {
-                isMatch = entryPath.match(`${path.sep}[a-zA-Z0-9\\-_]+${path.sep}index.js`);
-            }
+            const pathSep = path.sep === '\\' ? '\\\\' : path.sep;
+            const pathRegex = new RegExp(`(?:^|[${pathSep}])index\\.js$`);
+            const isMatch = pathRegex.test(entryPath);
 
             if (isMatch) {
                 if (entryPath.endsWith('index.js')) {
