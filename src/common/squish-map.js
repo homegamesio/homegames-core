@@ -28,5 +28,6 @@ module.exports = {
     '1010': require.resolve('squish-1010'),
     '120': require.resolve('squish-120'),
     '130': require.resolve('squish-130'),
-    '135': require.resolve('squish-135')
+    '135': require.resolve('squish-135'),
+    '136': require.resolve('squish-136')
 };

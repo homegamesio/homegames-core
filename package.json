@@ -46,6 +46,7 @@
     "squish-120": "npm:squishjs@1.2.0",
     "squish-130": "npm:squishjs@1.3.0",
     "squish-135": "npm:squishjs@1.3.5",
+    "squish-136": "npm:squishjs@1.3.6",
     "ws": "7.5.10"
   }
 }
