@@ -1,0 +1,12 @@
+# Project Structure Guide
+
+- The main entry point is [index.js](mdc:index.js), which starts the server and loads configuration.
+- The core server logic is in [game_server.js](mdc:game_server.js).
+- All main source code is in the [src/](mdc:src/) directory.
+- Games are implemented in [src/games/](mdc:src/games/), each in their own subdirectory (e.g., [src/games/lemonade/](mdc:src/games/lemonade/)).
+- Utilities and shared logic are in [src/common/](mdc:src/common/) and [src/util/](mdc:src/util/).
+- Tests are in the [test/](mdc:test/) directory and run via [testRunner.js](mdc:testRunner.js).
+description:
+globs:
+alwaysApply: false
+---
