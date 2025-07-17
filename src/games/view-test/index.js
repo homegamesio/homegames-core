@@ -33,7 +33,8 @@ class ViewTest extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             fill: COLORS.RED,
             onClick: () => {
-                this.updatePlaneSize(500);
+                console.log('clicked red!')
+                // this.updatePlaneSize(500);
             }
         });
 
@@ -41,7 +42,9 @@ class ViewTest extends ViewableGame {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(100, 100, 25, 25),
             fill: COLORS.BLUE,
-            onClick: () => {}
+            onClick: () => {
+                console.log('clicked blue!');
+            }
         });
 
         whiteBase.addChildren(redSquare, blueSquare);

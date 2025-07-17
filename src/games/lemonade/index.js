@@ -5,10 +5,13 @@ const SCREENS = {
     STAND: 'stand',
     SHOP: 'shop',
     RECIPE: 'recipe',
-    RESULTS: 'results'
+    RESULTS: 'results',
+    COMBAT_SHOP: 'combat_shop',
+    COMBAT: 'combat',
+    COMBAT_RESULTS: 'combat_results'
 };
 
-const STAND_DURATION_MS = 60000; // 1 minute
+const STAND_DURATION_MS = 2000;//0; // 1 minute
 const CUSTOMER_SPEED = 1.2; // units per tick
 const CUSTOMER_SPAWN_INTERVAL = 60; // ticks between customers (about 1 per second at 60fps)
 
@@ -37,7 +40,14 @@ class Lemonade extends ViewableGame {
         this.recipeSugar = 1;
         this.playerViews = {};
         this.playerStates = {};
-        
+        // Combat shop state
+        this.combatSwordAmmo = 0;
+        this.combatRangedAmmo = 0;
+        // Combat arena state
+        this.combatPlayer = { x: 500, y: 500, size: 8, speed: 4 };
+        this.combatView = { w: 100, h: 100 };
+        this.combatArenaSize = 1000;
+        this.combatStarted = false;
         // Stand simulation state
         this.resetStandSim();
         this.buildGameWorld();
@@ -93,9 +103,24 @@ class Lemonade extends ViewableGame {
     }
 
     setScreen(screen) {
+        // Track if we're entering or leaving combat
+        if (screen === SCREENS.COMBAT && !this.combatStarted) {
+            // Reset player position for combat only when first entering
+            this.combatPlayer = { x: 500, y: 500, size: 8, speed: 4 };
+            this.combatStarted = true;
+        }
+        if (this.screen === SCREENS.COMBAT && screen !== SCREENS.COMBAT) {
+            // Leaving combat screen
+            this.combatStarted = false;
+        }
         this.screen = screen;
         if (screen === SCREENS.STAND) {
             this.resetStandSim();
+        }
+        if (screen === SCREENS.COMBAT_SHOP) {
+            // Reset ammo purchases at start of shop
+            this.combatSwordAmmo = 0;
+            this.combatRangedAmmo = 0;
         }
         this.updateAllPlayerViews();
     }
@@ -115,7 +140,10 @@ class Lemonade extends ViewableGame {
         
         // Remove old view
         if (this.playerViews[playerId].viewRoot) {
+            console.log('removing old view');
             this.getViewRoot().removeChild(this.playerViews[playerId].viewRoot.node.id);
+        } else {
+            console.log('no old view');
         }
 
         // Create new view based on current screen
@@ -128,10 +156,17 @@ class Lemonade extends ViewableGame {
             newViewRoot = this.createRecipeView(playerId, currentView);
         } else if (this.screen === SCREENS.RESULTS) {
             newViewRoot = this.createResultsView(playerId, currentView);
+        } else if (this.screen === SCREENS.COMBAT_SHOP) {
+            newViewRoot = this.createCombatShopView(playerId, currentView);
+        } else if (this.screen === SCREENS.COMBAT) {
+            newViewRoot = this.createCombatView(playerId, currentView);
+        } else if (this.screen === SCREENS.COMBAT_RESULTS) {
+            newViewRoot = this.createCombatResultsView(playerId, currentView);
         }
 
         this.playerViews[playerId].viewRoot = newViewRoot;
         this.getViewRoot().addChild(newViewRoot);
+        return newViewRoot;
     }
 
     createStandView(playerId, view) {
@@ -670,7 +705,7 @@ class Lemonade extends ViewableGame {
             fill: [150,200,255,255],
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    this.setScreen(SCREENS.SHOP);
+                    this.setScreen(SCREENS.COMBAT_SHOP);
                 }
             },
             // playerIds: [playerId]
@@ -682,6 +717,200 @@ class Lemonade extends ViewableGame {
         });
 
         viewRoot.addChildren(label, weatherText, earned, sales, failed, nextBtn, nextBtnText);
+        return viewRoot;
+    }
+
+    createCombatShopView(playerId, view) {
+        const viewRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: [220, 220, 255, 255],
+        });
+        // Money display
+        const moneyText = new GameNode.Text({
+            textInfo: { x: 10, y: 10, color: Colors.COLORS.BLACK, text: `$${this.money}`, align: 'left', size: 2 }
+        });
+        // Sword ammo
+        const swordLabel = new GameNode.Text({
+            textInfo: { x: 30, y: 30, color: Colors.COLORS.BLACK, text: `Sword: $5`, align: 'center', size: 2 }
+        });
+        const swordCount = new GameNode.Text({
+            textInfo: { x: 30, y: 40, color: Colors.COLORS.BLACK, text: `Buy: ${this.combatSwordAmmo}`, align: 'center', size: 1.5 }
+        });
+        const swordUp = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(50, 25, 6, 6),
+            fill: [200,255,200,255],
+            onClick: () => {
+                if (this.money >= 5) {
+                    this.combatSwordAmmo++;
+                    this.money -= 5;
+                    this.updatePlayerView(playerId);
+                }
+            }
+        });
+        const swordUpText = new GameNode.Text({
+            textInfo: { x: 53, y: 28, color: Colors.COLORS.BLACK, text: '+', align: 'center', size: 2 }
+        });
+        const swordDown = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(14, 25, 6, 6),
+            fill: [200,255,200,255],
+            onClick: () => {
+                if (this.combatSwordAmmo > 0) {
+                    this.combatSwordAmmo--;
+                    this.money += 5;
+                    this.updatePlayerView(playerId);
+                }
+            }
+        });
+        const swordDownText = new GameNode.Text({
+            textInfo: { x: 17, y: 28, color: Colors.COLORS.BLACK, text: '-', align: 'center', size: 2 }
+        });
+        // Ranged ammo
+        const rangedLabel = new GameNode.Text({
+            textInfo: { x: 30, y: 60, color: Colors.COLORS.BLACK, text: `Ranged: $10`, align: 'center', size: 2 }
+        });
+        const rangedCount = new GameNode.Text({
+            textInfo: { x: 30, y: 70, color: Colors.COLORS.BLACK, text: `Buy: ${this.combatRangedAmmo}`, align: 'center', size: 1.5 }
+        });
+        const rangedUp = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(50, 55, 6, 6),
+            fill: [255,220,220,255],
+            onClick: () => {
+                if (this.money >= 10) {
+                    this.combatRangedAmmo++;
+                    this.money -= 10;
+                    this.updatePlayerView(playerId);
+                }
+            }
+        });
+        const rangedUpText = new GameNode.Text({
+            textInfo: { x: 53, y: 58, color: Colors.COLORS.BLACK, text: '+', align: 'center', size: 2 }
+        });
+        const rangedDown = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(14, 55, 6, 6),
+            fill: [255,220,220,255],
+            onClick: () => {
+                if (this.combatRangedAmmo > 0) {
+                    this.combatRangedAmmo--;
+                    this.money += 10;
+                    this.updatePlayerView(playerId);
+                }
+            }
+        });
+        const rangedDownText = new GameNode.Text({
+            textInfo: { x: 17, y: 58, color: Colors.COLORS.BLACK, text: '-', align: 'center', size: 2 }
+        });
+        // Next button
+        const nextBtn = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(80, 80, 15, 10),
+            fill: [150,200,255,255],
+            onClick: () => {
+                this.setScreen(SCREENS.COMBAT);
+            }
+        });
+        const nextBtnText = new GameNode.Text({
+            textInfo: { x: 87.5, y: 85, color: Colors.COLORS.BLACK, text: 'Next', align: 'center', size: 2 }
+        });
+        viewRoot.addChild(moneyText);
+        viewRoot.addChild(swordLabel);
+        viewRoot.addChild(swordCount);
+        viewRoot.addChild(swordUp);
+        viewRoot.addChild(swordUpText);
+        viewRoot.addChild(swordDown);
+        viewRoot.addChild(swordDownText);
+        viewRoot.addChild(rangedLabel);
+        viewRoot.addChild(rangedCount);
+        viewRoot.addChild(rangedUp);
+        viewRoot.addChild(rangedUpText);
+        viewRoot.addChild(rangedDown);
+        viewRoot.addChild(rangedDownText);
+        viewRoot.addChild(nextBtn);
+        viewRoot.addChild(nextBtnText);
+        return viewRoot;
+    }
+
+    createCombatView(playerId, view) {
+        console.log('createCombatView called');
+        console.log('combatPlayer object in view', this.combatPlayer, 'at', this.combatPlayer.x, this.combatPlayer.y);
+        // Basic combat arena: player movement and camera scrolling
+        const arenaSize = this.combatArenaSize;
+        const player = this.combatPlayer;
+        const viewW = this.combatView.w;
+        const viewH = this.combatView.h;
+        // Center view on player, clamp to arena bounds
+        let viewX = Math.max(0, Math.min(player.x - viewW/2, arenaSize - viewW));
+        let viewY = Math.max(0, Math.min(player.y - viewH/2, arenaSize - viewH));
+        // Arena background
+        const viewRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: [255, 220, 220, 255],
+        });
+        // Debug: Text at center
+        const debugText = new GameNode.Text({
+            textInfo: { x: 50, y: 50, color: Colors.COLORS.BLACK, text: 'DEBUG CENTER', align: 'center', size: 3 },
+            playerIds: [playerId]
+        });
+        viewRoot.addChild(debugText);
+        // Draw player (scaled to view size)
+        const px = ((player.x - viewX) / viewW) * 100;
+        const py = ((player.y - viewY) / viewH) * 100;
+        const playerSize = (player.size / viewW) * 100;
+        const playerNode = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(px - playerSize/2, py - playerSize/2, playerSize, playerSize),
+            fill: [0, 0, 255, 255],
+            playerIds: [playerId]
+        });
+        viewRoot.addChild(playerNode);
+        console.log("pxxx  + " + player.x + "," + player.y)
+        // Add player (x, y) text above the player
+        const playerText = new GameNode.Text({
+            textInfo: {
+                x: px,
+                y: py - playerSize/2 - 4, // 4 units above the player
+                color: Colors.COLORS.BLACK,
+                text: `(${Math.round(player.x)},${Math.round(player.y)})`,
+                align: 'center',
+                size: 1.5
+            },
+            playerIds: [playerId]
+        });
+        viewRoot.addChild(playerText);
+        // Arena border (for visual reference)
+        const border = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: [0,0,0,0],
+            border: { color: [0,0,0,255], width: 2 },
+            playerIds: [playerId]
+        });
+        viewRoot.addChild(border);
+        // Show debug info
+        const info = new GameNode.Text({
+            textInfo: { x: 50, y: 10, color: Colors.COLORS.BLACK, text: `Player: (${Math.round(player.x)},${Math.round(player.y)}) px=${Math.round(px)} py=${Math.round(py)} size=${Math.round(playerSize)}`, align: 'center', size: 1.5 },
+            playerIds: [playerId]
+        });
+        viewRoot.addChild(info);
+        return viewRoot;
+    }
+
+    createCombatResultsView(playerId, view) {
+        // TODO: Implement combat results summary
+        const viewRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: [220, 255, 255, 255],
+        });
+        const label = new GameNode.Text({
+            textInfo: { x: 50, y: 50, color: Colors.COLORS.BLACK, text: 'Combat Results (stub)', align: 'center', size: 3 }
+        });
+        viewRoot.addChild(label);
         return viewRoot;
     }
 
@@ -710,13 +939,28 @@ class Lemonade extends ViewableGame {
     }
 
     handleKeyDown(playerId, key) {
-        // Allow players to move their viewport around the world
+        console.log('handleKeyDown called');
+        console.log('playerId', playerId);
+        console.log('key', key);
         if (!this.playerViews[playerId]) return;
 
+        if (this.screen === SCREENS.COMBAT) {
+            const p = this.combatPlayer;
+            console.log('player object before move', p, 'at', p.x, p.y);
+            if (key === 'w' && p.y - p.speed - p.size/2 > 0) p.y -= p.speed;
+            if (key === 's' && p.y + p.speed + p.size/2 < this.combatArenaSize) p.y += p.speed;
+            if (key === 'a' && p.x - p.speed - p.size/2 > 0) p.x -= p.speed;
+            if (key === 'd' && p.x + p.speed + p.size/2 < this.combatArenaSize) p.x += p.speed;
+            console.log('player object after move', p, 'at', p.x, p.y);
+            this.updatePlayerView(playerId);
+            this.getViewRoot().node.onStateChange();
+            this.getPlane().node.onStateChange();
+            return;
+        }
+        // ... existing code for lemonade view movement ...
         const currentView = this.playerViews[playerId].view;
         const newView = { ...currentView };
         const moveAmount = 10;
-
         if (key === 'w' && currentView.y - moveAmount >= 0) {
             newView.y = currentView.y - moveAmount;
         } else if (key === 's' && currentView.y + moveAmount <= this.getPlaneSize() - currentView.h) {
@@ -726,7 +970,6 @@ class Lemonade extends ViewableGame {
         } else if (key === 'd' && currentView.x + moveAmount <= this.getPlaneSize() - currentView.w) {
             newView.x = currentView.x + moveAmount;
         }
-
         if (newView.x !== currentView.x || newView.y !== currentView.y) {
             this.playerViews[playerId].view = newView;
             this.updatePlayerView(playerId);
