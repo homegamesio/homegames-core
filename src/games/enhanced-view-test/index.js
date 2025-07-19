@@ -180,11 +180,11 @@ class EnhancedViewTest extends ViewableGame {
         // Update the view content using the original view-test pattern
         const newViewContent = this.createPlayerView(playerId, newView);
         
-        if (currentView.viewRoot) {
-            // Clear existing content and add new content
-            currentView.viewRoot.node.clearChildren();
-            currentView.viewRoot.node.addChild(newViewContent);
-            currentView.viewRoot.node.onStateChange();
+        if (currentView.contentLayer) {
+            // Clear only the content layer, leaving click layer intact
+            currentView.contentLayer.node.clearChildren();
+            currentView.contentLayer.node.addChild(newViewContent);
+            currentView.contentLayer.node.onStateChange();
         }
         
         // Update stored view coordinates
@@ -197,31 +197,7 @@ class EnhancedViewTest extends ViewableGame {
         // Add dynamic health text for items and landmarks visible in this view
         this.addHealthTextToView(viewRoot, view);
         
-        // Add a transparent clickable layer over the entire view to handle clicks
-        const clickLayer = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, this.viewSize, this.viewSize),
-            fill: [0, 0, 0, 0], // Transparent
-            onClick: (clickPlayerId, x, y) => {
-                if (Number(clickPlayerId) === Number(playerId)) {
-                    // Convert click coordinates to world coordinates
-                    const worldX = x + view.x;
-                    const worldY = y + view.y;
-
-                    // Set player target to clicked position
-                    const player = this.players[playerId];
-                    if (player) {
-                        player.targetX = worldX;
-                        player.targetY = worldY;
-                        player.moving = true;
-                        console.log(`Player ${playerId} clicked at view (${x}, ${y}) -> world (${worldX}, ${worldY})`);
-                    }
-                }
-            },
-            playerIds: [playerId]
-        });
-        
-        viewRoot.addChild(clickLayer);
+        // Click layer is now handled separately, no need to add it here
         
         // Add player to the view
         this.addPlayerToView(playerId, viewRoot, view);
@@ -406,13 +382,55 @@ class EnhancedViewTest extends ViewableGame {
             playerIds: [playerId]
         });
 
+        // Create content layer that will be updated
+        const contentLayer = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, this.viewSize, this.viewSize),
+            fill: [0, 0, 0, 0], // Transparent container
+            playerIds: [playerId]
+        });
+
         // Create initial view content
         const initialViewContent = this.createPlayerView(playerId, initialView);
-        stableWrapper.addChild(initialViewContent);
+        contentLayer.addChild(initialViewContent);
+
+        // Create stable click layer
+        const clickLayer = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, this.viewSize, this.viewSize),
+            fill: [0, 0, 0, 0], // Transparent
+            onClick: (clickPlayerId, x, y) => {
+                console.log('clicked ' + clickPlayerId);
+                if (Number(clickPlayerId) === Number(playerId)) {
+                    const currentView = this.playerViews[playerId];
+                    if (!currentView) return;
+                    
+                    // Convert click coordinates to world coordinates
+                    const worldX = x + currentView.view.x;
+                    const worldY = y + currentView.view.y;
+
+                    // Set player target to clicked position
+                    const player = this.players[playerId];
+                    if (player) {
+                        player.targetX = worldX;
+                        player.targetY = worldY;
+                        player.moving = true;
+                        console.log(`Player ${playerId} clicked at view (${x}, ${y}) -> world (${worldX}, ${worldY})`);
+                    }
+                }
+            },
+            playerIds: [playerId]
+        });
+
+        // Add layers in order: content first, click layer on top
+        stableWrapper.addChild(contentLayer);
+        stableWrapper.addChild(clickLayer);
 
         this.playerViews[playerId] = {
             view: initialView,
-            viewRoot: stableWrapper
+            viewRoot: stableWrapper,
+            contentLayer: contentLayer,
+            clickLayer: clickLayer
         };
 
         this.getViewRoot().addChild(stableWrapper);
