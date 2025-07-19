@@ -150,7 +150,8 @@ class GameSession {
             this.homenamesHelper.getPlayerInfo(player.id).then(playerInfo => {
                 this.homenamesHelper.getPlayerSettings(player.id).then(playerSettings => {
                     this.homenamesHelper.getClientInfo(player.id).then(clientInfo => {
-                        
+                        console.log('player.id', player.id);
+                        console.log(player.id);
                         this.playerInfoMap[player.id] = playerInfo;
                         this.clientInfoMap[player.id] = clientInfo;
 
@@ -229,14 +230,14 @@ class GameSession {
 
     handlePlayerInput(playerId, input) {
         if (input.type === 'click') {
-            this.handleClick(playerId, input.data);
+            this.handleClick(Number(playerId), input.data);
         } else if (input.type === 'keydown') {
-            this.game.handleKeyDown && this.game.handleKeyDown(playerId, input.key);
+            this.game.handleKeyDown && this.game.handleKeyDown(Number(playerId), input.key);
         } else if (input.type === 'keyup') {
-            this.game.handleKeyUp && this.game.handleKeyUp(playerId, input.key);
+            this.game.handleKeyUp && this.game.handleKeyUp(Number(playerId), input.key);
         } else if (input.type === 'input') {
             if (input.gamepad) {
-                this.game.handleGamepadInput && this.game.handleGamepadInput(playerId, input);
+                this.game.handleGamepadInput && this.game.handleGamepadInput(Number(playerId), input);
             } else {
                 const node = this.game.findNode(input.nodeId) || this.customTopLayer.root.findChild(input.nodeId);
                 if (node && node.node.input) {
