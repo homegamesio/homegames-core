@@ -11,7 +11,8 @@ class EnhancedViewTest extends ViewableGame {
             squishVersion: '136',
             thumbnail: 'placeholder',
             isTest: true,
-            description: 'Enhanced view test with player movement and smart camera'
+            description: 'Enhanced view test with player movement and smart camera',
+            tickRate: 60 // Higher tick rate for smoother movement
         };
     }
 
@@ -22,11 +23,15 @@ class EnhancedViewTest extends ViewableGame {
         this.playerViews = {};
         this.players = {}; // Track player positions and movement
         this.worldItems = [];
+        this.landmarks = []; // Track landmark objects separately
         
         this.viewSize = 100; // Size of each player's view
         this.worldSize = 800;
         this.playerSize = 3;
-        this.playerSpeed = 2;
+        this.playerSpeed = 0.8; // Smaller moves for smoother movement
+        this.attackRange = 6; // Player attack range
+        this.attackCooldown = 300; // Reduced cooldown for faster combat feel
+        this.damageIndicators = []; // Store active damage indicators
 
         this.initializeWorld();
     }
@@ -93,21 +98,9 @@ class EnhancedViewTest extends ViewableGame {
                 }
             });
 
-            // Add health text above the block
-            const healthText = new GameNode.Text({
-                textInfo: {
-                    x: x + size/2, // Center horizontally on the block
-                    y: y - 1, // Position slightly above the block
-                    color: [255, 0, 0, 255], // Red text
-                    text: health.toString(),
-                    align: 'center',
-                    size: Math.max(1, size/4) // Text size scales with block size, minimum 1
-                }
-            });
-
-            this.worldItems.push({ x, y, size, color, health, node: item, healthText });
+            // Only store item data - health text will be created dynamically in views
+            this.worldItems.push({ x, y, size, color, health, node: item });
             worldBase.addChild(item);
-            worldBase.addChild(healthText);
         }
 
         // Add some larger landmark objects
@@ -136,20 +129,9 @@ class EnhancedViewTest extends ViewableGame {
                 }
             });
 
-            // Add health text above the landmark
-            const landmarkHealthText = new GameNode.Text({
-                textInfo: {
-                    x: x + size/2, // Center horizontally on the landmark
-                    y: y - 2, // Position above the landmark
-                    color: [255, 0, 0, 255], // Red text
-                    text: health.toString(),
-                    align: 'center',
-                    size: Math.max(2, size/6) // Larger text for landmarks, minimum 2
-                }
-            });
-
+            // Only store landmark data - health text will be created dynamically in views
+            this.landmarks.push({ x, y, size, color, health, node: landmark });
             worldBase.addChild(landmark);
-            worldBase.addChild(landmarkHealthText);
         }
 
         this.getPlane().addChild(worldBase);
@@ -199,7 +181,7 @@ class EnhancedViewTest extends ViewableGame {
         const newViewRoot = this.createPlayerView(playerId, newView);
         
         if (currentView.viewRoot) {
-            this.getViewRoot().removeChild(currentView.viewRoot.node.id);
+            // this.getViewRoot().removeChild(currentView.viewRoot.node.id);
         }
         
         this.playerViews[playerId] = {
@@ -212,6 +194,9 @@ class EnhancedViewTest extends ViewableGame {
 
     createPlayerView(playerId, view) {
         const viewRoot = ViewUtils.getView(this.getPlane(), view, [playerId]);
+        
+        // Add dynamic health text for items and landmarks visible in this view
+        this.addHealthTextToView(viewRoot, view);
         
         // Add a transparent clickable layer over the entire view to handle clicks
         const clickLayer = new GameNode.Shape({
@@ -243,6 +228,98 @@ class EnhancedViewTest extends ViewableGame {
         this.addPlayerToView(playerId, viewRoot, view);
         
         return viewRoot;
+    }
+
+    addHealthTextToView(viewRoot, view) {
+        // Add health text for regular items visible in this view
+        for (const item of this.worldItems) {
+            // Check if item is visible in current view
+            if (item.x + item.size >= view.x && item.x <= view.x + view.w &&
+                item.y + item.size >= view.y && item.y <= view.y + view.h) {
+                
+                // Convert world coordinates to view coordinates
+                const viewX = item.x + item.size/2 - view.x;
+                const viewY = item.y - 1 - view.y;
+                
+                // Choose color based on health status
+                const textColor = item.health <= 0 ? [100, 100, 100, 255] : [255, 0, 0, 255];
+                const healthValue = Math.max(0, item.health);
+                
+                const healthText = new GameNode.Text({
+                    textInfo: {
+                        x: viewX,
+                        y: viewY,
+                        color: textColor,
+                        text: healthValue.toString(),
+                        align: 'center',
+                        size: Math.max(1, item.size/4)
+                    }
+                });
+                
+                viewRoot.addChild(healthText);
+            }
+        }
+        
+        // Add health text for landmarks visible in this view
+        for (const landmark of this.landmarks) {
+            // Check if landmark is visible in current view
+            if (landmark.x + landmark.size >= view.x && landmark.x <= view.x + view.w &&
+                landmark.y + landmark.size >= view.y && landmark.y <= view.y + view.h) {
+                
+                // Convert world coordinates to view coordinates
+                const viewX = landmark.x + landmark.size/2 - view.x;
+                const viewY = landmark.y - 2 - view.y;
+                
+                // Choose color based on health status
+                const textColor = landmark.health <= 0 ? [100, 100, 100, 255] : [255, 0, 0, 255];
+                const healthValue = Math.max(0, landmark.health);
+                
+                const healthText = new GameNode.Text({
+                    textInfo: {
+                        x: viewX,
+                        y: viewY,
+                        color: textColor,
+                        text: healthValue.toString(),
+                        align: 'center',
+                        size: Math.max(2, landmark.size/6)
+                    }
+                });
+                
+                viewRoot.addChild(healthText);
+            }
+        }
+        
+        // Add damage indicators visible in this view
+        const currentTime = Date.now();
+        for (const indicator of this.damageIndicators) {
+            // Check if indicator is still active and visible
+            if (currentTime - indicator.createdAt < indicator.duration &&
+                indicator.x >= view.x && indicator.x <= view.x + view.w &&
+                indicator.y >= view.y && indicator.y <= view.y + view.h) {
+                
+                // Convert world coordinates to view coordinates
+                const viewX = indicator.x - view.x;
+                const viewY = indicator.y - view.y;
+                
+                // Calculate fade effect based on age
+                const age = currentTime - indicator.createdAt;
+                const fadeProgress = age / indicator.duration;
+                const alpha = Math.round(255 * (1 - fadeProgress));
+                
+                const damageText = new GameNode.Text({
+                    textInfo: {
+                        x: viewX,
+                        y: viewY,
+                        color: [255, 255, 0, alpha], // Yellow text that fades out
+                        text: `-${indicator.damage}`,
+                        align: 'center',
+                        size: 2
+                    }
+                });
+                
+                viewRoot.addChild(damageText);
+            }
+        }
     }
 
     addPlayerToView(playerId, viewRoot, view) {
@@ -279,7 +356,7 @@ class EnhancedViewTest extends ViewableGame {
             currentView.viewRoot.removeChild(player.nodeId);
         }
         
-        this.addPlayerToView(playerId, currentView.viewRoot, currentView.view);
+        // this.addPlayerToView(playerId, currentView.viewRoot, currentView.view);
     }
 
     handleKeyDown(playerId, key) {
@@ -302,7 +379,7 @@ class EnhancedViewTest extends ViewableGame {
             player.targetY = targetY;
             player.moving = true;
 
-            this.keyCoolDowns.put(keyCacheId, 100);
+            this.keyCoolDowns.put(keyCacheId, 50); // Faster key repeat for smoother movement
         }
     }
 
@@ -316,7 +393,8 @@ class EnhancedViewTest extends ViewableGame {
             targetX: this.worldSize / 2,
             targetY: this.worldSize / 2,
             moving: false,
-            nodeId: null
+            nodeId: null,
+            lastAttackTime: 0 // Track last attack time for cooldown
         };
 
         this.players[playerId] = player;
@@ -336,7 +414,7 @@ class EnhancedViewTest extends ViewableGame {
             viewRoot: playerViewRoot
         };
 
-        this.getViewRoot().addChild(playerViewRoot);
+        // this.getViewRoot().addChild(playerViewRoot);
     }
 
     handlePlayerDisconnect(playerId) {
@@ -348,12 +426,116 @@ class EnhancedViewTest extends ViewableGame {
         delete this.players[playerId];
     }
 
+    dealDamage() {
+        // Roll for damage: 25% chance each for 1, 2, 3, or 4 damage
+        const roll = Math.random();
+        if (roll < 0.25) return 1;
+        else if (roll < 0.5) return 2;
+        else if (roll < 0.75) return 3;
+        else return 4;
+    }
+
+    calculateDistanceToRectangle(pointX, pointY, rectX, rectY, rectWidth, rectHeight) {
+        // Find the closest point on the rectangle to the given point
+        const closestX = Math.max(rectX, Math.min(pointX, rectX + rectWidth));
+        const closestY = Math.max(rectY, Math.min(pointY, rectY + rectHeight));
+        
+        // Calculate distance from point to closest point on rectangle
+        return this.calculateDistance(pointX, pointY, closestX, closestY);
+    }
+
+    findAttackTarget(player) {
+        // Check regular items first
+        for (const item of this.worldItems) {
+            if (item.health <= 0) continue; // Skip destroyed items
+            
+            const distance = this.calculateDistanceToRectangle(
+                player.x, player.y,
+                item.x, item.y, item.size, item.size
+            );
+            
+            if (distance <= this.attackRange) {
+                return { target: item, type: 'item' };
+            }
+        }
+        
+        // Check landmarks
+        for (const landmark of this.landmarks) {
+            if (landmark.health <= 0) continue; // Skip destroyed landmarks
+            
+            const distance = this.calculateDistanceToRectangle(
+                player.x, player.y,
+                landmark.x, landmark.y, landmark.size, landmark.size
+            );
+            
+            if (distance <= this.attackRange) {
+                return { target: landmark, type: 'landmark' };
+            }
+        }
+        
+        return null; // No targets in range
+    }
+
+    attackTarget(target, playerId) {
+        const damage = this.dealDamage();
+        target.health -= damage;
+        
+        console.log(`Player ${playerId} attacks for ${damage} damage! Target health: ${target.health}`);
+        
+        // Create damage indicator at random position near the target
+        const indicatorX = target.x + (Math.random() * target.size);
+        const indicatorY = target.y + (Math.random() * target.size);
+        
+        const damageIndicator = {
+            x: indicatorX,
+            y: indicatorY,
+            damage: damage,
+            createdAt: Date.now(),
+            duration: 1000 // Show for 1 second
+        };
+        
+        this.damageIndicators.push(damageIndicator);
+        
+        if (target.health <= 0) {
+            // Target destroyed
+            target.health = 0; // Ensure it doesn't go negative
+            console.log(`Target destroyed!`);
+        }
+        
+        // Health text will be updated automatically when view refreshes
+        // No need to manually update text nodes since they're created dynamically
+    }
+
     tick() {
+        const currentTime = Date.now();
+        
+        // Clean up expired damage indicators
+        this.damageIndicators = this.damageIndicators.filter(indicator => 
+            currentTime - indicator.createdAt < indicator.duration
+        );
+        
         // Update all player movements
         Object.keys(this.players).forEach(playerId => {
             const player = this.players[playerId];
+            let needsViewUpdate = false;
+            
             if (player.moving) {
                 this.movePlayerTowards(playerId, player.targetX, player.targetY);
+                needsViewUpdate = true;
+            }
+            
+            // Check for attack targets (with cooldown)
+            if (currentTime - player.lastAttackTime >= this.attackCooldown) {
+                const attackResult = this.findAttackTarget(player);
+                if (attackResult) {
+                    this.attackTarget(attackResult.target, playerId);
+                    player.lastAttackTime = currentTime;
+                    needsViewUpdate = true; // Need to update view to show new health values
+                }
+            }
+            
+            // Update view if needed (either from movement or attacking)
+            if (needsViewUpdate) {
                 this.updatePlayerView(playerId);
             }
         });
