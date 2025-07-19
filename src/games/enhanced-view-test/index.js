@@ -12,7 +12,7 @@ class EnhancedViewTest extends ViewableGame {
             thumbnail: 'placeholder',
             isTest: true,
             description: 'Enhanced view test with player movement and smart camera',
-            tickRate: 60 // Higher tick rate for smoother movement
+            tickRate: 100 // Higher tick rate for smoother movement (matching view-test)
         };
     }
 
@@ -28,7 +28,7 @@ class EnhancedViewTest extends ViewableGame {
         this.viewSize = 100; // Size of each player's view
         this.worldSize = 800;
         this.playerSize = 3;
-        this.playerSpeed = 0.8; // Smaller moves for smoother movement
+        this.playerSpeed = 0.2; // Very small moves for ultra-smooth movement (matching view-test)
         this.attackRange = 6; // Player attack range
         this.attackCooldown = 300; // Reduced cooldown for faster combat feel
         this.damageIndicators = []; // Store active damage indicators
@@ -177,19 +177,18 @@ class EnhancedViewTest extends ViewableGame {
             h: this.viewSize
         };
 
-        // Update the view
-        const newViewRoot = this.createPlayerView(playerId, newView);
+        // Update the view content using the original view-test pattern
+        const newViewContent = this.createPlayerView(playerId, newView);
         
         if (currentView.viewRoot) {
-            // this.getViewRoot().removeChild(currentView.viewRoot.node.id);
+            // Clear existing content and add new content
+            currentView.viewRoot.node.clearChildren();
+            currentView.viewRoot.node.addChild(newViewContent);
+            currentView.viewRoot.node.onStateChange();
         }
         
-        this.playerViews[playerId] = {
-            view: newView,
-            viewRoot: newViewRoot
-        };
-        
-        this.getViewRoot().addChild(newViewRoot);
+        // Update stored view coordinates
+        this.playerViews[playerId].view = newView;
     }
 
     createPlayerView(playerId, view) {
@@ -347,16 +346,8 @@ class EnhancedViewTest extends ViewableGame {
     }
 
     updatePlayerInView(playerId) {
-        const player = this.players[playerId];
-        const currentView = this.playerViews[playerId];
-        if (!player || !currentView) return;
-
-        // Remove old player node and add new one
-        if (player.nodeId) {
-            currentView.viewRoot.removeChild(player.nodeId);
-        }
-        
-        // this.addPlayerToView(playerId, currentView.viewRoot, currentView.view);
+        // This method is no longer needed since we recreate the entire view content
+        // in updatePlayerView using the stable wrapper pattern
     }
 
     handleKeyDown(playerId, key) {
@@ -379,7 +370,7 @@ class EnhancedViewTest extends ViewableGame {
             player.targetY = targetY;
             player.moving = true;
 
-            this.keyCoolDowns.put(keyCacheId, 50); // Faster key repeat for smoother movement
+            this.keyCoolDowns.put(keyCacheId, 20); // Ultra-fast key repeat for smoothest movement (matching view-test)
         }
     }
 
@@ -407,14 +398,24 @@ class EnhancedViewTest extends ViewableGame {
             h: this.viewSize
         };
 
-        const playerViewRoot = this.createPlayerView(playerId, initialView);
+        // Create stable wrapper (like original view-test)
+        const stableWrapper = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, this.viewSize, this.viewSize),
+            fill: [240, 240, 240, 255], // Light gray background so player never sees nothing
+            playerIds: [playerId]
+        });
+
+        // Create initial view content
+        const initialViewContent = this.createPlayerView(playerId, initialView);
+        stableWrapper.addChild(initialViewContent);
 
         this.playerViews[playerId] = {
             view: initialView,
-            viewRoot: playerViewRoot
+            viewRoot: stableWrapper
         };
 
-        // this.getViewRoot().addChild(playerViewRoot);
+        this.getViewRoot().addChild(stableWrapper);
     }
 
     handlePlayerDisconnect(playerId) {
