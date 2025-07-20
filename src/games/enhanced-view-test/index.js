@@ -26,6 +26,7 @@ class EnhancedViewTest extends ViewableGame {
         this.landmarks = []; // Track landmark objects separately
         this.guards = []; // Track all guards in the world
         this.archers = []; // Track archer enemies (purple, ranged)
+        this.sentries = []; // Track sentry enemies (stationary knockback)
         this.projectiles = []; // Track active projectiles
         
         this.viewSize = 100; // Size of each player's view
@@ -51,6 +52,14 @@ class EnhancedViewTest extends ViewableGame {
         this.archerProjectileRange = 25; // Range for shooting projectiles (increased for kiting)
         this.archerProjectileCooldown = 700; // Time between projectile shots (slightly faster)
         this.archerKiteDistance = 12; // Preferred distance to maintain from player
+        
+        // Sentry settings (stationary artillery enemies)
+        this.sentryHealth = 15; // Tankier since they can't move
+        this.sentryProjectileRange = 20; // Long range for artillery
+        this.sentryProjectileCooldown = 1200; // Slower firing rate for heavy projectiles
+        this.sentryProjectileSpeed = 0.08; // Very slow heavy projectiles
+        this.sentryProjectileDamage = 4; // High damage per hit
+        this.sentryProjectileSize = 6; // Large projectiles
         this.projectileSpeed = 0.2; // Speed of projectiles
         this.projectileDamage = 1; // Damage per projectile hit
         this.projectileSize = 2; // Size of projectile squares
@@ -268,13 +277,14 @@ class EnhancedViewTest extends ViewableGame {
             const clampedX = Math.max(0, Math.min(this.worldSize - guardSize, guardX));
             const clampedY = Math.max(0, Math.min(this.worldSize - guardSize, guardY));
 
-            // 30% chance to spawn archer, 70% chance for regular guard
-            const isArcher = Math.random() < 0.3;
-            
-            if (isArcher) {
+            // 50% guards, 30% archers, 20% sentries for resource pools
+            const enemyRoll = Math.random();
+            if (enemyRoll < 0.5) {
+                this.spawnGuard(clampedX, clampedY, guardSize, poolData);
+            } else if (enemyRoll < 0.8) {
                 this.spawnArcher(clampedX, clampedY, guardSize, poolData);
             } else {
-                this.spawnGuard(clampedX, clampedY, guardSize, poolData);
+                this.spawnSentry(clampedX, clampedY, guardSize, poolData);
             }
         }
     }
@@ -343,6 +353,35 @@ class EnhancedViewTest extends ViewableGame {
         this.archers.push(archerData);
         this.worldBase.addChild(archer);
     }
+    
+    spawnSentry(x, y, size, poolData) {
+        const sentry = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(x, y, size, size),
+            fill: [100, 100, 100, 255], // Gray sentries (stationary)
+            onClick: (clickPlayerId) => {
+                console.log(`Player ${clickPlayerId} clicked sentry at (${x}, ${y})`);
+            }
+        });
+
+        const sentryData = {
+            x: x,
+            y: y,
+            size: size,
+            poolData: poolData,
+            node: sentry,
+            // AI state (minimal since stationary)
+            lastProjectileTime: 0,
+            targetPlayerId: null,
+            // Combat stats
+            health: this.sentryHealth,
+            maxHealth: this.sentryHealth,
+            type: 'sentry'
+        };
+
+        this.sentries.push(sentryData);
+        this.worldBase.addChild(sentry);
+    }
 
     spawnRandomEnemyClusters() {
         const numClusters = 8 + Math.floor(Math.random() * 5); // 8-12 random clusters
@@ -399,14 +438,26 @@ class EnhancedViewTest extends ViewableGame {
             
             const enemySize = 4; // Standard enemy size
             
-            // Larger camps have more archers (ranged advantage)
-            const archerChance = numEnemies <= 4 ? 0.3 : numEnemies <= 7 ? 0.4 : 0.5;
-            const isArcher = Math.random() < archerChance;
-            
-            if (isArcher) {
-                this.spawnFreeRoamingArcher(clampedX, clampedY, enemySize);
+            // Enemy distribution: guards, archers, and sentries based on camp size
+            const enemyRoll = Math.random();
+            if (numEnemies <= 4) {
+                // Small packs: 50% guards, 30% archers, 20% sentries
+                if (enemyRoll < 0.5) {
+                    this.spawnFreeRoamingGuard(clampedX, clampedY, enemySize);
+                } else if (enemyRoll < 0.8) {
+                    this.spawnFreeRoamingArcher(clampedX, clampedY, enemySize);
+                } else {
+                    this.spawnFreeRoamingSentry(clampedX, clampedY, enemySize);
+                }
             } else {
-                this.spawnFreeRoamingGuard(clampedX, clampedY, enemySize);
+                // Larger camps: 40% guards, 40% archers, 20% sentries (more ranged)
+                if (enemyRoll < 0.4) {
+                    this.spawnFreeRoamingGuard(clampedX, clampedY, enemySize);
+                } else if (enemyRoll < 0.8) {
+                    this.spawnFreeRoamingArcher(clampedX, clampedY, enemySize);
+                } else {
+                    this.spawnFreeRoamingSentry(clampedX, clampedY, enemySize);
+                }
             }
         }
     }
@@ -476,6 +527,36 @@ class EnhancedViewTest extends ViewableGame {
 
         this.archers.push(archerData);
         this.worldBase.addChild(archer);
+    }
+
+    spawnFreeRoamingSentry(x, y, size) {
+        const sentry = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(x, y, size, size),
+            fill: [80, 80, 80, 255], // Darker gray for free-roaming sentries
+            onClick: (clickPlayerId) => {
+                console.log(`Player ${clickPlayerId} clicked free-roaming sentry at (${x}, ${y})`);
+            }
+        });
+
+        const sentryData = {
+            x: x,
+            y: y,
+            size: size,
+            poolData: null, // No associated resource pool
+            node: sentry,
+            // AI state (minimal since stationary)
+            lastProjectileTime: 0,
+            targetPlayerId: null,
+            // Combat stats
+            health: 18, // Even stronger than resource sentries
+            maxHealth: 18,
+            type: 'sentry',
+            isFreeRoaming: true // Mark as free-roaming for different AI behavior
+        };
+
+        this.sentries.push(sentryData);
+        this.worldBase.addChild(sentry);
     }
 
     calculateDistance(x1, y1, x2, y2) {
@@ -770,10 +851,16 @@ class EnhancedViewTest extends ViewableGame {
                 const viewX = projectile.x - projectile.size/2 - view.x;
                 const viewY = projectile.y - projectile.size/2 - view.y;
                 
+                // Different appearance for sentry projectiles
+                const isSentryProjectile = projectile.type === 'sentry';
+                const projectileColor = isSentryProjectile ? 
+                    [255, 100, 0, 255] : // Orange for heavy sentry projectiles
+                    [255, 255, 0, 255];  // Yellow for archer projectiles
+                
                 const projectileNode = new GameNode.Shape({
                     shapeType: Shapes.POLYGON,
                     coordinates2d: ShapeUtils.rectangle(viewX, viewY, projectile.size, projectile.size),
-                    fill: [255, 255, 0, 255], // Bright yellow projectiles
+                    fill: projectileColor,
                     playerIds: [playerId]
                 });
                 
@@ -869,6 +956,39 @@ class EnhancedViewTest extends ViewableGame {
                 });
                 
                 viewRoot.addChild(archerHealthText);
+            }
+        }
+        
+        // Add health text for sentries visible in this view
+        for (const sentry of this.sentries) {
+            if (sentry.health <= 0) continue; // Skip dead sentries
+            
+            // Check if sentry is visible in current view
+            if (sentry.x + sentry.size >= view.x && sentry.x <= view.x + view.w &&
+                sentry.y + sentry.size >= view.y && sentry.y <= view.y + view.h) {
+                
+                // Convert world coordinates to view coordinates
+                const viewX = sentry.x + sentry.size/2 - view.x;
+                const viewY = sentry.y - 2 - view.y; // Above the sentry
+                
+                // Color-code health (sentries have higher max health)
+                const healthColor = sentry.health <= 5 ? [255, 0, 0, 255] : // Red when low health
+                                   sentry.health <= 10 ? [255, 255, 0, 255] : // Yellow when medium health
+                                   [0, 255, 0, 255]; // Green when healthy
+
+                const sentryHealthText = new GameNode.Text({
+                    textInfo: {
+                        x: viewX,
+                        y: viewY,
+                        color: healthColor,
+                        text: `${sentry.health}`,
+                        align: 'center',
+                        size: 1.2
+                    },
+                    playerIds: [playerId]
+                });
+                
+                viewRoot.addChild(sentryHealthText);
             }
         }
     }
@@ -1217,6 +1337,12 @@ class EnhancedViewTest extends ViewableGame {
             if (archer.health <= 0) continue; // Skip dead archers
             this.updateArcherAI(archer, currentTime);
         }
+        
+        // Update sentries
+        for (const sentry of this.sentries) {
+            if (sentry.health <= 0) continue; // Skip dead sentries
+            this.updateSentryAI(sentry, currentTime);
+        }
     }
     
     updateGuardAI(guard, currentTime) {
@@ -1353,6 +1479,53 @@ class EnhancedViewTest extends ViewableGame {
         
         // Update the visual node position
         archer.node.node.coordinates2d = ShapeUtils.rectangle(archer.x, archer.y, archer.size, archer.size);
+    }
+
+    updateSentryAI(sentry, currentTime) {
+        let closestPlayer = null;
+        let closestDistance = Infinity;
+
+        // Find the closest player within projectile range (sentries don't chase)
+        for (const playerId in this.players) {
+            const player = this.players[playerId];
+            const distance = this.calculateDistance(sentry.x + sentry.size/2, sentry.y + sentry.size/2, player.x, player.y);
+            
+            if (distance <= this.sentryProjectileRange && distance < closestDistance) {
+                closestPlayer = player;
+                closestDistance = distance;
+                sentry.targetPlayerId = playerId;
+            }
+        }
+
+        // Sentry shoots heavy projectile if player is in range
+        if (closestPlayer && currentTime - sentry.lastProjectileTime >= this.sentryProjectileCooldown) {
+            this.sentryShootProjectile(sentry, closestPlayer, sentry.targetPlayerId);
+            sentry.lastProjectileTime = currentTime;
+        }
+    }
+
+    sentryShootProjectile(sentry, player, playerId) {
+        console.log(`Sentry fires heavy artillery at player ${playerId}!`);
+        
+        // Calculate direction to player
+        const sentryCenterX = sentry.x + sentry.size/2;
+        const sentryCenterY = sentry.y + sentry.size/2;
+        const angle = Math.atan2(player.y - sentryCenterY, player.x - sentryCenterX);
+        
+        // Create heavy projectile
+        const projectile = {
+            x: sentryCenterX,
+            y: sentryCenterY,
+            velocityX: Math.cos(angle) * this.sentryProjectileSpeed,
+            velocityY: Math.sin(angle) * this.sentryProjectileSpeed,
+            size: this.sentryProjectileSize,
+            damage: this.sentryProjectileDamage,
+            createdAt: Date.now(),
+            targetPlayerId: playerId,
+            type: 'sentry' // Mark as sentry projectile for different appearance
+        };
+        
+        this.projectiles.push(projectile);
     }
 
     moveGuardTowards(guard, targetX, targetY) {
@@ -1519,6 +1692,19 @@ class EnhancedViewTest extends ViewableGame {
             }
         }
         
+        // Check sentries
+        for (const sentry of this.sentries) {
+            if (sentry.health <= 0) continue; // Skip dead sentries
+            
+            const sentryCenterX = sentry.x + sentry.size/2;
+            const sentryCenterY = sentry.y + sentry.size/2;
+            const distance = this.calculateDistance(player.x, player.y, sentryCenterX, sentryCenterY);
+            
+            if (distance <= this.attackRange) {
+                enemiesInRange.push({ enemy: sentry, distance: distance });
+            }
+        }
+        
         // Sort by distance (closest first) and return up to maxSimultaneousAttacks
         enemiesInRange.sort((a, b) => a.distance - b.distance);
         return enemiesInRange.slice(0, this.maxSimultaneousAttacks).map(item => item.enemy);
@@ -1580,6 +1766,12 @@ class EnhancedViewTest extends ViewableGame {
                 this.archers.splice(index, 1);
             }
             console.log(`Archer defeated and removed. Remaining archers: ${this.archers.length}`);
+        } else if (deadEnemy.type === 'sentry') {
+            const index = this.sentries.indexOf(deadEnemy);
+            if (index > -1) {
+                this.sentries.splice(index, 1);
+            }
+            console.log(`Sentry defeated and removed. Remaining sentries: ${this.sentries.length}`);
         } else {
             const index = this.guards.indexOf(deadEnemy);
             if (index > -1) {
@@ -1910,6 +2102,7 @@ class EnhancedViewTest extends ViewableGame {
         this.landmarks = [];
         this.guards = [];
         this.archers = [];
+        this.sentries = [];
         this.projectiles = [];
         this.gatherIndicators = [];
         this.damageIndicators = [];
