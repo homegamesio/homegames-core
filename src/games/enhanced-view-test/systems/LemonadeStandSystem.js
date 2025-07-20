@@ -21,6 +21,9 @@ class LemonadeStandSystem {
             lemons: 3
         };
         
+        // Pricing system
+        this.price = 1.50; // Default price
+        
         // Define unique customers with distinct traits
         this.uniqueCustomers = [
             { name: 'Sweet Sally', trait: 'sweet_tooth', color: [255, 192, 203, 255], stopChance: 0.8, buyChance: 0.9, preferredPrice: 1.5 },
@@ -57,16 +60,13 @@ class LemonadeStandSystem {
     }
     
     calculateLemonadePrice() {
-        // Base price calculation based on recipe
-        const sugar = this.recipe.sugar;
-        const lemons = this.recipe.lemons;
-        
-        // Dynamic pricing based on recipe complexity
-        const basePrice = 0.5;
-        const sugarCost = sugar * 0.1; // 10 cents per sugar
-        const lemonCost = lemons * 0.15; // 15 cents per lemon
-        
-        return basePrice + sugarCost + lemonCost;
+        // Return the player-set price
+        return this.price;
+    }
+    
+    setPrice(newPrice) {
+        this.price = Math.max(0.25, Math.min(5.0, newPrice));
+        console.log(`Lemonade price set to $${this.price.toFixed(2)}`);
     }
     
     // Customer spawning and management
@@ -124,7 +124,7 @@ class LemonadeStandSystem {
         console.log(`${customer.name} (${customer.trait}) starts walking from ${spawnFromLeft ? 'left' : 'right'}`);
     }
     
-    updateCustomers(currentTime) {
+    updateCustomers(currentTime, resourceManager) {
         let needsViewUpdate = false;
         
         // Spawn new customers periodically
@@ -185,7 +185,7 @@ class LemonadeStandSystem {
                     
                     if (Math.random() < adjustedBuyChance) {
                         // Customer buys!
-                        this.completePurchase(customer, currentPrice);
+                        this.completePurchase(customer, currentPrice, resourceManager);
                         customer.state = 'leaving';
                         customer.leaveTime = currentTime;
                     } else {
@@ -209,9 +209,22 @@ class LemonadeStandSystem {
         return needsViewUpdate;
     }
     
-    completePurchase(customer, price) {
+    completePurchase(customer, price, resourceManager) {
         const sugar = this.recipe.sugar;
         const lemons = this.recipe.lemons;
+        
+        // Check if we have enough resources to make this serving
+        if (!resourceManager.canMakeLemonade(sugar, lemons, 1)) {
+            console.log(`Not enough resources to make lemonade for ${customer.name}! Need ${sugar} sugar, ${lemons} lemons`);
+            customer.state = 'leaving';
+            customer.leaveTime = Date.now();
+            customer.purchased = false;
+            customer.reaction = 'Out of ingredients!';
+            return;
+        }
+        
+        // Consume resources to make the lemonade
+        resourceManager.consumeResourcesForLemonade(sugar, lemons, 1);
         
         // Calculate satisfaction based on customer trait and recipe
         let satisfaction = this.calculateCustomerSatisfaction(customer, sugar, lemons);
@@ -244,6 +257,10 @@ class LemonadeStandSystem {
         }
 
         this.standRevenue += finalPrice;
+        
+        // Add money to the resource manager so player can buy upgrades
+        resourceManager.addMoney(finalPrice);
+        
         customer.satisfaction = satisfaction;
         customer.finalPrice = finalPrice;
         customer.reaction = reaction;

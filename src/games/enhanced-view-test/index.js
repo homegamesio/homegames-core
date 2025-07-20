@@ -6,6 +6,7 @@ const LemonadeStandSystem = require('./systems/LemonadeStandSystem');
 const LemonadeConfig = require('./config/LemonadeConfig');
 const GameStateManager = require('./managers/GameStateManager');
 const PlayerManager = require('./managers/PlayerManager');
+const ResourceManager = require('./managers/ResourceManager');
 const UIComponents = require('./utils/UIComponents');
 
 const COLORS = Colors.COLORS;
@@ -29,6 +30,7 @@ class EnhancedViewTest extends ViewableGame {
         // Initialize managers
         this.gameStateManager = new GameStateManager(this);
         this.playerManager = new PlayerManager(this);
+        this.resourceManager = new ResourceManager();
         
         // Initialize systems
         this.combatSystem = new CombatSystem(CombatConfig);
@@ -36,6 +38,10 @@ class EnhancedViewTest extends ViewableGame {
         
         // Initialize game configuration
         this.initializeGameConfig();
+        
+        // Start first combat round
+        this.resourceManager.startCombatRound();
+        
         this.initializeWorld();
     }
     
@@ -110,20 +116,20 @@ class EnhancedViewTest extends ViewableGame {
         return this.upgradeBaseCost;
     }
     
-    canAffordUpgrade(upgradeType, playerScore) {
+    canAffordUpgrade(upgradeType) {
         const cost = this.getUpgradeCost(upgradeType);
-        return cost !== null && playerScore >= cost;
+        return cost !== null && this.resourceManager.canAfford(cost);
     }
     
     purchaseUpgrade(upgradeType, player) {
         const cost = this.getUpgradeCost(upgradeType);
-        if (cost === null || player.score < cost) return false;
+        if (cost === null || !this.resourceManager.canAfford(cost)) return false;
         
         this.upgrades[upgradeType]++;
-        player.score -= cost;
+        this.resourceManager.spendMoney(cost);
         this.applyUpgrades();
         
-        console.log(`Upgraded ${upgradeType} to level ${this.upgrades[upgradeType]}! Cost: ${cost} points.`);
+        console.log(`Upgraded ${upgradeType} to level ${this.upgrades[upgradeType]}! Cost: $${cost}.`);
         return true;
     }
 
@@ -386,6 +392,9 @@ class EnhancedViewTest extends ViewableGame {
         // Add timer display at top center
         this.addTimerToView(viewRoot, view, playerId);
         
+        // Add resource display at top left
+        this.addResourceDisplayToView(viewRoot, view, playerId);
+        
         // Add projectiles to the view
         this.addProjectilesToView(viewRoot, view, playerId);
         
@@ -578,22 +587,129 @@ class EnhancedViewTest extends ViewableGame {
     addTimerToView(viewRoot, view, playerId) {
         if (this.gameStateManager.getCurrentState() !== 'playing') return; // Only show timer during active gameplay
         
-        const timeRemaining = Math.max(0, this.gameStateManager.gameTimer - (Date.now() - this.gameStateManager.gameStartTime));
-        const secondsLeft = Math.ceil(timeRemaining / 1000);
+        // Check if there are any bosses alive (boss fight mode)
+        const aliveBosses = this.combatSystem.guards.filter(guard => 
+            guard.type === 'boss' && guard.health > 0
+        );
+        const bossesPresent = aliveBosses.length > 0;
         
-        const timerText = new GameNode.Text({
+        let timerText;
+        
+        if (bossesPresent) {
+            // Boss fight mode: show boss status instead of timer
+            const bossNames = aliveBosses.map(boss => boss.name).join(', ');
+            timerText = new GameNode.Text({
+                textInfo: {
+                    x: 50, // Center of view
+                    y: 10, // Top of view
+                    color: [255, 100, 100, 255], // Red for boss fight
+                    text: `BOSS FIGHT: ${aliveBosses.length} remaining`,
+                    align: 'center',
+                    size: 2.2
+                },
+                playerIds: [playerId]
+            });
+        } else {
+            // Normal mode: show countdown timer
+            const timeRemaining = Math.max(0, this.gameStateManager.gameTimer - (Date.now() - this.gameStateManager.gameStartTime));
+            const secondsLeft = Math.ceil(timeRemaining / 1000);
+            
+            timerText = new GameNode.Text({
+                textInfo: {
+                    x: 50, // Center of view
+                    y: 10, // Top of view
+                    color: secondsLeft <= 10 ? [255, 0, 0, 255] : [255, 255, 255, 255], // Red when low time
+                    text: `Time: ${secondsLeft}s`,
+                    align: 'center',
+                    size: 2.5
+                },
+                playerIds: [playerId]
+            });
+        }
+        
+        viewRoot.addChild(timerText);
+    }
+
+    addResourceDisplayToView(viewRoot, view, playerId) {
+        const resources = this.resourceManager.getResourceSummary();
+        
+        // Show "safe" totals (what you had at start of round, won't be lost on death)
+        const safeSugar = resources.sugar - resources.sugarGained;
+        const safeLemons = resources.lemons - resources.lemonsGained;
+        
+        // Sugar display (safe amount)
+        const sugarText = new GameNode.Text({
             textInfo: {
-                x: 50, // Center of view
-                y: 10, // Top of view
-                color: secondsLeft <= 10 ? [255, 0, 0, 255] : [255, 255, 255, 255], // Red when low time
-                text: `Time: ${secondsLeft}s`,
-                align: 'center',
-                size: 2.5
+                x: 5,
+                y: 8,
+                color: [255, 255, 255, 255],
+                text: `🍯 ${safeSugar}`,
+                align: 'left',
+                size: 2
             },
             playerIds: [playerId]
         });
         
-        viewRoot.addChild(timerText);
+        // Lemons display (safe amount)
+        const lemonsText = new GameNode.Text({
+            textInfo: {
+                x: 5,
+                y: 15,
+                color: [255, 255, 255, 255],
+                text: `🍋 ${safeLemons}`,
+                align: 'left',
+                size: 2
+            },
+            playerIds: [playerId]
+        });
+        
+        // Money display (always show total money - not lost on death)
+        const moneyText = new GameNode.Text({
+            textInfo: {
+                x: 5,
+                y: 22,
+                color: [0, 255, 0, 255], // Green for money
+                text: `💰 $${resources.money.toFixed(2)}`,
+                align: 'left',
+                size: 2
+            },
+            playerIds: [playerId]
+        });
+        
+        // Show pending resources gained this round (at risk if you die)
+        if (resources.sugarGained > 0) {
+            const sugarGainedText = new GameNode.Text({
+                textInfo: {
+                    x: 25,
+                    y: 8,
+                    color: [255, 255, 0, 255], // Yellow for pending gains
+                    text: `+${resources.sugarGained}`,
+                    align: 'left',
+                    size: 1.5
+                },
+                playerIds: [playerId]
+            });
+            viewRoot.addChild(sugarGainedText);
+        }
+        
+        if (resources.lemonsGained > 0) {
+            const lemonsGainedText = new GameNode.Text({
+                textInfo: {
+                    x: 25,
+                    y: 15,
+                    color: [255, 255, 0, 255], // Yellow for pending gains
+                    text: `+${resources.lemonsGained}`,
+                    align: 'left',
+                    size: 1.5
+                },
+                playerIds: [playerId]
+            });
+            viewRoot.addChild(lemonsGainedText);
+        }
+        
+        viewRoot.addChild(sugarText);
+        viewRoot.addChild(lemonsText);
+        viewRoot.addChild(moneyText);
     }
 
 
@@ -994,9 +1110,12 @@ class EnhancedViewTest extends ViewableGame {
     gatherFrom(target, playerId) {
         const gathered = this.gatherResources();
         target.resources -= gathered;
+        
+        // Add sugar to resource manager
+        this.resourceManager.addSugar(gathered);
         this.currentStats.resourcesCollected += gathered;
         
-        console.log(`Player ${playerId} gathered ${gathered} resources! Remaining: ${target.resources}`);
+        console.log(`Player ${playerId} gathered ${gathered} sugar! Remaining: ${target.resources}`);
         
         // Create gather indicator at random position near the target
         const indicatorX = target.x + (Math.random() * target.size);
@@ -1015,7 +1134,7 @@ class EnhancedViewTest extends ViewableGame {
         if (target.resources <= 0) {
             // Resource depleted
             target.resources = 0; // Ensure it doesn't go negative
-            console.log(`Resource source depleted!`);
+            console.log(`Sugar source depleted!`);
         }
         
         // Resource text will be updated automatically when view refreshes
@@ -1172,8 +1291,9 @@ class EnhancedViewTest extends ViewableGame {
         return viewRoot;
     }
     
-    createUpgradeElements(playerId, player, playerScore) {
+    createUpgradeElements(playerId, player) {
         const elements = [];
+        const availableMoney = this.resourceManager.getMoney();
         
         // Add upgrade section title
         const upgradeTitle = new GameNode.Text({
@@ -1181,7 +1301,7 @@ class EnhancedViewTest extends ViewableGame {
                 x: 50,
                 y: 62,
                 color: [255, 255, 100, 255],
-                text: `UPGRADES (${playerScore} points available)`,
+                text: `UPGRADES ($${availableMoney.toFixed(2)} available)`,
                 align: 'center',
                 size: 2.0
             },
@@ -1238,7 +1358,7 @@ class EnhancedViewTest extends ViewableGame {
             const yPos = 66 + index * 3.2; // Even tighter spacing to fit 6 upgrades
             const currentLevel = this.upgrades[upgrade.name];
             const cost = this.getUpgradeCost(upgrade.name);
-            const canAfford = cost !== null && playerScore >= cost;
+            const canAfford = this.canAffordUpgrade(upgrade.name);
             const maxLevel = upgrade.name === 'multiAttack' ? 3 : this.maxUpgradeLevel;
             const isMaxLevel = currentLevel >= maxLevel;
             
@@ -1281,7 +1401,7 @@ class EnhancedViewTest extends ViewableGame {
                         x: 80,
                         y: yPos,
                         color: [255, 255, 255, 255],
-                        text: canAfford ? '+5' : 'X',
+                        text: canAfford ? `$${cost}` : 'X',
                         align: 'center',
                         size: 1.0
                     },
@@ -1314,6 +1434,15 @@ class EnhancedViewTest extends ViewableGame {
     }
 
     startLemonadeStand() {
+        // Check if player has enough ingredients for at least one lemonade
+        const recipe = this.lemonadeSystem.recipe;
+        if (!this.resourceManager.canMakeLemonade(recipe.sugar, recipe.lemons, 1)) {
+            // Not enough ingredients - trigger failure state
+            this.gameStateManager.setState('noIngredientsFailure');
+            console.log('Failed to start lemonade stand - not enough ingredients');
+            return;
+        }
+        
         this.gameStateManager.setState('newSection');
         this.lemonadeSystem.startStand();
         console.log('Started lemonade stand');
@@ -1643,10 +1772,106 @@ class EnhancedViewTest extends ViewableGame {
             // playerIds: [playerId]
         });
 
+        // Price adjustment buttons
+        const priceDownButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(35, 15, 6, 6),
+            fill: [200, 0, 0, 255], // Red
+            onClick: (clickPlayerId) => {
+                if (Number(clickPlayerId) === Number(playerId)) {
+                    this.lemonadeSystem.setPrice(this.lemonadeSystem.price - 0.25);
+                    this.playerManager.updateAllPlayerViews();
+                }
+            },
+            // playerIds: [playerId]
+        });
+
+        const priceDownText = new GameNode.Text({
+            textInfo: {
+                x: 38,
+                y: 18,
+                color: [255, 255, 255, 255],
+                text: '-',
+                align: 'center',
+                size: 2
+            },
+            // playerIds: [playerId]
+        });
+
+        const priceUpButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(59, 15, 6, 6),
+            fill: [0, 200, 0, 255], // Green
+            onClick: (clickPlayerId) => {
+                if (Number(clickPlayerId) === Number(playerId)) {
+                    this.lemonadeSystem.setPrice(this.lemonadeSystem.price + 0.25);
+                    this.playerManager.updateAllPlayerViews();
+                }
+            },
+            // playerIds: [playerId]
+        });
+
+        const priceUpText = new GameNode.Text({
+            textInfo: {
+                x: 62,
+                y: 18,
+                color: [255, 255, 255, 255],
+                text: '+',
+                align: 'center',
+                size: 2
+            },
+            // playerIds: [playerId]
+        });
+
+        // Resource display (in different position to avoid overlap)
+        const resources = this.resourceManager.getResourceSummary();
+        const sugarDisplay = new GameNode.Text({
+            textInfo: {
+                x: 5,
+                y: 85,
+                color: [255, 255, 255, 255],
+                text: `🍯 ${resources.sugar}`,
+                align: 'left',
+                size: 1.8
+            },
+            // playerIds: [playerId]
+        });
+        
+        const lemonsDisplay = new GameNode.Text({
+            textInfo: {
+                x: 5,
+                y: 92,
+                color: [255, 255, 255, 255],
+                text: `🍋 ${resources.lemons}`,
+                align: 'left',
+                size: 1.8
+            },
+            // playerIds: [playerId]
+        });
+        
+        const moneyDisplay = new GameNode.Text({
+            textInfo: {
+                x: 85,
+                y: 85,
+                color: [0, 255, 0, 255],
+                text: `💰 $${resources.money.toFixed(2)}`,
+                align: 'left',
+                size: 1.8
+            },
+            // playerIds: [playerId]
+        });
+
         viewRoot.addChild(sidewalk);
         viewRoot.addChild(timerText);
         viewRoot.addChild(revenueText);
         viewRoot.addChild(priceText);
+        viewRoot.addChild(priceDownButton);
+        viewRoot.addChild(priceDownText);
+        viewRoot.addChild(priceUpButton);
+        viewRoot.addChild(priceUpText);
+        viewRoot.addChild(sugarDisplay);
+        viewRoot.addChild(lemonsDisplay);
+        viewRoot.addChild(moneyDisplay);
         viewRoot.addChild(playerStand);
         viewRoot.addChild(playerBehindStand);
         viewRoot.addChild(standSign);
@@ -1833,6 +2058,9 @@ class EnhancedViewTest extends ViewableGame {
         this.gameStateManager.resetForNewGame();
         this.lastViewUpdate = 0; // Reset view update tracking
         
+        // Start new combat round (save current resources)
+        this.resourceManager.startCombatRound();
+        
         // Reapply upgrades (they persist between rounds)
         this.applyUpgrades();
 
@@ -1883,6 +2111,9 @@ class EnhancedViewTest extends ViewableGame {
             case 'newSection':
                 this.updateLemonadeStand(currentTime);
                 break;
+            case 'noIngredientsFailure':
+                this.updateNoIngredientsFailure(currentTime);
+                break;
             // Other states don't need tick updates
         }
     }
@@ -1897,7 +2128,7 @@ class EnhancedViewTest extends ViewableGame {
         }
         
         // Manage customer interactions
-        const needsViewUpdate = this.lemonadeSystem.updateCustomers(currentTime);
+        const needsViewUpdate = this.lemonadeSystem.updateCustomers(currentTime, this.resourceManager);
         
         // Update views frequently for smooth customer movement
         const hasMovingCustomers = this.lemonadeSystem.hasMovingCustomers();
@@ -1914,6 +2145,14 @@ class EnhancedViewTest extends ViewableGame {
             if (shouldUpdate) {
                 this.playerManager.updateAllPlayerViews();
             }
+        }
+    }
+
+    updateNoIngredientsFailure(currentTime) {
+        // Update views regularly for smooth customer walking animation
+        if (!this.lastViewUpdate || currentTime - this.lastViewUpdate >= 100) { // 10 FPS
+            this.lastViewUpdate = currentTime;
+            this.playerManager.updateAllPlayerViews();
         }
     }
 
@@ -1986,8 +2225,12 @@ class EnhancedViewTest extends ViewableGame {
                 if (attackTargets.length > 0) {
                     // Attack all targets simultaneously
                     for (const target of attackTargets) {
-                        this.combatSystem.playerAttackEnemy(target, playerId, player, this.attackDamage, this.worldBase);
-                        this.currentStats.enemiesKilled += 1;
+                        const enemyKilled = this.combatSystem.playerAttackEnemy(target, playerId, player, this.attackDamage, this.worldBase);
+                        if (enemyKilled) {
+                            // Give lemons for killing lemon monsters
+                            this.resourceManager.addLemons(1);
+                            this.currentStats.enemiesKilled += 1;
+                        }
                     }
                     player.lastAttackTime = currentTime;
                     needsViewUpdate = true;

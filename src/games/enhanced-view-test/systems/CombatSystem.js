@@ -741,7 +741,10 @@ class CombatSystem {
             enemy.health = 0;
             console.log(`${enemyType} has been defeated!`);
             this.removeDeadEnemy(enemy, player, worldBase);
+            return true; // Enemy was killed
         }
+        
+        return false; // Enemy is still alive
     }
     
     removeDeadEnemy(deadEnemy, player, worldBase) {
