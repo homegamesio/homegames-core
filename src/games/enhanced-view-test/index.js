@@ -447,8 +447,8 @@ class EnhancedViewTest extends ViewableGame {
         
         // Click layer is now handled separately, no need to add it here
         
-        // Add player to the view
-        this.addPlayerToView(playerId, viewRoot, view);
+        // Add all players to the view so they can see each other
+        this.addAllPlayersToView(viewRoot, view);
         
         // Add guard health display to the view
         this.addGuardHealthToView(viewRoot, view, playerId);
@@ -730,6 +730,73 @@ class EnhancedViewTest extends ViewableGame {
         }
     }
 
+    addAllPlayersToView(viewRoot, view) {
+        // Different colors for each player so they can distinguish each other
+        const playerColors = [
+            [0, 0, 0, 255],       // Black (player 1)
+            [0, 0, 255, 255],     // Blue (player 2)  
+            [255, 0, 0, 255],     // Red (player 3)
+            [0, 255, 0, 255],     // Green (player 4)
+            [255, 255, 0, 255],   // Yellow (player 5)
+            [255, 0, 255, 255],   // Magenta (player 6)
+            [0, 255, 255, 255],   // Cyan (player 7)
+            [255, 128, 0, 255],   // Orange (player 8)
+        ];
+
+        let playerIndex = 0;
+        for (const playerId in this.players) {
+            const player = this.players[playerId];
+            if (!player) continue;
+
+            // Check if player is visible in current view
+            if (player.x + this.playerSize/2 < view.x || player.x - this.playerSize/2 > view.x + view.w ||
+                player.y + this.playerSize/2 < view.y || player.y - this.playerSize/2 > view.y + view.h) {
+                continue; // Player is outside this view, skip
+            }
+
+            // Calculate player position relative to view
+            const relativeX = player.x - view.x;
+            const relativeY = player.y - view.y;
+
+            // Get player color (cycle through colors if more than 8 players)
+            const playerColor = playerColors[playerIndex % playerColors.length];
+
+            const playerNode = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(
+                    relativeX - this.playerSize/2, 
+                    relativeY - this.playerSize/2, 
+                    this.playerSize, 
+                    this.playerSize
+                ),
+                fill: playerColor
+                // No playerIds - all players can see each other
+            });
+
+            // Add health text below the player
+            const healthColor = player.health <= 20 ? [255, 0, 0, 255] : // Red when low health
+                               player.health <= 50 ? [255, 255, 0, 255] : // Yellow when medium health
+                               [0, 255, 0, 255]; // Green when healthy
+
+            const healthText = new GameNode.Text({
+                textInfo: {
+                    x: relativeX,
+                    y: relativeY + this.playerSize/2 + 3, // Below the player
+                    color: healthColor,
+                    text: `P${playerIndex+1} ${player.health}/${player.maxHealth} | Score: ${player.score}`,
+                    align: 'center',
+                    size: 1.5
+                }
+                // No playerIds - all players can see each other's health
+            });
+
+            viewRoot.addChild(playerNode);
+            viewRoot.addChild(healthText);
+            
+            playerIndex++;
+        }
+    }
+
     addPlayerToView(playerId, viewRoot, view) {
         const player = this.players[playerId];
         if (!player) return;
@@ -747,7 +814,7 @@ class EnhancedViewTest extends ViewableGame {
                 this.playerSize
             ),
             fill: [0, 0, 0, 255], // Black player
-            playerIds: [playerId]
+            // playerIds: [playerId]
         });
 
         // Add health text below the player
