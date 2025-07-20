@@ -24,6 +24,7 @@ class EnhancedViewTest extends ViewableGame {
         this.players = {}; // Track player positions and movement
         this.worldItems = [];
         this.landmarks = []; // Track landmark objects separately
+        this.guards = []; // Track all guards in the world
         
         this.viewSize = 100; // Size of each player's view
         this.worldSize = 800;
@@ -99,8 +100,15 @@ class EnhancedViewTest extends ViewableGame {
             });
 
             // Store resource pool data - resource text will be created dynamically in views
-            this.worldItems.push({ x, y, size, color, resources, node: resourcePool });
+            const poolData = { x, y, size, color, resources, node: resourcePool };
+            this.worldItems.push(poolData);
             worldBase.addChild(resourcePool);
+
+            // Spawn guards for medium to large resource pools
+            if (size >= 8) { // Medium/large pools get guards
+                const numGuards = Math.floor(size / 4); // More guards for larger pools
+                this.spawnGuardsAroundPool(poolData, numGuards, worldBase);
+            }
         }
 
         // Add some larger resource veins (major deposits)
@@ -130,11 +138,54 @@ class EnhancedViewTest extends ViewableGame {
             });
 
             // Store resource vein data - resource text will be created dynamically in views
-            this.landmarks.push({ x, y, size, color, resources, node: resourceVein });
+            const veinData = { x, y, size, color, resources, node: resourceVein };
+            this.landmarks.push(veinData);
             worldBase.addChild(resourceVein);
+
+            // Resource veins always get guards (they're valuable!)
+            const numGuards = Math.floor(size / 3); // More guards per size for veins
+            this.spawnGuardsAroundPool(veinData, numGuards, worldBase);
         }
 
         this.getPlane().addChild(worldBase);
+    }
+
+    spawnGuardsAroundPool(poolData, numGuards, worldBase) {
+        const poolCenterX = poolData.x + poolData.size / 2;
+        const poolCenterY = poolData.y + poolData.size / 2;
+        const guardDistance = poolData.size * 0.8 + 6; // Distance from pool center
+        const guardSize = 4; // Size of guard squares
+
+        for (let i = 0; i < numGuards; i++) {
+            // Arrange guards in a circle around the pool
+            const angle = (i / numGuards) * 2 * Math.PI;
+            const guardX = poolCenterX + Math.cos(angle) * guardDistance - guardSize / 2;
+            const guardY = poolCenterY + Math.sin(angle) * guardDistance - guardSize / 2;
+
+            // Make sure guards stay within world bounds
+            const clampedX = Math.max(0, Math.min(this.worldSize - guardSize, guardX));
+            const clampedY = Math.max(0, Math.min(this.worldSize - guardSize, guardY));
+
+            const guard = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(clampedX, clampedY, guardSize, guardSize),
+                fill: [200, 0, 0, 255], // Red guards
+                onClick: (clickPlayerId) => {
+                    console.log(`Player ${clickPlayerId} clicked guard at (${clampedX}, ${clampedY})`);
+                }
+            });
+
+            const guardData = {
+                x: clampedX,
+                y: clampedY,
+                size: guardSize,
+                poolData: poolData, // Reference to the pool they're guarding
+                node: guard
+            };
+
+            this.guards.push(guardData);
+            worldBase.addChild(guard);
+        }
     }
 
     calculateDistance(x1, y1, x2, y2) {
