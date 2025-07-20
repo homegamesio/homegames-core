@@ -4,6 +4,9 @@ const CombatSystem = require('./systems/CombatSystem');
 const CombatConfig = require('./config/CombatConfig');
 const LemonadeStandSystem = require('./systems/LemonadeStandSystem');
 const LemonadeConfig = require('./config/LemonadeConfig');
+const GameStateManager = require('./managers/GameStateManager');
+const PlayerManager = require('./managers/PlayerManager');
+const UIComponents = require('./utils/UIComponents');
 
 const COLORS = Colors.COLORS;
 
@@ -23,17 +26,23 @@ class EnhancedViewTest extends ViewableGame {
     constructor() {
         super(800); // Larger world size
 
+        // Initialize managers
+        this.gameStateManager = new GameStateManager(this);
+        this.playerManager = new PlayerManager(this);
+        
+        // Initialize systems
+        this.combatSystem = new CombatSystem(CombatConfig);
+        this.lemonadeSystem = new LemonadeStandSystem(LemonadeConfig);
+        
+        // Initialize game configuration
+        this.initializeGameConfig();
+        this.initializeWorld();
+    }
+    
+    initializeGameConfig() {
         this.keyCoolDowns = new ExpiringSet();
-        this.playerViews = {};
-        this.players = {}; // Track player positions and movement
         this.worldItems = [];
         this.landmarks = []; // Track landmark objects separately
-        
-        // Initialize combat system
-        this.combatSystem = new CombatSystem(CombatConfig);
-        
-        // Initialize lemonade stand system
-        this.lemonadeSystem = new LemonadeStandSystem(LemonadeConfig);
         
         this.viewSize = 100; // Size of each player's view
         this.worldSize = 800;
@@ -43,10 +52,6 @@ class EnhancedViewTest extends ViewableGame {
         this.gatherCooldown = 300; // Time between gathering attempts
         this.gatherIndicators = []; // Store active resource gathering indicators
         
-        // Game state and timer
-        this.gameState = 'playing'; // 'playing', 'gameOver', 'dead', 'recipe', 'newSection', 'newSectionStats'
-        this.gameTimer = 60000; // 60 seconds in milliseconds
-        this.gameStartTime = Date.now();
         this.lastViewUpdate = 0; // Track when we last updated views for smooth visuals
         
         // Stats tracking
@@ -83,8 +88,6 @@ class EnhancedViewTest extends ViewableGame {
 
         // Apply upgrades to current stats
         this.applyUpgrades();
-        
-        this.initializeWorld();
     }
     
     applyUpgrades() {
@@ -359,111 +362,20 @@ class EnhancedViewTest extends ViewableGame {
         return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
     }
 
-    movePlayerTowards(playerId, targetX, targetY) {
-        const player = this.players[playerId];
-        if (!player) return;
-
-        const distance = this.calculateDistance(player.x, player.y, targetX, targetY);
-        
-        if (distance <= this.playerSpeed) {
-            // Reached target
-            player.x = targetX;
-            player.y = targetY;
-            player.moving = false;
-        } else {
-            // Move towards target
-            const angle = Math.atan2(targetY - player.y, targetX - player.x);
-            player.x += Math.cos(angle) * this.playerSpeed;
-            player.y += Math.sin(angle) * this.playerSpeed;
-        }
-
-        // Keep player within world bounds
-        player.x = Math.max(this.playerSize/2, Math.min(this.worldSize - this.playerSize/2, player.x));
-        player.y = Math.max(this.playerSize/2, Math.min(this.worldSize - this.playerSize/2, player.y));
-    }
-
     updatePlayerView(playerId) {
-        const player = this.players[playerId];
-        const currentView = this.playerViews[playerId];
-        if (!player || !currentView) return;
-
-        // Always center the view on the player
-        const newView = {
-            x: Math.max(0, Math.min(this.worldSize - this.viewSize, player.x - this.viewSize/2)),
-            y: Math.max(0, Math.min(this.worldSize - this.viewSize, player.y - this.viewSize/2)),
-            w: this.viewSize,
-            h: this.viewSize
-        };
-
-        // Update the view content using the original view-test pattern
-        const newViewContent = this.createPlayerView(playerId, newView);
-        
-        console.log('player view is');
-        console.log(newView);
-        if (currentView.contentLayer) {
-            // Clear only the content layer, leaving click layer intact
-            currentView.contentLayer.node.clearChildren();
-            currentView.contentLayer.node.addChild(newViewContent);
-            currentView.contentLayer.node.onStateChange();
-        }
-        
-        // Manage click layer based on game state
-        const shouldHaveClickLayer = this.gameState === 'playing';
-        
-        console.log(`DEBUG: gameState=${this.gameState}, shouldHaveClickLayer=${shouldHaveClickLayer}, hasClickLayerFlag=${currentView.hasClickLayer}`);
-        
-        if (shouldHaveClickLayer && !currentView.hasClickLayer) {
-            // Add click layer for movement during gameplay
-            console.log(`DEBUG: Adding click layer for player ${playerId}`);
-            currentView.viewRoot.addChild(currentView.clickLayer);
-            currentView.hasClickLayer = true;
-        } else if (!shouldHaveClickLayer && currentView.hasClickLayer) {
-            // Remove click layer during game over so upgrade buttons work
-            console.log(`DEBUG: Removing click layer for player ${playerId}`);
-            try {
-                console.log('ffifififi')
-                console.log(currentView.viewRoot.node.children.map(child => child.node.id));
-                console.log(currentView.clickLayer.node.id)
-                currentView.viewRoot.removeChild(currentView.clickLayer.node.id);
-                currentView.hasClickLayer = false;
-                console.log(`DEBUG: Successfully removed click layer for player ${playerId}`);
-                this.getViewRoot().node.onStateChange();
-            } catch (e) {
-                console.log(`DEBUG: Error removing click layer for player ${playerId}:`, e);
-                // Try alternative removal method - completely rebuild the view structure
-                currentView.viewRoot.node.clearChildren();
-                currentView.viewRoot.addChild(currentView.contentLayer);
-                currentView.hasClickLayer = false;
-                console.log(`DEBUG: Used alternative removal method for player ${playerId} - view structure rebuilt without click layer`);
-            }
-        }
-        
-        // Update stored view coordinates
-        this.playerViews[playerId].view = newView;
+        this.playerManager.updatePlayerView(playerId);
     }
 
     createPlayerView(playerId, view) {
-        if (this.gameState === 'gameOver' || this.gameState === 'dead') {
-            // For game over, we need to create a view that can handle clicks properly
-            const gameOverRoot = this.createGameOverView(playerId, view);
-            return gameOverRoot;
-        } else if (this.gameState === 'recipe') {
-            const recipeRoot = this.createRecipeView(playerId, view);
-            return recipeRoot;
-        } else if (this.gameState === 'newSection') {
-            const newSectionRoot = this.createNewSectionView(playerId, view);
-            return newSectionRoot;
-        } else if (this.gameState === 'newSectionStats') {
-            const newSectionStatsRoot = this.createNewSectionStatsView(playerId, view);
-            return newSectionStatsRoot;
-        }
-        
+        return this.gameStateManager.createView(playerId, view);
+    }
+
+    // The gameplay view creation method (for when state is 'playing')
+    createGameplayView(playerId, view) {
         const viewRoot = ViewUtils.getView(this.getPlane(), view, [playerId]);
         
         // Add dynamic resource text for pools and veins visible in this view
         this.addResourceTextToView(viewRoot, view);
-        
-        // Click layer is now handled separately, no need to add it here
         
         // Add all players to the view so they can see each other
         this.addAllPlayersToView(viewRoot, view);
@@ -664,9 +576,9 @@ class EnhancedViewTest extends ViewableGame {
     }
 
     addTimerToView(viewRoot, view, playerId) {
-        if (this.gameState !== 'playing') return; // Only show timer during active gameplay
+        if (this.gameStateManager.getCurrentState() !== 'playing') return; // Only show timer during active gameplay
         
-        const timeRemaining = Math.max(0, this.gameTimer - (Date.now() - this.gameStartTime));
+        const timeRemaining = Math.max(0, this.gameStateManager.gameTimer - (Date.now() - this.gameStateManager.gameStartTime));
         const secondsLeft = Math.ceil(timeRemaining / 1000);
         
         const timerText = new GameNode.Text({
@@ -797,21 +709,11 @@ class EnhancedViewTest extends ViewableGame {
     }
 
     addAllPlayersToView(viewRoot, view) {
-        // Different colors for each player so they can distinguish each other
-        const playerColors = [
-            [0, 0, 0, 255],       // Black (player 1)
-            [0, 0, 255, 255],     // Blue (player 2)  
-            [255, 0, 0, 255],     // Red (player 3)
-            [0, 255, 0, 255],     // Green (player 4)
-            [255, 255, 0, 255],   // Yellow (player 5)
-            [255, 0, 255, 255],   // Magenta (player 6)
-            [0, 255, 255, 255],   // Cyan (player 7)
-            [255, 128, 0, 255],   // Orange (player 8)
-        ];
-
+        const players = this.playerManager.getAllPlayers();
+        
         let playerIndex = 0;
-        for (const playerId in this.players) {
-            const player = this.players[playerId];
+        for (const playerId in players) {
+            const player = players[playerId];
             if (!player) continue;
 
             // Check if player is visible in current view
@@ -825,7 +727,7 @@ class EnhancedViewTest extends ViewableGame {
             const relativeY = player.y - view.y;
 
             // Get player color (cycle through colors if more than 8 players)
-            const playerColor = playerColors[playerIndex % playerColors.length];
+            const playerColor = this.playerManager.getPlayerColor(playerIndex);
 
             const playerNode = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
@@ -905,38 +807,13 @@ class EnhancedViewTest extends ViewableGame {
         player.nodeId = playerNode.node.id;
     }
 
-    updatePlayerInView(playerId) {
-        // This method is no longer needed since we recreate the entire view content
-        // in updatePlayerView using the stable wrapper pattern
-    }
+
 
     handleKeyDown(playerId, key) {
         const keyCacheId = `player${playerId}:${key}`;
         
         if (['w','a','s','d'].indexOf(key) >= 0 && !this.keyCoolDowns.has(keyCacheId)) {
-            const player = this.players[playerId];
-            if (!player) return;
-
-            let targetX = player.x;
-            let targetY = player.y;
-            
-            // Set target far in the direction to maintain constant speed
-            const moveDistance = 50; // Set target 50 units away for continuous movement
-
-            if (key === 'w') targetY -= moveDistance;
-            if (key === 's') targetY += moveDistance;
-            if (key === 'a') targetX -= moveDistance;
-            if (key === 'd') targetX += moveDistance;
-
-            // Keep target within world bounds
-            targetX = Math.max(this.playerSize/2, Math.min(this.worldSize - this.playerSize/2, targetX));
-            targetY = Math.max(this.playerSize/2, Math.min(this.worldSize - this.playerSize/2, targetY));
-
-            // Set new target position
-            player.targetX = targetX;
-            player.targetY = targetY;
-            player.moving = true;
-
+            this.playerManager.handlePlayerKeyDown(playerId, key);
             this.keyCoolDowns.put(keyCacheId, 20); // Ultra-fast key repeat for smoothest movement (matching view-test)
         }
     }
@@ -944,31 +821,15 @@ class EnhancedViewTest extends ViewableGame {
 
 
     handleNewPlayer({ playerId }) {
-        // Initialize player at center of world
-        const player = {
-            x: this.worldSize / 2,
-            y: this.worldSize / 2,
-            targetX: this.worldSize / 2,
-            targetY: this.worldSize / 2,
-            moving: false,
-            nodeId: null,
-            lastGatherTime: 0, // Track last gathering time for cooldown
-            lastAttackTime: 0, // Track last attack time for cooldown
-            health: this.playerMaxHealth, // Player health (upgraded)
-            maxHealth: this.playerMaxHealth,
-            score: 0 // Kill score
-        };
+        this.playerManager.addPlayer(playerId);
+    }
 
-        this.players[playerId] = player;
+    handlePlayerDisconnect(playerId) {
+        this.playerManager.removePlayer(playerId);
+    }
 
-        // Create initial view centered on player
-        const initialView = {
-            x: Math.max(0, Math.min(this.worldSize - this.viewSize, player.x - this.viewSize/2)),
-            y: Math.max(0, Math.min(this.worldSize - this.viewSize, player.y - this.viewSize/2)),
-            w: this.viewSize,
-            h: this.viewSize
-        };
-
+    // Helper methods for PlayerManager integration
+    createPlayerViewComponents(playerId, initialView) {
         // Create stable wrapper (like original view-test)
         const stableWrapper = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -997,21 +858,7 @@ class EnhancedViewTest extends ViewableGame {
             onClick: (clickPlayerId, x, y) => {
                 console.log('clicked ' + clickPlayerId);
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    const currentView = this.playerViews[playerId];
-                    if (!currentView) return;
-                    
-                    // Convert click coordinates to world coordinates
-                    const worldX = x + currentView.view.x;
-                    const worldY = y + currentView.view.y;
-
-                    // Set player target to clicked position
-                    const player = this.players[playerId];
-                    if (player) {
-                        player.targetX = worldX;
-                        player.targetY = worldY;
-                        player.moving = true;
-                        console.log(`Player ${playerId} clicked at view (${x}, ${y}) -> world (${worldX}, ${worldY})`);
-                    }
+                    this.playerManager.handlePlayerClick(playerId, x, y);
                 }
             },
             playerIds: [playerId]
@@ -1022,12 +869,12 @@ class EnhancedViewTest extends ViewableGame {
         
         // Only add click layer if game is playing (movement clicks)
         let hasClickLayer = false;
-        if (this.gameState === 'playing') {
+        if (this.gameStateManager.shouldHaveClickLayer()) {
             stableWrapper.addChild(clickLayer);
             hasClickLayer = true;
         }
 
-        this.playerViews[playerId] = {
+        const viewComponents = {
             view: initialView,
             viewRoot: stableWrapper,
             contentLayer: contentLayer,
@@ -1036,15 +883,55 @@ class EnhancedViewTest extends ViewableGame {
         };
 
         this.getViewRoot().addChild(stableWrapper);
+        return viewComponents;
     }
 
-    handlePlayerDisconnect(playerId) {
-        const playerViewRoot = this.playerViews[playerId] && this.playerViews[playerId].viewRoot;
-        if (playerViewRoot) {
-            this.getViewRoot().removeChild(playerViewRoot.node.id);
+    updatePlayerViewContent(playerId, newView, currentView) {
+        // Update the view content using the original view-test pattern
+        const newViewContent = this.createPlayerView(playerId, newView);
+        
+        console.log('player view is');
+        console.log(newView);
+        if (currentView.contentLayer) {
+            // Clear only the content layer, leaving click layer intact
+            currentView.contentLayer.node.clearChildren();
+            currentView.contentLayer.node.addChild(newViewContent);
+            currentView.contentLayer.node.onStateChange();
         }
-        delete this.playerViews[playerId];
-        delete this.players[playerId];
+        
+        // Manage click layer based on game state
+        const shouldHaveClickLayer = this.gameStateManager.shouldHaveClickLayer();
+        
+        console.log(`DEBUG: gameState=${this.gameStateManager.getCurrentState()}, shouldHaveClickLayer=${shouldHaveClickLayer}, hasClickLayerFlag=${currentView.hasClickLayer}`);
+        
+        if (shouldHaveClickLayer && !currentView.hasClickLayer) {
+            // Add click layer for movement during gameplay
+            console.log(`DEBUG: Adding click layer for player ${playerId}`);
+            currentView.viewRoot.addChild(currentView.clickLayer);
+            currentView.hasClickLayer = true;
+        } else if (!shouldHaveClickLayer && currentView.hasClickLayer) {
+            // Remove click layer during game over so upgrade buttons work
+            console.log(`DEBUG: Removing click layer for player ${playerId}`);
+            try {
+                console.log('ffifififi')
+                console.log(currentView.viewRoot.node.children.map(child => child.node.id));
+                console.log(currentView.clickLayer.node.id)
+                currentView.viewRoot.removeChild(currentView.clickLayer.node.id);
+                currentView.hasClickLayer = false;
+                console.log(`DEBUG: Successfully removed click layer for player ${playerId}`);
+                this.getViewRoot().node.onStateChange();
+            } catch (e) {
+                console.log(`DEBUG: Error removing click layer for player ${playerId}:`, e);
+                // Try alternative removal method - completely rebuild the view structure
+                currentView.viewRoot.node.clearChildren();
+                currentView.viewRoot.addChild(currentView.contentLayer);
+                currentView.hasClickLayer = false;
+                console.log(`DEBUG: Used alternative removal method for player ${playerId} - view structure rebuilt without click layer`);
+            }
+        }
+        
+        // Update stored view coordinates
+        currentView.view = newView;
     }
 
     gatherResources() {
@@ -1381,7 +1268,7 @@ class EnhancedViewTest extends ViewableGame {
                         if (Number(clickPlayerId) === Number(playerId) && canAfford && currentLevel < maxLevel) {
                             console.log(`Upgrade ${upgrade.name} clicked!`);
                             if (this.purchaseUpgrade(upgrade.name, player)) {
-                                this.updatePlayerView(playerId);
+                                this.playerManager.updatePlayerView(playerId);
                             }
                         }
                     },
@@ -1422,21 +1309,18 @@ class EnhancedViewTest extends ViewableGame {
 
     // Phase transition methods
     startRecipePhase() {
-        this.gameState = 'recipe';
-        this.updateAllPlayerViews();
+        this.gameStateManager.setState('recipe');
         console.log('Started recipe phase');
     }
 
     startLemonadeStand() {
-        this.gameState = 'newSection';
+        this.gameStateManager.setState('newSection');
         this.lemonadeSystem.startStand();
-        this.updateAllPlayerViews();
         console.log('Started lemonade stand');
     }
 
     startNewSectionStats() {
-        this.gameState = 'newSectionStats';
-        this.updateAllPlayerViews();
+        this.gameStateManager.setState('newSectionStats');
         console.log('Started lemonade stand results');
     }
 
@@ -1482,7 +1366,7 @@ class EnhancedViewTest extends ViewableGame {
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
                     this.lemonadeSystem.recipe.sugar = Math.max(0, this.lemonadeSystem.recipe.sugar - 1);
-                    this.updateAllPlayerViews();
+                    this.playerManager.updateAllPlayerViews();
                     console.log(`Sugar decreased to ${this.lemonadeSystem.recipe.sugar}`);
                 }
             },
@@ -1520,7 +1404,7 @@ class EnhancedViewTest extends ViewableGame {
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
                     this.lemonadeSystem.recipe.sugar = Math.min(20, this.lemonadeSystem.recipe.sugar + 1);
-                    this.updateAllPlayerViews();
+                    this.playerManager.updateAllPlayerViews();
                     console.log(`Sugar increased to ${this.lemonadeSystem.recipe.sugar}`);
                 }
             },
@@ -1559,7 +1443,7 @@ class EnhancedViewTest extends ViewableGame {
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
                     this.lemonadeSystem.recipe.lemons = Math.max(0, this.lemonadeSystem.recipe.lemons - 1);
-                    this.updateAllPlayerViews();
+                    this.playerManager.updateAllPlayerViews();
                     console.log(`Lemons decreased to ${this.lemonadeSystem.recipe.lemons}`);
                 }
             },
@@ -1597,7 +1481,7 @@ class EnhancedViewTest extends ViewableGame {
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
                     this.lemonadeSystem.recipe.lemons = Math.min(20, this.lemonadeSystem.recipe.lemons + 1);
-                    this.updateAllPlayerViews();
+                    this.playerManager.updateAllPlayerViews();
                     console.log(`Lemons increased to ${this.lemonadeSystem.recipe.lemons}`);
                 }
             },
@@ -1935,7 +1819,7 @@ class EnhancedViewTest extends ViewableGame {
         this.previousStats = {
             resourcesCollected: this.currentStats.resourcesCollected,
             enemiesKilled: this.currentStats.enemiesKilled,
-            timeAlive: Math.floor((Date.now() - this.gameStartTime) / 1000)
+            timeAlive: Math.floor((Date.now() - this.gameStateManager.gameStartTime) / 1000)
         };
 
         // Reset current stats
@@ -1946,26 +1830,14 @@ class EnhancedViewTest extends ViewableGame {
         };
 
         // Reset game state
-        this.gameState = 'playing';
-        this.gameStartTime = Date.now();
+        this.gameStateManager.resetForNewGame();
         this.lastViewUpdate = 0; // Reset view update tracking
         
         // Reapply upgrades (they persist between rounds)
         this.applyUpgrades();
 
         // Reset all players
-        Object.keys(this.players).forEach(playerId => {
-            this.players[playerId].health = this.playerMaxHealth;
-            this.players[playerId].maxHealth = this.playerMaxHealth;
-            this.players[playerId].score = 0;
-            this.players[playerId].x = this.worldSize / 2;
-            this.players[playerId].y = this.worldSize / 2;
-            this.players[playerId].targetX = this.worldSize / 2;
-            this.players[playerId].targetY = this.worldSize / 2;
-            this.players[playerId].moving = false;
-            this.players[playerId].lastGatherTime = 0;
-            this.players[playerId].lastAttackTime = 0;
-        });
+        this.playerManager.resetAllPlayers();
 
         // Clear existing world
         this.getPlane().clearChildren();
@@ -1979,79 +1851,92 @@ class EnhancedViewTest extends ViewableGame {
         this.initializeWorld();
 
         // Update all player views
-        this.updateAllPlayerViews();
+        this.playerManager.updateAllPlayerViews();
         
         console.log('Game reset! New game started.');
     }
 
 
     updateAllPlayerViews() {
-        Object.keys(this.players).forEach(playerId => {
-            this.updatePlayerView(playerId);
-        });
+        this.playerManager.updateAllPlayerViews();
     }
 
     tick() {
         const currentTime = Date.now();
         
-        // Check for lemonade stand timer and customer management
-        if (this.gameState === 'newSection' && this.lemonadeSystem.isStandActive()) {
-            // End stand after duration expires
-            if (this.lemonadeSystem.isStandTimeUp()) {
-                this.startNewSectionStats();
-                return;
-            }
-            
-            // Manage customer interactions
-            const needsViewUpdate = this.lemonadeSystem.updateCustomers(currentTime);
-            
-            // Update views frequently for smooth customer movement (like we do for combat)
-            const hasMovingCustomers = this.lemonadeSystem.hasMovingCustomers();
-            const updateInterval = hasMovingCustomers ? 50 : 200; // 20 FPS when customers moving, 5 FPS when idle
-            
-            if (!this.lastViewUpdate || currentTime - this.lastViewUpdate >= updateInterval) {
-                this.lastViewUpdate = currentTime;
-                
-                // Always update if there are moving customers, or periodically for timer, or if customer state changed
-                const timeRemaining = this.lemonadeSystem.getTimeRemaining();
-                const shouldUpdate = hasMovingCustomers || needsViewUpdate ||
-                                    (timeRemaining) % 1000 < 100; // Timer updates every second
-                
-                if (shouldUpdate) {
-                    this.updateAllPlayerViews();
-                }
-            }
-            
-            return; // Don't proceed to combat logic during lemonade stand
+        // Check game state transitions first
+        if (this.gameStateManager.checkTransitions()) {
+            return; // State changed, stop processing
         }
         
-        // Check game over conditions
-        if (this.gameState === 'playing') {
-            // Check timer
-            const timeRemaining = this.gameTimer - (currentTime - this.gameStartTime);
-            if (timeRemaining <= 0) {
-                this.gameState = 'gameOver';
-                this.updateAllPlayerViews();
-                return;
-            }
-            
-            // Check player death
-            for (const playerId in this.players) {
-                const player = this.players[playerId];
-                if (player.health <= 0) {
-                    this.gameState = 'dead';
-                    this.updateAllPlayerViews();
-                    return;
-                }
-            }
-        }
+        // Update based on current state
+        this.updateForCurrentState(currentTime);
+    }
+
+    updateForCurrentState(currentTime) {
+        const currentState = this.gameStateManager.getCurrentState();
         
-        // Don't update game logic if game is over
-        if (this.gameState !== 'playing') {
+        switch (currentState) {
+            case 'playing':
+                this.updateGameplay(currentTime);
+                break;
+            case 'newSection':
+                this.updateLemonadeStand(currentTime);
+                break;
+            // Other states don't need tick updates
+        }
+    }
+
+    updateLemonadeStand(currentTime) {
+        if (!this.lemonadeSystem.isStandActive()) return;
+
+        // End stand after duration expires
+        if (this.lemonadeSystem.isStandTimeUp()) {
+            this.gameStateManager.setState('newSectionStats');
             return;
         }
         
+        // Manage customer interactions
+        const needsViewUpdate = this.lemonadeSystem.updateCustomers(currentTime);
+        
+        // Update views frequently for smooth customer movement
+        const hasMovingCustomers = this.lemonadeSystem.hasMovingCustomers();
+        const updateInterval = hasMovingCustomers ? 50 : 200; // 20 FPS when customers moving, 5 FPS when idle
+        
+        if (!this.lastViewUpdate || currentTime - this.lastViewUpdate >= updateInterval) {
+            this.lastViewUpdate = currentTime;
+            
+            // Always update if there are moving customers, or periodically for timer, or if customer state changed
+            const timeRemaining = this.lemonadeSystem.getTimeRemaining();
+            const shouldUpdate = hasMovingCustomers || needsViewUpdate ||
+                                (timeRemaining) % 1000 < 100; // Timer updates every second
+            
+            if (shouldUpdate) {
+                this.playerManager.updateAllPlayerViews();
+            }
+        }
+    }
+
+    updateGameplay(currentTime) {
         // Update views regularly for smooth projectile movement and dynamic elements
+        this.updateViewsIfNeeded(currentTime);
+        
+        // Clean up expired gather indicators
+        this.gatherIndicators = this.gatherIndicators.filter(indicator => 
+            currentTime - indicator.createdAt < indicator.duration
+        );
+        
+        // Update combat system (handles projectiles, enemy AI, and combat indicators)
+        const players = this.playerManager.getAllPlayers();
+        this.combatSystem.updateProjectiles(currentTime, players);
+        this.combatSystem.updateEnemyAI(currentTime, players);
+        this.combatSystem.cleanupExpiredIndicators(currentTime);
+        
+        // Update all player actions
+        this.updatePlayerActions(currentTime);
+    }
+
+    updateViewsIfNeeded(currentTime) {
         // Check if we need frequent updates for smooth visuals
         const hasActiveProjectiles = this.combatSystem.hasActiveProjectiles();
         const hasMovingEnemies = this.combatSystem.hasMovingEnemies();
@@ -2065,32 +1950,23 @@ class EnhancedViewTest extends ViewableGame {
             
             // Always update if there's activity, or periodically for timer
             const shouldUpdate = needsFrequentUpdates || 
-                                (currentTime - this.gameStartTime) % 1000 < 100; // Timer updates
+                                (currentTime - this.gameStateManager.gameStartTime) % 1000 < 100; // Timer updates
             
             if (shouldUpdate) {
-                Object.keys(this.players).forEach(playerId => {
-                    this.updatePlayerView(playerId);
-                });
+                this.playerManager.updateAllPlayerViews();
             }
         }
+    }
+
+    updatePlayerActions(currentTime) {
+        const players = this.playerManager.getAllPlayers();
         
-        // Clean up expired gather indicators
-        this.gatherIndicators = this.gatherIndicators.filter(indicator => 
-            currentTime - indicator.createdAt < indicator.duration
-        );
-        
-        // Update combat system (handles projectiles, enemy AI, and combat indicators)
-        this.combatSystem.updateProjectiles(currentTime, this.players);
-        this.combatSystem.updateEnemyAI(currentTime, this.players);
-        this.combatSystem.cleanupExpiredIndicators(currentTime);
-        
-        // Update all player movements
-        Object.keys(this.players).forEach(playerId => {
-            const player = this.players[playerId];
+        Object.keys(players).forEach(playerId => {
+            const player = players[playerId];
             let needsViewUpdate = false;
             
-            if (player.moving) {
-                this.movePlayerTowards(playerId, player.targetX, player.targetY);
+            // Update movement
+            if (this.playerManager.updatePlayerMovement(playerId)) {
                 needsViewUpdate = true;
             }
             
@@ -2100,7 +1976,7 @@ class EnhancedViewTest extends ViewableGame {
                 if (gatherResult) {
                     this.gatherFrom(gatherResult.target, playerId);
                     player.lastGatherTime = currentTime;
-                    needsViewUpdate = true; // Need to update view to show new resource values
+                    needsViewUpdate = true;
                 }
             }
             
@@ -2111,10 +1987,10 @@ class EnhancedViewTest extends ViewableGame {
                     // Attack all targets simultaneously
                     for (const target of attackTargets) {
                         this.combatSystem.playerAttackEnemy(target, playerId, player, this.attackDamage, this.worldBase);
-                        this.currentStats.enemiesKilled += 1; // Track stats in main game
+                        this.currentStats.enemiesKilled += 1;
                     }
                     player.lastAttackTime = currentTime;
-                    needsViewUpdate = true; // Need to update view to show attack indicators
+                    needsViewUpdate = true;
                     
                     if (attackTargets.length > 1) {
                         console.log(`Player ${playerId} multi-attacks ${attackTargets.length} enemies!`);
@@ -2122,9 +1998,9 @@ class EnhancedViewTest extends ViewableGame {
                 }
             }
             
-            // Update view if needed (either from movement or attacking)
+            // Update view if needed
             if (needsViewUpdate) {
-                this.updatePlayerView(playerId);
+                this.playerManager.updatePlayerView(playerId);
             }
         });
     }
