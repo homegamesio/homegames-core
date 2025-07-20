@@ -33,6 +33,13 @@ class EnhancedViewTest extends ViewableGame {
         this.gatherRange = 6; // Player gathering range
         this.gatherCooldown = 300; // Time between gathering attempts
         this.gatherIndicators = []; // Store active resource gathering indicators
+        
+        // Enemy/combat settings
+        this.enemyDetectionRange = 10; // Guards detect player within this range
+        this.enemyAttackRange = 3; // Guards attack when this close to player
+        this.enemyAttackCooldown = 500; // Time between enemy attacks
+        this.enemySpeed = 0.15; // Enemy movement speed (slightly slower than player)
+        this.damageIndicators = []; // Store damage indicators for player
 
         this.initializeWorld();
     }
@@ -180,7 +187,13 @@ class EnhancedViewTest extends ViewableGame {
                 y: clampedY,
                 size: guardSize,
                 poolData: poolData, // Reference to the pool they're guarding
-                node: guard
+                node: guard,
+                // AI state
+                isChasing: false,
+                targetPlayerId: null,
+                lastAttackTime: 0,
+                originalX: clampedX, // Remember guard's original position
+                originalY: clampedY
             };
 
             this.guards.push(guardData);
@@ -346,6 +359,37 @@ class EnhancedViewTest extends ViewableGame {
                 viewRoot.addChild(gatherText);
             }
         }
+        
+        // Add damage indicators visible in this view (player taking damage)
+        for (const indicator of this.damageIndicators) {
+            // Check if indicator is still active and visible
+            if (currentTime - indicator.createdAt < indicator.duration &&
+                indicator.x >= view.x && indicator.x <= view.x + view.w &&
+                indicator.y >= view.y && indicator.y <= view.y + view.h) {
+                
+                // Convert world coordinates to view coordinates
+                const viewX = indicator.x - view.x;
+                const viewY = indicator.y - view.y;
+                
+                // Calculate fade effect based on age
+                const age = currentTime - indicator.createdAt;
+                const fadeProgress = age / indicator.duration;
+                const alpha = Math.round(255 * (1 - fadeProgress));
+                
+                const damageText = new GameNode.Text({
+                    textInfo: {
+                        x: viewX,
+                        y: viewY,
+                        color: [255, 0, 0, alpha], // Red text that fades out
+                        text: `-${indicator.damage}`,
+                        align: 'center',
+                        size: 2
+                    }
+                });
+                
+                viewRoot.addChild(damageText);
+            }
+        }
     }
 
     addPlayerToView(playerId, viewRoot, view) {
@@ -368,7 +412,25 @@ class EnhancedViewTest extends ViewableGame {
             playerIds: [playerId]
         });
 
+        // Add health text below the player
+        const healthColor = player.health <= 20 ? [255, 0, 0, 255] : // Red when low health
+                           player.health <= 50 ? [255, 255, 0, 255] : // Yellow when medium health
+                           [0, 255, 0, 255]; // Green when healthy
+
+        const healthText = new GameNode.Text({
+            textInfo: {
+                x: relativeX,
+                y: relativeY + this.playerSize/2 + 3, // Below the player
+                color: healthColor,
+                text: `${player.health}/${player.maxHealth}`,
+                align: 'center',
+                size: 1.5
+            },
+            playerIds: [playerId]
+        });
+
         viewRoot.addChild(playerNode);
+        viewRoot.addChild(healthText);
         player.nodeId = playerNode.node.id;
     }
 
@@ -412,7 +474,9 @@ class EnhancedViewTest extends ViewableGame {
             targetY: this.worldSize / 2,
             moving: false,
             nodeId: null,
-            lastGatherTime: 0 // Track last gathering time for cooldown
+            lastGatherTime: 0, // Track last gathering time for cooldown
+            health: 100, // Player health
+            maxHealth: 100
         };
 
         this.players[playerId] = player;
@@ -576,6 +640,101 @@ class EnhancedViewTest extends ViewableGame {
         // No need to manually update text nodes since they're created dynamically
     }
 
+    updateEnemyAI(currentTime) {
+        for (const guard of this.guards) {
+            let closestPlayer = null;
+            let closestDistance = Infinity;
+
+            // Find the closest player within detection range
+            for (const playerId in this.players) {
+                const player = this.players[playerId];
+                const distance = this.calculateDistance(guard.x + guard.size/2, guard.y + guard.size/2, player.x, player.y);
+                
+                if (distance <= this.enemyDetectionRange && distance < closestDistance) {
+                    closestPlayer = player;
+                    closestDistance = distance;
+                    guard.targetPlayerId = playerId;
+                }
+            }
+
+            if (closestPlayer) {
+                // Start chasing if not already
+                if (!guard.isChasing) {
+                    guard.isChasing = true;
+                    console.log(`Guard starts chasing player ${guard.targetPlayerId}!`);
+                }
+
+                // Move towards the player
+                this.moveGuardTowards(guard, closestPlayer.x, closestPlayer.y);
+
+                // Attack if within range and cooldown is ready
+                if (closestDistance <= this.enemyAttackRange && 
+                    currentTime - guard.lastAttackTime >= this.enemyAttackCooldown) {
+                    this.guardAttackPlayer(guard, closestPlayer, guard.targetPlayerId);
+                    guard.lastAttackTime = currentTime;
+                }
+            } else {
+                // No player in range, stop chasing and return to post
+                if (guard.isChasing) {
+                    guard.isChasing = false;
+                    guard.targetPlayerId = null;
+                    console.log(`Guard stops chasing and returns to post`);
+                }
+
+                // Return to original position
+                this.moveGuardTowards(guard, guard.originalX + guard.size/2, guard.originalY + guard.size/2);
+            }
+        }
+    }
+
+    moveGuardTowards(guard, targetX, targetY) {
+        const guardCenterX = guard.x + guard.size/2;
+        const guardCenterY = guard.y + guard.size/2;
+        
+        const distance = this.calculateDistance(guardCenterX, guardCenterY, targetX, targetY);
+        
+        if (distance > 1) { // Only move if not already at target
+            const angle = Math.atan2(targetY - guardCenterY, targetX - guardCenterX);
+            const newX = guard.x + Math.cos(angle) * this.enemySpeed;
+            const newY = guard.y + Math.sin(angle) * this.enemySpeed;
+            
+            // Keep guard within world bounds
+            guard.x = Math.max(0, Math.min(this.worldSize - guard.size, newX));
+            guard.y = Math.max(0, Math.min(this.worldSize - guard.size, newY));
+            
+            // Update the visual node position
+            guard.node.node.coordinates2d = ShapeUtils.rectangle(guard.x, guard.y, guard.size, guard.size);
+        }
+    }
+
+    guardAttackPlayer(guard, player, playerId) {
+        const damage = 1; // Guards always do 1 damage
+        player.health -= damage;
+        
+        console.log(`Guard attacks player ${playerId} for ${damage} damage! Player health: ${player.health}`);
+        
+        // Create damage indicator near the player
+        const indicatorX = player.x + (Math.random() * 4 - 2); // Small random offset
+        const indicatorY = player.y + (Math.random() * 4 - 2);
+        
+        const damageIndicator = {
+            x: indicatorX,
+            y: indicatorY,
+            damage: damage,
+            createdAt: Date.now(),
+            duration: 1000,
+            playerId: playerId // Track which player this belongs to
+        };
+        
+        this.damageIndicators.push(damageIndicator);
+        
+        if (player.health <= 0) {
+            player.health = 0;
+            console.log(`Player ${playerId} has been defeated!`);
+            // TODO: Handle player death
+        }
+    }
+
     tick() {
         const currentTime = Date.now();
         
@@ -583,6 +742,14 @@ class EnhancedViewTest extends ViewableGame {
         this.gatherIndicators = this.gatherIndicators.filter(indicator => 
             currentTime - indicator.createdAt < indicator.duration
         );
+        
+        // Clean up expired damage indicators
+        this.damageIndicators = this.damageIndicators.filter(indicator => 
+            currentTime - indicator.createdAt < indicator.duration
+        );
+        
+        // Update enemy AI
+        this.updateEnemyAI(currentTime);
         
         // Update all player movements
         Object.keys(this.players).forEach(playerId => {
