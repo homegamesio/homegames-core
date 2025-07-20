@@ -11,7 +11,7 @@ class EnhancedViewTest extends ViewableGame {
             squishVersion: '136',
             thumbnail: 'placeholder',
             isTest: true,
-            description: 'Enhanced view test with player movement and smart camera',
+            description: 'Resource gathering game with smooth movement and dynamic camera',
             tickRate: 100 // Higher tick rate for smoother movement (matching view-test)
         };
     }
@@ -29,9 +29,9 @@ class EnhancedViewTest extends ViewableGame {
         this.worldSize = 800;
         this.playerSize = 3;
         this.playerSpeed = 0.2; // Very small moves for ultra-smooth movement (matching view-test)
-        this.attackRange = 6; // Player attack range
-        this.attackCooldown = 300; // Reduced cooldown for faster combat feel
-        this.damageIndicators = []; // Store active damage indicators
+        this.gatherRange = 6; // Player gathering range
+        this.gatherCooldown = 300; // Time between gathering attempts
+        this.gatherIndicators = []; // Store active resource gathering indicators
 
         this.initializeWorld();
     }
@@ -59,20 +59,20 @@ class EnhancedViewTest extends ViewableGame {
             }
         }
 
-        // Randomly spawn lots of colorful items throughout the world
-        const numItems = 200; // Much more items for visual richness
-        for (let i = 0; i < numItems; i++) {
+        // Randomly spawn resource pools throughout the world
+        const numResourcePools = 200; // Many resource pools for variety
+        for (let i = 0; i < numResourcePools; i++) {
             const x = Math.random() * (this.worldSize - 10);
             const y = Math.random() * (this.worldSize - 10);
             const size = 3 + Math.random() * 10; // Random size between 3-13
             
-            // Calculate health based on size (bigger blocks = more health)
-            const health = Math.ceil(size * 2); // Health is roughly 2x the size
+            // Calculate resources based on size (bigger pools = more resources)
+            const resources = Math.ceil(size * 2); // Resources roughly 2x the size
             
             // Create more varied colors - some bright, some pastel
             let color;
             if (Math.random() < 0.3) {
-                // Bright colors
+                // Bright colors - rich resource deposits
                 color = [
                     Math.floor(150 + Math.random() * 105),
                     Math.floor(150 + Math.random() * 105),
@@ -80,7 +80,7 @@ class EnhancedViewTest extends ViewableGame {
                     255
                 ];
             } else {
-                // More muted colors
+                // More muted colors - common resource deposits
                 color = [
                     Math.floor(50 + Math.random() * 150),
                     Math.floor(50 + Math.random() * 150),
@@ -89,29 +89,29 @@ class EnhancedViewTest extends ViewableGame {
                 ];
             }
 
-            const item = new GameNode.Shape({
+            const resourcePool = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(x, y, size, size),
                 fill: color,
                 onClick: (clickPlayerId) => {
-                    console.log(`Player ${clickPlayerId} clicked item at (${x}, ${y}) with ${health} health`);
+                    console.log(`Player ${clickPlayerId} clicked resource pool at (${x}, ${y}) with ${resources} resources remaining`);
                 }
             });
 
-            // Only store item data - health text will be created dynamically in views
-            this.worldItems.push({ x, y, size, color, health, node: item });
-            worldBase.addChild(item);
+            // Store resource pool data - resource text will be created dynamically in views
+            this.worldItems.push({ x, y, size, color, resources, node: resourcePool });
+            worldBase.addChild(resourcePool);
         }
 
-        // Add some larger landmark objects
-        const numLandmarks = 15;
-        for (let i = 0; i < numLandmarks; i++) {
+        // Add some larger resource veins (major deposits)
+        const numResourceVeins = 15;
+        for (let i = 0; i < numResourceVeins; i++) {
             const x = Math.random() * (this.worldSize - 30);
             const y = Math.random() * (this.worldSize - 30);
-            const size = 15 + Math.random() * 15; // Larger objects (15-30)
+            const size = 15 + Math.random() * 15; // Larger deposits (15-30)
             
-            // Calculate health for landmarks (they're tougher!)
-            const health = Math.ceil(size * 3); // Landmarks have 3x health multiplier
+            // Calculate resources for veins (they're much richer!)
+            const resources = Math.ceil(size * 3); // Resource veins have 3x resource multiplier
             
             const color = [
                 Math.floor(Math.random() * 128),
@@ -120,18 +120,18 @@ class EnhancedViewTest extends ViewableGame {
                 255
             ];
 
-            const landmark = new GameNode.Shape({
+            const resourceVein = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(x, y, size, size),
                 fill: color,
                 onClick: (clickPlayerId) => {
-                    console.log(`Player ${clickPlayerId} clicked landmark at (${x}, ${y}) with ${health} health`);
+                    console.log(`Player ${clickPlayerId} clicked resource vein at (${x}, ${y}) with ${resources} resources remaining`);
                 }
             });
 
-            // Only store landmark data - health text will be created dynamically in views
-            this.landmarks.push({ x, y, size, color, health, node: landmark });
-            worldBase.addChild(landmark);
+            // Store resource vein data - resource text will be created dynamically in views
+            this.landmarks.push({ x, y, size, color, resources, node: resourceVein });
+            worldBase.addChild(resourceVein);
         }
 
         this.getPlane().addChild(worldBase);
@@ -194,8 +194,8 @@ class EnhancedViewTest extends ViewableGame {
     createPlayerView(playerId, view) {
         const viewRoot = ViewUtils.getView(this.getPlane(), view, [playerId]);
         
-        // Add dynamic health text for items and landmarks visible in this view
-        this.addHealthTextToView(viewRoot, view);
+        // Add dynamic resource text for pools and veins visible in this view
+        this.addResourceTextToView(viewRoot, view);
         
         // Click layer is now handled separately, no need to add it here
         
@@ -205,68 +205,68 @@ class EnhancedViewTest extends ViewableGame {
         return viewRoot;
     }
 
-    addHealthTextToView(viewRoot, view) {
-        // Add health text for regular items visible in this view
-        for (const item of this.worldItems) {
-            // Check if item is visible in current view
-            if (item.x + item.size >= view.x && item.x <= view.x + view.w &&
-                item.y + item.size >= view.y && item.y <= view.y + view.h) {
+    addResourceTextToView(viewRoot, view) {
+        // Add resource text for resource pools visible in this view
+        for (const resourcePool of this.worldItems) {
+            // Check if resource pool is visible in current view
+            if (resourcePool.x + resourcePool.size >= view.x && resourcePool.x <= view.x + view.w &&
+                resourcePool.y + resourcePool.size >= view.y && resourcePool.y <= view.y + view.h) {
                 
                 // Convert world coordinates to view coordinates
-                const viewX = item.x + item.size/2 - view.x;
-                const viewY = item.y - 1 - view.y;
+                const viewX = resourcePool.x + resourcePool.size/2 - view.x;
+                const viewY = resourcePool.y - 1 - view.y;
                 
-                // Choose color based on health status
-                const textColor = item.health <= 0 ? [100, 100, 100, 255] : [255, 0, 0, 255];
-                const healthValue = Math.max(0, item.health);
+                // Choose color based on resource status
+                const textColor = resourcePool.resources <= 0 ? [100, 100, 100, 255] : [0, 200, 0, 255]; // Green for resources
+                const resourceValue = Math.max(0, resourcePool.resources);
                 
-                const healthText = new GameNode.Text({
+                const resourceText = new GameNode.Text({
                     textInfo: {
                         x: viewX,
                         y: viewY,
                         color: textColor,
-                        text: healthValue.toString(),
+                        text: resourceValue.toString(),
                         align: 'center',
-                        size: Math.max(1, item.size/4)
+                        size: Math.max(1, resourcePool.size/4)
                     }
                 });
                 
-                viewRoot.addChild(healthText);
+                viewRoot.addChild(resourceText);
             }
         }
         
-        // Add health text for landmarks visible in this view
-        for (const landmark of this.landmarks) {
-            // Check if landmark is visible in current view
-            if (landmark.x + landmark.size >= view.x && landmark.x <= view.x + view.w &&
-                landmark.y + landmark.size >= view.y && landmark.y <= view.y + view.h) {
+        // Add resource text for resource veins visible in this view
+        for (const resourceVein of this.landmarks) {
+            // Check if resource vein is visible in current view
+            if (resourceVein.x + resourceVein.size >= view.x && resourceVein.x <= view.x + view.w &&
+                resourceVein.y + resourceVein.size >= view.y && resourceVein.y <= view.y + view.h) {
                 
                 // Convert world coordinates to view coordinates
-                const viewX = landmark.x + landmark.size/2 - view.x;
-                const viewY = landmark.y - 2 - view.y;
+                const viewX = resourceVein.x + resourceVein.size/2 - view.x;
+                const viewY = resourceVein.y - 2 - view.y;
                 
-                // Choose color based on health status
-                const textColor = landmark.health <= 0 ? [100, 100, 100, 255] : [255, 0, 0, 255];
-                const healthValue = Math.max(0, landmark.health);
+                // Choose color based on resource status
+                const textColor = resourceVein.resources <= 0 ? [100, 100, 100, 255] : [0, 200, 0, 255]; // Green for resources
+                const resourceValue = Math.max(0, resourceVein.resources);
                 
-                const healthText = new GameNode.Text({
+                const resourceText = new GameNode.Text({
                     textInfo: {
                         x: viewX,
                         y: viewY,
                         color: textColor,
-                        text: healthValue.toString(),
+                        text: resourceValue.toString(),
                         align: 'center',
-                        size: Math.max(2, landmark.size/6)
+                        size: Math.max(2, resourceVein.size/6)
                     }
                 });
                 
-                viewRoot.addChild(healthText);
+                viewRoot.addChild(resourceText);
             }
         }
         
-        // Add damage indicators visible in this view
+        // Add gather indicators visible in this view
         const currentTime = Date.now();
-        for (const indicator of this.damageIndicators) {
+        for (const indicator of this.gatherIndicators) {
             // Check if indicator is still active and visible
             if (currentTime - indicator.createdAt < indicator.duration &&
                 indicator.x >= view.x && indicator.x <= view.x + view.w &&
@@ -281,18 +281,18 @@ class EnhancedViewTest extends ViewableGame {
                 const fadeProgress = age / indicator.duration;
                 const alpha = Math.round(255 * (1 - fadeProgress));
                 
-                const damageText = new GameNode.Text({
+                const gatherText = new GameNode.Text({
                     textInfo: {
                         x: viewX,
                         y: viewY,
                         color: [255, 255, 0, alpha], // Yellow text that fades out
-                        text: `-${indicator.damage}`,
+                        text: `+${indicator.gathered}`,
                         align: 'center',
                         size: 2
                     }
                 });
                 
-                viewRoot.addChild(damageText);
+                viewRoot.addChild(gatherText);
             }
         }
     }
@@ -361,7 +361,7 @@ class EnhancedViewTest extends ViewableGame {
             targetY: this.worldSize / 2,
             moving: false,
             nodeId: null,
-            lastAttackTime: 0 // Track last attack time for cooldown
+            lastGatherTime: 0 // Track last gathering time for cooldown
         };
 
         this.players[playerId] = player;
@@ -445,8 +445,8 @@ class EnhancedViewTest extends ViewableGame {
         delete this.players[playerId];
     }
 
-    dealDamage() {
-        // Roll for damage: 25% chance each for 1, 2, 3, or 4 damage
+    gatherResources() {
+        // Roll for gathering efficiency: 25% chance each for 1, 2, 3, or 4 resources
         const roll = Math.random();
         if (roll < 0.25) return 1;
         else if (roll < 0.5) return 2;
@@ -463,73 +463,73 @@ class EnhancedViewTest extends ViewableGame {
         return this.calculateDistance(pointX, pointY, closestX, closestY);
     }
 
-    findAttackTarget(player) {
-        // Check regular items first
-        for (const item of this.worldItems) {
-            if (item.health <= 0) continue; // Skip destroyed items
+    findGatherTarget(player) {
+        // Check resource pools first
+        for (const resourcePool of this.worldItems) {
+            if (resourcePool.resources <= 0) continue; // Skip depleted pools
             
             const distance = this.calculateDistanceToRectangle(
                 player.x, player.y,
-                item.x, item.y, item.size, item.size
+                resourcePool.x, resourcePool.y, resourcePool.size, resourcePool.size
             );
             
-            if (distance <= this.attackRange) {
-                return { target: item, type: 'item' };
+            if (distance <= this.gatherRange) {
+                return { target: resourcePool, type: 'pool' };
             }
         }
         
-        // Check landmarks
-        for (const landmark of this.landmarks) {
-            if (landmark.health <= 0) continue; // Skip destroyed landmarks
+        // Check resource veins
+        for (const resourceVein of this.landmarks) {
+            if (resourceVein.resources <= 0) continue; // Skip depleted veins
             
             const distance = this.calculateDistanceToRectangle(
                 player.x, player.y,
-                landmark.x, landmark.y, landmark.size, landmark.size
+                resourceVein.x, resourceVein.y, resourceVein.size, resourceVein.size
             );
             
-            if (distance <= this.attackRange) {
-                return { target: landmark, type: 'landmark' };
+            if (distance <= this.gatherRange) {
+                return { target: resourceVein, type: 'vein' };
             }
         }
         
-        return null; // No targets in range
+        return null; // No gathering targets in range
     }
 
-    attackTarget(target, playerId) {
-        const damage = this.dealDamage();
-        target.health -= damage;
+    gatherFrom(target, playerId) {
+        const gathered = this.gatherResources();
+        target.resources -= gathered;
         
-        console.log(`Player ${playerId} attacks for ${damage} damage! Target health: ${target.health}`);
+        console.log(`Player ${playerId} gathered ${gathered} resources! Remaining: ${target.resources}`);
         
-        // Create damage indicator at random position near the target
+        // Create gather indicator at random position near the target
         const indicatorX = target.x + (Math.random() * target.size);
         const indicatorY = target.y + (Math.random() * target.size);
         
-        const damageIndicator = {
+        const gatherIndicator = {
             x: indicatorX,
             y: indicatorY,
-            damage: damage,
+            gathered: gathered,
             createdAt: Date.now(),
             duration: 1000 // Show for 1 second
         };
         
-        this.damageIndicators.push(damageIndicator);
+        this.gatherIndicators.push(gatherIndicator);
         
-        if (target.health <= 0) {
-            // Target destroyed
-            target.health = 0; // Ensure it doesn't go negative
-            console.log(`Target destroyed!`);
+        if (target.resources <= 0) {
+            // Resource depleted
+            target.resources = 0; // Ensure it doesn't go negative
+            console.log(`Resource source depleted!`);
         }
         
-        // Health text will be updated automatically when view refreshes
+        // Resource text will be updated automatically when view refreshes
         // No need to manually update text nodes since they're created dynamically
     }
 
     tick() {
         const currentTime = Date.now();
         
-        // Clean up expired damage indicators
-        this.damageIndicators = this.damageIndicators.filter(indicator => 
+        // Clean up expired gather indicators
+        this.gatherIndicators = this.gatherIndicators.filter(indicator => 
             currentTime - indicator.createdAt < indicator.duration
         );
         
@@ -543,13 +543,13 @@ class EnhancedViewTest extends ViewableGame {
                 needsViewUpdate = true;
             }
             
-            // Check for attack targets (with cooldown)
-            if (currentTime - player.lastAttackTime >= this.attackCooldown) {
-                const attackResult = this.findAttackTarget(player);
-                if (attackResult) {
-                    this.attackTarget(attackResult.target, playerId);
-                    player.lastAttackTime = currentTime;
-                    needsViewUpdate = true; // Need to update view to show new health values
+            // Check for gathering targets (with cooldown)
+            if (currentTime - player.lastGatherTime >= this.gatherCooldown) {
+                const gatherResult = this.findGatherTarget(player);
+                if (gatherResult) {
+                    this.gatherFrom(gatherResult.target, playerId);
+                    player.lastGatherTime = currentTime;
+                    needsViewUpdate = true; // Need to update view to show new resource values
                 }
             }
             
