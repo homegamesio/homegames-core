@@ -1,5 +1,7 @@
 const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-136');
 const { ExpiringSet, animations } = require('../../common/util');
+const CombatSystem = require('./systems/CombatSystem');
+const CombatConfig = require('./config/CombatConfig');
 
 const COLORS = Colors.COLORS;
 
@@ -24,10 +26,9 @@ class EnhancedViewTest extends ViewableGame {
         this.players = {}; // Track player positions and movement
         this.worldItems = [];
         this.landmarks = []; // Track landmark objects separately
-        this.guards = []; // Track all guards in the world
-        this.archers = []; // Track archer enemies (purple, ranged)
-        this.sentries = []; // Track sentry enemies (stationary knockback)
-        this.projectiles = []; // Track active projectiles
+        
+        // Initialize combat system
+        this.combatSystem = new CombatSystem(CombatConfig);
         
         this.viewSize = 100; // Size of each player's view
         this.worldSize = 800;
@@ -36,33 +37,6 @@ class EnhancedViewTest extends ViewableGame {
         this.gatherRange = 6; // Player gathering range
         this.gatherCooldown = 300; // Time between gathering attempts
         this.gatherIndicators = []; // Store active resource gathering indicators
-        
-        // Player attack settings (now calculated in applyUpgrades)
-        this.attackIndicators = []; // Store attack damage indicators
-        
-        // Enemy/combat settings
-        this.enemyAttackRange = 3; // Guards attack when this close to player
-        this.enemyAttackCooldown = 500; // Time between enemy attacks
-        this.enemySpeed = 0.15; // Enemy movement speed (slightly slower than player)
-        this.damageIndicators = []; // Store damage indicators for player
-        
-        // Archer settings
-        this.archerHealth = 5; // Archers have less health than guards
-        this.archerDamage = 0.5; // Weaker melee attacks
-        this.archerProjectileRange = 25; // Range for shooting projectiles (increased for kiting)
-        this.archerProjectileCooldown = 700; // Time between projectile shots (slightly faster)
-        this.archerKiteDistance = 12; // Preferred distance to maintain from player
-        
-        // Sentry settings (stationary artillery enemies)
-        this.sentryHealth = 15; // Tankier since they can't move
-        this.sentryProjectileRange = 20; // Long range for artillery
-        this.sentryProjectileCooldown = 1200; // Slower firing rate for heavy projectiles
-        this.sentryProjectileSpeed = 0.08; // Very slow heavy projectiles
-        this.sentryProjectileDamage = 4; // High damage per hit
-        this.sentryProjectileSize = 6; // Large projectiles
-        this.projectileSpeed = 0.2; // Speed of projectiles
-        this.projectileDamage = 1; // Damage per projectile hit
-        this.projectileSize = 2; // Size of projectile squares
         
         // Game state and timer
         this.gameState = 'playing'; // 'playing', 'gameOver', 'dead', 'recipe', 'newSection', 'newSectionStats'
@@ -259,7 +233,7 @@ class EnhancedViewTest extends ViewableGame {
             // Spawn guards for medium to large resource pools
             if (size >= 8) { // Medium/large pools get guards
                 const numGuards = Math.floor(size / 4); // More guards for larger pools
-                this.spawnGuardsAroundPool(poolData, numGuards);
+                this.combatSystem.spawnGuardsAroundPool(poolData, numGuards, this.worldSize, this.worldBase);
             }
         }
 
@@ -296,7 +270,7 @@ class EnhancedViewTest extends ViewableGame {
 
             // Resource veins always get guards (they're valuable!)
             const numGuards = Math.floor(size / 3); // More guards per size for veins
-            this.spawnGuardsAroundPool(veinData, numGuards);
+            this.combatSystem.spawnGuardsAroundPool(veinData, numGuards, this.worldSize, this.worldBase);
         }
 
         // Add random enemy clusters scattered around the world
@@ -308,33 +282,7 @@ class EnhancedViewTest extends ViewableGame {
         this.getPlane().addChild(this.worldBase);
     }
 
-    spawnGuardsAroundPool(poolData, numGuards) {
-        const poolCenterX = poolData.x + poolData.size / 2;
-        const poolCenterY = poolData.y + poolData.size / 2;
-        const guardDistance = poolData.size * 0.8 + 6; // Distance from pool center
-        const guardSize = 4; // Size of guard squares
 
-        for (let i = 0; i < numGuards; i++) {
-            // Arrange guards in a circle around the pool
-            const angle = (i / numGuards) * 2 * Math.PI;
-            const guardX = poolCenterX + Math.cos(angle) * guardDistance - guardSize / 2;
-            const guardY = poolCenterY + Math.sin(angle) * guardDistance - guardSize / 2;
-
-            // Make sure guards stay within world bounds
-            const clampedX = Math.max(0, Math.min(this.worldSize - guardSize, guardX));
-            const clampedY = Math.max(0, Math.min(this.worldSize - guardSize, guardY));
-
-            // 50% guards, 30% archers, 20% sentries for resource pools
-            const enemyRoll = Math.random();
-            if (enemyRoll < 0.5) {
-                this.spawnGuard(clampedX, clampedY, guardSize, poolData);
-            } else if (enemyRoll < 0.8) {
-                this.spawnArcher(clampedX, clampedY, guardSize, poolData);
-            } else {
-                this.spawnSentry(clampedX, clampedY, guardSize, poolData);
-            }
-        }
-    }
     
     spawnGuard(x, y, size, poolData) {
         const guard = new GameNode.Shape({
@@ -490,20 +438,20 @@ class EnhancedViewTest extends ViewableGame {
             if (numEnemies <= 4) {
                 // Small packs: 50% guards, 30% archers, 20% sentries
                 if (enemyRoll < 0.5) {
-                    this.spawnFreeRoamingGuard(clampedX, clampedY, enemySize);
+                    this.combatSystem.spawnFreeRoamingGuard(clampedX, clampedY, enemySize, this.worldBase);
                 } else if (enemyRoll < 0.8) {
-                    this.spawnFreeRoamingArcher(clampedX, clampedY, enemySize);
+                    this.combatSystem.spawnFreeRoamingArcher(clampedX, clampedY, enemySize, this.worldBase);
                 } else {
-                    this.spawnFreeRoamingSentry(clampedX, clampedY, enemySize);
+                    this.combatSystem.spawnFreeRoamingSentry(clampedX, clampedY, enemySize, this.worldBase);
                 }
             } else {
                 // Larger camps: 40% guards, 40% archers, 20% sentries (more ranged)
                 if (enemyRoll < 0.4) {
-                    this.spawnFreeRoamingGuard(clampedX, clampedY, enemySize);
+                    this.combatSystem.spawnFreeRoamingGuard(clampedX, clampedY, enemySize, this.worldBase);
                 } else if (enemyRoll < 0.8) {
-                    this.spawnFreeRoamingArcher(clampedX, clampedY, enemySize);
+                    this.combatSystem.spawnFreeRoamingArcher(clampedX, clampedY, enemySize, this.worldBase);
                 } else {
-                    this.spawnFreeRoamingSentry(clampedX, clampedY, enemySize);
+                    this.combatSystem.spawnFreeRoamingSentry(clampedX, clampedY, enemySize, this.worldBase);
                 }
             }
         }
@@ -626,7 +574,7 @@ class EnhancedViewTest extends ViewableGame {
             const clampedX = Math.max(0, Math.min(this.worldSize - 12, bossX));
             const clampedY = Math.max(0, Math.min(this.worldSize - 12, bossY));
             
-            this.spawnBoss(clampedX, clampedY, bossName, bossId);
+            this.combatSystem.spawnBoss(clampedX, clampedY, bossName, bossId, this.worldBase);
         }
     }
 
@@ -891,7 +839,7 @@ class EnhancedViewTest extends ViewableGame {
         }
         
         // Add damage indicators visible in this view (player taking damage)
-        for (const indicator of this.damageIndicators) {
+        for (const indicator of this.combatSystem.damageIndicators) {
             // Check if indicator is still active and visible
             if (currentTime - indicator.createdAt < indicator.duration &&
                 indicator.x >= view.x && indicator.x <= view.x + view.w &&
@@ -922,7 +870,7 @@ class EnhancedViewTest extends ViewableGame {
         }
         
         // Add attack indicators visible in this view (player attacking enemies)
-        for (const indicator of this.attackIndicators) {
+        for (const indicator of this.combatSystem.attackIndicators) {
             // Check if indicator is still active and visible
             if (currentTime - indicator.createdAt < indicator.duration &&
                 indicator.x >= view.x && indicator.x <= view.x + view.w &&
@@ -955,7 +903,7 @@ class EnhancedViewTest extends ViewableGame {
 
     addProjectilesToView(viewRoot, view, playerId) {
         // Add projectiles visible in this view
-        for (const projectile of this.projectiles) {
+        for (const projectile of this.combatSystem.projectiles) {
             // Check if projectile is visible in current view
             if (projectile.x + projectile.size >= view.x && projectile.x <= view.x + view.w &&
                 projectile.y + projectile.size >= view.y && projectile.y <= view.y + view.h) {
@@ -1007,7 +955,7 @@ class EnhancedViewTest extends ViewableGame {
 
     addGuardHealthToView(viewRoot, view, playerId) {
         // Add health text for guards visible in this view
-        for (const guard of this.guards) {
+        for (const guard of this.combatSystem.guards) {
             if (guard.health <= 0) continue; // Skip dead guards
             
             // Check if guard is visible in current view
@@ -1049,7 +997,7 @@ class EnhancedViewTest extends ViewableGame {
         }
         
         // Add health text for archers visible in this view
-        for (const archer of this.archers) {
+        for (const archer of this.combatSystem.archers) {
             if (archer.health <= 0) continue; // Skip dead archers
             
             // Check if archer is visible in current view
@@ -1082,7 +1030,7 @@ class EnhancedViewTest extends ViewableGame {
         }
         
         // Add health text for sentries visible in this view
-        for (const sentry of this.sentries) {
+        for (const sentry of this.combatSystem.sentries) {
             if (sentry.health <= 0) continue; // Skip dead sentries
             
             // Check if sentry is visible in current view
@@ -3181,13 +3129,8 @@ class EnhancedViewTest extends ViewableGame {
         this.getPlane().clearChildren();
         this.worldItems = [];
         this.landmarks = [];
-        this.guards = [];
-        this.archers = [];
-        this.sentries = [];
-        this.projectiles = [];
+        this.combatSystem.reset(); // Reset all combat-related data
         this.gatherIndicators = [];
-        this.damageIndicators = [];
-        this.attackIndicators = [];
 
         // Rebuild world
         this.initializeWorld();
@@ -3318,9 +3261,8 @@ class EnhancedViewTest extends ViewableGame {
         
         // Update views regularly for smooth projectile movement and dynamic elements
         // Check if we need frequent updates for smooth visuals
-        const hasActiveProjectiles = this.projectiles.length > 0;
-        const hasMovingEnemies = this.archers.some(archer => archer.isChasing) || 
-                                this.guards.some(guard => guard.isChasing);
+        const hasActiveProjectiles = this.combatSystem.hasActiveProjectiles();
+        const hasMovingEnemies = this.combatSystem.hasMovingEnemies();
         const needsFrequentUpdates = hasActiveProjectiles || hasMovingEnemies;
         
         // Use different update rates based on activity level
@@ -3345,21 +3287,10 @@ class EnhancedViewTest extends ViewableGame {
             currentTime - indicator.createdAt < indicator.duration
         );
         
-        // Clean up expired damage indicators
-        this.damageIndicators = this.damageIndicators.filter(indicator => 
-            currentTime - indicator.createdAt < indicator.duration
-        );
-        
-        // Clean up expired attack indicators
-        this.attackIndicators = this.attackIndicators.filter(indicator => 
-            currentTime - indicator.createdAt < indicator.duration
-        );
-        
-        // Update projectiles
-        this.updateProjectiles(currentTime);
-        
-        // Update enemy AI
-        this.updateEnemyAI(currentTime);
+        // Update combat system (handles projectiles, enemy AI, and combat indicators)
+        this.combatSystem.updateProjectiles(currentTime, this.players);
+        this.combatSystem.updateEnemyAI(currentTime, this.players);
+        this.combatSystem.cleanupExpiredIndicators(currentTime);
         
         // Update all player movements
         Object.keys(this.players).forEach(playerId => {
@@ -3383,11 +3314,12 @@ class EnhancedViewTest extends ViewableGame {
             
             // Check for attack targets (with cooldown)
             if (currentTime - player.lastAttackTime >= this.attackCooldown) {
-                const attackTargets = this.findMultipleAttackTargets(player);
+                const attackTargets = this.combatSystem.findMultipleAttackTargets(player, this.attackRange, this.maxSimultaneousAttacks);
                 if (attackTargets.length > 0) {
                     // Attack all targets simultaneously
                     for (const target of attackTargets) {
-                        this.playerAttack(target, playerId, player);
+                        this.combatSystem.playerAttackEnemy(target, playerId, player, this.attackDamage, this.worldBase);
+                        this.currentStats.enemiesKilled += 1; // Track stats in main game
                     }
                     player.lastAttackTime = currentTime;
                     needsViewUpdate = true; // Need to update view to show attack indicators
