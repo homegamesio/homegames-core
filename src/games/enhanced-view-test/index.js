@@ -2,6 +2,8 @@ const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsqui
 const { ExpiringSet, animations } = require('../../common/util');
 const CombatSystem = require('./systems/CombatSystem');
 const CombatConfig = require('./config/CombatConfig');
+const LemonadeStandSystem = require('./systems/LemonadeStandSystem');
+const LemonadeConfig = require('./config/LemonadeConfig');
 
 const COLORS = Colors.COLORS;
 
@@ -30,6 +32,9 @@ class EnhancedViewTest extends ViewableGame {
         // Initialize combat system
         this.combatSystem = new CombatSystem(CombatConfig);
         
+        // Initialize lemonade stand system
+        this.lemonadeSystem = new LemonadeStandSystem(LemonadeConfig);
+        
         this.viewSize = 100; // Size of each player's view
         this.worldSize = 800;
         this.playerSize = 3;
@@ -43,50 +48,6 @@ class EnhancedViewTest extends ViewableGame {
         this.gameTimer = 60000; // 60 seconds in milliseconds
         this.gameStartTime = Date.now();
         this.lastViewUpdate = 0; // Track when we last updated views for smooth visuals
-        
-        // Recipe system
-        this.recipe = {
-            sugar: 5,
-            lemons: 3
-        };
-        
-        // Lemonade stand system
-        this.walkingCustomers = []; // Customers currently walking across screen
-        this.stoppedCustomers = []; // Customers who stopped at the stand
-        this.lastCustomerSpawn = 0;
-        this.customerSpawnInterval = 2000; // Spawn every 2 seconds
-        this.standRevenue = 0;
-        this.standDay = 1;
-        this.addictionLevels = {}; // Track customer addiction
-        this.bosses = []; // Track customers who became bosses
-        
-        // Define unique customers with distinct traits
-        this.uniqueCustomers = [
-            { name: 'Sweet Sally', trait: 'sweet_tooth', color: [255, 192, 203, 255], stopChance: 0.8, buyChance: 0.9, preferredPrice: 1.5 },
-            { name: 'Sour Sam', trait: 'tart_lover', color: [255, 255, 0, 255], stopChance: 0.6, buyChance: 0.7, preferredPrice: 1.2 },
-            { name: 'Balanced Bob', trait: 'balanced', color: [144, 238, 144, 255], stopChance: 0.7, buyChance: 0.8, preferredPrice: 1.0 },
-            { name: 'Rich Rita', trait: 'wealthy', color: [255, 215, 0, 255], stopChance: 0.5, buyChance: 0.9, preferredPrice: 3.0 },
-            { name: 'Cheap Charlie', trait: 'budget', color: [139, 69, 19, 255], stopChance: 0.9, buyChance: 0.3, preferredPrice: 0.5 },
-            { name: 'Picky Pete', trait: 'critic', color: [128, 0, 128, 255], stopChance: 0.4, buyChance: 0.5, preferredPrice: 2.0 },
-            { name: 'Loyal Lucy', trait: 'regular', color: [0, 191, 255, 255], stopChance: 0.95, buyChance: 0.85, preferredPrice: 1.3 },
-            { name: 'Speedy Steve', trait: 'rushed', color: [255, 69, 0, 255], stopChance: 0.3, buyChance: 0.6, preferredPrice: 1.8 },
-            { name: 'Curious Carla', trait: 'explorer', color: [255, 20, 147, 255], stopChance: 0.8, buyChance: 0.4, preferredPrice: 1.1 },
-            { name: 'Grumpy Greg', trait: 'pessimist', color: [105, 105, 105, 255], stopChance: 0.6, buyChance: 0.2, preferredPrice: 0.8 }
-        ];
-        
-        // Generic customer traits for filling gaps
-        this.genericTraits = [
-            { trait: 'casual', color: [176, 196, 222, 255], stopChance: 0.6, buyChance: 0.6, preferredPrice: 1.0 },
-            { trait: 'tourist', color: [255, 182, 193, 255], stopChance: 0.7, buyChance: 0.7, preferredPrice: 1.4 },
-            { trait: 'local', color: [152, 251, 152, 255], stopChance: 0.8, buyChance: 0.5, preferredPrice: 0.9 },
-            { trait: 'student', color: [173, 216, 230, 255], stopChance: 0.5, buyChance: 0.4, preferredPrice: 0.7 }
-        ];
-        
-        this.usedUniqueCustomers = []; // Track which unique customers appeared today
-        
-        // Stand timer
-        this.standStartTime = null;
-        this.standDuration = 30000; // 30 seconds of selling
         
         // Stats tracking
         this.currentStats = {
@@ -368,10 +329,11 @@ class EnhancedViewTest extends ViewableGame {
 
 
     spawnBosses() {
-        console.log(`Spawning ${this.bosses.length} sugar-crazed bosses`);
+        const bosses = this.lemonadeSystem.bosses;
+        console.log(`Spawning ${bosses.length} sugar-crazed bosses`);
         
-        for (let i = 0; i < this.bosses.length; i++) {
-            const bossId = this.bosses[i];
+        for (let i = 0; i < bosses.length; i++) {
+            const bossId = bosses[i];
             const bossName = bossId.split('_')[0]; // Extract name from "Name_Day" format
             
             // Find a random location away from the center (bosses roam the edges)
@@ -1467,12 +1429,7 @@ class EnhancedViewTest extends ViewableGame {
 
     startLemonadeStand() {
         this.gameState = 'newSection';
-        this.standStartTime = Date.now();
-        this.standRevenue = 0;
-        this.walkingCustomers = [];
-        this.stoppedCustomers = [];
-        this.lastCustomerSpawn = 0;
-        this.usedUniqueCustomers = []; // Reset unique customers for new day
+        this.lemonadeSystem.startStand();
         this.updateAllPlayerViews();
         console.log('Started lemonade stand');
     }
@@ -1524,9 +1481,9 @@ class EnhancedViewTest extends ViewableGame {
             fill: [200, 0, 0, 255],
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    this.recipe.sugar = Math.max(0, this.recipe.sugar - 1);
+                    this.lemonadeSystem.recipe.sugar = Math.max(0, this.lemonadeSystem.recipe.sugar - 1);
                     this.updateAllPlayerViews();
-                    console.log(`Sugar decreased to ${this.recipe.sugar}`);
+                    console.log(`Sugar decreased to ${this.lemonadeSystem.recipe.sugar}`);
                 }
             },
             // playerIds: [playerId]
@@ -1549,7 +1506,7 @@ class EnhancedViewTest extends ViewableGame {
                 x: 50,
                 y: 46,
                 color: [255, 255, 255, 255],
-                text: this.recipe.sugar.toString(),
+                text: this.lemonadeSystem.recipe.sugar.toString(),
                 align: 'center',
                 size: 3
             },
@@ -1562,9 +1519,9 @@ class EnhancedViewTest extends ViewableGame {
             fill: [0, 200, 0, 255],
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    this.recipe.sugar = Math.min(20, this.recipe.sugar + 1);
+                    this.lemonadeSystem.recipe.sugar = Math.min(20, this.lemonadeSystem.recipe.sugar + 1);
                     this.updateAllPlayerViews();
-                    console.log(`Sugar increased to ${this.recipe.sugar}`);
+                    console.log(`Sugar increased to ${this.lemonadeSystem.recipe.sugar}`);
                 }
             },
             // playerIds: [playerId]
@@ -1601,9 +1558,9 @@ class EnhancedViewTest extends ViewableGame {
             fill: [200, 0, 0, 255],
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    this.recipe.lemons = Math.max(0, this.recipe.lemons - 1);
+                    this.lemonadeSystem.recipe.lemons = Math.max(0, this.lemonadeSystem.recipe.lemons - 1);
                     this.updateAllPlayerViews();
-                    console.log(`Lemons decreased to ${this.recipe.lemons}`);
+                    console.log(`Lemons decreased to ${this.lemonadeSystem.recipe.lemons}`);
                 }
             },
             // playerIds: [playerId]
@@ -1626,7 +1583,7 @@ class EnhancedViewTest extends ViewableGame {
                 x: 50,
                 y: 71,
                 color: [255, 255, 255, 255],
-                text: this.recipe.lemons.toString(),
+                text: this.lemonadeSystem.recipe.lemons.toString(),
                 align: 'center',
                 size: 3
             },
@@ -1639,9 +1596,9 @@ class EnhancedViewTest extends ViewableGame {
             fill: [0, 200, 0, 255],
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    this.recipe.lemons = Math.min(20, this.recipe.lemons + 1);
+                    this.lemonadeSystem.recipe.lemons = Math.min(20, this.lemonadeSystem.recipe.lemons + 1);
                     this.updateAllPlayerViews();
-                    console.log(`Lemons increased to ${this.recipe.lemons}`);
+                    console.log(`Lemons increased to ${this.lemonadeSystem.recipe.lemons}`);
                 }
             },
             // playerIds: [playerId]
@@ -1666,7 +1623,7 @@ class EnhancedViewTest extends ViewableGame {
             fill: [0, 0, 200, 255],
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    console.log(`Recipe confirmed: Sugar ${this.recipe.sugar}, Lemons ${this.recipe.lemons}`);
+                    console.log(`Recipe confirmed: Sugar ${this.lemonadeSystem.recipe.sugar}, Lemons ${this.lemonadeSystem.recipe.lemons}`);
                     this.startLemonadeStand();
                 }
             },
@@ -1721,8 +1678,7 @@ class EnhancedViewTest extends ViewableGame {
         });
 
         // Timer display
-        const elapsed = Date.now() - this.standStartTime;
-        const timeLeft = Math.max(0, Math.ceil((this.standDuration - elapsed) / 1000));
+        const timeLeft = Math.max(0, Math.ceil(this.lemonadeSystem.getTimeRemaining() / 1000));
         
         const timerText = new GameNode.Text({
             textInfo: {
@@ -1742,7 +1698,7 @@ class EnhancedViewTest extends ViewableGame {
                 x: 90,
                 y: 10,
                 color: [0, 0, 0, 255],
-                text: `$${this.standRevenue.toFixed(2)}`,
+                text: `$${this.lemonadeSystem.standRevenue.toFixed(2)}`,
                 align: 'right',
                 size: 2
             },
@@ -1750,7 +1706,7 @@ class EnhancedViewTest extends ViewableGame {
         });
 
         // Current price display
-        const currentPrice = this.calculateLemonadePrice();
+        const currentPrice = this.lemonadeSystem.calculateLemonadePrice();
         const priceText = new GameNode.Text({
             textInfo: {
                 x: 50,
@@ -1796,7 +1752,7 @@ class EnhancedViewTest extends ViewableGame {
                 x: 50,
                 y: 20,
                 color: [0, 0, 0, 255],
-                text: `${this.recipe.sugar}🍯 ${this.recipe.lemons}🍋`,
+                text: `${this.lemonadeSystem.recipe.sugar}🍯 ${this.lemonadeSystem.recipe.lemons}🍋`,
                 align: 'center',
                 size: 1.5
             },
@@ -1813,13 +1769,13 @@ class EnhancedViewTest extends ViewableGame {
         viewRoot.addChild(recipeDisplay);
 
         // Add walking customers
-        this.walkingCustomers.forEach(customer => {
-            this.addWalkingCustomerToView(viewRoot, customer, playerId);
+        this.lemonadeSystem.walkingCustomers.forEach(customer => {
+            this.lemonadeSystem.addWalkingCustomerToView(viewRoot, customer, playerId);
         });
 
         // Add stopped customers
-        this.stoppedCustomers.forEach(customer => {
-            this.addStoppedCustomerToView(viewRoot, customer, playerId);
+        this.lemonadeSystem.stoppedCustomers.forEach(customer => {
+            this.lemonadeSystem.addStoppedCustomerToView(viewRoot, customer, playerId);
         });
 
         return viewRoot;
@@ -1839,7 +1795,7 @@ class EnhancedViewTest extends ViewableGame {
                 x: 50,
                 y: 15,
                 color: [255, 255, 255, 255],
-                text: `DAY ${this.standDay} RESULTS`,
+                text: `DAY ${this.lemonadeSystem.standDay} RESULTS`,
                 align: 'center',
                 size: 2.5
             },
@@ -1852,7 +1808,7 @@ class EnhancedViewTest extends ViewableGame {
                 x: 50,
                 y: 28,
                 color: [255, 255, 255, 255],
-                text: `Recipe: ${this.recipe.sugar} Sugar, ${this.recipe.lemons} Lemons`,
+                text: `Recipe: ${this.lemonadeSystem.recipe.sugar} Sugar, ${this.lemonadeSystem.recipe.lemons} Lemons`,
                 align: 'center',
                 size: 1.8
             },
@@ -1865,7 +1821,7 @@ class EnhancedViewTest extends ViewableGame {
                 x: 50,
                 y: 40,
                 color: [0, 255, 0, 255],
-                text: `Total Revenue: $${this.standRevenue.toFixed(2)}`,
+                text: `Total Revenue: $${this.lemonadeSystem.standRevenue.toFixed(2)}`,
                 align: 'center',
                 size: 2
             },
@@ -1874,7 +1830,7 @@ class EnhancedViewTest extends ViewableGame {
 
         // Boss warnings
         let yOffset = 50;
-        if (this.bosses.length > 0) {
+        if (this.lemonadeSystem.bosses.length > 0) {
             const bossWarning = new GameNode.Text({
                 textInfo: {
                     x: 50,
@@ -1894,7 +1850,7 @@ class EnhancedViewTest extends ViewableGame {
                     x: 50,
                     y: yOffset,
                     color: [255, 150, 150, 255],
-                    text: `${this.bosses.length} new boss(es) in combat tomorrow!`,
+                    text: `${this.lemonadeSystem.bosses.length} new boss(es) in combat tomorrow!`,
                     align: 'center',
                     size: 1.3
                 },
@@ -1905,7 +1861,7 @@ class EnhancedViewTest extends ViewableGame {
         }
 
         // Addiction stats
-        const addictionCount = Object.keys(this.addictionLevels).length;
+        const addictionCount = this.lemonadeSystem.getAddictionStats();
         if (addictionCount > 0) {
             const addictionText = new GameNode.Text({
                 textInfo: {
@@ -1957,432 +1913,22 @@ class EnhancedViewTest extends ViewableGame {
     }
 
     advanceToNextDay() {
-        // Advance day counter
-        this.standDay++;
-        
-        // Lemons go bad after each day (reset to 0)
-        this.recipe.lemons = 0;
-        
-        // Reset stand data for new day
-        this.standRevenue = 0;
-        this.walkingCustomers = [];
-        this.stoppedCustomers = [];
-        this.usedUniqueCustomers = [];
+        // Advance day and reset stand
+        this.lemonadeSystem.advanceDay();
         
         // Reset game to combat phase
         this.resetGame();
         
-        console.log(`Advanced to Day ${this.standDay}. Lemons went bad! New bosses: ${this.bosses.length}`);
+        console.log(`Advanced to Day ${this.lemonadeSystem.standDay}. Lemons went bad! New bosses: ${this.lemonadeSystem.bosses.length}`);
     }
 
-    // Lemonade stand customer management
-    spawnWalkingCustomer() {
-        // Decide if this should be a unique customer or generic
-        const useUniqueCustomer = Math.random() < 0.4 && this.usedUniqueCustomers.length < this.uniqueCustomers.length;
-        
-        let customerData;
-        let customerId;
-        
-        if (useUniqueCustomer) {
-            // Pick a unique customer we haven't used yet
-            const availableUnique = this.uniqueCustomers.filter(customer => 
-                !this.usedUniqueCustomers.includes(customer.name)
-            );
-            customerData = availableUnique[Math.floor(Math.random() * availableUnique.length)];
-            this.usedUniqueCustomers.push(customerData.name);
-            customerId = `${customerData.name}_${this.standDay}`;
-        } else {
-            // Create a generic customer
-            const genericNames = ['Alex', 'Sam', 'Jordan', 'Casey', 'Riley', 'Morgan', 'Taylor', 'Avery', 'Blake', 'Quinn'];
-            const name = genericNames[Math.floor(Math.random() * genericNames.length)];
-            const traitData = this.genericTraits[Math.floor(Math.random() * this.genericTraits.length)];
-            
-            customerData = {
-                name: name,
-                trait: traitData.trait,
-                color: traitData.color,
-                stopChance: traitData.stopChance,
-                buyChance: traitData.buyChance,
-                preferredPrice: traitData.preferredPrice
-            };
-            customerId = `${name}_${this.standDay}_${Date.now()}`;
-        }
-        
-        // Determine spawn side (left or right)
-        const spawnFromLeft = Math.random() < 0.5;
-        const speed = 0.8 + Math.random() * 0.6; // Random walking speed
-        
-        const customer = {
-            ...customerData,
-            id: customerId,
-            x: spawnFromLeft ? -10 : 110, // Start off-screen
-            y: 45, // Walking level
-            targetX: spawnFromLeft ? 110 : -10, // Walk to other side
-            speed: speed,
-            direction: spawnFromLeft ? 1 : -1,
-            spawnTime: Date.now(),
-            state: 'walking', // 'walking', 'stopped', 'purchasing', 'leaving'
-            addictionLevel: this.addictionLevels[customerId] || 0,
-            hasCheckedForStop: false
-        };
-        
-        this.walkingCustomers.push(customer);
-        console.log(`${customer.name} (${customer.trait}) starts walking from ${spawnFromLeft ? 'left' : 'right'}`);
-    }
 
-    updateLemonadeStand(currentTime) {
-        let needsViewUpdate = false;
-        
-        // Spawn new customers periodically
-        if (currentTime - this.lastCustomerSpawn >= this.customerSpawnInterval) {
-            this.spawnWalkingCustomer();
-            this.lastCustomerSpawn = currentTime;
-            needsViewUpdate = true;
-        }
-        
-        // Update walking customers
-        for (let i = this.walkingCustomers.length - 1; i >= 0; i--) {
-            const customer = this.walkingCustomers[i];
-            
-            if (customer.state === 'walking') {
-                // Move customer
-                customer.x += customer.direction * customer.speed;
-                needsViewUpdate = true; // Customer movement requires view update
-                
-                // Check if customer reached the stand area (center of screen)
-                if (!customer.hasCheckedForStop && 
-                    ((customer.direction === 1 && customer.x >= 40) || 
-                     (customer.direction === -1 && customer.x <= 60))) {
-                    
-                    customer.hasCheckedForStop = true;
-                    
-                    // Check if customer decides to stop
-                    if (Math.random() < customer.stopChance) {
-                        customer.state = 'stopped';
-                        customer.x = 50; // Position at stand
-                        customer.stopTime = currentTime;
-                        this.stoppedCustomers.push(customer);
-                        this.walkingCustomers.splice(i, 1);
-                        console.log(`${customer.name} stopped at the stand!`);
-                        needsViewUpdate = true;
-                        continue;
-                    }
-                }
-                
-                // Remove customers who walked off screen
-                if (customer.x < -15 || customer.x > 115) {
-                    this.walkingCustomers.splice(i, 1);
-                    console.log(`${customer.name} walked away without stopping`);
-                    needsViewUpdate = true;
-                }
-            }
-        }
-        
-        // Update stopped customers
-        for (let i = this.stoppedCustomers.length - 1; i >= 0; i--) {
-            const customer = this.stoppedCustomers[i];
-            
-            if (customer.state === 'stopped') {
-                // Customer has been stopped for 2 seconds, decide whether to buy
-                if (currentTime - customer.stopTime >= 2000) {
-                    const currentPrice = this.calculateLemonadePrice();
-                    const priceModifier = customer.preferredPrice / currentPrice;
-                    const adjustedBuyChance = customer.buyChance * Math.min(1.5, priceModifier);
-                    
-                    if (Math.random() < adjustedBuyChance) {
-                        // Customer buys!
-                        this.completePurchase(customer, currentPrice);
-                        customer.state = 'leaving';
-                        customer.leaveTime = currentTime;
-                    } else {
-                        // Customer decides not to buy
-                        console.log(`${customer.name} decided not to buy (price: $${currentPrice.toFixed(2)})`);
-                        customer.state = 'leaving';
-                        customer.leaveTime = currentTime;
-                    }
-                    needsViewUpdate = true;
-                }
-            } else if (customer.state === 'leaving') {
-                // Remove customer after showing purchase result for 2 seconds
-                if (currentTime - customer.leaveTime >= 2000) {
-                    this.stoppedCustomers.splice(i, 1);
-                    console.log(`${customer.name} leaves the stand`);
-                    needsViewUpdate = true;
-                }
-            }
-        }
-        
-        // Update views if anything changed
-        if (needsViewUpdate) {
-            this.updateAllPlayerViews();
-        }
-    }
 
-    calculateLemonadePrice() {
-        // Base price calculation based on recipe
-        const sugar = this.recipe.sugar;
-        const lemons = this.recipe.lemons;
-        
-        // Dynamic pricing based on recipe complexity
-        const basePrice = 0.5;
-        const sugarCost = sugar * 0.1; // 10 cents per sugar
-        const lemonCost = lemons * 0.15; // 15 cents per lemon
-        
-        return basePrice + sugarCost + lemonCost;
-    }
-    
-    completePurchase(customer, price) {
-        const sugar = this.recipe.sugar;
-        const lemons = this.recipe.lemons;
-        
-        // Calculate satisfaction based on customer trait and recipe
-        let satisfaction = this.calculateCustomerSatisfaction(customer, sugar, lemons);
-        
-        // Adjust price based on satisfaction
-        let finalPrice = price;
-        let reaction = '';
-        
-        if (satisfaction >= 80) {
-            reaction = 'Loves it!';
-            finalPrice *= 1.2; // Willing to pay 20% more
-        } else if (satisfaction >= 60) {
-            reaction = 'Pretty good!';
-        } else if (satisfaction >= 40) {
-            reaction = 'It\'s okay...';
-            finalPrice *= 0.8; // Pays 20% less
-        } else {
-            reaction = 'Not great.';
-            finalPrice *= 0.5; // Pays half price
-        }
 
-        // Update addiction level based on sugar content
-        const sugarAddiction = Math.floor(sugar / 3); // Every 3 sugar = 1 addiction point
-        this.addictionLevels[customer.id] = (this.addictionLevels[customer.id] || 0) + sugarAddiction;
-        
-        // Check if customer becomes a boss
-        if (this.addictionLevels[customer.id] >= 10 && !this.bosses.includes(customer.id)) {
-            this.bosses.push(customer.id);
-            console.log(`${customer.name} became a sugar-crazed boss!`);
-        }
 
-        this.standRevenue += finalPrice;
-        customer.satisfaction = satisfaction;
-        customer.finalPrice = finalPrice;
-        customer.reaction = reaction;
-        customer.purchased = true;
 
-        console.log(`${customer.name}: ${reaction} (${satisfaction}% satisfaction, $${finalPrice.toFixed(2)}, addiction: ${this.addictionLevels[customer.id]})`);
-    }
-    
-    calculateCustomerSatisfaction(customer, sugar, lemons) {
-        let satisfaction = 0;
-        
-        switch (customer.trait) {
-            case 'sweet_tooth':
-                satisfaction = Math.min(100, sugar * 15 + Math.max(0, 50 - lemons * 10));
-                break;
-            case 'tart_lover':
-                satisfaction = Math.min(100, lemons * 20 + Math.max(0, 30 - sugar * 5));
-                break;
-            case 'balanced':
-                satisfaction = Math.min(100, 70 - Math.abs(sugar - lemons) * 10);
-                break;
-            case 'wealthy':
-                satisfaction = Math.min(100, 60 + sugar * 8 + lemons * 8); // Appreciates quality
-                break;
-            case 'budget':
-                satisfaction = Math.min(100, 80 - sugar * 3 - lemons * 3); // Prefers simple/cheap
-                break;
-            case 'critic':
-                satisfaction = Math.min(100, Math.abs(sugar - 5) < 2 && Math.abs(lemons - 3) < 2 ? 90 : 30); // Very picky
-                break;
-            case 'regular':
-                satisfaction = Math.min(100, 60 + Math.min(sugar, 8) * 5 + Math.min(lemons, 5) * 4); // Loyal but reasonable
-                break;
-            case 'rushed':
-                satisfaction = Math.min(100, 50 + Math.random() * 40); // Random, just wants something quick
-                break;
-            case 'explorer':
-                satisfaction = Math.min(100, sugar + lemons > 8 ? 80 : 40); // Likes adventurous recipes
-                break;
-            case 'pessimist':
-                satisfaction = Math.min(100, Math.max(20, 60 - Math.random() * 30)); // Always somewhat dissatisfied
-                break;
-            default: // Generic traits
-                if (customer.trait === 'casual') {
-                    satisfaction = Math.min(100, 50 + sugar * 5 + lemons * 5);
-                } else if (customer.trait === 'tourist') {
-                    satisfaction = Math.min(100, 60 + sugar * 6 + lemons * 6);
-                } else if (customer.trait === 'local') {
-                    satisfaction = Math.min(100, 70 + sugar * 4 + lemons * 4);
-                } else if (customer.trait === 'student') {
-                    satisfaction = Math.min(100, 40 + sugar * 8); // Prefers sweet, cheap
-                }
-                break;
-        }
-        
-        return satisfaction;
-    }
 
-    addWalkingCustomerToView(viewRoot, customer, playerId) {
-        // Customer figure walking on sidewalk
-        const customerShape = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(customer.x - 2, customer.y - 3, 4, 6),
-            fill: customer.color,
-            // playerIds: [playerId]
-        });
 
-        // Customer name above head
-        const nameText = new GameNode.Text({
-            textInfo: {
-                x: customer.x,
-                y: customer.y - 5,
-                color: [0, 0, 0, 255],
-                text: customer.name,
-                align: 'center',
-                size: 0.8
-            },
-            // playerIds: [playerId]
-        });
-
-        // Trait indicator (small text)
-        const traitText = new GameNode.Text({
-            textInfo: {
-                x: customer.x,
-                y: customer.y + 4,
-                color: [100, 100, 100, 255],
-                text: this.getTraitDisplayName(customer.trait),
-                align: 'center',
-                size: 0.6
-            },
-            // playerIds: [playerId]
-        });
-
-        viewRoot.addChild(customerShape);
-        viewRoot.addChild(nameText);
-        viewRoot.addChild(traitText);
-    }
-
-    addStoppedCustomerToView(viewRoot, customer, playerId) {
-        // Customer figure at the stand
-        const customerShape = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(customer.x - 3, 50, 6, 8),
-            fill: customer.color,
-            // playerIds: [playerId]
-        });
-
-        // Customer name
-        const nameText = new GameNode.Text({
-            textInfo: {
-                x: customer.x,
-                y: 48,
-                color: [0, 0, 0, 255],
-                text: customer.name,
-                align: 'center',
-                size: 1.0
-            },
-            // playerIds: [playerId]
-        });
-
-        // Customer trait
-        const traitText = new GameNode.Text({
-            textInfo: {
-                x: customer.x,
-                y: 60,
-                color: [100, 100, 100, 255],
-                text: this.getTraitDisplayName(customer.trait),
-                align: 'center',
-                size: 0.8
-            },
-            // playerIds: [playerId]
-        });
-
-        // Show purchase result if customer bought something
-        if (customer.purchased) {
-            const reactionText = new GameNode.Text({
-                textInfo: {
-                    x: customer.x,
-                    y: 65,
-                    color: customer.satisfaction >= 60 ? [0, 150, 0, 255] : [150, 0, 0, 255],
-                    text: customer.reaction,
-                    align: 'center',
-                    size: 1.0
-                },
-                // playerIds: [playerId]
-            });
-
-            const priceText = new GameNode.Text({
-                textInfo: {
-                    x: customer.x,
-                    y: 70,
-                    color: [0, 100, 0, 255],
-                    text: `$${customer.finalPrice.toFixed(2)}`,
-                    align: 'center',
-                    size: 0.8
-                },
-                // playerIds: [playerId]
-            });
-
-            viewRoot.addChild(reactionText);
-            viewRoot.addChild(priceText);
-        } else if (customer.state === 'leaving' && !customer.purchased) {
-            // Customer decided not to buy
-            const noSaleText = new GameNode.Text({
-                textInfo: {
-                    x: customer.x,
-                    y: 65,
-                    color: [150, 0, 0, 255],
-                    text: 'Not buying',
-                    align: 'center',
-                    size: 0.9
-                },
-                // playerIds: [playerId]
-            });
-
-            viewRoot.addChild(noSaleText);
-        } else {
-            // Customer is deciding
-            const thinkingText = new GameNode.Text({
-                textInfo: {
-                    x: customer.x,
-                    y: 65,
-                    color: [100, 100, 100, 255],
-                    text: '...',
-                    align: 'center',
-                    size: 1.2
-                },
-                // playerIds: [playerId]
-            });
-
-            viewRoot.addChild(thinkingText);
-        }
-
-        viewRoot.addChild(customerShape);
-        viewRoot.addChild(nameText);
-        viewRoot.addChild(traitText);
-    }
-
-    getTraitDisplayName(trait) {
-        switch (trait) {
-            case 'sweet_tooth': return 'Sweet Tooth';
-            case 'tart_lover': return 'Tart Lover';
-            case 'balanced': return 'Balanced';
-            case 'wealthy': return 'Rich';
-            case 'budget': return 'Cheap';
-            case 'critic': return 'Picky';
-            case 'regular': return 'Loyal';
-            case 'rushed': return 'Rushed';
-            case 'explorer': return 'Curious';
-            case 'pessimist': return 'Grumpy';
-            case 'casual': return 'Casual';
-            case 'tourist': return 'Tourist';
-            case 'local': return 'Local';
-            case 'student': return 'Student';
-            default: return trait;
-        }
-    }
 
     resetGame() {
         // Save current stats as previous stats
@@ -2426,6 +1972,7 @@ class EnhancedViewTest extends ViewableGame {
         this.worldItems = [];
         this.landmarks = [];
         this.combatSystem.reset(); // Reset all combat-related data
+        this.lemonadeSystem.reset(); // Reset all lemonade stand data
         this.gatherIndicators = [];
 
         // Rebuild world
@@ -2448,28 +1995,27 @@ class EnhancedViewTest extends ViewableGame {
         const currentTime = Date.now();
         
         // Check for lemonade stand timer and customer management
-        if (this.gameState === 'newSection' && this.standStartTime) {
-            const elapsed = currentTime - this.standStartTime;
-            
-            // End stand after 30 seconds
-            if (elapsed >= this.standDuration) {
+        if (this.gameState === 'newSection' && this.lemonadeSystem.isStandActive()) {
+            // End stand after duration expires
+            if (this.lemonadeSystem.isStandTimeUp()) {
                 this.startNewSectionStats();
                 return;
             }
             
             // Manage customer interactions
-            this.updateLemonadeStand(currentTime);
+            const needsViewUpdate = this.lemonadeSystem.updateCustomers(currentTime);
             
             // Update views frequently for smooth customer movement (like we do for combat)
-            const hasMovingCustomers = this.walkingCustomers.length > 0;
+            const hasMovingCustomers = this.lemonadeSystem.hasMovingCustomers();
             const updateInterval = hasMovingCustomers ? 50 : 200; // 20 FPS when customers moving, 5 FPS when idle
             
             if (!this.lastViewUpdate || currentTime - this.lastViewUpdate >= updateInterval) {
                 this.lastViewUpdate = currentTime;
                 
-                // Always update if there are moving customers, or periodically for timer
-                const shouldUpdate = hasMovingCustomers || 
-                                    (elapsed) % 1000 < 100; // Timer updates every second
+                // Always update if there are moving customers, or periodically for timer, or if customer state changed
+                const timeRemaining = this.lemonadeSystem.getTimeRemaining();
+                const shouldUpdate = hasMovingCustomers || needsViewUpdate ||
+                                    (timeRemaining) % 1000 < 100; // Timer updates every second
                 
                 if (shouldUpdate) {
                     this.updateAllPlayerViews();
