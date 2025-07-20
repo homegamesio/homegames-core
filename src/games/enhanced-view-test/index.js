@@ -74,30 +74,41 @@ class EnhancedViewTest extends ViewableGame {
         
         // Player upgrade system
         this.upgrades = {
+            // Combat upgrades
             attackDamage: 0,     // 0-5 levels - damage per attack
             attackSpeed: 0,      // 0-5 levels - cooldown reduction 
             attackRange: 0,      // 0-5 levels - reach distance
             moveSpeed: 0,        // 0-5 levels - movement speed
             aggroReduction: 0,   // 0-5 levels - reduce enemy detection range
-            multiAttack: 0       // 0-3 levels - attack multiple enemies (1→2→3→4)
+            multiAttack: 0,      // 0-3 levels - attack multiple enemies (1→2→3→4)
+            // Gathering upgrades
+            gatherAmount: 0,     // 0-5 levels - resources per gather
+            gatherSpeed: 0,      // 0-5 levels - cooldown reduction
+            gatherRange: 0,      // 0-5 levels - gathering distance
+            multiGather: 0       // 0-3 levels - gather from multiple sources (1→2→3→4)
         };
         this.upgradeBaseCost = 5; // Cost per upgrade
         this.upgradeBonus = 0.2;  // 20% increase per level
         this.maxUpgradeLevel = 5; // Maximum upgrade level
         
-        // Base stats (before upgrades)
+        // Base combat stats (before upgrades)
         this.basePlayerSpeed = 0.3;
         this.baseAttackDamage = 5;
         this.baseAttackRange = 2;
         this.baseAttackCooldown = 400; // Base attack cooldown in ms
         this.baseEnemyDetectionRange = 20; // Base enemy detection range
+        
+        // Base gathering stats (before upgrades)
+        this.baseGatherAmount = 2; // Base resources per gather
+        this.baseGatherCooldown = 300; // Base gather cooldown in ms
+        this.baseGatherRange = 6; // Base gathering range
 
         // Apply upgrades to current stats
         this.applyUpgrades();
     }
     
     applyUpgrades() {
-        // Calculate actual stats based on base stats + upgrades
+        // Calculate actual combat stats based on base stats + upgrades
         this.attackDamage = Math.round(this.baseAttackDamage * (1 + this.upgrades.attackDamage * this.upgradeBonus));
         this.attackCooldown = Math.round(this.baseAttackCooldown * (1 - this.upgrades.attackSpeed * this.upgradeBonus)); // Reduce cooldown
         this.attackRange = this.baseAttackRange * (1 + this.upgrades.attackRange * this.upgradeBonus);
@@ -105,13 +116,19 @@ class EnhancedViewTest extends ViewableGame {
         this.enemyDetectionRange = this.baseEnemyDetectionRange * (1 - this.upgrades.aggroReduction * this.upgradeBonus); // Reduce detection range
         this.maxSimultaneousAttacks = 1 + this.upgrades.multiAttack; // 1, 2, 3, or 4 enemies at once
         
+        // Calculate actual gathering stats based on base stats + upgrades
+        this.gatherAmount = Math.round(this.baseGatherAmount * (1 + this.upgrades.gatherAmount * this.upgradeBonus));
+        this.gatherCooldown = Math.round(this.baseGatherCooldown * (1 - this.upgrades.gatherSpeed * this.upgradeBonus)); // Reduce cooldown
+        this.gatherRange = this.baseGatherRange * (1 + this.upgrades.gatherRange * this.upgradeBonus);
+        this.maxSimultaneousGathers = 1 + this.upgrades.multiGather; // 1, 2, 3, or 4 sources at once
+        
         // Set player health to a fixed value since we removed health upgrades
         this.playerMaxHealth = 100;
     }
     
     getUpgradeCost(upgradeType) {
         const currentLevel = this.upgrades[upgradeType];
-        const maxLevel = upgradeType === 'multiAttack' ? 3 : this.maxUpgradeLevel; // Multi-attack caps at 3 levels
+        const maxLevel = (upgradeType === 'multiAttack' || upgradeType === 'multiGather') ? 3 : this.maxUpgradeLevel; // Multi upgrades cap at 3 levels
         if (currentLevel >= maxLevel) return null; // Max level reached
         return this.upgradeBaseCost;
     }
@@ -1051,12 +1068,8 @@ class EnhancedViewTest extends ViewableGame {
     }
 
     gatherResources() {
-        // Roll for gathering efficiency: 25% chance each for 1, 2, 3, or 4 resources
-        const roll = Math.random();
-        if (roll < 0.25) return 1;
-        else if (roll < 0.5) return 2;
-        else if (roll < 0.75) return 3;
-        else return 4;
+        // Return fixed amount based on upgrades (no more randomness)
+        return this.gatherAmount;
     }
 
     // fighting over sugar. sugar is in abundance. lemons are used for upgrades and also used for lemonade. they go bad after a day so if you dont sell them they are no good anymore after.
@@ -1076,6 +1089,15 @@ class EnhancedViewTest extends ViewableGame {
     }
 
     findGatherTarget(player) {
+        // Find single gathering target (backwards compatibility)
+        const targets = this.findMultipleGatherTargets(player, 1);
+        return targets.length > 0 ? targets[0] : null;
+    }
+
+    findMultipleGatherTargets(player, maxTargets) {
+        // Find multiple gathering targets within range, up to maxTargets
+        let targetsInRange = [];
+        
         // Check resource pools first
         for (const resourcePool of this.worldItems) {
             if (resourcePool.resources <= 0) continue; // Skip depleted pools
@@ -1086,7 +1108,7 @@ class EnhancedViewTest extends ViewableGame {
             );
             
             if (distance <= this.gatherRange) {
-                return { target: resourcePool, type: 'pool' };
+                targetsInRange.push({ target: resourcePool, type: 'pool', distance: distance });
             }
         }
         
@@ -1100,11 +1122,13 @@ class EnhancedViewTest extends ViewableGame {
             );
             
             if (distance <= this.gatherRange) {
-                return { target: resourceVein, type: 'vein' };
+                targetsInRange.push({ target: resourceVein, type: 'vein', distance: distance });
             }
         }
         
-        return null; // No gathering targets in range
+        // Sort by distance (closest first) and return up to maxTargets
+        targetsInRange.sort((a, b) => a.distance - b.distance);
+        return targetsInRange.slice(0, maxTargets);
     }
 
     gatherFrom(target, playerId) {
@@ -1310,6 +1334,7 @@ class EnhancedViewTest extends ViewableGame {
         elements.push(upgradeTitle);
         
         const upgrades = [
+            // Combat upgrades
             { 
                 name: 'attackDamage', 
                 displayName: 'DAMAGE', 
@@ -1326,7 +1351,7 @@ class EnhancedViewTest extends ViewableGame {
             },
             { 
                 name: 'attackRange', 
-                displayName: 'RANGE', 
+                displayName: 'ATK RANGE', 
                 currentValue: this.attackRange.toFixed(1),
                 baseValue: this.baseAttackRange,
                 icon: '🎯'
@@ -1351,15 +1376,44 @@ class EnhancedViewTest extends ViewableGame {
                 currentValue: `${this.maxSimultaneousAttacks} enemies`,
                 baseValue: 1,
                 icon: '💥'
+            },
+            // Gathering upgrades
+            { 
+                name: 'gatherAmount', 
+                displayName: 'GATHER AMT', 
+                currentValue: this.gatherAmount,
+                baseValue: this.baseGatherAmount,
+                icon: '🍯'
+            },
+            { 
+                name: 'gatherSpeed', 
+                displayName: 'GATHER SPEED', 
+                currentValue: `${this.gatherCooldown}ms`,
+                baseValue: this.baseGatherCooldown,
+                icon: '⚡'
+            },
+            { 
+                name: 'gatherRange', 
+                displayName: 'GATHER RANGE', 
+                currentValue: this.gatherRange.toFixed(1),
+                baseValue: this.baseGatherRange,
+                icon: '📏'
+            },
+            { 
+                name: 'multiGather', 
+                displayName: 'MULTI-GATHER', 
+                currentValue: `${this.maxSimultaneousGathers} sources`,
+                baseValue: 1,
+                icon: '🔄'
             }
         ];
         
         upgrades.forEach((upgrade, index) => {
-            const yPos = 66 + index * 3.2; // Even tighter spacing to fit 6 upgrades
+            const yPos = 66 + index * 2.2; // Tighter spacing to fit 10 upgrades
             const currentLevel = this.upgrades[upgrade.name];
             const cost = this.getUpgradeCost(upgrade.name);
             const canAfford = this.canAffordUpgrade(upgrade.name);
-            const maxLevel = upgrade.name === 'multiAttack' ? 3 : this.maxUpgradeLevel;
+            const maxLevel = (upgrade.name === 'multiAttack' || upgrade.name === 'multiGather') ? 3 : this.maxUpgradeLevel;
             const isMaxLevel = currentLevel >= maxLevel;
             
             // Simple upgrade row
@@ -1434,8 +1488,17 @@ class EnhancedViewTest extends ViewableGame {
     }
 
     startLemonadeStand() {
-        // Check if player has enough ingredients for at least one lemonade
         const recipe = this.lemonadeSystem.recipe;
+        
+        // Check if recipe has 0 lemons - can't make lemonade without lemons!
+        if (recipe.lemons === 0) {
+            // No lemons in recipe - trigger failure state
+            this.gameStateManager.setState('noLemonsFailure');
+            console.log('Failed to start lemonade stand - no lemons in recipe');
+            return;
+        }
+        
+        // Check if player has enough ingredients for at least one lemonade
         if (!this.resourceManager.canMakeLemonade(recipe.sugar, recipe.lemons, 1)) {
             // Not enough ingredients - trigger failure state
             this.gameStateManager.setState('noIngredientsFailure');
@@ -2112,7 +2175,8 @@ class EnhancedViewTest extends ViewableGame {
                 this.updateLemonadeStand(currentTime);
                 break;
             case 'noIngredientsFailure':
-                this.updateNoIngredientsFailure(currentTime);
+            case 'noLemonsFailure':
+                this.updateFailureAnimation(currentTime);
                 break;
             // Other states don't need tick updates
         }
@@ -2148,7 +2212,7 @@ class EnhancedViewTest extends ViewableGame {
         }
     }
 
-    updateNoIngredientsFailure(currentTime) {
+    updateFailureAnimation(currentTime) {
         // Update views regularly for smooth customer walking animation
         if (!this.lastViewUpdate || currentTime - this.lastViewUpdate >= 100) { // 10 FPS
             this.lastViewUpdate = currentTime;
@@ -2211,11 +2275,18 @@ class EnhancedViewTest extends ViewableGame {
             
             // Check for gathering targets (with cooldown)
             if (currentTime - player.lastGatherTime >= this.gatherCooldown) {
-                const gatherResult = this.findGatherTarget(player);
-                if (gatherResult) {
-                    this.gatherFrom(gatherResult.target, playerId);
+                const gatherTargets = this.findMultipleGatherTargets(player, this.maxSimultaneousGathers);
+                if (gatherTargets.length > 0) {
+                    // Gather from all targets simultaneously
+                    for (const gatherResult of gatherTargets) {
+                        this.gatherFrom(gatherResult.target, playerId);
+                    }
                     player.lastGatherTime = currentTime;
                     needsViewUpdate = true;
+                    
+                    if (gatherTargets.length > 1) {
+                        console.log(`Player ${playerId} multi-gathers from ${gatherTargets.length} sources!`);
+                    }
                 }
             }
             

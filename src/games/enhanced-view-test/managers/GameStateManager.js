@@ -15,6 +15,7 @@ class GameStateManager {
             bossFailure: new BossFailureState(game),
             deathFailure: new DeathFailureState(game),
             noIngredientsFailure: new NoIngredientsFailureState(game),
+            noLemonsFailure: new NoLemonsFailureState(game),
             recipe: new RecipeState(game),
             newSection: new LemonadeStandState(game),
             newSectionStats: new ResultsState(game)
@@ -100,6 +101,10 @@ class GameStateManager {
         if (this.states.noIngredientsFailure.customerStartTime) {
             this.states.noIngredientsFailure.customerStartTime = null;
             this.states.noIngredientsFailure.customer = null;
+        }
+        if (this.states.noLemonsFailure.customerStartTime) {
+            this.states.noLemonsFailure.customerStartTime = null;
+            this.states.noLemonsFailure.customer = null;
         }
     }
 }
@@ -528,6 +533,127 @@ class NoIngredientsFailureState extends GameState {
             if (messageElapsed > 3000) {
                 const gameOverTitle = UIComponents.createTitle('GAME OVER', 60, 3, [255, 0, 0, 255]);
                 const failureText = UIComponents.createTitle('No ingredients to make lemonade!', 70, 1.8, [255, 255, 255, 255]);
+                
+                const playAgainButton = UIComponents.createButton({
+                    rect: [25, 80, 50, 10],
+                    fillColor: [100, 200, 100, 255],
+                    text: 'PLAY AGAIN',
+                    textSize: 2.5,
+                    onClick: (clickPlayerId) => {
+                        if (Number(clickPlayerId) === Number(playerId)) {
+                            this.game.resetGame();
+                        }
+                    }
+                });
+
+                [gameOverTitle, failureText, ...playAgainButton].forEach(element => {
+                    viewRoot.addChild(element);
+                });
+            }
+        }
+
+        return viewRoot;
+    }
+}
+
+class NoLemonsFailureState extends GameState {
+    constructor(game) {
+        super(game);
+        this.customerStartTime = null;
+        this.customer = null;
+    }
+
+    createView(playerId, view) {
+        const viewRoot = UIComponents.createBackground([135, 206, 235, 255]); // Sky blue
+        
+        // Ground/sidewalk
+        const sidewalk = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 40, 100, 20),
+            fill: [192, 192, 192, 255]
+        });
+        viewRoot.addChild(sidewalk);
+
+        // Empty lemonade stand
+        const playerStand = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(45, 35, 10, 10),
+            fill: [139, 69, 19, 255]
+        });
+        
+        const playerBehindStand = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(47, 30, 6, 8),
+            fill: [0, 0, 0, 255]
+        });
+        
+        const standSign = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 25,
+                color: [255, 255, 255, 255],
+                text: 'LEMONADE',
+                align: 'center',
+                size: 1.2
+            }
+        });
+
+        viewRoot.addChild(playerStand);
+        viewRoot.addChild(playerBehindStand);
+        viewRoot.addChild(standSign);
+
+        // Initialize customer if not done yet
+        if (!this.customerStartTime) {
+            this.customerStartTime = Date.now();
+            this.customer = {
+                x: -10, // Start off screen
+                y: 45,
+                targetX: 35, // Stop near the stand
+                state: 'walking',
+                messageShown: false
+            };
+        }
+
+        // Update customer position
+        const elapsedTime = Date.now() - this.customerStartTime;
+        
+        if (this.customer.state === 'walking' && this.customer.x < this.customer.targetX) {
+            this.customer.x = Math.min(this.customer.targetX, -10 + (elapsedTime / 2000) * 45); // 2 second walk
+        }
+        
+        if (this.customer.x >= this.customer.targetX && !this.customer.messageShown) {
+            this.customer.state = 'talking';
+            this.customer.messageShown = true;
+            this.customer.messageTime = Date.now();
+        }
+
+        // Draw customer
+        const customer = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(this.customer.x, this.customer.y, 6, 8),
+            fill: [150, 100, 50, 255] // Brown customer
+        });
+        viewRoot.addChild(customer);
+
+        // Show message after customer reaches stand
+        if (this.customer.messageShown) {
+            const message = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 15,
+                    color: [255, 0, 0, 255],
+                    text: '"This is just sugar water! Where are the lemons?!"',
+                    align: 'center',
+                    size: 1.5
+                }
+            });
+            viewRoot.addChild(message);
+
+            // Show game over after message displays for 3 seconds
+            const messageElapsed = Date.now() - this.customer.messageTime;
+            if (messageElapsed > 3000) {
+                const gameOverTitle = UIComponents.createTitle('GAME OVER', 60, 3, [255, 0, 0, 255]);
+                const failureText = UIComponents.createTitle('Lemonade needs lemons!', 70, 1.8, [255, 255, 255, 255]);
                 
                 const playAgainButton = UIComponents.createButton({
                     rect: [25, 80, 50, 10],
