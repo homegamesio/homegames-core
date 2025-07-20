@@ -1346,6 +1346,7 @@ class EnhancedViewTest extends ViewableGame {
         const newX = archer.x + normalizedX * kiteSpeed;
         const newY = archer.y + normalizedY * kiteSpeed;
         
+        // fuckload of sugar so maybe the lemons and you are fighting over sugar
         // Keep archer within world bounds
         archer.x = Math.max(0, Math.min(this.worldSize - archer.size, newX));
         archer.y = Math.max(0, Math.min(this.worldSize - archer.size, newY));
