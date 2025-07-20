@@ -76,8 +76,20 @@ class EnhancedViewTest extends ViewableGame {
             lemons: 3
         };
         
-        // New section timer
-        this.newSectionStartTime = null;
+        // Lemonade stand system
+        this.customers = [];
+        this.currentCustomer = null;
+        this.customerSpawnTimer = 0;
+        this.customerWaitTime = 8000; // 8 seconds per customer
+        this.standRevenue = 0;
+        this.standDay = 1;
+        this.customerProfiles = ['sweet_tooth', 'balanced', 'tart_lover', 'sugar_addict'];
+        this.addictionLevels = {}; // Track customer addiction
+        this.bosses = []; // Track customers who became bosses
+        
+        // Stand timer
+        this.standStartTime = null;
+        this.standDuration = 30000; // 30 seconds of selling
         
         // Stats tracking
         this.currentStats = {
@@ -266,6 +278,9 @@ class EnhancedViewTest extends ViewableGame {
 
         // Add random enemy clusters scattered around the world
         this.spawnRandomEnemyClusters();
+
+        // Spawn bosses (sugar-addicted customers from previous days)
+        this.spawnBosses();
 
         this.getPlane().addChild(this.worldBase);
     }
@@ -566,6 +581,74 @@ class EnhancedViewTest extends ViewableGame {
 
         this.sentries.push(sentryData);
         this.worldBase.addChild(sentry);
+    }
+
+    spawnBosses() {
+        console.log(`Spawning ${this.bosses.length} sugar-crazed bosses`);
+        
+        for (let i = 0; i < this.bosses.length; i++) {
+            const bossId = this.bosses[i];
+            const bossName = bossId.split('_')[0]; // Extract name from "Name_Day" format
+            
+            // Find a random location away from the center (bosses roam the edges)
+            const edgeDistance = 100; // Distance from center
+            const angle = Math.random() * 2 * Math.PI;
+            const centerX = this.worldSize / 2;
+            const centerY = this.worldSize / 2;
+            
+            const bossX = centerX + Math.cos(angle) * edgeDistance - 6; // 6 is boss size
+            const bossY = centerY + Math.sin(angle) * edgeDistance - 6;
+            
+            // Keep boss within world bounds
+            const clampedX = Math.max(0, Math.min(this.worldSize - 12, bossX));
+            const clampedY = Math.max(0, Math.min(this.worldSize - 12, bossY));
+            
+            this.spawnBoss(clampedX, clampedY, bossName, bossId);
+        }
+    }
+
+    spawnBoss(x, y, name, bossId) {
+        const bossSize = 12; // Bigger than regular enemies
+        
+        const boss = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(x, y, bossSize, bossSize),
+            fill: [120, 0, 120, 255], // Dark purple for bosses
+            onClick: (clickPlayerId) => {
+                console.log(`Player ${clickPlayerId} clicked boss ${name} at (${x}, ${y})`);
+            }
+        });
+
+        const bossData = {
+            x: x,
+            y: y,
+            size: bossSize,
+            poolData: null, // Bosses are free-roaming
+            node: boss,
+            // AI state
+            isChasing: false,
+            targetPlayerId: null,
+            lastAttackTime: 0,
+            originalX: x,
+            originalY: y,
+            // Combat stats - much stronger than regular guards
+            health: 30, // 3x regular guard health
+            maxHealth: 30,
+            type: 'boss',
+            name: name,
+            bossId: bossId,
+            isFreeRoaming: true,
+            // Boss special abilities
+            attackDamage: 3, // Triple damage
+            attackRange: 6,  // Longer reach
+            detectionRange: 30, // Can spot players from much further
+            moveSpeed: 0.2   // Slightly faster than regular enemies
+        };
+
+        this.guards.push(bossData); // Bosses use guard AI but with enhanced stats
+        this.worldBase.addChild(boss);
+        
+        console.log(`Spawned boss ${name} (${bossId}) at (${x.toFixed(1)}, ${y.toFixed(1)})`);
     }
 
     calculateDistance(x1, y1, x2, y2) {
@@ -912,19 +995,28 @@ class EnhancedViewTest extends ViewableGame {
                 const viewX = guard.x + guard.size/2 - view.x;
                 const viewY = guard.y - 2 - view.y; // Above the guard
                 
-                // Color-code health
-                const healthColor = guard.health <= 3 ? [255, 0, 0, 255] : // Red when low health
-                                   guard.health <= 6 ? [255, 255, 0, 255] : // Yellow when medium health
-                                   [0, 255, 0, 255]; // Green when healthy
+                // Color-code health (bosses have different thresholds)
+                let healthColor, displayText;
+                if (guard.type === 'boss') {
+                    healthColor = guard.health <= 10 ? [255, 0, 0, 255] : // Red when low health
+                                 guard.health <= 20 ? [255, 255, 0, 255] : // Yellow when medium health
+                                 [255, 0, 255, 255]; // Magenta when healthy (boss color)
+                    displayText = `BOSS ${guard.name}: ${guard.health}`;
+                } else {
+                    healthColor = guard.health <= 3 ? [255, 0, 0, 255] : // Red when low health
+                                 guard.health <= 6 ? [255, 255, 0, 255] : // Yellow when medium health
+                                 [0, 255, 0, 255]; // Green when healthy
+                    displayText = `${guard.health}`;
+                }
 
                 const guardHealthText = new GameNode.Text({
                     textInfo: {
                         x: viewX,
                         y: viewY,
                         color: healthColor,
-                        text: `${guard.health}`,
+                        text: displayText,
                         align: 'center',
-                        size: 1.2
+                        size: guard.type === 'boss' ? 1.5 : 1.2 // Bigger text for bosses
                     },
                     playerIds: [playerId]
                 });
@@ -1363,12 +1455,14 @@ class EnhancedViewTest extends ViewableGame {
         let closestPlayer = null;
         let closestDistance = Infinity;
 
-        // Find the closest player within detection range
+        // Find the closest player within detection range (bosses have extended range)
+        const detectionRange = guard.type === 'boss' ? guard.detectionRange : this.enemyDetectionRange;
+        
         for (const playerId in this.players) {
             const player = this.players[playerId];
             const distance = this.calculateDistance(guard.x + guard.size/2, guard.y + guard.size/2, player.x, player.y);
             
-            if (distance <= this.enemyDetectionRange && distance < closestDistance) {
+            if (distance <= detectionRange && distance < closestDistance) {
                 closestPlayer = player;
                 closestDistance = distance;
                 guard.targetPlayerId = playerId;
@@ -1382,11 +1476,16 @@ class EnhancedViewTest extends ViewableGame {
                 console.log(`Guard starts chasing player ${guard.targetPlayerId}!`);
             }
 
-            // Move towards the player
-            this.moveGuardTowards(guard, closestPlayer.x, closestPlayer.y);
+            // Move towards the player (bosses are faster)
+            if (guard.type === 'boss') {
+                this.moveBossTowards(guard, closestPlayer.x, closestPlayer.y);
+            } else {
+                this.moveGuardTowards(guard, closestPlayer.x, closestPlayer.y);
+            }
 
-            // Attack if within range and cooldown is ready
-            if (closestDistance <= this.enemyAttackRange && 
+            // Attack if within range and cooldown is ready (bosses have longer reach)
+            const attackRange = guard.type === 'boss' ? guard.attackRange : this.enemyAttackRange;
+            if (closestDistance <= attackRange && 
                 currentTime - guard.lastAttackTime >= this.enemyAttackCooldown) {
                 this.guardAttackPlayer(guard, closestPlayer, guard.targetPlayerId);
                 guard.lastAttackTime = currentTime;
@@ -1561,8 +1660,28 @@ class EnhancedViewTest extends ViewableGame {
         }
     }
 
+    moveBossTowards(boss, targetX, targetY) {
+        const bossCenterX = boss.x + boss.size/2;
+        const bossCenterY = boss.y + boss.size/2;
+        
+        const distance = this.calculateDistance(bossCenterX, bossCenterY, targetX, targetY);
+        
+        if (distance > 1) { // Only move if not already at target
+            const angle = Math.atan2(targetY - bossCenterY, targetX - bossCenterX);
+            const newX = boss.x + Math.cos(angle) * boss.moveSpeed; // Use boss speed
+            const newY = boss.y + Math.sin(angle) * boss.moveSpeed;
+            
+            // Keep boss within world bounds
+            boss.x = Math.max(0, Math.min(this.worldSize - boss.size, newX));
+            boss.y = Math.max(0, Math.min(this.worldSize - boss.size, newY));
+            
+            // Update the visual node position
+            boss.node.node.coordinates2d = ShapeUtils.rectangle(boss.x, boss.y, boss.size, boss.size);
+        }
+    }
+
     guardAttackPlayer(guard, player, playerId) {
-        const damage = 1; // Guards always do 1 damage
+        const damage = guard.type === 'boss' ? guard.attackDamage : 1; // Bosses do more damage
         player.health -= damage;
         
         console.log(`Guard attacks player ${playerId} for ${damage} damage! Player health: ${player.health}`);
@@ -2079,17 +2198,21 @@ class EnhancedViewTest extends ViewableGame {
         console.log('Started recipe phase');
     }
 
-    startNewSection() {
+    startLemonadeStand() {
         this.gameState = 'newSection';
-        this.newSectionStartTime = Date.now();
+        this.standStartTime = Date.now();
+        this.standRevenue = 0;
+        this.currentCustomer = null;
+        this.customerSpawnTimer = 0;
+        this.spawnCustomer();
         this.updateAllPlayerViews();
-        console.log('Started new section');
+        console.log('Started lemonade stand');
     }
 
     startNewSectionStats() {
         this.gameState = 'newSectionStats';
         this.updateAllPlayerViews();
-        console.log('Started new section stats');
+        console.log('Started lemonade stand results');
     }
 
     // New view creation methods
@@ -2276,7 +2399,7 @@ class EnhancedViewTest extends ViewableGame {
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
                     console.log(`Recipe confirmed: Sugar ${this.recipe.sugar}, Lemons ${this.recipe.lemons}`);
-                    this.startNewSection();
+                    this.startLemonadeStand();
                 }
             },
             // playerIds: [playerId]
@@ -2317,24 +2440,83 @@ class EnhancedViewTest extends ViewableGame {
         const viewRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: [20, 20, 50, 255], // Dark blue background
+            fill: [135, 206, 235, 255], // Sky blue background (sunny day)
             // playerIds: [playerId]
         });
 
-        // Placeholder text
-        const placeholder = new GameNode.Text({
+        // Timer display
+        const elapsed = Date.now() - this.standStartTime;
+        const timeLeft = Math.max(0, Math.ceil((this.standDuration - elapsed) / 1000));
+        
+        const timerText = new GameNode.Text({
             textInfo: {
-                x: 50,
-                y: 50,
-                color: [255, 255, 255, 100],
-                text: 'Brewing lemonade...',
-                align: 'center',
-                size: 3
+                x: 10,
+                y: 10,
+                color: [0, 0, 0, 255],
+                text: `Time: ${timeLeft}s`,
+                align: 'left',
+                size: 2
             },
             // playerIds: [playerId]
         });
 
-        viewRoot.addChild(placeholder);
+        // Revenue display
+        const revenueText = new GameNode.Text({
+            textInfo: {
+                x: 90,
+                y: 10,
+                color: [0, 0, 0, 255],
+                text: `$${this.standRevenue.toFixed(2)}`,
+                align: 'right',
+                size: 2
+            },
+            // playerIds: [playerId]
+        });
+
+        // Stand counter
+        const standCounter = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(20, 70, 60, 25),
+            fill: [139, 69, 19, 255], // Brown wood
+            // playerIds: [playerId]
+        });
+
+        const standSign = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 75,
+                color: [255, 255, 255, 255],
+                text: 'LEMONADE STAND',
+                align: 'center',
+                size: 1.5
+            },
+            // playerIds: [playerId]
+        });
+
+        // Recipe display on stand
+        const recipeDisplay = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 85,
+                color: [255, 255, 255, 255],
+                text: `Today's Recipe: ${this.recipe.sugar} Sugar, ${this.recipe.lemons} Lemons`,
+                align: 'center',
+                size: 1
+            },
+            // playerIds: [playerId]
+        });
+
+        viewRoot.addChild(timerText);
+        viewRoot.addChild(revenueText);
+        viewRoot.addChild(standCounter);
+        viewRoot.addChild(standSign);
+        viewRoot.addChild(recipeDisplay);
+
+        // Add current customer if exists
+        if (this.currentCustomer) {
+            this.addCustomerToView(viewRoot, this.currentCustomer, playerId);
+        }
+
         return viewRoot;
     }
 
@@ -2350,9 +2532,9 @@ class EnhancedViewTest extends ViewableGame {
         const title = new GameNode.Text({
             textInfo: {
                 x: 50,
-                y: 20,
+                y: 15,
                 color: [255, 255, 255, 255],
-                text: 'LEMONADE STAND RESULTS',
+                text: `DAY ${this.standDay} RESULTS`,
                 align: 'center',
                 size: 2.5
             },
@@ -2363,7 +2545,7 @@ class EnhancedViewTest extends ViewableGame {
         const recipeText = new GameNode.Text({
             textInfo: {
                 x: 50,
-                y: 35,
+                y: 28,
                 color: [255, 255, 255, 255],
                 text: `Recipe: ${this.recipe.sugar} Sugar, ${this.recipe.lemons} Lemons`,
                 align: 'center',
@@ -2372,18 +2554,67 @@ class EnhancedViewTest extends ViewableGame {
             // playerIds: [playerId]
         });
 
-        // Placeholder stats (blank for now as requested)
-        const statsPlaceholder = new GameNode.Text({
+        // Revenue display
+        const revenueText = new GameNode.Text({
             textInfo: {
                 x: 50,
-                y: 55,
-                color: [255, 255, 255, 100],
-                text: 'Stats coming soon...',
+                y: 40,
+                color: [0, 255, 0, 255],
+                text: `Total Revenue: $${this.standRevenue.toFixed(2)}`,
                 align: 'center',
-                size: 1.5
+                size: 2
             },
             // playerIds: [playerId]
         });
+
+        // Boss warnings
+        let yOffset = 50;
+        if (this.bosses.length > 0) {
+            const bossWarning = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: yOffset,
+                    color: [255, 100, 100, 255],
+                    text: 'WARNING: Sugar addicts turning hostile!',
+                    align: 'center',
+                    size: 1.5
+                },
+                // playerIds: [playerId]
+            });
+            viewRoot.addChild(bossWarning);
+            yOffset += 8;
+
+            const bossCount = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: yOffset,
+                    color: [255, 150, 150, 255],
+                    text: `${this.bosses.length} new boss(es) in combat tomorrow!`,
+                    align: 'center',
+                    size: 1.3
+                },
+                // playerIds: [playerId]
+            });
+            viewRoot.addChild(bossCount);
+            yOffset += 10;
+        }
+
+        // Addiction stats
+        const addictionCount = Object.keys(this.addictionLevels).length;
+        if (addictionCount > 0) {
+            const addictionText = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: yOffset,
+                    color: [255, 255, 100, 255],
+                    text: `${addictionCount} customer(s) tracking addiction levels`,
+                    align: 'center',
+                    size: 1.2
+                },
+                // playerIds: [playerId]
+            });
+            viewRoot.addChild(addictionText);
+        }
 
         // Confirm button to go back to combat
         const confirmButton = new GameNode.Shape({
@@ -2392,8 +2623,8 @@ class EnhancedViewTest extends ViewableGame {
             fill: [0, 150, 0, 255],
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    console.log('Going back to combat phase');
-                    this.resetGame();
+                    console.log('Going to next day - advancing to combat phase');
+                    this.advanceToNextDay();
                 }
             },
             // playerIds: [playerId]
@@ -2404,7 +2635,7 @@ class EnhancedViewTest extends ViewableGame {
                 x: 50,
                 y: 89,
                 color: [255, 255, 255, 255],
-                text: 'CONTINUE',
+                text: 'START NEXT DAY',
                 align: 'center',
                 size: 2.5
             },
@@ -2413,11 +2644,260 @@ class EnhancedViewTest extends ViewableGame {
 
         viewRoot.addChild(title);
         viewRoot.addChild(recipeText);
-        viewRoot.addChild(statsPlaceholder);
+        viewRoot.addChild(revenueText);
         viewRoot.addChild(confirmButton);
         viewRoot.addChild(confirmText);
 
         return viewRoot;
+    }
+
+    advanceToNextDay() {
+        // Advance day counter
+        this.standDay++;
+        
+        // Lemons go bad after each day (reset to 0)
+        this.recipe.lemons = 0;
+        
+        // Reset stand data for new day
+        this.standRevenue = 0;
+        this.currentCustomer = null;
+        
+        // Reset game to combat phase
+        this.resetGame();
+        
+        console.log(`Advanced to Day ${this.standDay}. Lemons went bad! New bosses: ${this.bosses.length}`);
+    }
+
+    // Lemonade stand customer management
+    spawnCustomer() {
+        const customerNames = ['Alex', 'Sam', 'Jordan', 'Casey', 'Riley', 'Morgan', 'Taylor', 'Avery'];
+        const name = customerNames[Math.floor(Math.random() * customerNames.length)];
+        const customerId = `${name}_${this.standDay}`;
+        
+        // Determine customer profile
+        let profile;
+        if (this.addictionLevels[customerId] >= 10) {
+            // Over-addicted customers become bosses (appear in combat next day)
+            if (!this.bosses.includes(customerId)) {
+                this.bosses.push(customerId);
+                console.log(`${name} became a sugar-crazed boss!`);
+            }
+            profile = 'sugar_addict'; // Still want sugar but will become hostile
+        } else if (this.addictionLevels[customerId] >= 5) {
+            profile = 'sugar_addict';
+        } else {
+            profile = this.customerProfiles[Math.floor(Math.random() * this.customerProfiles.length)];
+        }
+
+        this.currentCustomer = {
+            name: name,
+            id: customerId,
+            profile: profile,
+            arrivalTime: Date.now(),
+            patience: this.customerWaitTime,
+            addictionLevel: this.addictionLevels[customerId] || 0,
+            satisfied: false
+        };
+
+        console.log(`${name} arrived! Profile: ${profile}, Addiction: ${this.currentCustomer.addictionLevel}`);
+    }
+
+    updateLemonadeStand(currentTime) {
+        if (!this.currentCustomer) return;
+
+        // Check if customer has waited too long
+        const waitTime = currentTime - this.currentCustomer.arrivalTime;
+        if (waitTime >= this.currentCustomer.patience) {
+            console.log(`${this.currentCustomer.name} left without buying (too slow)`);
+            this.currentCustomer = null;
+            this.spawnCustomer(); // Spawn next customer
+            this.updateAllPlayerViews();
+        }
+    }
+
+    serveCustomer() {
+        if (!this.currentCustomer) return;
+
+        const customer = this.currentCustomer;
+        const sugar = this.recipe.sugar;
+        const lemons = this.recipe.lemons;
+        
+        // Calculate satisfaction based on profile and recipe
+        let satisfaction = 0;
+        let price = 0.5; // Base price
+        
+        switch (customer.profile) {
+            case 'sweet_tooth':
+                satisfaction = Math.min(100, sugar * 15 + Math.max(0, 50 - lemons * 10));
+                break;
+            case 'balanced':
+                satisfaction = Math.min(100, 70 - Math.abs(sugar - lemons) * 10);
+                break;
+            case 'tart_lover':
+                satisfaction = Math.min(100, lemons * 20 + Math.max(0, 30 - sugar * 5));
+                break;
+            case 'sugar_addict':
+                satisfaction = Math.min(100, sugar * 25); // Only cares about sugar
+                break;
+        }
+
+        // Higher satisfaction = higher price
+        price = 0.25 + (satisfaction / 100) * 2.0; // $0.25 to $2.25
+
+        // Update addiction level based on sugar content
+        const sugarAddiction = Math.floor(sugar / 3); // Every 3 sugar = 1 addiction point
+        this.addictionLevels[customer.id] = (this.addictionLevels[customer.id] || 0) + sugarAddiction;
+
+        // Customer reaction
+        let reaction = '';
+        if (satisfaction >= 80) {
+            reaction = 'Loves it!';
+            price *= 1.2; // Willing to pay 20% more
+        } else if (satisfaction >= 60) {
+            reaction = 'Pretty good!';
+        } else if (satisfaction >= 40) {
+            reaction = 'It\'s okay...';
+            price *= 0.8; // Pays 20% less
+        } else {
+            reaction = 'Not great.';
+            price *= 0.5; // Pays half price
+        }
+
+        this.standRevenue += price;
+        customer.satisfied = true;
+        customer.satisfaction = satisfaction;
+        customer.price = price;
+        customer.reaction = reaction;
+
+        console.log(`${customer.name}: ${reaction} (${satisfaction}% satisfaction, $${price.toFixed(2)}, addiction: ${this.addictionLevels[customer.id]})`);
+
+        // Customer leaves after 2 seconds, then spawn new one
+        setTimeout(() => {
+            this.currentCustomer = null;
+            this.spawnCustomer();
+            this.updateAllPlayerViews();
+        }, 2000);
+
+        this.updateAllPlayerViews();
+    }
+
+    addCustomerToView(viewRoot, customer, playerId) {
+        // Customer figure
+        const customerColor = this.getCustomerColor(customer.profile);
+        const customerShape = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(45, 40, 10, 20),
+            fill: customerColor,
+            // playerIds: [playerId]
+        });
+
+        // Customer name
+        const nameText = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 35,
+                color: [0, 0, 0, 255],
+                text: customer.name,
+                align: 'center',
+                size: 1.5
+            },
+            // playerIds: [playerId]
+        });
+
+        // Customer profile indicator
+        const profileText = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 30,
+                color: [100, 100, 100, 255],
+                text: this.getProfileDisplayName(customer.profile),
+                align: 'center',
+                size: 1
+            },
+            // playerIds: [playerId]
+        });
+
+        // Serve button (only if not yet served)
+        if (!customer.satisfied) {
+            const serveButton = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(35, 50, 30, 8),
+                fill: [0, 200, 0, 255],
+                onClick: (clickPlayerId) => {
+                    if (Number(clickPlayerId) === Number(playerId)) {
+                        this.serveCustomer();
+                    }
+                },
+                // playerIds: [playerId]
+            });
+
+            const serveText = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 54,
+                    color: [255, 255, 255, 255],
+                    text: 'SERVE LEMONADE',
+                    align: 'center',
+                    size: 1.5
+                },
+                // playerIds: [playerId]
+            });
+
+            viewRoot.addChild(serveButton);
+            viewRoot.addChild(serveText);
+        } else {
+            // Show customer reaction
+            const reactionText = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 50,
+                    color: customer.satisfaction >= 60 ? [0, 150, 0, 255] : [150, 0, 0, 255],
+                    text: customer.reaction,
+                    align: 'center',
+                    size: 1.5
+                },
+                // playerIds: [playerId]
+            });
+
+            const priceText = new GameNode.Text({
+                textInfo: {
+                    x: 50,
+                    y: 55,
+                    color: [0, 100, 0, 255],
+                    text: `Paid $${customer.price.toFixed(2)}`,
+                    align: 'center',
+                    size: 1.2
+                },
+                // playerIds: [playerId]
+            });
+
+            viewRoot.addChild(reactionText);
+            viewRoot.addChild(priceText);
+        }
+
+        viewRoot.addChild(customerShape);
+        viewRoot.addChild(nameText);
+        viewRoot.addChild(profileText);
+    }
+
+    getCustomerColor(profile) {
+        switch (profile) {
+            case 'sweet_tooth': return [255, 192, 203, 255]; // Pink
+            case 'balanced': return [144, 238, 144, 255]; // Light green
+            case 'tart_lover': return [255, 255, 0, 255]; // Yellow
+            case 'sugar_addict': return [255, 0, 0, 255]; // Red
+            default: return [128, 128, 128, 255]; // Gray
+        }
+    }
+
+    getProfileDisplayName(profile) {
+        switch (profile) {
+            case 'sweet_tooth': return 'Sweet Tooth';
+            case 'balanced': return 'Balanced';
+            case 'tart_lover': return 'Tart Lover';
+            case 'sugar_addict': return 'Sugar Addict';
+            default: return 'Unknown';
+        }
     }
 
     resetGame() {
@@ -2538,13 +3018,18 @@ class EnhancedViewTest extends ViewableGame {
     tick() {
         const currentTime = Date.now();
         
-        // Check for new section 5-second timer
-        if (this.gameState === 'newSection' && this.newSectionStartTime) {
-            const elapsed = currentTime - this.newSectionStartTime;
-            if (elapsed >= 5000) { // 5 seconds
+        // Check for lemonade stand timer and customer management
+        if (this.gameState === 'newSection' && this.standStartTime) {
+            const elapsed = currentTime - this.standStartTime;
+            
+            // End stand after 30 seconds
+            if (elapsed >= this.standDuration) {
                 this.startNewSectionStats();
                 return;
             }
+            
+            // Manage customer interactions
+            this.updateLemonadeStand(currentTime);
         }
         
         // Check game over conditions
