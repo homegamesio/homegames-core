@@ -65,10 +65,19 @@ class EnhancedViewTest extends ViewableGame {
         this.projectileSize = 2; // Size of projectile squares
         
         // Game state and timer
-        this.gameState = 'playing'; // 'playing', 'gameOver', 'dead'
+        this.gameState = 'playing'; // 'playing', 'gameOver', 'dead', 'recipe', 'newSection', 'newSectionStats'
         this.gameTimer = 60000; // 60 seconds in milliseconds
         this.gameStartTime = Date.now();
         this.lastViewUpdate = 0; // Track when we last updated views for smooth visuals
+        
+        // Recipe system
+        this.recipe = {
+            sugar: 5,
+            lemons: 3
+        };
+        
+        // New section timer
+        this.newSectionStartTime = null;
         
         // Stats tracking
         this.currentStats = {
@@ -647,21 +656,19 @@ class EnhancedViewTest extends ViewableGame {
     }
 
     createPlayerView(playerId, view) {
-        console.log('dsfsdf bls ' + playerId);
-        console.log(playerId)
         if (this.gameState === 'gameOver' || this.gameState === 'dead') {
-            // return new GameNode.Shape({
-            //     shapeType: Shapes.POLYGON,
-            //     coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            //     fill: [255, 0, 0, 255],
-            //     // playerIds: [playerId],
-            //     onClick: (clickPlayerId) => {
-            //         console.log(`DEBUG: TEST BUTTON CLICKED! PlayerId: ${clickPlayerId}`);
-            //     }
-            // });
             // For game over, we need to create a view that can handle clicks properly
             const gameOverRoot = this.createGameOverView(playerId, view);
             return gameOverRoot;
+        } else if (this.gameState === 'recipe') {
+            const recipeRoot = this.createRecipeView(playerId, view);
+            return recipeRoot;
+        } else if (this.gameState === 'newSection') {
+            const newSectionRoot = this.createNewSectionView(playerId, view);
+            return newSectionRoot;
+        } else if (this.gameState === 'newSectionStats') {
+            const newSectionStatsRoot = this.createNewSectionStatsView(playerId, view);
+            return newSectionStatsRoot;
         }
         
         const viewRoot = ViewUtils.getView(this.getPlane(), view, [playerId]);
@@ -1253,6 +1260,13 @@ class EnhancedViewTest extends ViewableGame {
         else return 4;
     }
 
+    // fighting over sugar. sugar is in abundance. lemons are used for upgrades and also used for lemonade. they go bad after a day so if you dont sell them they are no good anymore after.
+    // sugar makes people like the lemonade more. its the only real way to make a significant amount of money.
+    // people will have profiles, they will like tart or sweet but you can add sugar to make people addicted.
+    // if theyre addicted they will come back every day.
+    // once they get too addicted, they become a boss fight in the combat section because theyre out there looking for sugar. 
+    // bosses get more health and do more damage. lets say there are 4 bosses. 
+
     calculateDistanceToRectangle(pointX, pointY, rectX, rectY, rectWidth, rectHeight) {
         // Find the closest point on the rectangle to the given point
         const closestX = Math.max(rectX, Math.min(pointX, rectX + rectWidth));
@@ -1472,7 +1486,6 @@ class EnhancedViewTest extends ViewableGame {
         const newX = archer.x + normalizedX * kiteSpeed;
         const newY = archer.y + normalizedY * kiteSpeed;
         
-        // fuckload of sugar so maybe the lemons and you are fighting over sugar
         // Keep archer within world bounds
         archer.x = Math.max(0, Math.min(this.worldSize - archer.size, newX));
         archer.y = Math.max(0, Math.min(this.worldSize - archer.size, newY));
@@ -1854,28 +1867,28 @@ class EnhancedViewTest extends ViewableGame {
         // Create clean upgrade section
         const upgradeElements = this.createUpgradeElements(playerId, player, finalScore);
 
-        // Play Again button - moved higher up
-        const playAgainButton = new GameNode.Shape({
+        // New Day button - moved higher up
+        const newDayButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(25, 85, 50, 8),
             fill: [0, 180, 0, 255],
             // border: { color: [255, 255, 255, 255], width: 1 },
             onClick: (clickPlayerId) => {
-                console.log(`DEBUG: Play Again button clicked! PlayerId: ${clickPlayerId}, Target: ${playerId}`);
+                console.log(`DEBUG: New Day button clicked! PlayerId: ${clickPlayerId}, Target: ${playerId}`);
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    console.log('Play Again clicked!');
-                    this.resetGame();
+                    console.log('New Day clicked!');
+                    this.startRecipePhase();
                 }
             },
             // playerIds: [playerId]
         });
 
-        const playAgainText = new GameNode.Text({
+        const newDayText = new GameNode.Text({
             textInfo: {
                 x: 50,
                 y: 89,
                 color: [255, 255, 255, 255],
-                text: 'PLAY AGAIN',
+                text: 'NEW DAY',
                 align: 'center',
                 size: 2.5
             },
@@ -1916,8 +1929,8 @@ class EnhancedViewTest extends ViewableGame {
         // Add all upgrade elements
         upgradeElements.forEach(element => viewRoot.addChild(element));
         
-        viewRoot.addChild(playAgainButton);
-        viewRoot.addChild(playAgainText);
+        viewRoot.addChild(newDayButton);
+        viewRoot.addChild(newDayText);
 
 
 
@@ -2059,6 +2072,354 @@ class EnhancedViewTest extends ViewableGame {
         return elements;
     }
 
+    // Phase transition methods
+    startRecipePhase() {
+        this.gameState = 'recipe';
+        this.updateAllPlayerViews();
+        console.log('Started recipe phase');
+    }
+
+    startNewSection() {
+        this.gameState = 'newSection';
+        this.newSectionStartTime = Date.now();
+        this.updateAllPlayerViews();
+        console.log('Started new section');
+    }
+
+    startNewSectionStats() {
+        this.gameState = 'newSectionStats';
+        this.updateAllPlayerViews();
+        console.log('Started new section stats');
+    }
+
+    // New view creation methods
+    createRecipeView(playerId, view) {
+        const viewRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: [50, 70, 50, 255], // Dark green background
+            // playerIds: [playerId]
+        });
+
+        // Title
+        const title = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 15,
+                color: [255, 255, 255, 255],
+                text: 'RECIPE',
+                align: 'center',
+                size: 4
+            },
+            // playerIds: [playerId]
+        });
+
+        // Sugar section
+        const sugarLabel = new GameNode.Text({
+            textInfo: {
+                x: 25,
+                y: 35,
+                color: [255, 255, 255, 255],
+                text: 'Sugar:',
+                align: 'center',
+                size: 2
+            },
+            // playerIds: [playerId]
+        });
+
+        const sugarMinus = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(15, 42, 8, 8),
+            fill: [200, 0, 0, 255],
+            onClick: (clickPlayerId) => {
+                if (Number(clickPlayerId) === Number(playerId)) {
+                    this.recipe.sugar = Math.max(0, this.recipe.sugar - 1);
+                    this.updateAllPlayerViews();
+                    console.log(`Sugar decreased to ${this.recipe.sugar}`);
+                }
+            },
+            // playerIds: [playerId]
+        });
+
+        const sugarMinusText = new GameNode.Text({
+            textInfo: {
+                x: 19,
+                y: 46,
+                color: [255, 255, 255, 255],
+                text: '-',
+                align: 'center',
+                size: 3
+            },
+            // playerIds: [playerId]
+        });
+
+        const sugarValue = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 46,
+                color: [255, 255, 255, 255],
+                text: this.recipe.sugar.toString(),
+                align: 'center',
+                size: 3
+            },
+            // playerIds: [playerId]
+        });
+
+        const sugarPlus = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(77, 42, 8, 8),
+            fill: [0, 200, 0, 255],
+            onClick: (clickPlayerId) => {
+                if (Number(clickPlayerId) === Number(playerId)) {
+                    this.recipe.sugar = Math.min(20, this.recipe.sugar + 1);
+                    this.updateAllPlayerViews();
+                    console.log(`Sugar increased to ${this.recipe.sugar}`);
+                }
+            },
+            // playerIds: [playerId]
+        });
+
+        const sugarPlusText = new GameNode.Text({
+            textInfo: {
+                x: 81,
+                y: 46,
+                color: [255, 255, 255, 255],
+                text: '+',
+                align: 'center',
+                size: 3
+            },
+            // playerIds: [playerId]
+        });
+
+        // Lemons section
+        const lemonsLabel = new GameNode.Text({
+            textInfo: {
+                x: 25,
+                y: 60,
+                color: [255, 255, 255, 255],
+                text: 'Lemons:',
+                align: 'center',
+                size: 2
+            },
+            // playerIds: [playerId]
+        });
+
+        const lemonsMinus = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(15, 67, 8, 8),
+            fill: [200, 0, 0, 255],
+            onClick: (clickPlayerId) => {
+                if (Number(clickPlayerId) === Number(playerId)) {
+                    this.recipe.lemons = Math.max(0, this.recipe.lemons - 1);
+                    this.updateAllPlayerViews();
+                    console.log(`Lemons decreased to ${this.recipe.lemons}`);
+                }
+            },
+            // playerIds: [playerId]
+        });
+
+        const lemonsMinusText = new GameNode.Text({
+            textInfo: {
+                x: 19,
+                y: 71,
+                color: [255, 255, 255, 255],
+                text: '-',
+                align: 'center',
+                size: 3
+            },
+            // playerIds: [playerId]
+        });
+
+        const lemonsValue = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 71,
+                color: [255, 255, 255, 255],
+                text: this.recipe.lemons.toString(),
+                align: 'center',
+                size: 3
+            },
+            // playerIds: [playerId]
+        });
+
+        const lemonsPlus = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(77, 67, 8, 8),
+            fill: [0, 200, 0, 255],
+            onClick: (clickPlayerId) => {
+                if (Number(clickPlayerId) === Number(playerId)) {
+                    this.recipe.lemons = Math.min(20, this.recipe.lemons + 1);
+                    this.updateAllPlayerViews();
+                    console.log(`Lemons increased to ${this.recipe.lemons}`);
+                }
+            },
+            // playerIds: [playerId]
+        });
+
+        const lemonsPlusText = new GameNode.Text({
+            textInfo: {
+                x: 81,
+                y: 71,
+                color: [255, 255, 255, 255],
+                text: '+',
+                align: 'center',
+                size: 3
+            },
+            // playerIds: [playerId]
+        });
+
+        // Confirm button
+        const confirmButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(25, 85, 50, 8),
+            fill: [0, 0, 200, 255],
+            onClick: (clickPlayerId) => {
+                if (Number(clickPlayerId) === Number(playerId)) {
+                    console.log(`Recipe confirmed: Sugar ${this.recipe.sugar}, Lemons ${this.recipe.lemons}`);
+                    this.startNewSection();
+                }
+            },
+            // playerIds: [playerId]
+        });
+
+        const confirmText = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 89,
+                color: [255, 255, 255, 255],
+                text: 'CONFIRM',
+                align: 'center',
+                size: 2.5
+            },
+            // playerIds: [playerId]
+        });
+
+        viewRoot.addChild(title);
+        viewRoot.addChild(sugarLabel);
+        viewRoot.addChild(sugarMinus);
+        viewRoot.addChild(sugarMinusText);
+        viewRoot.addChild(sugarValue);
+        viewRoot.addChild(sugarPlus);
+        viewRoot.addChild(sugarPlusText);
+        viewRoot.addChild(lemonsLabel);
+        viewRoot.addChild(lemonsMinus);
+        viewRoot.addChild(lemonsMinusText);
+        viewRoot.addChild(lemonsValue);
+        viewRoot.addChild(lemonsPlus);
+        viewRoot.addChild(lemonsPlusText);
+        viewRoot.addChild(confirmButton);
+        viewRoot.addChild(confirmText);
+
+        return viewRoot;
+    }
+
+    createNewSectionView(playerId, view) {
+        const viewRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: [20, 20, 50, 255], // Dark blue background
+            // playerIds: [playerId]
+        });
+
+        // Placeholder text
+        const placeholder = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 50,
+                color: [255, 255, 255, 100],
+                text: 'Brewing lemonade...',
+                align: 'center',
+                size: 3
+            },
+            // playerIds: [playerId]
+        });
+
+        viewRoot.addChild(placeholder);
+        return viewRoot;
+    }
+
+    createNewSectionStatsView(playerId, view) {
+        const viewRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: [50, 50, 20, 255], // Dark yellow background
+            // playerIds: [playerId]
+        });
+
+        // Title
+        const title = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 20,
+                color: [255, 255, 255, 255],
+                text: 'LEMONADE STAND RESULTS',
+                align: 'center',
+                size: 2.5
+            },
+            // playerIds: [playerId]
+        });
+
+        // Recipe display
+        const recipeText = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 35,
+                color: [255, 255, 255, 255],
+                text: `Recipe: ${this.recipe.sugar} Sugar, ${this.recipe.lemons} Lemons`,
+                align: 'center',
+                size: 1.8
+            },
+            // playerIds: [playerId]
+        });
+
+        // Placeholder stats (blank for now as requested)
+        const statsPlaceholder = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 55,
+                color: [255, 255, 255, 100],
+                text: 'Stats coming soon...',
+                align: 'center',
+                size: 1.5
+            },
+            // playerIds: [playerId]
+        });
+
+        // Confirm button to go back to combat
+        const confirmButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(25, 85, 50, 8),
+            fill: [0, 150, 0, 255],
+            onClick: (clickPlayerId) => {
+                if (Number(clickPlayerId) === Number(playerId)) {
+                    console.log('Going back to combat phase');
+                    this.resetGame();
+                }
+            },
+            // playerIds: [playerId]
+        });
+
+        const confirmText = new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 89,
+                color: [255, 255, 255, 255],
+                text: 'CONTINUE',
+                align: 'center',
+                size: 2.5
+            },
+            // playerIds: [playerId]
+        });
+
+        viewRoot.addChild(title);
+        viewRoot.addChild(recipeText);
+        viewRoot.addChild(statsPlaceholder);
+        viewRoot.addChild(confirmButton);
+        viewRoot.addChild(confirmText);
+
+        return viewRoot;
+    }
+
     resetGame() {
         // Save current stats as previous stats
         this.previousStats = {
@@ -2176,6 +2537,15 @@ class EnhancedViewTest extends ViewableGame {
 
     tick() {
         const currentTime = Date.now();
+        
+        // Check for new section 5-second timer
+        if (this.gameState === 'newSection' && this.newSectionStartTime) {
+            const elapsed = currentTime - this.newSectionStartTime;
+            if (elapsed >= 5000) { // 5 seconds
+                this.startNewSectionStats();
+                return;
+            }
+        }
         
         // Check game over conditions
         if (this.gameState === 'playing') {
