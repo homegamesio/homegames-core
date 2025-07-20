@@ -25,6 +25,7 @@ class EnhancedViewTest extends ViewableGame {
         this.worldItems = [];
         this.landmarks = []; // Track landmark objects separately
         this.guards = []; // Track all guards in the world
+        this.deadGuards = []; // Track dead guards for visual display
         
         this.viewSize = 100; // Size of each player's view
         this.worldSize = 800;
@@ -34,8 +35,14 @@ class EnhancedViewTest extends ViewableGame {
         this.gatherCooldown = 300; // Time between gathering attempts
         this.gatherIndicators = []; // Store active resource gathering indicators
         
+        // Player attack settings
+        this.attackRange = 2; // Player attack range (closer than gathering)
+        this.attackDamage = 5; // Player attack damage
+        this.attackCooldown = 400; // Time between player attacks
+        this.attackIndicators = []; // Store attack damage indicators
+        
         // Enemy/combat settings
-        this.enemyDetectionRange = 10; // Guards detect player within this range
+        this.enemyDetectionRange = 20; // Guards detect player within this range (doubled)
         this.enemyAttackRange = 3; // Guards attack when this close to player
         this.enemyAttackCooldown = 500; // Time between enemy attacks
         this.enemySpeed = 0.15; // Enemy movement speed (slightly slower than player)
@@ -193,7 +200,10 @@ class EnhancedViewTest extends ViewableGame {
                 targetPlayerId: null,
                 lastAttackTime: 0,
                 originalX: clampedX, // Remember guard's original position
-                originalY: clampedY
+                originalY: clampedY,
+                // Combat stats
+                health: 10, // Guards have 10 health (2 player hits to kill)
+                maxHealth: 10
             };
 
             this.guards.push(guardData);
@@ -265,6 +275,12 @@ class EnhancedViewTest extends ViewableGame {
         
         // Add player to the view
         this.addPlayerToView(playerId, viewRoot, view);
+        
+        // Add guard health display to the view
+        this.addGuardHealthToView(viewRoot, view, playerId);
+        
+        // Add dead guard corpses to the view (no health text)
+        this.addDeadGuardsToView(viewRoot, view, playerId);
         
         return viewRoot;
     }
@@ -390,6 +406,96 @@ class EnhancedViewTest extends ViewableGame {
                 viewRoot.addChild(damageText);
             }
         }
+        
+        // Add attack indicators visible in this view (player attacking enemies)
+        for (const indicator of this.attackIndicators) {
+            // Check if indicator is still active and visible
+            if (currentTime - indicator.createdAt < indicator.duration &&
+                indicator.x >= view.x && indicator.x <= view.x + view.w &&
+                indicator.y >= view.y && indicator.y <= view.y + view.h) {
+                
+                // Convert world coordinates to view coordinates
+                const viewX = indicator.x - view.x;
+                const viewY = indicator.y - view.y;
+                
+                // Calculate fade effect based on age
+                const age = currentTime - indicator.createdAt;
+                const fadeProgress = age / indicator.duration;
+                const alpha = Math.round(255 * (1 - fadeProgress));
+                
+                const attackText = new GameNode.Text({
+                    textInfo: {
+                        x: viewX,
+                        y: viewY,
+                        color: [255, 140, 0, alpha], // Orange text that fades out (distinct from red damage)
+                        text: `-${indicator.damage}`,
+                        align: 'center',
+                        size: 2
+                    }
+                });
+                
+                viewRoot.addChild(attackText);
+            }
+        }
+    }
+
+    addDeadGuardsToView(viewRoot, view, playerId) {
+        // Add visual representation for dead guards (no health text, just transparent corpses)
+        for (const deadGuard of this.deadGuards) {
+            // Check if dead guard is visible in current view
+            if (deadGuard.x + deadGuard.size >= view.x && deadGuard.x <= view.x + view.w &&
+                deadGuard.y + deadGuard.size >= view.y && deadGuard.y <= view.y + view.h) {
+                
+                // Convert world coordinates to view coordinates
+                const viewX = deadGuard.x - view.x;
+                const viewY = deadGuard.y - view.y;
+                
+                // Create transparent red square for dead guard corpse
+                const deadGuardNode = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    coordinates2d: ShapeUtils.rectangle(viewX, viewY, deadGuard.size, deadGuard.size),
+                    fill: [255, 0, 0, 50], // Very light transparent red
+                    playerIds: [playerId]
+                });
+                
+                viewRoot.addChild(deadGuardNode);
+            }
+        }
+    }
+
+    addGuardHealthToView(viewRoot, view, playerId) {
+        // Add health text for guards visible in this view
+        for (const guard of this.guards) {
+            if (guard.health <= 0) continue; // Skip dead guards
+            
+            // Check if guard is visible in current view
+            if (guard.x + guard.size >= view.x && guard.x <= view.x + view.w &&
+                guard.y + guard.size >= view.y && guard.y <= view.y + view.h) {
+                
+                // Convert world coordinates to view coordinates
+                const viewX = guard.x + guard.size/2 - view.x;
+                const viewY = guard.y - 2 - view.y; // Above the guard
+                
+                // Color-code health
+                const healthColor = guard.health <= 3 ? [255, 0, 0, 255] : // Red when low health
+                                   guard.health <= 6 ? [255, 255, 0, 255] : // Yellow when medium health
+                                   [0, 255, 0, 255]; // Green when healthy
+
+                const guardHealthText = new GameNode.Text({
+                    textInfo: {
+                        x: viewX,
+                        y: viewY,
+                        color: healthColor,
+                        text: `${guard.health}`,
+                        align: 'center',
+                        size: 1.2
+                    },
+                    playerIds: [playerId]
+                });
+                
+                viewRoot.addChild(guardHealthText);
+            }
+        }
     }
 
     addPlayerToView(playerId, viewRoot, view) {
@@ -422,7 +528,7 @@ class EnhancedViewTest extends ViewableGame {
                 x: relativeX,
                 y: relativeY + this.playerSize/2 + 3, // Below the player
                 color: healthColor,
-                text: `${player.health}/${player.maxHealth}`,
+                text: `${player.health}/${player.maxHealth} | Score: ${player.score}`,
                 align: 'center',
                 size: 1.5
             },
@@ -475,8 +581,10 @@ class EnhancedViewTest extends ViewableGame {
             moving: false,
             nodeId: null,
             lastGatherTime: 0, // Track last gathering time for cooldown
+            lastAttackTime: 0, // Track last attack time for cooldown
             health: 100, // Player health
-            maxHealth: 100
+            maxHealth: 100,
+            score: 0 // Kill score
         };
 
         this.players[playerId] = player;
@@ -642,6 +750,7 @@ class EnhancedViewTest extends ViewableGame {
 
     updateEnemyAI(currentTime) {
         for (const guard of this.guards) {
+            if (guard.health <= 0) continue; // Skip dead guards
             let closestPlayer = null;
             let closestDistance = Infinity;
 
@@ -674,15 +783,16 @@ class EnhancedViewTest extends ViewableGame {
                     guard.lastAttackTime = currentTime;
                 }
             } else {
-                // No player in range, stop chasing and return to post
+                // No player in range, but guards never stop hunting once they've started chasing
                 if (guard.isChasing) {
-                    guard.isChasing = false;
-                    guard.targetPlayerId = null;
-                    console.log(`Guard stops chasing and returns to post`);
+                    // Keep hunting! Guards remember the last known player position and patrol
+                    console.log(`Guard continues hunting...`);
+                    // Optionally add patrolling behavior here in the future
+                } else {
+                    // Guard hasn't detected anyone yet, stay at post
+                    // Only return to post if they've never chased anyone
+                    this.moveGuardTowards(guard, guard.originalX + guard.size/2, guard.originalY + guard.size/2);
                 }
-
-                // Return to original position
-                this.moveGuardTowards(guard, guard.originalX + guard.size/2, guard.originalY + guard.size/2);
             }
         }
     }
@@ -735,6 +845,75 @@ class EnhancedViewTest extends ViewableGame {
         }
     }
 
+    findAttackTarget(player) {
+        // Find the closest guard within attack range
+        let closestGuard = null;
+        let closestDistance = Infinity;
+        
+        for (const guard of this.guards) {
+            if (guard.health <= 0) continue; // Skip dead guards
+            
+            // Calculate edge-to-edge distance between player and guard
+            const guardCenterX = guard.x + guard.size/2;
+            const guardCenterY = guard.y + guard.size/2;
+            const distance = this.calculateDistance(player.x, player.y, guardCenterX, guardCenterY);
+            
+            if (distance <= this.attackRange && distance < closestDistance) {
+                closestGuard = guard;
+                closestDistance = distance;
+            }
+        }
+        
+        return closestGuard;
+    }
+    
+    playerAttack(guard, playerId, player) {
+        const damage = this.attackDamage;
+        guard.health -= damage;
+        
+        console.log(`Player ${playerId} attacks guard for ${damage} damage! Guard health: ${guard.health}`);
+        
+        // Create attack indicator near the guard
+        const indicatorX = guard.x + guard.size/2 + (Math.random() * 4 - 2); // Small random offset
+        const indicatorY = guard.y + guard.size/2 + (Math.random() * 4 - 2);
+        
+        const attackIndicator = {
+            x: indicatorX,
+            y: indicatorY,
+            damage: damage,
+            createdAt: Date.now(),
+            duration: 1000, // Show for 1 second
+        };
+        
+        this.attackIndicators.push(attackIndicator);
+        
+        // Check if guard is dead
+        if (guard.health <= 0) {
+            guard.health = 0;
+            console.log(`Guard has been defeated!`);
+            this.removeDeadGuard(guard, player);
+        }
+    }
+    
+    removeDeadGuard(deadGuard, player) {
+        // Change guard appearance to transparent red instead of removing
+        deadGuard.node.node.fill = [255, 0, 0, 50]; // Very light transparent red
+        deadGuard.node.node.onStateChange();
+        
+        // Remove from active guards array
+        const index = this.guards.indexOf(deadGuard);
+        if (index > -1) {
+            this.guards.splice(index, 1);
+        }
+        
+        // Add to dead guards array for visual tracking
+        this.deadGuards.push(deadGuard);
+        
+        // Award kill point to player
+        player.score += 1;
+        console.log(`Guard defeated - now transparent corpse. Player score: ${player.score}. Active guards: ${this.guards.length}`);
+    }
+
     tick() {
         const currentTime = Date.now();
         
@@ -745,6 +924,11 @@ class EnhancedViewTest extends ViewableGame {
         
         // Clean up expired damage indicators
         this.damageIndicators = this.damageIndicators.filter(indicator => 
+            currentTime - indicator.createdAt < indicator.duration
+        );
+        
+        // Clean up expired attack indicators
+        this.attackIndicators = this.attackIndicators.filter(indicator => 
             currentTime - indicator.createdAt < indicator.duration
         );
         
@@ -768,6 +952,16 @@ class EnhancedViewTest extends ViewableGame {
                     this.gatherFrom(gatherResult.target, playerId);
                     player.lastGatherTime = currentTime;
                     needsViewUpdate = true; // Need to update view to show new resource values
+                }
+            }
+            
+            // Check for attack targets (with cooldown)
+            if (currentTime - player.lastAttackTime >= this.attackCooldown) {
+                const attackTarget = this.findAttackTarget(player);
+                if (attackTarget) {
+                    this.playerAttack(attackTarget, playerId, player);
+                    player.lastAttackTime = currentTime;
+                    needsViewUpdate = true; // Need to update view to show attack indicators
                 }
             }
             
