@@ -36,14 +36,10 @@ class EnhancedViewTest extends ViewableGame {
         this.gatherCooldown = 300; // Time between gathering attempts
         this.gatherIndicators = []; // Store active resource gathering indicators
         
-        // Player attack settings
-        this.attackRange = 2; // Player attack range (closer than gathering)
-        this.attackDamage = 5; // Player attack damage
-        this.attackCooldown = 400; // Time between player attacks
+        // Player attack settings (now calculated in applyUpgrades)
         this.attackIndicators = []; // Store attack damage indicators
         
         // Enemy/combat settings
-        this.enemyDetectionRange = 20; // Guards detect player within this range (doubled)
         this.enemyAttackRange = 3; // Guards attack when this close to player
         this.enemyAttackCooldown = 500; // Time between enemy attacks
         this.enemySpeed = 0.15; // Enemy movement speed (slightly slower than player)
@@ -52,8 +48,9 @@ class EnhancedViewTest extends ViewableGame {
         // Archer settings
         this.archerHealth = 5; // Archers have less health than guards
         this.archerDamage = 0.5; // Weaker melee attacks
-        this.archerProjectileRange = 15; // Range for shooting projectiles
-        this.archerProjectileCooldown = 800; // Time between projectile shots
+        this.archerProjectileRange = 25; // Range for shooting projectiles (increased for kiting)
+        this.archerProjectileCooldown = 700; // Time between projectile shots (slightly faster)
+        this.archerKiteDistance = 12; // Preferred distance to maintain from player
         this.projectileSpeed = 0.2; // Speed of projectiles
         this.projectileDamage = 1; // Damage per projectile hit
         this.projectileSize = 2; // Size of projectile squares
@@ -78,10 +75,12 @@ class EnhancedViewTest extends ViewableGame {
         
         // Player upgrade system
         this.upgrades = {
-            moveSpeed: 0,    // 0-5 levels
-            attackDamage: 0, // 0-5 levels
-            attackRange: 0,  // 0-5 levels
-            health: 0        // 0-5 levels
+            attackDamage: 0,     // 0-5 levels - damage per attack
+            attackSpeed: 0,      // 0-5 levels - cooldown reduction 
+            attackRange: 0,      // 0-5 levels - reach distance
+            moveSpeed: 0,        // 0-5 levels - movement speed
+            aggroReduction: 0,   // 0-5 levels - reduce enemy detection range
+            multiAttack: 0       // 0-3 levels - attack multiple enemies (1→2→3→4)
         };
         this.upgradeBaseCost = 5; // Cost per upgrade
         this.upgradeBonus = 0.2;  // 20% increase per level
@@ -91,7 +90,8 @@ class EnhancedViewTest extends ViewableGame {
         this.basePlayerSpeed = 0.3;
         this.baseAttackDamage = 5;
         this.baseAttackRange = 2;
-        this.basePlayerHealth = 100;
+        this.baseAttackCooldown = 400; // Base attack cooldown in ms
+        this.baseEnemyDetectionRange = 20; // Base enemy detection range
 
         // Apply upgrades to current stats
         this.applyUpgrades();
@@ -101,15 +101,21 @@ class EnhancedViewTest extends ViewableGame {
     
     applyUpgrades() {
         // Calculate actual stats based on base stats + upgrades
-        this.playerSpeed = this.basePlayerSpeed * (1 + this.upgrades.moveSpeed * this.upgradeBonus);
         this.attackDamage = Math.round(this.baseAttackDamage * (1 + this.upgrades.attackDamage * this.upgradeBonus));
+        this.attackCooldown = Math.round(this.baseAttackCooldown * (1 - this.upgrades.attackSpeed * this.upgradeBonus)); // Reduce cooldown
         this.attackRange = this.baseAttackRange * (1 + this.upgrades.attackRange * this.upgradeBonus);
-        this.playerMaxHealth = Math.round(this.basePlayerHealth * (1 + this.upgrades.health * this.upgradeBonus));
+        this.playerSpeed = this.basePlayerSpeed * (1 + this.upgrades.moveSpeed * this.upgradeBonus);
+        this.enemyDetectionRange = this.baseEnemyDetectionRange * (1 - this.upgrades.aggroReduction * this.upgradeBonus); // Reduce detection range
+        this.maxSimultaneousAttacks = 1 + this.upgrades.multiAttack; // 1, 2, 3, or 4 enemies at once
+        
+        // Set player health to a fixed value since we removed health upgrades
+        this.playerMaxHealth = 100;
     }
     
     getUpgradeCost(upgradeType) {
         const currentLevel = this.upgrades[upgradeType];
-        if (currentLevel >= this.maxUpgradeLevel) return null; // Max level reached
+        const maxLevel = upgradeType === 'multiAttack' ? 3 : this.maxUpgradeLevel; // Multi-attack caps at 3 levels
+        if (currentLevel >= maxLevel) return null; // Max level reached
         return this.upgradeBaseCost;
     }
     
@@ -240,6 +246,9 @@ class EnhancedViewTest extends ViewableGame {
             this.spawnGuardsAroundPool(veinData, numGuards);
         }
 
+        // Add random enemy clusters scattered around the world
+        this.spawnRandomEnemyClusters();
+
         this.getPlane().addChild(this.worldBase);
     }
 
@@ -329,6 +338,140 @@ class EnhancedViewTest extends ViewableGame {
             health: this.archerHealth,
             maxHealth: this.archerHealth,
             type: 'archer'
+        };
+
+        this.archers.push(archerData);
+        this.worldBase.addChild(archer);
+    }
+
+    spawnRandomEnemyClusters() {
+        const numClusters = 8 + Math.floor(Math.random() * 5); // 8-12 random clusters
+        
+        for (let i = 0; i < numClusters; i++) {
+            // Find a random location with some spacing from edges
+            const clusterX = 50 + Math.random() * (this.worldSize - 100);
+            const clusterY = 50 + Math.random() * (this.worldSize - 100);
+            
+            // Vary cluster sizes: most are small, some are medium, few are large
+            let clusterSize;
+            const sizeRoll = Math.random();
+            if (sizeRoll < 0.6) {
+                clusterSize = 2 + Math.floor(Math.random() * 3); // 60% chance: 2-4 enemies (small packs)
+            } else if (sizeRoll < 0.9) {
+                clusterSize = 5 + Math.floor(Math.random() * 3); // 30% chance: 5-7 enemies (medium groups)
+            } else {
+                clusterSize = 8 + Math.floor(Math.random() * 4); // 10% chance: 8-11 enemies (large camps)
+            }
+            
+            const clusterType = clusterSize <= 4 ? 'pack' : clusterSize <= 7 ? 'group' : 'camp';
+            console.log(`Spawning enemy ${clusterType} ${i+1} at (${clusterX.toFixed(1)}, ${clusterY.toFixed(1)}) with ${clusterSize} enemies`);
+            
+            this.spawnEnemyCluster(clusterX, clusterY, clusterSize);
+        }
+    }
+
+    spawnEnemyCluster(centerX, centerY, numEnemies) {
+        // Adjust formation based on cluster size
+        const maxDistance = numEnemies <= 4 ? 12 : numEnemies <= 7 ? 20 : 30; // Larger camps spread out more
+        const minDistance = numEnemies <= 4 ? 3 : 5; // Minimum spacing
+        
+        // Create a mix of guards and archers in the cluster
+        for (let i = 0; i < numEnemies; i++) {
+            let enemyX, enemyY;
+            
+            if (numEnemies <= 4) {
+                // Small packs: tight circular formation
+                const angle = (i / numEnemies) * 2 * Math.PI + (Math.random() - 0.5) * 0.3;
+                const distance = Math.random() * (maxDistance - minDistance) + minDistance;
+                enemyX = centerX + Math.cos(angle) * distance;
+                enemyY = centerY + Math.sin(angle) * distance;
+            } else {
+                // Larger groups: more random spread within area
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = Math.random() * (maxDistance - minDistance) + minDistance;
+                enemyX = centerX + Math.cos(angle) * distance;
+                enemyY = centerY + Math.sin(angle) * distance;
+            }
+            
+            // Keep enemies within world bounds
+            const clampedX = Math.max(0, Math.min(this.worldSize - 4, enemyX));
+            const clampedY = Math.max(0, Math.min(this.worldSize - 4, enemyY));
+            
+            const enemySize = 4; // Standard enemy size
+            
+            // Larger camps have more archers (ranged advantage)
+            const archerChance = numEnemies <= 4 ? 0.3 : numEnemies <= 7 ? 0.4 : 0.5;
+            const isArcher = Math.random() < archerChance;
+            
+            if (isArcher) {
+                this.spawnFreeRoamingArcher(clampedX, clampedY, enemySize);
+            } else {
+                this.spawnFreeRoamingGuard(clampedX, clampedY, enemySize);
+            }
+        }
+    }
+
+    spawnFreeRoamingGuard(x, y, size) {
+        const guard = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(x, y, size, size),
+            fill: [150, 0, 0, 255], // Darker red for free-roaming guards to distinguish from resource guards
+            onClick: (clickPlayerId) => {
+                console.log(`Player ${clickPlayerId} clicked free-roaming guard at (${x}, ${y})`);
+            }
+        });
+
+        const guardData = {
+            x: x,
+            y: y,
+            size: size,
+            poolData: null, // No associated resource pool
+            node: guard,
+            // AI state
+            isChasing: false,
+            targetPlayerId: null,
+            lastAttackTime: 0,
+            originalX: x,
+            originalY: y,
+            // Combat stats
+            health: 12, // Slightly stronger than resource guards
+            maxHealth: 12,
+            type: 'guard',
+            isFreeRoaming: true // Mark as free-roaming for different AI behavior
+        };
+
+        this.guards.push(guardData);
+        this.worldBase.addChild(guard);
+    }
+
+    spawnFreeRoamingArcher(x, y, size) {
+        const archer = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(x, y, size, size),
+            fill: [100, 0, 100, 255], // Darker purple for free-roaming archers
+            onClick: (clickPlayerId) => {
+                console.log(`Player ${clickPlayerId} clicked free-roaming archer at (${x}, ${y})`);
+            }
+        });
+
+        const archerData = {
+            x: x,
+            y: y,
+            size: size,
+            poolData: null, // No associated resource pool
+            node: archer,
+            // AI state
+            isChasing: false,
+            targetPlayerId: null,
+            lastAttackTime: 0,
+            lastProjectileTime: 0,
+            originalX: x,
+            originalY: y,
+            // Combat stats
+            health: 6, // Slightly stronger than resource archers
+            maxHealth: 6,
+            type: 'archer',
+            isFreeRoaming: true // Mark as free-roaming for different AI behavior
         };
 
         this.archers.push(archerData);
@@ -1139,16 +1282,21 @@ class EnhancedViewTest extends ViewableGame {
         }
 
         if (closestPlayer) {
-            // Start chasing if not already
+            // Start engaging if not already
             if (!archer.isChasing) {
                 archer.isChasing = true;
-                console.log(`Archer starts chasing player ${archer.targetPlayerId}!`);
+                console.log(`Archer starts kiting player ${archer.targetPlayerId}!`);
             }
 
-            // Archers move towards player but also try to maintain some distance
-            if (closestDistance > this.enemyAttackRange + 2) {
+            // Kiting behavior: maintain optimal distance
+            if (closestDistance < this.archerKiteDistance) {
+                // Too close! Move away from player
+                this.moveArcherAwayFromPlayer(archer, closestPlayer);
+            } else if (closestDistance > this.archerProjectileRange) {
+                // Too far to shoot, move closer (but still try to maintain kite distance)
                 this.moveGuardTowards(archer, closestPlayer.x, closestPlayer.y);
             }
+            // If in the sweet spot (archerKiteDistance <= distance <= archerProjectileRange), just hold position and shoot
 
             // Shoot projectile if within range and cooldown is ready
             if (closestDistance <= this.archerProjectileRange && 
@@ -1157,7 +1305,7 @@ class EnhancedViewTest extends ViewableGame {
                 archer.lastProjectileTime = currentTime;
             }
             
-            // Melee attack if player gets too close
+            // Melee attack only as last resort if player gets really close
             if (closestDistance <= this.enemyAttackRange && 
                 currentTime - archer.lastAttackTime >= this.enemyAttackCooldown) {
                 this.archerAttackPlayer(archer, closestPlayer, archer.targetPlayerId);
@@ -1166,13 +1314,44 @@ class EnhancedViewTest extends ViewableGame {
         } else {
             // No player in range, but archers never stop hunting once they've started chasing
             if (archer.isChasing) {
-                // Keep hunting!
-                console.log(`Archer continues hunting...`);
+                // Keep hunting - patrol around original position
+                const patrolRadius = 15;
+                const patrolX = archer.originalX + Math.cos(Date.now() / 3000) * patrolRadius;
+                const patrolY = archer.originalY + Math.sin(Date.now() / 3000) * patrolRadius;
+                this.moveGuardTowards(archer, patrolX + archer.size/2, patrolY + archer.size/2);
             } else {
                 // Archer hasn't detected anyone yet, stay at post
                 this.moveGuardTowards(archer, archer.originalX + archer.size/2, archer.originalY + archer.size/2);
             }
         }
+    }
+
+    moveArcherAwayFromPlayer(archer, player) {
+        const archerCenterX = archer.x + archer.size/2;
+        const archerCenterY = archer.y + archer.size/2;
+        
+        // Calculate direction away from player
+        const directionX = archerCenterX - player.x;
+        const directionY = archerCenterY - player.y;
+        
+        // Normalize direction
+        const distance = Math.sqrt(directionX * directionX + directionY * directionY);
+        if (distance === 0) return; // Avoid division by zero
+        
+        const normalizedX = directionX / distance;
+        const normalizedY = directionY / distance;
+        
+        // Move away at much slower speed than player (so player can catch them)
+        const kiteSpeed = this.basePlayerSpeed * 0.25; // 50% of base player speed (0.15)
+        const newX = archer.x + normalizedX * kiteSpeed;
+        const newY = archer.y + normalizedY * kiteSpeed;
+        
+        // Keep archer within world bounds
+        archer.x = Math.max(0, Math.min(this.worldSize - archer.size, newX));
+        archer.y = Math.max(0, Math.min(this.worldSize - archer.size, newY));
+        
+        // Update the visual node position
+        archer.node.node.coordinates2d = ShapeUtils.rectangle(archer.x, archer.y, archer.size, archer.size);
     }
 
     moveGuardTowards(guard, targetX, targetY) {
@@ -1307,6 +1486,41 @@ class EnhancedViewTest extends ViewableGame {
         }
         
         return closestEnemy;
+    }
+
+    findMultipleAttackTargets(player) {
+        // Find multiple enemies within attack range, up to maxSimultaneousAttacks
+        let enemiesInRange = [];
+        
+        // Check guards
+        for (const guard of this.guards) {
+            if (guard.health <= 0) continue; // Skip dead guards
+            
+            const guardCenterX = guard.x + guard.size/2;
+            const guardCenterY = guard.y + guard.size/2;
+            const distance = this.calculateDistance(player.x, player.y, guardCenterX, guardCenterY);
+            
+            if (distance <= this.attackRange) {
+                enemiesInRange.push({ enemy: guard, distance: distance });
+            }
+        }
+        
+        // Check archers
+        for (const archer of this.archers) {
+            if (archer.health <= 0) continue; // Skip dead archers
+            
+            const archerCenterX = archer.x + archer.size/2;
+            const archerCenterY = archer.y + archer.size/2;
+            const distance = this.calculateDistance(player.x, player.y, archerCenterX, archerCenterY);
+            
+            if (distance <= this.attackRange) {
+                enemiesInRange.push({ enemy: archer, distance: distance });
+            }
+        }
+        
+        // Sort by distance (closest first) and return up to maxSimultaneousAttacks
+        enemiesInRange.sort((a, b) => a.distance - b.distance);
+        return enemiesInRange.slice(0, this.maxSimultaneousAttacks).map(item => item.enemy);
     }
     
     playerAttack(enemy, playerId, player) {
@@ -1536,18 +1750,18 @@ class EnhancedViewTest extends ViewableGame {
         
         const upgrades = [
             { 
-                name: 'moveSpeed', 
-                displayName: 'SPEED', 
-                currentValue: this.playerSpeed.toFixed(2),
-                baseValue: this.basePlayerSpeed,
-                icon: '⚡'
-            },
-            { 
                 name: 'attackDamage', 
                 displayName: 'DAMAGE', 
                 currentValue: this.attackDamage,
                 baseValue: this.baseAttackDamage,
                 icon: '⚔️'
+            },
+            { 
+                name: 'attackSpeed', 
+                displayName: 'ATK SPEED', 
+                currentValue: `${this.attackCooldown}ms`,
+                baseValue: this.baseAttackCooldown,
+                icon: '⚡'
             },
             { 
                 name: 'attackRange', 
@@ -1557,20 +1771,35 @@ class EnhancedViewTest extends ViewableGame {
                 icon: '🎯'
             },
             { 
-                name: 'health', 
-                displayName: 'HEALTH', 
-                currentValue: this.playerMaxHealth,
-                baseValue: this.basePlayerHealth,
-                icon: '❤️'
+                name: 'moveSpeed', 
+                displayName: 'MOVE SPEED', 
+                currentValue: this.playerSpeed.toFixed(2),
+                baseValue: this.basePlayerSpeed,
+                icon: '🏃'
+            },
+            { 
+                name: 'aggroReduction', 
+                displayName: 'STEALTH', 
+                currentValue: this.enemyDetectionRange.toFixed(1),
+                baseValue: this.baseEnemyDetectionRange,
+                icon: '👁️'
+            },
+            { 
+                name: 'multiAttack', 
+                displayName: 'MULTI-HIT', 
+                currentValue: `${this.maxSimultaneousAttacks} enemies`,
+                baseValue: 1,
+                icon: '💥'
             }
         ];
         
         upgrades.forEach((upgrade, index) => {
-            const yPos = 66 + index * 4; // Tighter spacing to fit in view
+            const yPos = 66 + index * 3.2; // Even tighter spacing to fit 6 upgrades
             const currentLevel = this.upgrades[upgrade.name];
             const cost = this.getUpgradeCost(upgrade.name);
             const canAfford = cost !== null && playerScore >= cost;
-            const isMaxLevel = currentLevel >= this.maxUpgradeLevel;
+            const maxLevel = upgrade.name === 'multiAttack' ? 3 : this.maxUpgradeLevel;
+            const isMaxLevel = currentLevel >= maxLevel;
             
             // Simple upgrade row
             const upgradeText = new GameNode.Text({
@@ -1578,7 +1807,7 @@ class EnhancedViewTest extends ViewableGame {
                     x: 15,
                     y: yPos,
                     color: [255, 255, 255, 255],
-                    text: `${upgrade.displayName}: ${upgrade.currentValue} [${currentLevel}/${this.maxUpgradeLevel}]`,
+                    text: `${upgrade.displayName}: ${upgrade.currentValue} [${currentLevel}/${maxLevel}]`,
                     align: 'left',
                     size: 1.3
                 },
@@ -1594,8 +1823,8 @@ class EnhancedViewTest extends ViewableGame {
                     coordinates2d: ShapeUtils.rectangle(75, yPos - 1, 10, 2.5),
                     fill: buttonColor,
                     onClick: (clickPlayerId) => {
-                        console.log(`DEBUG: Upgrade button clicked! PlayerId: ${clickPlayerId}, Target: ${playerId}, Upgrade: ${upgrade.name}, canAfford: ${canAfford}, currentLevel: ${currentLevel}`);
-                        if (Number(clickPlayerId) === Number(playerId) && canAfford && currentLevel < this.maxUpgradeLevel) {
+                        // console.log(`DEBUG: Upgrade button clicked! PlayerId: ${clickPlayerId}, Target: ${playerId}, Upgrade: ${upgrade.name}, canAfford: ${canAfford}, currentLevel: ${currentLevel}`);
+                        if (Number(clickPlayerId) === Number(playerId) && canAfford && currentLevel < maxLevel) {
                             console.log(`Upgrade ${upgrade.name} clicked!`);
                             if (this.purchaseUpgrade(upgrade.name, player)) {
                                 this.updatePlayerView(playerId);
@@ -1847,11 +2076,18 @@ class EnhancedViewTest extends ViewableGame {
             
             // Check for attack targets (with cooldown)
             if (currentTime - player.lastAttackTime >= this.attackCooldown) {
-                const attackTarget = this.findAttackTarget(player);
-                if (attackTarget) {
-                    this.playerAttack(attackTarget, playerId, player);
+                const attackTargets = this.findMultipleAttackTargets(player);
+                if (attackTargets.length > 0) {
+                    // Attack all targets simultaneously
+                    for (const target of attackTargets) {
+                        this.playerAttack(target, playerId, player);
+                    }
                     player.lastAttackTime = currentTime;
                     needsViewUpdate = true; // Need to update view to show attack indicators
+                    
+                    if (attackTargets.length > 1) {
+                        console.log(`Player ${playerId} multi-attacks ${attackTargets.length} enemies!`);
+                    }
                 }
             }
             
