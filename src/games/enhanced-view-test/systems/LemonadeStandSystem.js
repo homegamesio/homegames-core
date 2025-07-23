@@ -6,8 +6,7 @@ class LemonadeStandSystem {
         this.config = config;
         
         // Customer management
-        this.walkingCustomers = []; // Customers currently walking across screen
-        this.stoppedCustomers = []; // Customers who stopped at the stand
+        this.walkingCustomers = []; // Customers walking across screen (includes all states: walking, pausing, purchased)
         this.lastCustomerSpawn = 0;
         this.customerSpawnInterval = 2000; // Spawn every 2 seconds
         this.standRevenue = 0;
@@ -139,72 +138,83 @@ class LemonadeStandSystem {
             const customer = this.walkingCustomers[i];
             
             if (customer.state === 'walking') {
-                // Move customer
+                // Move customer along their path
                 customer.x += customer.direction * customer.speed;
                 needsViewUpdate = true; // Customer movement requires view update
                 
-                // Check if customer reached the stand area (center of screen)
+                // Check if customer is near the stand area for potential purchase
                 if (!customer.hasCheckedForStop && 
-                    ((customer.direction === 1 && customer.x >= 40) || 
-                     (customer.direction === -1 && customer.x <= 60))) {
+                    ((customer.direction === 1 && customer.x >= 35 && customer.x <= 45) || 
+                     (customer.direction === -1 && customer.x <= 65 && customer.x >= 55))) {
                     
                     customer.hasCheckedForStop = true;
                     
-                    // Check if customer decides to stop
+                    // Check if customer decides to stop and buy
                     if (Math.random() < customer.stopChance) {
-                        customer.state = 'stopped';
-                        customer.x = 50; // Position at stand
-                        customer.stopTime = currentTime;
-                        this.stoppedCustomers.push(customer);
-                        this.walkingCustomers.splice(i, 1);
-                        console.log(`${customer.name} stopped at the stand!`);
+                        customer.state = 'pausing';
+                        customer.pauseStartTime = currentTime;
+                        customer.originalSpeed = customer.speed;
+                        customer.speed = 0.1; // Slow down significantly but don't stop completely
+                        console.log(`${customer.name} is interested in the stand...`);
                         needsViewUpdate = true;
-                        continue;
                     }
                 }
                 
                 // Remove customers who walked off screen
                 if (customer.x < -15 || customer.x > 115) {
                     this.walkingCustomers.splice(i, 1);
-                    console.log(`${customer.name} walked away without stopping`);
+                    console.log(`${customer.name} walked past without interest`);
                     needsViewUpdate = true;
                 }
             }
-        }
-        
-        // Update stopped customers
-        for (let i = this.stoppedCustomers.length - 1; i >= 0; i--) {
-            const customer = this.stoppedCustomers[i];
-            
-            if (customer.state === 'stopped') {
-                // Customer has been stopped for 2 seconds, decide whether to buy
-                if (currentTime - customer.stopTime >= 2000) {
+            else if (customer.state === 'pausing') {
+                // Customer is moving very slowly while considering purchase
+                customer.x += customer.direction * customer.speed;
+                needsViewUpdate = true;
+                
+                // After pausing for 1.5 seconds, decide whether to buy
+                if (currentTime - customer.pauseStartTime >= 1500) {
                     const currentPrice = this.calculateLemonadePrice();
                     const priceModifier = customer.preferredPrice / currentPrice;
                     const adjustedBuyChance = customer.buyChance * Math.min(1.5, priceModifier);
                     
                     if (Math.random() < adjustedBuyChance) {
-                        // Customer buys!
+                        // Customer buys! 
                         this.completePurchase(customer, currentPrice, resourceManager);
-                        customer.state = 'leaving';
-                        customer.leaveTime = currentTime;
+                        customer.state = 'purchased';
+                        customer.purchaseTime = currentTime;
                     } else {
-                        // Customer decides not to buy
-                        console.log(`${customer.name} decided not to buy (price: $${currentPrice.toFixed(2)})`);
-                        customer.state = 'leaving';
-                        customer.leaveTime = currentTime;
+                        // Customer decides not to buy, just continues walking
+                        customer.state = 'walking';
+                        customer.speed = customer.originalSpeed; // Resume normal speed
+                        console.log(`${customer.name} decided not to buy and continues walking`);
                     }
                     needsViewUpdate = true;
                 }
-            } else if (customer.state === 'leaving') {
-                // Remove customer after showing purchase result for 2 seconds
-                if (currentTime - customer.leaveTime >= 2000) {
-                    this.stoppedCustomers.splice(i, 1);
-                    console.log(`${customer.name} leaves the stand`);
+                
+                // If customer somehow walks off screen while pausing, remove them
+                if (customer.x < -15 || customer.x > 115) {
+                    this.walkingCustomers.splice(i, 1);
+                    console.log(`${customer.name} left while considering purchase`);
+                    needsViewUpdate = true;
+                }
+            }
+            else if (customer.state === 'purchased') {
+                // Customer continues walking after purchase, showing green money indicator
+                customer.x += customer.direction * customer.originalSpeed;
+                needsViewUpdate = true;
+                
+                // Remove customer after they've been showing purchase result for 2 seconds
+                if (currentTime - customer.purchaseTime >= 2000 || customer.x < -15 || customer.x > 115) {
+                    this.walkingCustomers.splice(i, 1);
+                    console.log(`${customer.name} leaves after purchase`);
                     needsViewUpdate = true;
                 }
             }
         }
+        
+        // Note: No more "stopped customers" - all customers stay in walkingCustomers array
+        // and continue moving along their path even when pausing or after purchasing
         
         return needsViewUpdate;
     }
@@ -343,7 +353,6 @@ class LemonadeStandSystem {
     startStand() {
         this.standStartTime = Date.now();
         this.walkingCustomers = [];
-        this.stoppedCustomers = [];
         this.lastCustomerSpawn = 0;
         this.usedUniqueCustomers = []; // Reset unique customers for new day
         console.log('Started lemonade stand');
@@ -372,7 +381,6 @@ class LemonadeStandSystem {
         // Reset stand data for new day
         this.standRevenue = 0;
         this.walkingCustomers = [];
-        this.stoppedCustomers = [];
         this.usedUniqueCustomers = [];
         this.standStartTime = null;
         
@@ -381,23 +389,27 @@ class LemonadeStandSystem {
 
     // View creation helpers
     addWalkingCustomerToView(viewRoot, customer, playerId) {
-        // Customer figure walking on sidewalk
+        // Customer figure walking on sidewalk (larger if pausing)
+        const isInteracting = customer.state === 'pausing' || customer.state === 'purchased';
+        const customerSize = isInteracting ? 6 : 4;
+        const customerHeight = isInteracting ? 8 : 6;
+        
         const customerShape = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(customer.x - 2, customer.y - 3, 4, 6),
+            coordinates2d: ShapeUtils.rectangle(customer.x - customerSize/2, customer.y - customerHeight/2, customerSize, customerHeight),
             fill: customer.color,
             // playerIds: [playerId]
         });
 
-        // Customer name above head
+        // Customer name above head (larger if interacting)
         const nameText = new GameNode.Text({
             textInfo: {
                 x: customer.x,
-                y: customer.y - 5,
+                y: customer.y - (customerHeight/2 + 3),
                 color: [0, 0, 0, 255],
                 text: customer.name,
                 align: 'center',
-                size: 0.8
+                size: isInteracting ? 1.0 : 0.8
             },
             // playerIds: [playerId]
         });
@@ -406,11 +418,11 @@ class LemonadeStandSystem {
         const traitText = new GameNode.Text({
             textInfo: {
                 x: customer.x,
-                y: customer.y + 4,
+                y: customer.y + customerHeight/2 + 2,
                 color: [100, 100, 100, 255],
                 text: this.getTraitDisplayName(customer.trait),
                 align: 'center',
-                size: 0.6
+                size: isInteracting ? 0.8 : 0.6
             },
             // playerIds: [playerId]
         });
@@ -418,92 +430,14 @@ class LemonadeStandSystem {
         viewRoot.addChild(customerShape);
         viewRoot.addChild(nameText);
         viewRoot.addChild(traitText);
-    }
 
-    addStoppedCustomerToView(viewRoot, customer, playerId) {
-        // Customer figure at the stand
-        const customerShape = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(customer.x - 3, 50, 6, 8),
-            fill: customer.color,
-            // playerIds: [playerId]
-        });
-
-        // Customer name
-        const nameText = new GameNode.Text({
-            textInfo: {
-                x: customer.x,
-                y: 48,
-                color: [0, 0, 0, 255],
-                text: customer.name,
-                align: 'center',
-                size: 1.0
-            },
-            // playerIds: [playerId]
-        });
-
-        // Customer trait
-        const traitText = new GameNode.Text({
-            textInfo: {
-                x: customer.x,
-                y: 60,
-                color: [100, 100, 100, 255],
-                text: this.getTraitDisplayName(customer.trait),
-                align: 'center',
-                size: 0.8
-            },
-            // playerIds: [playerId]
-        });
-
-        // Show purchase result if customer bought something
-        if (customer.purchased) {
-            const reactionText = new GameNode.Text({
-                textInfo: {
-                    x: customer.x,
-                    y: 65,
-                    color: customer.satisfaction >= 60 ? [0, 150, 0, 255] : [150, 0, 0, 255],
-                    text: customer.reaction,
-                    align: 'center',
-                    size: 1.0
-                },
-                // playerIds: [playerId]
-            });
-
-            const priceText = new GameNode.Text({
-                textInfo: {
-                    x: customer.x,
-                    y: 70,
-                    color: [0, 100, 0, 255],
-                    text: `$${customer.finalPrice.toFixed(2)}`,
-                    align: 'center',
-                    size: 0.8
-                },
-                // playerIds: [playerId]
-            });
-
-            viewRoot.addChild(reactionText);
-            viewRoot.addChild(priceText);
-        } else if (customer.state === 'leaving' && !customer.purchased) {
-            // Customer decided not to buy
-            const noSaleText = new GameNode.Text({
-                textInfo: {
-                    x: customer.x,
-                    y: 65,
-                    color: [150, 0, 0, 255],
-                    text: 'Not buying',
-                    align: 'center',
-                    size: 0.9
-                },
-                // playerIds: [playerId]
-            });
-
-            viewRoot.addChild(noSaleText);
-        } else {
-            // Customer is deciding
+        // Show special indicators based on customer state
+        if (customer.state === 'pausing') {
+            // Show thinking indicator
             const thinkingText = new GameNode.Text({
                 textInfo: {
                     x: customer.x,
-                    y: 65,
+                    y: customer.y + customerHeight/2 + 6,
                     color: [100, 100, 100, 255],
                     text: '...',
                     align: 'center',
@@ -511,14 +445,42 @@ class LemonadeStandSystem {
                 },
                 // playerIds: [playerId]
             });
-
             viewRoot.addChild(thinkingText);
         }
-
-        viewRoot.addChild(customerShape);
-        viewRoot.addChild(nameText);
-        viewRoot.addChild(traitText);
+        else if (customer.state === 'purchased' && customer.purchased) {
+            // Show green money indicator for successful purchase
+            const moneyText = new GameNode.Text({
+                textInfo: {
+                    x: customer.x,
+                    y: customer.y + customerHeight/2 + 6,
+                    color: [0, 150, 0, 255],
+                    text: `$${customer.finalPrice.toFixed(2)}`,
+                    align: 'center',
+                    size: 1.0
+                },
+                // playerIds: [playerId]
+            });
+            viewRoot.addChild(moneyText);
+            
+            // Optionally show satisfaction reaction
+            if (customer.satisfaction >= 60) {
+                const reactionText = new GameNode.Text({
+                    textInfo: {
+                        x: customer.x,
+                        y: customer.y + customerHeight/2 + 10,
+                        color: [0, 100, 0, 255],
+                        text: customer.reaction,
+                        align: 'center',
+                        size: 0.7
+                    },
+                    // playerIds: [playerId]
+                });
+                viewRoot.addChild(reactionText);
+            }
+        }
     }
+
+    // Note: addStoppedCustomerToView method removed - customers now stay in motion
 
     // Getters for main game
     hasMovingCustomers() {
@@ -536,7 +498,6 @@ class LemonadeStandSystem {
     // Reset method
     reset() {
         this.walkingCustomers = [];
-        this.stoppedCustomers = [];
         this.lastCustomerSpawn = 0;
         this.standRevenue = 0;
         this.standStartTime = null;

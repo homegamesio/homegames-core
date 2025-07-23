@@ -387,7 +387,7 @@ class BossFailureState extends GameState {
             textSize: 2.5,
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    this.game.resetGame();
+                    this.game.fullGameRestart();
                 }
             }
         });
@@ -422,7 +422,7 @@ class DeathFailureState extends GameState {
             textSize: 2.5,
             onClick: (clickPlayerId) => {
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    this.game.resetGame();
+                    this.game.fullGameRestart();
                 }
             }
         });
@@ -541,7 +541,7 @@ class NoIngredientsFailureState extends GameState {
                     textSize: 2.5,
                     onClick: (clickPlayerId) => {
                         if (Number(clickPlayerId) === Number(playerId)) {
-                            this.game.resetGame();
+                            this.game.fullGameRestart();
                         }
                     }
                 });
@@ -662,7 +662,7 @@ class NoLemonsFailureState extends GameState {
                     textSize: 2.5,
                     onClick: (clickPlayerId) => {
                         if (Number(clickPlayerId) === Number(playerId)) {
-                            this.game.resetGame();
+                            this.game.fullGameRestart();
                         }
                     }
                 });

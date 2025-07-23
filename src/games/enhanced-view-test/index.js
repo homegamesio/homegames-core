@@ -1940,14 +1940,9 @@ class EnhancedViewTest extends ViewableGame {
         viewRoot.addChild(standSign);
         viewRoot.addChild(recipeDisplay);
 
-        // Add walking customers
+        // Add all customers (they all stay in walkingCustomers array but with different states)
         this.lemonadeSystem.walkingCustomers.forEach(customer => {
             this.lemonadeSystem.addWalkingCustomerToView(viewRoot, customer, playerId);
-        });
-
-        // Add stopped customers
-        this.lemonadeSystem.stoppedCustomers.forEach(customer => {
-            this.lemonadeSystem.addStoppedCustomerToView(viewRoot, customer, playerId);
         });
 
         return viewRoot;
@@ -2144,7 +2139,77 @@ class EnhancedViewTest extends ViewableGame {
         // Update all player views
         this.playerManager.updateAllPlayerViews();
         
-        console.log('Game reset! New game started.');
+        console.log('Game reset! New combat round started.');
+    }
+
+    fullGameRestart() {
+        // Complete restart - everything back to beginning
+        console.log('Full game restart - all progress lost');
+        
+        // Reset ALL upgrades to 0
+        this.upgrades = {
+            // Combat upgrades
+            attackDamage: 0,
+            attackSpeed: 0, 
+            attackRange: 0,
+            moveSpeed: 0,
+            aggroReduction: 0,
+            multiAttack: 0,
+            // Gathering upgrades
+            gatherAmount: 0,
+            gatherSpeed: 0,
+            gatherRange: 0,
+            multiGather: 0
+        };
+        
+        // Reset stats
+        this.previousStats = {
+            resourcesCollected: 0,
+            enemiesKilled: 0,
+            timeAlive: 0
+        };
+        this.currentStats = {
+            resourcesCollected: 0,
+            enemiesKilled: 0,
+            timeAlive: 0
+        };
+
+        // Reset game state
+        this.gameStateManager.resetForNewGame();
+        this.lastViewUpdate = 0;
+        
+        // Reset resource manager to starting state (100 sugar, 0 lemons, $50)
+        this.resourceManager = new (require('./managers/ResourceManager'))();
+        this.resourceManager.startCombatRound();
+        
+        // Reset lemonade system to day 1
+        this.lemonadeSystem.standDay = 1;
+        this.lemonadeSystem.addictionLevels = {};
+        this.lemonadeSystem.bosses = [];
+        this.lemonadeSystem.recipe = { sugar: 5, lemons: 3 };
+        this.lemonadeSystem.price = 1.50;
+        
+        // Apply base upgrades (everything at level 0)
+        this.applyUpgrades();
+
+        // Reset all players
+        this.playerManager.resetAllPlayers();
+
+        // Clear existing world
+        this.getPlane().clearChildren();
+        this.worldItems = [];
+        this.landmarks = [];
+        this.combatSystem.reset();
+        this.lemonadeSystem.reset();
+        this.gatherIndicators = [];
+
+        // Rebuild world
+        this.initializeWorld();
+
+        // Update all player views
+        this.playerManager.updateAllPlayerViews();
+        
+        console.log('Full game restart complete! Back to the very beginning.');
     }
 
 
