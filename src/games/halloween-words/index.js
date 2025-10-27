@@ -1,7 +1,7 @@
 const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-136');
 const COLORS = Colors.COLORS;
 
-const PLAYER_SPEED = 0.3;
+const PLAYER_SPEED = 0.4;
 const ITEM_SPEED = 0.2;
 
 class HalloweenWords extends Game {
@@ -14,6 +14,18 @@ class HalloweenWords extends Game {
             isTest: false,
             tickRate: 60,
             assets: {
+                'happy-halloween': new Asset({
+                    'id': '8c3675b51ce2c4efed73254c5c1cdffa',
+                    'type': 'audio'
+                }),
+                'ahm-1': new Asset({'id': '8e33b7e9ffa8e2fecb3b63d38e2ff637', 'type': 'audio'}),
+                'ahm-2': new Asset({'id': 'd25dd461f3c36c30b9e9a258c1d97548', 'type': 'audio'}),
+                'ahm-3': new Asset({'id': '1bb365606c2b76eeedef1cb229d54410', 'type': 'audio'}),
+                'ahm-4': new Asset({'id': 'e8e9e686b208f174995f610d58871b33', 'type': 'audio'}),
+                'ahm-5': new Asset({'id': 'dbee142faedf01d6b7d867d326950066', 'type': 'audio'}),
+                'hee-hee-hee': new Asset({'id': '325cd046da0736ceb2651dea386a4d74', 'type': 'audio'}),
+                'spider-1': new Asset({'id': '358c543e37897c7d449c71b12374fd52', 'type': 'audio'}),
+                'spider-2': new Asset({'id': 'abb537354e756666223f3f232d8f59bc', 'type': 'audio'}),
                 'owl': new Asset({
                     'id': 'a6a47244be5da3730cae21ea96a1e92f',
                     'type': 'image'
@@ -94,6 +106,20 @@ class HalloweenWords extends Game {
 
         }
 
+        if (!this.lastAudioRemovalCheck || this.lastAudioRemovalCheck < now - 100) {
+            const newArr = [];
+            for (let i = 0; i < this.audioToRemove.length; i++) {
+                const cur = this.audioToRemove[i];
+                if (cur.timestamp <= now) {
+                    this.base.removeChild(this.audioToRemove[i].node.node.id);
+                } else {
+                    newArr.push(cur);
+                }
+            }
+
+            this.audioToRemove = newArr;
+        }
+
 
         this.stuffLayer.node.onStateChange();
     }
@@ -101,6 +127,7 @@ class HalloweenWords extends Game {
     constructor() {
         super();
         const baseColor = COLORS.BLACK;
+        this.audioToRemove = [];
         this.score = 0;
         this.currentBag = 0;
         this.spawnedItems = {};
@@ -153,16 +180,16 @@ class HalloweenWords extends Game {
 //        
 //        this.base.addChild(this.mover);
         const owl = new GameNode.Asset({
-            coordinates2d: ShapeUtils.rectangle(45, 90, 10, 10),
+            coordinates2d: ShapeUtils.rectangle(42.5, 82.5, 15, 17.5),
             assetInfo: {
                 'owl': {
                     'pos': {
-                        x: 45, 
-                        y: 90
+                        x: 42.5, 
+                        y: 82.5
                     },
                     'size': {
-                        x: 10,
-                        y: 10
+                        x: 15,
+                        y: 17.5
                     }
                 }
             }
@@ -212,17 +239,17 @@ class HalloweenWords extends Game {
         } 
 
         if (dir === 'right') {
-            if (newX + 10 + dist <= 100) {
+            if (newX + 15 + dist <= 100) {
                 newX += dist;
             } else {
-                newX = 100 - 10;//player.size.x;
+                newX = 100 - 15;//player.size.x;
             }
         } 
 
-        const newCoords = ShapeUtils.rectangle(newX, newY, 10, 10);
+        const newCoords = ShapeUtils.rectangle(newX, newY, 15, 17.5);
 
         player.node.coordinates2d = newCoords;
-        player.node.asset = {'owl': {pos: {x: newX, y: newY}, size: {x: 10, y: 10}}};
+        player.node.asset = {'owl': {pos: {x: newX, y: newY}, size: {x: 15, y: 17.5 }}};
 
         this.base.node.onStateChange();
     }
@@ -230,10 +257,6 @@ class HalloweenWords extends Game {
     spawnItem() {
         const types = ['spider', 'chocolate', 'lollipop', 'candy-corn', 'apple'];
         const randVal = Math.floor(Math.random() * types.length);
-        let color = [0, 255, 0, 255];
-        if (types[randVal] === 'spider') {
-            color = [255, 0, 0, 255];
-        }
 
         const randX = Math.floor(Math.random() * 95); // 100 - width (5)
         const item = new GameNode.Asset({
@@ -252,14 +275,6 @@ class HalloweenWords extends Game {
             }
         });
  
-        //new GameNode.Shape({
-        //    shapeType: Shapes.POLYGON,
-        //    coordinates2d: ShapeUtils.rectangle(randX, 0, 5, 5),
-        //    fill: color 
-        //});
-        
-//        this.stuffLayer.addChild(item); 
-
         this.spawnedItems[item.node.id] = {type: types[randVal], onCollide: () => {
             if (types[randVal] == 'spider') {
                 this.dropBag();
@@ -272,28 +287,72 @@ class HalloweenWords extends Game {
     }
 
     dropBag() {
-        // todo: play "spider" sound
+        const options = ['spider-1', 'spider-2'];
+        const randVal = Math.floor(Math.random() * options.length);
+        const songNode = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            assetInfo: {
+                [options[randVal]]: {
+                    'pos': Object.assign({}, { x: 0, y: 0 }),
+                    'size': Object.assign({}, { x: 0, y: 0 }),
+                    'startTime': 0
+                }
+            }
+        });
+        this.base.addChild(songNode);
+        this.audioToRemove.push({node: songNode, timestamp: Date.now() + 3000});
+
         this.currentBag = 0;
         this.renderMetaLayer();
     }
 
     handleNewPlayer() {
-        // todo: play "happy halloween"
+        const options = ['happy-halloween', 'hee-hee-hee'];
+        const randVal = Math.floor(Math.random() * options.length);
+
+        const songNode = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            assetInfo: {
+                [options[randVal]]: {
+                    'pos': Object.assign({}, { x: 0, y: 0 }),
+                    'size': Object.assign({}, { x: 0, y: 0 }),
+                    'startTime': 0
+                }
+            }
+        });
+        this.base.addChild(songNode);
+        this.audioToRemove.push({node: songNode, timestamp: Date.now() + 3000});
     }
 
     addToBag() {
         this.currentBag++;
 
-        if (this.currentBag % 5 == 0) {
+        //if (this.currentBag % 5 == 0) {
             this.grantPoint();
             this.currentBag = 0;
-        }
+        //}
 
         this.renderMetaLayer();
     }
 
     grantPoint() {
         // todo: play "omnom" 
+        const options = ['ahm-1', 'ahm-2', 'ahm-3', 'ahm-4', 'ahm-5'];
+        const randVal = Math.floor(Math.random() * options.length);
+
+        const songNode = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            assetInfo: {
+                [options[randVal]]: {
+                    'pos': Object.assign({}, { x: 0, y: 0 }),
+                    'size': Object.assign({}, { x: 0, y: 0 }),
+                    'startTime': 0
+                }
+            }
+        });
+        this.base.addChild(songNode);
+        this.audioToRemove.push({node: songNode, timestamp: Date.now() + 1000});
+
         this.score++;
         this.renderMetaLayer();
     }
@@ -303,11 +362,11 @@ class HalloweenWords extends Game {
         const scoreValue = new GameNode.Text({
             textInfo: {
                 x: 92.5,
-                y: 7.5,
+                y: 5,
                 align: 'center',
-                size: 5,
+                size: 6,
                 text: this.score + '',
-                color: Colors.COLORS.BLACK
+                color: Colors.COLORS.ORANGE
             }
         });
 
