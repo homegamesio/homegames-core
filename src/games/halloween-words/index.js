@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-136');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-136');
 const COLORS = Colors.COLORS;
 
 const PLAYER_SPEED = 0.3;
@@ -12,7 +12,37 @@ class HalloweenWords extends Game {
             author: 'Joseph Garcia',
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
             isTest: false,
-            tickRate: 60
+            tickRate: 60,
+            assets: {
+                'owl': new Asset({
+                    'id': 'a6a47244be5da3730cae21ea96a1e92f',
+                    'type': 'image'
+                }),
+                'spider': new Asset({
+                    'type': 'image',
+                    'id': 'e7df1707e47b1e73da9d95a7bc0b748e'
+                }),
+                'background': new Asset({
+                    'id': '92988fb1c107889e5f31a0ceccb5ecbf',
+                    'type': 'image'
+                }),
+                'candy-corn': new Asset({
+                    'id': '73002c2d933a14ae74915ef31b79d99e',
+                    'type': 'image'
+                }),
+                'apple': new Asset({
+                    'id': 'e5c8eb3d8f10823374475452651af7c0',
+                    'type': 'image'
+                }),
+                'chocolate': new Asset({
+                    'id': '132dffc5933569f3da3836e335212f56',
+                    'type': 'image'
+                }),
+                'lollipop': new Asset({
+                    'id': 'b60270feb83048685e4e21f7ceda26b7',
+                    'type': 'image'
+                })
+            }
         };
     }
 
@@ -36,6 +66,9 @@ class HalloweenWords extends Game {
                 delete this.spawnedItems[child.node.id];
             }
             child.node.coordinates2d = newCoords;
+            const newAssetInfo = Object.assign({}, child.node.asset);
+            newAssetInfo[Object.keys(newAssetInfo)[0]].pos = {x: curX , y: newY};
+            child.node.asset = newAssetInfo;// {'owl': {pos: {x: newX, y: newY}, size: {x: 10, y: 10}}};
         }
 
         if (!this.lastCollisionCheck || this.lastCollisionCheck < now - 100) {
@@ -69,17 +102,35 @@ class HalloweenWords extends Game {
         super();
         const baseColor = COLORS.BLACK;
         this.score = 0;
+        this.currentBag = 0;
         this.spawnedItems = {};
-        this.base = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
+        //this.base = new GameNode.Shape({
+        //    shapeType: Shapes.POLYGON,
+        //    coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+        //    fill: baseColor
+        //});
+
+        //const backgroundImage = new GameNode.Asset({
+        this.base = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: baseColor
+            assetInfo: {
+                'background': {
+                    'pos': {
+                        x: 0, 
+                        y: 0
+                    },
+                    'size': {
+                        x: 100,
+                        y: 100
+                    }
+                }
+            }
         });
 
         this.stuffLayer = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: [0, 0, 0, 255]
+            fill: [0, 0, 0, 0]
         });
 
         this.metaLayer = new GameNode.Shape({
@@ -94,13 +145,32 @@ class HalloweenWords extends Game {
 
         const moverColor = COLORS.BLUE;
 
-        this.mover = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
+//        this.mover = new GameNode.Shape({
+//            shapeType: Shapes.POLYGON,
+//            coordinates2d: ShapeUtils.rectangle(45, 90, 10, 10),
+//            fill: moverColor
+//        });
+//        
+//        this.base.addChild(this.mover);
+        const owl = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(45, 90, 10, 10),
-            fill: moverColor
+            assetInfo: {
+                'owl': {
+                    'pos': {
+                        x: 45, 
+                        y: 90
+                    },
+                    'size': {
+                        x: 10,
+                        y: 10
+                    }
+                }
+            }
         });
-        
-        this.base.addChild(this.mover);
+        this.base.addChild(owl);
+        this.mover = owl;
+//        this.base.addChild(backgroundImage)
+
         this.renderMetaLayer();
     }
 
@@ -152,12 +222,13 @@ class HalloweenWords extends Game {
         const newCoords = ShapeUtils.rectangle(newX, newY, 10, 10);
 
         player.node.coordinates2d = newCoords;
+        player.node.asset = {'owl': {pos: {x: newX, y: newY}, size: {x: 10, y: 10}}};
 
         this.base.node.onStateChange();
     }
 
     spawnItem() {
-        const types = ['spider', 'chocolate', 'lollipop', 'candy corn'];
+        const types = ['spider', 'chocolate', 'lollipop', 'candy-corn', 'apple'];
         const randVal = Math.floor(Math.random() * types.length);
         let color = [0, 255, 0, 255];
         if (types[randVal] === 'spider') {
@@ -165,11 +236,27 @@ class HalloweenWords extends Game {
         }
 
         const randX = Math.floor(Math.random() * 95); // 100 - width (5)
-        const item = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
+        const item = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(randX, 0, 5, 5),
-            fill: color 
+            assetInfo: {
+                [types[randVal]]: {
+                    'pos': {
+                        x: randX, 
+                        y: 0
+                    },
+                    'size': {
+                        x: 5,
+                        y: 5
+                    }
+                }
+            }
         });
+ 
+        //new GameNode.Shape({
+        //    shapeType: Shapes.POLYGON,
+        //    coordinates2d: ShapeUtils.rectangle(randX, 0, 5, 5),
+        //    fill: color 
+        //});
         
 //        this.stuffLayer.addChild(item); 
 
@@ -185,41 +272,42 @@ class HalloweenWords extends Game {
     }
 
     dropBag() {
+        // todo: play "spider" sound
+        this.currentBag = 0;
+        this.renderMetaLayer();
+    }
 
+    handleNewPlayer() {
+        // todo: play "happy halloween"
     }
 
     addToBag() {
-        if (!this.bagCount) {
-            this.bagCount = 0;
-        }
+        this.currentBag++;
 
-        this.bagCount++;
-
-        if (this.bagCount >= 0) {
+        if (this.currentBag % 5 == 0) {
             this.grantPoint();
-            this.bagCount = 0;
+            this.currentBag = 0;
         }
 
         this.renderMetaLayer();
     }
 
     grantPoint() {
-        console.log('hdhhdhdd score ' + this.score);
+        // todo: play "omnom" 
         this.score++;
         this.renderMetaLayer();
     }
 
     renderMetaLayer() {
-        console.log('what is score' + this.score);
         this.metaLayer.clearChildren();
         const scoreValue = new GameNode.Text({
             textInfo: {
-                x: 90,
-                y: 15,
+                x: 92.5,
+                y: 7.5,
                 align: 'center',
-                size: 3,
+                size: 5,
                 text: this.score + '',
-                color: Colors.COLORS.WHITE
+                color: Colors.COLORS.BLACK
             }
         });
 
