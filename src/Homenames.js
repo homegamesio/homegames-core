@@ -129,9 +129,13 @@ class Homenames {
 
                     req.on('end', () => {
                         const payload = JSON.parse(body);
-                        const hostname = req.headers['host'].split(':')[0];
 
-                        const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://${hostname}:${payload.sessionPort}`);
+                        // Always connect back via localhost — the game session
+                        // is either on this machine (fork) or port-mapped from a
+                        // local Docker container. Using the Host header would
+                        // break when the request comes from inside Docker
+                        // (host.docker.internal doesn't resolve on the host).
+                        const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://localhost:${payload.sessionPort}`);
                         socketSession.on('open', () => {
                             log.info('opened socket connection to session');
                             this.sessionClients[payload.sessionPort] = socketSession;
@@ -142,6 +146,13 @@ class Homenames {
                             this.playerListeners[payload.playerId].add(payload.sessionPort);
 
                             res.end('alright');
+                        });
+                        socketSession.on('error', (err) => {
+                            log.error('Homenames listener socket error for port ' + payload.sessionPort + ': ' + err.message);
+                            if (!res.writableEnded) {
+                                res.statusCode = 502;
+                                res.end('failed to connect to session');
+                            }
                         });
                     });
                 }

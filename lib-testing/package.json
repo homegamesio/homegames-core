@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "ws": "7.5.10",
-    "homegames-common": "1.4.2",
+    "homegames-common": "file:../../homegames-common",
     "squish-0756": "npm:squishjs@1.0.4",
     "squish-0762": "npm:squishjs@1.0.4",
     "squish-0765": "npm:squishjs@1.0.4",

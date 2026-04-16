@@ -19,7 +19,9 @@ const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
 const sendProcessMessage = (msg) => {
-    process.send(JSON.stringify(msg));
+    if (process.send) {
+        process.send(JSON.stringify(msg));
+    }
 };
 
 const startServer = (sessionInfo) => {
@@ -106,36 +108,79 @@ const startServer = (sessionInfo) => {
 
 };
 
-process.on('message', (msg) => {
-    lastMessage = new Date();
-    const message = JSON.parse(msg);
-    if (message.key) {
-        startServer(message);
-    } else {
-        if (message.api) {
-            if (message.api === 'getPlayers') {
-                process.send(JSON.stringify({
-                    'payload': Object.values(gameSession.players).map(p => { return {'id': p.id, 'name': p.info.name}; }),
-                    'requestId': message.requestId
-                }));
+// ---------------------------------------------------------------------------
+// Two startup modes:
+//   1. Forked by Dashboard — receives config via IPC (process.on('message'))
+//   2. Docker container    — receives config via environment variables
+// ---------------------------------------------------------------------------
+
+const isForked = !!process.send;
+
+if (isForked) {
+    // Mode 1: IPC from parent process (original behavior)
+    process.on('message', (msg) => {
+        lastMessage = new Date();
+        const message = JSON.parse(msg);
+        if (message.key) {
+            startServer(message);
+        } else {
+            if (message.api) {
+                if (message.api === 'getPlayers') {
+                    process.send(JSON.stringify({
+                        'payload': Object.values(gameSession.players).map(p => { return {'id': p.id, 'name': p.info.name}; }),
+                        'requestId': message.requestId
+                    }));
+                }
             }
         }
-    }
-});
+    });
+} else if (process.env.GAME_PATH) {
+    // Mode 2: Standalone (Docker container)
+    // Config comes from environment variables.
+    lastMessage = new Date();
+    startServer({
+        key: process.env.GAME_KEY || path.basename(process.env.GAME_PATH, '.js'),
+        squishVersion: process.env.SQUISH_VERSION || '135',
+        gamePath: process.env.GAME_PATH,
+        port: Number(process.env.GAME_PORT) || 7002,
+        username: process.env.USERNAME || null,
+        certPath: process.env.CERT_PATH || null,
+    });
+}
 
 process.on('error', (err) => {
     log.error('error happened', err);
 });
 
+const GRACE_PERIOD_MS = Number(process.env.GRACE_PERIOD_MS) || 30000;
+
 const checkPulse = () => {
-    if (!gameSession || (Object.values(gameSession.players).length == 0 && Object.values(gameSession.spectators).length == 0) || !lastMessage || new Date() - lastMessage > 5000) {
-        log.info('discontinuing myself');
+    if (!gameSession) {
+        log.info('discontinuing myself (no session)');
         process.exit(0);
+        return;
+    }
+
+    const hasPlayers = Object.values(gameSession.players).length > 0 || Object.values(gameSession.spectators).length > 0;
+
+    if (isForked) {
+        // Fork mode: parent sends heartbeats. If we haven't heard from parent in 5s
+        // AND there are no players, shut down.
+        if (!hasPlayers && (!lastMessage || new Date() - lastMessage > 5000)) {
+            log.info('discontinuing myself');
+            process.exit(0);
+        }
+    } else {
+        // Docker mode: no parent heartbeats. Just check if anyone is connected.
+        if (!hasPlayers) {
+            log.info('discontinuing myself (no players)');
+            process.exit(0);
+        }
     }
 };
 
-// short grace period of ten seconds to allow the first client to connect before checking heartbeat
+// short grace period to allow the first client to connect before checking heartbeat
 setTimeout(() => {
     setInterval(checkPulse, 10 * 1000);
-}, 2000);
+}, isForked ? 2000 : GRACE_PERIOD_MS);
 

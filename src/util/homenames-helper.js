@@ -56,14 +56,26 @@ const getPublicIP = () => new Promise((resolve, reject) => {
 
 });
 
-const makeGet = (path = '', headers = {}, username) => new Promise((resolve, reject) => {    
+const makeGet = (_path = '', headers = {}, username) => new Promise((resolve, reject) => {
+    const dockerHost = process.env.DOCKER_HOST_HOSTNAME;
+    if (dockerHost) {
+        // Running inside Docker — use plain HTTP to the host
+        const base = `http://${dockerHost}:${getConfigValue('HOMENAMES_PORT')}`;
+        http.get(`${base}${_path}`, (res) => {
+            let buf = '';
+            res.on('data', (chunk) => { buf += chunk.toString(); });
+            res.on('end', () => { resolve(JSON.parse(buf)); });
+        }).on('error', (err) => { reject(err); });
+        return;
+    }
+
     const protocol = HTTPS_ENABLED ? 'https' : 'http';
     // todo: fix
     getPublicIP().then(publicIp => {
         const host = HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
         const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;
 
-        (HTTPS_ENABLED ? https : http).get(`${base}${path}`, (res) => {
+        (HTTPS_ENABLED ? https : http).get(`${base}${_path}`, (res) => {
             let buf = '';
             res.on('data', (chunk) => {
                 buf += chunk.toString();
@@ -76,47 +88,43 @@ const makeGet = (path = '', headers = {}, username) => new Promise((resolve, rej
     });
 });
 
-const makePost = (path, _payload, username) => new Promise((resolve, reject) => {
+const makePost = (_postPath, _payload, username) => new Promise((resolve, reject) => {
     const payload = JSON.stringify(_payload);
+    const port = getConfigValue('HOMENAMES_PORT');
 
-    let module, hostname, port;
-
-    module = HTTPS_ENABLED ? https : http;
-    port =  getConfigValue('HOMENAMES_PORT');
-
-    getPublicIP().then(publicIp => {
-        hostname = HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
-
-        const headers = {};
-
-        Object.assign(headers, {
+    const doPost = (hostname, mod) => {
+        const headers = {
             'Content-Type': 'application/json',
             'Content-Length': payload.length
-        });
+        };
 
         const options = {
             hostname,
-            path,
+            path: _postPath,
             port,
             method: 'POST',
             headers
         };
 
         let responseData = '';
-        
-        const req = module.request(options, (res) => {
-            res.on('data', (chunk) => {
-                responseData += chunk;
-            });
-
-            res.on('end', () => {
-                resolve(responseData);
-            });
+        const req = mod.request(options, (res) => {
+            res.on('data', (chunk) => { responseData += chunk; });
+            res.on('end', () => { resolve(responseData); });
         });
-
+        req.on('error', (err) => { reject(err); });
         req.write(payload);
         req.end();
-    });
+    };
+
+    const dockerHost = process.env.DOCKER_HOST_HOSTNAME;
+    if (dockerHost) {
+        doPost(dockerHost, http);
+    } else {
+        getPublicIP().then(publicIp => {
+            const hostname = HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
+            doPost(hostname, HTTPS_ENABLED ? https : http);
+        });
+    }
 });
 
 class HomenamesHelper {

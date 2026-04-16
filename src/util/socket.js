@@ -248,13 +248,22 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
         server
     });
 
-    getPublicIP().then(publicIp => {
+    // Register connection handler immediately so clients can connect
+    // as soon as the port is open. getPublicIP() and broadcast setup
+    // happen in the background.
+    let publicIp = null;
+
+    getPublicIP().then(ip => {
+        publicIp = ip;
         const broadcastEnabled = !!getConfigValue('PUBLIC_GAMES', false);
         log.info('broadcastEnabled: ' + broadcastEnabled);
 
         if (broadcastEnabled) {
             broadcast(gameSession);
         }
+    }).catch(err => {
+        log.error('Failed to get public IP: ' + err);
+    });
 
         wss.on('connection', (ws) => {
             log.info('got connection on websocket');
@@ -276,8 +285,9 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                     log.info(DOMAIN_NAME);
                     log.info(CERT_DOMAIN);
                     log.info(certPath ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost');
+                    const homenamesHost = process.env.DOCKER_HOST_HOSTNAME || (certPath ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost');
                     const req = (certPath ? https : http).request({
-                        hostname: certPath ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost',
+                        hostname: homenamesHost,
                         port: HOMENAMES_PORT,
                         path: `/info/${ws.id}`,
                         method: 'GET'
@@ -317,6 +327,30 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 
                         });
                     });
+                    req.on('error', (err) => {
+                        log.error('Homenames request failed: ' + err.message);
+                        // Fall back: create player without Homenames info
+                        const player = new Player(ws, {}, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
+                        ws.spectating = jsonMessage.spectating;
+
+                        const aspectRatio = gameSession.aspectRatio;
+                        const gameMetadata = gameSession.gameMetadata;
+                        let squishVersion = 'latest';
+                        if (gameMetadata && gameMetadata.squishVersion) {
+                            squishVersion = gameMetadata.squishVersion;
+                        }
+                        const squishVersionArray = [];
+                        squishVersionArray[0] = squishVersion.length;
+                        for (let i = 0; i < squishVersion.length; i++) {
+                            squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
+                        }
+                        ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+                        if (jsonMessage.spectating) {
+                            gameSession.addSpectator(player);
+                        } else {
+                            gameSession.addPlayer(player);
+                        }
+                    });
                     req.end();
                 }
             }
@@ -347,7 +381,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
         server.listen(port, null, null, () => {
             cb && cb();
         });
-    });
 };
 
 

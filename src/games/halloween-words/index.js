@@ -206,6 +206,7 @@ class HalloweenWords extends Game {
     }
 
     handleGamepadInput(playerId, gamepadInput) {
+        console.log('ififif');
         const stick1X = gamepadInput.input.sticks.STICK_1_X.value;
         const stick2X = gamepadInput.input.sticks.STICK_2_X.value;
 

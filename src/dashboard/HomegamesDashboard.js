@@ -1,10 +1,9 @@
-const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
 const fs = require('fs');
 
-const { getConfigValue, getAppDataPath, log } = require('homegames-common');
+const { getConfigValue, getAppDataPath, log, GameSessionManager } = require('homegames-common');
 
 const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-135');
 
@@ -35,19 +34,20 @@ const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
 
 const IS_DEMO = getConfigValue('IS_DEMO', true);
 
-const sessions = {};
+// ---------------------------------------------------------------------------
+// Shared GameSessionManager instance — handles Docker vs fork, port pool, lifecycle
+// ---------------------------------------------------------------------------
+const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
+const dockerImageDir = path.join(baseDir, 'docker');
 
-for (let i = serverPortMin; i <= serverPortMax; i++) {
-    sessions[i] = null;
-}
-
-const getServerPort = () => {
-    for (const p in sessions) {
-        if (!sessions[p]) {
-            return Number(p);
-        }
-    }
-};
+const gameSessionManager = new GameSessionManager({
+    portMin: serverPortMin,
+    portMax: serverPortMax,
+    childServerPath: childGameServerPath,
+    dockerImageDir: fs.existsSync(dockerImageDir) ? dockerImageDir : null,
+    saveDataRoot: path.join(getAppDataPath(), '.save-data'),
+    log,
+});
 
 let sessionIdCounter = 1;
 
@@ -410,91 +410,48 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     startSession(playerId, gameKey, versionKey = null) { 
+        if (!this.localGames[gameKey]) return;
 
-        const sessionId = sessionIdCounter++;
-        const port = getServerPort();
+        const referencedGame = this.localGames[gameKey];
+        const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
+        const version = referencedGame.versions[versionId];
 
-        const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
-    
-        if (this.localGames[gameKey]) {
-            const referencedGame = this.localGames[gameKey];
-            const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
+        // Configure the session manager with current username/certPath
+        gameSessionManager.username = this.username;
+        gameSessionManager.certPath = this.certPath;
 
-            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '1006';
-
-            const func = fork;
-            const tingEnv = process.env;
-
-            // referenced game file needs to use our dependencies
-            tingEnv.NODE_PATH = `${process.cwd()}${path.sep}node_modules`;
-
-            const childSession = func(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion], ...tingEnv}});
-
-            sessions[port] = childSession;
-
-            childSession.send(JSON.stringify({
-                key: gameKey,
-                squishVersion,
-                gamePath: referencedGame.versions[versionId].gamePath,
-                port,
-                player: {
-                    id: playerId
+        gameSessionManager.startSession(
+            { gamePath: version.gamePath, gameKey },
+            {
+                playerId,
+                onReady: (session) => {
+                    log.info(`[Dashboard] onReady fired for session ${session.id} on port ${session.port}, moving player ${playerId}`);
+                    this.movePlayer({ playerId, port: session.port });
                 },
-                username: this.username,
-                certPath: this.certPath
-            }));
+            }
+        ).then((result) => {
+            const { sessionId, port } = result;
 
-            childSession.on('message', (thang) => {
-                const jsonMessage = JSON.parse(thang);
-                if (jsonMessage.success) {
-                    this.movePlayer({ playerId, port });
-                }
-                else if (jsonMessage.requestId) {
-                    this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
-                }
-            });
-
-            childSession.on('error', (err) => { 
-                console.log('error!');
-                console.log(err);
-                this.sessions[sessionId] = {};
-                childSession.kill();
-                log.error('child session error', err);
-            });
-            
-            childSession.on('close', (err) => {
-                console.log(err);
-                log.error('Child session closed');
-                log.error(err);
-                this.sessions[sessionId] = {};
-            });
-            
             this.sessions[sessionId] = {
                 id: sessionId,
                 game: gameKey,
                 versionId,
-                port: port,
-                sendMessage: () => {
-                },
+                port,
+                sendMessage: () => {},
                 getPlayers: (cb) => {
-                    const requestId = this.requestIdCounter++;
-                    if (cb) {
-                        this.requestCallbacks[requestId] = cb;
-                    }
-                    childSession.send(JSON.stringify({
-                        'api': 'getPlayers',
-                        'requestId': requestId
-                    }));
+                    gameSessionManager.requestFromSession(sessionId, 'getPlayers').then(payload => {
+                        cb && cb(payload);
+                    });
                 },
                 sendHeartbeat: () => {
-                    
-                    childSession.send(JSON.stringify({
-                        'type': 'heartbeat'
-                    }));
+                    gameSessionManager.sendToSession(sessionId, { type: 'heartbeat' });
                 },
-                players: []
+                players: [],
             };
-        }
+        }).catch((err) => {
+            log.error('Failed to start game session');
+            log.error(err);
+        });
     }
 
     joinSession(playerId, session) {
