@@ -3,7 +3,7 @@ const https = require('https');
 const path = require('path');
 const fs = require('fs');
 
-const { getConfigValue, getAppDataPath, log, GameSessionManager } = require('homegames-common');
+const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 
 const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-135');
 
@@ -29,25 +29,9 @@ if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
-const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
+
 
 const IS_DEMO = getConfigValue('IS_DEMO', true);
-
-// ---------------------------------------------------------------------------
-// Shared GameSessionManager instance — handles Docker vs fork, port pool, lifecycle
-// ---------------------------------------------------------------------------
-const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
-const dockerImageDir = path.join(baseDir, 'docker');
-
-const gameSessionManager = new GameSessionManager({
-    portMin: serverPortMin,
-    portMax: serverPortMax,
-    childServerPath: childGameServerPath,
-    dockerImageDir: fs.existsSync(dockerImageDir) ? dockerImageDir : null,
-    saveDataRoot: path.join(getAppDataPath(), '.save-data'),
-    log,
-});
 
 let sessionIdCounter = 1;
 
@@ -337,13 +321,14 @@ class HomegamesDashboard extends ViewableGame {
     }
 
 
-    constructor({ movePlayer, addAsset, username, certPath }) {
+    constructor({ movePlayer, addAsset, username, certPath, gameSessionManager }) {
         super(1000);
         // todo: static vs. addasset
 
         this.addAsset = addAsset;
         this.username = username;
         this.certPath = certPath;
+        this.gameSessionManager = gameSessionManager;
 
         this.assets = {
             'default': new Asset({
@@ -417,10 +402,10 @@ class HomegamesDashboard extends ViewableGame {
         const version = referencedGame.versions[versionId];
 
         // Configure the session manager with current username/certPath
-        gameSessionManager.username = this.username;
-        gameSessionManager.certPath = this.certPath;
+        this.gameSessionManager.username = this.username;
+        this.gameSessionManager.certPath = this.certPath;
 
-        gameSessionManager.startSession(
+        this.gameSessionManager.startSession(
             { gamePath: version.gamePath, gameKey },
             {
                 playerId,
@@ -439,12 +424,12 @@ class HomegamesDashboard extends ViewableGame {
                 port,
                 sendMessage: () => {},
                 getPlayers: (cb) => {
-                    gameSessionManager.requestFromSession(sessionId, 'getPlayers').then(payload => {
+                    this.gameSessionManager.requestFromSession(sessionId, 'getPlayers').then(payload => {
                         cb && cb(payload);
                     });
                 },
                 sendHeartbeat: () => {
-                    gameSessionManager.sendToSession(sessionId, { type: 'heartbeat' });
+                    this.gameSessionManager.sendToSession(sessionId, { type: 'heartbeat' });
                 },
                 players: [],
             };

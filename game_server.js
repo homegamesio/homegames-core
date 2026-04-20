@@ -4,16 +4,35 @@ const https = require('https');
 const { socketServer } = require('./src/util/socket');
 const Homenames = require('./src/Homenames');
 const path = require('path');
+const fs = require('fs');
 const baseDir = path.dirname(require.main.filename);
 const { getService } = require('./src/services/index');
-// const viewtest = require('./src/games/view-test');
 
-const { getConfigValue } = require('homegames-common');
+const { getConfigValue, getAppDataPath, GameSessionManager } = require('homegames-common');
 
 const logger = require('./src/logger');
 
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 const HOME_PORT = getConfigValue('HOME_PORT', 7001);
+
+// ---------------------------------------------------------------------------
+// Shared GameSessionManager — used by both Homenames (HTTP API) and the
+// Dashboard (in-process game UI). This is the single source of truth for
+// all running game sessions on this host.
+// ---------------------------------------------------------------------------
+const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
+const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
+const childGameServerPath = path.join(path.resolve(__dirname, 'src'), 'child_game_server.js');
+const dockerImageDir = path.join(baseDir, 'docker');
+
+const gameSessionManager = new GameSessionManager({
+    portMin: serverPortMin,
+    portMax: serverPortMax,
+    childServerPath: childGameServerPath,
+    dockerImageDir: fs.existsSync(dockerImageDir) ? dockerImageDir : null,
+    saveDataRoot: path.join(getAppDataPath(), '.save-data'),
+    log: logger,
+});
 
 const server = (certPath, squishMap, username) => {
     logger.debug('running server');
@@ -23,13 +42,16 @@ const server = (certPath, squishMap, username) => {
         logger.debug(squishMap);
     }
 
+    // Configure the session manager with runtime values
+    gameSessionManager.username = username;
+    gameSessionManager.certPath = certPath;
+
     const startPathOverride = getConfigValue('START_PATH', null);
 
     const customStartModule = startPathOverride ? require(startPathOverride) : null;
 
     const HomegamesDashboard = require('./src/dashboard/HomegamesDashboard');
 
-    // hack kind of. but homegames dashbaoard is special
     let session;
 
     let services = {};
@@ -42,9 +64,7 @@ const server = (certPath, squishMap, username) => {
     const dashboard = customStartModule ? new customStartModule({ 
         squishMap,
         addAsset: (key, asset) => new Promise((resolve, reject) => {
-            // if (session) {
             session.handleNewAsset(key, asset).then(resolve).catch(reject);
-            // }
         }),
         username,
         certPath,
@@ -55,18 +75,18 @@ const server = (certPath, squishMap, username) => {
             session && session.movePlayer(params);
         },
         addAsset: (key, asset) => new Promise((resolve, reject) => {
-            // if (session) {
             session.handleNewAsset(key, asset).then(resolve).catch(reject);
-            // }
         }),
         username,
         certPath,
-        services
+        services,
+        gameSessionManager,
     });
     
     session = new GameSession(dashboard, HOME_PORT, username);
     
-    const homeNames = new Homenames(HOMENAMES_PORT, certPath);
+    // Pass the shared GameSessionManager to Homenames
+    const homeNames = new Homenames(HOMENAMES_PORT, certPath, gameSessionManager);
     
     session.initialize(() => {
         socketServer(session, HOME_PORT, null, certPath, username);
