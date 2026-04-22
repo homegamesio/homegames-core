@@ -118,11 +118,21 @@ const startServer = (sessionInfo) => {
 // ---------------------------------------------------------------------------
 
 const startServerNoFrame = (sessionInfo) => {
-    const { MiniGameSession } = require('homegames-common');
-
     log.info('Starting no-frame server with session info', sessionInfo);
 
+    // Ensure API_URL is set BEFORE requiring MiniGameSession/squish,
+    // because Asset.js reads it at module load time
+    if (!process.env.API_URL) {
+        try {
+            process.env.API_URL = getConfigValue('API_URL', 'https://api.homegames.io');
+        } catch (e) {
+            process.env.API_URL = 'https://api.homegames.io';
+        }
+    }
+
     process.env.SQUISH_PATH = require.resolve(`squish-${sessionInfo.squishVersion}`);
+
+    const { MiniGameSession } = require('homegames-common');
 
     let GameClass;
     try {

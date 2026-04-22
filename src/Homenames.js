@@ -218,6 +218,12 @@ class Homenames {
             return;
         }
 
+        // GET /sessions/:id/logs
+        if (req.method === 'GET' && sessionId && req.url.includes('/logs')) {
+            this.handleSessionLogs(req, res, sessionId);
+            return;
+        }
+
         // GET /sessions/:id
         if (req.method === 'GET' && sessionId) {
             this.handleGetSession(req, res, sessionId);
@@ -428,6 +434,136 @@ class Homenames {
             log.error('Failed to stop session', err);
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Failed to stop session' }));
+        });
+    }
+
+    // GET /sessions/:id/logs (Server-Sent Events)
+    handleSessionLogs(req, res, sessionId) {
+        const session = this.gameSessionManager.getSession(sessionId);
+
+        if (!session) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Session not found' }));
+            return;
+        }
+
+        // Set up SSE headers
+        res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*',
+        });
+
+        const sendEvent = (data) => {
+            res.write(`data: ${JSON.stringify(data)}\n\n`);
+        };
+
+        this.gameSessionManager.getSessionLogStream(sessionId).then(logInfo => {
+            if (!logInfo) {
+                sendEvent({ stream: 'error', data: 'Unable to get log stream' });
+                res.end();
+                return;
+            }
+
+            if (logInfo.type === 'docker') {
+                const { logStream, demuxDockerLogs } = logInfo;
+
+                // Docker log stream is a multiplexed stream with 8-byte headers
+                let buffer = Buffer.alloc(0);
+
+                logStream.on('data', (chunk) => {
+                    buffer = Buffer.concat([buffer, Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)]);
+
+                    // Process complete frames from the buffer
+                    while (buffer.length >= 8) {
+                        const streamType = buffer[0]; // 1=stdout, 2=stderr
+                        const payloadSize = buffer.readUInt32BE(4);
+
+                        if (buffer.length < 8 + payloadSize) break; // incomplete frame
+
+                        const payload = buffer.slice(8, 8 + payloadSize).toString('utf-8');
+                        buffer = buffer.slice(8 + payloadSize);
+
+                        // Parse each line separately
+                        const lines = payload.split('\n').filter(l => l.length > 0);
+                        for (const line of lines) {
+                            // Docker timestamps format: "2024-01-01T00:00:00.000000000Z message"
+                            let timestamp = null;
+                            let message = line;
+                            const tsMatch = line.match(/^(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\s(.*)$/);
+                            if (tsMatch) {
+                                timestamp = tsMatch[1];
+                                message = tsMatch[2];
+                            }
+
+                            // Classify log level
+                            let level = 'log';
+                            const lower = message.toLowerCase();
+                            if (streamType === 2 || lower.includes('error') || lower.includes('err:') || lower.includes('exception')) {
+                                level = 'error';
+                            } else if (lower.includes('warn')) {
+                                level = 'warn';
+                            } else if (lower.includes('debug') || lower.includes('[debug]')) {
+                                level = 'debug';
+                            }
+
+                            sendEvent({ stream: streamType === 2 ? 'stderr' : 'stdout', level, message, timestamp });
+                        }
+                    }
+                });
+
+                logStream.on('end', () => {
+                    sendEvent({ stream: 'system', level: 'log', message: 'Session ended' });
+                    res.end();
+                });
+
+                logStream.on('error', (err) => {
+                    sendEvent({ stream: 'system', level: 'error', message: 'Log stream error: ' + err.message });
+                    res.end();
+                });
+
+            } else if (logInfo.type === 'fork') {
+                const child = logInfo.child;
+
+                if (child.stdout) {
+                    child.stdout.on('data', (chunk) => {
+                        const lines = chunk.toString().split('\n').filter(l => l.length > 0);
+                        for (const line of lines) {
+                            let level = 'log';
+                            const lower = line.toLowerCase();
+                            if (lower.includes('error') || lower.includes('exception')) level = 'error';
+                            else if (lower.includes('warn')) level = 'warn';
+                            else if (lower.includes('debug')) level = 'debug';
+                            sendEvent({ stream: 'stdout', level, message: line, timestamp: new Date().toISOString() });
+                        }
+                    });
+                }
+
+                if (child.stderr) {
+                    child.stderr.on('data', (chunk) => {
+                        const lines = chunk.toString().split('\n').filter(l => l.length > 0);
+                        for (const line of lines) {
+                            sendEvent({ stream: 'stderr', level: 'error', message: line, timestamp: new Date().toISOString() });
+                        }
+                    });
+                }
+
+                child.on('close', () => {
+                    sendEvent({ stream: 'system', level: 'log', message: 'Session ended' });
+                    res.end();
+                });
+            }
+
+            // Clean up when client disconnects
+            req.on('close', () => {
+                if (logInfo.type === 'docker' && logInfo.logStream) {
+                    try { logInfo.logStream.destroy(); } catch (e) {}
+                }
+            });
+        }).catch(err => {
+            sendEvent({ stream: 'system', level: 'error', message: 'Failed to get logs: ' + err.message });
+            res.end();
         });
     }
 
