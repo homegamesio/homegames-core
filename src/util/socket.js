@@ -2,7 +2,6 @@ const WebSocket = require('ws');
 const http = require('http');
 const https = require('https');
 const assert = require('assert');
-const Player = require('../Player');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -152,9 +151,9 @@ const broadcast = (gameSession) => {
             const clientId = pieces[1];
             
             if (gameSession.spectators[clientId]) {
-                gameSession.handleSpectatorDisconnect(clientId);
+                gameSession.removeSpectator(clientId);
             } else {
-                gameSession.handlePlayerDisconnect(clientId);
+                gameSession.removePlayer(clientId);
             }
             delete _playerIds[clientId];
         } else {
@@ -189,7 +188,7 @@ const broadcast = (gameSession) => {
                         id: clientId
                     };
 
-                    const player = new Player(fakeWs, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame, true);
+                    const clientInfo = jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo;
                     
                     const aspectRatio = gameSession.aspectRatio;
                     const gameMetadata = gameSession.gameMetadata;
@@ -208,9 +207,19 @@ const broadcast = (gameSession) => {
                     proxyServer.send([2, clientId, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
                     if (jsonMessage.spectating) {
-                        gameSession.addSpectator(player);
+                        gameSession.addSpectator(clientId, fakeWs, {
+                            clientInfo,
+                            info: playerInfo,
+                            requestedGame,
+                            isRemote: true,
+                        });
                     } else {
-                        gameSession.addPlayer(player);
+                        gameSession.addPlayer(clientId, fakeWs, {
+                            clientInfo,
+                            info: playerInfo,
+                            requestedGame,
+                            isRemote: true,
+                        });
                     }
                 } else if(jsonMessage.type === 'code') {
                     const code = jsonMessage.code;
@@ -219,7 +228,7 @@ const broadcast = (gameSession) => {
                     if (jsonMessage.clientInfo) {
                         clientInfoMap[sentPlayerId] = jsonMessage.clientInfo;                            
                     } else {
-                        gameSession.handlePlayerInput(sentPlayerId, jsonMessage);
+                        gameSession.handleInput(sentPlayerId, jsonMessage);
                     }
                 }
             } 
@@ -281,6 +290,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                     ws.id = Number(jsonMessage.id || generatePlayerId());
 
                     const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
+                    const clientInfo = jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo;
                     log.info("WHAT IS DOMAIN NAME");
                     log.info(DOMAIN_NAME);
                     log.info(CERT_DOMAIN);
@@ -296,7 +306,6 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                             const playerInfo = JSON.parse(d);
                             log.info('player info from homenames for this person');
                             log.info(playerInfo);
-                            const player = new Player(ws, playerInfo, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
                             ws.spectating = jsonMessage.spectating;
                             
                             const aspectRatio = gameSession.aspectRatio;
@@ -318,19 +327,37 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                             // init message
                             ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
 
+                            const playerOpts = {
+                                clientInfo,
+                                info: playerInfo,
+                                requestedGame,
+                            };
 
                             if (jsonMessage.spectating) {
-                                gameSession.addSpectator(player);
+                                gameSession.addSpectator(ws.id, ws, playerOpts);
                             } else {
-                                gameSession.addPlayer(player);
+                                gameSession.addPlayer(ws.id, ws, playerOpts);
                             }
+
+                            // Forward subsequent messages as input
+                            ws.on('message', (inputMsg) => {
+                                try {
+                                    const inputData = JSON.parse(inputMsg);
+                                    if (inputData.clientInfo) {
+                                        // client info update — ignore for now
+                                    } else {
+                                        gameSession.handleInput(ws.id, inputData);
+                                    }
+                                } catch (err) {
+                                    log.error('client ws error', err);
+                                }
+                            });
 
                         });
                     });
                     req.on('error', (err) => {
                         log.error('Homenames request failed: ' + err.message);
                         // Fall back: create player without Homenames info
-                        const player = new Player(ws, {}, jsonMessage.spectating, jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo, requestedGame);
                         ws.spectating = jsonMessage.spectating;
 
                         const aspectRatio = gameSession.aspectRatio;
@@ -345,11 +372,32 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                             squishVersionArray[i + 1] = squishVersion.charCodeAt(i);
                         }
                         ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+
+                        const playerOpts = {
+                            clientInfo,
+                            info: {},
+                            requestedGame,
+                        };
+
                         if (jsonMessage.spectating) {
-                            gameSession.addSpectator(player);
+                            gameSession.addSpectator(ws.id, ws, playerOpts);
                         } else {
-                            gameSession.addPlayer(player);
+                            gameSession.addPlayer(ws.id, ws, playerOpts);
                         }
+
+                        // Forward subsequent messages as input
+                        ws.on('message', (inputMsg) => {
+                            try {
+                                const inputData = JSON.parse(inputMsg);
+                                if (inputData.clientInfo) {
+                                    // client info update — ignore for now
+                                } else {
+                                    gameSession.handleInput(ws.id, inputData);
+                                }
+                            } catch (err) {
+                                log.error('client ws error', err);
+                            }
+                        });
                     });
                     req.end();
                 }
@@ -359,9 +407,9 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 
             function closeHandler() {
                 if (ws.spectating) {
-                    gameSession.handleSpectatorDisconnect(ws.id);
+                    gameSession.removeSpectator(ws.id);
                 } else {
-                    gameSession.handlePlayerDisconnect(ws.id);
+                    gameSession.removePlayer(ws.id);
                 }
                 
             }
@@ -387,4 +435,3 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 module.exports = {
     socketServer
 };
-

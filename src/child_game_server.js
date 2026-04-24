@@ -1,7 +1,6 @@
 const http = require('http');
 const https = require('https');
 const WebSocket = require('ws');
-const GameSession = require('./GameSession');
 const crypto = require('crypto');
 const fs = require('fs');
 const { socketServer } = require('./util/socket');
@@ -11,12 +10,11 @@ const { getService } = require('./services/index');
 const process = require('process');
 
 let lastMessage;
-let gameSession;
-let miniSession; // used for noFrame mode
+let gameSession; // used in both frame and no-frame modes
 
 const path = require('path');
 
-const { log, getConfigValue, getAppDataPath } = require('homegames-common');
+const { log, getConfigValue, getAppDataPath, GameSession } = require('homegames-common');
 
 const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
@@ -89,7 +87,64 @@ const startServer = (sessionInfo) => {
             gameInstance = new _gameClass({ addAsset, services });
 
         }
-        gameSession = new GameSession(gameInstance, sessionInfo.port, sessionInfo.username);
+
+        const BEZEL_SIZE_X = getConfigValue('BEZEL_SIZE_X', 10);
+        const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 10);
+
+        const HomegamesRoot = require('./homegames_root/HomegamesRoot');
+        const HomegamesDashboard = require('./dashboard/HomegamesDashboard');
+
+        const squishVersion = (gameInstance.constructor.metadata && gameInstance.constructor.metadata().squishVersion) || sessionInfo.squishVersion;
+
+        // Build the GameSession with frame support
+        // We need to create a temporary session reference for HomegamesRoot,
+        // since HomegamesRoot expects a session object in its constructor.
+        // We'll create a shim and then wire things up.
+        const sessionShim = {
+            game: gameInstance,
+            port: sessionInfo.port,
+            username: sessionInfo.username,
+            players: {},
+            spectators: {},
+            playerInfoMap: {},
+            clientInfoMap: {},
+            playerSettingsMap: {},
+        };
+
+        const isDashboard = gameInstance instanceof HomegamesDashboard;
+        const homegamesRoot = new HomegamesRoot(sessionShim, isDashboard, false);
+
+        const HomenamesHelper = require('./util/homenames-helper');
+        const homenamesHelper = new HomenamesHelper(sessionInfo.port, sessionInfo.username);
+
+        gameSession = new GameSession(gameInstance, squishVersion, {
+            port: sessionInfo.port,
+            username: sessionInfo.username,
+            spectators: true,
+            frame: {
+                root: homegamesRoot.getRoot(),
+                topLayerRoot: homegamesRoot.getTopLayerRoot(),
+                assets: HomegamesRoot.metadata().assets,
+                bezelX: BEZEL_SIZE_X,
+                bezelY: BEZEL_SIZE_Y,
+                handler: homegamesRoot,
+            },
+            homenames: homenamesHelper,
+        });
+
+        // Wire the shim to the real session so HomegamesRoot can access live state
+        sessionShim.stateHistory = [];
+        sessionShim.remotePlayerMap = gameSession.remotePlayerMap;
+        sessionShim.players = gameSession.players;
+        sessionShim.spectators = gameSession.spectators;
+        sessionShim.playerInfoMap = gameSession.playerInfoMap;
+        sessionShim.clientInfoMap = gameSession.clientInfoMap;
+        sessionShim.playerSettingsMap = gameSession.playerSettingsMap;
+        sessionShim.squisher = gameSession.squisher;
+        sessionShim.movePlayer = (opts) => gameSession.movePlayer(opts.playerId, opts.port);
+        sessionShim.spectateSession = (playerId) => gameSession.spectateSession(playerId);
+        sessionShim.joinSession = (spectatorId) => gameSession.joinSession(spectatorId);
+
     } catch (err) {
         log.error('Error instantiating game session');
         log.error(err);
@@ -100,27 +155,31 @@ const startServer = (sessionInfo) => {
 
     if (gameSession) {
 
-        gameSession.initialize(() => {
+        gameSession.initialize().then(() => {
             socketServer(gameSession, sessionInfo.port, () => {
                 sendProcessMessage({
                     'success': true
                 });
             }, HTTPS_ENABLED ? sessionInfo.certPath : null, sessionInfo.username);
+        }).catch(err => {
+            log.error('Error initializing game session');
+            log.error(err);
         });
     }
 
 };
 
 // ---------------------------------------------------------------------------
-// No-frame mode: uses MiniGameSession — no bezel, no HomegamesRoot, no
-// Homenames integration. Just the raw game with a WebSocket server.
+// No-frame mode: uses GameSession without frame options — no bezel,
+// no HomegamesRoot, no Homenames integration. Just the raw game with a
+// WebSocket server.
 // Used for sessions created via the Homenames HTTP API (homegamesio, etc.)
 // ---------------------------------------------------------------------------
 
 const startServerNoFrame = (sessionInfo) => {
     log.info('Starting no-frame server with session info', sessionInfo);
 
-    // Ensure API_URL is set BEFORE requiring MiniGameSession/squish,
+    // Ensure API_URL is set BEFORE requiring GameSession/squish,
     // because Asset.js reads it at module load time
     if (!process.env.API_URL) {
         try {
@@ -131,8 +190,6 @@ const startServerNoFrame = (sessionInfo) => {
     }
 
     process.env.SQUISH_PATH = require.resolve(`squish-${sessionInfo.squishVersion}`);
-
-    const { MiniGameSession } = require('homegames-common');
 
     let GameClass;
     try {
@@ -147,21 +204,21 @@ const startServerNoFrame = (sessionInfo) => {
     process.env.SQUISH_PATH = require.resolve(`squish-${squishVersion}`);
 
     const addAsset = (key, asset) => {
-        if (miniSession) return miniSession.handleNewAsset(key, asset);
+        if (gameSession) return gameSession.handleNewAsset(key, asset);
         return Promise.resolve();
     };
 
     const gameInstance = new GameClass({ addAsset });
-    miniSession = new MiniGameSession(gameInstance, squishVersion);
+    gameSession = new GameSession(gameInstance, squishVersion);
 
-    miniSession.initialize().then(() => {
+    gameSession.initialize().then(() => {
         // Simple WebSocket server — no bezel, no Homenames, no proxy
         const server = http.createServer((req, res) => {
             if (req.url === '/health') {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     ok: true,
-                    playerCount: miniSession ? miniSession.getPlayerCount() : 0,
+                    playerCount: gameSession ? gameSession.getPlayerCount() : 0,
                 }));
                 return;
             }
@@ -189,16 +246,16 @@ const startServerNoFrame = (sessionInfo) => {
                         svBuf.push(sv.charCodeAt(i));
                     }
 
-                    ws.send(Buffer.from([2, playerId, miniSession.aspectRatio.x, miniSession.aspectRatio.y, 0, 0, ...svBuf]));
-                    miniSession.addPlayer(playerId, ws, clientInfo);
-                } else if (miniSession && playerId != null) {
-                    miniSession.handleInput(playerId, parsed);
+                    ws.send(Buffer.from([2, playerId, gameSession.aspectRatio.x, gameSession.aspectRatio.y, 0, 0, ...svBuf]));
+                    gameSession.addPlayer(playerId, ws, { clientInfo });
+                } else if (gameSession && playerId != null) {
+                    gameSession.handleInput(playerId, parsed);
                 }
             });
 
             ws.on('close', () => {
-                if (miniSession && playerId != null) {
-                    miniSession.removePlayer(playerId);
+                if (gameSession && playerId != null) {
+                    gameSession.removePlayer(playerId);
                 }
             });
 
@@ -240,9 +297,12 @@ if (isForked) {
         } else {
             if (message.api) {
                 if (message.api === 'getPlayers') {
-                    const players = miniSession
-                        ? Object.keys(miniSession.players).map(id => ({ id, name: 'Player ' + id }))
-                        : Object.values(gameSession.players).map(p => ({ id: p.id, name: p.info.name }));
+                    const players = gameSession
+                        ? Object.keys(gameSession.players).map(id => ({
+                            id,
+                            name: (gameSession.playerInfoMap[id] && gameSession.playerInfoMap[id].name) || 'Player ' + id
+                        }))
+                        : [];
                     process.send(JSON.stringify({
                         'payload': players,
                         'requestId': message.requestId
@@ -278,15 +338,14 @@ process.on('error', (err) => {
 const GRACE_PERIOD_MS = Number(process.env.GRACE_PERIOD_MS) || 30000;
 
 const checkPulse = () => {
-    if (!gameSession && !miniSession) {
+    if (!gameSession) {
         log.info('discontinuing myself (no session)');
         process.exit(0);
         return;
     }
 
-    const hasPlayers = miniSession
-        ? miniSession.getPlayerCount() > 0
-        : (Object.values(gameSession.players).length > 0 || Object.values(gameSession.spectators).length > 0);
+    const hasPlayers = gameSession.getPlayerCount() > 0
+        || Object.keys(gameSession.spectators).length > 0;
 
     if (isForked) {
         // Fork mode: parent sends heartbeats. If we haven't heard from parent in 5s
@@ -308,4 +367,3 @@ const checkPulse = () => {
 setTimeout(() => {
     setInterval(checkPulse, 10 * 1000);
 }, isForked ? 2000 : GRACE_PERIOD_MS);
-
