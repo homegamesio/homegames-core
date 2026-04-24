@@ -240,6 +240,20 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 
     let server;
 
+    const requestHandler = (req, res) => {
+        if (req.url === '/api/players') {
+            const players = Object.keys(gameSession.players).map(id => ({
+                id,
+                name: (gameSession.playerInfoMap[id] && gameSession.playerInfoMap[id].name) || 'Player ' + id
+            }));
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(players));
+        } else if (req.url === '/health') {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true, playerCount: gameSession.getPlayerCount() }));
+        }
+    };
+
     if (certPath) {
         log.info('Starting secure server on port ' + port);
         log.info('this is my cert path: ' + certPath);
@@ -247,10 +261,10 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
         server = https.createServer({
             key: fs.readFileSync(`${certPath}/homegames.key`).toString(),
             cert: fs.readFileSync(`${certPath}/homegames.cert`).toString()
-        });
+        }, requestHandler);
     } else { 
         log.info('Starting regular server on port ' + port);
-        server = http.createServer();
+        server = http.createServer(requestHandler);
     }
 
     const wss = new WebSocket.Server({

@@ -32,6 +32,7 @@ const gameSessionManager = new GameSessionManager({
     childServerPath: childGameServerPath,
     dockerImageDir: fs.existsSync(dockerImageDir) ? dockerImageDir : null,
     saveDataRoot: path.join(getAppDataPath(), '.save-data'),
+    assetCachePath: path.join(getAppDataPath(), 'asset-cache'),
     log: logger,
 });
 

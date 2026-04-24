@@ -324,8 +324,8 @@ const joinSection = ({ gameKey, gameMetadata, activeSessions, onJoinSession, pag
 
             const startingY = 67;
             for (let i = 0; i < pageContent.length; i++) {
-                pageContent[i].getPlayers(players => {
-
+                pageContent[i].getPlayers((_players) => {
+                    const players = _players || [];
                     const gameFull = gameMetadata?.maxPlayers && players.length >= gameMetadata.maxPlayers;
 
                     const optionWrapper = new GameNode.Shape({

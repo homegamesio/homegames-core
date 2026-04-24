@@ -483,7 +483,9 @@ class HomegamesDashboard extends ViewableGame {
                             this.joinSession(playerId, session);
                         },
                         onCreateSession: () => {
+                            console.log('ayooo1');
                             if (this.localGames[gameId]?.versions[gameVersion.versionId]) {
+                                console.log('ayooo2');
                                 this.startSession(playerId, gameId, gameVersion.versionId);
                             } else {
                                 this.downloadGame({ gameDetails: game, version: gameVersion }).then(() => {
