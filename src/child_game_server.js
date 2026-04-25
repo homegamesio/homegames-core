@@ -62,9 +62,13 @@ const startServer = (sessionInfo) => {
             }
 
             const saveGame = (data) => new Promise((resolve, reject) => {
-                // lol. read parsed json to validate json
-                const jsonData = JSON.stringify(JSON.parse(JSON.stringify(data)));
-                fs.writeFileSync(existingGameSaveDataPath, jsonData);
+                try {
+                    const jsonData = JSON.stringify(JSON.parse(JSON.stringify(data)));
+                    fs.writeFileSync(existingGameSaveDataPath, jsonData);
+                    resolve();
+                } catch (err) {
+                    reject(err);
+                }
             });
 
             if (fs.existsSync(existingGameSaveDataPath)) {
@@ -133,7 +137,7 @@ const startServer = (sessionInfo) => {
         });
 
         // Wire the shim to the real session so HomegamesRoot can access live state
-        sessionShim.stateHistory = [];
+        sessionShim.stateHistory = gameSession.stateHistory;
         sessionShim.remotePlayerMap = gameSession.remotePlayerMap;
         sessionShim.players = gameSession.players;
         sessionShim.spectators = gameSession.spectators;
@@ -164,6 +168,7 @@ const startServer = (sessionInfo) => {
         }).catch(err => {
             log.error('Error initializing game session');
             log.error(err);
+            sendProcessMessage({ success: false, error: err.message });
         });
     }
 
@@ -208,7 +213,14 @@ const startServerNoFrame = (sessionInfo) => {
         return Promise.resolve();
     };
 
-    const gameInstance = new GameClass({ addAsset });
+    let gameInstance;
+    try {
+        gameInstance = new GameClass({ addAsset });
+    } catch (err) {
+        log.error('Failed to instantiate game:', err);
+        sendProcessMessage({ success: false, error: err.message });
+        return;
+    }
     gameSession = new GameSession(gameInstance, squishVersion);
 
     gameSession.initialize().then(() => {
@@ -237,7 +249,8 @@ const startServerNoFrame = (sessionInfo) => {
                 try { parsed = JSON.parse(msgStr); } catch (e) { return; }
 
                 if (parsed.type === 'ready') {
-                    playerId = parsed.id || ++playerIdCounter;
+                    playerIdCounter = (playerIdCounter % 254) + 1; // keep in 1-254 range
+                    playerId = playerIdCounter;
                     const clientInfo = parsed.clientInfo?.clientInfo || {};
 
                     const sv = squishVersion;
@@ -367,3 +380,20 @@ const checkPulse = () => {
 setTimeout(() => {
     setInterval(checkPulse, 10 * 1000);
 }, isForked ? 2000 : GRACE_PERIOD_MS);
+
+// Prevent unhandled rejections from crashing the process silently
+process.on('unhandledRejection', (reason) => {
+    log.error('Unhandled promise rejection in child process:');
+    log.error(reason);
+});
+
+// Handle parent process death (fork mode) — clean exit instead of orphaning
+if (isForked) {
+    process.on('disconnect', () => {
+        log.info('Parent process disconnected, shutting down');
+        if (gameSession) {
+            try { gameSession.destroy(); } catch (e) {}
+        }
+        process.exit(0);
+    });
+}

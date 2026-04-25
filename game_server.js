@@ -100,7 +100,6 @@ const server = (certPath, squishMap, username) => {
         playerInfoMap: {},
         clientInfoMap: {},
         playerSettingsMap: {},
-        stateHistory: [],
         remotePlayerMap: {},
     };
 
@@ -124,6 +123,7 @@ const server = (certPath, squishMap, username) => {
     });
 
     // Wire the shim to the real session so HomegamesRoot can access live state
+    sessionShim.stateHistory = session.stateHistory;
     sessionShim.remotePlayerMap = session.remotePlayerMap;
     sessionShim.players = session.players;
     sessionShim.spectators = session.spectators;

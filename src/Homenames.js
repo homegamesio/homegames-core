@@ -12,6 +12,7 @@ if (baseDir.endsWith('/src')) {
 }
 
 const { getConfigValue, log } = require('homegames-common');
+const { createRateLimiter } = require('./rate-limiter');
 
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
@@ -34,9 +35,20 @@ const getLocalIP = () => {
 // ---------------------------------------------------------------------------
 // Request body helper
 // ---------------------------------------------------------------------------
+const MAX_BODY_SIZE = 5 * 1024 * 1024; // 5MB max request body
+
 const getReqBody = (req) => new Promise((resolve, reject) => {
     let body = '';
-    req.on('data', chunk => { body += chunk.toString(); });
+    let size = 0;
+    req.on('data', chunk => {
+        size += chunk.length;
+        if (size > MAX_BODY_SIZE) {
+            req.destroy();
+            reject(new Error('Request body too large'));
+            return;
+        }
+        body += chunk.toString();
+    });
     req.on('end', () => {
         try { resolve(JSON.parse(body)); }
         catch (e) { reject(e); }
@@ -56,6 +68,26 @@ class Homenames {
         this.clientInfo = {};
         this.gameSessionManager = gameSessionManager || null;
 
+        // Rate limiters — different limits for different operations
+        const sessionCreateLimiter = createRateLimiter({ windowMs: 60000, max: 5 });   // 5 session creates per minute per IP
+        const sessionDeleteLimiter = createRateLimiter({ windowMs: 60000, max: 10 });   // 10 deletes per minute per IP
+        const readLimiter = createRateLimiter({ windowMs: 60000, max: 120 });            // 120 reads per minute per IP
+        const writeLimiter = createRateLimiter({ windowMs: 60000, max: 60 });            // 60 writes per minute per IP
+
+        const getClientIP = (req) => {
+            // Support X-Forwarded-For when behind a reverse proxy
+            const forwarded = req.headers['x-forwarded-for'];
+            if (forwarded) {
+                return forwarded.split(',')[0].trim();
+            }
+            return req.socket.remoteAddress || 'unknown';
+        };
+
+        const sendRateLimitResponse = (res) => {
+            res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
+            res.end(JSON.stringify({ error: 'Too many requests. Please try again later.' }));
+        };
+
         const homenamesApp = (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -67,14 +99,46 @@ class Homenames {
                 return;
             }
 
+            const clientIP = getClientIP(req);
             const reqPath = req.url.split('/');
 
             // -----------------------------------------------------------------
-            // Session management API
+            // Session management API (rate limited per operation type)
             // -----------------------------------------------------------------
             if (req.url.startsWith('/sessions')) {
+                if (req.method === 'POST') {
+                    if (!sessionCreateLimiter.allow(clientIP)) {
+                        sendRateLimitResponse(res);
+                        return;
+                    }
+                } else if (req.method === 'DELETE') {
+                    if (!sessionDeleteLimiter.allow(clientIP)) {
+                        sendRateLimitResponse(res);
+                        return;
+                    }
+                } else if (req.method === 'GET') {
+                    if (!readLimiter.allow(clientIP)) {
+                        sendRateLimitResponse(res);
+                        return;
+                    }
+                }
                 this.handleSessionRequest(req, res);
                 return;
+            }
+
+            // -----------------------------------------------------------------
+            // Player info API — rate limit reads and writes
+            // -----------------------------------------------------------------
+            if (req.method === 'GET') {
+                if (!readLimiter.allow(clientIP)) {
+                    sendRateLimitResponse(res);
+                    return;
+                }
+            } else if (req.method === 'POST') {
+                if (!writeLimiter.allow(clientIP)) {
+                    sendRateLimitResponse(res);
+                    return;
+                }
             }
 
             // -----------------------------------------------------------------
@@ -106,86 +170,67 @@ class Homenames {
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(payload));
+                } else {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Not found' }));
                 }
 
             } else if (req.method === 'POST') {
                 const playerId = reqPath[reqPath.length - 2];
+                const endpoint = reqPath[reqPath.length - 1];
 
-                if (reqPath[reqPath.length - 1] === 'info') {
-                    let body = '';
-                    req.on('data', chunk => {
-                        body += chunk.toString();
-                    });
-
-                    req.on('end', () => {
-                        this.playerInfo[playerId] = JSON.parse(body);
-                        res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
+                getReqBody(req).then(payload => {
+                    if (endpoint === 'info') {
+                        this.playerInfo[playerId] = payload;
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(this.playerInfo[playerId]));
                         this.notifyListeners(playerId);
-                    });
-                } else if (reqPath[reqPath.length - 1] === 'settings') {
-                    let body = '';
-                    req.on('data', chunk => {
-                        body += chunk.toString();
-                    });
-
-                    req.on('end', () => {
-                        const payload = JSON.parse(body);
+                    } else if (endpoint === 'settings') {
                         const newSettings = this.playerSettings[playerId] || {};
                         Object.assign(newSettings, payload);
                         this.playerSettings[playerId] = newSettings;
-                        res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(this.playerSettings[playerId]));
                         this.notifyListeners(playerId);
-                    });
-                } else if (reqPath[reqPath.length - 1] === 'client_info') {
-                    let body = '';
-                    req.on('data', chunk => {
-                        body += chunk.toString();
-                    });
-
-                    req.on('end', () => {
-                        const payload = JSON.parse(body);
+                    } else if (endpoint === 'client_info') {
                         const newClientInfo = this.clientInfo[playerId] || {};
                         Object.assign(newClientInfo, payload);
                         this.clientInfo[playerId] = newClientInfo;
-                        res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(this.clientInfo[playerId]));
                         this.notifyListeners(playerId);
-                    });
-                } else if (reqPath[reqPath.length - 1] === 'add_listener') {
-                    let body = '';
-                    req.on('data', chunk => {
-                        body += chunk.toString();
-                    });
+                    } else if (endpoint === 'add_listener') {
+                        const sessionPort = Number(payload.sessionPort);
+                        if (!sessionPort || isNaN(sessionPort)) {
+                            res.writeHead(400);
+                            res.end('Invalid sessionPort');
+                            return;
+                        }
 
-                    req.on('end', () => {
-                        const payload = JSON.parse(body);
-
-                        const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://localhost:${payload.sessionPort}`);
+                        const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://localhost:${sessionPort}`);
                         socketSession.on('open', () => {
                             log.info('opened socket connection to session');
-                            this.sessionClients[payload.sessionPort] = socketSession;
+                            this.sessionClients[sessionPort] = socketSession;
                             if (!this.playerListeners[payload.playerId]) {
                                 this.playerListeners[payload.playerId] = new Set();
                             }
-
-                            this.playerListeners[payload.playerId].add(payload.sessionPort);
-
+                            this.playerListeners[payload.playerId].add(sessionPort);
                             res.end('alright');
                         });
                         socketSession.on('error', (err) => {
-                            log.error('Homenames listener socket error for port ' + payload.sessionPort + ': ' + err.message);
+                            log.error('Homenames listener socket error for port ' + sessionPort + ': ' + err.message);
                             if (!res.writableEnded) {
-                                res.statusCode = 502;
+                                res.writeHead(502);
                                 res.end('failed to connect to session');
                             }
                         });
-                    });
-                }
+                    }
+                }).catch(err => {
+                    if (!res.writableEnded) {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Invalid request body' }));
+                    }
+                });
             }
         };
 
@@ -341,13 +386,30 @@ class Homenames {
 
             const input = {};
             if (gamePath) {
-                input.gamePath = gamePath;
-            } else if (files) {
+                // Only allow gamePath if it points to an existing .js file
+                // This is used by the dashboard for local games — not exposed externally
+                const resolved = path.resolve(gamePath);
+                if (!resolved.endsWith('.js') || !fs.existsSync(resolved)) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Invalid gamePath' }));
+                    return;
+                }
+                input.gamePath = resolved;
+            } else if (files && typeof files === 'object') {
                 // Write all files to a temp directory
                 const tmpDir = path.join(os.tmpdir(), 'hg-preview-' + Date.now() + '-' + Math.random().toString(36).slice(2));
                 fs.mkdirSync(tmpDir, { recursive: true });
                 for (const filePath of Object.keys(files)) {
+                    // Sanitize: reject absolute paths and path traversal
+                    if (path.isAbsolute(filePath) || filePath.includes('..')) {
+                        continue;
+                    }
+                    if (typeof files[filePath] !== 'string') continue;
                     const fullPath = path.join(tmpDir, filePath);
+                    // Double-check resolved path is still inside tmpDir
+                    if (!path.resolve(fullPath).startsWith(path.resolve(tmpDir))) {
+                        continue;
+                    }
                     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
                     fs.writeFileSync(fullPath, files[filePath]);
                 }
@@ -592,12 +654,59 @@ class Homenames {
     notifyListeners(playerId) {
         const sessionPorts = this.playerListeners[playerId];
         if (sessionPorts) {
+            const deadPorts = [];
             for (const port of sessionPorts) {
                 const sessionClient = this.sessionClients[port];
-                if (sessionClient) {
-                    sessionClient.send(JSON.stringify({type: 'homenames_update', playerId, info: this.playerInfo[playerId] || {}, settings: this.playerSettings[playerId] || {} }));
+                if (sessionClient && sessionClient.readyState === WebSocket.OPEN) {
+                    try {
+                        sessionClient.send(JSON.stringify({
+                            type: 'homenames_update',
+                            playerId,
+                            info: this.playerInfo[playerId] || {},
+                            settings: this.playerSettings[playerId] || {}
+                        }));
+                    } catch (e) {
+                        deadPorts.push(port);
+                    }
+                } else {
+                    deadPorts.push(port);
                 }
             }
+            // Clean up dead connections
+            for (const port of deadPorts) {
+                sessionPorts.delete(port);
+                delete this.sessionClients[port];
+            }
+        }
+    }
+
+    /**
+     * Clean up all state for a player. Call when a player disconnects
+     * from the platform entirely.
+     */
+    cleanupPlayer(playerId) {
+        delete this.playerInfo[playerId];
+        delete this.playerSettings[playerId];
+        delete this.clientInfo[playerId];
+        if (this.playerListeners[playerId]) {
+            for (const port of this.playerListeners[playerId]) {
+                const client = this.sessionClients[port];
+                if (client) {
+                    // Only close if no other players are listening on this port
+                    let otherListeners = false;
+                    for (const pid in this.playerListeners) {
+                        if (pid !== String(playerId) && this.playerListeners[pid].has(port)) {
+                            otherListeners = true;
+                            break;
+                        }
+                    }
+                    if (!otherListeners) {
+                        try { client.close(); } catch (e) {}
+                        delete this.sessionClients[port];
+                    }
+                }
+            }
+            delete this.playerListeners[playerId];
         }
     }
 }

@@ -5,6 +5,17 @@ const { reportBug } = require('./src/common/util');
 
 const process = require('process');
 
+// Catch-all error handlers — log and report but don't crash
+process.on('uncaughtException', (err) => {
+    console.error('[FATAL] Uncaught exception:', err);
+    try { reportBug(`Uncaught exception: ${err.message}\n${err.stack}`); } catch (e) {}
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('[FATAL] Unhandled promise rejection:', reason);
+    try { reportBug(`Unhandled rejection: ${reason}`); } catch (e) {}
+});
+
 const path = require('path');
 let baseDir = path.dirname(require.main.filename);
 
