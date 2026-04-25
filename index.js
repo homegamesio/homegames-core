@@ -25,7 +25,7 @@ if (baseDir.endsWith('src')) {
 
 const linkHelper = require('./src/util/link-helper');
 
-const { guaranteeCerts, guaranteeDir, authWorkflow, getConfigValue } = require('homegames-common');
+const { guaranteeDir, getConfigValue } = require('homegames-common');
 
 const log = process.env.LOGGER_LOCATION ? require(process.env.LOGGER_LOCATION) : { info: (msg) => console.log(msg), error: (msg) => console.error(msg)};
 
