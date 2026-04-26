@@ -15,6 +15,7 @@ const { getConfigValue, log } = require('homegames-common');
 const { createRateLimiter } = require('./rate-limiter');
 
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
+const PUBLIC_HOST = getConfigValue('PUBLIC_HOST', null); // e.g. 'api.homegames.io'
 
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();
@@ -313,6 +314,15 @@ class Homenames {
                 } catch (e) {}
             }
 
+            let wsUrl;
+            if (PUBLIC_HOST) {
+                wsUrl = `wss://${PUBLIC_HOST}/session/${s.port}`;
+            } else {
+                const wsProtocol = HTTPS_ENABLED ? 'wss' : 'ws';
+                const wsHost = getLocalIP() || 'localhost';
+                wsUrl = `${wsProtocol}://${wsHost}:${s.port}`;
+            }
+
             return {
                 id: s.id,
                 port: s.port,
@@ -320,6 +330,7 @@ class Homenames {
                 gameId: s.gameId || null,
                 squishVersion: s.squishVersion,
                 playerCount,
+                wsUrl,
             };
         }));
 
@@ -435,15 +446,25 @@ class Homenames {
                     session.gameId = gameId;
                 }
 
-                const wsProtocol = HTTPS_ENABLED ? 'wss' : 'ws';
-                const wsHost = getLocalIP() || 'localhost';
+                // When PUBLIC_HOST is set, return a path-based wss:// URL that
+                // routes through the nginx TLS-terminating reverse proxy:
+                //   wss://api.homegames.io/session/7002
+                // Otherwise fall back to direct ws:// for local dev.
+                let wsUrl;
+                if (PUBLIC_HOST) {
+                    wsUrl = `wss://${PUBLIC_HOST}/session/${port}`;
+                } else {
+                    const wsProtocol = HTTPS_ENABLED ? 'wss' : 'ws';
+                    const wsHost = getLocalIP() || 'localhost';
+                    wsUrl = `${wsProtocol}://${wsHost}:${port}`;
+                }
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     sessionId,
                     port,
                     type,
-                    wsUrl: `${wsProtocol}://${wsHost}:${port}`,
+                    wsUrl,
                 }));
             };
 
