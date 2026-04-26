@@ -28,13 +28,6 @@ done
 # child_game_server.js lives inside src/ and uses relative requires.
 cp -r "$CORE_DIR/src" build-deps/homegames-core-src
 
-# Remove squish-137 from squish-map.js (it's a local file: dep, never published to npm)
-# The Docker image only has published squish versions.
-if [ -f build-deps/homegames-core-src/common/squish-map.js ]; then
-    sed -i.bak "/'137'/d" build-deps/homegames-core-src/common/squish-map.js
-    rm -f build-deps/homegames-core-src/common/squish-map.js.bak
-fi
-
 echo "Building homegames-runner image..."
 docker build -t homegames-runner .
 
