@@ -20,7 +20,17 @@ rm -rf build-deps
 mkdir -p build-deps/homegames-common
 
 # Copy homegames-common source files (no .git, no node_modules)
-for f in "$CORE_DIR"/../homegames-common/*.js "$CORE_DIR"/../homegames-common/package.json "$CORE_DIR"/../homegames-common/package-lock.json; do
+# Prefer sibling repo; fall back to node_modules copy
+if [ -d "$CORE_DIR/../homegames-common" ] && [ -f "$CORE_DIR/../homegames-common/package.json" ]; then
+    COMMON_SRC="$CORE_DIR/../homegames-common"
+elif [ -d "$CORE_DIR/node_modules/homegames-common" ]; then
+    COMMON_SRC="$CORE_DIR/node_modules/homegames-common"
+else
+    echo "ERROR: Cannot find homegames-common (tried sibling dir and node_modules)" >&2
+    exit 1
+fi
+
+for f in "$COMMON_SRC"/*.js "$COMMON_SRC"/package.json "$COMMON_SRC"/package-lock.json; do
     [ -f "$f" ] && cp "$f" build-deps/homegames-common/
 done
 
