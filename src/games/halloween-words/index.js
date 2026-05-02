@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-136');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-138');
 const COLORS = Colors.COLORS;
 
 const PLAYER_SPEED = 0.4;
@@ -8,7 +8,7 @@ class HalloweenWords extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 1, y: 1},
-            squishVersion: '136',
+            squishVersion: '138',
             author: 'Joseph Garcia',
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
             isTest: false,

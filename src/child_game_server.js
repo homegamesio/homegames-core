@@ -1,3 +1,4 @@
+console.log("man what!!!!");
 const http = require('http');
 const https = require('https');
 const WebSocket = require('ws');
@@ -158,6 +159,7 @@ const startServer = (sessionInfo) => {
     }
 
     if (gameSession) {
+        console.log('fhfhfhfhf what');
 
         gameSession.initialize().then(() => {
             socketServer(gameSession, sessionInfo.port, () => {
@@ -296,6 +298,7 @@ const startServerNoFrame = (sessionInfo) => {
 const isForked = !!process.send;
 
 if (isForked) {
+    console.log('balls and ass');
     // Mode 1: IPC from parent process (original behavior)
     process.on('message', (msg) => {
         lastMessage = new Date();
@@ -325,6 +328,7 @@ if (isForked) {
         }
     });
 } else if (process.env.GAME_PATH) {
+    console.log('what in the hell');
     // Mode 2: Standalone (Docker container)
     // Config comes from environment variables.
     lastMessage = new Date();
@@ -386,6 +390,8 @@ process.on('unhandledRejection', (reason) => {
     log.error('Unhandled promise rejection in child process:');
     log.error(reason);
 });
+
+console.log("WHAT THE FUCK WHAT THE FUCK");
 
 // Handle parent process death (fork mode) — clean exit instead of orphaning
 if (isForked) {

@@ -1,8 +1,9 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-1006');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-138');
 const { MapGame, Drive, Fight, Hunt, Talk } = require('./minigames/index.js');
 const COLORS = Colors.COLORS;
 
 const TOTAL_DISTANCE = 420;
+console.log('gmgigigiig');
 
 const defaultResources = () => {
     return {
@@ -559,7 +560,7 @@ class VegasTrail extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '1006',
+            squishVersion: '138',
             author: 'Joseph & Senovia Garcia',
             thumbnail: '7ce8c9285df969a93a0d186474a42fb7',
             tickRate: 60,
