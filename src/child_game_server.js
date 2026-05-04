@@ -122,6 +122,7 @@ const startServer = (sessionInfo) => {
         const HomenamesHelper = require('./util/homenames-helper');
         const homenamesHelper = new HomenamesHelper(sessionInfo.port, sessionInfo.username);
 
+        console.log('hello this happens what');
         gameSession = new GameSession(gameInstance, squishVersion, {
             port: sessionInfo.port,
             username: sessionInfo.username,

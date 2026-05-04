@@ -234,6 +234,7 @@ class Homenames {
                 });
             }
         };
+        console.log('huh');
 
         const server = HTTPS_ENABLED && this.certPath ? https.createServer({
             key: fs.readFileSync(`${this.certPath}/homegames.key`).toString(),
