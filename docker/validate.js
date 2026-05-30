@@ -160,6 +160,26 @@ const run = () => {
         }
     }
 
+    // Step 6b: Collect asset IDs for NSFW flagging
+    const collectedAssetIds = [];
+    try {
+        const metadataAssets = metadata.assets || {};
+        for (const key of Object.keys(metadataAssets)) {
+            const id = metadataAssets[key]?.info?.id;
+            if (id) collectedAssetIds.push(id);
+        }
+        if (gameInstance.getAssets && typeof gameInstance.getAssets === 'function') {
+            const instanceAssets = gameInstance.getAssets() || {};
+            for (const key of Object.keys(instanceAssets)) {
+                const id = instanceAssets[key]?.info?.id;
+                if (id && !collectedAssetIds.includes(id)) collectedAssetIds.push(id);
+            }
+        }
+    } catch (err) {
+        // Non-fatal — proceed without asset list
+        console.error('Failed to collect asset IDs:', err.message);
+    }
+
     // Step 7: Let the game run for a bit to catch runtime errors
     const uncaughtErrors = [];
 
@@ -181,12 +201,14 @@ const run = () => {
                 success: false,
                 error: `Runtime errors: ${uncaughtErrors.slice(0, 5).join('; ')}`,
                 squishVersion,
+                assetIds: collectedAssetIds,
             });
         }
 
         writeResult({
             success: true,
             squishVersion,
+            assetIds: collectedAssetIds,
         });
     }, VALIDATION_RUN_MS);
 };
