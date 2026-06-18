@@ -383,7 +383,7 @@ const checkPulse = () => {
 
 // short grace period to allow the first client to connect before checking heartbeat
 setTimeout(() => {
-    setInterval(checkPulse, 10 * 1000);
+    setInterval(checkPulse, 3 * 1000);
 }, isForked ? 2000 : GRACE_PERIOD_MS);
 
 // Prevent unhandled rejections from crashing the process silently

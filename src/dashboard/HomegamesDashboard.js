@@ -1,5 +1,3 @@
-const http = require('http');
-const https = require('https');
 const path = require('path');
 const fs = require('fs');
 
@@ -9,7 +7,6 @@ const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish,
 
 const squishMap = require('../common/squish-map');
 
-const decompress = require('decompress');
 const gameModal = require('./game-modal');
 
 const COLORS = Colors.COLORS;
@@ -22,6 +19,10 @@ const isSecure = parsedUrl.protocol == 'https:';
 const { ExpiringSet, animations } = require('../common/util');
 
 const gameOption = require('./game-option');
+
+const { createCatalogClient } = require('../catalog/CatalogClient');
+const { createLocalLibrary } = require('../library/LocalLibrary');
+const { createInstaller } = require('../library/Installer');
 
 let baseDir = path.dirname(require.main.filename);
 
@@ -64,252 +65,15 @@ const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT
 const SOURCE_GAME_DIRECTORY = path.resolve(`${baseDir}${path.sep}src${path.sep}games`);
 const DOWNLOADED_GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
-const updateGameMetadataMap = (newMetadata) => {
-    fs.writeFileSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata', JSON.stringify(newMetadata));
-}
+const networkHelper = createCatalogClient({ apiUrl: API_URL });
 
-const getGameMetadataMap = () => {
-    if (fs.existsSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata')) {
-        const bytes = fs.readFileSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata');
-        return JSON.parse(bytes);
-    }
-
-    return {};
-}
-
-// copied from common. TODO: refactor everything so its not embarrassing 
-const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
-    const getModule = url.startsWith('https') ? https : http;
-
-    const responseData = '';
-
-    getModule.get(url, { headers } , (res) => {
-        const bufs = [];
-        res.on('data', (chunk) => {
-            bufs.push(chunk);
-        });
-
-        res.on('end', () => {
-            if (res.statusCode > 199 && res.statusCode < 300) {
-                resolve(Buffer.concat(bufs));
-            } else {
-                reject(Buffer.concat(bufs));
-            }
-        });
-    }).on('error', error => {
-        reject(error);
-    });
- 
+const localLibrary = createLocalLibrary({
+    sourceGameDir: SOURCE_GAME_DIRECTORY,
+    downloadedGameDir: DOWNLOADED_GAME_DIRECTORY,
+    localGameDir: getConfigValue('LOCAL_GAME_DIRECTORY', null),
 });
 
-if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
-    try {
-        fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
-    } catch (err) {
-        log.error('Unable to create downloaded game directory');
-        log.error(err);
-    }
-}
-
-const networkHelper = {
-    searchGames: (q) => new Promise((resolve, reject) => {
-        getUrl(`${API_URL}/games?query=${q}`).then(response => {
-            let results;
-            try {
-                results = JSON.parse(response);
-            } catch (err) {
-                log.error('Error parsing search response', err);
-                reject();
-            }    
-            resolve(results);
-        }).catch(err => {
-            log.error('Error searching games', err);
-            console.log(err);
-            reject(err);
-        });
-    }),
-    getGameDetails: (gameId) => new Promise((resolve, reject) => {
-       getUrl(`${API_URL}/games/${gameId}`).then(response => {
-            let results;
-            try {
-                results = JSON.parse(response);
-            } catch (err) {
-                log.error(err);
-                reject();
-            }    
-            resolve(results);
-        }).catch(err => {
-            log.error(err);
-            reject(err);
-        }); 
-    }), 
-    getGameVersionDetails: (gameId, versionId) => new Promise((resolve, reject) => {
-        getUrl(`${API_URL}/games/${gameId}/version/${versionId}`).then(response => { 
-            resolve(JSON.parse(response));
-        }).catch(err => {
-            log.error(err.toString());
-            reject(err);
-        }); 
-    })
-};
-
-if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
-    try {
-        fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
-    } catch (err) {
-        console.error('Unable to create game directory');
-        console.error(err);
-    }
-}
-
-const getGamePathsHelper = (dir) => {
-    let entries = [];
-    try {
-        entries = fs.readdirSync(dir);
-    } catch (err) {
-        console.error('Unable to read game directory');
-        console.error(err);
-    }
-    const results = new Set();
-    const processedEntries = {};
-
-    entries.forEach(entry => {
-        const entryPath = path.resolve(`${dir}${path.sep}${entry}`);
-
-        const metadata = fs.statSync(entryPath);
-        if (metadata.isFile()) {
-            const pathSep = path.sep === '\\' ? '\\\\' : path.sep;
-            const pathRegex = new RegExp(`(?:^|[${pathSep}])index\\.js$`);
-            const isMatch = pathRegex.test(entryPath);
-
-            if (isMatch) {
-                if (entryPath.endsWith('index.js')) {
-                    results.add(entryPath);
-                }
-            }
-        } else if (metadata.isDirectory()) {
-            const nestedPaths = getGamePathsHelper(entryPath);
-            nestedPaths.forEach(nestedPath => results.add(nestedPath));
-        }
-            
-    });
-
-    return results;
-};
-
-const getGameMap = () => {
-    const sourceGames = getGamePathsHelper(SOURCE_GAME_DIRECTORY);
-    const downloadedGames = getGamePathsHelper(DOWNLOADED_GAME_DIRECTORY);
-
-    const gamePaths = Array.from(new Set([...sourceGames, ...downloadedGames])).sort();
-
-    const games = {};
-
-    // used to append to keys with clashes. we should have ids
-    let suffixCount = 0;
-    const gameMetadataMap = getGameMetadataMap();
-    gamePaths.forEach(gamePath => {
-        const isLocal = sourceGames.has(gamePath);
-        if (isLocal) {
-
-            const gameClass = require(gamePath);
-
-            if (!gameClass.name || !gameClass.metadata) {
-                log.info('Unknown game at path ' + gamePath);
-            } else {
-                const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
-
-                games[gameClass.name] = {
-                    metadata: {
-                        name: gameMetadata.name || gameClass.name,
-                        thumbnail: gameMetadata.thumbnail,
-                        thumbnailSource: gameMetadata.thumbnailSource,
-                        author: gameMetadata.createdBy || 'Unknown author',
-                        isTest: gameMetadata.isTest || false
-                    },
-                    versions: {
-                        'local-game-version': {
-                            gameId: gameClass.name,
-                            class: gameClass,
-                            metadata: {...gameMetadata },
-                            gamePath,
-                            versionId: 'local-game-version',
-                            description: gameMetadata.description || 'No description available',
-                            version: 0,
-                            approved: true
-                        }
-                    }
-                }
-            }
-        } else {
-            const storedMetadata = gameMetadataMap[gamePath] || {};
-
-            const gameId = storedMetadata?.game?.gameId;
-            const versionId = storedMetadata?.version?.versionId;
-
-            if (!gameId || !versionId) {
-                console.warn('Unknown game at ' + gamePath);
-            } else {
-                if (!games[gameId]) {
-                    games[gameId] = {
-                        metadata: storedMetadata.game,
-                        versions: {}
-                    }
-                }
-
-                games[gameId].versions[versionId] = {
-                    gameId,
-                    metadata: storedMetadata.version,
-                    gamePath,
-                    versionId,
-                    version: storedMetadata.version.version,
-                    approved: storedMetadata.version.approved
-                };
-            }
-        } 
-    });
-
-    if (getConfigValue('LOCAL_GAME_DIRECTORY', null)) {
-        const localGameDirString = getConfigValue('LOCAL_GAME_DIRECTORY');
-        const localGameDir = path.resolve(localGameDirString);
-        
-        if (!fs.existsSync(localGameDirString)) {
-            fs.mkdirSync(localGameDirString);
-        }
-
-        const localGamePaths = getGamePathsHelper(localGameDir);
-
-        localGamePaths.forEach(gamePath => {
-            log.info('Using local game at path ' + gamePath);
-            const gameClass = require(gamePath);
-            const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
-
-            games[gameClass.name] = {
-                metadata: {
-                    name: gameMetadata.name || gameClass.name,
-                    thumbnail: gameMetadata.thumbnail,
-                    description: gameMetadata.description,
-                    thumbnailSource: gameMetadata.thumbnailSource,
-                    author: gameMetadata.createdBy || 'Unknown author'
-                },
-                versions: {
-                    'local-game-version': {
-                        gameId: gameClass.name,
-                        class: gameClass,
-                        metadata: {...gameMetadata },
-                        gamePath,
-                        versionId: 'local-game-version',
-                        description: gameMetadata.description || 'No description available',
-                        version: 0,
-                        approved: true
-                    }
-                }
-            }
-        });
-    }
-
-    return games;
-};
+localLibrary.ensureDirs();
 
 class HomegamesDashboard extends ViewableGame {
     static metadata() {
@@ -321,9 +85,16 @@ class HomegamesDashboard extends ViewableGame {
     }
 
 
-    constructor({ movePlayer, addAsset, username, certPath, gameSessionManager }) {
+    constructor({ movePlayer, addAsset, username, certPath, gameSessionManager, catalogClient, localLibrary: injectedLibrary }) {
         super(1000);
         // todo: static vs. addasset
+
+        // Catalog client and local library are injectable for testing; they
+        // default to the module-level instances (real API + app-data dir). The
+        // installer shares both so installs hit the same (possibly mocked) deps.
+        this.networkHelper = catalogClient || networkHelper;
+        this.localLibrary = injectedLibrary || localLibrary;
+        this.installer = createInstaller({ catalogClient: this.networkHelper, localLibrary: this.localLibrary });
 
         this.addAsset = addAsset;
         this.username = username;
@@ -342,6 +113,7 @@ class HomegamesDashboard extends ViewableGame {
         };
 
         this.playerModals = {};
+        this.playerDownloadOverlays = {};
 
         this.movePlayer = movePlayer;
 
@@ -351,7 +123,7 @@ class HomegamesDashboard extends ViewableGame {
             fill: BASE_COLOR
         });
 
-        this.localGames = getGameMap();
+        this.localGames = this.localLibrary.scan();
 
         Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
             this.assets[key] = new Asset({
@@ -554,11 +326,11 @@ class HomegamesDashboard extends ViewableGame {
 
             } else {
  
-                networkHelper.getGameDetails(gameId).then(gameDetails => {
+                this.networkHelper.getGameDetails(gameId).then(gameDetails => {
 
                     const innerTing = () => {
                         if (versionId) {
-                            networkHelper.getGameVersionDetails(gameId, versionId).then(gameVersion => {
+                            this.networkHelper.getGameVersionDetails(gameId, versionId).then(gameVersion => {
                                 
                                 const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.game.name, thumbnail: gameDetails.game.thumbnail, author: gameDetails.game.developerId }};
                                 const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.id !== gameVersion.versionId).map(v => {
@@ -616,7 +388,7 @@ class HomegamesDashboard extends ViewableGame {
         return this.assets;
     }
 
-    buildGamePlane({ gameCollection, rowsPerPage = 2, columnsPerPage = 2 }) {
+    buildGamePlane({ gameCollection, rowsPerPage = 2, columnsPerPage = 2, onGameClick = null }) {
 
         const gameCount = Object.keys(gameCollection).length;
         
@@ -655,7 +427,11 @@ class HomegamesDashboard extends ViewableGame {
                 gameName,
                 assetKey,
                 onClick: (playerId) => {
-                    this.showGameModalNew(playerId, key);
+                    if (onGameClick) {
+                        onGameClick(playerId, key);
+                    } else {
+                        this.showGameModalNew(playerId, key);
+                    }
                 }
             });
 
@@ -705,13 +481,13 @@ class HomegamesDashboard extends ViewableGame {
                     }
                     this.showGameModalNew(playerId, gameId, versionId);
                 } else {
-                    networkHelper.getGameDetails(gameId).then(gameDetails => {
+                    this.networkHelper.getGameDetails(gameId).then(gameDetails => {
                         if (!versionId) {
                             if (gameDetails.versions.length > 0) {
                                 versionId = gameDetails.versions[gameDetails.versions.length - 1].id;
                             }
                         }
-                        networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
+                        this.networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
                             const ting = { 
                                 [gameId]: {
                                     metadata: {
@@ -784,7 +560,7 @@ class HomegamesDashboard extends ViewableGame {
 
         let processedEntries = 0;
 
-        networkHelper.searchGames(query).then(results => {
+        this.networkHelper.searchGames(query).then(results => {
             if (!results.games || !results.games.length) {
                 this.renderGames(playerId, { searchResults: games, searchQuery: query });
             } else {
@@ -829,7 +605,238 @@ class HomegamesDashboard extends ViewableGame {
         });
     }
 
-    buildStaticElements(playerId, gamePlane, searchQuery = '', searchResults = null) {
+    // Enter Browse mode and load the first page of the remote catalog.
+    handleBrowse(playerId, { reset = true } = {}) {
+        this.playerStates[playerId].view = { x: 0, y: 0, w: 100, h: 100 };
+
+        if (reset || !this.playerStates[playerId].browse) {
+            this.playerStates[playerId].browse = {
+                offset: 0,
+                limit: 12,
+                results: {},
+                loading: true,
+                error: false,
+                exhausted: false
+            };
+        } else {
+            this.playerStates[playerId].browse.loading = true;
+        }
+
+        this.renderGames(playerId, { browse: true });
+        this._fetchCatalogPage(playerId);
+    }
+
+    loadMoreCatalog(playerId) {
+        const browseState = this.playerStates[playerId].browse;
+        if (!browseState || browseState.loading || browseState.exhausted) return;
+        browseState.loading = true;
+        this.renderGames(playerId, { browse: true });
+        this._fetchCatalogPage(playerId);
+    }
+
+    // Fetch the next catalog page, merge results, register thumbnails, re-render.
+    // Guards against the player having left Browse mode mid-request.
+    _fetchCatalogPage(playerId) {
+        const browseState = this.playerStates[playerId].browse;
+        if (!browseState) return;
+
+        const stillBrowsing = () => this.playerStates[playerId] && this.playerStates[playerId].browse === browseState;
+
+        this.networkHelper.list({ offset: browseState.offset, limit: browseState.limit }).then(response => {
+            if (!stillBrowsing()) return;
+
+            const games = (response && response.games) || [];
+            const registrations = [];
+
+            games.forEach(game => {
+                const thumbnailId = (game.thumbnail && game.thumbnail.indexOf('/') > 0)
+                    ? game.thumbnail.split('/')[game.thumbnail.split('/').length - 1]
+                    : game.thumbnail;
+
+                browseState.results[game.id] = {
+                    metadata: {
+                        name: game.name,
+                        author: game.developerId,
+                        thumbnail: thumbnailId,
+                        description: game.description || ''
+                    }
+                };
+
+                if (thumbnailId && !this.assets[game.id]) {
+                    const asset = new Asset({ id: thumbnailId, type: 'image' });
+                    this.assets[game.id] = asset;
+                    registrations.push(this.addAsset(game.id, asset).catch(() => {}));
+                }
+            });
+
+            browseState.offset += games.length;
+            browseState.loading = false;
+            if (games.length < browseState.limit) {
+                browseState.exhausted = true;
+            }
+
+            Promise.all(registrations).then(() => {
+                if (stillBrowsing()) this.renderGames(playerId, { browse: true });
+            });
+        }).catch(err => {
+            log.error('Failed to load catalog');
+            log.error(err);
+            if (!stillBrowsing()) return;
+            browseState.loading = false;
+            browseState.error = true;
+            browseState.exhausted = true;
+            this.renderGames(playerId, { browse: true });
+        });
+    }
+
+    exitBrowse(playerId) {
+        this.playerStates[playerId].browse = null;
+        this.playerStates[playerId].view = { x: 0, y: 0, w: 100, h: 100 };
+        this.renderGames(playerId, {});
+    }
+
+    // Auto download-then-play a catalog game. If it's already installed locally,
+    // just start it; otherwise fetch details, download with a progress overlay,
+    // then start the session.
+    playCatalogGame(playerId, gameId) {
+        if (this.localGames[gameId] && this.localGames[gameId].versions && Object.keys(this.localGames[gameId].versions).length > 0) {
+            this.startSession(playerId, gameId);
+            return;
+        }
+
+        this.showDownloadProgress(playerId, gameId, null);
+
+        // Studio/Forgejo-published games have no asset zip; their source lives in
+        // git, fetched by commitSha. Pull the published versions for the commit,
+        // install from source, then play.
+        Promise.all([
+            this.networkHelper.getGameDetails(gameId),
+            this.networkHelper.getPublishedVersions(gameId)
+        ]).then(([gameDetails, published]) => {
+            const versions = (published && published.versions) || [];
+            if (versions.length === 0) {
+                throw new Error('Game has no published versions');
+            }
+            const latest = versions.reduce((a, b) => ((b.publishedAt || 0) > (a.publishedAt || 0) ? b : a));
+            const displayName = (gameDetails.game && gameDetails.game.name) || gameId;
+
+            return this.installer.installFromSource({
+                gameId,
+                game: gameDetails.game,
+                versionId: latest.versionId,
+                commitSha: latest.commitSha,
+                onProgress: (p) => {
+                    const pct = (p && p.total) ? Math.floor((100 * p.received) / p.total) : null;
+                    this.showDownloadProgress(playerId, displayName, pct);
+                }
+            }).then(({ versionId }) => {
+                this.localGames = this.localLibrary.scan();
+                this._registerLocalThumbnails();
+                this.clearDownloadProgress(playerId);
+                this.startSession(playerId, gameId, versionId);
+            });
+        }).catch(err => {
+            log.error('Failed to download and play catalog game');
+            log.error(err);
+            this.showDownloadError(playerId, gameId);
+        });
+    }
+
+    _removeDownloadOverlay(playerId) {
+        const playerRootNode = this.playerRoots[playerId] && this.playerRoots[playerId].node;
+        const existing = this.playerDownloadOverlays[playerId];
+        if (playerRootNode && existing) {
+            playerRootNode.removeChild(existing);
+        }
+        this.playerDownloadOverlays[playerId] = null;
+    }
+
+    // Full-screen dimmed overlay with a "Downloading … N%" box. Re-rendered (swap)
+    // on each progress update via the tracked overlay node id.
+    showDownloadProgress(playerId, name, pct) {
+        const playerRootNode = this.playerRoots[playerId] && this.playerRoots[playerId].node;
+        if (!playerRootNode) return;
+
+        this._removeDownloadOverlay(playerId);
+
+        const overlay = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            playerIds: [playerId],
+            fill: [0, 0, 0, 200]
+        });
+
+        const box = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(25, 40, 50, 20),
+            playerIds: [playerId],
+            fill: BASE_COLOR
+        });
+
+        const label = (pct === null || pct === undefined)
+            ? `Downloading ${name}…`
+            : `Downloading ${name}… ${pct}%`;
+
+        box.addChild(new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 48,
+                align: 'center',
+                size: 1.8,
+                text: label,
+                color: DASHBOARD_TEXT_COLOR
+            },
+            playerIds: [playerId]
+        }));
+
+        overlay.addChild(box);
+        playerRootNode.addChild(overlay);
+        this.playerDownloadOverlays[playerId] = overlay.node.id;
+    }
+
+    clearDownloadProgress(playerId) {
+        this._removeDownloadOverlay(playerId);
+    }
+
+    showDownloadError(playerId, name) {
+        const playerRootNode = this.playerRoots[playerId] && this.playerRoots[playerId].node;
+        if (!playerRootNode) return;
+
+        this._removeDownloadOverlay(playerId);
+
+        const overlay = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            playerIds: [playerId],
+            fill: [0, 0, 0, 200],
+            onClick: (pid) => this._removeDownloadOverlay(pid)
+        });
+
+        const box = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(25, 40, 50, 20),
+            playerIds: [playerId],
+            fill: BASE_COLOR
+        });
+
+        box.addChild(new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 47,
+                align: 'center',
+                size: 1.5,
+                text: `Couldn't download ${name}. Tap to dismiss.`,
+                color: DASHBOARD_TEXT_COLOR
+            },
+            playerIds: [playerId]
+        }));
+
+        overlay.addChild(box);
+        playerRootNode.addChild(overlay);
+        this.playerDownloadOverlays[playerId] = overlay.node.id;
+    }
+
+    buildStaticElements(playerId, gamePlane, searchQuery = '', searchResults = null, browse = false) {
         const baseNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: BASE_COLOR,
@@ -995,32 +1002,124 @@ class HomegamesDashboard extends ViewableGame {
             baseNode.addChildren(downArrow);
         }
 
+        // Browse / Back toggle (left of the search box). Available regardless of
+        // demo mode, since browsing the catalog needs no text input.
+        const browseToggle = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0.5, 2.5, 11, 10),
+            playerIds: [playerId],
+            fill: SEARCH_BOX_COLOR,
+            onClick: (pid) => {
+                if (browse) {
+                    this.exitBrowse(pid);
+                } else {
+                    this.handleBrowse(pid);
+                }
+            }
+        });
+        browseToggle.addChild(new GameNode.Text({
+            textInfo: {
+                x: 6,
+                y: 5.5,
+                align: 'center',
+                size: 1.4,
+                text: browse ? '◀ Back' : 'Browse',
+                color: BASE_COLOR
+            },
+            playerIds: [playerId]
+        }));
+        baseNode.addChild(browseToggle);
+
+        if (browse) {
+            const browseState = this.playerStates[playerId].browse || {};
+
+            // Status line for loading / error / empty catalog.
+            let statusText = null;
+            if (browseState.error) {
+                statusText = 'Could not reach the catalog. Showing what is available offline.';
+            } else if (browseState.loading && Object.keys(browseState.results || {}).length === 0) {
+                statusText = 'Loading catalog…';
+            } else if (!browseState.loading && Object.keys(browseState.results || {}).length === 0) {
+                statusText = 'No games found in the catalog.';
+            }
+
+            if (statusText) {
+                baseNode.addChild(new GameNode.Text({
+                    textInfo: {
+                        x: 50,
+                        y: 50,
+                        align: 'center',
+                        size: 1.6,
+                        text: statusText,
+                        color: DASHBOARD_TEXT_COLOR
+                    },
+                    playerIds: [playerId]
+                }));
+            }
+
+            // "Load more" pulls the next page; hidden once the catalog is exhausted.
+            if (!browseState.exhausted && Object.keys(browseState.results || {}).length > 0) {
+                const loadMore = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    coordinates2d: ShapeUtils.rectangle(42.5, 91, 15, 7),
+                    playerIds: [playerId],
+                    fill: SEARCH_BOX_COLOR,
+                    onClick: (pid) => this.loadMoreCatalog(pid)
+                });
+                loadMore.addChild(new GameNode.Text({
+                    textInfo: {
+                        x: 50,
+                        y: 93,
+                        align: 'center',
+                        size: 1.3,
+                        text: browseState.loading ? 'Loading…' : 'Load more',
+                        color: BASE_COLOR
+                    },
+                    playerIds: [playerId]
+                }));
+                baseNode.addChild(loadMore);
+            }
+        }
+
         return baseNode;
     }
 
-    renderGames(playerId, { searchResults, searchQuery }) {
+    renderGames(playerId, { searchResults, searchQuery, browse } = {}) {
         const playerRoot = this.playerRoots[playerId];
         const playerView = this.playerStates[playerId].view;
 
-        const searchPlaneBase = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
-        });
+        let gamePlane;
 
-        if (searchResults) {
+        if (browse) {
+            const collection = (this.playerStates[playerId].browse && this.playerStates[playerId].browse.results) || {};
+            const browsePlaneBase = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+            });
+            browsePlaneBase.addChild(this.buildGamePlane({
+                gameCollection: collection,
+                onGameClick: (pid, key) => this.playCatalogGame(pid, key)
+            }));
+            gamePlane = browsePlaneBase;
+        } else if (searchResults) {
+            const searchPlaneBase = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+            });
             const transformedResults = {};
             Object.keys(searchResults).forEach(gameId => {
                 transformedResults[gameId] = {
                     versions: {},
                     metadata: searchResults[gameId].metadata
                 };
-            })
+            });
             searchPlaneBase.addChild(this.buildGamePlane({ gameCollection: transformedResults }));
+            gamePlane = searchPlaneBase;
+        } else {
+            gamePlane = this.getPlane();
         }
 
-        const gamePlane = searchResults ? searchPlaneBase : this.getPlane();
-        
-        const staticElements = this.buildStaticElements(playerId, gamePlane, searchQuery, searchResults);
+        const staticElements = this.buildStaticElements(playerId, gamePlane, searchQuery, searchResults, browse);
 
         const view = ViewUtils.getView(
             gamePlane,
@@ -1039,66 +1138,25 @@ class HomegamesDashboard extends ViewableGame {
         playerRoot.node.addChildren(staticElements, view);
     }
 
-    downloadGame({ gameDetails, version }) {
-        const { id: gameId, description, name, developerId: createdBy, created: createdAt, thumbnail } = gameDetails.game;
-        const { id: versionId, assetId, approved, published } = version;
-        const location = `${API_URL}/assets/${assetId}`;
-
-        const metadataToStore = {
-            version: {
-                versionId,
-                version: version.version,
-                approved,
-                squishVersion: version.squishVersion,
-                published
-            },
-            game: {
-               gameId,
-               name,
-               description,
-               createdBy,
-               createdAt,
-               thumbnail
-            }
-        }
-
-        return new Promise((resolve, reject) => {
-            const gamePath = `${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}`;
-            const zipPath = `${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}.zip`;
-
-            if (!fs.existsSync(`${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}`)) {
-                fs.mkdirSync(`${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}`);
-            }
-
-            const zipWriteStream = fs.createWriteStream(zipPath);
-            
-            zipWriteStream.on('close', () => {
-                decompress(zipPath, gamePath).then((files) => {
-                        const currentMetadata = getGameMetadataMap();
-		        const foundIndex = files.filter(f => f.type === 'file' && f.path.endsWith('index.js'))[0];
-                        const indexPath = path.join(gamePath, foundIndex.path);//`${gamePath}${path.sep}index.js`;
-                    
-                        currentMetadata[indexPath] = metadataToStore;
-                        updateGameMetadataMap(currentMetadata);
-                        this.localGames = getGameMap();
-
-                        Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
-                            this.assets[key] = new Asset({
-                                'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
-                                'source': this.localGames[key].metadata && this.localGames[key].metadata.thumbnailSource,
-                                'type': 'image'
-                            });
-                        });
-                        resolve(indexPath);
+    // Re-register thumbnail assets for every known local game (after a rescan).
+    _registerLocalThumbnails() {
+        Object.keys(this.localGames)
+            .filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail)
+            .forEach(key => {
+                this.assets[key] = new Asset({
+                    'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                    'source': this.localGames[key].metadata && this.localGames[key].metadata.thumbnailSource,
+                    'type': 'image'
                 });
             });
+    }
 
-            (API_URL.startsWith('https') ? https : http).get(location, (res) => {
-                res.pipe(zipWriteStream);
-                zipWriteStream.on('finish', () => {
-                    zipWriteStream.close();
-                });
-            });
+    // Legacy asset-zip download (kept for games that still carry a sourceAssetId).
+    downloadGame({ gameDetails, version, onProgress }) {
+        return this.installer.install({ gameDetails, version, onProgress }).then(({ indexPath }) => {
+            this.localGames = this.localLibrary.scan();
+            this._registerLocalThumbnails();
+            return indexPath;
         });
     }
 
@@ -1114,3 +1172,14 @@ class HomegamesDashboard extends ViewableGame {
 }
 
 module.exports = HomegamesDashboard;
+
+// Seams now live in LocalLibrary / CatalogClient. These delegating exports keep
+// the dashboard's characterization tests pointed at its public surface, proving
+// the extraction preserved behavior. New tests target the modules directly.
+module.exports.getGameMap = () => localLibrary.scan();
+module.exports.getGamePathsHelper = (dir) => localLibrary.getGamePaths(dir);
+module.exports.getGameMetadataMap = () => localLibrary.readMetadataMap();
+module.exports.updateGameMetadataMap = (m) => localLibrary.writeMetadataMap(m);
+module.exports.networkHelper = networkHelper;
+module.exports.SOURCE_GAME_DIRECTORY = SOURCE_GAME_DIRECTORY;
+module.exports.DOWNLOADED_GAME_DIRECTORY = DOWNLOADED_GAME_DIRECTORY;
