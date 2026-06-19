@@ -212,6 +212,7 @@ const box = new GameNode.Shape({
 - **Use `fill` for the shape's color.** (`color` is also accepted and is primarily for line/stroke color; real games overwhelmingly use `fill` for polygons.)
 - Rectangles and arbitrary polygons via `POLYGON` cover ~95% of needs. Prefer them.
 - Transparent fill `[0,0,0,0]` + an `onClick` makes an invisible hit-box / button overlay.
+- A `Shape` can also carry an `input` field (to act as an on-screen text box) and `onHover`/`offHover` callbacks — see §9.
 
 ### 7.2 `GameNode.Text`
 
@@ -366,6 +367,34 @@ Implement `handleKeyDown(playerId, key)` / `handleKeyUp(playerId, key)`. `key` i
 
 > Mobile players have no physical keyboard. If your game needs keyboard control, also provide on-screen `onClick` buttons, or design click/tap-first.
 
+### Text input (on-screen fields)
+
+Besides clicks and keyboard there is a third input path: a node can present an **editable text field** via an `input` property. It is accepted on **`Shape` and `Text`** nodes (not `Asset`). The client renders an input box over the node's bounds; as the player edits it, the server calls your `oninput(playerId, value)` with the field's current contents:
+
+```js
+const searchBox = new GameNode.Shape({
+    shapeType: Shapes.POLYGON,
+    coordinates2d: ShapeUtils.rectangle(20, 5, 60, 10),
+    fill: COLORS.WHITE,
+    input: {
+        type: 'text',
+        oninput: (playerId, value) => {
+            this.query = value;             // `value` is the full current text, not one keystroke
+            this.runSearch(playerId);       // mutate state, then onStateChange()
+        }
+    }
+});
+```
+
+- `oninput` fires on change; treat `value` as the field's entire current string.
+- This is exactly the mechanism the Homegames dashboard's own search box uses, so it is the same well-trodden path the platform relies on.
+- Scope the field with `playerIds` (§8) so only the intended player sees and edits it — `input` is per node, but visibility still follows `playerIds`.
+- There is also `type: 'file'` for uploads; its `oninput(playerId, files)` receives an **array** of files instead of a string. Rarely needed in games.
+
+### Hover
+
+`Shape` and `Asset` nodes also accept `onHover(playerId)` and `offHover(playerId)` (pointer enter / leave). Use them only for cosmetic affordances — **touch devices have no hover**, so never gate a mechanic on it.
+
 ---
 
 ## 10. Timing and game loop
@@ -407,7 +436,7 @@ assets: {
 - `ShapeUtils.rectangle(x,y,w,h)`, `ShapeUtils.triangle(...)` — vertex builders (§6).
 - `Colors.COLORS.*`, `Colors.randomColor(exclusions?)` — palette (§6).
 - `GeometryUtils.checkCollisions(root, node, filter?)` — returns nodes under `root` that overlap `node` (axis-aligned rectangle test). Optional `filter(node) => boolean` to limit candidates. Useful but simple; many games hand-roll AABB checks for control (see §14).
-- `ViewUtils.getView(plane, view, playerIds)` — projects a slice of a large world into the `0–100` viewport (see §13).
+- `ViewUtils.getView(plane, view, playerIds, translation?, scale?)` — projects a slice of a large world into the `0–100` viewport; optional `translation`/`scale` inset the projection into part of the screen (see §13 / §13.1).
 - `Shapes.POLYGON | LINE` — shape type enum (`CIRCLE` exists but is not rendered).
 
 ---
@@ -448,7 +477,7 @@ A "view" is a rectangle into the world: `{ x, y, w, h }` in world units. You ren
 
 ### Approach A — built-in projection with `ViewUtils.getView`
 
-Build the world once in `getPlane()`, then per player project a view window into a render root. `ViewUtils.getView(plane, view, playerIds)` clones the world nodes inside `view`, translates/clips them into `0–100`, and tags them for `playerIds`:
+Build the world once in `getPlane()`, then per player project a view window into a render root. `ViewUtils.getView(plane, view, playerIds)` clones the world nodes inside `view`, translates/clips them into `0–100`, and tags them for `playerIds`. (It has two more optional args, `translation` and `scale`, for placing the projection in only part of the screen — see §13.1.):
 
 ```js
 handleNewPlayer({ playerId }) {
@@ -530,13 +559,51 @@ updatePlayerView(playerId) {
 }
 ```
 
+### 13.1 Projecting into a sub-region (static frame around a scrolling viewport)
+
+`getView` takes two optional trailing arguments that let you place the projection somewhere other than the full screen:
+
+```js
+ViewUtils.getView(plane, view, playerIds, translation, scale)
+```
+
+- `translation` — `{ x, y, filter? }`. After a node is projected, shift it by `x`/`y` (plane units). The optional `filter(node) => boolean` applies the shift to only the nodes it returns true for.
+- `scale` — `{ x, y }`. Multiplies the projected coordinates per axis; values `< 1` shrink the projection so it fills only part of the viewport.
+
+Per-vertex transform order is: subtract the view origin and clamp to `0–100`, **then** multiply by `scale`, **then** add `translation`, then clamp again.
+
+This is how you keep **static UI fixed on screen while a world region scrolls inside an inset panel** — the exact pattern the Homegames dashboard uses: a search box and scroll arrows are plain `0–100` nodes, and the scrollable game grid is a `getView` projection scaled down and pushed below them.
+
+```js
+renderForPlayer(playerId) {
+    const root = this.playerRoots[playerId];          // full-screen node tagged [playerId]
+
+    // 1) static chrome: plain nodes, fixed position, NOT projected
+    root.node.addChild(this.buildToolbar(playerId));  // e.g. the search field from §9
+
+    // 2) the scrollable world, projected into the lower/inset part of the screen
+    const view = this.playerStates[playerId].view;     // { x, y, w, h } in world units
+    root.node.addChild(ViewUtils.getView(
+        this.getPlane(), view, [playerId],
+        { x: 12.5, y: 18 },        // push the projection right + down, clear of the toolbar
+        { x: 0.75, y: 0.75 }       // shrink it to leave margins
+    ));
+    root.node.onStateChange();
+}
+```
+
+Gotchas:
+- The projection includes only nodes that **overlap** the `view` rectangle (a collision test against the plane's children), so off-screen world content is free — but a node straddling the view edge has its vertices **clamped to `0–100` individually**, which can distort a shape that's half in and half out. Size views so content isn't sliced, or accept the clamp.
+- `getView` returns a brand-new subtree each call. To scroll or pan, rebuild that player's projection (`clearChildren()` + re-add, or swap the subtree) and `onStateChange()` — see the `panCamera` example above.
+- `onClick` survives projection (the clone keeps its handler), so projected world nodes stay tappable.
+
 **Choosing:** use plain `Game` for single-screen games (most party/casual games). Use `ViewableGame` only when the world exceeds one screen or players need different cameras. Approach A is less code when the world is mostly static nodes; Approach B is better for smooth camera-follow and lots of moving entities. Either way: clean up a player's view root in `handlePlayerDisconnect`, and `getLayers()` returns `[{ root: this.getViewRoot() }]`.
 
 ---
 
 ## 14. Complete, correct examples
 
-### 13.1 Single-player click game (event-driven, no tick)
+### 14.1 Single-player click game (event-driven, no tick)
 
 ```js
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-138');
@@ -591,7 +658,7 @@ class ClickCounter extends Game {
 module.exports = ClickCounter;
 ```
 
-### 13.2 Multiplayer movement game (players join, move with keys, tick loop)
+### 14.2 Multiplayer movement game (players join, move with keys, tick loop)
 
 ```js
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-138');
@@ -728,10 +795,13 @@ NOTIFY:       n.node.onStateChange()   // after direct field mutation; tree ops 
 Shapes:       Shapes.POLYGON | LINE   (CIRCLE constant exists but does NOT render — don't use)
 Coords:       ShapeUtils.rectangle(x,y,w,h) · ShapeUtils.triangle(x1,y1,x2,y2,x3,y3) · plane is 0..100
 Colors:       Colors.COLORS.RED ... ([r,g,b,a] 0..255) · Colors.randomColor([exclude])
-onClick:      (playerId, x, y) => {}
+onClick:      (playerId, x, y) => {}    // Shape/Asset only
+text input:   Shape/Text input:{ type:'text', oninput:(playerId, value)=>{} }  // value = full field text
+hover:        Shape/Asset onHover(pid) / offHover(pid)   // cosmetic only; no hover on touch
 playerIds:    [0] = everyone (default) · [id,...] = only those players
 
 Big worlds:   extend ViewableGame · super(planeSize) · getPlane()/getPlaneSize() = world
               getViewRoot() = render root (starts EMPTY) · getLayers()->[{root:getViewRoot()}]
-              ViewUtils.getView(plane,{x,y,w,h},[pid]) projects a world slice into 0..100
+              ViewUtils.getView(plane,{x,y,w,h},[pid], translation?, scale?) projects a world slice into 0..100
+                translation={x,y,filter?} scale={x,y} -> inset the projection (static frame + scroll region, §13.1)
 ```
