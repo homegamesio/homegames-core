@@ -35,7 +35,7 @@ const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const linkInit = (username) => new Promise((resolve, reject) => {
     linkHelper.linkConnect(null, username).then((wsClient) => {
         log.info('Initialized connection to homegames.link');
-        resolve();
+        resolve(wsClient);
     }).catch(err => {
         log.error('Failed to initialize link', err);
         reject();
@@ -62,9 +62,18 @@ if (certPathArg) {
 }
 
 if (LINK_ENABLED) {
-    linkInit(usernameArg).then(() => {
+    linkInit(usernameArg).then((wsClient) => {
         log.info('starting server with link enabled');
         server(certPathArg, null, usernameArg);
+        // The HTTPS server is now up (cert was provisioned before this process
+        // started). Mark this instance ready so homegames.link redirects to the
+        // secure subdomain rather than serving the "setting up" page.
+        if (HTTPS_ENABLED && certPathArg) {
+            linkHelper.setHttpsReady(wsClient, true).catch(err => {
+                log.error('Failed to mark HTTPS ready with link');
+                log.error(err);
+            });
+        }
     }).catch(() => {
         log.info('encountered error with link connection. starting server with link disabled');
         try {

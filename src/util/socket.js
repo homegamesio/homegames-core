@@ -1,9 +1,10 @@
 const WebSocket = require('ws');
+const crypto = require('crypto');
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
 
-const { getConfigValue, log, getUserHash } = require('homegames-common');
+const { getConfigValue, log, getHash } = require('homegames-common');
 
 const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
 const LINK_PROXY_URL = getConfigValue('LINK_PROXY_URL', 'wss://public.homegames.link:81');
@@ -287,9 +288,11 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 
                 const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
                 const clientInfo = jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo;
+                console.log('client info ');
+                console.log(jsonMessage.clientInfo);
 
-                const homenamesHost = process.env.DOCKER_HOST_HOSTNAME
-                    || (certPath ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost');
+                const homenamesHost = 'localhost';////process.env.DOCKER_HOST_HOSTNAME
+//                    || (certPath ? (DOMAIN_NAME || '836af03e856dd433605f7cff2157a8d1.homegames.link'));//(`${getHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost');
 
                 const finishPlayerSetup = (playerInfo) => {
                     // Guard against WebSocket being closed during async work
