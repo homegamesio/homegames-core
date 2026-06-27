@@ -1,11 +1,11 @@
-const { Asset, Game, GameNode, Colors, Shapes } = require('squish-1006');
+const { Asset, Game, GameNode, Colors, Shapes } = require('squish-139');
 const COLORS = Colors.COLORS;
 
 class ImageTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '1006',
+            squishVersion: '139',
             author: 'Joseph Garcia',
             thumbnail: '2a0cf606567326c6c40df592ee1358ca',
             isTest: true,
@@ -51,7 +51,13 @@ class ImageTest extends Game {
             assetInfo: {
                 'image': {
                     'pos': Object.assign({}, defaultImagePos),
-                    'size': Object.assign({}, defaultImageSize)
+                    'size': Object.assign({}, defaultImageSize),
+                    // Crop percentages (0-100) removed from each edge. 0 = show
+                    // the whole image (identical to the pre-crop behavior).
+                    'cropLeft': 25,
+                    'cropTop': 0,
+                    'cropRight': 0,
+                    'cropBottom': 0
                 }
             }
         });
@@ -158,11 +164,15 @@ class ImageTest extends Game {
                 ];
 
                 this.imageNode.node.asset = {
-                    'image': { 
+                    'image': {
                         'pos': Object.assign({}, defaultImagePos),
-                        'size': Object.assign({}, defaultImageSize)
+                        'size': Object.assign({}, defaultImageSize),
+                        'cropLeft': 0,
+                        'cropTop': 0,
+                        'cropRight': 0,
+                        'cropBottom': 0
                     }
-                };              
+                };
             }
         });
 
@@ -173,6 +183,53 @@ class ImageTest extends Game {
         this.base.addChild(this.increaseHeightButton);
 
         this.base.addChild(this.resetButton);
+
+        // --- Crop controls ---
+        // One button per edge. Each click crops another 10% off that edge,
+        // wrapping back to 0 after 40% so you can cycle through the range.
+        const cropEdges = [
+            { key: 'cropLeft', x: 10, color: COLORS.HG_BLUE },
+            { key: 'cropTop', x: 30, color: COLORS.HG_BLUE },
+            { key: 'cropRight', x: 50, color: COLORS.HG_BLUE },
+            { key: 'cropBottom', x: 70, color: COLORS.HG_BLUE }
+        ];
+
+        cropEdges.forEach(({ key, x, color }) => {
+            const button = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: [
+                    [x, 70],
+                    [x + 6, 70],
+                    [x + 6, 70 + (6 * 16 / 9)],
+                    [x, 70 + (6 * 16 / 9)],
+                    [x, 70]
+                ],
+                fill: color,
+                onClick: () => {
+                    console.log("DSFJKSDFKJSDFJHKDSF");
+                    const newAsset = this.imageNode.node.asset;
+                    const next = ((newAsset.image[key] || 0) + 10) % 50;
+                    newAsset.image[key] = next;
+                    console.log('what ' + key);
+                    this.imageNode.node.asset = newAsset;
+                    this.base.node.onStateChange();
+                }
+            });
+
+            const label = new GameNode.Text({
+                textInfo: {
+                    x: x + 3,
+                    y: 67,
+                    text: key.replace('crop', ''),
+                    size: 0.8,
+                    color: COLORS.WHITE,
+                    align: 'center'
+                }
+            });
+
+            this.base.addChild(button);
+            this.base.addChild(label);
+        });
     }
 
     getLayers() {
