@@ -6,7 +6,7 @@ const fs = require('fs');
 const process = require('process');
 
 if (!process.env.SQUISH_PATH) {
-    const defaultVersion = 'squish-120';
+    const defaultVersion = 'squish-138';
     log.info('No SQUISH_PATH found. Using default: ' + defaultVersion);
     process.env.SQUISH_PATH = require.resolve(defaultVersion);
 }
