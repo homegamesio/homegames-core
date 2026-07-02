@@ -33,6 +33,10 @@ const gameSessionManager = new GameSessionManager({
     dockerImageDir: fs.existsSync(dockerImageDir) ? dockerImageDir : null,
     saveDataRoot: path.join(getAppDataPath(), '.save-data'),
     assetCachePath: path.join(getAppDataPath(), 'asset-cache'),
+    // Docker sessions reach Homenames on the host — they must use the SAME
+    // port Homenames actually listens on (the runner image bakes no config.json,
+    // so the container can't resolve this on its own).
+    homenamesPort: HOMENAMES_PORT,
     log: logger,
 });
 

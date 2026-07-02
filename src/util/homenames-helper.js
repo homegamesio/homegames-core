@@ -21,6 +21,10 @@ const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const DOMAIN_NAME = getConfigValue('DOMAIN_NAME', null);
 const CERT_DOMAIN = getConfigValue('CERT_DOMAIN', null);
 
+// Port Homenames listens on. Has a default so this never throws in the
+// container; the host injects the real value via the HOMENAMES_PORT env var.
+const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
+
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();
     let localIP;
@@ -60,7 +64,7 @@ const makeGet = (_path = '', headers = {}, username) => new Promise((resolve, re
     const dockerHost = process.env.DOCKER_HOST_HOSTNAME;
     if (dockerHost) {
         // Running inside Docker — use plain HTTP to the host
-        const base = `http://${dockerHost}:${getConfigValue('HOMENAMES_PORT')}`;
+        const base = `http://${dockerHost}:${HOMENAMES_PORT}`;
         http.get(`${base}${_path}`, (res) => {
             let buf = '';
             res.on('data', (chunk) => { buf += chunk.toString(); });
@@ -73,7 +77,7 @@ const makeGet = (_path = '', headers = {}, username) => new Promise((resolve, re
     // todo: fix
     getPublicIP().then(publicIp => {
         const host = 'localhost';//HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
-        const base = `${protocol}://${host}:${getConfigValue('HOMENAMES_PORT')}`;
+        const base = `${protocol}://${host}:${HOMENAMES_PORT}`;
 
         (HTTPS_ENABLED ? https : http).get(`${base}${_path}`, (res) => {
             let buf = '';
@@ -90,7 +94,7 @@ const makeGet = (_path = '', headers = {}, username) => new Promise((resolve, re
 
 const makePost = (_postPath, _payload, username) => new Promise((resolve, reject) => {
     const payload = JSON.stringify(_payload);
-    const port = getConfigValue('HOMENAMES_PORT');
+    const port = HOMENAMES_PORT;
 
     const doPost = (hostname, mod) => {
         const headers = {

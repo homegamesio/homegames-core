@@ -291,8 +291,12 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                 console.log('client info ');
                 console.log(jsonMessage.clientInfo);
 
-                const homenamesHost = 'localhost';////process.env.DOCKER_HOST_HOSTNAME
-//                    || (certPath ? (DOMAIN_NAME || '836af03e856dd433605f7cff2157a8d1.homegames.link'));//(`${getHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost');
+                // When running inside Docker the session is in a container, so
+                // 'localhost' is the container — not the host running Homenames.
+                // Reach the host over plain HTTP (mirrors homenames-helper).
+                const dockerHost = process.env.DOCKER_HOST_HOSTNAME;
+                const homenamesHost = dockerHost || 'localhost';
+                const homenamesSecure = dockerHost ? false : !!certPath;
 
                 const finishPlayerSetup = (playerInfo) => {
                     // Guard against WebSocket being closed during async work
@@ -332,7 +336,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                 };
 
                 // Fetch player info from Homenames with timeout
-                const req = (certPath ? https : http).request({
+                const req = (homenamesSecure ? https : http).request({
                     hostname: homenamesHost,
                     port: HOMENAMES_PORT,
                     path: `/info/${ws.id}`,
