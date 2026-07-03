@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-138');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-142');
 const { MapGame, Drive, Fight, Hunt, Talk } = require('./minigames/index.js');
 const COLORS = Colors.COLORS;
 
@@ -560,7 +560,7 @@ class VegasTrail extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '138',
+            squishVersion: '142',
             author: 'Joseph & Senovia Garcia',
             thumbnail: '7ce8c9285df969a93a0d186474a42fb7',
             tickRate: 60,

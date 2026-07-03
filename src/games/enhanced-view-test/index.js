@@ -1,4 +1,4 @@
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-140');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-142');
 const { ExpiringSet, animations } = require('../../common/util');
 const CombatSystem = require('./systems/CombatSystem');
 const CombatConfig = require('./config/CombatConfig');
@@ -16,7 +16,7 @@ class EnhancedViewTest extends ViewableGame {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Assistant',
-            squishVersion: '140',
+            squishVersion: '142',
             thumbnail: 'placeholder',
             isTest: true,
             description: 'Resource gathering game with smooth movement and dynamic camera',

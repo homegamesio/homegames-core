@@ -1,4 +1,4 @@
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-120');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-142');
 const { ExpiringSet, animations } = require('../../common/util');
 
 const COLORS = Colors.COLORS;
@@ -9,7 +9,7 @@ class TextInputTest extends Game {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             thumbnail: '60ec3952ee0466086329b9be33582511',
-            squishVersion: '120',
+            squishVersion: '142',
             isTest: true
         };
     }

@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-1007');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
 
 class InfiniteQuestions extends Game {
     static metadata() {
@@ -6,7 +6,7 @@ class InfiniteQuestions extends Game {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             thumbnail: '3f53eca329cd04b60a916e3859c2e813',
-            squishVersion: '1007',
+            squishVersion: '142',
             tickRate: 60,
             services: ['contentGenerator']
         };

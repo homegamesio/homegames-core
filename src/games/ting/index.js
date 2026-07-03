@@ -1,10 +1,10 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-138');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
 const { COLORS } = Colors;
 
 class MyGamez extends Game {
     static metadata() {
         return {
-            squishVersion: '138',
+            squishVersion: '142',
             name: 'My Gamez',
             author: 'Your Name',
             description: 'A simple game template.',

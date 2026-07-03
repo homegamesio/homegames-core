@@ -1,10 +1,10 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-1010');//process.env.SQUISH_PATH);
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');//process.env.SQUISH_PATH);
 
 class MyGame extends Game {
     static metadata() {
         return {
             aspectRatio: { x: 16, y: 9 },
-            squishVersion: '1010',
+            squishVersion: '142',
             author: 'Unknown',
             description: 'A new Homegames game'
         };

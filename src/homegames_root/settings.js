@@ -47,10 +47,10 @@ const sessionInfoContainer = ({ playerId, session, playerInfo }) => {
     for (let [index, key] of Object.keys(session.players).entries()) {
         // todo: optimize this
 
-        homenamesHelper.getPlayerInfo(key).then(playerInfo => {
+        homenamesHelper.getPlayerInfo(key).catch(() => null).then(playerInfo => {
             const playerName = new GameNode.Text({
                 textInfo: {
-                    text: playerInfo.name || 'Unknown',
+                    text: playerInfo?.name || 'Unknown',
                     x: 62.5,
                     y: 1.025 * (30 + (playerHeight * index)),
                     color: COLORS.HG_BLACK,
@@ -142,13 +142,13 @@ const nameSettingContainer = ({ playerId, onNameChange, session }) => {
 
     const homenamesHelper = session.homenamesHelper;
 
-    homenamesHelper.getPlayerInfo(playerId).then(playerInfo => {
+    homenamesHelper.getPlayerInfo(playerId).catch(() => null).then(playerInfo => {
         nameText = new GameNode.Text({
             textInfo: {
                 x: 23,
                 y: 25,
                 color: COLORS.HG_BLACK,
-                text: `Name: ${playerInfo.name || 'unknown'}`,
+                text: `Name: ${playerInfo?.name || 'unknown'}`,
                 align: 'left',
                 size: 1.4
             }
@@ -187,7 +187,7 @@ const soundSettingContainer = ({ playerId, onToggle, session }) => {
         playerIds: [playerId]
     });
 
-    homenamesHelper.getPlayerSettings(playerId).then((playerSettings) => {
+    homenamesHelper.getPlayerSettings(playerId).catch(() => null).then((playerSettings) => {
         _playerSettings = playerSettings;
         if (playerSettings && playerSettings[PLAYER_SETTINGS.SOUND] && !playerSettings[PLAYER_SETTINGS.SOUND].enabled) {
             soundEnabled = false;

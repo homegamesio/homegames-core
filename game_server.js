@@ -91,7 +91,7 @@ const server = (certPath, squishMap, username) => {
         gameSessionManager,
     });
 
-    const squishVersion = (dashboard.constructor.metadata && dashboard.constructor.metadata().squishVersion) || '135';
+    const squishVersion = (dashboard.constructor.metadata && dashboard.constructor.metadata().squishVersion) || '142';
     process.env.SQUISH_PATH = process.env.SQUISH_PATH || require.resolve(`squish-${squishVersion}`);
 
     // Build the session shim for HomegamesRoot (it expects a session-like object)
@@ -134,6 +134,8 @@ const server = (certPath, squishMap, username) => {
     sessionShim.playerInfoMap = session.playerInfoMap;
     sessionShim.clientInfoMap = session.clientInfoMap;
     sessionShim.playerSettingsMap = session.playerSettingsMap;
+    sessionShim.homenamesHelper = homenamesHelper;
+    sessionShim.gameMetadata = session.gameMetadata;
     sessionShim.squisher = session.squisher;
     sessionShim.movePlayer = (opts) => session.movePlayer(opts.playerId, opts.port);
     sessionShim.spectateSession = (playerId) => session.spectateSession(playerId);

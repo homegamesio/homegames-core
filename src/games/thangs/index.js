@@ -1,10 +1,10 @@
-const { ViewableGame, GameNode, Shapes, ShapeUtils, Colors } = require('squish-136');
+const { ViewableGame, GameNode, Shapes, ShapeUtils, Colors } = require('squish-142');
 
 class Thangs extends ViewableGame {
     static metadata() {
         return {
             aspectRatio: { x: 16, y: 9 },
-            squishVersion: '136',
+            squishVersion: '142',
             author: 'User & Assistant',
             thumbnail: 'placeholder',
             tickRate: 60,

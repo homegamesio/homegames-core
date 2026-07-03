@@ -1,5 +1,5 @@
-const { Game, ViewableGame, GameNode, Colors, Shapes, ShapeUtils, ViewUtils } = require('squish-136');
-const { COLORS } = require('squish-136/src/Colors');
+const { Game, ViewableGame, GameNode, Colors, Shapes, ShapeUtils, ViewUtils } = require('squish-142');
+const { COLORS } = require('squish-142/src/Colors');
 
 const SCREENS = {
     STAND: 'stand',
@@ -19,7 +19,7 @@ class Lemonade extends ViewableGame {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '136',
+            squishVersion: '142',
             author: 'Assistant',
             thumbnail: 'placeholder',
             tickRate: 60,

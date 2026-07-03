@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-130');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
 const fs = require('fs');
 
 const COLORS = Colors.COLORS;
@@ -8,7 +8,7 @@ class Testions extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '130',
+            squishVersion: '142',
             description: 'Take turns guessing how the other person would respond to questions. Upload your own JSON file with the green button.',
             players: 2,
             name: 'Testions',

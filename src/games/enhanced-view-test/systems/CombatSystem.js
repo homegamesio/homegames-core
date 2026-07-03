@@ -1,4 +1,4 @@
-const { GameNode, ShapeUtils, Shapes } = require('squish-140');
+const { GameNode, ShapeUtils, Shapes } = require('squish-142');
 
 class CombatSystem {
     constructor(config) {

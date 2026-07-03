@@ -146,6 +146,8 @@ const startServer = (sessionInfo) => {
         sessionShim.playerInfoMap = gameSession.playerInfoMap;
         sessionShim.clientInfoMap = gameSession.clientInfoMap;
         sessionShim.playerSettingsMap = gameSession.playerSettingsMap;
+        sessionShim.homenamesHelper = homenamesHelper;
+        sessionShim.gameMetadata = gameSession.gameMetadata;
         sessionShim.squisher = gameSession.squisher;
         sessionShim.movePlayer = (opts) => gameSession.movePlayer(opts.playerId, opts.port);
         sessionShim.spectateSession = (playerId) => gameSession.spectateSession(playerId);
@@ -335,7 +337,7 @@ if (isForked) {
     lastMessage = new Date();
     const sessionConfig = {
         key: process.env.GAME_KEY || path.basename(process.env.GAME_PATH, '.js'),
-        squishVersion: process.env.SQUISH_VERSION || '135',
+        squishVersion: process.env.SQUISH_VERSION || '142',
         gamePath: process.env.GAME_PATH,
         port: Number(process.env.GAME_PORT) || 7002,
         username: process.env.USERNAME || null,
