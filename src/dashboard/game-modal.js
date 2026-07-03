@@ -13,6 +13,15 @@ const formatDate = (ting) => {
     return `${months[ting.getMonth()]} ${ting.getDate()}, ${ting.getFullYear()}`;
 };
 
+// Format an arbitrary created/published value (ms timestamp, ISO string, Date)
+// for display, tolerating null/undefined and unparseable values.
+const formatDateValue = (value) => {
+    if (value === null || value === undefined || value === '') return null;
+    const date = value instanceof Date ? value : new Date(value);
+    if (isNaN(date.getTime())) return null;
+    return formatDate(date);
+};
+
 const closeSection = ({ onClose, playerId }) => {
     const closeButton = new GameNode.Shape({
         coordinates2d: ShapeUtils.rectangle(2.5, 2.5, 10, 10),
@@ -68,7 +77,7 @@ const metadataSection = ({ gameKey, gameMetadata}) => {
 
     const maxPlayers = new GameNode.Text({
         textInfo: {
-            x: 10, 
+            x: 10,
             y: 20,
             align: 'left',
             color: COLORS.HG_BLACK,
@@ -77,7 +86,19 @@ const metadataSection = ({ gameKey, gameMetadata}) => {
         }
     });
 
-    section.addChildren(maxPlayers)
+    const createdDate = formatDateValue(gameMetadata?.created);
+    const created = new GameNode.Text({
+        textInfo: {
+            x: 10,
+            y: 25,
+            align: 'left',
+            color: COLORS.HG_BLACK,
+            size: 1.5,
+            text: 'Created: ' + (createdDate || 'N/A')
+        }
+    });
+
+    section.addChildren(maxPlayers, created);
 
     return section;
 };
@@ -483,14 +504,14 @@ const gameModal = ({
 
     const metadata = metadataSection({ gameKey, gameMetadata });
 
-    const approved = thisVersion.approved;
+    const approved = thisVersion ? thisVersion.approved : false;
 
     const create = createSection({ gameKey, onCreateSession, approved });
 
     const join = joinSection({ gameKey, gameMetadata, activeSessions, onJoinSession });
     modal.addChildren(close, info, metadata, create, join);
 
-    if (versionId !== 'local-game-version') {   
+    if (versionId !== 'local-game-version' && thisVersion) {
         const selector = versionSelector({ gameKey, currentVersion: thisVersion, onVersionChange, otherVersions });
         modal.addChild(selector);
     }

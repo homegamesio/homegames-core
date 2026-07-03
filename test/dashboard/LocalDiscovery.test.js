@@ -9,12 +9,12 @@
 //                                asserted against the repo's own src/games).
 //
 // NOT covered here, by design:
-//   - downloadGame() and the downloaded-game mapping branch of getGameMap() are
-//     bound to the real app-data directory (DOWNLOADED_GAME_DIRECTORY, derived
-//     from getAppDataPath() at module load) and to the network. Exercising them
-//     in place would pollute the user's real ~/Library/.../hg-games/.metadata.
-//     They get proper unit tests in Phase 1, once Installer/LocalLibrary take an
-//     injectable target directory and http client.
+//   - installFromSource() and the downloaded-game mapping branch of getGameMap()
+//     are bound to the real app-data directory (DOWNLOADED_GAME_DIRECTORY,
+//     derived from getAppDataPath() at module load) and to the network.
+//     Exercising them in place would pollute the user's real
+//     ~/Library/.../hg-games/.metadata. They have proper unit tests now that
+//     Installer/LocalLibrary take an injectable target directory and catalog client.
 
 const assert = require('assert');
 const fs = require('fs');

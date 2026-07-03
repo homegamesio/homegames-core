@@ -82,7 +82,7 @@ test('scan() maps a downloaded game from .metadata, grouping versions under game
         writeFile(v2Index, '//');
 
         const lib = createLocalLibrary({ sourceGameDir, downloadedGameDir });
-        // write .metadata keyed by absolute index.js path (as downloadGame does)
+        // write .metadata keyed by absolute index.js path (as the installer does)
         lib.writeMetadataMap({
             [v1Index]: {
                 game: { gameId: 'game-xyz', name: 'Downloaded Game', thumbnail: 'tdl' },

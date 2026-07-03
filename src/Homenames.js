@@ -14,6 +14,10 @@ if (baseDir.endsWith('/src')) {
 const { getConfigValue, log } = require('homegames-common');
 const { createRateLimiter } = require('./rate-limiter');
 
+// homegames-core version, reported via GET /info so the platform API can
+// discover which core version this server is running.
+const CORE_VERSION = require('../package.json').version;
+
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const PUBLIC_HOST = getConfigValue('PUBLIC_HOST', null); // e.g. 'api.homegames.io'
 
@@ -102,6 +106,19 @@ class Homenames {
 
             const clientIP = getClientIP(req);
             const reqPath = req.url.split('/');
+
+            // -----------------------------------------------------------------
+            // Server identity — lets the platform API discover this server's
+            // display name and which homegames-core version it runs.
+            // -----------------------------------------------------------------
+            if (req.method === 'GET' && req.url.split('?')[0] === '/info') {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    name: getConfigValue('HOMENAMES_NAME', 'Homegames server'),
+                    coreVersion: CORE_VERSION,
+                }));
+                return;
+            }
 
             // -----------------------------------------------------------------
             // Session management API (rate limited per operation type)

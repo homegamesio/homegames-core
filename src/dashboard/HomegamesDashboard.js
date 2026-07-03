@@ -114,6 +114,9 @@ class HomegamesDashboard extends ViewableGame {
 
         this.playerModals = {};
         this.playerDownloadOverlays = {};
+        // Node ids of the current render layer per player, so renderGames can
+        // remove the previous one instead of stacking layers on every re-render.
+        this.playerRenderLayers = {};
 
         this.movePlayer = movePlayer;
 
@@ -124,26 +127,13 @@ class HomegamesDashboard extends ViewableGame {
         });
 
         this.localGames = this.localLibrary.scan();
-
-        Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
-            this.assets[key] = new Asset({
-                'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
-                'type': 'image'
-            });
-        });
+        this._registerLocalThumbnails();
 
         this.renderGamePlane();
 
         this.playerViews = {};
         this.playerStates = {};
         this.playerRoots = {};
-        
-
-        const testNode = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            fill: COLORS.ORANGE,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 1000, 1000)
-        });
 
         this.downloadedGames = {};
         this.sessions = {};
@@ -215,167 +205,189 @@ class HomegamesDashboard extends ViewableGame {
         this.movePlayer({ playerId, port: session.port });
     }
 
+    // Open the game modal. Resolves a normalized view model (from a built-in
+    // game, a downloaded game, or the remote catalog) then renders it. All the
+    // source-specific shape juggling lives in the resolver, so rendering is a
+    // single code path.
     showGameModalNew(playerId, gameId, versionId) {
-        const playerRoot = this.playerRoots[playerId].node;
+        if (!this.playerRoots[playerId]) return;
 
-        const isSourceGame = this.localGames[gameId] && this.localGames[gameId]['local-game-version'] ? true : false;
+        this._resolveModalView(gameId, versionId).then(view => {
+            if (view) this._renderModal(playerId, view);
+        }).catch(err => {
+            log.error('Failed to open game modal for ' + gameId);
+            log.error(err);
+        });
+    }
 
-        const wat = (game, gameVersion, versions = []) => {
-                    const activeSessions = Object.values(this.sessions).filter(session => {
-                        return session.game === gameVersion.gameId && session.versionId === gameVersion.versionId;
-                    });
+    // Active sessions for a specific game + version.
+    _activeSessionsFor(gameId, versionId) {
+        return Object.values(this.sessions).filter(s => s.game === gameId && s.versionId === versionId);
+    }
 
-                    let versionList = [];
-                    if (this.localGames[gameId]) {
-                        versionList = Object.values(this.localGames[gameId].versions);
-                        if (versionList.filter(v => v.id === gameVersion.versionId).length === 0) {
-                            versionList.push({...gameVersion});
-                        }
-                        
-                    } else {
-                        versionList = versions;
-                    }
-                    
-                    const realVersionId = gameVersion.versionId;
-                    const realVersion = versionList.filter(v => v.versionId === realVersionId)[0];
-
-                    const description = realVersion.metadata.description;
-                    
-                    const modal = gameModal({ 
-                        gameKey: gameId,
-                        versionId: gameVersion.id,
-                        activeSessions, 
-                        playerId,
-                        versions: versionList,
-                        gameMetadata: { ...gameVersion.metadata, description }, 
-                        onVersionChange: (newVersionId) => {
-                            this.showGameModalNew(playerId, gameId, newVersionId);
-                        },
-                        onJoinSession: (session) => {
-                            this.joinSession(playerId, session);
-                        },
-                        onCreateSession: () => {
-                            console.log('ayooo1');
-                            if (this.localGames[gameId]?.versions[gameVersion.versionId]) {
-                                console.log('ayooo2');
-                                this.startSession(playerId, gameId, gameVersion.versionId);
-                            } else {
-                                this.downloadGame({ gameDetails: game, version: gameVersion }).then(() => {
-                                    this.renderGamePlane();
-                                    this.startSession(playerId, gameId, gameVersion.versionId);
-                                }).catch(err => {
-                                    log.error('Error downloading game');
-                                    log.error(err);
-                                });
-                            }
-                        },
-                        onClose: () => {
-                            playerRoot.removeChild(modal.node.id);
-                        }
-                    });
-
-                    if (this.playerModals[playerId]) {
-                        playerRoot.removeChild(this.playerModals[playerId]);
-                    }
-
-                    this.playerModals[playerId] = modal.node.id;
-                    playerRoot.addChild(modal);
-
-
-            }
-        if (isSourceGame) {
-            wat(this.localGames[gameId].metadata.game, this.localGames[gameId].versions['local-game-version']);
-        } else {
-            // todo: refactor this mess
-            if (this.localGames[gameId]) {
-                if (!versionId) {
-                    versionId = Object.values(this.localGames[gameId].versions)[0].versionId;
-                }
-                const huh = this.localGames[gameId];
-
-                const gameDetails = {
-                    game: {
-                        name: huh.metadata.name,
-                        description: huh.metadata.description,
-                        created: huh.metadata.description,
-                        developerId: huh.metadata.createdBy,
-                        thumbnail: huh.metadata.thumbnail,
-                        id: huh.metadata.gameId
-                    },
-                    versions: Object.keys(huh.versions).map(k => {
-                        return {
-                            id: huh.versions[k].versionId,
-                            published: huh.versions[k].metadata.published,
-                            assetId: huh.versions[k].metadata.assetId,
-                            approved: huh.versions[k].metadata.approved
-                        }
-                    })
-                };
-                    
-                const gameVersion = Object.values(huh.versions)[0];
-                const withMetadata = { ...gameVersion, metadata: { description: huh.metadata.description, name: huh.metadata.name, thumbnail: huh.metadata.thumbnail, author: huh.metadata.createdBy }};
-                wat(gameDetails, withMetadata, gameDetails.versions.map(v => {
-                    return {
-                        ...v,
-                        versionId: v.id,
-                        metadata: {
-                            published: v.published
-                        }
-                    }
-                }));
-
-            } else {
- 
-                this.networkHelper.getGameDetails(gameId).then(gameDetails => {
-
-                    const innerTing = () => {
-                        if (versionId) {
-                            this.networkHelper.getGameVersionDetails(gameId, versionId).then(gameVersion => {
-                                
-                                const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.game.name, thumbnail: gameDetails.game.thumbnail, author: gameDetails.game.developerId }};
-                                const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.id !== gameVersion.versionId).map(v => {
-                                     return {...v, metadata: { version: v.version, description: v.description, versionId: v.id, name: gameDetails.game.name, thumbnail: gameDetails.game.thumbnail }}
-                                });
-                                wat(gameDetails, withMetadata, gameVersionsWithMetadata);
-                            })
-                        } else {
-                            const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
-                            const withMetadata = {...gameVersion, metadata: { description: gameDetails.game.description, name: gameDetails.game.name, thumbnail: gameDetails.game.thumbnail, author: gameDetails.game.developerId }};
-                            
-                            const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.id !== gameVersion.versionId).map(v => {
-                                 return {...v, metadata: { description: v.description, version: v.version, versionId: v.id, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
-                            });
-
-                            wat(gameDetails, withMetadata, gameVersionsWithMetadata)
-                        }
-                    }
-                    if (!this.assets[gameId]) {
-                        const asset = new Asset({
-                            'id': gameDetails.game.thumbnail,
-                            'type': 'image'
-                        }); 
-
-                        this.assets[gameId] = asset;    
-
-                        this.addAsset(gameId, asset).then(() => {
-                            innerTing();
-                        });
-                    } else {
-                        innerTing();
-                    }
-                }).catch(err => {
-                    const gameDetails = this.localGames[gameId];
-                    const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
-                    const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.metadata.name, thumbnail: gameDetails.metadata.thumbnail, author: gameDetails.metadata.createdBy }};
-
-                    const gameVersionsWithMetadata = Object.keys(gameDetails.versions).filter(v => v !== gameVersion.versionId).map(v => {
-                         return {...v, metadata: { description: v.description, version: v.version, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.game.thumbnail }}
-                    });
-
-                    wat(gameDetails, withMetadata, gameVersionsWithMetadata);
-                });
-            }
+    // Normalized modal view model. Always a Promise: local games resolve
+    // synchronously, remote games fetch details (and register the thumbnail).
+    _resolveModalView(gameId, versionId) {
+        const local = this.localGames[gameId];
+        if (local) {
+            return Promise.resolve(this._localModalView(gameId, versionId, local));
         }
+        return this._remoteModalView(gameId, versionId);
+    }
+
+    // Build the view model for a game installed on disk (built-in source game or
+    // a downloaded game). Both live in this.localGames; their thumbnails are
+    // already registered under the game key.
+    _localModalView(gameId, versionId, local) {
+        const versionEntries = Object.values(local.versions);
+        const selectedVersionId = (versionId && local.versions[versionId])
+            ? versionId
+            : versionEntries[0].versionId;
+        const selected = local.versions[selectedVersionId];
+
+        const versions = versionEntries.map(v => {
+            const published = (v.metadata && v.metadata.published) || null;
+            return {
+                id: v.versionId,
+                versionId: v.versionId,
+                published,
+                approved: v.approved,
+                metadata: {
+                    versionId: v.versionId,
+                    published,
+                    description: (v.metadata && v.metadata.description) || null
+                }
+            };
+        });
+
+        const meta = local.metadata || {};
+        const selMeta = selected.metadata || {};
+
+        return {
+            gameKey: gameId,
+            selectedVersionId,
+            activeSessions: this._activeSessionsFor(gameId, selectedVersionId),
+            versions,
+            gameMetadata: {
+                name: meta.name || gameId,
+                author: meta.author || meta.createdBy || 'Unknown author',
+                thumbnail: meta.thumbnail || null,
+                description: selMeta.description || selected.description || meta.description || 'No description available',
+                maxPlayers: selMeta.maxPlayers || null,
+                created: meta.createdAt || selMeta.createdAt || selMeta.created || null
+            },
+            createContext: { installed: true }
+        };
+    }
+
+    // Build the view model for a remote catalog game. Registers the thumbnail
+    // asset (once); create-session later downloads the selected version from
+    // source via playCatalogGame, so no raw details need to be carried here.
+    _remoteModalView(gameId, versionId) {
+        return this.networkHelper.getGameDetails(gameId).then(gameDetails => {
+            const game = (gameDetails && gameDetails.game) || {};
+            const rawVersions = (gameDetails && gameDetails.versions) || [];
+
+            if (rawVersions.length === 0) {
+                log.error('Game ' + gameId + ' has no versions to show');
+                return null;
+            }
+
+            return this._ensureRemoteThumbnail(gameId, game.thumbnail).then(() => {
+                const selectedVersionId = this._selectRemoteVersion(rawVersions, versionId);
+                const selectedRaw = rawVersions.find(v => v.id === selectedVersionId) || {};
+
+                const versions = rawVersions.map(v => {
+                    const published = v.published != null ? v.published : null;
+                    return {
+                        id: v.id,
+                        versionId: v.id,
+                        published,
+                        approved: v.approved,
+                        metadata: { versionId: v.id, published, description: v.description || null }
+                    };
+                });
+
+                return {
+                    gameKey: gameId,
+                    selectedVersionId,
+                    activeSessions: this._activeSessionsFor(gameId, selectedVersionId),
+                    versions,
+                    gameMetadata: {
+                        name: game.name || gameId,
+                        author: game.developerId || 'Unknown author',
+                        thumbnail: game.thumbnail || null,
+                        description: selectedRaw.description || game.description || 'No description available',
+                        maxPlayers: selectedRaw.maxPlayers || null,
+                        created: game.created || null
+                    },
+                    createContext: { installed: false }
+                };
+            });
+        });
+    }
+
+    // Register a catalog thumbnail under the game key if we haven't already.
+    // Thumbnails may be a bare id or a path; keep only the trailing id.
+    _ensureRemoteThumbnail(gameId, thumbnail) {
+        if (!thumbnail || this.assets[gameId]) return Promise.resolve();
+
+        const thumbnailId = thumbnail.indexOf('/') > 0
+            ? thumbnail.split('/').pop()
+            : thumbnail;
+        const asset = new Asset({ id: thumbnailId, type: 'image' });
+        this.assets[gameId] = asset;
+        return this.addAsset(gameId, asset).catch(() => {});
+    }
+
+    // Pick which catalog version the modal opens on: the requested one if valid,
+    // otherwise the most recently published (falling back to the last listed).
+    _selectRemoteVersion(rawVersions, versionId) {
+        if (versionId && rawVersions.some(v => v.id === versionId)) return versionId;
+
+        const published = rawVersions.filter(v => v.published != null);
+        if (published.length) {
+            return published.reduce((a, b) => (b.published > a.published ? b : a)).id;
+        }
+        return rawVersions[rawVersions.length - 1].id;
+    }
+
+    // Render a resolved view model into the player's modal slot.
+    _renderModal(playerId, view) {
+        const playerRoot = this.playerRoots[playerId] && this.playerRoots[playerId].node;
+        if (!playerRoot) return;
+
+        const modal = gameModal({
+            gameKey: view.gameKey,
+            versionId: view.selectedVersionId,
+            activeSessions: view.activeSessions,
+            playerId,
+            versions: view.versions,
+            gameMetadata: view.gameMetadata,
+            onVersionChange: (newVersionId) => this.showGameModalNew(playerId, view.gameKey, newVersionId),
+            onJoinSession: (session) => this.joinSession(playerId, session),
+            onCreateSession: () => this._createSessionFromModal(playerId, view),
+            onClose: () => playerRoot.removeChild(modal.node.id)
+        });
+
+        if (this.playerModals[playerId]) {
+            playerRoot.removeChild(this.playerModals[playerId]);
+        }
+
+        this.playerModals[playerId] = modal.node.id;
+        playerRoot.addChild(modal);
+    }
+
+    // Create-session handler for the modal. Installed games start immediately;
+    // an uninstalled catalog game is downloaded from source (with a progress
+    // overlay) and then started, via the same path Browse uses.
+    _createSessionFromModal(playerId, view) {
+        if (view.createContext.installed) {
+            this.startSession(playerId, view.gameKey, view.selectedVersionId);
+            return;
+        }
+
+        this.playCatalogGame(playerId, view.gameKey, view.selectedVersionId);
     }
 
     renderGamePlane() {
@@ -695,20 +707,23 @@ class HomegamesDashboard extends ViewableGame {
         this.renderGames(playerId, {});
     }
 
-    // Auto download-then-play a catalog game. If it's already installed locally,
-    // just start it; otherwise fetch details, download with a progress overlay,
-    // then start the session.
-    playCatalogGame(playerId, gameId) {
-        if (this.localGames[gameId] && this.localGames[gameId].versions && Object.keys(this.localGames[gameId].versions).length > 0) {
-            this.startSession(playerId, gameId);
+    // Download-then-play a catalog game from source. If the requested version is
+    // already installed locally, just start it; otherwise fetch its published
+    // commit, install from source with a progress overlay, then start the
+    // session. `requestedVersionId` targets a specific version (e.g. from the
+    // modal's version selector); omitted, it plays the latest published.
+    playCatalogGame(playerId, gameId, requestedVersionId = null) {
+        const installed = this.localGames[gameId] && this.localGames[gameId].versions;
+        if (installed && (requestedVersionId ? installed[requestedVersionId] : Object.keys(installed).length > 0)) {
+            this.startSession(playerId, gameId, requestedVersionId || undefined);
             return;
         }
 
         this.showDownloadProgress(playerId, gameId, null);
 
-        // Studio/Forgejo-published games have no asset zip; their source lives in
-        // git, fetched by commitSha. Pull the published versions for the commit,
-        // install from source, then play.
+        // Games have no asset zip anymore; their source lives in git, fetched by
+        // commitSha. Pull the published versions, pick the target commit, install
+        // from source, then play.
         Promise.all([
             this.networkHelper.getGameDetails(gameId),
             this.networkHelper.getPublishedVersions(gameId)
@@ -718,13 +733,16 @@ class HomegamesDashboard extends ViewableGame {
                 throw new Error('Game has no published versions');
             }
             const latest = versions.reduce((a, b) => ((b.publishedAt || 0) > (a.publishedAt || 0) ? b : a));
+            const target = requestedVersionId
+                ? (versions.find(v => v.versionId === requestedVersionId) || latest)
+                : latest;
             const displayName = (gameDetails.game && gameDetails.game.name) || gameId;
 
             return this.installer.installFromSource({
                 gameId,
                 game: gameDetails.game,
-                versionId: latest.versionId,
-                commitSha: latest.commitSha,
+                versionId: target.versionId,
+                commitSha: target.commitSha,
                 onProgress: (p) => {
                     const pct = (p && p.total) ? Math.floor((100 * p.received) / p.total) : null;
                     this.showDownloadProgress(playerId, displayName, pct);
@@ -907,10 +925,23 @@ class HomegamesDashboard extends ViewableGame {
         let canGoDown = false;
         let canGoUp = false;
 
-        const baseHeight = this.base.node.coordinates2d[2][1];
-
         const currentView = this.playerStates[playerId].view;
 
+        // Re-render preserving whichever mode we're in (local / search / browse).
+        // The arrows previously dropped the `browse` flag here, so paging while
+        // browsing kicked the player back to their local games.
+        const rerender = () => this.renderGames(playerId, { searchResults, searchQuery, browse });
+
+        // In browse mode there may be more catalog pages to pull once the player
+        // scrolls past the loaded results.
+        const browseState = browse ? (this.playerStates[playerId].browse || {}) : null;
+        const canLoadMore = !!(browseState
+            && !browseState.exhausted
+            && Object.keys(browseState.results || {}).length > 0);
+
+        // Bound the paging math to the plane actually on screen, not the local
+        // games plane (this.getPlane()) -- otherwise search/browse paged against
+        // the wrong option positions.
         const planeBase = gamePlane.getChildren()[0];
         const gameOptionsBelowView = planeBase.getChildren().filter(child => {
             return child.node.coordinates2d[0][1] >= (currentView.y + currentView.h);
@@ -920,7 +951,7 @@ class HomegamesDashboard extends ViewableGame {
             return child.node.coordinates2d[2][1] <= currentView.y;
         });
 
-        if (gameOptionsBelowView.length > 0) {
+        if (gameOptionsBelowView.length > 0 || canLoadMore) {
             canGoDown = true;
         }
 
@@ -934,16 +965,13 @@ class HomegamesDashboard extends ViewableGame {
             playerIds: [playerId],
             fill: BASE_COLOR,
             onClick: (player, x, y) => {
-
-                const _plane = this.getPlane();
-
                 const currentView = Object.assign({}, this.playerStates[playerId].view);
 
                 if (currentView.y - 100 >= 0) {
                     currentView.y -= 100;
                     this.playerStates[playerId].view = currentView;
-                    this.renderGames(playerId, { searchResults, searchQuery });
-                } 
+                    rerender();
+                }
             }
         });
 
@@ -966,18 +994,16 @@ class HomegamesDashboard extends ViewableGame {
             playerIds: [playerId],
             fill: BASE_COLOR,
             onClick: (player, x, y) => {
-                const _plane = this.getPlane();
-
                 const currentView = Object.assign({}, this.playerStates[playerId].view);
 
-                const largestOptionY = Math.max(...this.getPlane().node.children[0].node.children.map(c => c.node.coordinates2d[0][1]));
-
-                if (currentView.y + 100 <= largestOptionY) {
+                if (gameOptionsBelowView.length > 0) {
                     currentView.y += 100;
                     this.playerStates[playerId].view = currentView;
-                    this.renderGames(playerId, { searchResults, searchQuery });
-                } 
-
+                    rerender();
+                } else if (canLoadMore) {
+                    // At the bottom of what we've loaded -- pull the next page.
+                    this.loadMoreCatalog(playerId);
+                }
             }
         });
 
@@ -1088,6 +1114,16 @@ class HomegamesDashboard extends ViewableGame {
         const playerRoot = this.playerRoots[playerId];
         const playerView = this.playerStates[playerId].view;
 
+        // Drop the previous render layer before drawing the new one. Without this
+        // every re-render (search, paging, browse) stacked another full-screen UI
+        // on top of the old one, leaking nodes and leaving stale click handlers
+        // behind. Modals and download overlays are tracked separately and left in
+        // place.
+        const previousLayer = this.playerRenderLayers[playerId];
+        if (previousLayer) {
+            previousLayer.forEach(nodeId => playerRoot.node.removeChild(nodeId));
+        }
+
         let gamePlane;
 
         if (browse) {
@@ -1136,6 +1172,7 @@ class HomegamesDashboard extends ViewableGame {
         );
 
         playerRoot.node.addChildren(staticElements, view);
+        this.playerRenderLayers[playerId] = [staticElements.node.id, view.node.id];
     }
 
     // Re-register thumbnail assets for every known local game (after a rescan).
@@ -1151,21 +1188,13 @@ class HomegamesDashboard extends ViewableGame {
             });
     }
 
-    // Legacy asset-zip download (kept for games that still carry a sourceAssetId).
-    downloadGame({ gameDetails, version, onProgress }) {
-        return this.installer.install({ gameDetails, version, onProgress }).then(({ indexPath }) => {
-            this.localGames = this.localLibrary.scan();
-            this._registerLocalThumbnails();
-            return indexPath;
-        });
-    }
-
     handlePlayerDisconnect(playerId) {
         const playerViewRoot = this.playerRoots[playerId] && this.playerRoots[playerId].node;
         if (playerViewRoot) {
             const node = playerViewRoot.node;
             this.playerRootNode.removeChild(node.id);
             delete this.playerRoots[playerId];
+            delete this.playerRenderLayers[playerId];
         }
     }
     

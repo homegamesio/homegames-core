@@ -989,7 +989,6 @@ class EnhancedViewTest extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(0, 0, this.viewSize, this.viewSize),
             fill: [0, 0, 0, 0], // Transparent
             onClick: (clickPlayerId, x, y) => {
-                console.log('clicked ' + clickPlayerId);
                 if (Number(clickPlayerId) === Number(playerId)) {
                     this.playerManager.handlePlayerClick(playerId, x, y);
                 }
@@ -1023,8 +1022,6 @@ class EnhancedViewTest extends ViewableGame {
         // Update the view content using the original view-test pattern
         const newViewContent = this.createPlayerView(playerId, newView);
         
-        console.log('player view is');
-        console.log(newView);
         if (currentView.contentLayer) {
             // Clear only the content layer, leaving click layer intact
             currentView.contentLayer.node.clearChildren();
@@ -1035,31 +1032,21 @@ class EnhancedViewTest extends ViewableGame {
         // Manage click layer based on game state
         const shouldHaveClickLayer = this.gameStateManager.shouldHaveClickLayer();
         
-        console.log(`DEBUG: gameState=${this.gameStateManager.getCurrentState()}, shouldHaveClickLayer=${shouldHaveClickLayer}, hasClickLayerFlag=${currentView.hasClickLayer}`);
-        
         if (shouldHaveClickLayer && !currentView.hasClickLayer) {
             // Add click layer for movement during gameplay
-            console.log(`DEBUG: Adding click layer for player ${playerId}`);
             currentView.viewRoot.addChild(currentView.clickLayer);
             currentView.hasClickLayer = true;
         } else if (!shouldHaveClickLayer && currentView.hasClickLayer) {
             // Remove click layer during game over so upgrade buttons work
-            console.log(`DEBUG: Removing click layer for player ${playerId}`);
             try {
-                console.log('ffifififi')
-                console.log(currentView.viewRoot.node.children.map(child => child.node.id));
-                console.log(currentView.clickLayer.node.id)
                 currentView.viewRoot.removeChild(currentView.clickLayer.node.id);
                 currentView.hasClickLayer = false;
-                console.log(`DEBUG: Successfully removed click layer for player ${playerId}`);
                 this.getViewRoot().node.onStateChange();
             } catch (e) {
-                console.log(`DEBUG: Error removing click layer for player ${playerId}:`, e);
                 // Try alternative removal method - completely rebuild the view structure
                 currentView.viewRoot.node.clearChildren();
                 currentView.viewRoot.addChild(currentView.contentLayer);
                 currentView.hasClickLayer = false;
-                console.log(`DEBUG: Used alternative removal method for player ${playerId} - view structure rebuilt without click layer`);
             }
         }
         
@@ -1139,8 +1126,6 @@ class EnhancedViewTest extends ViewableGame {
         this.resourceManager.addSugar(gathered);
         this.currentStats.resourcesCollected += gathered;
         
-        console.log(`Player ${playerId} gathered ${gathered} sugar! Remaining: ${target.resources}`);
-        
         // Create gather indicator at random position near the target
         const indicatorX = target.x + (Math.random() * target.size);
         const indicatorY = target.y + (Math.random() * target.size);
@@ -1158,7 +1143,6 @@ class EnhancedViewTest extends ViewableGame {
         if (target.resources <= 0) {
             // Resource depleted
             target.resources = 0; // Ensure it doesn't go negative
-            console.log(`Sugar source depleted!`);
         }
         
         // Resource text will be updated automatically when view refreshes
@@ -1178,7 +1162,6 @@ class EnhancedViewTest extends ViewableGame {
 
 
     createGameOverView(playerId, view) {
-        console.log(`DEBUG: Creating game over view for player ${playerId}, gameState=${this.gameState}`);
         const viewRoot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
@@ -1252,9 +1235,7 @@ class EnhancedViewTest extends ViewableGame {
             fill: [0, 180, 0, 255],
             // border: { color: [255, 255, 255, 255], width: 1 },
             onClick: (clickPlayerId) => {
-                console.log(`DEBUG: New Day button clicked! PlayerId: ${clickPlayerId}, Target: ${playerId}`);
                 if (Number(clickPlayerId) === Number(playerId)) {
-                    console.log('New Day clicked!');
                     this.startRecipePhase();
                 }
             },
@@ -1440,7 +1421,6 @@ class EnhancedViewTest extends ViewableGame {
                     onClick: (clickPlayerId) => {
                         // console.log(`DEBUG: Upgrade button clicked! PlayerId: ${clickPlayerId}, Target: ${playerId}, Upgrade: ${upgrade.name}, canAfford: ${canAfford}, currentLevel: ${currentLevel}`);
                         if (Number(clickPlayerId) === Number(playerId) && canAfford && currentLevel < maxLevel) {
-                            console.log(`Upgrade ${upgrade.name} clicked!`);
                             if (this.purchaseUpgrade(upgrade.name, player)) {
                                 this.playerManager.updatePlayerView(playerId);
                             }
@@ -1484,7 +1464,6 @@ class EnhancedViewTest extends ViewableGame {
     // Phase transition methods
     startRecipePhase() {
         this.gameStateManager.setState('recipe');
-        console.log('Started recipe phase');
     }
 
     startLemonadeStand() {

@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-138');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-140');
 const { COLORS } = Colors;
 
 // ---------------------------------------------------------------------------
@@ -56,7 +56,7 @@ const polyCircle = (cx, cy, r, sides, jitter = 0, seed = 0) => {
 class Singularity extends Game {
     static metadata() {
         return {
-            squishVersion: '138',
+            squishVersion: '140',
             name: 'Singularity',
             author: 'Claude',
             description: 'Space deathmatch around a black hole — gravity bends your ship and your shots.',
