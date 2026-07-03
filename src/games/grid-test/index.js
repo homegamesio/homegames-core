@@ -7,6 +7,7 @@ class GridTest extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '142',
+            isTest: true,
             author: 'Joseph Garcia',
             thumbnail: 'd7030620196a2d0ba41a6bcabaa9f00f'
         };

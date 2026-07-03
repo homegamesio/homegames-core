@@ -7,7 +7,7 @@ class PerfTest extends Game {
             squishVersion: '142',
             author: 'Joseph Garcia',
             thumbnail: '14966f35c53029f6e219369038fe1ebf',
- //           isTest: true
+            isTest: true
         };
     }
 

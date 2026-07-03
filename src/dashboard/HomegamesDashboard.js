@@ -3,9 +3,16 @@ const fs = require('fs');
 
 const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 
-const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-142');
-
+console.log('wattt1')
 const squishMap = require('../common/squish-map');
+
+console.log('watdsfdsf3');
+console.log(squishMap);
+
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require(squishMap['142']);
+
+console.log('this is Game');
+console.log(Game);
 
 const gameModal = require('./game-modal');
 
