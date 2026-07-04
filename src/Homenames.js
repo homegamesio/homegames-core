@@ -239,7 +239,9 @@ class Homenames {
                             return;
                         }
 
-                        const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://localhost:${sessionPort}`);
+                        // Cert is issued for the public domain, not localhost —
+                        // loopback traffic to our own session, skip verification.
+                        const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://localhost:${sessionPort}`, { rejectUnauthorized: false });
                         socketSession.on('open', () => {
                             log.info('opened socket connection to session');
                             this.sessionClients[sessionPort] = socketSession;

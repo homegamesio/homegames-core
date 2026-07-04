@@ -63,9 +63,14 @@ const getPublicIP = () => new Promise((resolve, reject) => {
 const makeGet = (_path = '', headers = {}, username) => new Promise((resolve, reject) => {
     const dockerHost = process.env.DOCKER_HOST_HOSTNAME;
     if (dockerHost) {
-        // Running inside Docker — use plain HTTP to the host
-        const base = `http://${dockerHost}:${HOMENAMES_PORT}`;
-        http.get(`${base}${_path}`, (res) => {
+        // Running inside Docker — reach Homenames on the host. It's https
+        // exactly when the host has certs (HTTPS_ENABLED is passed into the
+        // container). The cert is issued for the public domain, not
+        // host.docker.internal, so skip verification — this traffic never
+        // leaves the docker bridge.
+        const mod = HTTPS_ENABLED ? https : http;
+        const base = `${HTTPS_ENABLED ? 'https' : 'http'}://${dockerHost}:${HOMENAMES_PORT}`;
+        mod.get(`${base}${_path}`, { rejectUnauthorized: false }, (res) => {
             let buf = '';
             res.on('data', (chunk) => { buf += chunk.toString(); });
             res.on('end', () => { resolve(JSON.parse(buf)); });
@@ -107,7 +112,10 @@ const makePost = (_postPath, _payload, username) => new Promise((resolve, reject
             path: _postPath,
             port,
             method: 'POST',
-            headers
+            headers,
+            // Cert is issued for the public domain, not localhost or
+            // host.docker.internal — local-only traffic, skip verification.
+            rejectUnauthorized: false
         };
 
         let responseData = '';
@@ -122,7 +130,7 @@ const makePost = (_postPath, _payload, username) => new Promise((resolve, reject
 
     const dockerHost = process.env.DOCKER_HOST_HOSTNAME;
     if (dockerHost) {
-        doPost(dockerHost, http);
+        doPost(dockerHost, HTTPS_ENABLED ? https : http);
     } else {
         getPublicIP().then(publicIp => {
             const hostname = 'localhost';//HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';

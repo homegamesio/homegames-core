@@ -293,10 +293,13 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
 
                 // When running inside Docker the session is in a container, so
                 // 'localhost' is the container — not the host running Homenames.
-                // Reach the host over plain HTTP (mirrors homenames-helper).
+                // Homenames is https exactly when we have certs (mirrors
+                // homenames-helper). The cert is issued for the public domain,
+                // not localhost/host.docker.internal, so skip verification —
+                // this traffic never leaves the machine.
                 const dockerHost = process.env.DOCKER_HOST_HOSTNAME;
                 const homenamesHost = dockerHost || 'localhost';
-                const homenamesSecure = dockerHost ? false : !!certPath;
+                const homenamesSecure = !!certPath;
 
                 const finishPlayerSetup = (playerInfo) => {
                     // Guard against WebSocket being closed during async work
@@ -340,7 +343,8 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                     hostname: homenamesHost,
                     port: HOMENAMES_PORT,
                     path: `/info/${ws.id}`,
-                    method: 'GET'
+                    method: 'GET',
+                    rejectUnauthorized: false
                 }, res => {
                     let buf = '';
                     res.on('data', (chunk) => { buf += chunk.toString(); });

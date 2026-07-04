@@ -229,8 +229,9 @@ const startServerNoFrame = (sessionInfo) => {
     gameSession = new GameSession(gameInstance, squishVersion);
 
     gameSession.initialize().then(() => {
-        // Simple WebSocket server — no bezel, no Homenames, no proxy
-        const server = http.createServer((req, res) => {
+        // Simple WebSocket server — no bezel, no Homenames, no proxy.
+        // Serves https/wss when certs are available (same layout as socketServer).
+        const requestHandler = (req, res) => {
             if (req.url === '/health') {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
@@ -240,7 +241,12 @@ const startServerNoFrame = (sessionInfo) => {
                 return;
             }
             res.writeHead(404); res.end();
-        });
+        };
+
+        const server = HTTPS_ENABLED && sessionInfo.certPath ? https.createServer({
+            key: fs.readFileSync(`${sessionInfo.certPath}/homegames.key`).toString(),
+            cert: fs.readFileSync(`${sessionInfo.certPath}/homegames.cert`).toString()
+        }, requestHandler) : http.createServer(requestHandler);
 
         const wss = new WebSocket.Server({ server });
         let playerIdCounter = 0;
