@@ -13,6 +13,8 @@ if (baseDir.endsWith('/src')) {
 
 const { getConfigValue, log } = require('homegames-common');
 const { createRateLimiter } = require('./rate-limiter');
+const { createCatalogClient } = require('./catalog/CatalogClient');
+const { fetchGameSource } = require('./library/fetchGameSource');
 
 // homegames-core version, reported via GET /info so the platform API can
 // discover which core version this server is running.
@@ -20,6 +22,16 @@ const CORE_VERSION = require('../package.json').version;
 
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const PUBLIC_HOST = getConfigValue('PUBLIC_HOST', null); // e.g. 'api.homegames.io'
+const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
+
+// Session game downloads — the platform API creates sessions by reference
+// ({ gameId, commitSha }) and we fetch the source ourselves through the API's
+// public catalog endpoints (published commits only, no credentials needed).
+// Downloads are cached on disk per gameId/commitSha so repeat sessions of the
+// same version don't re-fetch.
+const SESSION_GAME_CACHE_DIR = path.join(os.tmpdir(), 'hg-session-games');
+const GAME_ID_REGEX = /^[a-zA-Z0-9_-]+$/;
+const COMMIT_SHA_REGEX = /^[a-fA-F0-9]{7,64}$/;
 
 const getLocalIP = () => {
     const ifaces = os.networkInterfaces();
@@ -72,6 +84,8 @@ class Homenames {
         this.playerListeners = {};
         this.clientInfo = {};
         this.gameSessionManager = gameSessionManager || null;
+        this.catalogClient = createCatalogClient({ apiUrl: API_URL });
+        this.sessionGameDownloads = {}; // in-flight downloads keyed by gameId:commitSha
 
         // Rate limiters — different limits for different operations
         const sessionCreateLimiter = createRateLimiter({ windowMs: 60000, max: 5 });   // 5 session creates per minute per IP
@@ -399,21 +413,61 @@ class Homenames {
         });
     }
 
+    // Fetch a published game's source for a session, caching by gameId/commitSha.
+    // Resolves the path to the game's index.js. Concurrent requests for the
+    // same version share one in-flight download.
+    downloadSessionGame(gameId, commitSha) {
+        const key = `${gameId}:${commitSha}`;
+        if (this.sessionGameDownloads[key]) {
+            return this.sessionGameDownloads[key];
+        }
+
+        const destDir = path.join(SESSION_GAME_CACHE_DIR, gameId, commitSha);
+        // The marker records the resolved indexPath and is only written after a
+        // complete download, so a half-written dir is never treated as a cache hit.
+        const markerPath = path.join(destDir, '.hg-complete');
+        if (fs.existsSync(markerPath)) {
+            const cachedIndexPath = fs.readFileSync(markerPath, 'utf-8');
+            if (fs.existsSync(cachedIndexPath)) {
+                return Promise.resolve(cachedIndexPath);
+            }
+        }
+
+        log.info(`[Homenames] Downloading game source ${gameId}@${commitSha}`);
+        const download = fetchGameSource({
+            catalogClient: this.catalogClient,
+            gameId,
+            commitSha,
+            destDir,
+        }).then(({ indexPath }) => {
+            fs.writeFileSync(markerPath, indexPath);
+            return indexPath;
+        }).finally(() => {
+            delete this.sessionGameDownloads[key];
+        });
+
+        this.sessionGameDownloads[key] = download;
+        return download;
+    }
+
     // POST /sessions
-    // Body: { gamePath } or { code } or { files } or { gamePath, gameId, gameKey }
+    // Body: { gamePath } or { code } or { files } or { gameId, commitSha, gameKey }
     //   code: string — single file (written as index.js)
     //   files: { "path": "content", ... } — multiple files (must include index.js)
+    //   gameId + commitSha: a published catalog version — source is fetched
+    //     from the platform API's public catalog endpoints
     handleCreateSession(req, res) {
         getReqBody(req).then(body => {
-            const { gamePath, code, files, gameId, gameKey, noFrame } = body;
+            const { gamePath, code, files, gameId, gameKey, commitSha, noFrame } = body;
 
-            if (!gamePath && !code && !files) {
+            if (!gamePath && !code && !files && !(gameId && commitSha)) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'gamePath, code, or files is required' }));
+                res.end(JSON.stringify({ error: 'gamePath, code, files, or gameId + commitSha is required' }));
                 return;
             }
 
             const input = {};
+            let inputReady = Promise.resolve();
             if (gamePath) {
                 // Only allow gamePath if it points to an existing .js file
                 // This is used by the dashboard for local games — not exposed externally
@@ -445,6 +499,19 @@ class Homenames {
                 input.gamePath = path.join(tmpDir, 'index.js');
             } else if (code) {
                 input.code = code;
+            } else {
+                if (!GAME_ID_REGEX.test(gameId) || !COMMIT_SHA_REGEX.test(commitSha)) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Invalid gameId or commitSha' }));
+                    return;
+                }
+                inputReady = this.downloadSessionGame(gameId, commitSha).then(indexPath => {
+                    input.gamePath = indexPath;
+                }).catch(err => {
+                    // CatalogClient rejects with the raw response body on non-2xx
+                    log.error(`[Homenames] Failed to fetch game source ${gameId}@${commitSha}`, err);
+                    throw new Error(`Failed to fetch game ${gameId}@${commitSha}`);
+                });
             }
 
             if (gameKey) input.gameKey = gameKey;
@@ -486,12 +553,12 @@ class Homenames {
                 }));
             };
 
-            this.gameSessionManager.startSession(input, {
+            inputReady.then(() => this.gameSessionManager.startSession(input, {
                 onReady: (session) => {
                     log.info(`[Homenames] Session ${session.id} ready on port ${session.port}`);
                     sendResponse(session.id, session.port, session.type);
                 },
-            }).then(result => {
+            })).then(result => {
                 const { sessionId, port, type } = result;
 
                 // For fork sessions, onReady fires before .then() resolves,
