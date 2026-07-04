@@ -87,8 +87,7 @@ class NeonGrid extends Game {
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: [3, 4, 12, 255],
-            onClick: (playerId, x, y) => this.handleTap(playerId, x, y)
+            fill: [3, 4, 12, 255]
         });
 
         this.buildArenaDecor();
@@ -96,10 +95,17 @@ class NeonGrid extends Game {
         this.trailLayer = this.makeContainer();
         this.headLayer = this.makeContainer();
         this.particleLayer = this.makeContainer();
+        // Taps must land on a clickable node ABOVE the playfield (the hit-test
+        // stops at the topmost containing node), but below the UI buttons.
+        this.tapCatcher = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            onClick: (playerId, x, y) => this.handleTap(playerId, x, y)
+        });
         this.hud = this.makeContainer();
         this.overlay = this.makeContainer();
 
-        this.base.addChildren(this.trailLayer, this.headLayer, this.particleLayer, this.hud, this.overlay);
+        this.base.addChildren(this.trailLayer, this.headLayer, this.particleLayer, this.tapCatcher, this.hud, this.overlay);
 
         this.players = {};
         this.riders = [];
@@ -113,9 +119,12 @@ class NeonGrid extends Game {
     }
 
     makeContainer() {
+        // Zero-size rect: full-screen containers swallow clicks for everything
+        // drawn beneath them (the server hit-test picks the topmost containing
+        // node whether or not it is clickable).
         return new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
     }
 
@@ -278,6 +287,14 @@ class NeonGrid extends Game {
                 this.lobbyRow.addChild(new GameNode.Text({
                     textInfo: { x: slotX + 5, y: 43.5, text: rider.name, size: 1.1, align: 'center', font: 'monospace', color: [220, 230, 255, 255] }
                 }), false);
+                if (rider.playerId !== null) {
+                    // frameless sessions have no chrome showing your name, so
+                    // each player gets a private marker on their own entry
+                    this.lobbyRow.addChild(new GameNode.Text({
+                        textInfo: { x: slotX + 5, y: 46, text: 'YOU', size: 1, align: 'center', font: 'monospace', color: [255, 215, 90, 255] },
+                        playerIds: [rider.playerId]
+                    }), false);
+                }
             });
         }
 
@@ -452,6 +469,12 @@ class NeonGrid extends Game {
             this.hud.addChild(new GameNode.Text({
                 textInfo: { x: x + 3.2, y: 5.6, text: '★ ' + rider.wins, size: 1.2, font: 'monospace', color: [255, 215, 90, alpha] }
             }), false);
+            if (rider.playerId !== null) {
+                this.hud.addChild(new GameNode.Text({
+                    textInfo: { x: x + 11.5, y: 2.9, text: 'YOU', size: 1.1, font: 'monospace', color: [255, 215, 90, 255] },
+                    playerIds: [rider.playerId]
+                }), false);
+            }
         });
     }
 
