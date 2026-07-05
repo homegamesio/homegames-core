@@ -1,6 +1,6 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
 
-const TICK_RATE = 10;
+const TICK_RATE = 15;
 
 const MAX_PLAYERS = 8;
 
@@ -22,10 +22,13 @@ const STROOP_COLORS = [
     { name: 'YELLOW', color: [250, 220, 70, 255] }
 ];
 
-const BG = [16, 14, 32, 255];
-const CARD = [32, 28, 56, 255];
-const INK = [240, 238, 255, 255];
-const FAINT = [140, 135, 180, 255];
+// Retro arcade theme: deep CRT teal with hot yellow/orange accents
+const BG = [7, 42, 46, 255];
+const CARD = [13, 64, 68, 255];
+const ACCENT = [255, 205, 60, 255];
+const HOT = [255, 150, 40, 255];
+const INK = [235, 250, 245, 255];
+const FAINT = [115, 170, 165, 255];
 const GOLD = [255, 210, 90, 255];
 
 const glow = (color, blur) => ({ shadow: { color: [color[0], color[1], color[2], 255], blur } });
@@ -163,7 +166,7 @@ class MicroMayhem extends Game {
         this.confetti = [];
         this.renderScoreStrip();
 
-        const title = this.makeGlowText('MICRO MAYHEM', 50, 12, 6, INK, [255, 105, 180, 255]);
+        const title = this.makeGlowText('MICRO MAYHEM', 50, 12, 6, INK, HOT);
         this.titleHalos = title.slice(0, 4);
         title.forEach(n => this.arena.addChild(n, false));
 
@@ -174,7 +177,7 @@ class MicroMayhem extends Game {
         this.lobbyRow = this.makeContainer();
         this.arena.addChild(this.lobbyRow, false);
 
-        this.joinButton = this.makeButton('JOIN', 20, 58, 60, 8, [64, 224, 208, 255], (playerId) => {
+        this.joinButton = this.makeButton('JOIN', 20, 58, 60, 8, ACCENT, (playerId) => {
             if (this.phase !== 'lobby' || this.joined.indexOf(playerId) >= 0 || this.joined.length >= MAX_PLAYERS) {
                 return;
             }
@@ -279,7 +282,7 @@ class MicroMayhem extends Game {
         this.arena.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 26, text: 'GAME ' + (this.stageIndex + 1) + '/' + this.gauntlet.length, size: 2, align: 'center', font: 'monospace', color: FAINT }
         }), false);
-        this.makeGlowText(spec.title, 50, 36, 5, INK, [255, 105, 180, 255])
+        this.makeGlowText(spec.title, 50, 36, 5, INK, HOT)
             .forEach(n => this.arena.addChild(n, false));
         this.arena.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 50, text: spec.hint, size: 2, align: 'center', font: 'monospace', color: GOLD }
@@ -731,7 +734,7 @@ class MicroMayhem extends Game {
             }), false);
         });
 
-        this.arena.addChild(this.makeButton('PLAY AGAIN', 25, 84, 50, 8, [64, 224, 208, 255], (playerId) => {
+        this.arena.addChild(this.makeButton('PLAY AGAIN', 25, 84, 50, 8, ACCENT, (playerId) => {
             if (this.phase === 'podium' && this.joined.indexOf(playerId) >= 0) {
                 this.startGauntlet();
             }
@@ -770,7 +773,7 @@ class MicroMayhem extends Game {
         if (this.phase === 'lobby' && this.titleHalos) {
             const alpha = 110 + Math.round(60 * Math.sin(this.tickCount / 4));
             this.titleHalos.forEach(halo => {
-                halo.node.text.color = [255, 105, 180, alpha];
+                halo.node.text.color = [HOT[0], HOT[1], HOT[2], alpha];
             });
         } else if (this.phase === 'intro') {
             if (--this.stageTicks <= 0) {
@@ -881,7 +884,7 @@ class MicroMayhem extends Game {
             this.updateLobbyUi();
         } else if (this.joined.indexOf(playerId) === -1 && this.pendingJoins.indexOf(playerId) === -1) {
             this.pendingJoins.push(playerId);
-            this.addTransient(this.makeGlowText('YOU ARE IN THE NEXT GAUNTLET', 50, 60, 2, INK, [64, 224, 208, 255], [playerId]), 3 * TICK_RATE);
+            this.addTransient(this.makeGlowText('YOU ARE IN THE NEXT GAUNTLET', 50, 60, 2, INK, ACCENT, [playerId]), 3 * TICK_RATE);
             this.base.node.onStateChange();
         }
     }

@@ -56,10 +56,13 @@ const startServer = (sessionInfo) => {
             let saveData;
             const savePath = crypto.createHash('md5').update(sessionInfo.gamePath).digest('hex');
     
-            const saveDataRoot = path.join(appDataPath, '.save-data');
+            // In Docker sessions SAVE_DATA_PATH points at the host-persisted
+            // /app/save bind mount — HOME is a tmpfs there, so saves under
+            // appDataPath would be lost when the container exits.
+            const saveDataRoot = process.env.SAVE_DATA_PATH || path.join(appDataPath, '.save-data');
             const existingGameSaveDataPath = path.join(saveDataRoot, savePath);
             if (!fs.existsSync(saveDataRoot)) {
-                fs.mkdirSync(saveDataRoot);
+                fs.mkdirSync(saveDataRoot, { recursive: true });
             }
 
             const saveGame = (data) => new Promise((resolve, reject) => {

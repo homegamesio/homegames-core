@@ -1,6 +1,6 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
 
-const TICK_RATE = 15;
+const TICK_RATE = 20;
 
 const CENTER = 50;
 const PADDLE_R_INNER = 12;
@@ -23,9 +23,11 @@ const PALETTE = [
 
 const ENEMY_COLORS = [[255, 90, 70, 255], [255, 140, 60, 255], [240, 70, 120, 255]];
 
-const BG = [7, 8, 24, 255];
-const INK = [235, 240, 255, 255];
-const FAINT = [130, 140, 180, 255];
+// Red-alert theme: deep crimson space, warning-light accents
+const BG = [26, 6, 14, 255];
+const ACCENT = [255, 80, 95, 255];
+const INK = [255, 240, 240, 255];
+const FAINT = [185, 135, 150, 255];
 const GOLD = [255, 210, 90, 255];
 
 const TAU = Math.PI * 2;
@@ -123,7 +125,7 @@ class NovaGuard extends Game {
             this.base.addChild(new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(Math.random() * 99, Math.random() * 99, size, size),
-                fill: [210, 220, 255, 255],
+                fill: [255, 205, 205, 255],
                 color: [255, 255, 255, 80 + Math.floor(Math.random() * 130)]
             }), false);
         }
@@ -144,7 +146,7 @@ class NovaGuard extends Game {
         this.base.addChild(new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: points.map(([x, y]) => [Math.round(x * 100) / 100, Math.round(y * 100) / 100]),
-            fill: [40, 46, 90, 255]
+            fill: [88, 28, 44, 255]
         }), false);
     }
 
@@ -193,7 +195,7 @@ class NovaGuard extends Game {
         const button = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(x, y, w, h),
-            fill: [14, 16, 40, 255],
+            fill: [32, 10, 18, 255],
             color,
             border: 8,
             effects: glow(color, 8),
@@ -235,7 +237,7 @@ class NovaGuard extends Game {
         this.hud.clearChildren();
         this.overlay.clearChildren();
 
-        const title = this.makeGlowText('NOVA GUARD', 50, 12, 6, INK, [0, 255, 255, 255]);
+        const title = this.makeGlowText('NOVA GUARD', 50, 12, 6, INK, ACCENT);
         this.titleHalos = title.slice(0, 4);
         title.forEach(n => this.overlay.addChild(n, false));
 
@@ -326,7 +328,7 @@ class NovaGuard extends Game {
         this.spawnTicks = this.spawnInterval;
         this.bossQueued = this.wave % 3 === 0;
 
-        this.addTransient(this.makeGlowText('WAVE ' + this.wave, 50, 26, 4.5, INK, [0, 255, 255, 255]), this.intermissionTicks);
+        this.addTransient(this.makeGlowText('WAVE ' + this.wave, 50, 26, 4.5, INK, ACCENT), this.intermissionTicks);
         if (this.bossQueued) {
             this.addTransient(this.makeGlowText('SOMETHING BIG INBOUND', 50, 34, 1.8, [255, 120, 90, 255]), this.intermissionTicks);
         }
@@ -488,7 +490,7 @@ class NovaGuard extends Game {
             }), false);
         });
 
-        this.overlay.addChild(this.makeButton('GO AGAIN', 25, 72, 50, 8, [0, 255, 255, 255], (playerId) => {
+        this.overlay.addChild(this.makeButton('GO AGAIN', 25, 72, 50, 8, ACCENT, (playerId) => {
             if (this.phase === 'gameOver' && this.players[playerId]) {
                 this.startRun();
             }
@@ -557,7 +559,7 @@ class NovaGuard extends Game {
         if (this.phase === 'lobby' && this.titleHalos) {
             const alpha = 110 + Math.round(60 * Math.sin(this.tickCount / 5));
             this.titleHalos.forEach(halo => {
-                halo.node.text.color = [0, 255, 255, alpha];
+                halo.node.text.color = [ACCENT[0], ACCENT[1], ACCENT[2], alpha];
             });
         }
 

@@ -1,7 +1,7 @@
 const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
 const COLORS = Colors.COLORS;
 
-const TICK_RATE = 12;
+const TICK_RATE = 16;
 
 const CELL = 2;
 const COLS = 48;

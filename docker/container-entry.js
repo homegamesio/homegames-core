@@ -59,15 +59,11 @@ console.log('[container-entry] Port:', process.env.GAME_PORT);
 console.log('[container-entry] Squish version:', process.env.SQUISH_VERSION);
 
 // ---------------------------------------------------------------------------
-// Set up NODE_PATH so require() finds deps from both the container's
-// pre-installed packages and the host project's node_modules (mounted).
+// Set up NODE_PATH so require() finds deps from the container's
+// pre-installed packages. Games cannot bring their own dependencies —
+// everything they may require (squish versions, ws) ships in the image.
 // ---------------------------------------------------------------------------
 const nodePaths = ['/app/node_modules'];
-
-const mountedNodeModules = path.join(GAME_DIR, 'node_modules');
-if (fs.existsSync(mountedNodeModules)) {
-    nodePaths.push(mountedNodeModules);
-}
 
 // ---------------------------------------------------------------------------
 // Run child_game_server.js with environment variable config.

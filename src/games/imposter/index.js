@@ -12,22 +12,24 @@ const GUESS_TICKS = 30 * TICK_RATE;
 // canvas WIDTH, so a size-s line is roughly s * (9/16) tall in y units.
 const TEXT_H = 9 / 16;
 
+// Light theme: warm cream "party card game" look — the one bright game in the
+// catalog, so player colors are deepened to stay readable on the pale background.
 const PALETTE = [
-    { name: 'CORAL', color: [255, 111, 97, 255] },
-    { name: 'TEAL', color: [64, 224, 208, 255] },
-    { name: 'AMBER', color: [255, 191, 0, 255] },
-    { name: 'LAVENDER', color: [181, 126, 220, 255] },
-    { name: 'MINT', color: [152, 255, 152, 255] },
-    { name: 'PINK', color: [255, 105, 180, 255] },
-    { name: 'SKY', color: [135, 206, 250, 255] },
-    { name: 'LIME', color: [190, 255, 80, 255] }
+    { name: 'CORAL', color: [230, 75, 60, 255] },
+    { name: 'TEAL', color: [0, 150, 136, 255] },
+    { name: 'AMBER', color: [225, 145, 10, 255] },
+    { name: 'LAVENDER', color: [125, 85, 200, 255] },
+    { name: 'MINT', color: [45, 165, 90, 255] },
+    { name: 'PINK', color: [215, 55, 130, 255] },
+    { name: 'SKY', color: [40, 120, 210, 255] },
+    { name: 'LIME', color: [120, 160, 10, 255] }
 ];
 
-const BG = [24, 18, 38, 255];
-const CARD = [38, 30, 60, 255];
-const INK = [240, 236, 255, 255];
-const FAINT = [150, 140, 185, 255];
-const GOLD = [255, 210, 90, 255];
+const BG = [243, 236, 221, 255];
+const CARD = [255, 252, 244, 255];
+const INK = [45, 42, 66, 255];
+const FAINT = [125, 118, 145, 255];
+const GOLD = [200, 148, 22, 255];
 
 const glow = (color, blur) => ({ shadow: { color: [color[0], color[1], color[2], 255], blur } });
 const lerpColor = (a, b, t) => [
@@ -70,7 +72,12 @@ class Imposter extends Game {
         this.screen = this.makeContainer();
         this.confettiLayer = this.makeContainer();
         this.flashLayer = this.makeContainer();
-        this.base.addChildren(this.screen, this.confettiLayer, this.flashLayer);
+        // Privacy anchors: a player with no nodes scoped to them receives the
+        // UNFILTERED state (including the secret-word highlight), so every
+        // connected player gets a persistent zero-size scoped node.
+        this.anchorLayer = this.makeContainer();
+        this.anchors = {};
+        this.base.addChildren(this.screen, this.confettiLayer, this.flashLayer, this.anchorLayer);
 
         this.players = {};
         this.playerColors = {};
@@ -141,7 +148,7 @@ class Imposter extends Game {
     }
 
     addFlash(text, ticks, playerIds, color) {
-        const nodes = this.makeGlowText(text, 50, 47, 2.6, color || INK, color || [64, 224, 208, 255], playerIds);
+        const nodes = this.makeGlowText(text, 50, 47, 2.6, color || INK, color || [0, 150, 136, 255], playerIds);
         nodes.forEach(n => this.flashLayer.addChild(n, false));
         this.transients.push({ nodes, ticks });
         this.base.node.onStateChange();
@@ -173,7 +180,7 @@ class Imposter extends Game {
         this.confettiLayer.clearChildren();
         this.confetti = [];
 
-        const title = this.makeGlowText('IMPOSTER', 50, 8, 6.5, INK, [255, 105, 180, 255]);
+        const title = this.makeGlowText('IMPOSTER', 50, 8, 6.5, INK, [215, 55, 130, 255]);
         this.titleHalos = title.slice(0, 4);
         title.forEach(n => this.screen.addChild(n, false));
 
@@ -188,13 +195,13 @@ class Imposter extends Game {
             'THEN VOTE OUT THE FAKER'
         ];
         howTo.forEach((line, i) => this.screen.addChild(new GameNode.Text({
-            textInfo: { x: 50, y: 20 + i * 3.2, text: line, size: 1.7, align: 'center', font: 'monospace', color: [190, 182, 220, 255] }
+            textInfo: { x: 50, y: 20 + i * 3.2, text: line, size: 1.7, align: 'center', font: 'monospace', color: [120, 112, 140, 255] }
         }), false));
 
         this.lobbyRow = this.makeContainer();
         this.screen.addChild(this.lobbyRow, false);
 
-        this.joinButton = this.makeButton('JOIN', 20, 62, 60, 7, [64, 224, 208, 255], (playerId) => {
+        this.joinButton = this.makeButton('JOIN', 20, 62, 60, 7, [0, 150, 136, 255], (playerId) => {
             if (this.phase !== 'lobby' || this.joined.indexOf(playerId) >= 0 || this.joined.length >= MAX_PLAYERS) {
                 return;
             }
@@ -206,7 +213,7 @@ class Imposter extends Game {
             this.updateLobbyUi();
         });
 
-        this.startButton = this.makeButton('START', 20, 72, 60, 7, [190, 255, 80, 255], (playerId) => {
+        this.startButton = this.makeButton('START', 20, 72, 60, 7, [120, 160, 10, 255], (playerId) => {
             if (this.phase !== 'lobby' || this.joined.indexOf(playerId) < 0) {
                 return;
             }
@@ -341,7 +348,7 @@ class Imposter extends Game {
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(x, y, cellW, cellH),
                 fill: CARD,
-                color: [90, 80, 130, 255],
+                color: [175, 165, 145, 255],
                 border: 3,
                 onClick: onCellTap ? (playerId) => onCellTap(playerId, i) : undefined
             });
@@ -376,14 +383,14 @@ class Imposter extends Game {
 
         const crew = this.crewIds();
 
-        this.makeGlowText('YOU KNOW THE WORD', 50, 8, 2.8, [152, 255, 152, 255], null, crew)
+        this.makeGlowText('YOU KNOW THE WORD', 50, 8, 2.8, [35, 150, 80, 255], null, crew)
             .forEach(n => this.screen.addChild(n, false));
         this.screen.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 12, text: 'IT GLOWS GOLD BELOW - KEEP IT SECRET', size: 1.6, align: 'center', font: 'monospace', color: FAINT, },
             playerIds: crew
         }), false);
 
-        this.makeGlowText('YOU ARE THE IMPOSTER', 50, 8, 2.8, [255, 111, 97, 255], null, [this.imposterId])
+        this.makeGlowText('YOU ARE THE IMPOSTER', 50, 8, 2.8, [215, 60, 45, 255], null, [this.imposterId])
             .forEach(n => this.screen.addChild(n, false));
         this.screen.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 12, text: 'NO WORD FOR YOU - BLEND IN', size: 1.6, align: 'center', font: 'monospace', color: FAINT },
@@ -392,7 +399,7 @@ class Imposter extends Game {
 
         this.renderWordGrid(17, crew, null);
 
-        this.readyButton = this.makeButton('GOT IT', 20, 52, 60, 7, [64, 224, 208, 255], (playerId) => this.markReady(playerId),
+        this.readyButton = this.makeButton('GOT IT', 20, 52, 60, 7, [0, 150, 136, 255], (playerId) => this.markReady(playerId),
             this.participants.slice());
         this.screen.addChild(this.readyButton, false);
 
@@ -457,17 +464,17 @@ class Imposter extends Game {
         this.screen.addChild(new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(10, 66, 80, 1.6),
-            fill: [50, 42, 78, 255]
+            fill: [215, 205, 185, 255]
         }), false);
         this.timerBar = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(10, 66, 80, 1.6),
-            fill: [80, 220, 120, 255],
+            fill: [60, 175, 90, 255],
             color: [255, 255, 255, 255]
         });
         this.screen.addChild(this.timerBar, false);
 
-        this.callVoteButton = this.makeButton('CALL THE VOTE', 20, 71, 60, 7, [255, 105, 180, 255],
+        this.callVoteButton = this.makeButton('CALL THE VOTE', 20, 71, 60, 7, [215, 55, 130, 255],
             () => this.startVote(), this.participants.slice());
         this.screen.addChild(this.callVoteButton, false);
 
@@ -479,8 +486,8 @@ class Imposter extends Game {
         const width = Math.max(0.2, 80 * frac);
         this.timerBar.node.coordinates2d = ShapeUtils.rectangle(10, 66, width, 1.6);
         this.timerBar.node.fill = frac > 0.5
-            ? lerpColor([255, 191, 0, 255], [80, 220, 120, 255], (frac - 0.5) * 2)
-            : lerpColor([240, 80, 80, 255], [255, 191, 0, 255], frac * 2);
+            ? lerpColor([225, 145, 10, 255], [60, 175, 90, 255], (frac - 0.5) * 2)
+            : lerpColor([240, 80, 80, 255], [225, 145, 10, 255], frac * 2);
     }
 
     // --- vote phase ---
@@ -499,7 +506,7 @@ class Imposter extends Game {
         this.screen.clearChildren();
         this.renderHeader();
 
-        this.makeGlowText('WHO IS THE IMPOSTER?', 50, 8, 3, INK, [255, 105, 180, 255])
+        this.makeGlowText('WHO IS THE IMPOSTER?', 50, 8, 3, INK, [215, 55, 130, 255])
             .forEach(n => this.screen.addChild(n, false));
         this.screen.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 13, text: 'TAP A NAME - YOU CAN CHANGE YOUR MIND', size: 1.5, align: 'center', font: 'monospace', color: FAINT }
@@ -539,7 +546,7 @@ class Imposter extends Game {
             this.screen.removeChild(this.voteMarks[voterId].id, false);
         }
         const mark = new GameNode.Text({
-            textInfo: { x: 10, y: this.centeredTextY(this.voteButtonY[targetId], 7, 2.4), text: '✓', size: 2.4, font: 'monospace', color: [152, 255, 152, 255] },
+            textInfo: { x: 10, y: this.centeredTextY(this.voteButtonY[targetId], 7, 2.4), text: '✓', size: 2.4, font: 'monospace', color: [35, 150, 80, 255] },
             playerIds: [voterId]
         });
         this.voteMarks[voterId] = mark;
@@ -592,7 +599,7 @@ class Imposter extends Game {
         this.screen.clearChildren();
         this.renderHeader();
 
-        this.makeGlowText('CAUGHT!', 50, 6, 3.4, [255, 111, 97, 255])
+        this.makeGlowText('CAUGHT!', 50, 6, 3.4, [215, 60, 45, 255])
             .forEach(n => this.screen.addChild(n, false));
         this.screen.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 11, text: this.playerName(this.imposterId) + ' IS THE IMPOSTER', size: 1.9, align: 'center', font: 'monospace', color: INK }
@@ -614,7 +621,7 @@ class Imposter extends Game {
         });
 
         this.guessTimerText = new GameNode.Text({
-            textInfo: { x: 50, y: gridBottom + 3, text: '30', size: 2.6, align: 'center', font: 'monospace', color: [255, 191, 0, 255] }
+            textInfo: { x: 50, y: gridBottom + 3, text: '30', size: 2.6, align: 'center', font: 'monospace', color: [225, 145, 10, 255] }
         });
         this.screen.addChild(this.guessTimerText, false);
 
@@ -637,7 +644,7 @@ class Imposter extends Game {
             headline = 'THE IMPOSTER ESCAPED';
             detail = tie ? 'THE VOTE TIED - ' + imposterName + ' WALKS (+3)'
                 : (accused !== null && accused !== undefined ? this.playerName(accused) + ' TOOK THE FALL - ' + imposterName + ' +3' : imposterName + ' +3');
-            headlineColor = [255, 111, 97, 255];
+            headlineColor = [215, 60, 45, 255];
             winners = [this.imposterId];
         } else if (outcome === 'stolen') {
             this.scores[this.imposterId] = (this.scores[this.imposterId] || 0) + 2;
@@ -651,7 +658,7 @@ class Imposter extends Game {
             });
             headline = 'CREW WINS';
             detail = imposterName + ' GUESSED WRONG - CREW +2 EACH';
-            headlineColor = [152, 255, 152, 255];
+            headlineColor = [35, 150, 80, 255];
             winners = crew;
         } else {
             headline = 'ROUND VOIDED';
@@ -685,7 +692,7 @@ class Imposter extends Game {
         this.makeGlowText(r.secretWord, 50, 22.5, 3.4, GOLD)
             .forEach(n => this.screen.addChild(n, false));
         this.screen.addChild(new GameNode.Text({
-            textInfo: { x: 50, y: 28.5, text: 'THE IMPOSTER WAS ' + r.imposterName, size: 1.7, align: 'center', font: 'monospace', color: [255, 111, 97, 255] }
+            textInfo: { x: 50, y: 28.5, text: 'THE IMPOSTER WAS ' + r.imposterName, size: 1.7, align: 'center', font: 'monospace', color: [215, 60, 45, 255] }
         }), false);
 
         const standings = this.joined.filter(pid => this.players[pid])
@@ -714,7 +721,7 @@ class Imposter extends Game {
             }), false);
         });
 
-        this.nextRoundButton = this.makeButton('NEXT ROUND', 20, 78, 60, 7, [64, 224, 208, 255], (playerId) => {
+        this.nextRoundButton = this.makeButton('NEXT ROUND', 20, 78, 60, 7, [0, 150, 136, 255], (playerId) => {
             if (this.phase !== 'results' || this.joined.indexOf(playerId) < 0) {
                 return;
             }
@@ -819,13 +826,21 @@ class Imposter extends Game {
 
     handleNewPlayer({ playerId, info }) {
         this.players[playerId] = { name: (info && info.name) || ('PLAYER ' + playerId) };
+        if (!this.anchors[playerId]) {
+            this.anchors[playerId] = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                playerIds: [playerId]
+            });
+            this.anchorLayer.addChild(this.anchors[playerId], false);
+        }
         if (this.phase === 'lobby') {
             this.updateLobbyUi();
         } else {
             if (this.pendingJoins.indexOf(playerId) === -1 && this.joined.indexOf(playerId) === -1) {
                 this.pendingJoins.push(playerId);
             }
-            this.addFlash('YOU ARE IN NEXT ROUND', 3 * TICK_RATE, [playerId], [64, 224, 208, 255]);
+            this.addFlash('YOU ARE IN NEXT ROUND', 3 * TICK_RATE, [playerId], [0, 150, 136, 255]);
         }
     }
 
@@ -833,6 +848,10 @@ class Imposter extends Game {
         delete this.players[playerId];
         delete this.playerColors[playerId];
         delete this.scores[playerId];
+        if (this.anchors[playerId]) {
+            this.anchorLayer.removeChild(this.anchors[playerId].id, false);
+            delete this.anchors[playerId];
+        }
         this.pendingJoins = this.pendingJoins.filter(pid => pid !== playerId);
         this.joined = this.joined.filter(pid => pid !== playerId);
 
@@ -893,7 +912,7 @@ class Imposter extends Game {
             Object.keys(this.votes).map(Number).forEach(voter => {
                 const target = this.votes[voter];
                 const mark = new GameNode.Text({
-                    textInfo: { x: 10, y: this.centeredTextY(this.voteButtonY[target], 7, 2.4), text: '✓', size: 2.4, font: 'monospace', color: [152, 255, 152, 255] },
+                    textInfo: { x: 10, y: this.centeredTextY(this.voteButtonY[target], 7, 2.4), text: '✓', size: 2.4, font: 'monospace', color: [35, 150, 80, 255] },
                     playerIds: [voter]
                 });
                 this.voteMarks[voter] = mark;

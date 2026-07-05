@@ -30,11 +30,14 @@ const PALETTE = [
     { name: 'ORANGE', color: [255, 140, 0, 255] }
 ];
 
-const SKY = [8, 9, 26, 255];
-const EARTH = [50, 38, 56, 255];
-const GRASS = [96, 225, 150, 255];
-const INK = [235, 240, 255, 255];
-const FAINT = [130, 140, 180, 255];
+// Sunset silhouette theme: purple dusk sky, black hills with an ember rim
+const SKY = [43, 16, 58, 255];
+const HORIZON = [96, 34, 66, 255];
+const EARTH = [22, 13, 25, 255];
+const GRASS = [255, 122, 48, 255];
+const ACCENT = [255, 150, 60, 255];
+const INK = [255, 240, 230, 255];
+const FAINT = [175, 140, 170, 255];
 const GOLD = [255, 210, 90, 255];
 
 const glow = (color, blur) => ({ shadow: { color: [color[0], color[1], color[2], 255], blur } });
@@ -120,15 +123,37 @@ class KaboomValley extends Game {
     }
 
     buildSky() {
+        this.base.addChild(new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 34, 100, 30),
+            fill: HORIZON
+        }), false);
+
         for (let i = 0; i < 40; i++) {
             const size = 0.15 + Math.random() * 0.25;
             this.base.addChild(new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(Math.random() * 99, Math.random() * 40, size, size * TEXT_H),
-                fill: [220, 225, 255, 255],
+                coordinates2d: ShapeUtils.rectangle(Math.random() * 99, Math.random() * 34, size, size * TEXT_H),
+                fill: [255, 225, 195, 255],
                 color: [255, 255, 255, 90 + Math.floor(Math.random() * 140)]
             }), false);
         }
+
+        const sunColor = [255, 170, 90, 255];
+        const sun = [];
+        for (let i = 0; i <= 8; i++) {
+            const a = (i / 8) * Math.PI * 2;
+            sun.push([
+                Math.round((76 + Math.cos(a) * 6) * 100) / 100,
+                Math.round((22 + Math.sin(a) * 6 * TEXT_H) * 100) / 100
+            ]);
+        }
+        this.base.addChild(new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: sun,
+            fill: sunColor,
+            effects: glow(sunColor, 30)
+        }), false);
     }
 
     makeGlowText(text, x, y, size, color, glowColor, playerIds) {
@@ -154,7 +179,7 @@ class KaboomValley extends Game {
         const button = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(x, y, w, h),
-            fill: [16, 18, 42, 255],
+            fill: [32, 13, 38, 255],
             color,
             border: 8,
             effects: glow(color, 8),
@@ -279,7 +304,7 @@ class KaboomValley extends Game {
         this.lobbyRow = this.makeContainer();
         this.overlay.addChild(this.lobbyRow, false);
 
-        this.joinButton = this.makeButton('JOIN', 30, 48, 18, 8, [0, 255, 255, 255], (playerId) => {
+        this.joinButton = this.makeButton('JOIN', 30, 48, 18, 8, ACCENT, (playerId) => {
             if (this.phase !== 'lobby' || this.tankFor(playerId) || this.tanks.length >= MAX_TANKS) {
                 return;
             }
@@ -592,8 +617,8 @@ class KaboomValley extends Game {
         }), false);
 
         const y = 90;
-        this.controls.addChild(this.makeButton('ANG-', 2, y, 8, 7, [0, 255, 255, 255], () => this.adjustAim(-2, 0), pid, 1.5), false);
-        this.controls.addChild(this.makeButton('ANG+', 11, y, 8, 7, [0, 255, 255, 255], () => this.adjustAim(2, 0), pid, 1.5), false);
+        this.controls.addChild(this.makeButton('ANG-', 2, y, 8, 7, ACCENT, () => this.adjustAim(-2, 0), pid, 1.5), false);
+        this.controls.addChild(this.makeButton('ANG+', 11, y, 8, 7, ACCENT, () => this.adjustAim(2, 0), pid, 1.5), false);
         this.controls.addChild(this.makeButton('PWR-', 20, y, 8, 7, [255, 0, 255, 255], () => this.adjustAim(0, -2), pid, 1.5), false);
         this.controls.addChild(this.makeButton('PWR+', 29, y, 8, 7, [255, 0, 255, 255], () => this.adjustAim(0, 2), pid, 1.5), false);
 
@@ -1021,7 +1046,7 @@ class KaboomValley extends Game {
         } else if (!this.tankFor(playerId) && this.pendingJoins.indexOf(playerId) === -1 &&
             this.tanks.length + this.pendingJoins.length < MAX_TANKS) {
             this.pendingJoins.push(playerId);
-            this.addTransient(this.makeGlowText('YOU DEPLOY NEXT ROUND', 50, 20, 2, [0, 255, 255, 255], null, [playerId]), 3 * TICK_RATE);
+            this.addTransient(this.makeGlowText('YOU DEPLOY NEXT ROUND', 50, 20, 2, ACCENT, null, [playerId]), 3 * TICK_RATE);
             this.base.node.onStateChange();
         }
     }

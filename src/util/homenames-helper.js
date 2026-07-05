@@ -84,7 +84,9 @@ const makeGet = (_path = '', headers = {}, username) => new Promise((resolve, re
         const host = 'localhost';//HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
         const base = `${protocol}://${host}:${HOMENAMES_PORT}`;
 
-        (HTTPS_ENABLED ? https : http).get(`${base}${_path}`, (res) => {
+        // Cert is issued for the public domain, not localhost —
+        // loopback traffic to our own Homenames, skip verification.
+        (HTTPS_ENABLED ? https : http).get(`${base}${_path}`, { rejectUnauthorized: false }, (res) => {
             let buf = '';
             res.on('data', (chunk) => {
                 buf += chunk.toString();
@@ -93,7 +95,7 @@ const makeGet = (_path = '', headers = {}, username) => new Promise((resolve, re
             res.on('end', () => {
                 resolve(JSON.parse(buf));
             });
-        });
+        }).on('error', (err) => { reject(err); });
     });
 });
 
