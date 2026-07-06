@@ -1,72 +1,45 @@
 # Homegames Core
-Homegames core contains Homegames server stuff. The Homegames server is responsible for providing game sessions clients can connect to.
+
+The game session server for Homegames. Loads and runs games, manages WebSocket connections to players, and serializes game state through Squish.
+
+## What it does
+
+- **Game sessions** — runs game instances on individual ports, handles player connections via WebSocket
+- **Squish integration** — serializes game state into a compact binary format and streams it to connected clients
+- **Homenames** — an HTTP API that runs alongside the game server, managing session creation/discovery and mapping player IDs to names and settings
+- **Docker validation** — includes a containerized validator (`docker/validate.js`) that checks game code at publish time (entry point, license, metadata, runtime behavior, asset collection)
 
 ## Setup
-**Note: You probably don't want to run homegames-core directly if you're just trying to play games. The best way to do that is via the executables available at homegames.io**
 
-Requirements: 
-- Node.js >= 18
+Requires: Node.js >= 18
 
 ```
 npm install
 node index.js
 ```
 
-By default, this will run a Homegames game server on port 7001. You can override this in your config.
+By default, the game server runs on port 7001 and Homenames on port 7400. Override via `config.json`:
 
-## Games 
-Built-in games are located in src/games.
-Downloaded community games are in different places depending on your operating system.
-
-Windows:
-`C:\Users\<username>\AppData\homegames\hg-games`
-
-MacOS:
-`${HOME}/Library/Application Support/homegames/hg-games`
-
-Linux:
-`/path/to/home/.homegames/hg-games`
-
-## Config
-Homegames will look for a `config.json` file in the root project directory. If present, it will override defaults. Here's an example config.json:
-
-```
+```json
 {
-    "LINK_ENABLED": true,
-    "HOMENAMES_PORT": 7400,
     "HOME_PORT": 9801,
-    "LOG_LEVEL": "INFO",
+    "HOMENAMES_PORT": 7400,
     "GAME_SERVER_PORT_RANGE_MIN": 8300,
     "GAME_SERVER_PORT_RANGE_MAX": 8400,
     "HTTPS_ENABLED": false,
-    "BEZEL_SIZE_X": 9,
-    "BEZEL_SIZE_Y": 9,
-    "DOWNLOADED_GAME_DIRECTORY": "hg-games",
-    "LOG_PATH": "homegames_log.txt",
-    "PUBLIC_GAMES": false,
-    "ERROR_REPORTING": true,
-    "ERROR_REPORTING_ENDPOINT": "https://api.homegames.io/bugs",
-    "START_PATH": "/Users/josephgarcia/weed-smoke-willie/index.js",
-    "TESTS_ENABLED": true,
-    "ERROR_REPORTING_ENDPOINT": "https://api.homegames.io/bugs"
+    "LOG_LEVEL": "INFO"
 }
 ```
 
-## Dashboard
-By default, the Homegames core server will serve the Homegames dashboard on `HOME_PORT`. If you're developing a game locally and want to start it directly instead of navigating through the dashboard, set `START_PATH` in your config.json.
+To start a specific game directly instead of the dashboard, set `START_PATH` in your config to the path of the game's `index.js`.
 
-The dashboard is rendered like any game but has special knowledge about game sessions and players.
+## Related repos
 
-## Game Session
-A game session (`src/GameSession.js`) will run a `Game` on a given port. It handles all of the networking and input stuff as well as Homegames-specific logic like rendering the frame around a game and letting users update their names.
+- **squish** — game state serialization library used by the Squisher
+- **homegames-client** — browser-side rendering engine that connects to game sessions
+- **homegames-web** — web server that serves the client to players
+- **api** — platform API that creates sessions via Homenames
 
-The game session is responsible for:
-- Instantiating a `HomegamesRoot` which is responsible for stuff like the Homegames frame
-  - src/homegames_root
-- Creating a `Squisher` and notifying players when updates occur
-  - The squisher comes from our game library - [squishjs](https://github.com/homegamesio/squish)
-  - It's responsible for serializing ("squishing") game state. 
-- Managing player connections to the session
+## License
 
-## Homenames
-Homenames is an HTTP API that runs alongside a Homegames core instance. It maintains an in-memory map of player IDs to player names and settings. This allows a client to say "hey I'm player ID x" and a game session can say "I know you, you're booty slayer and you want sound muted."
+GPL-3.0

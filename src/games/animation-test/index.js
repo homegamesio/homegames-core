@@ -1,12 +1,13 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-120');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
 
 class AnimationTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
+            isTest: true,
             author: 'Joseph Garcia',
             thumbnail: '9fbf18d172f421ce98fabf04e10f6c30',
-            squishVersion: '120',
+            squishVersion: '142',
             tickRate: 60
         };
     }

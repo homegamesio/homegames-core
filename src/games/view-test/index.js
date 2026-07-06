@@ -1,4 +1,4 @@
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-120');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-142');
 const { ExpiringSet, animations } = require('../../common/util');
 
 const COLORS = Colors.COLORS;
@@ -8,9 +8,10 @@ class ViewTest extends ViewableGame {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '120',
+            squishVersion: '142',
             thumbnail: '0bb938289d7473b8f2a2184031f38935',
-            isTest: true
+            isTest: true,
+            tickRate: 100
         };
     }
 
@@ -33,7 +34,8 @@ class ViewTest extends ViewableGame {
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             fill: COLORS.RED,
             onClick: () => {
-                this.updatePlaneSize(500);
+                console.log('clicked red!')
+                // this.updatePlaneSize(500);
             }
         });
 
@@ -41,7 +43,9 @@ class ViewTest extends ViewableGame {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(100, 100, 25, 25),
             fill: COLORS.BLUE,
-            onClick: () => {}
+            onClick: () => {
+                console.log('clicked blue!');
+            }
         });
 
         whiteBase.addChildren(redSquare, blueSquare);
@@ -55,48 +59,70 @@ class ViewTest extends ViewableGame {
             const newView = Object.assign({}, this.playerViews[playerId].view);
 
             if (key === 'w' && this.playerViews[playerId].view.y - 1 >= 0) {
-                newView.y = this.playerViews[playerId].view.y - 1;    
+                newView.y = this.playerViews[playerId].view.y - 0.2;    
             }
             if (key === 'a' && this.playerViews[playerId].view.x - 1 >= 0) {
-                newView.x = this.playerViews[playerId].view.x - 1;
+                newView.x = this.playerViews[playerId].view.x - 0.2;
             }
 
             if (key === 's' && this.playerViews[playerId].view.y + 1 <= this.getPlaneSize() - newView.h) {
-                newView.y = this.playerViews[playerId].view.y + 1;
+                newView.y = this.playerViews[playerId].view.y + 0.2;
             }
 
             if (key === 'd' && this.playerViews[playerId].view.x + 1 <= this.getPlaneSize() - newView.w) {
-                newView.x = this.playerViews[playerId].view.x + 1;
+                newView.x = this.playerViews[playerId].view.x + 0.2;
             }
 
             const newViewRoot = ViewUtils.getView(this.getPlane(), newView, [playerId]);
 
-            this.getViewRoot().removeChild(this.playerViews[playerId].viewRoot.node.id);
+            // console.log('sjdsdjsjddjs');
+            // console.log(newViewRoot.node.children.length);
         
-            this.playerViews[playerId] = {
-                view: newView,
-                viewRoot: newViewRoot
-            };
+            this.playerViews[playerId].view = newView;
+                // view: newView
+            // };
 
-            this.getViewRoot().addChild(newViewRoot);
+            if (this.playerViews[Number(playerId)].viewRoot) {
+                this.playerViews[playerId].viewRoot.node.clearChildren();
+                this.playerViews[playerId].viewRoot.node.addChild(newViewRoot);
 
-            this.keyCoolDowns.put(keyCacheId, 200);
+                this.playerViews[playerId].viewRoot.node.onStateChange();
+            } else {
+                // console.log(Object.keys(this.playerViews));
+                // this.playerViews[playerId].viewRoot = newViewRoot;
+                // this.getViewRoot().addChild(newViewRoot);
+                // console.log('sdjfsdkfjdsf');
+                // console.log(this.playerViews[playerId]);
+            }        
+
+
+            this.keyCoolDowns.put(keyCacheId, 20);
         }
     }
 
     handleNewPlayer({ playerId }) {
         const playerView = {x: 0, y: 0, w: 100, h: 100};
 
+        // white base visible to the player so they never see _nothing_
+        const realRoot = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            fill: COLORS.WHITE,
+            playerIds: [playerId]
+        });
+
         const playerViewRoot = ViewUtils.getView(this.getPlane(), playerView, [playerId]);
 
         playerViewRoot.node.playerIds = [playerId];
 
+        realRoot.addChild(playerViewRoot);
+        
         this.playerViews[playerId] = {
             view: playerView,
-            viewRoot: playerViewRoot
+            viewRoot: realRoot
         };
 
-        this.getViewRoot().addChild(playerViewRoot);
+        this.getViewRoot().addChild(realRoot);
     }
 
     handlePlayerDisconnect(playerId) {

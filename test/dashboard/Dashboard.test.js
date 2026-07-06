@@ -1,5 +1,4 @@
 const HomegamesDashboard = require('../../src/dashboard/HomegamesDashboard');
-const Player = require('../../src/Player');
 const assert = require('assert');
 
 const arrayEquals = (array1, array2) => {
@@ -26,10 +25,10 @@ const addAsset = () => {
 
 const dashboard = new HomegamesDashboard({ movePlayer, addAsset });
 
-const fakePlayer = new Player();
+const fakePlayerId = 1;
 
 dashboard.handleNewPlayer({ 
-    playerId: fakePlayer.id, 
+    playerId: fakePlayerId, 
     info: { 
         name: 'fake player'
     }, 

@@ -1,11 +1,11 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-0767');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-142');
 const COLORS = Colors.COLORS;
 
 class HotPotato extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 1, y: 1},
-            squishVersion: '0767',
+            squishVersion: '142',
             author: 'Joseph Garcia',
             description: 'Click or tap the potato when you have the potato. Make sure you have sound turned on.',
             name: 'Hot Potato',
@@ -62,6 +62,7 @@ class HotPotato extends Game {
             this.base.removeChild(this.messageText.id);
             this.messageText = null;
         }
+        this.base.node.onStateChange();
     }
 
     randomPlayerId(excludedIds = []) {
@@ -117,6 +118,7 @@ class HotPotato extends Game {
         }
         if (this.potato) {
             this.base.removeChild(this.potato.node.id);
+            this.base.node.onStateChange();
         }
 
         const potatoOverlay = new GameNode.Shape({ 
@@ -139,7 +141,7 @@ class HotPotato extends Game {
             },
             playerIds: [assignedPlayerId]
         });
-        
+
         this.songPlayedAt = Date.now();
         this.soundTimestamp = 0;
 
@@ -154,8 +156,8 @@ class HotPotato extends Game {
             }
         });
 
+        this.base.addChild(this.potato);
         this.potato.addChildren(this.potatoSound, potatoOverlay);
-
 
         // at least 5 seconds, possibly up to 20
         const randomEndSeconds = 5 + (Math.floor(Math.random() * 15));
@@ -164,7 +166,7 @@ class HotPotato extends Game {
             this.explode();
         }, randomEndSeconds * 1000);
 
-        this.base.addChild(this.potato);
+        this.base.node.onStateChange();
     }
 
     updatePotatoState(assignedPlayerId) {
@@ -197,6 +199,8 @@ class HotPotato extends Game {
 
             this.potato.node.playerIds = [assignedPlayerId];
         }
+
+        this.base.node.onStateChange();
     }
 
     handleNewPlayer({ playerId, info, settings, clientInfo }) {

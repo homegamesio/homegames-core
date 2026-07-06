@@ -1,16 +1,19 @@
-const { fork } = require('child_process');
-const http = require('http');
-const https = require('https');
 const path = require('path');
 const fs = require('fs');
 
 const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 
-const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-135');
-
+console.log('wattt1')
 const squishMap = require('../common/squish-map');
 
-const decompress = require('decompress');
+console.log('watdsfdsf3');
+console.log(squishMap);
+
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require(squishMap['142']);
+
+console.log('this is Game');
+console.log(Game);
+
 const gameModal = require('./game-modal');
 
 const COLORS = Colors.COLORS;
@@ -24,30 +27,19 @@ const { ExpiringSet, animations } = require('../common/util');
 
 const gameOption = require('./game-option');
 
+const { createCatalogClient } = require('../catalog/CatalogClient');
+const { createLocalLibrary } = require('../library/LocalLibrary');
+const { createInstaller } = require('../library/Installer');
+
 let baseDir = path.dirname(require.main.filename);
 
 if (baseDir.endsWith('src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
-const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
+
 
 const IS_DEMO = getConfigValue('IS_DEMO', true);
-
-const sessions = {};
-
-for (let i = serverPortMin; i <= serverPortMax; i++) {
-    sessions[i] = null;
-}
-
-const getServerPort = () => {
-    for (const p in sessions) {
-        if (!sessions[p]) {
-            return Number(p);
-        }
-    }
-};
 
 let sessionIdCounter = 1;
 
@@ -80,270 +72,41 @@ const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT
 const SOURCE_GAME_DIRECTORY = path.resolve(`${baseDir}${path.sep}src${path.sep}games`);
 const DOWNLOADED_GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
-const updateGameMetadataMap = (newMetadata) => {
-    fs.writeFileSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata', JSON.stringify(newMetadata));
-}
+const networkHelper = createCatalogClient({ apiUrl: API_URL });
 
-const getGameMetadataMap = () => {
-    if (fs.existsSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata')) {
-        const bytes = fs.readFileSync(DOWNLOADED_GAME_DIRECTORY + path.sep + '.metadata');
-        return JSON.parse(bytes);
-    }
-
-    return {};
-}
-
-// copied from common. TODO: refactor everything so its not embarrassing 
-const getUrl = (url, headers = {}) => new Promise((resolve, reject) => {
-    const getModule = url.startsWith('https') ? https : http;
-
-    const responseData = '';
-
-    getModule.get(url, { headers } , (res) => {
-        const bufs = [];
-        res.on('data', (chunk) => {
-            bufs.push(chunk);
-        });
-
-        res.on('end', () => {
-            if (res.statusCode > 199 && res.statusCode < 300) {
-                resolve(Buffer.concat(bufs));
-            } else {
-                reject(Buffer.concat(bufs));
-            }
-        });
-    }).on('error', error => {
-        reject(error);
-    });
- 
+const localLibrary = createLocalLibrary({
+    sourceGameDir: SOURCE_GAME_DIRECTORY,
+    downloadedGameDir: DOWNLOADED_GAME_DIRECTORY,
+    localGameDir: getConfigValue('LOCAL_GAME_DIRECTORY', null),
 });
 
-if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
-    try {
-        fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
-    } catch (err) {
-        log.error('Unable to create downloaded game directory');
-        log.error(err);
-    }
-}
-
-const networkHelper = {
-    searchGames: (q) => new Promise((resolve, reject) => {
-        getUrl(`${API_URL}/games?query=${q}`).then(response => {
-            let results;
-            try {
-                results = JSON.parse(response);
-            } catch (err) {
-                log.error('Error parsing search response', err);
-                reject();
-            }    
-            resolve(results);
-        }).catch(err => {
-            log.error('Error searching games', err);
-            console.log(err);
-            reject(err);
-        });
-    }),
-    getGameDetails: (gameId) => new Promise((resolve, reject) => {
-       getUrl(`${API_URL}/games/${gameId}`).then(response => {
-            let results;
-            try {
-                results = JSON.parse(response);
-            } catch (err) {
-                log.error(err);
-                reject();
-            }    
-            resolve(results);
-        }).catch(err => {
-            log.error(err);
-            reject(err);
-        }); 
-    }), 
-    getGameVersionDetails: (gameId, versionId) => new Promise((resolve, reject) => {
-        getUrl(`${API_URL}/games/${gameId}/version/${versionId}`).then(response => { 
-            resolve(JSON.parse(response));
-        }).catch(err => {
-            log.error(err.toString());
-            reject(err);
-        }); 
-    })
-};
-
-if (!fs.existsSync(DOWNLOADED_GAME_DIRECTORY)) {
-    try {
-        fs.mkdirSync(DOWNLOADED_GAME_DIRECTORY);
-    } catch (err) {
-        console.error('Unable to create game directory');
-        console.error(err);
-    }
-}
-
-const getGamePathsHelper = (dir) => {
-    let entries = [];
-    try {
-        entries = fs.readdirSync(dir);
-    } catch (err) {
-        console.error('Unable to read game directory');
-        console.error(err);
-    }
-    const results = new Set();
-    const processedEntries = {};
-
-    entries.forEach(entry => {
-        const entryPath = path.resolve(`${dir}${path.sep}${entry}`);
-
-        const metadata = fs.statSync(entryPath);
-        if (metadata.isFile()) {
-            const pathSep = path.sep === '\\' ? '\\\\' : path.sep;
-            const pathRegex = new RegExp(`(?:^|[${pathSep}])index\\.js$`);
-            const isMatch = pathRegex.test(entryPath);
-
-            if (isMatch) {
-                if (entryPath.endsWith('index.js')) {
-                    results.add(entryPath);
-                }
-            }
-        } else if (metadata.isDirectory()) {
-            const nestedPaths = getGamePathsHelper(entryPath);
-            nestedPaths.forEach(nestedPath => results.add(nestedPath));
-        }
-            
-    });
-
-    return results;
-};
-
-const getGameMap = () => {
-    const sourceGames = getGamePathsHelper(SOURCE_GAME_DIRECTORY);
-    const downloadedGames = getGamePathsHelper(DOWNLOADED_GAME_DIRECTORY);
-
-    const gamePaths = Array.from(new Set([...sourceGames, ...downloadedGames])).sort();
-
-    const games = {};
-
-    // used to append to keys with clashes. we should have ids
-    let suffixCount = 0;
-    const gameMetadataMap = getGameMetadataMap();
-    gamePaths.forEach(gamePath => {
-        const isLocal = sourceGames.has(gamePath);
-        if (isLocal) {
-
-            const gameClass = require(gamePath);
-
-            if (!gameClass.name || !gameClass.metadata) {
-                log.info('Unknown game at path ' + gamePath);
-            } else {
-                const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
-
-                games[gameClass.name] = {
-                    metadata: {
-                        name: gameMetadata.name || gameClass.name,
-                        thumbnail: gameMetadata.thumbnail,
-                        thumbnailSource: gameMetadata.thumbnailSource,
-                        author: gameMetadata.createdBy || 'Unknown author',
-                        isTest: gameMetadata.isTest || false
-                    },
-                    versions: {
-                        'local-game-version': {
-                            gameId: gameClass.name,
-                            class: gameClass,
-                            metadata: {...gameMetadata },
-                            gamePath,
-                            versionId: 'local-game-version',
-                            description: gameMetadata.description || 'No description available',
-                            version: 0,
-                            approved: true
-                        }
-                    }
-                }
-            }
-        } else {
-            const storedMetadata = gameMetadataMap[gamePath] || {};
-
-            const gameId = storedMetadata?.game?.gameId;
-            const versionId = storedMetadata?.version?.versionId;
-
-            if (!gameId || !versionId) {
-                console.warn('Unknown game at ' + gamePath);
-            } else {
-                if (!games[gameId]) {
-                    games[gameId] = {
-                        metadata: storedMetadata.game,
-                        versions: {}
-                    }
-                }
-
-                games[gameId].versions[versionId] = {
-                    gameId,
-                    metadata: storedMetadata.version,
-                    gamePath,
-                    versionId,
-                    version: storedMetadata.version.version,
-                    approved: storedMetadata.version.approved
-                };
-            }
-        } 
-    });
-
-    if (getConfigValue('LOCAL_GAME_DIRECTORY', null)) {
-        const localGameDirString = getConfigValue('LOCAL_GAME_DIRECTORY');
-        const localGameDir = path.resolve(localGameDirString);
-        
-        if (!fs.existsSync(localGameDirString)) {
-            fs.mkdirSync(localGameDirString);
-        }
-
-        const localGamePaths = getGamePathsHelper(localGameDir);
-
-        localGamePaths.forEach(gamePath => {
-            log.info('Using local game at path ' + gamePath);
-            const gameClass = require(gamePath);
-            const gameMetadata = gameClass.metadata ? gameClass.metadata() : {};
-
-            games[gameClass.name] = {
-                metadata: {
-                    name: gameMetadata.name || gameClass.name,
-                    thumbnail: gameMetadata.thumbnail,
-                    description: gameMetadata.description,
-                    thumbnailSource: gameMetadata.thumbnailSource,
-                    author: gameMetadata.createdBy || 'Unknown author'
-                },
-                versions: {
-                    'local-game-version': {
-                        gameId: gameClass.name,
-                        class: gameClass,
-                        metadata: {...gameMetadata },
-                        gamePath,
-                        versionId: 'local-game-version',
-                        description: gameMetadata.description || 'No description available',
-                        version: 0,
-                        approved: true
-                    }
-                }
-            }
-        });
-    }
-
-    return games;
-};
+localLibrary.ensureDirs();
 
 class HomegamesDashboard extends ViewableGame {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '135'
+            squishVersion: '142'
         };
     }
 
 
-    constructor({ movePlayer, addAsset, username, certPath }) {
+    constructor({ movePlayer, addAsset, username, certPath, gameSessionManager, catalogClient, localLibrary: injectedLibrary }) {
         super(1000);
         // todo: static vs. addasset
+
+        // Catalog client and local library are injectable for testing; they
+        // default to the module-level instances (real API + app-data dir). The
+        // installer shares both so installs hit the same (possibly mocked) deps.
+        this.networkHelper = catalogClient || networkHelper;
+        this.localLibrary = injectedLibrary || localLibrary;
+        this.installer = createInstaller({ catalogClient: this.networkHelper, localLibrary: this.localLibrary });
 
         this.addAsset = addAsset;
         this.username = username;
         this.certPath = certPath;
+        this.gameSessionManager = gameSessionManager;
 
         this.assets = {
             'default': new Asset({
@@ -357,6 +120,10 @@ class HomegamesDashboard extends ViewableGame {
         };
 
         this.playerModals = {};
+        this.playerDownloadOverlays = {};
+        // Node ids of the current render layer per player, so renderGames can
+        // remove the previous one instead of stacking layers on every re-render.
+        this.playerRenderLayers = {};
 
         this.movePlayer = movePlayer;
 
@@ -366,27 +133,14 @@ class HomegamesDashboard extends ViewableGame {
             fill: BASE_COLOR
         });
 
-        this.localGames = getGameMap();
-
-        Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
-            this.assets[key] = new Asset({
-                'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
-                'type': 'image'
-            });
-        });
+        this.localGames = this.localLibrary.scan();
+        this._registerLocalThumbnails();
 
         this.renderGamePlane();
 
         this.playerViews = {};
         this.playerStates = {};
         this.playerRoots = {};
-        
-
-        const testNode = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            fill: COLORS.ORANGE,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 1000, 1000)
-        });
 
         this.downloadedGames = {};
         this.sessions = {};
@@ -410,256 +164,237 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     startSession(playerId, gameKey, versionKey = null) { 
+        if (!this.localGames[gameKey]) return;
 
-        const sessionId = sessionIdCounter++;
-        const port = getServerPort();
+        const referencedGame = this.localGames[gameKey];
+        const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
+        const version = referencedGame.versions[versionId];
 
-        const childGameServerPath = path.join(path.resolve(__dirname, '..'), 'child_game_server.js');
-    
-        if (this.localGames[gameKey]) {
-            const referencedGame = this.localGames[gameKey];
-            const versionId = versionKey || Object.keys(referencedGame.versions)[Object.keys(referencedGame.versions).length - 1];
+        // Configure the session manager with current username/certPath
+        this.gameSessionManager.username = this.username;
+        this.gameSessionManager.certPath = this.certPath;
 
-            const squishVersion = referencedGame.versions[versionId].metadata.squishVersion || '1006';
-
-            const func = fork;
-            const tingEnv = process.env;
-
-            // referenced game file needs to use our dependencies
-            tingEnv.NODE_PATH = `${process.cwd()}${path.sep}node_modules`;
-
-            const childSession = func(childGameServerPath, [], { env: { SQUISH_PATH: squishMap[squishVersion], ...tingEnv}});
-
-            sessions[port] = childSession;
-
-            childSession.send(JSON.stringify({
-                key: gameKey,
-                squishVersion,
-                gamePath: referencedGame.versions[versionId].gamePath,
-                port,
-                player: {
-                    id: playerId
+        this.gameSessionManager.startSession(
+            { gamePath: version.gamePath, gameKey },
+            {
+                playerId,
+                onReady: (session) => {
+                    log.info(`[Dashboard] onReady fired for session ${session.id} on port ${session.port}, moving player ${playerId}`);
+                    this.movePlayer({ playerId, port: session.port });
                 },
-                username: this.username,
-                certPath: this.certPath
-            }));
+            }
+        ).then((result) => {
+            const { sessionId, port } = result;
 
-            childSession.on('message', (thang) => {
-                const jsonMessage = JSON.parse(thang);
-                if (jsonMessage.success) {
-                    this.movePlayer({ playerId, port });
-                }
-                else if (jsonMessage.requestId) {
-                    this.requestCallbacks[jsonMessage.requestId] && this.requestCallbacks[jsonMessage.requestId](jsonMessage.payload);
-                }
-            });
-
-            childSession.on('error', (err) => { 
-                console.log('error!');
-                console.log(err);
-                this.sessions[sessionId] = {};
-                childSession.kill();
-                log.error('child session error', err);
-            });
-            
-            childSession.on('close', (err) => {
-                console.log(err);
-                log.error('Child session closed');
-                log.error(err);
-                this.sessions[sessionId] = {};
-            });
-            
             this.sessions[sessionId] = {
                 id: sessionId,
                 game: gameKey,
                 versionId,
-                port: port,
-                sendMessage: () => {
-                },
+                port,
+                sendMessage: () => {},
                 getPlayers: (cb) => {
-                    const requestId = this.requestIdCounter++;
-                    if (cb) {
-                        this.requestCallbacks[requestId] = cb;
-                    }
-                    childSession.send(JSON.stringify({
-                        'api': 'getPlayers',
-                        'requestId': requestId
-                    }));
+                    this.gameSessionManager.requestFromSession(sessionId, 'getPlayers').then(payload => {
+                        cb && cb(payload);
+                    });
                 },
                 sendHeartbeat: () => {
-                    
-                    childSession.send(JSON.stringify({
-                        'type': 'heartbeat'
-                    }));
+                    this.gameSessionManager.sendToSession(sessionId, { type: 'heartbeat' });
                 },
-                players: []
+                players: [],
             };
-        }
+        }).catch((err) => {
+            log.error('Failed to start game session');
+            log.error(err);
+        });
     }
 
     joinSession(playerId, session) {
         this.movePlayer({ playerId, port: session.port });
     }
 
+    // Open the game modal. Resolves a normalized view model (from a built-in
+    // game, a downloaded game, or the remote catalog) then renders it. All the
+    // source-specific shape juggling lives in the resolver, so rendering is a
+    // single code path.
     showGameModalNew(playerId, gameId, versionId) {
-        const playerRoot = this.playerRoots[playerId].node;
+        if (!this.playerRoots[playerId]) return;
 
-        const isSourceGame = this.localGames[gameId] && this.localGames[gameId]['local-game-version'] ? true : false;
+        this._resolveModalView(gameId, versionId).then(view => {
+            if (view) this._renderModal(playerId, view);
+        }).catch(err => {
+            log.error('Failed to open game modal for ' + gameId);
+            log.error(err);
+        });
+    }
 
-        const wat = (game, gameVersion, versions = []) => {
-                    const activeSessions = Object.values(this.sessions).filter(session => {
-                        return session.game === gameVersion.gameId && session.versionId === gameVersion.versionId;
-                    });
+    // Active sessions for a specific game + version.
+    _activeSessionsFor(gameId, versionId) {
+        return Object.values(this.sessions).filter(s => s.game === gameId && s.versionId === versionId);
+    }
 
-                    let versionList = [];
-                    if (this.localGames[gameId]) {
-                        versionList = Object.values(this.localGames[gameId].versions);
-                        if (versionList.filter(v => v.id === gameVersion.versionId).length === 0) {
-                            versionList.push({...gameVersion});
-                        }
-                        
-                    } else {
-                        versionList = versions;
-                    }
-                    
-                    const realVersionId = gameVersion.versionId;
-                    const realVersion = versionList.filter(v => v.versionId === realVersionId)[0];
-
-                    const description = realVersion.metadata.description;
-                    
-                    const modal = gameModal({ 
-                        gameKey: gameId,
-                        versionId: gameVersion.id,
-                        activeSessions, 
-                        playerId,
-                        versions: versionList,
-                        gameMetadata: { ...gameVersion.metadata, description }, 
-                        onVersionChange: (newVersionId) => {
-                            this.showGameModalNew(playerId, gameId, newVersionId);
-                        },
-                        onJoinSession: (session) => {
-                            this.joinSession(playerId, session);
-                        },
-                        onCreateSession: () => {
-                            if (this.localGames[gameId]?.versions[gameVersion.versionId]) {
-                                this.startSession(playerId, gameId, gameVersion.versionId);
-                            } else {
-                                this.downloadGame({ gameDetails: game, version: gameVersion }).then(() => {
-                                    this.renderGamePlane();
-                                    this.startSession(playerId, gameId, gameVersion.versionId);
-                                }).catch(err => {
-                                    log.error('Error downloading game');
-                                    log.error(err);
-                                });
-                            }
-                        },
-                        onClose: () => {
-                            playerRoot.removeChild(modal.node.id);
-                        }
-                    });
-
-                    if (this.playerModals[playerId]) {
-                        playerRoot.removeChild(this.playerModals[playerId]);
-                    }
-
-                    this.playerModals[playerId] = modal.node.id;
-                    playerRoot.addChild(modal);
-
-
-            }
-        if (isSourceGame) {
-            wat(this.localGames[gameId].metadata.game, this.localGames[gameId].versions['local-game-version']);
-        } else {
-            // todo: refactor this mess
-            if (this.localGames[gameId]) {
-                if (!versionId) {
-                    versionId = Object.values(this.localGames[gameId].versions)[0].versionId;
-                }
-                const huh = this.localGames[gameId];
-
-                const gameDetails = {
-                    game: {
-                        name: huh.metadata.name,
-                        description: huh.metadata.description,
-                        created: huh.metadata.description,
-                        developerId: huh.metadata.createdBy,
-                        thumbnail: huh.metadata.thumbnail,
-                        id: huh.metadata.gameId
-                    },
-                    versions: Object.keys(huh.versions).map(k => {
-                        return {
-                            id: huh.versions[k].versionId,
-                            published: huh.versions[k].metadata.published,
-                            assetId: huh.versions[k].metadata.assetId,
-                            approved: huh.versions[k].metadata.approved
-                        }
-                    })
-                };
-                    
-                const gameVersion = Object.values(huh.versions)[0];
-                const withMetadata = { ...gameVersion, metadata: { description: huh.metadata.description, name: huh.metadata.name, thumbnail: huh.metadata.thumbnail, author: huh.metadata.createdBy }};
-                wat(gameDetails, withMetadata, gameDetails.versions.map(v => {
-                    return {
-                        ...v,
-                        versionId: v.id,
-                        metadata: {
-                            published: v.published
-                        }
-                    }
-                }));
-
-            } else {
- 
-                networkHelper.getGameDetails(gameId).then(gameDetails => {
-
-                    const innerTing = () => {
-                        if (versionId) {
-                            networkHelper.getGameVersionDetails(gameId, versionId).then(gameVersion => {
-                                
-                                const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.game.name, thumbnail: gameDetails.game.thumbnail, author: gameDetails.game.developerId }};
-                                const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.id !== gameVersion.versionId).map(v => {
-                                     return {...v, metadata: { version: v.version, description: v.description, versionId: v.id, name: gameDetails.game.name, thumbnail: gameDetails.game.thumbnail }}
-                                });
-                                wat(gameDetails, withMetadata, gameVersionsWithMetadata);
-                            })
-                        } else {
-                            const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
-                            const withMetadata = {...gameVersion, metadata: { description: gameDetails.game.description, name: gameDetails.game.name, thumbnail: gameDetails.game.thumbnail, author: gameDetails.game.developerId }};
-                            
-                            const gameVersionsWithMetadata = gameDetails.versions.filter(v => v.id !== gameVersion.versionId).map(v => {
-                                 return {...v, metadata: { description: v.description, version: v.version, versionId: v.id, name: gameDetails.name, thumbnail: gameDetails.thumbnail }}
-                            });
-
-                            wat(gameDetails, withMetadata, gameVersionsWithMetadata)
-                        }
-                    }
-                    if (!this.assets[gameId]) {
-                        const asset = new Asset({
-                            'id': gameDetails.game.thumbnail,
-                            'type': 'image'
-                        }); 
-
-                        this.assets[gameId] = asset;    
-
-                        this.addAsset(gameId, asset).then(() => {
-                            innerTing();
-                        });
-                    } else {
-                        innerTing();
-                    }
-                }).catch(err => {
-                    const gameDetails = this.localGames[gameId];
-                    const gameVersion = this.localGames[gameId] ? Object.values(this.localGames[gameId].versions)[0] : Object.values(gameDetails.versions)[0];
-                    const withMetadata = {...gameVersion, metadata: { description: gameVersion.description, name: gameDetails.metadata.name, thumbnail: gameDetails.metadata.thumbnail, author: gameDetails.metadata.createdBy }};
-
-                    const gameVersionsWithMetadata = Object.keys(gameDetails.versions).filter(v => v !== gameVersion.versionId).map(v => {
-                         return {...v, metadata: { description: v.description, version: v.version, versionId: v.versionId, name: gameDetails.name, thumbnail: gameDetails.game.thumbnail }}
-                    });
-
-                    wat(gameDetails, withMetadata, gameVersionsWithMetadata);
-                });
-            }
+    // Normalized modal view model. Always a Promise: local games resolve
+    // synchronously, remote games fetch details (and register the thumbnail).
+    _resolveModalView(gameId, versionId) {
+        const local = this.localGames[gameId];
+        if (local) {
+            return Promise.resolve(this._localModalView(gameId, versionId, local));
         }
+        return this._remoteModalView(gameId, versionId);
+    }
+
+    // Build the view model for a game installed on disk (built-in source game or
+    // a downloaded game). Both live in this.localGames; their thumbnails are
+    // already registered under the game key.
+    _localModalView(gameId, versionId, local) {
+        const versionEntries = Object.values(local.versions);
+        const selectedVersionId = (versionId && local.versions[versionId])
+            ? versionId
+            : versionEntries[0].versionId;
+        const selected = local.versions[selectedVersionId];
+
+        const versions = versionEntries.map(v => {
+            const published = (v.metadata && v.metadata.published) || null;
+            return {
+                id: v.versionId,
+                versionId: v.versionId,
+                published,
+                approved: v.approved,
+                metadata: {
+                    versionId: v.versionId,
+                    published,
+                    description: (v.metadata && v.metadata.description) || null
+                }
+            };
+        });
+
+        const meta = local.metadata || {};
+        const selMeta = selected.metadata || {};
+
+        return {
+            gameKey: gameId,
+            selectedVersionId,
+            activeSessions: this._activeSessionsFor(gameId, selectedVersionId),
+            versions,
+            gameMetadata: {
+                name: meta.name || gameId,
+                author: meta.author || meta.createdBy || 'Unknown author',
+                thumbnail: meta.thumbnail || null,
+                description: selMeta.description || selected.description || meta.description || 'No description available',
+                maxPlayers: selMeta.maxPlayers || null,
+                created: meta.createdAt || selMeta.createdAt || selMeta.created || null
+            },
+            createContext: { installed: true }
+        };
+    }
+
+    // Build the view model for a remote catalog game. Registers the thumbnail
+    // asset (once); create-session later downloads the selected version from
+    // source via playCatalogGame, so no raw details need to be carried here.
+    _remoteModalView(gameId, versionId) {
+        return this.networkHelper.getGameDetails(gameId).then(gameDetails => {
+            const game = (gameDetails && gameDetails.game) || {};
+            const rawVersions = (gameDetails && gameDetails.versions) || [];
+
+            if (rawVersions.length === 0) {
+                log.error('Game ' + gameId + ' has no versions to show');
+                return null;
+            }
+
+            return this._ensureRemoteThumbnail(gameId, game.thumbnail).then(() => {
+                const selectedVersionId = this._selectRemoteVersion(rawVersions, versionId);
+                const selectedRaw = rawVersions.find(v => v.id === selectedVersionId) || {};
+
+                const versions = rawVersions.map(v => {
+                    const published = v.published != null ? v.published : null;
+                    return {
+                        id: v.id,
+                        versionId: v.id,
+                        published,
+                        approved: v.approved,
+                        metadata: { versionId: v.id, published, description: v.description || null }
+                    };
+                });
+
+                return {
+                    gameKey: gameId,
+                    selectedVersionId,
+                    activeSessions: this._activeSessionsFor(gameId, selectedVersionId),
+                    versions,
+                    gameMetadata: {
+                        name: game.name || gameId,
+                        author: game.developerId || 'Unknown author',
+                        thumbnail: game.thumbnail || null,
+                        description: selectedRaw.description || game.description || 'No description available',
+                        maxPlayers: selectedRaw.maxPlayers || null,
+                        created: game.created || null
+                    },
+                    createContext: { installed: false }
+                };
+            });
+        });
+    }
+
+    // Register a catalog thumbnail under the game key if we haven't already.
+    // Thumbnails may be a bare id or a path; keep only the trailing id.
+    _ensureRemoteThumbnail(gameId, thumbnail) {
+        if (!thumbnail || this.assets[gameId]) return Promise.resolve();
+
+        const thumbnailId = thumbnail.indexOf('/') > 0
+            ? thumbnail.split('/').pop()
+            : thumbnail;
+        const asset = new Asset({ id: thumbnailId, type: 'image' });
+        this.assets[gameId] = asset;
+        return this.addAsset(gameId, asset).catch(() => {});
+    }
+
+    // Pick which catalog version the modal opens on: the requested one if valid,
+    // otherwise the most recently published (falling back to the last listed).
+    _selectRemoteVersion(rawVersions, versionId) {
+        if (versionId && rawVersions.some(v => v.id === versionId)) return versionId;
+
+        const published = rawVersions.filter(v => v.published != null);
+        if (published.length) {
+            return published.reduce((a, b) => (b.published > a.published ? b : a)).id;
+        }
+        return rawVersions[rawVersions.length - 1].id;
+    }
+
+    // Render a resolved view model into the player's modal slot.
+    _renderModal(playerId, view) {
+        const playerRoot = this.playerRoots[playerId] && this.playerRoots[playerId].node;
+        if (!playerRoot) return;
+
+        const modal = gameModal({
+            gameKey: view.gameKey,
+            versionId: view.selectedVersionId,
+            activeSessions: view.activeSessions,
+            playerId,
+            versions: view.versions,
+            gameMetadata: view.gameMetadata,
+            onVersionChange: (newVersionId) => this.showGameModalNew(playerId, view.gameKey, newVersionId),
+            onJoinSession: (session) => this.joinSession(playerId, session),
+            onCreateSession: () => this._createSessionFromModal(playerId, view),
+            onClose: () => playerRoot.removeChild(modal.node.id)
+        });
+
+        if (this.playerModals[playerId]) {
+            playerRoot.removeChild(this.playerModals[playerId]);
+        }
+
+        this.playerModals[playerId] = modal.node.id;
+        playerRoot.addChild(modal);
+    }
+
+    // Create-session handler for the modal. Installed games start immediately;
+    // an uninstalled catalog game is downloaded from source (with a progress
+    // overlay) and then started, via the same path Browse uses.
+    _createSessionFromModal(playerId, view) {
+        if (view.createContext.installed) {
+            this.startSession(playerId, view.gameKey, view.selectedVersionId);
+            return;
+        }
+
+        this.playCatalogGame(playerId, view.gameKey, view.selectedVersionId);
     }
 
     renderGamePlane() {
@@ -672,7 +407,7 @@ class HomegamesDashboard extends ViewableGame {
         return this.assets;
     }
 
-    buildGamePlane({ gameCollection, rowsPerPage = 2, columnsPerPage = 2 }) {
+    buildGamePlane({ gameCollection, rowsPerPage = 2, columnsPerPage = 2, onGameClick = null }) {
 
         const gameCount = Object.keys(gameCollection).length;
         
@@ -711,7 +446,11 @@ class HomegamesDashboard extends ViewableGame {
                 gameName,
                 assetKey,
                 onClick: (playerId) => {
-                    this.showGameModalNew(playerId, key);
+                    if (onGameClick) {
+                        onGameClick(playerId, key);
+                    } else {
+                        this.showGameModalNew(playerId, key);
+                    }
                 }
             });
 
@@ -761,13 +500,13 @@ class HomegamesDashboard extends ViewableGame {
                     }
                     this.showGameModalNew(playerId, gameId, versionId);
                 } else {
-                    networkHelper.getGameDetails(gameId).then(gameDetails => {
+                    this.networkHelper.getGameDetails(gameId).then(gameDetails => {
                         if (!versionId) {
                             if (gameDetails.versions.length > 0) {
                                 versionId = gameDetails.versions[gameDetails.versions.length - 1].id;
                             }
                         }
-                        networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
+                        this.networkHelper.getGameVersionDetails(gameId, versionId).then(version => {
                             const ting = { 
                                 [gameId]: {
                                     metadata: {
@@ -840,7 +579,7 @@ class HomegamesDashboard extends ViewableGame {
 
         let processedEntries = 0;
 
-        networkHelper.searchGames(query).then(results => {
+        this.networkHelper.searchGames(query).then(results => {
             if (!results.games || !results.games.length) {
                 this.renderGames(playerId, { searchResults: games, searchQuery: query });
             } else {
@@ -885,7 +624,244 @@ class HomegamesDashboard extends ViewableGame {
         });
     }
 
-    buildStaticElements(playerId, gamePlane, searchQuery = '', searchResults = null) {
+    // Enter Browse mode and load the first page of the remote catalog.
+    handleBrowse(playerId, { reset = true } = {}) {
+        this.playerStates[playerId].view = { x: 0, y: 0, w: 100, h: 100 };
+
+        if (reset || !this.playerStates[playerId].browse) {
+            this.playerStates[playerId].browse = {
+                offset: 0,
+                limit: 12,
+                results: {},
+                loading: true,
+                error: false,
+                exhausted: false
+            };
+        } else {
+            this.playerStates[playerId].browse.loading = true;
+        }
+
+        this.renderGames(playerId, { browse: true });
+        this._fetchCatalogPage(playerId);
+    }
+
+    loadMoreCatalog(playerId) {
+        const browseState = this.playerStates[playerId].browse;
+        if (!browseState || browseState.loading || browseState.exhausted) return;
+        browseState.loading = true;
+        this.renderGames(playerId, { browse: true });
+        this._fetchCatalogPage(playerId);
+    }
+
+    // Fetch the next catalog page, merge results, register thumbnails, re-render.
+    // Guards against the player having left Browse mode mid-request.
+    _fetchCatalogPage(playerId) {
+        const browseState = this.playerStates[playerId].browse;
+        if (!browseState) return;
+
+        const stillBrowsing = () => this.playerStates[playerId] && this.playerStates[playerId].browse === browseState;
+
+        this.networkHelper.list({ offset: browseState.offset, limit: browseState.limit }).then(response => {
+            if (!stillBrowsing()) return;
+
+            const games = (response && response.games) || [];
+            const registrations = [];
+
+            games.forEach(game => {
+                const thumbnailId = (game.thumbnail && game.thumbnail.indexOf('/') > 0)
+                    ? game.thumbnail.split('/')[game.thumbnail.split('/').length - 1]
+                    : game.thumbnail;
+
+                browseState.results[game.id] = {
+                    metadata: {
+                        name: game.name,
+                        author: game.developerId,
+                        thumbnail: thumbnailId,
+                        description: game.description || ''
+                    }
+                };
+
+                if (thumbnailId && !this.assets[game.id]) {
+                    const asset = new Asset({ id: thumbnailId, type: 'image' });
+                    this.assets[game.id] = asset;
+                    registrations.push(this.addAsset(game.id, asset).catch(() => {}));
+                }
+            });
+
+            browseState.offset += games.length;
+            browseState.loading = false;
+            if (games.length < browseState.limit) {
+                browseState.exhausted = true;
+            }
+
+            Promise.all(registrations).then(() => {
+                if (stillBrowsing()) this.renderGames(playerId, { browse: true });
+            });
+        }).catch(err => {
+            log.error('Failed to load catalog');
+            log.error(err);
+            if (!stillBrowsing()) return;
+            browseState.loading = false;
+            browseState.error = true;
+            browseState.exhausted = true;
+            this.renderGames(playerId, { browse: true });
+        });
+    }
+
+    exitBrowse(playerId) {
+        this.playerStates[playerId].browse = null;
+        this.playerStates[playerId].view = { x: 0, y: 0, w: 100, h: 100 };
+        this.renderGames(playerId, {});
+    }
+
+    // Download-then-play a catalog game from source. If the requested version is
+    // already installed locally, just start it; otherwise fetch its published
+    // commit, install from source with a progress overlay, then start the
+    // session. `requestedVersionId` targets a specific version (e.g. from the
+    // modal's version selector); omitted, it plays the latest published.
+    playCatalogGame(playerId, gameId, requestedVersionId = null) {
+        const installed = this.localGames[gameId] && this.localGames[gameId].versions;
+        if (installed && (requestedVersionId ? installed[requestedVersionId] : Object.keys(installed).length > 0)) {
+            this.startSession(playerId, gameId, requestedVersionId || undefined);
+            return;
+        }
+
+        this.showDownloadProgress(playerId, gameId, null);
+
+        // Games have no asset zip anymore; their source lives in git, fetched by
+        // commitSha. Pull the published versions, pick the target commit, install
+        // from source, then play.
+        Promise.all([
+            this.networkHelper.getGameDetails(gameId),
+            this.networkHelper.getPublishedVersions(gameId)
+        ]).then(([gameDetails, published]) => {
+            const versions = (published && published.versions) || [];
+            if (versions.length === 0) {
+                throw new Error('Game has no published versions');
+            }
+            const latest = versions.reduce((a, b) => ((b.publishedAt || 0) > (a.publishedAt || 0) ? b : a));
+            const target = requestedVersionId
+                ? (versions.find(v => v.versionId === requestedVersionId) || latest)
+                : latest;
+            const displayName = (gameDetails.game && gameDetails.game.name) || gameId;
+
+            return this.installer.installFromSource({
+                gameId,
+                game: gameDetails.game,
+                versionId: target.versionId,
+                commitSha: target.commitSha,
+                onProgress: (p) => {
+                    const pct = (p && p.total) ? Math.floor((100 * p.received) / p.total) : null;
+                    this.showDownloadProgress(playerId, displayName, pct);
+                }
+            }).then(({ versionId }) => {
+                this.localGames = this.localLibrary.scan();
+                this._registerLocalThumbnails();
+                this.clearDownloadProgress(playerId);
+                this.startSession(playerId, gameId, versionId);
+            });
+        }).catch(err => {
+            log.error('Failed to download and play catalog game');
+            log.error(err);
+            this.showDownloadError(playerId, gameId);
+        });
+    }
+
+    _removeDownloadOverlay(playerId) {
+        const playerRootNode = this.playerRoots[playerId] && this.playerRoots[playerId].node;
+        const existing = this.playerDownloadOverlays[playerId];
+        if (playerRootNode && existing) {
+            playerRootNode.removeChild(existing);
+        }
+        this.playerDownloadOverlays[playerId] = null;
+    }
+
+    // Full-screen dimmed overlay with a "Downloading … N%" box. Re-rendered (swap)
+    // on each progress update via the tracked overlay node id.
+    showDownloadProgress(playerId, name, pct) {
+        const playerRootNode = this.playerRoots[playerId] && this.playerRoots[playerId].node;
+        if (!playerRootNode) return;
+
+        this._removeDownloadOverlay(playerId);
+
+        const overlay = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            playerIds: [playerId],
+            fill: [0, 0, 0, 200]
+        });
+
+        const box = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(25, 40, 50, 20),
+            playerIds: [playerId],
+            fill: BASE_COLOR
+        });
+
+        const label = (pct === null || pct === undefined)
+            ? `Downloading ${name}…`
+            : `Downloading ${name}… ${pct}%`;
+
+        box.addChild(new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 48,
+                align: 'center',
+                size: 1.8,
+                text: label,
+                color: DASHBOARD_TEXT_COLOR
+            },
+            playerIds: [playerId]
+        }));
+
+        overlay.addChild(box);
+        playerRootNode.addChild(overlay);
+        this.playerDownloadOverlays[playerId] = overlay.node.id;
+    }
+
+    clearDownloadProgress(playerId) {
+        this._removeDownloadOverlay(playerId);
+    }
+
+    showDownloadError(playerId, name) {
+        const playerRootNode = this.playerRoots[playerId] && this.playerRoots[playerId].node;
+        if (!playerRootNode) return;
+
+        this._removeDownloadOverlay(playerId);
+
+        const overlay = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            playerIds: [playerId],
+            fill: [0, 0, 0, 200],
+            onClick: (pid) => this._removeDownloadOverlay(pid)
+        });
+
+        const box = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(25, 40, 50, 20),
+            playerIds: [playerId],
+            fill: BASE_COLOR
+        });
+
+        box.addChild(new GameNode.Text({
+            textInfo: {
+                x: 50,
+                y: 47,
+                align: 'center',
+                size: 1.5,
+                text: `Couldn't download ${name}. Tap to dismiss.`,
+                color: DASHBOARD_TEXT_COLOR
+            },
+            playerIds: [playerId]
+        }));
+
+        overlay.addChild(box);
+        playerRootNode.addChild(overlay);
+        this.playerDownloadOverlays[playerId] = overlay.node.id;
+    }
+
+    buildStaticElements(playerId, gamePlane, searchQuery = '', searchResults = null, browse = false) {
         const baseNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: BASE_COLOR,
@@ -956,10 +932,23 @@ class HomegamesDashboard extends ViewableGame {
         let canGoDown = false;
         let canGoUp = false;
 
-        const baseHeight = this.base.node.coordinates2d[2][1];
-
         const currentView = this.playerStates[playerId].view;
 
+        // Re-render preserving whichever mode we're in (local / search / browse).
+        // The arrows previously dropped the `browse` flag here, so paging while
+        // browsing kicked the player back to their local games.
+        const rerender = () => this.renderGames(playerId, { searchResults, searchQuery, browse });
+
+        // In browse mode there may be more catalog pages to pull once the player
+        // scrolls past the loaded results.
+        const browseState = browse ? (this.playerStates[playerId].browse || {}) : null;
+        const canLoadMore = !!(browseState
+            && !browseState.exhausted
+            && Object.keys(browseState.results || {}).length > 0);
+
+        // Bound the paging math to the plane actually on screen, not the local
+        // games plane (this.getPlane()) -- otherwise search/browse paged against
+        // the wrong option positions.
         const planeBase = gamePlane.getChildren()[0];
         const gameOptionsBelowView = planeBase.getChildren().filter(child => {
             return child.node.coordinates2d[0][1] >= (currentView.y + currentView.h);
@@ -969,7 +958,7 @@ class HomegamesDashboard extends ViewableGame {
             return child.node.coordinates2d[2][1] <= currentView.y;
         });
 
-        if (gameOptionsBelowView.length > 0) {
+        if (gameOptionsBelowView.length > 0 || canLoadMore) {
             canGoDown = true;
         }
 
@@ -983,16 +972,13 @@ class HomegamesDashboard extends ViewableGame {
             playerIds: [playerId],
             fill: BASE_COLOR,
             onClick: (player, x, y) => {
-
-                const _plane = this.getPlane();
-
                 const currentView = Object.assign({}, this.playerStates[playerId].view);
 
                 if (currentView.y - 100 >= 0) {
                     currentView.y -= 100;
                     this.playerStates[playerId].view = currentView;
-                    this.renderGames(playerId, { searchResults, searchQuery });
-                } 
+                    rerender();
+                }
             }
         });
 
@@ -1015,18 +1001,16 @@ class HomegamesDashboard extends ViewableGame {
             playerIds: [playerId],
             fill: BASE_COLOR,
             onClick: (player, x, y) => {
-                const _plane = this.getPlane();
-
                 const currentView = Object.assign({}, this.playerStates[playerId].view);
 
-                const largestOptionY = Math.max(...this.getPlane().node.children[0].node.children.map(c => c.node.coordinates2d[0][1]));
-
-                if (currentView.y + 100 <= largestOptionY) {
+                if (gameOptionsBelowView.length > 0) {
                     currentView.y += 100;
                     this.playerStates[playerId].view = currentView;
-                    this.renderGames(playerId, { searchResults, searchQuery });
-                } 
-
+                    rerender();
+                } else if (canLoadMore) {
+                    // At the bottom of what we've loaded -- pull the next page.
+                    this.loadMoreCatalog(playerId);
+                }
             }
         });
 
@@ -1051,32 +1035,134 @@ class HomegamesDashboard extends ViewableGame {
             baseNode.addChildren(downArrow);
         }
 
+        // Browse / Back toggle (left of the search box). Available regardless of
+        // demo mode, since browsing the catalog needs no text input.
+        const browseToggle = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0.5, 2.5, 11, 10),
+            playerIds: [playerId],
+            fill: SEARCH_BOX_COLOR,
+            onClick: (pid) => {
+                if (browse) {
+                    this.exitBrowse(pid);
+                } else {
+                    this.handleBrowse(pid);
+                }
+            }
+        });
+        browseToggle.addChild(new GameNode.Text({
+            textInfo: {
+                x: 6,
+                y: 5.5,
+                align: 'center',
+                size: 1.4,
+                text: browse ? '◀ Back' : 'Browse',
+                color: BASE_COLOR
+            },
+            playerIds: [playerId]
+        }));
+        baseNode.addChild(browseToggle);
+
+        if (browse) {
+            const browseState = this.playerStates[playerId].browse || {};
+
+            // Status line for loading / error / empty catalog.
+            let statusText = null;
+            if (browseState.error) {
+                statusText = 'Could not reach the catalog. Showing what is available offline.';
+            } else if (browseState.loading && Object.keys(browseState.results || {}).length === 0) {
+                statusText = 'Loading catalog…';
+            } else if (!browseState.loading && Object.keys(browseState.results || {}).length === 0) {
+                statusText = 'No games found in the catalog.';
+            }
+
+            if (statusText) {
+                baseNode.addChild(new GameNode.Text({
+                    textInfo: {
+                        x: 50,
+                        y: 50,
+                        align: 'center',
+                        size: 1.6,
+                        text: statusText,
+                        color: DASHBOARD_TEXT_COLOR
+                    },
+                    playerIds: [playerId]
+                }));
+            }
+
+            // "Load more" pulls the next page; hidden once the catalog is exhausted.
+            if (!browseState.exhausted && Object.keys(browseState.results || {}).length > 0) {
+                const loadMore = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    coordinates2d: ShapeUtils.rectangle(42.5, 91, 15, 7),
+                    playerIds: [playerId],
+                    fill: SEARCH_BOX_COLOR,
+                    onClick: (pid) => this.loadMoreCatalog(pid)
+                });
+                loadMore.addChild(new GameNode.Text({
+                    textInfo: {
+                        x: 50,
+                        y: 93,
+                        align: 'center',
+                        size: 1.3,
+                        text: browseState.loading ? 'Loading…' : 'Load more',
+                        color: BASE_COLOR
+                    },
+                    playerIds: [playerId]
+                }));
+                baseNode.addChild(loadMore);
+            }
+        }
+
         return baseNode;
     }
 
-    renderGames(playerId, { searchResults, searchQuery }) {
+    renderGames(playerId, { searchResults, searchQuery, browse } = {}) {
         const playerRoot = this.playerRoots[playerId];
         const playerView = this.playerStates[playerId].view;
 
-        const searchPlaneBase = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
-        });
+        // Drop the previous render layer before drawing the new one. Without this
+        // every re-render (search, paging, browse) stacked another full-screen UI
+        // on top of the old one, leaking nodes and leaving stale click handlers
+        // behind. Modals and download overlays are tracked separately and left in
+        // place.
+        const previousLayer = this.playerRenderLayers[playerId];
+        if (previousLayer) {
+            previousLayer.forEach(nodeId => playerRoot.node.removeChild(nodeId));
+        }
 
-        if (searchResults) {
+        let gamePlane;
+
+        if (browse) {
+            const collection = (this.playerStates[playerId].browse && this.playerStates[playerId].browse.results) || {};
+            const browsePlaneBase = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+            });
+            browsePlaneBase.addChild(this.buildGamePlane({
+                gameCollection: collection,
+                onGameClick: (pid, key) => this.playCatalogGame(pid, key)
+            }));
+            gamePlane = browsePlaneBase;
+        } else if (searchResults) {
+            const searchPlaneBase = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
+            });
             const transformedResults = {};
             Object.keys(searchResults).forEach(gameId => {
                 transformedResults[gameId] = {
                     versions: {},
                     metadata: searchResults[gameId].metadata
                 };
-            })
+            });
             searchPlaneBase.addChild(this.buildGamePlane({ gameCollection: transformedResults }));
+            gamePlane = searchPlaneBase;
+        } else {
+            gamePlane = this.getPlane();
         }
 
-        const gamePlane = searchResults ? searchPlaneBase : this.getPlane();
-        
-        const staticElements = this.buildStaticElements(playerId, gamePlane, searchQuery, searchResults);
+        const staticElements = this.buildStaticElements(playerId, gamePlane, searchQuery, searchResults, browse);
 
         const view = ViewUtils.getView(
             gamePlane,
@@ -1093,69 +1179,20 @@ class HomegamesDashboard extends ViewableGame {
         );
 
         playerRoot.node.addChildren(staticElements, view);
+        this.playerRenderLayers[playerId] = [staticElements.node.id, view.node.id];
     }
 
-    downloadGame({ gameDetails, version }) {
-        const { id: gameId, description, name, developerId: createdBy, created: createdAt, thumbnail } = gameDetails.game;
-        const { id: versionId, assetId, approved, published } = version;
-        const location = `${API_URL}/assets/${assetId}`;
-
-        const metadataToStore = {
-            version: {
-                versionId,
-                version: version.version,
-                approved,
-                squishVersion: version.squishVersion,
-                published
-            },
-            game: {
-               gameId,
-               name,
-               description,
-               createdBy,
-               createdAt,
-               thumbnail
-            }
-        }
-
-        return new Promise((resolve, reject) => {
-            const gamePath = `${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}`;
-            const zipPath = `${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}${path.sep}${versionId}.zip`;
-
-            if (!fs.existsSync(`${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}`)) {
-                fs.mkdirSync(`${DOWNLOADED_GAME_DIRECTORY}${path.sep}${gameId}`);
-            }
-
-            const zipWriteStream = fs.createWriteStream(zipPath);
-            
-            zipWriteStream.on('close', () => {
-                decompress(zipPath, gamePath).then((files) => {
-                        const currentMetadata = getGameMetadataMap();
-		        const foundIndex = files.filter(f => f.type === 'file' && f.path.endsWith('index.js'))[0];
-                        const indexPath = path.join(gamePath, foundIndex.path);//`${gamePath}${path.sep}index.js`;
-                    
-                        currentMetadata[indexPath] = metadataToStore;
-                        updateGameMetadataMap(currentMetadata);
-                        this.localGames = getGameMap();
-
-                        Object.keys(this.localGames).filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail).forEach(key => {
-                            this.assets[key] = new Asset({
-                                'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
-                                'source': this.localGames[key].metadata && this.localGames[key].metadata.thumbnailSource,
-                                'type': 'image'
-                            });
-                        });
-                        resolve(indexPath);
+    // Re-register thumbnail assets for every known local game (after a rescan).
+    _registerLocalThumbnails() {
+        Object.keys(this.localGames)
+            .filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail)
+            .forEach(key => {
+                this.assets[key] = new Asset({
+                    'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
+                    'source': this.localGames[key].metadata && this.localGames[key].metadata.thumbnailSource,
+                    'type': 'image'
                 });
             });
-
-            (API_URL.startsWith('https') ? https : http).get(location, (res) => {
-                res.pipe(zipWriteStream);
-                zipWriteStream.on('finish', () => {
-                    zipWriteStream.close();
-                });
-            });
-        });
     }
 
     handlePlayerDisconnect(playerId) {
@@ -1164,9 +1201,21 @@ class HomegamesDashboard extends ViewableGame {
             const node = playerViewRoot.node;
             this.playerRootNode.removeChild(node.id);
             delete this.playerRoots[playerId];
+            delete this.playerRenderLayers[playerId];
         }
     }
     
 }
 
 module.exports = HomegamesDashboard;
+
+// Seams now live in LocalLibrary / CatalogClient. These delegating exports keep
+// the dashboard's characterization tests pointed at its public surface, proving
+// the extraction preserved behavior. New tests target the modules directly.
+module.exports.getGameMap = () => localLibrary.scan();
+module.exports.getGamePathsHelper = (dir) => localLibrary.getGamePaths(dir);
+module.exports.getGameMetadataMap = () => localLibrary.readMetadataMap();
+module.exports.updateGameMetadataMap = (m) => localLibrary.writeMetadataMap(m);
+module.exports.networkHelper = networkHelper;
+module.exports.SOURCE_GAME_DIRECTORY = SOURCE_GAME_DIRECTORY;
+module.exports.DOWNLOADED_GAME_DIRECTORY = DOWNLOADED_GAME_DIRECTORY;

@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-120');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
 
 const COLORS = Colors.COLORS;
 
@@ -6,7 +6,7 @@ class DeviceTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '120',
+            squishVersion: '142',
             author: 'Joseph Garcia', 
             thumbnail: '81822fc854ca15f24dbe87de58521e2b',
             tickRate: 10,

@@ -12,16 +12,21 @@ function test(name, fn) {
     tests.push({ name, fn });
 }
 
-function run() {
-    tests.forEach(t => {
+async function run() {
+    let failures = 0;
+    for (const t of tests) {
         try {
-            t.fn();
+            await t.fn(); // awaiting a non-promise is a no-op, so sync tests still work
             console.log('✅ (passed) ', t.name);
         } catch (e) {
+            failures++;
             console.log('❌ (failed)', t.name);
             console.log(e.stack);
         }
-    });
+    }
+    if (failures > 0) {
+        process.exitCode = 1;
+    }
 }
 
 function searchForFiles(startPath, filter) {

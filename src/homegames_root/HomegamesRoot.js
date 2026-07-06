@@ -6,9 +6,9 @@ const fs = require('fs');
 const process = require('process');
 
 if (!process.env.SQUISH_PATH) {
-    const defaultVersion = 'squish-120';
+    const defaultVersion = 'squish-142';
     log.info('No SQUISH_PATH found. Using default: ' + defaultVersion);
-    process.env.SQUISH_PATH = defaultVersion;
+    process.env.SQUISH_PATH = require.resolve(defaultVersion);
 }
 
 let { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require(process.env.SQUISH_PATH);
@@ -335,7 +335,7 @@ class HomegamesRoot {
     }
 
     handleNewPlayer({ playerId, info: playerInfo }) {
-        if (this.session.players[playerId]?.remoteClient) {
+        if (this.session.remotePlayerMap && this.session.remotePlayerMap[playerId]) {
             this.remotePlayerIds[playerId] = true;
         }
         const playerFrame = new GameNode.Asset({
@@ -369,7 +369,7 @@ class HomegamesRoot {
     }
 
     handleNewSpectator(spectator) {
-        if (this.session.spectators[spectator.id].remoteClient) {
+        if (this.session.remotePlayerMap && this.session.remotePlayerMap[spectator.id]) {
             this.remotePlayerIds[spectator.id] = true;
         }
         const playerFrame = new GameNode.Asset({
