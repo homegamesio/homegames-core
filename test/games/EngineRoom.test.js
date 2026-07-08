@@ -129,6 +129,26 @@ global.test('EngineRoom: repairs advance sectors with a hull bonus, final repair
     g.close();
 });
 
+global.test('EngineRoom: rebuilding a console keeps the timer bar at the true remaining fraction', () => {
+    const g = makeGame(2);
+    g.startGame(1);
+
+    // Burn half of player 1's order timer
+    const half = Math.floor(g.orders[1].total / 2);
+    for (let i = 0; i < half; i++) g.tick();
+
+    // Any tap rebuilds every console; the bar must not snap to full width
+    const dial = g.controls.find(c => c.owner === 2 && c.type === 'dial');
+    g.operateControl(2, dial.id);
+
+    const bar = g.players[1].barNode;
+    assert(bar, 'the bar was rebuilt');
+    const width = bar.node.coordinates2d[1][0] - bar.node.coordinates2d[0][0];
+    assert(width < 60 * 0.6, `bar reflects elapsed time after a rebuild (width ${width.toFixed(1)})`);
+    assert(width > 60 * 0.3, `bar is not empty either (width ${width.toFixed(1)})`);
+    g.close();
+});
+
 global.test('EngineRoom: a disconnect mid-game retargets orphaned orders or ends the shift', () => {
     const g = makeGame(3);
     g.startGame(1);
