@@ -577,7 +577,7 @@ class EngineRoom extends Game {
                 50, 13, 1, FAINT, 'center'
             ));
             p.root.addChild(this.rect(20, 15.8, 60, 1.8, BAR_BG));
-            p.barNode = this.rect(20, 15.8, 60, 1.8, AMBER);
+            p.barNode = this.rect(20, 15.8, 60 * this.orderFrac(order), 1.8, AMBER);
             p.root.addChild(p.barNode);
         }
 
