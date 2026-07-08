@@ -62,6 +62,7 @@ class KaboomValley extends Game {
         return {
             aspectRatio: { x: 16, y: 9 },
             squishVersion: '142',
+            services: ['multiplayer'],
             author: 'Joseph Garcia',
             name: 'Kaboom Valley',
             description: 'Turn-based artillery on procedurally generated, fully destructible terrain. Aim, mind the wind, and blast your friends off the hillside.',

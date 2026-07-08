@@ -6,6 +6,7 @@ class HotPotato extends Game {
         return {
             aspectRatio: {x: 1, y: 1},
             squishVersion: '142',
+            services: ['multiplayer'],
             author: 'Joseph Garcia',
             description: 'Click or tap the potato when you have the potato. Make sure you have sound turned on.',
             name: 'Hot Potato',

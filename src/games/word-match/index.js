@@ -9,6 +9,7 @@ class WordMatch extends Game {
             author: 'Joseph Garcia',
             thumbnail: '4def116d896ddf06311b8b0954fa8d6b',
             squishVersion: '142',
+            services: ['multiplayer'],
             aspectRatio: {
                 x: 16,
                 y: 9

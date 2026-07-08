@@ -6,6 +6,7 @@ class Squarer extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '142',
+            services: ['multiplayer'],
             author: 'Yazeed Loonat',
             thumbnail: 'b11960b455550b0c38ae7f5544af74ae',
             tickRate: 60

@@ -7,6 +7,7 @@ class Slaps extends Game {
         return {
             aspectRatio: {x: 16, y: 9},
             squishVersion: '142',
+            services: ['multiplayer'],
             author: 'Joseph Garcia',
             thumbnail: '7ed2535330542b675ea166dadee3b346',
             name: 'Slaps - Reslapstered',

@@ -26,6 +26,7 @@ class ZapTap extends Game {
     static metadata() {
         return {
             squishVersion: '142',
+            services: ['multiplayer'],
             name: 'Zap Tap',
             author: 'Homegames',
             description: 'Tiles light up. Tap them before they go dark. Most zaps wins the round.',

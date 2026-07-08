@@ -61,6 +61,7 @@ class MicroMayhem extends Game {
         return {
             aspectRatio: { x: 1, y: 1 },
             squishVersion: '142',
+            services: ['multiplayer'],
             author: 'Joseph Garcia',
             name: 'Micro Mayhem',
             description: 'A rapid-fire gauntlet of 15-second minigames: odd-one-out, quick draw, mind games, memory, and more. Fastest fingers take the podium.',

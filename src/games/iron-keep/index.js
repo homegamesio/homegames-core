@@ -110,6 +110,7 @@ class IronKeep extends Game {
         return {
             aspectRatio: { x: 16, y: 9 },
             squishVersion: '142',
+            services: ['multiplayer'],
             author: 'Homegames',
             name: 'Iron Keep',
             description: 'A texture-mapped multiplayer FPS in a haunted castle. Real-time raycasting, animated knights, and a crossbow with your name on it.',

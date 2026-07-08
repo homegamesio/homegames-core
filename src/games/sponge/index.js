@@ -14,6 +14,7 @@ class Sponge extends Game {
             author: 'Joseph Garcia',
             thumbnail: '8727eec293b562692fa6c7e3901a2274',
             squishVersion: '142',
+            services: ['multiplayer'],
             maxPlayers: 2,
             tickRate: 60
         };

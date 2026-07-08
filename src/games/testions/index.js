@@ -9,6 +9,7 @@ class Testions extends Game {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
             squishVersion: '142',
+            services: ['multiplayer'],
             description: 'Take turns guessing how the other person would respond to questions. Upload your own JSON file with the green button.',
             players: 2,
             name: 'Testions',

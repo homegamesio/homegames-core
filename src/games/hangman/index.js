@@ -13,6 +13,7 @@ class Hangman extends Game {
             author: 'Joseph Garcia',
             thumbnail: 'bb3af9630c2ee9d54f27dd378468c4ee',
             squishVersion: '142',
+            services: ['multiplayer'],
             tickRate: 60,
             assets: {
                 'amateur': new Asset({

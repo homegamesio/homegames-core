@@ -53,6 +53,7 @@ class Imposter extends Game {
         return {
             aspectRatio: { x: 9, y: 16 },
             squishVersion: '142',
+            services: ['multiplayer'],
             author: 'Joseph Garcia',
             name: 'Imposter',
             description: 'A phone-first party game. Everyone sees the secret word except one imposter. Talk it out, vote, and catch the faker before they blend in.',
