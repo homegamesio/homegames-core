@@ -11,7 +11,7 @@ if (baseDir.endsWith('/src')) {
     baseDir = baseDir.substring(0, baseDir.length - 3);
 }
 
-const { getConfigValue, log } = require('homegames-common');
+const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 const { createRateLimiter } = require('./rate-limiter');
 const { createCatalogClient } = require('./catalog/CatalogClient');
 const { fetchGameSource } = require('./library/fetchGameSource');
@@ -28,8 +28,12 @@ const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
 // ({ gameId, commitSha }) and we fetch the source ourselves through the API's
 // public catalog endpoints (published commits only, no credentials needed).
 // Downloads are cached on disk per gameId/commitSha so repeat sessions of the
-// same version don't re-fetch.
-const SESSION_GAME_CACHE_DIR = path.join(os.tmpdir(), 'hg-session-games');
+// same version don't re-fetch. Lives under the per-user app-data dir (like
+// asset-cache and .save-data) rather than the shared /tmp — a fixed path in
+// world-writable /tmp breaks with EACCES when another user (e.g. a one-off
+// sudo run, or the Docker daemon creating a bind-mount source) created it
+// first, and would let any local user pre-plant game code we'd then execute.
+const SESSION_GAME_CACHE_DIR = path.join(getAppDataPath(), 'session-games');
 const GAME_ID_REGEX = /^[a-zA-Z0-9_-]+$/;
 const COMMIT_SHA_REGEX = /^[a-fA-F0-9]{7,64}$/;
 

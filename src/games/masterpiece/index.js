@@ -1,9 +1,6 @@
 const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
 const { COLORS } = Colors;
 
-// TODO: replace with the real asset id for the painting
-const PAINTING_ASSET_ID = 'REPLACE_WITH_PAINTING_ASSET_ID';
-
 const GRID_COLS = 3;
 const GRID_ROWS = 4;
 const SLOT_COUNT = GRID_COLS * GRID_ROWS;
@@ -54,8 +51,11 @@ class Masterpiece extends Game {
             description: 'A priceless painting has been scrambled. Slide the tiles to restore the masterpiece.',
             aspectRatio: { x: 16, y: 9 },
             assets: {
+                // Asset ids must be inline string literals — local play parses
+                // metadata() statically and can't follow variable references.
+                // TODO: replace with the real asset id for the painting
                 'painting': new Asset({
-                    id: PAINTING_ASSET_ID,
+                    id: 'REPLACE_WITH_PAINTING_ASSET_ID',
                     type: 'image'
                 })
             }
