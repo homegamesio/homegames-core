@@ -743,12 +743,15 @@ class Homenames {
 
     _querySessionHealth(port) {
         return new Promise((resolve, reject) => {
-            const req = http.request({
+            // Sessions serve https when certs are enabled; the cert won't
+            // match localhost, so skip verification for this loopback check.
+            const req = (HTTPS_ENABLED ? https : http).request({
                 hostname: 'localhost',
                 port,
                 path: '/health',
                 method: 'GET',
                 timeout: 2000,
+                rejectUnauthorized: false,
             }, (res) => {
                 let data = '';
                 res.on('data', (chunk) => { data += chunk; });
