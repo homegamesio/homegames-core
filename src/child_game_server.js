@@ -20,10 +20,38 @@ const { log, getConfigValue, getAppDataPath, GameSession } = require('homegames-
 const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 
+// Shared secret gating the docker control endpoint (runtime persistence
+// toggle). Passed into the container env by the session manager; matches the
+// value the platform API presents. Fork sessions use IPC instead and never
+// need this. When unset (local/LAN dev) the control endpoint is disabled.
+const HOMENAMES_API_SECRET = getConfigValue('HOMENAMES_API_SECRET', '');
+
+// When persistent, checkPulse will NOT self-terminate on an empty session.
+// An admin sets this via the manager (IPC for fork, /control for docker).
+// Orphan protection (parent disconnect) is unaffected — see below.
+let persistent = false;
+
 const sendProcessMessage = (msg) => {
     if (process.send) {
         process.send(JSON.stringify(msg));
     }
+};
+
+// Gate the docker /control endpoint on the shared secret (constant-time compare
+// so a mismatch doesn't leak length/prefix via timing). The endpoint lives on
+// the session's public game port, so this check is what keeps the persistence
+// toggle from being flippable by anyone who can reach the port. Disabled (all
+// requests rejected) when no secret is configured — runtime control then only
+// happens over IPC in fork mode.
+const hasControlAuth = (req) => {
+    if (!HOMENAMES_API_SECRET) return false;
+    const header = req.headers['authorization'] || '';
+    const match = /^Bearer\s+(.+)$/i.exec(header);
+    if (!match) return false;
+    const provided = Buffer.from(match[1]);
+    const expected = Buffer.from(HOMENAMES_API_SECRET);
+    if (provided.length !== expected.length) return false;
+    return crypto.timingSafeEqual(provided, expected);
 };
 
 const startServer = (sessionInfo) => {
@@ -240,7 +268,36 @@ const startServerNoFrame = (sessionInfo) => {
                 res.end(JSON.stringify({
                     ok: true,
                     playerCount: gameSession ? gameSession.getPlayerCount() : 0,
+                    persistent,
                 }));
+                return;
+            }
+            // Secret-gated runtime control (docker sessions). Body: { persistent }.
+            if (req.method === 'POST' && req.url === '/control/persistent') {
+                if (!hasControlAuth(req)) {
+                    res.writeHead(401, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Unauthorized' }));
+                    return;
+                }
+                let body = '';
+                let tooBig = false;
+                req.on('data', (chunk) => {
+                    body += chunk;
+                    if (body.length > 1024) { tooBig = true; req.destroy(); }
+                });
+                req.on('end', () => {
+                    if (tooBig) return;
+                    let parsed;
+                    try { parsed = JSON.parse(body); } catch (e) {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Invalid JSON' }));
+                        return;
+                    }
+                    persistent = !!parsed.persistent;
+                    log.info(`persistence ${persistent ? 'enabled' : 'disabled'} (docker)`);
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ persistent }));
+                });
                 return;
             }
             res.writeHead(404); res.end();
@@ -322,6 +379,9 @@ if (isForked) {
             } else {
                 startServer(message);
             }
+        } else if (message.type === 'setPersistent') {
+            persistent = !!message.value;
+            log.info(`persistence ${persistent ? 'enabled' : 'disabled'} (fork)`);
         } else {
             if (message.api) {
                 if (message.api === 'getPlayers') {
@@ -375,6 +435,11 @@ const checkPulse = () => {
 
     const hasPlayers = gameSession.getPlayerCount() > 0
         || Object.keys(gameSession.spectators).length > 0;
+
+    // An admin has pinned this session alive — never self-terminate on empty.
+    // (Parent-disconnect orphan protection below still applies, so a persistent
+    // fork session can't outlive a dead parent.)
+    if (persistent) return;
 
     if (isForked) {
         // Fork mode: parent sends heartbeats. If we haven't heard from parent in 5s

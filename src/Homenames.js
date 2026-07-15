@@ -4,6 +4,7 @@ const https = require('https');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
+const crypto = require('crypto');
 
 let baseDir = path.dirname(require.main.filename);
 
@@ -23,6 +24,13 @@ const CORE_VERSION = require('../package.json').version;
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const PUBLIC_HOST = getConfigValue('PUBLIC_HOST', null); // e.g. 'api.homegames.io'
 const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
+
+// Shared secret gating internal-only session endpoints (session teardown and
+// the admin persistence toggle). This is a machine-to-machine credential the
+// platform API presents on behalf of an authenticated admin — NOT a user
+// token, and it never reaches the browser. When unset (local/LAN dev, no API
+// in front) the gate is skipped so those setups keep working unchanged.
+const HOMENAMES_API_SECRET = getConfigValue('HOMENAMES_API_SECRET', '');
 
 // Session game downloads — the platform API creates sessions by reference
 // ({ gameId, commitSha }) and we fetch the source ourselves through the API's
@@ -57,6 +65,21 @@ const getLocalIP = () => {
 // Request body helper
 // ---------------------------------------------------------------------------
 const MAX_BODY_SIZE = 5 * 1024 * 1024; // 5MB max request body
+
+// True when the request carries the internal shared secret (or when no secret
+// is configured, in which case the gate is disabled). Reads a Bearer token
+// from Authorization and compares it in constant time so a mismatch doesn't
+// leak length/prefix via timing.
+const hasInternalAuth = (req) => {
+    if (!HOMENAMES_API_SECRET) return true; // gate disabled (local/LAN dev)
+    const header = req.headers['authorization'] || '';
+    const match = /^Bearer\s+(.+)$/i.exec(header);
+    if (!match) return false;
+    const provided = Buffer.from(match[1]);
+    const expected = Buffer.from(HOMENAMES_API_SECRET);
+    if (provided.length !== expected.length) return false;
+    return crypto.timingSafeEqual(provided, expected);
+};
 
 const getReqBody = (req) => new Promise((resolve, reject) => {
     let body = '';
@@ -308,6 +331,18 @@ class Homenames {
             return;
         }
 
+        // POST /sessions/:id/persistent — internal only. Pin/unpin a session
+        // so it survives empty-session teardown. Body: { persistent }.
+        if (req.method === 'POST' && sessionId && req.url.includes('/persistent')) {
+            if (!hasInternalAuth(req)) {
+                res.writeHead(401, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Unauthorized' }));
+                return;
+            }
+            this.handleSetSessionPersistent(req, res, sessionId);
+            return;
+        }
+
         // GET /sessions/:id
         if (req.method === 'GET' && sessionId) {
             this.handleGetSession(req, res, sessionId);
@@ -320,8 +355,16 @@ class Homenames {
             return;
         }
 
-        // DELETE /sessions/:id
+        // DELETE /sessions/:id — internal only. Empty sessions self-kill
+        // (see child_game_server checkPulse), so clients never need to delete;
+        // teardown is an admin/operator action proxied through the API with
+        // the shared secret.
         if (req.method === 'DELETE' && sessionId) {
+            if (!hasInternalAuth(req)) {
+                res.writeHead(401, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Unauthorized' }));
+                return;
+            }
             this.handleDeleteSession(req, res, sessionId);
             return;
         }
@@ -368,6 +411,7 @@ class Homenames {
                 gameId: s.gameId || null,
                 squishVersion: s.squishVersion,
                 playerCount,
+                persistent: !!s.persistent,
                 wsUrl,
             };
         }));
@@ -586,6 +630,31 @@ class Homenames {
                 }
             });
         }).catch(err => {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Invalid request body' }));
+        });
+    }
+
+    // POST /sessions/:id/persistent  Body: { persistent: boolean }
+    handleSetSessionPersistent(req, res, sessionId) {
+        const session = this.gameSessionManager.getSession(sessionId);
+        if (!session) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Session not found' }));
+            return;
+        }
+
+        getReqBody(req).then(body => {
+            const value = !!(body && body.persistent);
+            this.gameSessionManager.setSessionPersistent(sessionId, value).then(persistent => {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ id: sessionId, persistent }));
+            }).catch(err => {
+                log.error('Failed to set session persistence', err);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: err.message || 'Failed to update persistence' }));
+            });
+        }).catch(() => {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Invalid request body' }));
         });
