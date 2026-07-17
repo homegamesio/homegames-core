@@ -67,11 +67,13 @@ class InputTest extends Game {
         });
 
         const fileInputShape = ShapeUtils.rectangle(60, 10, 20, 20);
-        let imageNum = 1;
+        let uploadNum = 1;
 
         let image;
 
-        const _that = this;
+        this.soundNode = null;
+        this.replayButton = null;
+        this.lastAudioKey = null;
 
         this.fileInputNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -79,21 +81,28 @@ class InputTest extends Game {
             fill: COLORS.HG_BLUE,
             input: {
                 type: 'file',
-                oninput: (player, data) => {
-                    const imageKey = 'image' + (++imageNum);
-                    
-                    this.assets[imageKey] = new Asset({
-                        id: imageKey,
-                        type: 'image'
+                oninput: (player, data, meta) => {
+                    // meta.kind is sniffed from the bytes server-side;
+                    // image is the legacy default for untyped uploads.
+                    const kind = (meta && meta.kind) || 'image';
+                    const assetKey = kind + (++uploadNum);
+
+                    this.assets[assetKey] = new Asset({
+                        id: assetKey,
+                        type: kind
                     }, data);
 
-                    this.addAsset(imageKey, this.assets[imageKey]).then(() => {
+                    this.addAsset(assetKey, this.assets[assetKey]).then(() => {
+                        if (kind === 'audio') {
+                            this.playUploadedAudio(assetKey);
+                            return;
+                        }
                         if (image) {
                             this.base.removeChild(image.id);
                         }
                         image = new GameNode.Asset({
                             assetInfo: {
-                                [imageKey]: {
+                                [assetKey]: {
                                     pos: {
                                         x: 60,
                                         y: 40
@@ -114,6 +123,40 @@ class InputTest extends Game {
         this.base.addChild(this.textNode);
         this.base.addChild(this.textInputNode);
         this.base.addChild(this.fileInputNode);
+    }
+
+    playUploadedAudio(assetKey) {
+        this.lastAudioKey = assetKey;
+
+        // The client starts a sound when its node appears and stops it when
+        // the node leaves the tree — so replaying means remove, then re-add
+        // a frame later.
+        if (this.soundNode) {
+            this.base.removeChild(this.soundNode.id);
+            this.soundNode = null;
+        }
+        this.setTimeout(() => {
+            this.soundNode = new GameNode.Asset({
+                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+                assetInfo: {
+                    [assetKey]: { pos: { x: 0, y: 0 }, size: { x: 0, y: 0 }, startTime: 0 }
+                }
+            });
+            this.base.addChild(this.soundNode);
+        }, 100);
+
+        if (!this.replayButton) {
+            this.replayButton = new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: ShapeUtils.rectangle(60, 45, 20, 12),
+                fill: COLORS.CANDY_GREEN,
+                onClick: () => this.playUploadedAudio(this.lastAudioKey)
+            });
+            this.replayButton.addChild(new GameNode.Text({
+                textInfo: { text: 'REPLAY', x: 70, y: 49, size: 2, align: 'center', color: COLORS.BLACK }
+            }));
+            this.base.addChild(this.replayButton);
+        }
     }
 
     isText(key) {
