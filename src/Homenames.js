@@ -375,7 +375,13 @@ class Homenames {
 
     // GET /sessions
     handleListSessions(req, res) {
-        const sessions = this.gameSessionManager.listSessions();
+        // Private (unlisted) sessions are only included for internal callers
+        // (the platform API's admin view). Fail closed: hasInternalAuth passes
+        // everyone when no secret is configured, so also require that a secret
+        // is actually set — a misconfigured server must not list private games.
+        const includePrivate = !!HOMENAMES_API_SECRET && hasInternalAuth(req);
+        const sessions = this.gameSessionManager.listSessions()
+            .filter(s => includePrivate || !s.private);
 
         // Enrich with player counts
         const enriched = Promise.all(sessions.map(async (s) => {
@@ -412,6 +418,7 @@ class Homenames {
                 squishVersion: s.squishVersion,
                 playerCount,
                 persistent: !!s.persistent,
+                private: !!s.private,
                 wsUrl,
             };
         }));
@@ -447,6 +454,7 @@ class Homenames {
                 gameKey: session.gameKey || null,
                 gameId: session.gameId || null,
                 squishVersion: session.squishVersion,
+                private: !!session.private,
                 players,
             }));
         }).catch(err => {
@@ -458,6 +466,7 @@ class Homenames {
                 gameKey: session.gameKey || null,
                 gameId: session.gameId || null,
                 squishVersion: session.squishVersion,
+                private: !!session.private,
                 players: [],
             }));
         });
@@ -506,6 +515,8 @@ class Homenames {
     //   files: { "path": "content", ... } — multiple files (must include index.js)
     //   gameId + commitSha: a published catalog version — source is fetched
     //     from the platform API's public catalog endpoints
+    //   private: boolean — unlisted session; excluded from public GET /sessions
+    //     (still joinable by anyone with the link, and fetchable by id)
     handleCreateSession(req, res) {
         getReqBody(req).then(body => {
             const { gamePath, code, files, gameId, gameKey, commitSha, noFrame } = body;
@@ -565,6 +576,12 @@ class Homenames {
             }
 
             if (gameKey) input.gameKey = gameKey;
+
+            // Set on the session record before it registers with the manager,
+            // so a private session is never briefly visible in GET /sessions.
+            // (body.private rather than destructuring — reserved word in the
+            // strict mode class bodies run under.)
+            if (body.private === true) input.private = true;
 
             // Sessions created via HTTP API default to no frame
             input.noFrame = noFrame !== undefined ? noFrame : true;
