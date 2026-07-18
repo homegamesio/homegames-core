@@ -32,6 +32,16 @@ const PALETTE = [
 
 const BRUSH_SIZES = { S: 0.7, M: 1.3, L: 2.4 };
 
+// Strokes work like src/games/draw: clicks that arrive close together in time
+// link into one polyline, extruded into a thin closed strip.
+// A strip has 2 * points + 1 vertices; the wire format caps a node at ~126.
+const MAX_POINTS_PER_STROKE = 55;
+const STROKE_LINK_MS = 400;   // held-drag re-clicks arrive ~every 30ms; a longer gap ends the stroke
+const MIN_POINT_DIST = 0.25;
+// At 16:9, y-units are physically 9/16 the size of x-units; strokes correct
+// for this so lines stay visually round in every direction.
+const ASPECT = 16 / 9;
+
 // Canvas bounds
 const CANVAS = { x: 15, y: 11, w: 70, h: 78 };
 
@@ -89,7 +99,9 @@ class Clicktionary extends Game {
         this.usedWords = new Set();
         this.correct = new Set();
         this.feed = [];
-        this.pending = [];
+        this.activeStroke = null;
+        this.lastStrokeAt = 0;
+        this.dirtyStrokes = new Set();
         this.inkUsed = 0;
         this.brush = { color: 0, size: 'M' };
         this.pickDeadline = 0;
@@ -254,7 +266,8 @@ class Clicktionary extends Game {
         this.choices = this.pickChoices();
         this.correct = new Set();
         this.feed = [];
-        this.pending = [];
+        this.activeStroke = null;
+        this.dirtyStrokes.clear();
         this.inkUsed = 0;
         this.revealed = new Set();
         this.brush = { color: 0, size: 'M' };
@@ -372,14 +385,80 @@ class Clicktionary extends Game {
             return;
         }
         if (this.inkUsed >= INK_MAX) {
+            this.activeStroke = null;
             return this.toastFor(pid, 'OUT OF INK - HIT CLEAR');
         }
         const w = BRUSH_SIZES[this.brush.size];
-        const h = w * 16 / 9;
+        const h = w * ASPECT;
         const cx = Math.max(CANVAS.x + 0.3 + w / 2, Math.min(CANVAS.x + CANVAS.w - 0.3 - w / 2, x));
         const cy = Math.max(CANVAS.y + 0.3 + h / 2, Math.min(CANVAS.y + CANVAS.h - 0.3 - h / 2, y));
-        this.pending.push({ x: cx - w / 2, y: cy - h / 2, w, h, color: PALETTE[this.brush.color] });
+
+        const now = Date.now();
+        const linked = this.activeStroke && (now - this.lastStrokeAt) < STROKE_LINK_MS;
+        this.lastStrokeAt = now;
+
+        if (linked) {
+            let stroke = this.activeStroke;
+            const last = stroke.points[stroke.points.length - 1];
+            if (Math.hypot(cx - last[0], (cy - last[1]) / ASPECT) < MIN_POINT_DIST) {
+                return;
+            }
+            if (stroke.points.length >= MAX_POINTS_PER_STROKE) {
+                // Chain a new stroke starting where the full one ended so the line stays continuous.
+                stroke = this.startStroke(last[0], last[1], w);
+                this.activeStroke = stroke;
+            }
+            stroke.points.push([cx, cy]);
+            this.dirtyStrokes.add(stroke);
+        } else {
+            this.activeStroke = this.startStroke(cx, cy, w);
+        }
         this.inkUsed++;
+    }
+
+    startStroke(x, y, thickness) {
+        const stroke = {
+            points: [[x, y]],
+            thickness,
+            color: PALETTE[this.brush.color],
+            node: null
+        };
+        this.dirtyStrokes.add(stroke);
+        return stroke;
+    }
+
+    // The polyline extruded into a thin closed strip. Normals are computed in
+    // physical space (y divided by ASPECT) so thickness is uniform on screen.
+    buildStrokeCoordinates(stroke) {
+        const half = stroke.thickness / 2;
+        const points = stroke.points;
+        if (points.length === 1) {
+            const [px, py] = points[0];
+            return ShapeUtils.rectangle(px - half, py - half * ASPECT, stroke.thickness, stroke.thickness * ASPECT);
+        }
+        const top = [];
+        const bottom = [];
+        for (let i = 0; i < points.length; i++) {
+            const prev = points[Math.max(0, i - 1)];
+            const next = points[Math.min(points.length - 1, i + 1)];
+            const dx = next[0] - prev[0];
+            const dy = (next[1] - prev[1]) / ASPECT;
+            const len = Math.hypot(dx, dy) || 1;
+            const nx = -dy / len;
+            const ny = dx / len;
+            top.push([points[i][0] + nx * half, points[i][1] + ny * half * ASPECT]);
+            bottom.push([points[i][0] - nx * half, points[i][1] - ny * half * ASPECT]);
+        }
+        bottom.reverse();
+        const strip = top.concat(bottom);
+        strip.push([strip[0][0], strip[0][1]]);
+        return strip;
+    }
+
+    handleMouseUp(playerId) {
+        if (Number(playerId) === this.drawerId) {
+            this.activeStroke = null;
+        }
     }
 
     clearCanvas(pid) {
@@ -387,7 +466,8 @@ class Clicktionary extends Game {
             return;
         }
         this.canvas.clearChildren();
-        this.pending = [];
+        this.activeStroke = null;
+        this.dirtyStrokes.clear();
         this.inkUsed = 0;
         if (this.inkNode) {
             this.setText(this.inkNode, `INK ${INK_MAX}`);
@@ -400,6 +480,8 @@ class Clicktionary extends Game {
             return;
         }
         this.brush = { ...this.brush, ...patch };
+        // A brush change mid-drag starts a fresh stroke in the new style
+        this.activeStroke = null;
         this.rebuildPlayerRoot(pid);
     }
 
@@ -540,10 +622,21 @@ class Clicktionary extends Game {
                     this.hintIdx++;
                     this.revealHint();
                 }
-                if (this.pending.length && this.canvas) {
-                    const nodes = this.pending.map(d => this.rect(d.x, d.y, d.w, d.h, d.color));
-                    this.canvas.addChildren(...nodes);
-                    this.pending = [];
+                if (this.dirtyStrokes.size && this.canvas) {
+                    for (const stroke of this.dirtyStrokes) {
+                        if (stroke.node) {
+                            stroke.node.node.coordinates2d = this.buildStrokeCoordinates(stroke);
+                        } else {
+                            stroke.node = new GameNode.Shape({
+                                shapeType: Shapes.POLYGON,
+                                coordinates2d: this.buildStrokeCoordinates(stroke),
+                                fill: stroke.color
+                            });
+                            this.canvas.addChild(stroke.node);
+                        }
+                    }
+                    this.dirtyStrokes.clear();
+                    this.dirty = true;
                     if (this.inkNode) {
                         this.setText(this.inkNode, `INK ${Math.max(0, INK_MAX - this.inkUsed)}`);
                     }

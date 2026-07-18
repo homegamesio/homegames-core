@@ -6,6 +6,19 @@ const { questions } = JSON.parse(Buffer.from(questionsBase64, 'base64').toString
 
 const { WHITE, BLACK } = Colors.COLORS;
 
+// Smooth strokes, same technique as src/games/draw: clicks that arrive close
+// together in time link into one polyline, extruded into a thin closed strip.
+// A strip has 2 * points + 1 vertices; the wire format caps a node at ~126.
+const MAX_POINTS_PER_STROKE = 55;
+const STROKE_LINK_MS = 400;   // held-drag re-clicks arrive ~every 30ms; a longer gap ends the stroke
+const MIN_POINT_DIST = 0.25;
+// At 2:3, y-units are physically 3/2 the size of x-units; strokes correct for
+// this so lines stay visually round in every direction.
+const ASPECT = 2 / 3;
+const PEN_WIDTH = 2;          // matches the weight of the old 2x2 pixel cells
+
+const CREATOR_CANVAS = { x: 5, y: 15, w: 90, h: 60 };
+
 class Hangman extends Game {
     static metadata() {
         return {
@@ -83,6 +96,7 @@ class Hangman extends Game {
         this.customHangmen = {};
         this.actions = [];
         this.needsMouseUp = {};
+        this.creatorMouseUps = {};
 
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -209,29 +223,65 @@ class Hangman extends Game {
 
         let currentStep = 0;
 
-        const frameHistories = {};
+        const frameStrokes = { 0: [] };
+        let activeStroke = null;
+        let lastStrokeAt = 0;
 
-        for (let i = 0; i < 45; i++) {
-            for (let j = 0; j < 30; j++) {
-                const curNode = new GameNode.Shape({
-                    shapeType: Shapes.POLYGON,
-                    fill: WHITE,
-                    onClick: () => {
-                        curNode.node.fill = BLACK;
-                        curNode.node.onStateChange();
-                        if (!frameHistories[currentStep]) {
-                            frameHistories[currentStep] = {};
-                        }
-                        if (!frameHistories[currentStep][i]) {
-                            frameHistories[currentStep][i] = {};
-                        }
-                        frameHistories[currentStep][i][j] = true;
-                    },
-                    coordinates2d: ShapeUtils.rectangle(5 + (i * 2), 15 + (j * 2), 2, 2)
-                });
-                canvasContainer.addChild(curNode);
+        const startStroke = (x, y) => {
+            const stroke = { points: [[x, y]], thickness: PEN_WIDTH, node: null };
+            frameStrokes[currentStep].push(stroke);
+            return stroke;
+        };
+
+        const drawStroke = (x, y) => {
+            const halfX = PEN_WIDTH / 2;
+            const halfY = halfX * ASPECT;
+            const cx = Math.max(CREATOR_CANVAS.x + halfX, Math.min(CREATOR_CANVAS.x + CREATOR_CANVAS.w - halfX, x));
+            const cy = Math.max(CREATOR_CANVAS.y + halfY, Math.min(CREATOR_CANVAS.y + CREATOR_CANVAS.h - halfY, y));
+
+            const now = Date.now();
+            const linked = activeStroke && (now - lastStrokeAt) < STROKE_LINK_MS;
+            lastStrokeAt = now;
+
+            if (linked) {
+                const last = activeStroke.points[activeStroke.points.length - 1];
+                if (Math.hypot(cx - last[0], (cy - last[1]) / ASPECT) < MIN_POINT_DIST) {
+                    return;
+                }
+                if (activeStroke.points.length >= MAX_POINTS_PER_STROKE) {
+                    // Chain a new stroke starting where the full one ended so the line stays continuous
+                    activeStroke = startStroke(last[0], last[1]);
+                }
+                activeStroke.points.push([cx, cy]);
+            } else {
+                activeStroke = startStroke(cx, cy);
             }
-        }
+
+            if (activeStroke.node) {
+                activeStroke.node.node.coordinates2d = this.buildStrokeCoordinates(activeStroke.points, activeStroke.thickness);
+                activeStroke.node.node.onStateChange();
+            } else {
+                activeStroke.node = new GameNode.Shape({
+                    shapeType: Shapes.POLYGON,
+                    fill: BLACK,
+                    coordinates2d: this.buildStrokeCoordinates(activeStroke.points, activeStroke.thickness)
+                });
+                canvas.addChild(activeStroke.node);
+            }
+        };
+
+        const canvas = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: WHITE,
+            coordinates2d: ShapeUtils.rectangle(CREATOR_CANVAS.x, CREATOR_CANVAS.y, CREATOR_CANVAS.w, CREATOR_CANVAS.h),
+            onClick: (_, x, y) => drawStroke(x, y)
+        });
+
+        canvasContainer.addChild(canvas);
+
+        this.creatorMouseUps[playerId] = () => {
+            activeStroke = null;
+        };
 
         const currentTextLabel = new GameNode.Text({
             textInfo: {
@@ -264,11 +314,19 @@ class Hangman extends Game {
             onClick: () => {
                 if (!this.needsMouseUp[playerId]) {
                     this.needsMouseUp[playerId] = true;
+                    activeStroke = null;
                     if (currentStep === 5) {
-                        this.customHangmen[playerId] = frameHistories;
+                        // Store plain stroke data; the render nodes stay behind in the creator
+                        const frames = {};
+                        Object.keys(frameStrokes).forEach(step => {
+                            frames[step] = frameStrokes[step].map(s => ({ points: s.points, thickness: s.thickness }));
+                        });
+                        this.customHangmen[playerId] = frames;
+                        delete this.creatorMouseUps[playerId];
                         this.actions.push(actionPayload);
                     } else {
                         currentStep += 1;
+                        frameStrokes[currentStep] = [];
                         const newText = Object.assign({}, currentTextLabel.node.text);
                         newText.text = `Frame ${currentStep + 1} of 6`;
                         currentTextLabel.node.text = newText;
@@ -301,6 +359,37 @@ class Hangman extends Game {
 
     handleMouseUp(playerId) {
         this.needsMouseUp[playerId] = false;
+        if (this.creatorMouseUps[playerId]) {
+            this.creatorMouseUps[playerId]();
+        }
+    }
+
+    // A stroke's polyline extruded into a thin closed strip. Normals are
+    // computed in physical space (y divided by ASPECT) so thickness is
+    // uniform on screen despite the 2:3 aspect ratio.
+    buildStrokeCoordinates(points, thickness) {
+        const half = thickness / 2;
+        if (points.length === 1) {
+            const [px, py] = points[0];
+            return ShapeUtils.rectangle(px - half, py - half * ASPECT, thickness, thickness * ASPECT);
+        }
+        const top = [];
+        const bottom = [];
+        for (let i = 0; i < points.length; i++) {
+            const prev = points[Math.max(0, i - 1)];
+            const next = points[Math.min(points.length - 1, i + 1)];
+            const dx = next[0] - prev[0];
+            const dy = (next[1] - prev[1]) / ASPECT;
+            const len = Math.hypot(dx, dy) || 1;
+            const nx = -dy / len;
+            const ny = dx / len;
+            top.push([points[i][0] + nx * half, points[i][1] + ny * half * ASPECT]);
+            bottom.push([points[i][0] - nx * half, points[i][1] - ny * half * ASPECT]);
+        }
+        bottom.reverse();
+        const strip = top.concat(bottom);
+        strip.push([strip[0][0], strip[0][1]]);
+        return strip;
     }
 
     getLayers() {
@@ -443,20 +532,22 @@ class Hangman extends Game {
 
             container.addChild(image);
         } else {
+            // Frames accumulate: one more frame of strokes per incorrect guess.
+            // Strokes are stored in creator-canvas space and scaled by half
+            // into the display area, same mapping as the old pixel grid.
             for (let k = 0; k <= this.currentRound.incorrectGuesses.length; k++) {
-                const frameHistory = this.customHangmen[currentPlayerId][k];
-                if (frameHistory) {
-                    for (let i = 0; i < 45; i++) {
-                        for (let j = 0; j < 30; j++) {
-                            if (frameHistory[i] && frameHistory[i][j]) {
-                                const curNode = new GameNode.Shape({
-                                    shapeType: Shapes.POLYGON,
-                                    fill: BLACK,
-                                    coordinates2d: ShapeUtils.rectangle(27.5 + (i), 5 + (j), 1, 1)
-                                });
-                                container.addChild(curNode);
-                            }
-                        }
+                const frame = this.customHangmen[currentPlayerId][k];
+                if (frame) {
+                    for (const stroke of frame) {
+                        const scaledPoints = stroke.points.map(([x, y]) => [
+                            27.5 + (x - CREATOR_CANVAS.x) / 2,
+                            5 + (y - CREATOR_CANVAS.y) / 2
+                        ]);
+                        container.addChild(new GameNode.Shape({
+                            shapeType: Shapes.POLYGON,
+                            fill: BLACK,
+                            coordinates2d: this.buildStrokeCoordinates(scaledPoints, stroke.thickness / 2)
+                        }));
                     }
                 }
             }
