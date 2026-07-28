@@ -444,7 +444,7 @@ class HomegamesRoot {
                     this.homenamesHelper.updatePlayerInfo(playerId,
                         {
                             playerName: text
-                        }).then(resolve);
+                        }).then(resolve).catch(reject);
                 }),
                 onSoundToggle: (newVal) => new Promise((resolve, reject) => {
                     // used to filter out audio nodes when muted and stuff like that
@@ -454,7 +454,7 @@ class HomegamesRoot {
                     }).then(() => {
                         log.info('just updated setting??');
                         resolve();
-                    });
+                    }).catch(reject);
                 }),
                 onExportSessionData: () => {
                     return this.exportSessionData();

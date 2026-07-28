@@ -152,6 +152,7 @@ class HomenamesHelper {
         return new Promise((resolve, reject) => {
             makeGet(`/info/${playerId}`, null, this.username).then(resolve).catch(err => {
                 log.error('homenames helper info error', err);
+                reject(err);
             });
         });
     }
@@ -166,6 +167,7 @@ class HomenamesHelper {
         return new Promise((resolve, reject) => {
             makeGet(`/settings/${playerId}`, null, this.username).then(resolve).catch(err => {
                 log.error('homenames helper settings error', err);
+                reject(err);
             });
         });
     }
@@ -174,25 +176,26 @@ class HomenamesHelper {
         return new Promise((resolve, reject) => {
             makeGet(`/client_info/${playerId}`, null, this.username).then(resolve).catch(err => {
                 log.error('homenames helper client info error', err);
+                reject(err);
             });
         });
     }
 
     updatePlayerInfo(playerId, { playerName }) {
         return new Promise((resolve, reject) => {
-            makePost('/' + playerId + '/info', { name: playerName }, this.username).then(resolve);
+            makePost('/' + playerId + '/info', { name: playerName }, this.username).then(resolve).catch(reject);
         });
     }
 
     updatePlayerSetting(playerId, settingKey, value) {
         return new Promise((resolve, reject) => {
-            makePost('/' + playerId + '/settings', {[settingKey]: value}, this.username).then(resolve);
+            makePost('/' + playerId + '/settings', {[settingKey]: value}, this.username).then(resolve).catch(reject);
         });
     }
 
     updateClientInfo(playerId, clientInfo) {
         return new Promise((resolve, reject) => {
-            makePost('/' + playerId + '/client_info', clientInfo, this.username).then(resolve);
+            makePost('/' + playerId + '/client_info', clientInfo, this.username).then(resolve).catch(reject);
         });
     }
 }

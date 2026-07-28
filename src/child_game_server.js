@@ -212,8 +212,8 @@ const startServer = (sessionInfo) => {
 
 // ---------------------------------------------------------------------------
 // No-frame mode: uses GameSession without frame options — no bezel,
-// no HomegamesRoot, no Homenames integration. Just the raw game with a
-// WebSocket server.
+// no HomegamesRoot. Just the game with a WebSocket server, plus the
+// Homenames helper so players still get names (games render info.name).
 // Used for sessions created via the Homenames HTTP API (homegamesio, etc.)
 // ---------------------------------------------------------------------------
 
@@ -257,10 +257,21 @@ const startServerNoFrame = (sessionInfo) => {
         sendProcessMessage({ success: false, error: err.message });
         return;
     }
-    gameSession = new GameSession(gameInstance, squishVersion);
+    // Homenames integration — without it GameSession never assigns player
+    // names and games show "undefined". Inside Docker the helper reaches the
+    // host's Homenames via DOCKER_HOST_HOSTNAME / HOMENAMES_PORT (set by the
+    // session manager).
+    const HomenamesHelper = require('./util/homenames-helper');
+    const homenamesHelper = new HomenamesHelper(sessionInfo.port, sessionInfo.username);
+
+    gameSession = new GameSession(gameInstance, squishVersion, {
+        port: sessionInfo.port,
+        username: sessionInfo.username,
+        homenames: homenamesHelper,
+    });
 
     gameSession.initialize().then(() => {
-        // Simple WebSocket server — no bezel, no Homenames, no proxy.
+        // Simple WebSocket server — no bezel, no proxy.
         // Serves https/wss when certs are available (same layout as socketServer).
         const requestHandler = (req, res) => {
             if (req.url === '/health') {
@@ -318,6 +329,16 @@ const startServerNoFrame = (sessionInfo) => {
                 const msgStr = typeof msg === 'string' ? msg : msg.toString();
                 let parsed;
                 try { parsed = JSON.parse(msgStr); } catch (e) { return; }
+
+                if (parsed.type === 'homenames_update') {
+                    // Sent by Homenames over the socket it opened via
+                    // addListener — pushes renames/settings changes.
+                    gameSession.handlePlayerUpdate(parsed.playerId, {
+                        info: parsed.info || {},
+                        settings: parsed.settings || {},
+                    });
+                    return;
+                }
 
                 if (parsed.type === 'ready') {
                     playerIdCounter = (playerIdCounter % 254) + 1; // keep in 1-254 range
