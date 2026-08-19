@@ -577,6 +577,17 @@ class Homenames {
 
             if (gameKey) input.gameKey = gameKey;
 
+            // Save-game passthrough: versionId keys the save's version
+            // subdirectory (file backend); saveData is the caller's save
+            // envelope for broadcast-mode sessions (size- and compatibility-
+            // checked downstream before the game sees it).
+            if (typeof body.versionId === 'string' && body.versionId.length <= 100) {
+                input.versionId = body.versionId;
+            }
+            if (body.saveData && typeof body.saveData === 'object') {
+                input.clientSave = body.saveData;
+            }
+
             // Set on the session record before it registers with the manager,
             // so a private session is never briefly visible in GET /sessions.
             // (body.private rather than destructuring — reserved word in the

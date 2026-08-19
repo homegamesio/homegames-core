@@ -50,7 +50,7 @@ if (!fs.existsSync(GAME_DIRECTORY)) {
 const parseSquishVersion = (codePath) => {
     const parsed = Parser.parse(fs.readFileSync(codePath));
     
-    const foundGameClasses = parsed.body.filter(n => n.type === 'ClassDeclaration' && n.superClass?.name === 'Game');
+    const foundGameClasses = parsed.body.filter(n => n.type === 'ClassDeclaration' && (n.superClass?.name === 'Game' || n.superClass?.name === 'ViewableGame'));
     
     if (foundGameClasses.length !== 1) {
         throw new Error('Top-level file should have one defined game class');

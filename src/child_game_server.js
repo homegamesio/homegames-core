@@ -15,7 +15,7 @@ let gameSession; // used in both frame and no-frame modes
 
 const path = require('path');
 
-const { log, getConfigValue, getAppDataPath, GameSession } = require('homegames-common');
+const { log, getConfigValue, getAppDataPath, GameSession, saveGames } = require('homegames-common');
 
 const ERROR_REPORTING_ENABLED = getConfigValue('ERROR_REPORTING', false);
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
@@ -35,6 +35,63 @@ const sendProcessMessage = (msg) => {
     if (process.send) {
         process.send(JSON.stringify(msg));
     }
+};
+
+// ---------------------------------------------------------------------------
+// Save games — build the { saveGame, saveData } pair injected into the game
+// constructor. Two backends behind the same contract:
+//
+//   File backend (default): saves live under a stable per-game directory
+//   (<saveDataRoot>/<gameKey>/<versionId>/save.json). The session manager
+//   passes the game dir via sessionInfo.saveDataPath (fork) or SAVE_DATA_PATH
+//   (docker /app/save bind mount); standalone falls back to app data.
+//   At load, the game's own version is tried first, then each entry of
+//   metadata().saveCompatibility in order.
+//
+//   Broadcast backend (SAVES_ENABLED=false): the host persists nothing.
+//   saveGame pushes the envelope to every connected client; saveData comes
+//   from the creating client's stored copy (validated for size and version
+//   compatibility — it is untrusted input).
+//
+// saveGame is debounced platform-side (last write wins), so games may call
+// it freely without hammering the disk or every client's socket.
+// ---------------------------------------------------------------------------
+const buildSaveOptions = (sessionInfo, gameClass) => {
+    const metadata = (gameClass && gameClass.metadata) ? gameClass.metadata() : {};
+    const compatibility = Array.isArray(metadata.saveCompatibility) ? metadata.saveCompatibility : [];
+    const gameKey = sessionInfo.key || 'unknown-game';
+    const versionId = sessionInfo.versionId || process.env.GAME_VERSION_ID || saveGames.DEFAULT_VERSION_ID;
+
+    const savesEnabled = sessionInfo.savesEnabled !== undefined
+        ? !!sessionInfo.savesEnabled
+        : process.env.SAVES_ENABLED !== undefined
+            ? process.env.SAVES_ENABLED === 'true'
+            : true;
+
+    if (savesEnabled) {
+        const gameDir = sessionInfo.saveDataPath
+            || process.env.SAVE_DATA_PATH
+            || path.join(getAppDataPath(), '.save-data', saveGames.sanitizeSaveKey(gameKey));
+        return {
+            saveData: saveGames.resolveSaveData({ gameDir, versionId, compatibility, log }),
+            saveGame: saveGames.createFileSaveGame({ gameDir, gameKey, versionId, log }),
+        };
+    }
+
+    let clientSave = sessionInfo.clientSave || null;
+    if (!clientSave && process.env.CLIENT_SAVE_DATA) {
+        try {
+            clientSave = JSON.parse(Buffer.from(process.env.CLIENT_SAVE_DATA, 'base64').toString('utf8'));
+        } catch (e) {
+            clientSave = null;
+        }
+    }
+
+    return {
+        saveData: saveGames.extractClientSaveData(clientSave, { versionId, compatibility, log }),
+        // gameSession doesn't exist yet at game construction — resolve lazily
+        saveGame: saveGames.createBroadcastSaveGame({ getSession: () => gameSession, gameKey, versionId, log }),
+    };
 };
 
 // Gate the docker /control endpoint on the shared secret (constant-time compare
@@ -63,8 +120,6 @@ const startServer = (sessionInfo) => {
         gameSession.handleNewAsset(key, asset).then(resolve).catch(reject);
     });
 
-    const appDataPath = getAppDataPath();
-    
     process.env.SQUISH_PATH = require.resolve(`squish-${sessionInfo.squishVersion}`);
 
     try {
@@ -81,37 +136,7 @@ const startServer = (sessionInfo) => {
                 requestedServices.forEach(s => services[s] = getService(s));
             }
 
-            let saveData;
-            const savePath = crypto.createHash('md5').update(sessionInfo.gamePath).digest('hex');
-    
-            // In Docker sessions SAVE_DATA_PATH points at the host-persisted
-            // /app/save bind mount — HOME is a tmpfs there, so saves under
-            // appDataPath would be lost when the container exits.
-            const saveDataRoot = process.env.SAVE_DATA_PATH || path.join(appDataPath, '.save-data');
-            const existingGameSaveDataPath = path.join(saveDataRoot, savePath);
-            if (!fs.existsSync(saveDataRoot)) {
-                fs.mkdirSync(saveDataRoot, { recursive: true });
-            }
-
-            const saveGame = (data) => new Promise((resolve, reject) => {
-                try {
-                    const jsonData = JSON.stringify(JSON.parse(JSON.stringify(data)));
-                    fs.writeFileSync(existingGameSaveDataPath, jsonData);
-                    resolve();
-                } catch (err) {
-                    reject(err);
-                }
-            });
-
-            if (fs.existsSync(existingGameSaveDataPath)) {
-                try {
-                    const stuff = fs.readFileSync(existingGameSaveDataPath);
-                    saveData = JSON.parse(stuff);
-                } catch (err) {
-                    console.log("Error reading save data");
-                    console.log(err);
-                }
-            }
+            const { saveGame, saveData } = buildSaveOptions(sessionInfo, _gameClass);
             gameInstance = new _gameClass({ addAsset, saveGame, saveData, services });
         } else {
             const _gameClass = games[sessionInfo.key];
@@ -120,7 +145,8 @@ const startServer = (sessionInfo) => {
                 const requestedServices = _gameClass.metadata().services || [];
                 requestedServices.forEach(s => services[s] = getService(s));
             }
-            gameInstance = new _gameClass({ addAsset, services });
+            const { saveGame, saveData } = buildSaveOptions(sessionInfo, _gameClass);
+            gameInstance = new _gameClass({ addAsset, saveGame, saveData, services });
 
         }
 
@@ -251,7 +277,8 @@ const startServerNoFrame = (sessionInfo) => {
 
     let gameInstance;
     try {
-        gameInstance = new GameClass({ addAsset });
+        const { saveGame, saveData } = buildSaveOptions(sessionInfo, GameClass);
+        gameInstance = new GameClass({ addAsset, saveGame, saveData });
     } catch (err) {
         log.error('Failed to instantiate game:', err);
         sendProcessMessage({ success: false, error: err.message });
@@ -267,6 +294,7 @@ const startServerNoFrame = (sessionInfo) => {
     gameSession = new GameSession(gameInstance, squishVersion, {
         port: sessionInfo.port,
         username: sessionInfo.username,
+        spectators: true,
         homenames: homenamesHelper,
     });
 
@@ -279,6 +307,7 @@ const startServerNoFrame = (sessionInfo) => {
                 res.end(JSON.stringify({
                     ok: true,
                     playerCount: gameSession ? gameSession.getPlayerCount() : 0,
+                    spectatorCount: gameSession ? Object.keys(gameSession.spectators || {}).length : 0,
                     persistent,
                 }));
                 return;
@@ -324,6 +353,7 @@ const startServerNoFrame = (sessionInfo) => {
 
         wss.on('connection', (ws) => {
             let playerId = null;
+            let isSpectator = false;
 
             ws.on('message', (msg) => {
                 const msgStr = typeof msg === 'string' ? msg : msg.toString();
@@ -343,6 +373,7 @@ const startServerNoFrame = (sessionInfo) => {
                 if (parsed.type === 'ready') {
                     playerIdCounter = (playerIdCounter % 254) + 1; // keep in 1-254 range
                     playerId = playerIdCounter;
+                    isSpectator = !!parsed.spectating;
                     const clientInfo = parsed.clientInfo?.clientInfo || {};
 
                     const sv = squishVersion;
@@ -352,7 +383,11 @@ const startServerNoFrame = (sessionInfo) => {
                     }
 
                     ws.send(Buffer.from([2, playerId, gameSession.aspectRatio.x, gameSession.aspectRatio.y, 0, 0, ...svBuf]));
-                    gameSession.addPlayer(playerId, ws, { clientInfo });
+                    if (isSpectator) {
+                        gameSession.addSpectator(playerId, ws, { clientInfo });
+                    } else {
+                        gameSession.addPlayer(playerId, ws, { clientInfo });
+                    }
                 } else if (gameSession && playerId != null) {
                     gameSession.handleInput(playerId, parsed);
                 }
@@ -360,7 +395,11 @@ const startServerNoFrame = (sessionInfo) => {
 
             ws.on('close', () => {
                 if (gameSession && playerId != null) {
-                    gameSession.removePlayer(playerId);
+                    if (isSpectator) {
+                        gameSession.removeSpectator(playerId);
+                    } else {
+                        gameSession.removePlayer(playerId);
+                    }
                 }
             });
 
@@ -432,6 +471,8 @@ if (isForked) {
         port: Number(process.env.GAME_PORT) || 7002,
         username: process.env.USERNAME || null,
         certPath: process.env.CERT_PATH || null,
+        // Save-game context is read from env (SAVES_ENABLED, GAME_VERSION_ID,
+        // SAVE_DATA_PATH, CLIENT_SAVE_DATA) inside buildSaveOptions.
     };
 
     if (process.env.NO_FRAME) {

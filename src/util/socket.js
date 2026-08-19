@@ -208,7 +208,13 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
             res.end(JSON.stringify(players));
         } else if (req.url === '/health') {
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ ok: true, playerCount: gameSession.getPlayerCount() }));
+            res.end(JSON.stringify({
+                ok: true,
+                playerCount: gameSession.getPlayerCount(),
+                // Spectators keep a session alive too — the lifecycle monitor
+                // must not tear down a session people are actively watching.
+                spectatorCount: Object.keys(gameSession.spectators || {}).length,
+            }));
         } else {
             res.writeHead(404);
             res.end();

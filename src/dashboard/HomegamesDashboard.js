@@ -43,29 +43,32 @@ const IS_DEMO = getConfigValue('IS_DEMO', true);
 
 let sessionIdCounter = 1;
 
-const OPTION_COLOR = [251, 255, 242, 255];
-const BASE_COLOR = [251, 255, 242, 255];
-const SEARCH_BOX_COLOR = [241, 112, 111, 255];
+// --- Palette: matches homegames.io (app.css) ---
+// Off-white page, coral header, butter-yellow active/primary buttons,
+// charcoal for borders and muted text, white surfaces, near-black text.
+const BASE_COLOR = [251, 255, 242, 255];      // #fbfff2 page background
+const CORAL_COLOR = [241, 112, 111, 255];     // site header / accent
+const BUTTER_COLOR = [255, 247, 142, 255];    // site hover/active
+const CHARCOAL_COLOR = [77, 77, 77, 255];     // #4D4D4D
+const PANEL_COLOR = COLORS.WHITE;
+const PANEL_BORDER_COLOR = CHARCOAL_COLOR;
 const DASHBOARD_TEXT_COLOR = COLORS.ALMOST_BLACK;
-const SEARCH_TEXT_COLOR = COLORS.ALMOST_BLACK;
-const orangeish = [246, 99, 4, 255];
+const PLACEHOLDER_TEXT_COLOR = [150, 152, 145, 255];
 
-const gamesPerRow = 2;
-const rowsPerPage = 2;
-const containerWidth = 100;
-const containerHeight = 90;
+// --- Layout ---
+// Games per page is configurable (DASHBOARD_PAGE_SIZE: 3, 6, or 9). The grid
+// is always 3 columns; page size sets the row count (1, 2, or 3). Pages stack
+// vertically in 100-unit bands on the plane; paging shifts the view by 100.
+const configuredPageSize = Number(getConfigValue('DASHBOARD_PAGE_SIZE', 6));
+const PAGE_SIZE = [3, 6, 9].indexOf(configuredPageSize) >= 0 ? configuredPageSize : 6;
+const GRID_COLUMNS = 3;
+const GRID_ROWS = PAGE_SIZE / GRID_COLUMNS;
 
-const gameContainerXMargin = 12.5;
-const gameContainerYMargin = 5;
-
-const gameLeftXMargin = 10;
-const gameTopYMargin = 10; 
-
-const gameContainerWidth = containerWidth - (2 * gameContainerXMargin);
-const gameContainerHeight = containerHeight - (2 * gameContainerYMargin);
-
-const optionWidth = (gameContainerWidth - ((gamesPerRow - 1) * gameLeftXMargin)) / gamesPerRow;
-const optionHeight = (gameContainerHeight - ((rowsPerPage - 1) * gameTopYMargin)) / rowsPerPage;
+// Screen regions (0-100 plane): a slim top bar, the game grid projected below
+// it, and a narrow paging rail on the right edge.
+const TOP_BAR = { y: 2.5, height: 7 };
+const GRID_AREA = { x: 2.5, y: 11.5, width: 85, height: 84 };
+const PAGE_RAIL = { x: 89.5, width: 8, upY: 34, downY: 52, buttonHeight: 10 };
 
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 500);
 
@@ -92,7 +95,7 @@ class HomegamesDashboard extends ViewableGame {
     }
 
 
-    constructor({ movePlayer, addAsset, username, certPath, gameSessionManager, catalogClient, localLibrary: injectedLibrary }) {
+    constructor({ movePlayer, requestClientSave, addAsset, username, certPath, gameSessionManager, catalogClient, localLibrary: injectedLibrary }) {
         super(1000);
         // todo: static vs. addasset
 
@@ -126,6 +129,7 @@ class HomegamesDashboard extends ViewableGame {
         this.playerRenderLayers = {};
 
         this.movePlayer = movePlayer;
+        this.requestClientSave = requestClientSave || null;
 
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -174,8 +178,18 @@ class HomegamesDashboard extends ViewableGame {
         this.gameSessionManager.username = this.username;
         this.gameSessionManager.certPath = this.certPath;
 
-        this.gameSessionManager.startSession(
-            { gamePath: version.gamePath, gameKey },
+        // When server-side save files are disabled (public instances), the
+        // creating player's browser may hold the save from a previous session.
+        // Ask for it now — saveData is injected at game construction, so this
+        // is the only moment it can arrive. Times out to null; never blocks
+        // the launch on a slow/absent client save.
+        const savesEnabled = getConfigValue('SAVE_FILES_ENABLED', true) !== false;
+        const clientSavePromise = (savesEnabled || !this.requestClientSave)
+            ? Promise.resolve(null)
+            : this.requestClientSave(playerId, { gameKey }).catch(() => null);
+
+        clientSavePromise.then((clientSave) => this.gameSessionManager.startSession(
+            { gamePath: version.gamePath, gameKey, versionId, clientSave },
             {
                 playerId,
                 onReady: (session) => {
@@ -183,7 +197,7 @@ class HomegamesDashboard extends ViewableGame {
                     this.movePlayer({ playerId, port: session.port });
                 },
             }
-        ).then((result) => {
+        )).then((result) => {
             const { sessionId, port } = result;
 
             this.sessions[sessionId] = {
@@ -398,7 +412,7 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     renderGamePlane() {
-        const plane = this.buildGamePlane({ gameCollection: this.localGames, width: 80, height: 80 });
+        const plane = this.buildGamePlane({ gameCollection: this.localGames });
         this.getPlane().clearChildren();
         this.getPlane().addChild(plane);
     }
@@ -407,14 +421,9 @@ class HomegamesDashboard extends ViewableGame {
         return this.assets;
     }
 
-    buildGamePlane({ gameCollection, rowsPerPage = 2, columnsPerPage = 2, onGameClick = null }) {
-
-        const gameCount = Object.keys(gameCollection).length;
-        
-        const pagesNeeded = Math.ceil(gameCount / (gamesPerRow * rowsPerPage));
-
-        const gameOptionWidth = 100 / columnsPerPage;
-        const gameOptionHeight = 100 / rowsPerPage;
+    buildGamePlane({ gameCollection, onGameClick = null }) {
+        const cellWidth = 100 / GRID_COLUMNS;
+        const cellHeight = 100 / GRID_ROWS;
 
         let gameIndex = 0;
 
@@ -426,23 +435,26 @@ class HomegamesDashboard extends ViewableGame {
         const testGamesEnabled = getConfigValue('TESTS_ENABLED', false);
 
         for (const key in gameCollection) {
-            const xIndex = gameIndex % columnsPerPage === 0 ? 0 : ((gameIndex % columnsPerPage) / columnsPerPage) * 100; 
-            const yIndex = Math.floor(gameIndex / rowsPerPage) * (100 / rowsPerPage);
-            let assetKey = this.assets[key] ? key : 'default';
-
             const gameMetadata = gameCollection[key]?.metadata || null;
 
             if (!testGamesEnabled && gameMetadata && gameMetadata.isTest) {
                 continue;
             }
 
+            // Absolute row * cellHeight tiles pages contiguously: GRID_ROWS
+            // rows fill each 100-unit page band, so paging (view.y += 100)
+            // lands exactly on the next page.
+            const col = gameIndex % GRID_COLUMNS;
+            const row = Math.floor(gameIndex / GRID_COLUMNS);
+
+            const assetKey = this.assets[key] ? key : 'default';
             const gameName = gameCollection[key]?.metadata?.name || key;
 
             const gameOptionNode = gameOption({
-                x: xIndex,
-                y: yIndex,
-                width: gameOptionWidth,
-                height: gameOptionHeight,
+                x: col * cellWidth,
+                y: row * cellHeight,
+                width: cellWidth,
+                height: cellHeight,
                 gameName,
                 assetKey,
                 onClick: (playerId) => {
@@ -460,7 +472,7 @@ class HomegamesDashboard extends ViewableGame {
         }
 
         return planeBase;
-        
+
     }
 
     handleNewPlayer({ playerId, settings: playerSettings, info: playerInfo, requestedGame }) {
@@ -645,17 +657,22 @@ class HomegamesDashboard extends ViewableGame {
         this._fetchCatalogPage(playerId);
     }
 
-    loadMoreCatalog(playerId) {
+    loadMoreCatalog(playerId, opts = {}) {
         const browseState = this.playerStates[playerId].browse;
         if (!browseState || browseState.loading || browseState.exhausted) return;
         browseState.loading = true;
         this.renderGames(playerId, { browse: true });
-        this._fetchCatalogPage(playerId);
+        this._fetchCatalogPage(playerId, opts);
     }
 
     // Fetch the next catalog page, merge results, register thumbnails, re-render.
     // Guards against the player having left Browse mode mid-request.
-    _fetchCatalogPage(playerId) {
+    //
+    // opts.advance: the fetch was triggered by paging down at the end of the
+    // loaded results — once the new games land, move the view onto them if
+    // they start a new page band. If the last loaded page was only partially
+    // filled, the new games fill its empty slots, so the view stays put.
+    _fetchCatalogPage(playerId, { advance = false } = {}) {
         const browseState = this.playerStates[playerId].browse;
         if (!browseState) return;
 
@@ -666,6 +683,7 @@ class HomegamesDashboard extends ViewableGame {
 
             const games = (response && response.games) || [];
             const registrations = [];
+            const previousCount = Object.keys(browseState.results).length;
 
             games.forEach(game => {
                 const thumbnailId = (game.thumbnail && game.thumbnail.indexOf('/') > 0)
@@ -692,6 +710,20 @@ class HomegamesDashboard extends ViewableGame {
             browseState.loading = false;
             if (games.length < browseState.limit) {
                 browseState.exhausted = true;
+            }
+
+            // Follow the results: if the first new game starts a page band
+            // below the current view, jump the view to that band.
+            if (advance && games.length > 0) {
+                const cellHeight = 100 / GRID_ROWS;
+                const firstNewRow = Math.floor(previousCount / GRID_COLUMNS);
+                // epsilon guards float error in cellHeight multiples landing
+                // a hair under an exact band boundary
+                const firstNewBand = Math.floor(((firstNewRow * cellHeight) + 1e-9) / 100) * 100;
+                const view = this.playerStates[playerId].view;
+                if (firstNewBand > view.y) {
+                    this.playerStates[playerId].view = Object.assign({}, view, { y: firstNewBand });
+                }
             }
 
             Promise.all(registrations).then(() => {
@@ -869,11 +901,56 @@ class HomegamesDashboard extends ViewableGame {
             playerIds: [playerId]
         });
 
-        const playerSearchBox = new GameNode.Shape({
-            shapeType: Shapes.POLYGON, 
-            coordinates2d: ShapeUtils.rectangle(12.5, 2.5, 75, 10),
+        // Vertically center a text of `size` in a bar at (barY, barH). Text
+        // height in y-units is size * 16/9 at the dashboard's aspect ratio.
+        const centerTextY = (barY, barH, size) => barY + ((barH - (size * 16 / 9)) / 2);
+
+        // Coral header band behind the top bar — same treatment as the
+        // homegames.io site header.
+        baseNode.addChild(new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, GRID_AREA.y),
             playerIds: [playerId],
-            fill: SEARCH_BOX_COLOR,
+            fill: CORAL_COLOR
+        }));
+
+        // --- Top bar: Browse / Back toggle + search field on one slim row ---
+        // The toggle is available regardless of demo mode, since browsing the
+        // catalog needs no text input.
+        const browseToggle = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(2.5, TOP_BAR.y, 11, TOP_BAR.height),
+            playerIds: [playerId],
+            fill: BUTTER_COLOR,
+            border: 2,
+            color: PANEL_BORDER_COLOR,
+            onClick: (pid) => {
+                if (browse) {
+                    this.exitBrowse(pid);
+                } else {
+                    this.handleBrowse(pid);
+                }
+            }
+        });
+        browseToggle.addChild(new GameNode.Text({
+            textInfo: {
+                x: 8,
+                y: centerTextY(TOP_BAR.y, TOP_BAR.height, 1.3),
+                align: 'center',
+                size: 1.3,
+                text: browse ? '◀ Back' : 'Browse',
+                color: DASHBOARD_TEXT_COLOR
+            },
+            playerIds: [playerId]
+        }));
+
+        const playerSearchBox = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(15, TOP_BAR.y, 70, TOP_BAR.height),
+            playerIds: [playerId],
+            fill: PANEL_COLOR,
+            border: 2,
+            color: PANEL_BORDER_COLOR,
             input: IS_DEMO ? null : {
                 type: 'text',
                 oninput: (playerId, input) => {
@@ -883,27 +960,30 @@ class HomegamesDashboard extends ViewableGame {
             }
         });
 
+        const searchPlaceholder = IS_DEMO ? 'Search — disabled in demo' : 'Search';
         const playerSearchText = new GameNode.Text({
             textInfo: {
-                x: 15, // maybe need a function to map text size given a screen size
-                y: 5.5,
-                text: IS_DEMO ? 'Search - disabled in demo' : searchQuery || 'Search',
-                color: SEARCH_TEXT_COLOR,
-                size: 1.8
+                x: 17.5,
+                y: centerTextY(TOP_BAR.y, TOP_BAR.height, 1.4),
+                align: 'left',
+                text: searchQuery || searchPlaceholder,
+                color: searchQuery ? DASHBOARD_TEXT_COLOR : PLACEHOLDER_TEXT_COLOR,
+                size: 1.4
             },
             playerIds: [playerId]
         });
-        
+
         playerSearchBox.addChildren(playerSearchText);
 
 
         if (searchResults) {
+            // Clear button lives inside the right end of the search field.
             const clearSearchButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(82.5, 2.5, 5, 10),
+                coordinates2d: ShapeUtils.rectangle(79.5, TOP_BAR.y + 1, 5, TOP_BAR.height - 2),
                 playerIds: [playerId],
-                fill: SEARCH_BOX_COLOR,
-                onClick: (playerId) => {        
+                fill: PANEL_COLOR,
+                onClick: (playerId) => {
                     const playerView = {x: 0, y: 0, w: 100, h: 100};
 
                     this.playerStates[playerId] = {
@@ -916,11 +996,12 @@ class HomegamesDashboard extends ViewableGame {
 
             const clearSearchX = new GameNode.Text({
                 textInfo: {
-                    x: 83.75,
-                    y: 2.25,
-                    size: 4,
-                    text: 'x',
-                    color: BASE_COLOR
+                    x: 82,
+                    y: centerTextY(TOP_BAR.y, TOP_BAR.height, 1.6),
+                    size: 1.6,
+                    align: 'center',
+                    text: '✕',
+                    color: CORAL_COLOR
                 },
                 playerIds: [playerId]
             });
@@ -929,8 +1010,7 @@ class HomegamesDashboard extends ViewableGame {
             playerSearchBox.addChildren(clearSearchButton);
         }
 
-        let canGoDown = false;
-        let canGoUp = false;
+        // --- Paging rail (right edge): up arrow / page indicator / down arrow ---
 
         const currentView = this.playerStates[playerId].view;
 
@@ -950,27 +1030,33 @@ class HomegamesDashboard extends ViewableGame {
         // games plane (this.getPlane()) -- otherwise search/browse paged against
         // the wrong option positions.
         const planeBase = gamePlane.getChildren()[0];
-        const gameOptionsBelowView = planeBase.getChildren().filter(child => {
+        const gameOptions = planeBase.getChildren();
+        const gameOptionsBelowView = gameOptions.filter(child => {
             return child.node.coordinates2d[0][1] >= (currentView.y + currentView.h);
         });
 
-        const gameOptionsAboveView = planeBase.getChildren().filter(child => {
+        const gameOptionsAboveView = gameOptions.filter(child => {
             return child.node.coordinates2d[2][1] <= currentView.y;
         });
 
-        if (gameOptionsBelowView.length > 0 || canLoadMore) {
-            canGoDown = true;
-        }
+        const canGoDown = gameOptionsBelowView.length > 0 || canLoadMore;
+        const canGoUp = gameOptionsAboveView.length > 0;
 
-        if (gameOptionsAboveView.length > 0) {
-            canGoUp = true;
-        }
+        // Pages are 100-unit bands on the plane; the page count comes from the
+        // deepest option currently laid out.
+        const totalPages = gameOptions.length
+            ? 1 + Math.max(...gameOptions.map(child => Math.floor(child.node.coordinates2d[0][1] / 100)))
+            : 1;
+        const currentPage = Math.floor(currentView.y / 100) + 1;
+        const railCenterX = PAGE_RAIL.x + (PAGE_RAIL.width / 2);
 
         const upArrow = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(90, 22.5, 10, 20),
+            coordinates2d: ShapeUtils.rectangle(PAGE_RAIL.x, PAGE_RAIL.upY, PAGE_RAIL.width, PAGE_RAIL.buttonHeight),
             playerIds: [playerId],
-            fill: BASE_COLOR,
+            fill: PANEL_COLOR,
+            border: 2,
+            color: PANEL_BORDER_COLOR,
             onClick: (player, x, y) => {
                 const currentView = Object.assign({}, this.playerStates[playerId].view);
 
@@ -984,12 +1070,12 @@ class HomegamesDashboard extends ViewableGame {
 
         const upText = new GameNode.Text({
             textInfo: {
-                x: 95,
-                y: 27.5,
+                x: railCenterX,
+                y: centerTextY(PAGE_RAIL.upY, PAGE_RAIL.buttonHeight, 1.2),
                 align: 'center',
-                size: 1.1,
+                size: 1.2,
                 text: '\u25B2',
-                color: COLORS.BLACK
+                color: CORAL_COLOR
             }
         });
 
@@ -997,9 +1083,11 @@ class HomegamesDashboard extends ViewableGame {
 
         const downArrow = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(90, 72.5, 10, 20),
+            coordinates2d: ShapeUtils.rectangle(PAGE_RAIL.x, PAGE_RAIL.downY, PAGE_RAIL.width, PAGE_RAIL.buttonHeight),
             playerIds: [playerId],
-            fill: BASE_COLOR,
+            fill: PANEL_COLOR,
+            border: 2,
+            color: PANEL_BORDER_COLOR,
             onClick: (player, x, y) => {
                 const currentView = Object.assign({}, this.playerStates[playerId].view);
 
@@ -1008,26 +1096,27 @@ class HomegamesDashboard extends ViewableGame {
                     this.playerStates[playerId].view = currentView;
                     rerender();
                 } else if (canLoadMore) {
-                    // At the bottom of what we've loaded -- pull the next page.
-                    this.loadMoreCatalog(playerId);
+                    // At the bottom of what we've loaded -- pull the next page
+                    // and follow the view onto it once it lands.
+                    this.loadMoreCatalog(playerId, { advance: true });
                 }
             }
         });
 
         const downText = new GameNode.Text({
             textInfo: {
-                x: 95,
-                y: 77.5,
+                x: railCenterX,
+                y: centerTextY(PAGE_RAIL.downY, PAGE_RAIL.buttonHeight, 1.2),
                 align: 'center',
-                size: 1.1,
+                size: 1.2,
                 text: '\u25BC',
-                color: COLORS.BLACK
+                color: CORAL_COLOR
             }
         });
 
         downArrow.addChild(downText);
 
-        baseNode.addChild(playerSearchBox);
+        baseNode.addChildren(browseToggle, playerSearchBox);
         if (canGoUp) {
             baseNode.addChildren(upArrow);
         }
@@ -1035,33 +1124,46 @@ class HomegamesDashboard extends ViewableGame {
             baseNode.addChildren(downArrow);
         }
 
-        // Browse / Back toggle (left of the search box). Available regardless of
-        // demo mode, since browsing the catalog needs no text input.
-        const browseToggle = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0.5, 2.5, 11, 10),
-            playerIds: [playerId],
-            fill: SEARCH_BOX_COLOR,
-            onClick: (pid) => {
-                if (browse) {
-                    this.exitBrowse(pid);
-                } else {
-                    this.handleBrowse(pid);
-                }
-            }
-        });
-        browseToggle.addChild(new GameNode.Text({
-            textInfo: {
-                x: 6,
-                y: 5.5,
-                align: 'center',
-                size: 1.4,
-                text: browse ? '◀ Back' : 'Browse',
-                color: BASE_COLOR
-            },
-            playerIds: [playerId]
-        }));
-        baseNode.addChild(browseToggle);
+        // Page indicator between the arrows — only when there is anything to page.
+        if (totalPages > 1 || canLoadMore) {
+            baseNode.addChild(new GameNode.Text({
+                textInfo: {
+                    x: railCenterX,
+                    y: 47,
+                    align: 'center',
+                    size: 1.1,
+                    text: `${currentPage} / ${totalPages}${canLoadMore ? '+' : ''}`,
+                    color: PLACEHOLDER_TEXT_COLOR
+                },
+                playerIds: [playerId]
+            }));
+        }
+
+        // Empty local library: point new users at Browse instead of a blank grid.
+        if (!browse && !searchResults && gameOptions.length === 0) {
+            baseNode.addChild(new GameNode.Text({
+                textInfo: {
+                    x: 45,
+                    y: 47,
+                    align: 'center',
+                    size: 1.6,
+                    text: 'No games installed',
+                    color: DASHBOARD_TEXT_COLOR
+                },
+                playerIds: [playerId]
+            }));
+            baseNode.addChild(new GameNode.Text({
+                textInfo: {
+                    x: 45,
+                    y: 52,
+                    align: 'center',
+                    size: 1.2,
+                    text: 'Tap Browse to explore the catalog',
+                    color: PLACEHOLDER_TEXT_COLOR
+                },
+                playerIds: [playerId]
+            }));
+        }
 
         if (browse) {
             const browseState = this.playerStates[playerId].browse || {};
@@ -1079,10 +1181,10 @@ class HomegamesDashboard extends ViewableGame {
             if (statusText) {
                 baseNode.addChild(new GameNode.Text({
                     textInfo: {
-                        x: 50,
+                        x: 45,
                         y: 50,
                         align: 'center',
-                        size: 1.6,
+                        size: 1.5,
                         text: statusText,
                         color: DASHBOARD_TEXT_COLOR
                     },
@@ -1090,27 +1192,22 @@ class HomegamesDashboard extends ViewableGame {
                 }));
             }
 
-            // "Load more" pulls the next page; hidden once the catalog is exhausted.
-            if (!browseState.exhausted && Object.keys(browseState.results || {}).length > 0) {
-                const loadMore = new GameNode.Shape({
-                    shapeType: Shapes.POLYGON,
-                    coordinates2d: ShapeUtils.rectangle(42.5, 91, 15, 7),
-                    playerIds: [playerId],
-                    fill: SEARCH_BOX_COLOR,
-                    onClick: (pid) => this.loadMoreCatalog(pid)
-                });
-                loadMore.addChild(new GameNode.Text({
+            // While a next page is being fetched (the down arrow triggered it),
+            // show a quiet hint — paging is otherwise seamless: the down arrow
+            // pulls the next page and the view follows it, until the catalog
+            // is exhausted and the arrow disappears.
+            if (browseState.loading && Object.keys(browseState.results || {}).length > 0) {
+                baseNode.addChild(new GameNode.Text({
                     textInfo: {
-                        x: 50,
-                        y: 93,
+                        x: 45,
+                        y: 96.5,
                         align: 'center',
-                        size: 1.3,
-                        text: browseState.loading ? 'Loading…' : 'Load more',
-                        color: BASE_COLOR
+                        size: 1.1,
+                        text: 'Loading…',
+                        color: PLACEHOLDER_TEXT_COLOR
                     },
                     playerIds: [playerId]
                 }));
-                baseNode.addChild(loadMore);
             }
         }
 
@@ -1166,15 +1263,15 @@ class HomegamesDashboard extends ViewableGame {
 
         const view = ViewUtils.getView(
             gamePlane,
-            playerView, 
-            [playerId], 
+            playerView,
+            [playerId],
             {
-                y: 12.5 + ((100 - 12.5 - gameContainerHeight) / 2),
-                x: 12.5
+                x: GRID_AREA.x,
+                y: GRID_AREA.y
             },
             {
-                x: gameContainerWidth / 100,
-                y: gameContainerHeight / 100
+                x: GRID_AREA.width / 100,
+                y: GRID_AREA.height / 100
             }
         );
 
@@ -1219,3 +1316,14 @@ module.exports.updateGameMetadataMap = (m) => localLibrary.writeMetadataMap(m);
 module.exports.networkHelper = networkHelper;
 module.exports.SOURCE_GAME_DIRECTORY = SOURCE_GAME_DIRECTORY;
 module.exports.DOWNLOADED_GAME_DIRECTORY = DOWNLOADED_GAME_DIRECTORY;
+
+// Layout facts tests (and future chrome) can depend on without hardcoding
+// coordinates: page geometry and where the paging rail buttons sit.
+module.exports.UI = {
+    PAGE_SIZE,
+    GRID_COLUMNS,
+    GRID_ROWS,
+    TOP_BAR,
+    GRID_AREA,
+    PAGE_RAIL,
+};

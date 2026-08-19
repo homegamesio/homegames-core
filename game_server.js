@@ -77,10 +77,15 @@ const server = (certPath, squishMap, username) => {
         username,
         certPath,
         services
-    }) : new HomegamesDashboard({ 
-        squishMap, 
+    }) : new HomegamesDashboard({
+        squishMap,
         movePlayer: (params) => {
             session && session.movePlayer(params.playerId, params.port);
+        },
+        // Broadcast save backend: lets the dashboard ask a player's browser
+        // for its stored save before launching a session.
+        requestClientSave: (playerId, args) => {
+            return session ? session.requestClientSave(playerId, args) : Promise.resolve(null);
         },
         addAsset: (key, asset) => new Promise((resolve, reject) => {
             session.handleNewAsset(key, asset).then(resolve).catch(reject);

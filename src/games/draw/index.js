@@ -97,6 +97,10 @@ class Draw extends Game {
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             onClick: this.handleDraw.bind(this)
         });
+        // Current clients send mousemove during a held press instead of
+        // repeated clicks — onDrag keeps continuous strokes working there.
+        // (squish-142's constructor doesn't take onDrag, so assign directly.)
+        this.tapCatcher.node.onDrag = this.handleDraw.bind(this);
 
         // Above the tap catcher: audio blocks must receive their own clicks.
         this.audioRoot = this.makeContainer();
