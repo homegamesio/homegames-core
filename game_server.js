@@ -52,9 +52,16 @@ const server = (certPath, squishMap, username) => {
     gameSessionManager.username = username;
     gameSessionManager.certPath = certPath;
 
+    // START_PATH boots a specific game instead of the dashboard. Relative
+    // paths resolve against the package root so read-only bundles (CD/USB
+    // builds) can ship "START_PATH": "./src/games/<game>" and work from
+    // wherever the media mounts.
     const startPathOverride = getConfigValue('START_PATH', null);
+    const resolvedStartPath = startPathOverride
+        ? (path.isAbsolute(startPathOverride) ? startPathOverride : path.resolve(baseDir, startPathOverride))
+        : null;
 
-    const customStartModule = startPathOverride ? require(startPathOverride) : null;
+    const customStartModule = resolvedStartPath ? require(resolvedStartPath) : null;
 
     const HomegamesDashboard = require('./src/dashboard/HomegamesDashboard');
     const HomegamesRoot = require('./src/homegames_root/HomegamesRoot');
@@ -87,6 +94,19 @@ const server = (certPath, squishMap, username) => {
         requestClientSave: (playerId, args) => {
             return session ? session.requestClientSave(playerId, args) : Promise.resolve(null);
         },
+        // Single player: tells one player's client to swap to an in-place
+        // LocalSession fed by this server's /games/:gameKey/local-manifest.
+        startLocalPlay: (playerId, info) => {
+            session && session.sendLocalPlayRedirect(playerId, info);
+        },
+        // Restart contract with the supervisor: exit 75 = restart me,
+        // 76 = restart me and open homegames.link once I'm back. The delay
+        // lets the click's state frame flush to clients before we die.
+        requestRestart: (openLink) => {
+            logger.info(`Restart requested (openLink: ${!!openLink})`);
+            setTimeout(() => process.exit(openLink ? 76 : 75), 300);
+        },
+        servingHttps: !!certPath,
         addAsset: (key, asset) => new Promise((resolve, reject) => {
             session.handleNewAsset(key, asset).then(resolve).catch(reject);
         }),
@@ -150,7 +170,7 @@ const server = (certPath, squishMap, username) => {
     const homeNames = new Homenames(HOMENAMES_PORT, certPath, gameSessionManager);
     
     session.initialize().then(() => {
-        socketServer(session, HOME_PORT, null, certPath, username);
+        socketServer(session, HOME_PORT, null, certPath, username, { serveWebClient: true });
     }).catch(err => {
         logger.error('Error initializing game session');
         logger.error(err);

@@ -28,7 +28,9 @@
   },
   "homepage": "https://github.com/homegamesio/homegames#readme",
   "dependencies": {
+    "acme-client": "^5.4.0",
     "acorn": "^8.11.3",
+    "homegames-client": "file:../homegames-client",
     "homegames-common": "file:../homegames-common",
     "ws": "7.5.10"
   }

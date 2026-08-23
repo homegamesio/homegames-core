@@ -162,7 +162,7 @@ const infoSection = ({ gameKey, gameMetadata}) => {
     return infoContainer;
 };
 
-const createSection = ({ gameKey, onCreateSession, approved = false }) => {
+const createSection = ({ gameKey, onCreateSession, onPlaySinglePlayer = null, approved = false }) => {
     // Slim primary action button; the whole rect is the tap target.
     const createContainer = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
@@ -186,14 +186,41 @@ const createSection = ({ gameKey, onCreateSession, approved = false }) => {
 
     createContainer.addChildren(createText);
 
+    if (onPlaySinglePlayer) {
+        // Secondary action under the primary: run the game in the player's
+        // browser only — no session on the server.
+        const singlePlayerButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(10, 79, 26, 9),
+            fill: COLORS.WHITE,
+            border: 2,
+            color: PANEL_BORDER_COLOR,
+            onClick: onPlaySinglePlayer
+        });
+
+        singlePlayerButton.addChild(new GameNode.Text({
+            textInfo: {
+                x: 23,
+                y: centerTextY(79, 9, 1.3),
+                align: 'center',
+                size: 1.3,
+                color: COLORS.ALMOST_BLACK,
+                text: 'Play single player'
+            }
+        }));
+
+        createContainer.addChildren(singlePlayerButton);
+    }
+
     if (!approved) {
-        // Unreviewed-version warning: quiet red text under the button instead
-        // of a shouting red block.
+        // Unreviewed-version warning: quiet red text under the button(s)
+        // instead of a shouting red block.
+        const warningY = onPlaySinglePlayer ? 89.5 : 79.5;
         const warningTextHead = new GameNode.Text({
             textInfo: {
                 text: 'This game version has not been reviewed',
                 x: 23,
-                y: 79.5,
+                y: warningY,
                 align: 'center',
                 size: 1.05,
                 color: CORAL_COLOR
@@ -204,7 +231,7 @@ const createSection = ({ gameKey, onCreateSession, approved = false }) => {
             textInfo: {
                 text: 'Only play games from sources you trust.',
                 x: 23,
-                y: 83,
+                y: warningY + 3.5,
                 align: 'center',
                 size: 0.95,
                 color: CORAL_COLOR
@@ -472,17 +499,18 @@ const joinSection = ({ gameKey, gameMetadata, activeSessions, onJoinSession, pag
     return joinContainer;
 };
 
-const gameModal = ({ 
-    gameMetadata, 
-    gameKey, 
-    versionId, 
-    onClose, 
-    activeSessions, 
-    onCreateSession, 
-    onJoinSession, 
-    playerId, 
+const gameModal = ({
+    gameMetadata,
+    gameKey,
+    versionId,
+    onClose,
+    activeSessions,
+    onCreateSession,
+    onPlaySinglePlayer = null,
+    onJoinSession,
+    playerId,
     onVersionChange,
-    versions = [] 
+    versions = []
 }) => {
     const modal = new GameNode.Shape({
         coordinates2d: ShapeUtils.rectangle(5, 5, 90, 90),
@@ -505,7 +533,7 @@ const gameModal = ({
 
     const approved = thisVersion ? thisVersion.approved : false;
 
-    const create = createSection({ gameKey, onCreateSession, approved });
+    const create = createSection({ gameKey, onCreateSession, onPlaySinglePlayer, approved });
 
     const join = joinSection({ gameKey, gameMetadata, activeSessions, onJoinSession });
     modal.addChildren(close, info, metadata, create, join);

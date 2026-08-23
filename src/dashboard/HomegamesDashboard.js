@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const { getConfigValue, getAppDataPath, log } = require('homegames-common');
+const { getConfigValue, getConfig, setConfigValue, getAppDataPath, log } = require('homegames-common');
 
 console.log('wattt1')
 const squishMap = require('../common/squish-map');
@@ -26,6 +26,9 @@ const isSecure = parsedUrl.protocol == 'https:';
 const { ExpiringSet, animations } = require('../common/util');
 
 const gameOption = require('./game-option');
+const sessionStrip = require('./session-strip');
+const settingsModal = require('./settings-modal');
+const { getDefaultInstance: getCertManager } = require('../util/cert-manager');
 
 const { createCatalogClient } = require('../catalog/CatalogClient');
 const { createLocalLibrary } = require('../library/LocalLibrary');
@@ -65,9 +68,13 @@ const GRID_COLUMNS = 3;
 const GRID_ROWS = PAGE_SIZE / GRID_COLUMNS;
 
 // Screen regions (0-100 plane): a slim top bar, the game grid projected below
-// it, and a narrow paging rail on the right edge.
+// it, and a narrow paging rail on the right edge. When sessions are running,
+// an active-sessions strip appears between the top bar and the grid and the
+// grid compresses into GRID_AREA_WITH_SESSIONS.
 const TOP_BAR = { y: 2.5, height: 7 };
 const GRID_AREA = { x: 2.5, y: 11.5, width: 85, height: 84 };
+const SESSION_STRIP = { x: 2.5, y: 11, width: 85, height: 9.5 };
+const GRID_AREA_WITH_SESSIONS = { x: 2.5, y: 22.5, width: 85, height: 73 };
 const PAGE_RAIL = { x: 89.5, width: 8, upY: 34, downY: 52, buttonHeight: 10 };
 
 const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT_INTERVAL', 500);
@@ -95,7 +102,7 @@ class HomegamesDashboard extends ViewableGame {
     }
 
 
-    constructor({ movePlayer, requestClientSave, addAsset, username, certPath, gameSessionManager, catalogClient, localLibrary: injectedLibrary }) {
+    constructor({ movePlayer, requestClientSave, startLocalPlay, requestRestart, servingHttps, addAsset, username, certPath, gameSessionManager, catalogClient, localLibrary: injectedLibrary }) {
         super(1000);
         // todo: static vs. addasset
 
@@ -130,6 +137,23 @@ class HomegamesDashboard extends ViewableGame {
 
         this.movePlayer = movePlayer;
         this.requestClientSave = requestClientSave || null;
+        this.startLocalPlay = startLocalPlay || null;
+
+        // Server settings section. requestRestart triggers the supervisor's
+        // restart contract (exit 75, or 76 to also open homegames.link);
+        // servingHttps is whether THIS run is serving HTTPS (config may
+        // already say otherwise — that's what "restart to apply" is for).
+        this.requestRestart = requestRestart || null;
+        this.servingHttps = !!servingHttps;
+        this.pendingRestart = false;
+        this.playerSettingsModals = {};
+
+        // Live cert progress: re-render any open settings modal when the cert
+        // manager reports a change (absent in tests / custom setups).
+        this._certManager = getCertManager();
+        if (this._certManager) {
+            this._certManager.onUpdate(() => this._rerenderSettingsModals());
+        }
 
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -165,6 +189,80 @@ class HomegamesDashboard extends ViewableGame {
                 this.sessions[i].sendHeartbeat && this.sessions[i].sendHeartbeat();
             }
         }, CHILD_SESSION_HEARTBEAT_INTERVAL);
+
+        // Active-sessions strip state: which mode each player last rendered
+        // (so a strip change can re-render everyone in place), cached player
+        // counts, and a signature to only re-render when something changed.
+        this.playerRenderModes = {};
+        this._sessionPlayerCounts = {};
+        this._sessionIdSignature = '';
+        this.setInterval(() => this._refreshSessionStrip(), 2000);
+    }
+
+    // -----------------------------------------------------------------------
+    // Active sessions strip
+    // -----------------------------------------------------------------------
+
+    // All joinable (non-private) sessions on this server. The session manager
+    // is the source of truth — it includes sessions created via the Homenames
+    // API (website-hosted play) and prunes dead ones. Falls back to the
+    // dashboard's own session map when no manager is wired (tests).
+    _getActiveSessions() {
+        let raw;
+        if (this.gameSessionManager && this.gameSessionManager.listSessions) {
+            raw = this.gameSessionManager.listSessions().filter(s => !s.private);
+        } else {
+            raw = Object.values(this.sessions).map(s => ({ id: s.id, port: s.port, gameKey: s.game }));
+        }
+
+        return raw.map(s => {
+            const gameKey = s.gameKey || s.gameId;
+            const localMeta = gameKey && this.localGames[gameKey] && this.localGames[gameKey].metadata;
+            const count = this._sessionPlayerCounts[s.id];
+            return {
+                id: s.id,
+                port: s.port,
+                name: (localMeta && localMeta.name) || gameKey || `Session ${s.id}`,
+                playerCount: count === undefined ? null : count,
+            };
+        });
+    }
+
+    // Poll for strip changes: session set (create/end, incl. website-created
+    // sessions) re-renders immediately; player counts refresh async and
+    // re-render only when a count actually changed.
+    _refreshSessionStrip() {
+        const sessions = this._getActiveSessions();
+
+        const idSignature = sessions.map(s => s.id).join(',');
+        if (idSignature !== this._sessionIdSignature) {
+            this._sessionIdSignature = idSignature;
+            // Drop counts for ended sessions
+            const live = new Set(sessions.map(s => s.id));
+            Object.keys(this._sessionPlayerCounts).forEach(id => {
+                if (!live.has(Number(id))) delete this._sessionPlayerCounts[id];
+            });
+            this._rerenderAllPlayers();
+        }
+
+        if (!this.gameSessionManager || !this.gameSessionManager.requestFromSession) return;
+        sessions.forEach(s => {
+            this.gameSessionManager.requestFromSession(s.id, 'getPlayers').then(players => {
+                const count = Array.isArray(players) ? players.length : null;
+                if (this._sessionPlayerCounts[s.id] !== count) {
+                    this._sessionPlayerCounts[s.id] = count;
+                    this._rerenderAllPlayers();
+                }
+            }).catch(() => {});
+        });
+    }
+
+    // Re-render every connected player in whatever mode they were last in
+    // (local grid / search / browse).
+    _rerenderAllPlayers() {
+        Object.keys(this.playerRoots).forEach(playerId => {
+            this.renderGames(playerId, this.playerRenderModes[playerId] || {});
+        });
     }
 
     startSession(playerId, gameKey, versionKey = null) { 
@@ -219,6 +317,7 @@ class HomegamesDashboard extends ViewableGame {
         }).catch((err) => {
             log.error('Failed to start game session');
             log.error(err);
+            this.showSessionError(playerId, (err && err.message) || 'Failed to start the game session.');
         });
     }
 
@@ -388,6 +487,12 @@ class HomegamesDashboard extends ViewableGame {
             onVersionChange: (newVersionId) => this.showGameModalNew(playerId, view.gameKey, newVersionId),
             onJoinSession: (session) => this.joinSession(playerId, session),
             onCreateSession: () => this._createSessionFromModal(playerId, view),
+            // Single player: swap that player's client to an in-place local
+            // session. Installed games only — the local-manifest endpoint
+            // serves from disk.
+            onPlaySinglePlayer: (this.startLocalPlay && view.createContext.installed)
+                ? () => this.startLocalPlay(playerId, { gameKey: view.gameKey, versionId: view.selectedVersionId })
+                : null,
             onClose: () => playerRoot.removeChild(modal.node.id)
         });
 
@@ -415,6 +520,114 @@ class HomegamesDashboard extends ViewableGame {
         const plane = this.buildGamePlane({ gameCollection: this.localGames });
         this.getPlane().clearChildren();
         this.getPlane().addChild(plane);
+    }
+
+    // -----------------------------------------------------------------------
+    // Server settings
+    // -----------------------------------------------------------------------
+
+    // Everything the settings modal needs to render. HTTPS intent is read
+    // from the merged config file (NOT getConfigValue) because the env var
+    // HTTPS_ENABLED means "serving https in this process right now" — the two
+    // deliberately diverge between a config write and the restart.
+    _settingsState() {
+        const config = getConfig();
+        const configuredPageSizeNow = Number(config.DASHBOARD_PAGE_SIZE);
+        return {
+            servingHttps: this.servingHttps,
+            httpsEnabled: config.HTTPS_ENABLED === true,
+            certStatus: this._certManager ? this._certManager.getStatus() : null,
+            pendingRestart: this.pendingRestart,
+            pageSize: [3, 6, 9].indexOf(configuredPageSizeNow) >= 0 ? configuredPageSizeNow : 6,
+            homePort: config.HOME_PORT || 7001,
+            homenamesPort: config.HOMENAMES_PORT || 7100,
+            allowFork: config.FORK_SESSIONS_ENABLED === true,
+        };
+    }
+
+    _settingsHandlers(playerId) {
+        return {
+            onEnableMultiplayer: () => {
+                setConfigValue('HTTPS_ENABLED', true);
+                if (this._certManager) {
+                    // Background acquisition; progress arrives via onUpdate.
+                    this._certManager.ensureCert().catch(() => {});
+                }
+                this.showSettingsModal(playerId);
+            },
+            onDisableMultiplayer: () => {
+                setConfigValue('HTTPS_ENABLED', false);
+                if (this.servingHttps) {
+                    this.pendingRestart = true;
+                }
+                this.showSettingsModal(playerId);
+            },
+            onRestart: (openLink) => {
+                if (this.requestRestart) {
+                    this.requestRestart(openLink);
+                }
+            },
+            onSetPageSize: (n) => {
+                if ([3, 6, 9].indexOf(n) < 0) return;
+                if (this._settingsState().pageSize !== n) {
+                    setConfigValue('DASHBOARD_PAGE_SIZE', n);
+                    this.pendingRestart = true;
+                }
+                this.showSettingsModal(playerId);
+            },
+            onToggleAllowFork: () => {
+                // Applies to the NEXT session launch (the session manager
+                // reads FORK_SESSIONS_ENABLED per start) — no restart needed.
+                setConfigValue('FORK_SESSIONS_ENABLED', !this._settingsState().allowFork);
+                this.showSettingsModal(playerId);
+            },
+            onSetPort: (key, rawValue) => {
+                if (key !== 'HOME_PORT' && key !== 'HOMENAMES_PORT') return;
+                const port = Number(String(rawValue).trim());
+                // Unprivileged, sane range only; silently ignore junk input.
+                if (!Number.isInteger(port) || port < 1024 || port > 65535) return;
+                if (getConfig()[key] !== port) {
+                    setConfigValue(key, port);
+                    this.pendingRestart = true;
+                }
+                this.showSettingsModal(playerId);
+            },
+            onClose: () => this.closeSettingsModal(playerId),
+        };
+    }
+
+    showSettingsModal(playerId) {
+        const playerRoot = this.playerRoots[playerId] && this.playerRoots[playerId].node;
+        if (!playerRoot) return;
+
+        const modal = settingsModal({
+            playerId,
+            state: this._settingsState(),
+            handlers: this._settingsHandlers(playerId),
+        });
+
+        if (this.playerSettingsModals[playerId]) {
+            playerRoot.removeChild(this.playerSettingsModals[playerId]);
+        }
+        this.playerSettingsModals[playerId] = modal.node.id;
+        playerRoot.addChild(modal);
+    }
+
+    closeSettingsModal(playerId) {
+        const playerRoot = this.playerRoots[playerId] && this.playerRoots[playerId].node;
+        if (playerRoot && this.playerSettingsModals[playerId]) {
+            playerRoot.removeChild(this.playerSettingsModals[playerId]);
+        }
+        this.playerSettingsModals[playerId] = null;
+    }
+
+    // Cert progress landed — refresh the modal for whoever is looking at it.
+    _rerenderSettingsModals() {
+        Object.keys(this.playerSettingsModals).forEach(playerId => {
+            if (this.playerSettingsModals[playerId]) {
+                this.showSettingsModal(playerId);
+            }
+        });
     }
 
     getAssets() {
@@ -855,7 +1068,10 @@ class HomegamesDashboard extends ViewableGame {
         this._removeDownloadOverlay(playerId);
     }
 
-    showDownloadError(playerId, name) {
+    // Dismissible full-screen message for one player: dimmed backdrop,
+    // centered box, tap anywhere to close. Shared by download failures and
+    // session-start failures (one overlay slot per player).
+    _showOverlayMessage(playerId, text, size = 1.5) {
         const playerRootNode = this.playerRoots[playerId] && this.playerRoots[playerId].node;
         if (!playerRootNode) return;
 
@@ -881,8 +1097,8 @@ class HomegamesDashboard extends ViewableGame {
                 x: 50,
                 y: 47,
                 align: 'center',
-                size: 1.5,
-                text: `Couldn't download ${name}. Tap to dismiss.`,
+                size,
+                text,
                 color: DASHBOARD_TEXT_COLOR
             },
             playerIds: [playerId]
@@ -893,7 +1109,17 @@ class HomegamesDashboard extends ViewableGame {
         this.playerDownloadOverlays[playerId] = overlay.node.id;
     }
 
-    buildStaticElements(playerId, gamePlane, searchQuery = '', searchResults = null, browse = false) {
+    showDownloadError(playerId, name) {
+        this._showOverlayMessage(playerId, `Couldn't download ${name}. Tap to dismiss.`);
+    }
+
+    // Session launch failed — tell the player why (e.g. fork sessions disabled
+    // and Docker not running) instead of leaving them staring at the dashboard.
+    showSessionError(playerId, message) {
+        this._showOverlayMessage(playerId, `${message} Tap to dismiss.`, 1.2);
+    }
+
+    buildStaticElements(playerId, gamePlane, searchQuery = '', searchResults = null, browse = false, activeSessions = [], gridArea = GRID_AREA) {
         const baseNode = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: BASE_COLOR,
@@ -905,14 +1131,25 @@ class HomegamesDashboard extends ViewableGame {
         // height in y-units is size * 16/9 at the dashboard's aspect ratio.
         const centerTextY = (barY, barH, size) => barY + ((barH - (size * 16 / 9)) / 2);
 
-        // Coral header band behind the top bar — same treatment as the
-        // homegames.io site header.
+        // Coral header band behind the top bar (and the sessions strip, when
+        // present) — same treatment as the homegames.io site header.
         baseNode.addChild(new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 100, GRID_AREA.y),
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, gridArea.y),
             playerIds: [playerId],
             fill: CORAL_COLOR
         }));
+
+        // Active sessions — joinable from anywhere, no need to find the
+        // owning game's modal.
+        if (activeSessions.length > 0) {
+            baseNode.addChild(sessionStrip({
+                sessions: activeSessions,
+                playerId,
+                onJoin: (session) => this.joinSession(playerId, session),
+                area: SESSION_STRIP
+            }));
+        }
 
         // --- Top bar: Browse / Back toggle + search field on one slim row ---
         // The toggle is available regardless of demo mode, since browsing the
@@ -946,7 +1183,7 @@ class HomegamesDashboard extends ViewableGame {
 
         const playerSearchBox = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(15, TOP_BAR.y, 70, TOP_BAR.height),
+            coordinates2d: ShapeUtils.rectangle(15, TOP_BAR.y, 60, TOP_BAR.height),
             playerIds: [playerId],
             fill: PANEL_COLOR,
             border: 2,
@@ -980,7 +1217,7 @@ class HomegamesDashboard extends ViewableGame {
             // Clear button lives inside the right end of the search field.
             const clearSearchButton = new GameNode.Shape({
                 shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(79.5, TOP_BAR.y + 1, 5, TOP_BAR.height - 2),
+                coordinates2d: ShapeUtils.rectangle(69.5, TOP_BAR.y + 1, 5, TOP_BAR.height - 2),
                 playerIds: [playerId],
                 fill: PANEL_COLOR,
                 onClick: (playerId) => {
@@ -996,7 +1233,7 @@ class HomegamesDashboard extends ViewableGame {
 
             const clearSearchX = new GameNode.Text({
                 textInfo: {
-                    x: 82,
+                    x: 72,
                     y: centerTextY(TOP_BAR.y, TOP_BAR.height, 1.6),
                     size: 1.6,
                     align: 'center',
@@ -1009,6 +1246,28 @@ class HomegamesDashboard extends ViewableGame {
             clearSearchButton.addChild(clearSearchX);
             playerSearchBox.addChildren(clearSearchButton);
         }
+
+        // Server settings — open to every connected player for now.
+        const settingsButton = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(76.5, TOP_BAR.y, 11, TOP_BAR.height),
+            playerIds: [playerId],
+            fill: PANEL_COLOR,
+            border: 2,
+            color: PANEL_BORDER_COLOR,
+            onClick: (pid) => this.showSettingsModal(pid)
+        });
+        settingsButton.addChild(new GameNode.Text({
+            textInfo: {
+                x: 82,
+                y: centerTextY(TOP_BAR.y, TOP_BAR.height, 1.3),
+                align: 'center',
+                size: 1.3,
+                text: 'Settings',
+                color: DASHBOARD_TEXT_COLOR
+            },
+            playerIds: [playerId]
+        }));
 
         // --- Paging rail (right edge): up arrow / page indicator / down arrow ---
 
@@ -1116,7 +1375,7 @@ class HomegamesDashboard extends ViewableGame {
 
         downArrow.addChild(downText);
 
-        baseNode.addChildren(browseToggle, playerSearchBox);
+        baseNode.addChildren(browseToggle, playerSearchBox, settingsButton);
         if (canGoUp) {
             baseNode.addChildren(upArrow);
         }
@@ -1218,6 +1477,15 @@ class HomegamesDashboard extends ViewableGame {
         const playerRoot = this.playerRoots[playerId];
         const playerView = this.playerStates[playerId].view;
 
+        // Remember this player's mode so strip changes (session created or
+        // ended, player counts) can re-render them in place.
+        this.playerRenderModes[playerId] = { searchResults, searchQuery, browse };
+
+        // The grid compresses to make room for the sessions strip when there
+        // are sessions to show.
+        const activeSessions = this._getActiveSessions();
+        const gridArea = activeSessions.length > 0 ? GRID_AREA_WITH_SESSIONS : GRID_AREA;
+
         // Drop the previous render layer before drawing the new one. Without this
         // every re-render (search, paging, browse) stacked another full-screen UI
         // on top of the old one, leaking nodes and leaving stale click handlers
@@ -1259,19 +1527,19 @@ class HomegamesDashboard extends ViewableGame {
             gamePlane = this.getPlane();
         }
 
-        const staticElements = this.buildStaticElements(playerId, gamePlane, searchQuery, searchResults, browse);
+        const staticElements = this.buildStaticElements(playerId, gamePlane, searchQuery, searchResults, browse, activeSessions, gridArea);
 
         const view = ViewUtils.getView(
             gamePlane,
             playerView,
             [playerId],
             {
-                x: GRID_AREA.x,
-                y: GRID_AREA.y
+                x: gridArea.x,
+                y: gridArea.y
             },
             {
-                x: GRID_AREA.width / 100,
-                y: GRID_AREA.height / 100
+                x: gridArea.width / 100,
+                y: gridArea.height / 100
             }
         );
 
@@ -1299,6 +1567,8 @@ class HomegamesDashboard extends ViewableGame {
             this.playerRootNode.removeChild(node.id);
             delete this.playerRoots[playerId];
             delete this.playerRenderLayers[playerId];
+            delete this.playerSettingsModals[playerId];
+            delete this.playerRenderModes[playerId];
         }
     }
     
@@ -1325,5 +1595,7 @@ module.exports.UI = {
     GRID_ROWS,
     TOP_BAR,
     GRID_AREA,
+    GRID_AREA_WITH_SESSIONS,
+    SESSION_STRIP,
     PAGE_RAIL,
 };

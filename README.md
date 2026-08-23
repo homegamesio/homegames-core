@@ -9,7 +9,7 @@ Running it starts:
 - One **child process per running game** (a forked Node process or a `homegames-runner` Docker container), each on its own port from `GAME_SERVER_PORT_RANGE_MIN..MAX`.
 - Optionally, a WebSocket client to [homegames.link](../homegames.link) so the server is discoverable at `https://homegames.link` from the same network (and remotely via the public relay).
 
-Rendering is server-authoritative: games build a tree of `GameNode`s (shapes/text/assets on a 0–100 coordinate plane), the server serializes that tree with [squish](../squish) and streams binary frames over WebSocket; browsers ([homegames-client](../homegames-client), served by [homegames-web](../homegames-web)) render frames and send back JSON input events.
+Rendering is server-authoritative: games build a tree of `GameNode`s (shapes/text/assets on a 0–100 coordinate plane), the server serializes that tree with [squish](../squish) and streams binary frames over WebSocket; browsers running [homegames-client](../homegames-client) — which core itself serves on `HOME_PORT` (see `src/util/web-client.js`; [homegames-web](../homegames-web) is the legacy standalone server) — render frames and send back JSON input events.
 
 ## Running
 
@@ -66,9 +66,9 @@ A game is a class extending `Game`/`ViewableGame` from a `squish-<version>` pack
 
 - `static metadata()` → `{ squishVersion, aspectRatio, tickRate, author, thumbnail, ... }` (`squishVersion` is required — it's AST-parsed at load time)
 - `getLayers()` → `[{ root: <GameNode> }, ...]`
-- lifecycle hooks: `handleNewPlayer`, `handlePlayerDisconnect`, `handleKeyDown/Up`, `tick()`, `close()`, optional `getAssets()`, `canAddPlayer()`, `handleNewSpectator()`
+- lifecycle hooks: `handleNewPlayer`, `handlePlayerDisconnect`, `handleKeyDown/Up`, `handleMouseMove/Up`, `tick()`, `close()`, optional `getAssets()` (note: `canAddPlayer()` is NOT a hook — capacity is only `metadata().maxPlayers`)
 
-`src/games/squarer/index.js` is a good minimal example; the full authoring contract lives in [homegames-common/docs/squishjs-game-authoring.md](../homegames-common/docs/squishjs-game-authoring.md).
+`src/games/squarer/index.js` is a good minimal example; the full authoring contract lives in [homegames-common/docs/homegames-context.md](../homegames-common/docs/homegames-context.md) (Part II).
 
 ## Related repos
 
@@ -77,7 +77,7 @@ A game is a class extending `Game`/`ViewableGame` from a `squish-<version>` pack
 - **[homegames-client](../homegames-client) / [homegames-web](../homegames-web)** — the browser side
 - **[api](../api)** — game catalog, publishing, assets, cert issuance
 - **[homegames.link](../homegames.link)** — LAN discovery + dynamic DNS
-- **[homegames](../homegames)** — wrapper combining this and homegames-web into one runnable unit
+- **[homegames](../homegames)** — the supervisor that runs this process (restart contract: exit 75 = restart, 76 = restart + open homegames.link)
 
 ## Known cruft (as of this writing)
 

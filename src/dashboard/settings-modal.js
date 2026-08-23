@@ -1,0 +1,252 @@
+const { GameNode, Colors, ShapeUtils, Shapes } = require('squish-142');
+
+const COLORS = Colors.COLORS;
+
+// Same treatment as the game modal (homegames.io modal palette): charcoal
+// panel, white text, butter primary buttons, coral accents.
+const PANEL_COLOR = [77, 77, 77, 255];
+const PANEL_BORDER_COLOR = [26, 26, 26, 255];
+const CORAL_COLOR = [241, 112, 111, 255];
+const BUTTER_COLOR = [255, 247, 142, 255];
+const PANEL_TEXT_COLOR = COLORS.WHITE;
+const MUTED_TEXT_COLOR = [206, 209, 200, 255];
+const OK_COLOR = [144, 238, 144, 255];
+
+const centerTextY = (barY, barH, size) => barY + ((barH - (size * 16 / 9)) / 2);
+
+const button = ({ x, y, width, height, text, playerId, onClick, fill = BUTTER_COLOR, textColor = COLORS.ALMOST_BLACK, size = 1.2 }) => {
+    const node = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(x, y, width, height),
+        playerIds: [playerId],
+        fill,
+        border: 2,
+        color: PANEL_BORDER_COLOR,
+        onClick
+    });
+    node.addChild(new GameNode.Text({
+        textInfo: {
+            x: x + (width / 2),
+            y: centerTextY(y, height, size),
+            align: 'center',
+            size,
+            color: textColor,
+            text
+        }
+    }));
+    return node;
+};
+
+const label = ({ x, y, text, playerId, size = 1.2, color = PANEL_TEXT_COLOR, align = 'left' }) => new GameNode.Text({
+    textInfo: { x, y, align, size, color, text },
+    playerIds: [playerId]
+});
+
+// Human line for the multiplayer/cert block, from the state the dashboard
+// assembles (see HomegamesDashboard._settingsState).
+const multiplayerStatusLines = ({ servingHttps, httpsEnabled, certStatus }) => {
+    if (servingHttps) {
+        return {
+            headline: 'Multiplayer is enabled',
+            detail: 'Players can join at homegames.link',
+            color: OK_COLOR
+        };
+    }
+    if (!httpsEnabled) {
+        return {
+            headline: 'Multiplayer via homegames.link is off',
+            detail: 'Enabling requests a certificate for this network (takes a few minutes)',
+            color: MUTED_TEXT_COLOR
+        };
+    }
+    // Opted in, not serving yet — the cert manager is (or was) working on it.
+    const state = certStatus && certStatus.state;
+    if (state === 'valid' || state === 'renewed') {
+        return {
+            headline: 'Certificate ready',
+            detail: 'Restart to start serving via homegames.link',
+            color: OK_COLOR
+        };
+    }
+    if (state === 'error') {
+        return {
+            headline: 'Certificate request failed',
+            detail: (certStatus && certStatus.detail) || 'Unknown error',
+            color: CORAL_COLOR
+        };
+    }
+    if (state === 'requesting' || state === 'waiting' || state === 'renewing') {
+        return {
+            headline: 'Setting up secure connection…',
+            detail: (certStatus && certStatus.detail) || 'Working…',
+            color: MUTED_TEXT_COLOR
+        };
+    }
+    return {
+        headline: 'Multiplayer enabled, waiting for certificate',
+        detail: 'Certificate status unavailable',
+        color: MUTED_TEXT_COLOR
+    };
+};
+
+/**
+ * Server settings modal.
+ *
+ * state: {
+ *   servingHttps, httpsEnabled, certStatus, pendingRestart,
+ *   pageSize, homePort, homenamesPort
+ * }
+ * handlers: onEnableMultiplayer, onDisableMultiplayer, onRestart(openLink),
+ *   onSetPageSize(n), onSetPort(key, rawValue), onClose
+ */
+const settingsModal = ({ playerId, state, handlers }) => {
+    const modal = new GameNode.Shape({
+        coordinates2d: ShapeUtils.rectangle(5, 5, 90, 90),
+        fill: PANEL_COLOR,
+        border: 2,
+        color: PANEL_BORDER_COLOR,
+        shapeType: Shapes.POLYGON,
+        playerIds: [playerId]
+    });
+
+    modal.addChild(label({ x: 50, y: 8.5, text: 'Server settings', playerId, size: 2, align: 'center' }));
+
+    // Close X (same affordance as the game modal)
+    const closeButton = new GameNode.Shape({
+        coordinates2d: ShapeUtils.rectangle(88, 6.5, 5.5, 6),
+        fill: [0, 0, 0, 0],
+        shapeType: Shapes.POLYGON,
+        onClick: handlers.onClose,
+        playerIds: [playerId]
+    });
+    closeButton.addChild(new GameNode.Text({
+        textInfo: { x: 90.75, y: centerTextY(6.5, 6, 1.8), text: '✕', align: 'center', color: CORAL_COLOR, size: 1.8 }
+    }));
+    modal.addChild(closeButton);
+
+    // --- Multiplayer / homegames.link block ---
+    modal.addChild(label({ x: 10, y: 17, text: 'Multiplayer (homegames.link)', playerId, size: 1.5 }));
+
+    const status = multiplayerStatusLines(state);
+    modal.addChild(label({ x: 10, y: 23, text: status.headline, playerId, size: 1.25, color: status.color }));
+    modal.addChild(label({ x: 10, y: 27, text: status.detail, playerId, size: 1.05, color: MUTED_TEXT_COLOR }));
+
+    const certReady = state.certStatus && (state.certStatus.state === 'valid' || state.certStatus.state === 'renewed');
+
+    if (!state.httpsEnabled && !state.servingHttps) {
+        modal.addChild(button({
+            x: 10, y: 32, width: 30, height: 8,
+            text: 'Enable multiplayer',
+            playerId,
+            onClick: handlers.onEnableMultiplayer
+        }));
+    } else if (state.httpsEnabled && !state.servingHttps && certReady) {
+        modal.addChild(button({
+            x: 10, y: 32, width: 34, height: 8,
+            text: 'Restart to enable homegames.link',
+            playerId,
+            onClick: () => handlers.onRestart(true)
+        }));
+    } else if (state.httpsEnabled && !state.servingHttps && state.certStatus && state.certStatus.state === 'error') {
+        modal.addChild(button({
+            x: 10, y: 32, width: 30, height: 8,
+            text: 'Retry certificate request',
+            playerId,
+            onClick: handlers.onEnableMultiplayer
+        }));
+    }
+
+    if (state.httpsEnabled || state.servingHttps) {
+        modal.addChild(button({
+            x: 46, y: 32, width: 22, height: 8,
+            text: 'Disable multiplayer',
+            playerId,
+            fill: COLORS.WHITE,
+            onClick: handlers.onDisableMultiplayer
+        }));
+    }
+
+    // --- Server configuration block ---
+    modal.addChild(label({ x: 10, y: 46, text: 'Server configuration', playerId, size: 1.5 }));
+    modal.addChild(label({ x: 10, y: 51, text: 'Changes apply after a restart', playerId, size: 1.0, color: MUTED_TEXT_COLOR }));
+
+    // Games per page: 3 / 6 / 9
+    modal.addChild(label({ x: 10, y: 57.5, text: 'Games per page', playerId, size: 1.2 }));
+    [3, 6, 9].forEach((n, i) => {
+        modal.addChild(button({
+            x: 32 + (i * 9), y: 56, width: 7, height: 6,
+            text: `${n}`,
+            playerId,
+            fill: state.pageSize === n ? BUTTER_COLOR : COLORS.WHITE,
+            onClick: () => handlers.onSetPageSize(n)
+        }));
+    });
+
+    // Ports: text inputs (same input mechanism as the dashboard search box)
+    const portField = ({ y, labelText, value, configKey }) => {
+        modal.addChild(label({ x: 10, y: y + 1.5, text: labelText, playerId, size: 1.2 }));
+        const box = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(32, y, 16, 6),
+            playerIds: [playerId],
+            fill: COLORS.WHITE,
+            border: 2,
+            color: PANEL_BORDER_COLOR,
+            input: {
+                type: 'text',
+                oninput: (pid, input) => handlers.onSetPort(configKey, input)
+            }
+        });
+        box.addChild(new GameNode.Text({
+            textInfo: {
+                x: 33.5,
+                y: centerTextY(y, 6, 1.2),
+                align: 'left',
+                size: 1.2,
+                color: COLORS.ALMOST_BLACK,
+                text: `${value}`
+            }
+        }));
+        modal.addChild(box);
+    };
+
+    portField({ y: 63.5, labelText: 'Game port', value: state.homePort, configKey: 'HOME_PORT' });
+    portField({ y: 70.5, labelText: 'Identity port', value: state.homenamesPort, configKey: 'HOMENAMES_PORT' });
+
+    // Fork opt-in: without Docker, game sessions run via fork() with no
+    // isolation — off by default. Applies to new sessions immediately
+    // (the session manager reads it per launch), hence no pendingRestart.
+    modal.addChild(label({ x: 10, y: 79, text: 'Allow fork for child sessions', playerId, size: 1.2 }));
+    modal.addChild(button({
+        x: 44, y: 77.5, width: 10, height: 6,
+        text: state.allowFork ? 'On' : 'Off',
+        playerId,
+        fill: state.allowFork ? BUTTER_COLOR : COLORS.WHITE,
+        onClick: () => handlers.onToggleAllowFork()
+    }));
+    modal.addChild(label({
+        x: 56, y: 79.5,
+        text: 'Runs games without Docker. Applies immediately.',
+        playerId, size: 0.95, color: MUTED_TEXT_COLOR
+    }));
+
+    // --- Restart to apply ---
+    if (state.pendingRestart) {
+        modal.addChild(button({
+            x: 10, y: 85.5, width: 30, height: 8,
+            text: 'Restart to apply changes',
+            playerId,
+            onClick: () => handlers.onRestart(false)
+        }));
+        modal.addChild(label({
+            x: 42, y: 88.5,
+            text: 'Restarting briefly disconnects everyone',
+            playerId, size: 1.0, color: MUTED_TEXT_COLOR
+        }));
+    }
+
+    return modal;
+};
+
+module.exports = settingsModal;
+module.exports.multiplayerStatusLines = multiplayerStatusLines;

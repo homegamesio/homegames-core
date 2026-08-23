@@ -79,6 +79,10 @@ const getClientInfo = () => new Promise((resolve, reject) => {
         resolve({
             localIp,
             publicIp,
+            // The one port serving everything (page + WS, HTTP or HTTPS).
+            // homegames.link appends it to redirect/selector URLs; older link
+            // servers ignore it (falling back to scheme-default 80/443).
+            port: getConfigValue('HOME_PORT', 7001),
             https: httpsEnabled, // legacy field, kept for back-compat with older link servers
             httpsEnabled,
             httpsReady

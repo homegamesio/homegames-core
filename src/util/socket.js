@@ -196,9 +196,31 @@ const broadcast = (gameSession) => {
 // ---------------------------------------------------------------------------
 // Socket server
 // ---------------------------------------------------------------------------
-const socketServer = (gameSession, port, cb = null, certPath = null, username = null) => {
+const socketServer = (gameSession, port, cb = null, certPath = null, username = null, opts = {}) => {
+
+    // The main server (dashboard session on HOME_PORT) serves the browser
+    // client itself, so http(s)://host:port is the whole product. It also
+    // serves local-play manifests so games can run single-player in the
+    // browser with no game session. Child game session servers leave this
+    // off — players reach them via WS redirects.
+    let webClientHandler = null;
+    let localPlayHandler = null;
+    if (opts.serveWebClient) {
+        const { createWebClientHandler } = require('./web-client');
+        const { createLocalPlayHandler } = require('./local-play');
+        webClientHandler = createWebClientHandler();
+        localPlayHandler = createLocalPlayHandler();
+    }
 
     const requestHandler = (req, res) => {
+        if (webClientHandler && webClientHandler(req, res)) {
+            return;
+        }
+
+        if (localPlayHandler && localPlayHandler(req, res)) {
+            return;
+        }
+
         if (req.url === '/api/players') {
             const players = Object.keys(gameSession.players).map(id => ({
                 id,
@@ -228,6 +250,28 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
             key: fs.readFileSync(`${certPath}/homegames.key`).toString(),
             cert: fs.readFileSync(`${certPath}/homegames.cert`).toString()
         }, requestHandler);
+
+        // Hot-swap renewed certs into the live server — without this a
+        // long-running instance would serve the old cert until expiry even
+        // though the renewal wrote a fresh one to disk. Only the main process
+        // has a cert manager; child game servers are short-lived and read
+        // certs at spawn.
+        const { getDefaultInstance } = require('./cert-manager');
+        const certManager = getDefaultInstance();
+        if (certManager) {
+            certManager.onUpdate((status) => {
+                if (status.state !== 'renewed') return;
+                const renewed = certManager.readCertificate();
+                if (!renewed) return;
+                try {
+                    server.setSecureContext(renewed);
+                    log.info('Renewed certificate hot-swapped into running HTTPS server');
+                } catch (err) {
+                    log.error('Failed to hot-swap renewed certificate');
+                    log.error(err);
+                }
+            });
+        }
     } else {
         log.info('Starting regular server on port ' + port);
         server = http.createServer(requestHandler);
