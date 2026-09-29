@@ -43,39 +43,18 @@ class MoveTest extends Game {
     }
 
     handleKeyUp(player, key) {
-        this.keysDown[key] = true;
+        this.keysDown[key] = false;
     }
 
     handleGamepadInput(playerId, gamepadInput) {
-        const stick1X = gamepadInput.input.sticks.STICK_1_X.value;
-        const stick2X = gamepadInput.input.sticks.STICK_2_X.value;
-
-        const stick1Y = gamepadInput.input.sticks.STICK_1_Y.value;
-        const stick2Y = gamepadInput.input.sticks.STICK_2_Y.value;
-
-
-        if (stick1X < 0) {
-            this.movePlayer(this.mover1, 'left', .1);
-        } else if (stick1X > 0) {
-            this.movePlayer(this.mover1, 'right', .1);
-        }
-
-        if (stick1Y < 0) {
-            this.movePlayer(this.mover1, 'up', .1);
-        } else if (stick1Y > 0) {
-            this.movePlayer(this.mover1, 'down', .1);
-        }
-
-        if (stick2X < 0) {
-            this.movePlayer(this.mover2, 'left', .1);
-        } else if (stick2X > 0) {
-            this.movePlayer(this.mover2, 'right', .1);
-        }
-
-        if (stick2Y < 0) {
-            this.movePlayer(this.mover2, 'up', .1);
-        } else if (stick2Y > 0) {
-            this.movePlayer(this.mover2, 'down', .1);
+        // Analog example: state arrives repeatedly while held. Multiplying by
+        // deltaTime makes movement independent of polling/display refresh rate.
+        const dt = gamepadInput.deltaTime ?? 1 / 60;
+        for (const [stick, mover] of [[1, this.mover1], [2, this.mover2]]) {
+            const x = gamepadInput.input.sticks[`STICK_${stick}_X`].value;
+            const y = gamepadInput.input.sticks[`STICK_${stick}_Y`].value;
+            if (x) this.movePlayer(mover, x < 0 ? 'left' : 'right', Math.abs(x) * 6 * dt);
+            if (y) this.movePlayer(mover, y < 0 ? 'up' : 'down', Math.abs(y) * 6 * dt);
         }
     }
 
@@ -121,7 +100,7 @@ class MoveTest extends Game {
 
         if (wouldBeCollisions.length == 0) {
             const newCoords = ShapeUtils.rectangle(newX, newY, 10, 17);
-            player.node.coordinates2d = newCoords;
+            player.update({ coordinates2d: newCoords });
         }
     }
 

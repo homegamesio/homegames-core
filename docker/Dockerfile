@@ -5,6 +5,7 @@ WORKDIR /app
 # Copy homegames-common as a local module inside the image
 # The build script (build-image.sh) copies it to docker/build-deps/ before building
 COPY build-deps/homegames-common /app/homegames-common
+COPY build-deps/homepad /app/homepad
 
 # Install homegames-common's own dependencies first
 WORKDIR /app/homegames-common

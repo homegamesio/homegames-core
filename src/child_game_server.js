@@ -9,6 +9,7 @@ const { reportBug } = require('./common/util');
 const { getService } = require('./services/index');
 
 const process = require('process');
+const SessionLifetime = require('homegames-common/session-lifetime');
 
 let lastMessage;
 let gameSession; // used in both frame and no-frame modes
@@ -486,45 +487,29 @@ process.on('error', (err) => {
     log.error('error happened', err);
 });
 
-const GRACE_PERIOD_MS = Number(process.env.GRACE_PERIOD_MS) || 30000;
+const lifetime = new SessionLifetime({
+    gracePeriodMs: Number(process.env.GRACE_PERIOD_MS) || 30000,
+});
 
 const checkPulse = () => {
-    if (!gameSession) {
-        log.info('discontinuing myself (no session)');
+    // Loading a game/assets can be asynchronous. Start the idle clock only
+    // once there is a session whose occupancy we can actually observe.
+    if (!gameSession) return;
+    const reason = lifetime.check({
+        hasPlayers: gameSession.getPlayerCount() > 0 || Object.keys(gameSession.spectators).length > 0,
+        persistent,
+        forked: isForked,
+        lastHeartbeat: lastMessage && Number(lastMessage),
+    });
+    if (reason) {
+        log.info(`discontinuing myself (${reason})`);
+        gameSession.destroy();
         process.exit(0);
-        return;
-    }
-
-    const hasPlayers = gameSession.getPlayerCount() > 0
-        || Object.keys(gameSession.spectators).length > 0;
-
-    // An admin has pinned this session alive — never self-terminate on empty.
-    // (Parent-disconnect orphan protection below still applies, so a persistent
-    // fork session can't outlive a dead parent.)
-    if (persistent) return;
-
-    if (isForked) {
-        // Fork mode: parent sends heartbeats. If we haven't heard from parent in 5s
-        // AND there are no players, shut down.
-        if (!hasPlayers && (!lastMessage || new Date() - lastMessage > 5000)) {
-            log.info('discontinuing myself');
-            process.exit(0);
-        }
-    } else {
-        // Docker mode: no parent heartbeats. Just check if anyone is connected.
-        if (!hasPlayers) {
-            log.info('discontinuing myself (no players)');
-            process.exit(0);
-        }
     }
 };
 
-// short grace period to allow the first client to connect before checking heartbeat
-setTimeout(() => {
-    setInterval(checkPulse, 3 * 1000);
-}, isForked ? 2000 : GRACE_PERIOD_MS);
+setInterval(checkPulse, 3000);
 
-// Prevent unhandled rejections from crashing the process silently
 process.on('unhandledRejection', (reason) => {
     log.error('Unhandled promise rejection in child process:');
     log.error(reason);

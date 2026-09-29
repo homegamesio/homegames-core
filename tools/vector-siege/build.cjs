@@ -1,0 +1,12 @@
+const fs = require('fs');
+const path = require('path');
+const gameDir = path.resolve(__dirname, '../../src/games/vector-siege');
+const files = Object.fromEntries(['index.js', 'engine.js', 'combat.js', 'settings.js', 'scene.js', 'sound.js', 'war.js', 'war-battle.js', 'war-scene.js', 'war-settings.js'].map(name => [name, fs.readFileSync(path.join(gameDir, name), 'utf8')]));
+const client = fs.readFileSync(path.resolve(__dirname, '../../../homegames-client/dist/homegames-client.js'), 'utf8');
+const escaped = s => s.replace(/<\/script/gi, '<\\/script');
+let html = fs.readFileSync(path.join(__dirname, 'preview.html'), 'utf8');
+html = html.replace('<script src="/homegames-client.js"></script>', '<script>'+escaped(client)+'</script>');
+html = html.replace("fetch('/game.json').then(r=>r.json())", 'Promise.resolve('+escaped(JSON.stringify(files))+')');
+const output = path.join(__dirname, 'vector-siege.html');
+fs.writeFileSync(output, html);
+console.log(output+' ('+Buffer.byteLength(html)+' bytes; no external dependencies)');

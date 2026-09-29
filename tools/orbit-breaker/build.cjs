@@ -1,0 +1,12 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.resolve(__dirname, '../../src/games/orbit-breaker');
+const files = Object.fromEntries(fs.readdirSync(root).filter(f => f.endsWith('.js')).map(f => [f, fs.readFileSync(path.join(root, f), 'utf8')]));
+const client = fs.readFileSync(path.resolve(__dirname, '../../../homegames-client/dist/homegames-client.js'), 'utf8');
+const escape = s => s.replace(/<\/script/gi, '<\\/script');
+let html = fs.readFileSync(path.join(__dirname, 'preview.html'), 'utf8');
+html = html.replace('<script src="/homegames-client.js"></script>', () => '<script>' + escape(client) + '</script>');
+html = html.replace("fetch('/game.json').then(r=>r.json())", () => 'Promise.resolve(' + escape(JSON.stringify(files)) + ')');
+const output = path.join(__dirname, 'orbit-breaker.html');
+fs.writeFileSync(output, html);
+console.log(output + ' (' + Buffer.byteLength(html) + ' bytes; fully offline)');

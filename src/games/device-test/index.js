@@ -59,54 +59,27 @@ class DeviceTest extends Game {
     }
     
     deviceRules(playerId, clientInfo) {
-        const funcMap = {
-            aspectRatio: (player, x) => {
-            },
-            deviceType: (type) => {
-                if (type === 'desktop') {
-                    const playerNode = new GameNode.Shape({
-                        shapeType: Shapes.POLYGON,
-                        fill: COLORS.RED,
-                        coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                        playerIds: [playerId]
-                    });
-
-                    if (this.playerStates[playerId]) {
-                        this.playerStates[playerId].root.clearChildren();
-                        this.playerStates[playerId].root.addChild(playerNode);
-                    }
-                } else if (type == 'mobile') {
-                    const playerNode = new GameNode.Shape({
-                        shapeType: Shapes.POLYGON,
-                        fill: COLORS.BLUE,
-                        coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                        playerIds: [playerId]
-                    });
-
-                    // 1:2 ratio for mobile
-                    // player.receiveUpdate([9, 1, 2]);
-
-                    if (this.playerStates[playerId]) {
-                        this.playerStates[playerId].root.clearChildren();
-                        this.playerStates[playerId].root.addChild(playerNode);
-                    }
-                } else {
-                    const playerNode = new GameNode.Shape({
-                        shapeType: Shapes.POLYGON,
-                        fill: COLORS.TERRACOTTA,
-                        coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-                        playerIds: [playerId]
-                    });
-
-                    if (this.playerStates[playerId]) {
-                        this.playerStates[playerId].root.clearChildren();
-                        this.playerStates[playerId].root.addChild(playerNode);
-                    }
-                } 
-            }
+        const colorsByType = {
+            desktop: COLORS.RED,
+            mobile: COLORS.BLUE,
+            tablet: COLORS.GREEN
         };
 
-        funcMap.deviceType(clientInfo.deviceType);
+        // Unknown/missing device types are treated as desktop.
+        const reportedType = clientInfo && clientInfo.deviceType;
+        const type = colorsByType[reportedType] ? reportedType : 'desktop';
+
+        const playerNode = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            fill: colorsByType[type],
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            playerIds: [playerId]
+        });
+
+        if (this.playerStates[playerId]) {
+            this.playerStates[playerId].root.clearChildren();
+            this.playerStates[playerId].root.addChild(playerNode);
+        }
     }
 
     getLayers() {

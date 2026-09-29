@@ -34,6 +34,16 @@ for f in "$COMMON_SRC"/*.js "$COMMON_SRC"/package.json "$COMMON_SRC"/package-loc
     [ -f "$f" ] && cp "$f" build-deps/homegames-common/
 done
 
+# The common runtime consumes Homepad's pure input mapper. Include the same
+# sibling library used by the browser while these packages are developed locally.
+HOMEPAD_SRC="$COMMON_SRC/../homepad"
+if [ ! -f "$HOMEPAD_SRC/package.json" ]; then
+    HOMEPAD_SRC="$COMMON_SRC/node_modules/homepad"
+fi
+mkdir -p build-deps/homepad
+cp "$HOMEPAD_SRC"/*.js "$HOMEPAD_SRC/package.json" build-deps/homepad/
+cp -r "$HOMEPAD_SRC/gamepad-mappings" build-deps/homepad/
+
 # Copy homegames-core src/ directory (GameSession, HomegamesRoot, socketServer, etc.)
 # child_game_server.js lives inside src/ and uses relative requires.
 cp -r "$CORE_DIR/src" build-deps/homegames-core-src

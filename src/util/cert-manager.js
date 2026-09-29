@@ -7,10 +7,9 @@
 //      (md5(publicIP).homegames.link) and, eventually, the issued cert.
 //   2. Generate a keypair + CSR locally (the private key NEVER leaves this
 //      machine; only the CSR is submitted).
-//   3. POST /request-cert with the CSR. The key is written to disk (0600)
-//      only after a successful submission, so "key on disk but no cert"
-//      reliably means "CSR submitted — keep polling".
-//   4. Poll /cert-status until the cert is issued (the API's worker completes
+//   3. Persist a private pending request (0600) and submit its CSR + ID.
+//      Existing working key/certificate files remain intact until validation.
+//   4. Poll /cert-status?requestId=... until the cert is issued (the API's worker completes
 //      an ACME dns-01 order asynchronously — this takes minutes).
 //
 // Acquisition runs in the background: the server starts on HTTP immediately
@@ -22,7 +21,7 @@
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
-const { X509Certificate } = require('crypto');
+const { X509Certificate, createPrivateKey, randomUUID } = require('crypto');
 
 const { getConfigValue, getAppDataPath } = require('homegames-common');
 
@@ -38,51 +37,28 @@ const KEY_FILE = 'homegames.key';
 // ---------------------------------------------------------------------------
 
 const createTransport = (apiUrl) => {
-    const apiHost = new URL(apiUrl).host.split(':')[0];
-
-    // Both requests carry error + timeout handlers: without them a network
-    // failure emits 'error' with no listener (process crash), and a
-    // black-hole connection hangs forever.
+    const request = (endpoint, body) => new Promise((resolve, reject) => {
+        const url = new URL(endpoint, apiUrl);
+        const payload = body ? JSON.stringify(body) : null;
+        const transport = url.protocol === 'https:' ? https : require('http');
+        const req = transport.request(url, { method: payload ? 'POST' : 'GET', headers: payload ? {
+            'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload),
+        } : {} }, res => {
+            let data = '';
+            res.on('data', chunk => {
+                data += chunk;
+                if (data.length > 256000) req.destroy(new Error('Certificate response too large'));
+            });
+            res.on('error', reject);
+            res.on('end', () => res.statusCode >= 200 && res.statusCode < 300
+                ? resolve(data) : reject(new Error(`Certificate API returned HTTP ${res.statusCode}`)));
+        });
+        const timer = setTimeout(() => req.destroy(new Error('Certificate API timed out')), 15000);
+        req.on('close', () => clearTimeout(timer)); req.on('error', reject); req.end(payload);
+    });
     return {
-        // The API identifies this network by its public IP — no body needed.
-        getCertStatus: () => new Promise((resolve, reject) => {
-            const req = https.request({ hostname: apiHost, port: 443, path: '/cert-status', method: 'GET' }, (res) => {
-                let responseData = '';
-                res.on('data', (chunk) => { responseData += chunk; });
-                res.on('end', () => resolve(responseData));
-            });
-            req.on('error', reject);
-            req.setTimeout(15 * 1000, () => req.destroy(new Error('cert-status request timed out')));
-            req.end();
-        }),
-
-        requestCert: (csr) => new Promise((resolve, reject) => {
-            const payload = JSON.stringify({ csr });
-            const req = https.request({
-                hostname: apiHost,
-                port: 443,
-                path: '/request-cert',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': Buffer.byteLength(payload),
-                },
-            }, (res) => {
-                let responseData = '';
-                res.on('data', (chunk) => { responseData += chunk; });
-                res.on('end', () => {
-                    if (res.statusCode > 199 && res.statusCode < 300) {
-                        resolve(responseData);
-                    } else {
-                        reject(new Error(`request-cert failed (${res.statusCode}): ${responseData}`));
-                    }
-                });
-            });
-            req.on('error', reject);
-            req.setTimeout(15 * 1000, () => req.destroy(new Error('request-cert timed out')));
-            req.write(payload);
-            req.end();
-        }),
+        getCertStatus: requestId => request('/cert-status' + (requestId ? `?requestId=${encodeURIComponent(requestId)}` : '')),
+        requestCert: (csr, requestId) => request('/request-cert', { csr, requestId }),
     };
 };
 
@@ -101,10 +77,12 @@ const createCertManager = ({
     renewCheckIntervalMs = 24 * 60 * 60 * 1000,
 } = {}) => {
     const api = transport || createTransport(apiUrl);
-    const generateCsr = createCsr || ((opts) => require('acme-client').crypto.createCsr(opts));
+    const generateCsr = createCsr || ((opts, key) => require('acme-client').crypto.createCsr(opts, key));
 
     const certFile = path.join(certPath, CERT_FILE);
     const keyFile = path.join(certPath, KEY_FILE);
+    const pendingFile = path.join(certPath, 'pending-request.json');
+    let stopped = false;
 
     const listeners = [];
     let status = { state: 'idle', detail: null, certDomain: null, expiresAt: null, updatedAt: Date.now() };
@@ -129,87 +107,92 @@ const createCertManager = ({
         }
     };
 
-    const hasValidCert = () => {
-        if (!fs.existsSync(certFile) || !fs.existsSync(keyFile)) return false;
-        const expiry = certExpiry();
-        return expiry !== null && expiry > Date.now();
+    const validPair = (cert, key, domain) => {
+        try {
+            const parsed = new X509Certificate(cert);
+            return Date.parse(parsed.validTo) > Date.now() && Date.parse(parsed.validFrom) <= Date.now()
+                && parsed.checkPrivateKey(createPrivateKey(key))
+                && (!domain || !!parsed.checkHost(domain, { wildcards: false }));
+        } catch (_) { return false; }
     };
-
-    // { key, cert } PEM strings, or null when not (validly) present.
+    const hasValidCert = () => {
+        try { return validPair(fs.readFileSync(certFile), fs.readFileSync(keyFile)); }
+        catch (_) { return false; }
+    };
     const readCertificate = () => {
         if (!hasValidCert()) return null;
-        return {
-            key: fs.readFileSync(keyFile).toString(),
-            cert: fs.readFileSync(certFile).toString(),
-        };
+        return { key: fs.readFileSync(keyFile, 'utf8'), cert: fs.readFileSync(certFile, 'utf8') };
     };
-
-    // Poll until the API's async ACME order completes and the cert arrives.
-    const pollForCert = () => new Promise((resolve, reject) => {
-        const timeoutTime = Date.now() + pollTimeoutMs;
-        const checker = setInterval(() => {
-            if (Date.now() >= timeoutTime) {
-                clearInterval(checker);
-                setStatus('error', 'Timed out waiting for certificate. Try again later or contact support@homegames.io');
-                reject(new Error('Timed out waiting for certificate'));
-                return;
-            }
-            api.getCertStatus().then((raw) => {
-                let currentStatus;
-                try {
-                    currentStatus = JSON.parse(raw);
-                } catch (e) {
-                    return; // malformed response — next tick retries
-                }
-                if (currentStatus && currentStatus.cert) {
-                    clearInterval(checker);
-                    fs.writeFileSync(certFile, Buffer.from(currentStatus.cert, 'base64'));
-                    setStatus('valid', 'Certificate issued', { expiresAt: certExpiry() });
-                    resolve();
-                } else {
-                    setStatus('waiting', 'Certificate not ready yet — waiting');
-                }
-            }).catch(err => {
-                // A failed poll (network blip) is non-fatal: the next tick retries
-                // until the overall timeout.
-                log.error('[cert] status poll failed; will retry');
-                log.error(err);
-            });
-        }, pollIntervalMs);
-    });
-
-    // Full acquisition: learn our domain, generate key+CSR locally, submit,
-    // then poll. The key is written only AFTER a successful submission.
-    const requestCertFlow = () => {
-        setStatus('requesting', 'Requesting certificate domain from the Homegames API');
-        return api.getCertStatus().then((raw) => {
-            let commonName;
+    const atomicWrite = (file, data) => {
+        fs.mkdirSync(certPath, { recursive: true });
+        const temporary = `${file}.${randomUUID()}.tmp`;
+        try { fs.writeFileSync(temporary, data, { mode: 0o600 }); fs.renameSync(temporary, file); }
+        finally { if (fs.existsSync(temporary)) fs.unlinkSync(temporary); }
+    };
+    const readPending = () => {
+        if (!fs.existsSync(pendingFile)) return null;
+        const pending = JSON.parse(fs.readFileSync(pendingFile, 'utf8'));
+        if (!pending.key || !pending.csr || !pending.requestId || !pending.domain) throw new Error('Invalid pending certificate request');
+        createPrivateKey(pending.key);
+        return pending;
+    };
+    const install = (cert, pending) => {
+        if (!validPair(cert, pending.key, pending.domain)) throw new Error('Certificate does not match this server key and domain');
+        // Renewal reuses the existing TLS key, so replacing the certificate is
+        // one atomic rename. Never change a working pair to an unrelated key.
+        if (hasValidCert() && !new X509Certificate(fs.readFileSync(certFile)).checkPrivateKey(createPrivateKey(pending.key))) {
+            throw new Error('Refusing to replace a working certificate with an unrelated key');
+        }
+        if (!fs.existsSync(keyFile) || fs.readFileSync(keyFile, 'utf8') !== pending.key) atomicWrite(keyFile, pending.key);
+        atomicWrite(certFile, cert);
+        if (fs.existsSync(pendingFile)) fs.unlinkSync(pendingFile);
+        setStatus('valid', 'Certificate issued', { expiresAt: certExpiry() });
+    };
+    const pollForCert = async pending => {
+        const until = Date.now() + pollTimeoutMs;
+        while (!stopped && Date.now() < until) {
+            let current;
+            let timer;
             try {
-                commonName = JSON.parse(raw).certDomain;
-            } catch (e) {
-                throw new Error('Could not parse cert status from API');
+                const raw = await Promise.race([api.getCertStatus(pending.requestId), new Promise((_, reject) => {
+                    timer = setTimeout(() => reject(new Error('Certificate poll timed out')), Math.max(1, until - Date.now()));
+                })]);
+                current = JSON.parse(raw);
+            } catch (_) { /* A bounded network failure can retry within this poll budget. */ }
+            finally { clearTimeout(timer); }
+            if (stopped) throw new Error('Certificate manager stopped');
+            if (current?.status === 'FAILED') throw new Error(current.error || 'Certificate issuance failed');
+            if (current?.cert) {
+                const cert = Buffer.from(current.cert, 'base64');
+                const domain = pending.domain || current.certDomain;
+                // A legacy API may return the previous issuance. Keep waiting
+                // until its cert matches our pending key instead of installing it.
+                if (validPair(cert, pending.key, domain)) { install(cert, { ...pending, domain }); return; }
             }
-            if (!commonName) {
-                throw new Error('API did not return a cert domain for this network');
+            if (Date.now() < until) await new Promise(resolve => setTimeout(resolve, Math.min(pollIntervalMs, until - Date.now())));
+        }
+        throw new Error(stopped ? 'Certificate manager stopped' : 'Timed out waiting for certificate');
+    };
+    const requestCertFlow = async () => {
+        try {
+            let pending = readPending();
+            if (!pending) {
+                setStatus('requesting', 'Requesting certificate domain from the Homegames API');
+                const { certDomain: commonName } = JSON.parse(await api.getCertStatus());
+                if (!commonName) throw new Error('API did not return a certificate domain');
+                let existingKey = null;
+                try { existingKey = fs.readFileSync(keyFile); createPrivateKey(existingKey); } catch (_) { existingKey = null; }
+                const [key, csr] = await generateCsr({ commonName }, existingKey);
+                pending = { key: key.toString(), csr: csr.toString(), domain: commonName, requestId: randomUUID() };
+                // Persist before submission: a lost HTTP response can safely be
+                // retried with the same request ID, CSR and locally-held key.
+                atomicWrite(pendingFile, JSON.stringify(pending));
             }
-
-            setStatus('requesting', `Generating key for ${commonName}`, { certDomain: commonName });
-            return generateCsr({ commonName }).then(([key, csr]) => {
-                setStatus('requesting', 'Submitting certificate request');
-                return api.requestCert(csr.toString()).then(() => {
-                    if (!fs.existsSync(certPath)) {
-                        fs.mkdirSync(certPath, { recursive: true });
-                    }
-                    // Private key -> 0600 so other local users can't read it.
-                    fs.writeFileSync(keyFile, key, { mode: 0o600 });
-                    setStatus('waiting', 'Request submitted — waiting for certificate');
-                    return pollForCert();
-                });
-            });
-        }).catch(err => {
-            setStatus('error', `${err && err.message || err}`);
-            throw err;
-        });
+            setStatus('requesting', 'Submitting certificate request', { certDomain: pending.domain });
+            await api.requestCert(pending.csr, pending.requestId);
+            setStatus('waiting', 'Request submitted — waiting for certificate');
+            return await pollForCert(pending);
+        } catch (err) { setStatus('error', err.message); throw err; }
     };
 
     // Make sure a valid cert exists on disk, acquiring one if needed.
@@ -221,11 +204,13 @@ const createCertManager = ({
         if (hasValidCert()) {
             setStatus('valid', 'Valid certificate on disk', { expiresAt: certExpiry() });
             flow = Promise.resolve();
+        } else if (fs.existsSync(pendingFile)) {
+            flow = requestCertFlow();
         } else if (fs.existsSync(keyFile)) {
             // Key but no (valid) cert: the key is only written after a CSR was
             // successfully submitted, so an issued cert may already be waiting.
             setStatus('waiting', 'Certificate request in flight — checking status');
-            flow = pollForCert().catch((err) => {
+            flow = pollForCert({ key: fs.readFileSync(keyFile, 'utf8') }).catch((err) => {
                 // The pending request may have expired server-side — start over.
                 log.info('[cert] pending request never completed; starting a fresh request');
                 return requestCertFlow();
@@ -248,7 +233,7 @@ const createCertManager = ({
             if (!fs.existsSync(certFile)) return Promise.resolve(false);
             const expiry = certExpiry();
             if (expiry === null || expiry - Date.now() > renewWindowMs) return Promise.resolve(false);
-            if (renewalInFlight) {
+            if (renewalInFlight || acquisitionInFlight) {
                 log.info('[cert] renewal already in progress; skipping this check');
                 return Promise.resolve(false);
             }
@@ -279,6 +264,7 @@ const createCertManager = ({
     };
 
     const stop = () => {
+        stopped = true;
         if (renewalTimer) {
             clearInterval(renewalTimer);
             renewalTimer = null;

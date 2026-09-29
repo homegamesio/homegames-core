@@ -13,6 +13,11 @@ class HalloweenWords extends Game {
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
             isTest: false,
             tickRate: 60,
+            // Reuse the keyboard handlers; no browser or Homepad code in games.
+            gamepadBindings: {
+                ArrowLeft: ['DIRECTION_LEFT', 'STICK_1_LEFT', 'STICK_2_LEFT'],
+                ArrowRight: ['DIRECTION_RIGHT', 'STICK_1_RIGHT', 'STICK_2_RIGHT'],
+            },
             assets: {
                 'happy-halloween': new Asset({
                     'id': '8c3675b51ce2c4efed73254c5c1cdffa',
@@ -202,29 +207,7 @@ class HalloweenWords extends Game {
     }
 
     handleKeyUp(player, key) {
-        this.keysDown[key] = true;
-    }
-
-    handleGamepadInput(playerId, gamepadInput) {
-        console.log('ififif');
-        const stick1X = gamepadInput.input.sticks.STICK_1_X.value;
-        const stick2X = gamepadInput.input.sticks.STICK_2_X.value;
-
-        const stick1Y = gamepadInput.input.sticks.STICK_1_Y.value;
-        const stick2Y = gamepadInput.input.sticks.STICK_2_Y.value;
-
-
-        if (stick1X < 0) {
-            this.movePlayer(this.mover, 'left', PLAYER_SPEED);
-        } else if (stick1X > 0) {
-            this.movePlayer(this.mover, 'right', PLAYER_SPEED);
-        }
-
-        if (stick2X < 0) {
-            this.movePlayer(this.mover, 'left', PLAYER_SPEED);
-        } else if (stick2X > 0) {
-            this.movePlayer(this.mover, 'right', PLAYER_SPEED);
-        }
+        this.keysDown[key] = false;
     }
 
     movePlayer(player, dir, dist = .1) {

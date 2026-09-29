@@ -10,6 +10,7 @@
   },
   "scripts": {
     "test": "node testRunner.js",
+    "test:sessions": "node testRunner.js ./test/session/*.test.js ./test/GamepadInput.test.js ./test/QuickPointerInput.test.js ./test/SaveGames.test.js ./test/SessionForkGate.test.js ./test/web/*.test.js",
     "start": "node index.js",
     "develop": "node hotload.js",
     "postinstall": "node node_modules/homegames-common/link-squish.js"

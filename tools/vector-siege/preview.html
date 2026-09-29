@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vector Siege · Homegames</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050a12;color:#e1f6f2;font-family:system-ui,sans-serif}
+body{display:flex;align-items:center;justify-content:center}#game{width:100vw;height:100vh}canvas{cursor:crosshair!important}
+#loading{position:absolute;inset:0;display:grid;place-items:center;color:#5effdb;letter-spacing:.18em;font-size:12px}
+#loading[hidden]{display:none}#fullscreen{position:fixed;right:8px;bottom:6px;background:#0a141e;color:#658491;border:1px solid #233e49;padding:5px 9px;font-size:10px;cursor:pointer;opacity:.45}#fullscreen:hover{opacity:1}
+</style>
+<div id="game"></div><div id="loading">ESTABLISHING UPLINK…</div><button id="fullscreen" aria-label="Toggle fullscreen">FULLSCREEN</button>
+<script src="/homegames-client.js"></script>
+<script>
+fetch('/game.json').then(r=>r.json()).then(files=>{
+    const session = new HomegamesClient.LocalSession({containerId:'game',files,gameKey:'vector-siege',
+        onReady:()=>{document.getElementById('loading').hidden=true;},
+        onError:error=>{document.getElementById('loading').textContent='Unable to launch: '+error.message;console.error(error);}});
+    session.start();
+    // Preview diagnostics only; the authored game contains no browser globals.
+    window.vectorSiegeSession=session;
+    document.addEventListener('visibilitychange',()=>{
+        if(document.hidden&&session.game&&session.game.war){session.game.war.paused=true;session.game.pointerDown=false;session.game.draw();}
+        if(document.hidden&&session.game&&session.game.engine.phase==='combat'){
+            session.game.engine.paused=true;session.game.pointerDown=false;session.game.draw();
+        }
+    });
+    window.addEventListener('blur',()=>{
+        if(session.game&&session.game.war){session.game.war.paused=true;session.game.pointerDown=false;session.game.draw();}
+        if(session.game&&session.game.engine.phase==='combat'){
+            session.game.engine.paused=true;session.game.pointerDown=false;session.game.draw();
+        }
+    });
+});
+document.getElementById('fullscreen').onclick=()=>{
+    if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{});
+};
+</script>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orbit Breaker · Homegames</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050c16;color:#e2f4ed;font-family:system-ui,sans-serif}
+body{display:flex;align-items:center;justify-content:center}#game{width:100vw;height:100vh}canvas{cursor:crosshair!important}
+#loading{position:absolute;inset:0;display:grid;place-items:center;color:#5cffd5;letter-spacing:.2em;font-size:13px}#loading[hidden]{display:none}
+#fullscreen{position:fixed;right:8px;bottom:5px;background:#0a1622;color:#74939e;border:1px solid #203d48;padding:5px 9px;font-size:10px;cursor:pointer;opacity:.5}#fullscreen:hover{opacity:1}
+</style>
+<div id="game"></div><div id="loading">LINKING ORBIT…</div><button id="fullscreen" aria-label="Toggle fullscreen">FULLSCREEN</button>
+<script src="/homegames-client.js"></script>
+<script>
+fetch('/game.json').then(r=>r.json()).then(files=>{
+    const session = new HomegamesClient.LocalSession({containerId:'game',files,gameKey:location.pathname==='/qa'?'orbit-breaker-qa':'orbit-breaker',
+        onReady:()=>{document.getElementById('loading').hidden=true;},
+        onError:error=>{document.getElementById('loading').textContent='Unable to launch: '+error.message;console.error(error);}});
+    session.start();
+    // The preview owns browser lifecycle; the game itself is platform-independent.
+    window.orbitBreakerSession=session;
+    const pause=()=>{if(session.game && session.game.engine.phase==='play' && !session.game.engine.paused) session.game.action('pause');};
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+    window.addEventListener('blur',pause);
+}).catch(error=>{document.getElementById('loading').textContent='Unable to load game: '+error.message;});
+document.getElementById('fullscreen').onclick=()=>{
+    if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{});
+};
+</script>
+</html>

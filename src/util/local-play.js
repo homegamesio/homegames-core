@@ -265,6 +265,8 @@ const createLocalPlayHandler = ({ localLibrary = null, fetchAssetData = defaultF
         if (action === 'local-manifest') {
             const bundleQuery = version.versionId ? `?versionId=${encodeURIComponent(version.versionId)}` : '';
             jsonResponse(res, 200, {
+                gameKey,
+                versionId: version.versionId,
                 localPlayable: true,
                 reason: null,
                 multiplayer: (context.meta.services || []).includes('multiplayer'),
