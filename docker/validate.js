@@ -299,6 +299,7 @@ const run = () => {
     try {
         process.env.SQUISH_PATH = require.resolve(squishPkg);
         squishLib = require(squishPkg);
+        require('homegames-common/stream-node').installStreamNode(squishLib.GameNode);
     } catch (err) {
         return writeResult({ success: false, error: `Squish version ${squishVersion} (package ${squishPkg}) not installed` });
     }
@@ -353,7 +354,12 @@ const run = () => {
     try {
         const addAsset = () => Promise.resolve();
         const saveGame = () => {};
-        gameInstance = new GameClass({ addAsset, saveGame, saveData: null });
+        const setCursor = (playerId, cursor) => {
+            require('homegames-common/cursor').normalizeCursor(cursor);
+            return true;
+        };
+        gameInstance = new GameClass({ addAsset, saveGame, saveData: null, setCursor,
+            media: new (require('homegames-common/media-session'))() });
     } catch (err) {
         return writeResult({ success: false, error: `Failed to instantiate game: ${err.message}` });
     }

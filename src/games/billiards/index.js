@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-144');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-145');
 
 const COLORS = Colors.COLORS;
 
@@ -114,7 +114,7 @@ const gauss = () => (Math.random() + Math.random() + Math.random()) - 1.5;
 class Billiards extends Game {
     static metadata() {
         return {
-            squishVersion: '144',
+            squishVersion: '145',
             name: 'Billiards',
             author: 'Joseph Garcia',
             description: '8-ball with precise physics: real cut shots, cushion mouths, ghost-ball aim guide. Play a friend or a beatable bot.',

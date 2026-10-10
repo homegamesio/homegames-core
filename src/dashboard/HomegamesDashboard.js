@@ -102,7 +102,7 @@ class HomegamesDashboard extends ViewableGame {
     }
 
 
-    constructor({ movePlayer, requestClientSave, startLocalPlay, requestRestart, servingHttps, addAsset, username, certPath, gameSessionManager, catalogClient, localLibrary: injectedLibrary }) {
+    constructor({ movePlayer, requestClientSave, startLocalPlay, requestRestart, servingHttps, addAsset, username, certPath, gameSessionManager, householdRooms, catalogClient, localLibrary: injectedLibrary }) {
         super(1000);
         // todo: static vs. addasset
 
@@ -117,6 +117,7 @@ class HomegamesDashboard extends ViewableGame {
         this.username = username;
         this.certPath = certPath;
         this.gameSessionManager = gameSessionManager;
+        this.householdRooms = householdRooms;
 
         this.assets = {
             'default': new Asset({
@@ -225,7 +226,7 @@ class HomegamesDashboard extends ViewableGame {
                 name: (localMeta && localMeta.name) || gameKey || `Session ${s.id}`,
                 playerCount: count === undefined ? null : count,
             };
-        });
+        }).concat(this.householdRooms?.list().filter(s => s.playerCount < s.maxPlayers) || []);
     }
 
     // Poll for strip changes: session set (create/end, incl. website-created
@@ -234,7 +235,7 @@ class HomegamesDashboard extends ViewableGame {
     _refreshSessionStrip() {
         const sessions = this._getActiveSessions();
 
-        const idSignature = sessions.map(s => s.id).join(',');
+        const idSignature = sessions.map(s => `${s.id}:${s.invitation ? s.playerCount : ''}`).join(',');
         if (idSignature !== this._sessionIdSignature) {
             this._sessionIdSignature = idSignature;
             // Drop counts for ended sessions
@@ -246,7 +247,7 @@ class HomegamesDashboard extends ViewableGame {
         }
 
         if (!this.gameSessionManager || !this.gameSessionManager.requestFromSession) return;
-        sessions.forEach(s => {
+        sessions.filter(s => !s.invitation).forEach(s => {
             this.gameSessionManager.requestFromSession(s.id, 'getPlayers').then(players => {
                 const count = Array.isArray(players) ? players.length : null;
                 if (this._sessionPlayerCounts[s.id] !== count) {
@@ -322,6 +323,11 @@ class HomegamesDashboard extends ViewableGame {
     }
 
     joinSession(playerId, session) {
+        if (session.invitation && this.startLocalPlay) {
+            const live = this.householdRooms?.list().find(s => s.id === session.id);
+            if (live && live.playerCount < live.maxPlayers) this.startLocalPlay(playerId, { invitation: live.invitation });
+            return;
+        }
         this.movePlayer({ playerId, port: session.port });
     }
 
@@ -342,7 +348,8 @@ class HomegamesDashboard extends ViewableGame {
 
     // Active sessions for a specific game + version.
     _activeSessionsFor(gameId, versionId) {
-        return Object.values(this.sessions).filter(s => s.game === gameId && s.versionId === versionId);
+        return Object.values(this.sessions).concat(this.householdRooms?.list() || [])
+            .filter(s => s.game === gameId && s.versionId === versionId);
     }
 
     // Normalized modal view model. Always a Promise: local games resolve
@@ -487,11 +494,8 @@ class HomegamesDashboard extends ViewableGame {
             onVersionChange: (newVersionId) => this.showGameModalNew(playerId, view.gameKey, newVersionId),
             onJoinSession: (session) => this.joinSession(playerId, session),
             onCreateSession: () => this._createSessionFromModal(playerId, view),
-            // Single player: swap that player's client to an in-place local
-            // session. Installed games only — the local-manifest endpoint
-            // serves from disk.
-            onPlaySinglePlayer: (this.startLocalPlay && view.createContext.installed)
-                ? () => this.startLocalPlay(playerId, { gameKey: view.gameKey, versionId: view.selectedVersionId })
+            onPlaySinglePlayer: this.startLocalPlay
+                ? () => this.playCatalogGame(playerId, view.gameKey, view.selectedVersionId)
                 : null,
             onClose: () => playerRoot.removeChild(modal.node.id)
         });
@@ -513,7 +517,7 @@ class HomegamesDashboard extends ViewableGame {
             return;
         }
 
-        this.playCatalogGame(playerId, view.gameKey, view.selectedVersionId);
+        this.playCatalogGame(playerId, view.gameKey, view.selectedVersionId, 'websocket');
     }
 
     renderGamePlane() {
@@ -964,10 +968,15 @@ class HomegamesDashboard extends ViewableGame {
     // commit, install from source with a progress overlay, then start the
     // session. `requestedVersionId` targets a specific version (e.g. from the
     // modal's version selector); omitted, it plays the latest published.
-    playCatalogGame(playerId, gameId, requestedVersionId = null) {
+    playCatalogGame(playerId, gameId, requestedVersionId = null, mode = 'browser') {
+        const start = versionId => {
+            if (mode === 'browser' && this.startLocalPlay) {
+                this.startLocalPlay(playerId, { gameKey: gameId, versionId });
+            } else this.startSession(playerId, gameId, versionId);
+        };
         const installed = this.localGames[gameId] && this.localGames[gameId].versions;
         if (installed && (requestedVersionId ? installed[requestedVersionId] : Object.keys(installed).length > 0)) {
-            this.startSession(playerId, gameId, requestedVersionId || undefined);
+            start(requestedVersionId || Object.keys(installed).slice(-1)[0]);
             return;
         }
 
@@ -1003,7 +1012,7 @@ class HomegamesDashboard extends ViewableGame {
                 this.localGames = this.localLibrary.scan();
                 this._registerLocalThumbnails();
                 this.clearDownloadProgress(playerId);
-                this.startSession(playerId, gameId, versionId);
+                start(versionId);
             });
         }).catch(err => {
             log.error('Failed to download and play catalog game');
@@ -1549,8 +1558,12 @@ class HomegamesDashboard extends ViewableGame {
 
     // Re-register thumbnail assets for every known local game (after a rescan).
     _registerLocalThumbnails() {
+        const testGamesEnabled = getConfigValue('TESTS_ENABLED', false);
         Object.keys(this.localGames)
-            .filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail)
+            // Hidden development games must not make a normal dashboard
+            // download their thumbnails before it can start offline.
+            .filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail
+                && (testGamesEnabled || !this.localGames[k].metadata.isTest))
             .forEach(key => {
                 this.assets[key] = new Asset({
                     'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,

@@ -213,6 +213,16 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
     }
 
     const requestHandler = (req, res) => {
+        if (opts.serveWebClient && req.method === 'GET' && req.url === '/rtc-config') {
+            res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+            res.end(JSON.stringify({
+                signalingUrl: getConfigValue('RTC_SIGNAL_URL', null) || 'wss://api.homegames.io/rtc',
+                joinUrl: getConfigValue('RTC_JOIN_URL', null) || 'https://homegames.io/play.html',
+                iceTransportPolicy: getConfigValue('RTC_ICE_TRANSPORT_POLICY', 'all'),
+            }));
+            return;
+        }
+        if (opts.householdRooms?.handleRequest(req, res)) return;
         if (webClientHandler && webClientHandler(req, res)) {
             return;
         }
@@ -439,6 +449,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
     });
 
     server.listen(port, null, null, () => {
+        opts.onReady?.(server);
         cb && cb();
     });
 };

@@ -1,175 +1,104 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
-const { dictionary } = require('../../common/util');
-const fs = require('fs');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-146');
 
-const COLORS = Colors.COLORS;
+const INK = [28, 34, 45, 255];
+const CREAM = [248, 248, 236, 255];
+const BLUE = [122, 192, 225, 255];
+const YELLOW = [255, 236, 125, 255];
 
 class InputTest extends Game {
     static metadata() {
         return {
-            aspectRatio: {x: 16, y: 9},
-            squishVersion: '142',
-            author: 'Joseph Garcia',
-            name: 'Input Test',
+            aspectRatio: { x: 16, y: 9 }, squishVersion: '146',
+            author: 'Joseph Garcia', name: 'Input Test',
             thumbnail: 'c6d38aca68fed708d08d284a5d201a0a',
-            assets: {
-                'test-font': new Asset({
-                    'type': 'font',
-                    'id': '846b73999657425425fc39d39f9963b2'
-                })
-            },
-            isTest: true
+            isTest: true,
         };
     }
 
-    constructor({ addAsset }) {
+    constructor({ handleFileUpload }) {
         super();
-        this.addAsset = addAsset;
-        this.base = new GameNode.Shape({
-            shapeType: Shapes.POLYGON, 
-            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: COLORS.CREAM
-        });
+        this.handleFileUpload = handleFileUpload;
+        this.media = {}; this.mediaNodes = {}; this.uploadGeneration = 0;
+        this.base = this.shape(0, 0, 100, 100, CREAM);
+        this.label('INPUT TEST', 50, 3, 3.2);
+        this.textNode = this.label('Tap to edit text', 30, 32, 2);
+        this.statusNode = this.label('Choose an image, audio file or short video (up to 5 MB)', 50, 38, 1.8);
 
-        this.assets = {
-        };
-
-        this.textNode = new GameNode.Text({
-            textInfo: {
-                text: 'I am text',
-                x: 30,
-                y: 50,
-                size: 4,
-                align: 'center',
-                color: COLORS.BLACK,
-                font: 'test-font'
-            }
-        });
-
-        const textInputShape = ShapeUtils.rectangle(20, 10, 20, 20);
-        
-        this.textInputNode = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: textInputShape,
-            fill: COLORS.HG_BLUE,
-            input: {
-                type: 'text',
-                oninput: (player, text) => {
-                    if (text) {
-                        const newText = this.textNode.node.text;
-                        newText.text = text;
-                        this.textNode.node.textInfo = newText;
-                        this.textNode.node.onStateChange();
-                    }
-                }
+        this.textInputNode = this.button('Edit text', 20, 12, 20, 15, BLUE, null, {
+            type: 'text', oninput: (player, text) => {
+                if (text) this.setText(this.textNode, text.slice(0, 80));
             },
-            playerIds: [1]
+        });
+        this.fileInputNode = this.button('Upload media', 60, 12, 20, 15, YELLOW, null, {
+            type: 'file', oninput: (playerId, bytes, metadata) => this.upload(playerId, bytes, metadata),
         });
 
-        const fileInputShape = ShapeUtils.rectangle(60, 10, 20, 20);
-        let uploadNum = 1;
-
-        let image;
-
-        this.soundNode = null;
-        this.replayButton = null;
-        this.lastAudioKey = null;
-
-        this.fileInputNode = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: fileInputShape,
-            fill: COLORS.HG_BLUE,
-            input: {
-                type: 'file',
-                oninput: (player, data, meta) => {
-                    // meta.kind is sniffed from the bytes server-side;
-                    // image is the legacy default for untyped uploads.
-                    const kind = (meta && meta.kind) || 'image';
-                    const assetKey = kind + (++uploadNum);
-
-                    this.assets[assetKey] = new Asset({
-                        id: assetKey,
-                        type: kind
-                    }, data);
-
-                    this.addAsset(assetKey, this.assets[assetKey]).then(() => {
-                        if (kind === 'audio') {
-                            this.playUploadedAudio(assetKey);
-                            return;
-                        }
-                        if (image) {
-                            this.base.removeChild(image.id);
-                        }
-                        image = new GameNode.Asset({
-                            assetInfo: {
-                                [assetKey]: {
-                                    pos: {
-                                        x: 60,
-                                        y: 40
-                                    },
-                                    size: {
-                                        x: 30,
-                                        y: 30
-                                    }
-                                }
-                            }
-                        });
-                        this.base.addChild(image);
-                    });
-                }
-            }
-        });
-
-        this.base.addChild(this.textNode);
-        this.base.addChild(this.textInputNode);
-        this.base.addChild(this.fileInputNode);
+        for (const [kind, x] of [['image', 4], ['audio', 36], ['video', 68]]) {
+            this.base.addChild(this.shape(x, 44, 28, 38, [222, 230, 230, 255]));
+            this.label(kind.toUpperCase(), x + 14, 46, 2.1);
+            this.label(kind === 'audio' ? 'Sound plays here' : 'Nothing uploaded yet', x + 14, 62, 1.5);
+        }
+        this.button('Replay audio', 37, 85, 26, 8, BLUE, () => this.replay('audio'));
+        this.button('Replay video', 69, 85, 26, 8, BLUE, () => this.replay('video'));
+        this.button('Clear media', 5, 85, 26, 8, YELLOW, () => this.clearMedia());
+        this.label('Tap the canvas to enable sound on this device', 50, 96, 1.5);
     }
 
-    playUploadedAudio(assetKey) {
-        this.lastAudioKey = assetKey;
+    shape(x, y, width, height, fill, extra = {}) {
+        return new GameNode.Shape({ shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(x, y, width, height), fill, ...extra });
+    }
+    label(text, x, y, size, font = 'default') {
+        const node = new GameNode.Text({ textInfo: { text, x, y, size, align: 'center', color: INK, font } });
+        this.base.addChild(node); return node;
+    }
+    button(text, x, y, width, height, fill, onClick, input) {
+        const node = this.shape(x, y, width, height, fill, { onClick, input });
+        this.base.addChild(node);
+        this.label(text, x + width / 2, y + height / 2 - 1.3, 2);
+        return node;
+    }
+    setText(node, text) {
+        node.node.text.text = text; node.node.onStateChange();
+    }
 
-        // The client starts a sound when its node appears and stops it when
-        // the node leaves the tree — so replaying means remove, then re-add
-        // a frame later.
-        if (this.soundNode) {
-            this.base.removeChild(this.soundNode.id);
-            this.soundNode = null;
-        }
-        this.setTimeout(() => {
-            this.soundNode = new GameNode.Asset({
-                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
-                assetInfo: {
-                    [assetKey]: { pos: { x: 0, y: 0 }, size: { x: 0, y: 0 }, startTime: 0 }
-                }
-            });
-            this.base.addChild(this.soundNode);
-        }, 100);
-
-        if (!this.replayButton) {
-            this.replayButton = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(60, 45, 20, 12),
-                fill: COLORS.CANDY_GREEN,
-                onClick: () => this.playUploadedAudio(this.lastAudioKey)
-            });
-            this.replayButton.addChild(new GameNode.Text({
-                textInfo: { text: 'REPLAY', x: 70, y: 49, size: 2, align: 'center', color: COLORS.BLACK }
-            }));
-            this.base.addChild(this.replayButton);
+    async upload(playerId, bytes, metadata) {
+        const generation = this.uploadGeneration;
+        try {
+            const asset = await this.handleFileUpload(playerId, bytes, metadata);
+            if (this.stopped || generation !== this.uploadGeneration) return;
+            this.media[asset.info.type] = asset;
+            this.showMedia(asset.info.type);
+            this.setText(this.statusNode, `${asset.info.type}: ${(asset.info.fileName || 'upload').slice(0, 32)} / player ${playerId}`);
+        } catch (error) {
+            if (!this.stopped && generation === this.uploadGeneration) this.setText(this.statusNode, error.message);
         }
     }
-
-    isText(key) {
-        return key.length == 1 && (key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z') || key === ' ' || key === 'Backspace';
+    showMedia(kind) {
+        const asset = this.media[kind];
+        if (!asset) return;
+        if (this.mediaNodes[kind]) this.base.removeChild(this.mediaNodes[kind].id);
+        const visual = kind !== 'audio';
+        const node = new GameNode.Asset({ assetInfo: {
+            [asset.key]: { pos: { x: kind === 'image' ? 5 : 69, y: 53 },
+                size: { x: visual ? 26 : 0, y: visual ? 27 : 0 }, startTime: 0 },
+        } });
+        this.mediaNodes[kind] = node; this.base.addChild(node);
     }
-    
-    getLayers() {
-        return [{root: this.base}];
+    replay(kind) {
+        if (!this.media[kind]) return;
+        // A fresh node means a new playback, even if a busy guest skipped the
+        // intermediate frame where the old node was removed.
+        this.showMedia(kind);
     }
-
-    getAssets() {
-        return this.assets;
+    clearMedia() {
+        this.uploadGeneration++;
+        for (const node of Object.values(this.mediaNodes)) this.base.removeChild(node.id);
+        this.media = {}; this.mediaNodes = {};
+        this.setText(this.statusNode, 'Choose an image, audio file or short video (up to 5 MB)');
     }
+    getLayers() { return [{ root: this.base }]; }
+    close() { this.stopped = true; super.close(); }
 }
 
 module.exports = InputTest;

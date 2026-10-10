@@ -1,6 +1,6 @@
 // Original, quiet procedural effects. Standard PCM WAV bytes work in both
 // Homegames runtimes; no network assets or browser APIs are used by the game.
-const { Asset, GameNode } = require('squish-144');
+const { Asset, GameNode } = require('squish-145');
 const DEFINITIONS = {
     shot: [.07, 850, 170, .07, .12], kill: [.13, 190, 48, .16, .55],
     boom: [.35, 90, 24, .2, .7], dash: [.19, 130, 900, .12, .45],

@@ -112,6 +112,22 @@ const hasControlAuth = (req) => {
     return crypto.timingSafeEqual(provided, expected);
 };
 
+const { createFileUploadHandler } = require('homegames-common/media-upload');
+const uploadOptions = squishVersion => {
+    require('homegames-common/stream-node').installStreamNode(require(`squish-${squishVersion}`).GameNode);
+    return {
+        setCursor: (playerId, cursor) => gameSession?.setCursor(playerId, cursor) ?? false,
+        // A socket-only game has no native media peers. Keep the API present
+        // and reject requests clearly instead of crashing the game constructor.
+        media: new (require('homegames-common/media-session'))(),
+        handleFileUpload: createFileUploadHandler({
+            Asset: require(`squish-${squishVersion}`).Asset,
+            registerAsset: (key, asset) => gameSession.registerSessionAsset(key, asset),
+            isPlayerActive: id => !!gameSession?.players[id],
+        }),
+    };
+};
+
 const startServer = (sessionInfo) => {
     let gameInstance;
 
@@ -138,7 +154,7 @@ const startServer = (sessionInfo) => {
             }
 
             const { saveGame, saveData } = buildSaveOptions(sessionInfo, _gameClass);
-            gameInstance = new _gameClass({ addAsset, saveGame, saveData, services });
+            gameInstance = new _gameClass({ addAsset, saveGame, saveData, services, ...uploadOptions(sessionInfo.squishVersion) });
         } else {
             const _gameClass = games[sessionInfo.key];
 
@@ -147,7 +163,7 @@ const startServer = (sessionInfo) => {
                 requestedServices.forEach(s => services[s] = getService(s));
             }
             const { saveGame, saveData } = buildSaveOptions(sessionInfo, _gameClass);
-            gameInstance = new _gameClass({ addAsset, saveGame, saveData, services });
+            gameInstance = new _gameClass({ addAsset, saveGame, saveData, services, ...uploadOptions(sessionInfo.squishVersion) });
 
         }
 
@@ -279,7 +295,7 @@ const startServerNoFrame = (sessionInfo) => {
     let gameInstance;
     try {
         const { saveGame, saveData } = buildSaveOptions(sessionInfo, GameClass);
-        gameInstance = new GameClass({ addAsset, saveGame, saveData });
+        gameInstance = new GameClass({ addAsset, saveGame, saveData, ...uploadOptions(squishVersion) });
     } catch (err) {
         log.error('Failed to instantiate game:', err);
         sendProcessMessage({ success: false, error: err.message });

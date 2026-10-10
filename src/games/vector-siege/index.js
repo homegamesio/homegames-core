@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes } = require('squish-144');
+const { Game, GameNode, Shapes } = require('squish-145');
 const { Engine, clamp } = require('./engine');
 const { C, RULES, WEAPONS } = require('./settings');
 const { render } = require('./scene');
@@ -66,7 +66,7 @@ class Painter {
 
 class VectorSiege extends Game {
     static metadata() {
-        return { squishVersion: '144', name: 'Vector Siege', author: 'Joseph Garcia',
+        return { squishVersion: '145', name: 'Vector Siege', author: 'Joseph Garcia',
             description: 'A living single-player RTS with optional twin-stick intervention. Build fleets, conquer a generated sector, or dive into persistent battles and change the odds yourself.',
             aspectRatio: { x: 16, y: 9 }, tickRate: 60, maxPlayers: 1, assets: {} };
     }

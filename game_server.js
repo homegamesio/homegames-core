@@ -26,7 +26,7 @@ const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
 const childGameServerPath = path.join(path.resolve(__dirname, 'src'), 'child_game_server.js');
 const dockerImageDir = path.join(baseDir, 'docker');
 
-const gameSessionManager = new GameSessionManager({
+const createSessionManager = () => new GameSessionManager({
     portMin: serverPortMin,
     portMax: serverPortMax,
     childServerPath: childGameServerPath,
@@ -40,17 +40,13 @@ const gameSessionManager = new GameSessionManager({
     log: logger,
 });
 
-const server = (certPath, squishMap, username) => {
+const server = (certPath, squishMap, username, { onReady } = {}) => {
     logger.debug('running server');
 
     if (squishMap) {
         logger.debug('custom squish map');
         logger.debug(squishMap);
     }
-
-    // Configure the session manager with runtime values
-    gameSessionManager.username = username;
-    gameSessionManager.certPath = certPath;
 
     // START_PATH boots a specific game instead of the dashboard. Relative
     // paths resolve against the package root so read-only bundles (CD/USB
@@ -61,13 +57,48 @@ const server = (certPath, squishMap, username) => {
         ? (path.isAbsolute(startPathOverride) ? startPathOverride : path.resolve(baseDir, startPathOverride))
         : null;
 
+    // Direct-start games run in the host tab by default. Keep Node/WebSocket
+    // explicitly selectable for self-hosting and games with server services.
+    if (resolvedStartPath && getConfigValue('START_MODE', 'browser') === 'browser') {
+        const { createBrowserGameServer } = require('./src/util/browser-game-server');
+        const browserServer = createBrowserGameServer({
+            startPath: resolvedStartPath, port: HOME_PORT, certPath,
+            shareOrigin: getConfigValue('RTC_SHARE_ORIGIN', null),
+            signalingUrl: getConfigValue('RTC_SIGNAL_URL', null),
+            joinUrl: getConfigValue('RTC_JOIN_URL', null),
+            iceServers: getConfigValue('RTC_ICE_SERVERS', null),
+            iceTransportPolicy: getConfigValue('RTC_ICE_TRANSPORT_POLICY', 'all'),
+        });
+        browserServer.server.once('listening', () => {
+            logger.info(`Browser game ready on port ${browserServer.server.address().port}`);
+            onReady?.(browserServer.server);
+        });
+        browserServer.listen();
+        return browserServer;
+    }
+
+    const gameSessionManager = createSessionManager();
+    gameSessionManager.username = username;
+    gameSessionManager.certPath = certPath;
+
     const customStartModule = resolvedStartPath ? require(resolvedStartPath) : null;
+    if (customStartModule) require('homegames-common/stream-node').installStreamNode(
+        require(`squish-${customStartModule.metadata?.().squishVersion || '142'}`).GameNode);
 
     const HomegamesDashboard = require('./src/dashboard/HomegamesDashboard');
     const HomegamesRoot = require('./src/homegames_root/HomegamesRoot');
     const HomenamesHelper = require('./src/util/homenames-helper');
 
     let session;
+    const signalingUrl = getConfigValue('RTC_SIGNAL_URL', null) || 'wss://api.homegames.io/rtc';
+    const householdRooms = require('./src/util/household-rooms').createHouseholdRooms({
+        signalingUrl,
+        resolveGame: (key, versionId) => {
+            const game = dashboard.localGames?.[key];
+            const version = game?.versions?.[versionId];
+            return version ? { name: game.metadata?.name || key, maxPlayers: version.metadata?.maxPlayers } : null;
+        },
+    });
 
     let services = {};
 
@@ -76,7 +107,14 @@ const server = (certPath, squishMap, username) => {
         requestedServices.forEach(s => services[s] = getService(s));
     }
 
-    const dashboard = customStartModule ? new customStartModule({ 
+    const dashboard = customStartModule ? new customStartModule({
+        setCursor: (playerId, cursor) => session?.setCursor(playerId, cursor) ?? false,
+        media: new (require('homegames-common/media-session'))(),
+        handleFileUpload: require('homegames-common/media-upload').createFileUploadHandler({
+            Asset: require(`squish-${customStartModule.metadata?.().squishVersion || '142'}`).Asset,
+            registerAsset: (key, asset) => session.registerSessionAsset(key, asset),
+            isPlayerActive: id => !!session?.players[id],
+        }),
         squishMap,
         addAsset: (key, asset) => new Promise((resolve, reject) => {
             session.handleNewAsset(key, asset).then(resolve).catch(reject);
@@ -85,6 +123,7 @@ const server = (certPath, squishMap, username) => {
         certPath,
         services
     }) : new HomegamesDashboard({
+        setCursor: (playerId, cursor) => session?.setCursor(playerId, cursor) ?? false,
         squishMap,
         movePlayer: (params) => {
             session && session.movePlayer(params.playerId, params.port);
@@ -114,6 +153,7 @@ const server = (certPath, squishMap, username) => {
         certPath,
         services,
         gameSessionManager,
+        householdRooms,
     });
 
     const squishVersion = (dashboard.constructor.metadata && dashboard.constructor.metadata().squishVersion) || '142';
@@ -170,7 +210,7 @@ const server = (certPath, squishMap, username) => {
     const homeNames = new Homenames(HOMENAMES_PORT, certPath, gameSessionManager);
     
     session.initialize().then(() => {
-        socketServer(session, HOME_PORT, null, certPath, username, { serveWebClient: true });
+        socketServer(session, HOME_PORT, null, certPath, username, { serveWebClient: true, householdRooms, onReady });
     }).catch(err => {
         logger.error('Error initializing game session');
         logger.error(err);

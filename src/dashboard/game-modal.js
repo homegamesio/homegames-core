@@ -170,7 +170,7 @@ const createSection = ({ gameKey, onCreateSession, onPlaySinglePlayer = null, ap
         fill: BUTTER_COLOR,
         border: 2,
         color: PANEL_BORDER_COLOR,
-        onClick: onCreateSession
+        onClick: onPlaySinglePlayer || onCreateSession
     });
 
     const createText = new GameNode.Text({
@@ -180,7 +180,7 @@ const createSection = ({ gameKey, onCreateSession, onPlaySinglePlayer = null, ap
             align: 'center',
             size: 1.3,
             color: COLORS.ALMOST_BLACK,
-            text: 'Create a new session'
+            text: onPlaySinglePlayer ? 'Play' : 'Create a new session'
         }
     });
 
@@ -195,7 +195,7 @@ const createSection = ({ gameKey, onCreateSession, onPlaySinglePlayer = null, ap
             fill: COLORS.WHITE,
             border: 2,
             color: PANEL_BORDER_COLOR,
-            onClick: onPlaySinglePlayer
+            onClick: onCreateSession
         });
 
         singlePlayerButton.addChild(new GameNode.Text({
@@ -205,7 +205,7 @@ const createSection = ({ gameKey, onCreateSession, onPlaySinglePlayer = null, ap
                 align: 'center',
                 size: 1.3,
                 color: COLORS.ALMOST_BLACK,
-                text: 'Play single player'
+                text: 'Host with WebSocket'
             }
         }));
 
@@ -363,9 +363,12 @@ const joinSection = ({ gameKey, gameMetadata, activeSessions, onJoinSession, pag
 
             const startingY = 67;
             for (let i = 0; i < pageContent.length; i++) {
-                pageContent[i].getPlayers((_players) => {
+                const session = pageContent[i];
+                const getPlayers = session.invitation ? callback => callback(Array(session.playerCount).fill(null)) : session.getPlayers;
+                getPlayers((_players) => {
                     const players = _players || [];
-                    const gameFull = gameMetadata?.maxPlayers && players.length >= gameMetadata.maxPlayers;
+                    const capacity = session.maxPlayers || gameMetadata?.maxPlayers;
+                    const gameFull = capacity && players.length >= capacity;
 
                     const optionWrapper = new GameNode.Shape({
                         shapeType: Shapes.POLYGON,
@@ -376,9 +379,7 @@ const joinSection = ({ gameKey, gameMetadata, activeSessions, onJoinSession, pag
                         onClick: gameFull ? null : () => onJoinSession(pageContent[i])
                     });
 
-                    const sessionPlayerCount = activeSessions.filter(s => s.id === pageContent[i].id).length;
-
-                    const playerText = gameMetadata?.maxPlayers ? `${players.length} / ${gameMetadata.maxPlayers} ${gameMetadata.maxPlayers > 1 ? 'players' : 'player'}` : `${players.length} ${players.length > 1 ? 'players' : 'player'}`
+                    const playerText = capacity ? `${players.length} / ${capacity} players` : `${players.length} players`;
                     const optionText = new GameNode.Text({
                         textInfo: {
                             x: 61,
@@ -386,7 +387,7 @@ const joinSection = ({ gameKey, gameMetadata, activeSessions, onJoinSession, pag
                             align: 'left',
                             size: 1,
                             color: COLORS.HG_BLACK,
-                            text: `Session ${pageContent[i].id} - ${playerText}`
+                            text: `${session.invitation ? 'Browser game' : 'Session ' + session.id} - ${playerText}`
                         }
                     });
 

@@ -79,8 +79,8 @@ if (bundledAssetPath) {
     seedAssetCache(path.isAbsolute(bundledAssetPath) ? bundledAssetPath : path.resolve(baseDir, bundledAssetPath));
 }
 
-const linkInit = (username) => new Promise((resolve, reject) => {
-    linkHelper.linkConnect(null, username).then((wsClient) => {
+const linkInit = () => new Promise((resolve, reject) => {
+    linkHelper.linkConnect(null).then((wsClient) => {
         log.info('Initialized connection to homegames.link');
         resolve(wsClient);
     }).catch(err => {
@@ -140,34 +140,40 @@ if (HTTPS_ENABLED && !certPathArg) {
     });
 }
 
-if (LINK_ENABLED) {
-    linkInit(usernameArg).then((wsClient) => {
-        log.info('starting server with link enabled');
-        server(certPathArg, null, usernameArg);
-        // The HTTPS server is now up (cert was provisioned before this process
-        // started). Mark this instance ready so homegames.link redirects to the
-        // secure subdomain rather than serving the "setting up" page.
-        if (HTTPS_ENABLED && certPathArg) {
-            linkHelper.setHttpsReady(wsClient, true).catch(err => {
-                log.error('Failed to mark HTTPS ready with link');
-                log.error(err);
-            });
-        }
-    }).catch(() => {
-        log.info('encountered error with link connection. starting server with link disabled');
-        try {
-            server(certPathArg, null, usernameArg);
-        } catch (serverErr) {
-            log.error('Server error: ' + serverErr);
-            reportBug(`Error starting server: ${serverErr}`);
-        }
-    });
-} else {
-    log.info('starting server with link disabled');
-    try { 
-        server(certPathArg, null, usernameArg);
-    } catch (serverErr) {
-        log.error('Server error: ' + serverErr);
-        reportBug(`Error starting server: ${serverErr}`);
+// Local startup never waits on internet discovery. Browser-hosted games still
+// need to register this server so homegames.link can find it on the household.
+let linkClient = null;
+let listening = false;
+const onReady = (httpServer) => {
+    listening = true;
+    const port = httpServer.address().port;
+    let url = `http://localhost:${port}`;
+    if (certPathArg) {
+        const { X509Certificate } = require('crypto');
+        const { invitationOrigin } = require('./src/util/browser-game-server');
+        const certificate = new X509Certificate(fs.readFileSync(path.join(certPathArg, 'homegames.cert')));
+        url = invitationOrigin({ host: `localhost:${port}`, port, certificate }) || `https://localhost:${port}`;
     }
+    log.info(`Homegames ready at ${url}`);
+    // The supervisor should use what actually bound, not guess from config:
+    // HTTPS can be requested while the first certificate is still pending.
+    if (process.connected) process.send({ type: 'homegames-ready', url }, () => {});
+    if (LINK_ENABLED) linkHelper.setHttpsReady(linkClient, !!certPathArg).catch(err => log.error(err));
+};
+
+try {
+    server(certPathArg, null, usernameArg, { onReady });
+} catch (serverErr) {
+    log.error('Server error: ' + serverErr);
+    reportBug(`Error starting server: ${serverErr}`);
+}
+
+if (LINK_ENABLED) {
+    linkInit().then(wsClient => {
+        linkClient = wsClient;
+        if (listening) return linkHelper.setHttpsReady(wsClient, !!certPathArg);
+    }).catch(err => {
+        log.info('Homegames is running locally; discovery will retry connecting to homegames.link');
+        if (err) log.error(err);
+    });
 }

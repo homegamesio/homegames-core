@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-144');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-145');
 
 const COLORS = Colors.COLORS;
 
@@ -91,7 +91,7 @@ const linePoly = (ax, ay, bx, by, thickness) => {
 class Flick extends Game {
     static metadata() {
         return {
-            squishVersion: '144',
+            squishVersion: '145',
             name: 'Flick',
             author: 'Joseph Garcia',
             description: 'Slingshot arena with real physics: elastic ball collisions, exploding targets, chain reactions. Ball size and weight fit your device.',
