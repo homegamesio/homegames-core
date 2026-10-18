@@ -1,5 +1,0 @@
-PASS: host-requested restart retains the production certificate without a new pending request
-PASS: production certificate key/hostname and trusted HTTPS handshake
-PASS: production API retrieves the same saved certificate
-PASS: real DNS and browser-trusted HTTPS dashboard
-{"domain":"836af03e856dd433605f7cff2157a8d1.homegames.link","requestId":"36a422d6-9c03-4819-8ea8-0ea3759e41a0","expiresAt":"Jan 16 18:50:35 2027 GMT","discoveryStatus":200,"discoveryLocation":null}

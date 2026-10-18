@@ -1,6 +1,0 @@
-Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/homegames-copy-browser-PXFkt3
-page.waitForFunction: Timeout 30000ms exceeded.
-    at /Users/josephgarcia/homegames/homegamesio/test/rtc-copy-browser.cjs:103:22 {
-  log: [],
-  name: 'TimeoutError'
-}

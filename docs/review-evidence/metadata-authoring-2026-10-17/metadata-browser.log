@@ -1,4 +1,0 @@
-Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/homegames-metadata-browser-l3yX6s
-PASS: legacy custom-entry import/export retains exact format, identity and revision
-PASS: New game creates metadata-only identity; solo Invite disabled with copy sharing available
-PASS: Edit this game forks v1 and v2 identities while retaining entry paths and assets

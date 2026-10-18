@@ -1,9 +1,0 @@
-{
-  "/Users/josephgarcia/homegames/api/deploy/install-turn-al2023.sh": "2ac23b933a5852c013328cd6f49782f806d06de59ee343a76986485c41cbd8b4",
-  "/Users/josephgarcia/homegames/api/deploy/install-turn-firewall-al2023.sh": "f184eeac0e6218576de0a3a8f2b5da57d9b34be9a9643ab5151cab473c660c11",
-  "/Users/josephgarcia/homegames/api/scripts/check-turn-browser.cjs": "d806f0c9abbfb971486045ff4ae7cca39eb3d97dc6d7b60eea5c100063282a5e",
-  "/Users/josephgarcia/homegames/api/scripts/check-turn-policy.cjs": "684c2121b6716bc7f41168f1797e5f32c478297edbdf9792e76d66fddb0e4088",
-  "/Users/josephgarcia/homegames/api/test/turn-config.integration.cjs": "175ff877b0838a5e7793267cf2b501848e2d1cada226dd08f28c007f893b3a2f",
-  "/Users/josephgarcia/homegames/api/deploy/homegames-api-cert-renew.service": "74d994e823f452e21245316870829d81133e44712e4e8afab511a76a1ab60e18",
-  "/Users/josephgarcia/homegames/api/deploy/homegames-api-cert-renew.timer": "13a71fcbb3d65201d4b79543faf3d8973dd9917e6e7fb87e7c9b540170e2c23a"
-}

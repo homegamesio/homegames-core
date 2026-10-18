@@ -1,3 +1,0 @@
-Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hangman-launch-7SQfcw
-PASS actual touch drawing, Undo/Clear/six frames, private input, keyboard guess and accepted answer survives 30-second deadline
-PASS wins/losses, eight-player scores, 60-character reveal, guest cleanup, idle traffic sample; no browser errors or external requests

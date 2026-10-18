@@ -1,4 +1,0 @@
-Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/swish-package-wXxcMU
-PASS actual Swish package and downloaded HTML offline: touch aim/shot/basket, natural 30-second results, records after reload, theme/duration separation and saved preferences, phone bounds
-Rounds: [{"name":"packaged","elapsedMs":30022,"score":1},{"name":"offline","elapsedMs":30042,"score":1}]
-Revision: bb9a6b70148ca101b9312c41ed44fc45aaaa8793a5152f3ad32daf946a427359

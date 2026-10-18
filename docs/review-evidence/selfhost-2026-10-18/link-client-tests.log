@@ -1,4 +1,0 @@
-✅ (passed)  Link registration serializes environment and saved ports as integers
-✅ (passed)  Link refuses invalid configured ports before registration
-✅ (passed)  Link backs off repeated policy closes even after successful WebSocket handshakes
-✅ (passed)  Link resets reconnect backoff after a healthy heartbeat

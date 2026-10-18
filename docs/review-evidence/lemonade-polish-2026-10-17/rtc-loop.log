@@ -1,6 +1,0 @@
-Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/lemonade-launch-OsAS88
-PASS separate RTC phone: shared purchase voting, recipe resets votes, opening and dance input
-PASS complete sales phase: {"cups":7,"revenue":14,"tips":0,"refused":0,"happy":7,"rushes":0,"bonus":10}
-PASS phone movement and private dodge; normal 75-second night begins
-PASS full 75-second night, gathered/banked water, dawn, next morning and browser close/reopen resume
-PASS loss remains retired after reload; new run is fresh; no external HTTP or browser errors

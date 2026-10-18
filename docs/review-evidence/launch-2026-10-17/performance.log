@@ -1,8 +1,0 @@
-Artifacts: /tmp/hg-launch-review-20261017/performance
-RTC guest ready: 1 / 1
-museum {"hz":62.62491672218521,"meanSimulationAndViewsMs":0.5297872348034636,"nodes":[222,232],"receiverHz":[62.27106227106227]}
-kitchen {"hz":62.28350652860543,"meanSimulationAndViewsMs":0.5572192512731501,"nodes":[214,217],"receiverHz":[62.61031738127231]}
-neon {"hz":62.29595576086698,"meanSimulationAndViewsMs":0.4871657761660489,"nodes":[224,212],"receiverHz":[62.61240258392966]}
-foundry {"hz":62.302182242212226,"meanSimulationAndViewsMs":0.5513368969295114,"nodes":[205,268],"receiverHz":[62.62700289741839]}
-orbital {"hz":62.587389306629575,"meanSimulationAndViewsMs":0.4765957473440373,"nodes":[205,253],"receiverHz":[62.57489016159363]}
-PASS: all five arena views at 2 players, bounded scenes, no external services

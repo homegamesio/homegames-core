@@ -1,4 +1,0 @@
-Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/tumble-tower-package-siA830
-PASS actual Tumble Tower package and downloaded HTML offline: touch taps/drags, all presets, custom building and demolition, exact saved blueprint and sound restore, rebuild and Clear, portrait/landscape text bounds
-Runs: [{"name":"packaged","elapsedMs":9500,"customBlocks":3,"restoredExactBlueprint":true,"demolitionPreservesBlueprint":true,"clearPersists":true},{"name":"offline","elapsedMs":9503,"customBlocks":3,"restoredExactBlueprint":true,"demolitionPreservesBlueprint":true,"clearPersists":true}]
-Revision: 48781369959db2bcabcecf3a24be64d47f0224ee0ea601ffcd00dc6557238854

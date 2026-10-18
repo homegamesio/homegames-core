@@ -1,6 +1,0 @@
-Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/homegames-storage-browser-JZIciy
-Game ZIP, invalid draft ZIP, binary assets, restore-as-copy, and atomic deletion passed
-Cross-tab deletion conflict preserved newer work
-Existing v2 projects and snapshots survive the asset-library migration
-Upload/draw without a game, selection/cancel, and atomic multi-asset imports preserve original media
-Brand assets, responsive pages, and unavailable storage estimates passed; no external HTTP requests or page errors
