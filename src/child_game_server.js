@@ -6,12 +6,14 @@ const crypto = require('crypto');
 const fs = require('fs');
 const { socketServer } = require('./util/socket');
 const { reportBug } = require('./common/util');
-const { getService } = require('./services/index');
+const { effectiveGameMetadata } = require('./util/game-metadata');
 
 const process = require('process');
 const SessionLifetime = require('homegames-common/session-lifetime');
+const { loadGameClassFromPath } = require('homegames-common/game-loader');
 
 let lastMessage;
+let sessionMedia;
 let gameSession; // used in both frame and no-frame modes
 
 const path = require('path');
@@ -113,13 +115,17 @@ const hasControlAuth = (req) => {
 };
 
 const { createFileUploadHandler } = require('homegames-common/media-upload');
+let sessionExports;
+const exportOptions = GameClass => {
+    sessionExports = require('homegames-common/game-project').openGameExports(GameClass);
+    return { createExport: sessionExports.createExport, userExports: sessionExports.userExports };
+};
 const uploadOptions = squishVersion => {
-    require('homegames-common/stream-node').installStreamNode(require(`squish-${squishVersion}`).GameNode);
     return {
         setCursor: (playerId, cursor) => gameSession?.setCursor(playerId, cursor) ?? false,
         // A socket-only game has no native media peers. Keep the API present
         // and reject requests clearly instead of crashing the game constructor.
-        media: new (require('homegames-common/media-session'))(),
+        media: sessionMedia = new (require('homegames-common/media-session'))(),
         handleFileUpload: createFileUploadHandler({
             Asset: require(`squish-${squishVersion}`).Asset,
             registerAsset: (key, asset) => gameSession.registerSessionAsset(key, asset),
@@ -143,27 +149,22 @@ const startServer = (sessionInfo) => {
         log.info("THIS IS SESSION INFO");
         log.info(sessionInfo);
 
-        let services = {};
+        let gameMetadata;
 
         if (sessionInfo.gamePath) {
-            const _gameClass = require(sessionInfo.gamePath);
+            // const _gameClass = require(sessionInfo.gamePath); // Asset IDs only.
+            const _gameClass = loadGameClassFromPath(sessionInfo.gamePath);
 
-            if (_gameClass.metadata) {
-                const requestedServices = _gameClass.metadata().services || [];
-                requestedServices.forEach(s => services[s] = getService(s));
-            }
+            gameMetadata = effectiveGameMetadata(_gameClass, sessionInfo.gamePath, sessionInfo.squishVersion);
 
             const { saveGame, saveData } = buildSaveOptions(sessionInfo, _gameClass);
-            gameInstance = new _gameClass({ addAsset, saveGame, saveData, services, ...uploadOptions(sessionInfo.squishVersion) });
+            gameInstance = new _gameClass({ ...exportOptions(_gameClass), addAsset, saveGame, saveData, ...uploadOptions(gameMetadata.squishVersion) });
         } else {
             const _gameClass = games[sessionInfo.key];
 
-            if (_gameClass.metadata) {
-                const requestedServices = _gameClass.metadata().services || [];
-                requestedServices.forEach(s => services[s] = getService(s));
-            }
+            gameMetadata = effectiveGameMetadata(_gameClass, sessionInfo.gamePath, sessionInfo.squishVersion);
             const { saveGame, saveData } = buildSaveOptions(sessionInfo, _gameClass);
-            gameInstance = new _gameClass({ addAsset, saveGame, saveData, services, ...uploadOptions(sessionInfo.squishVersion) });
+            gameInstance = new _gameClass({ ...exportOptions(_gameClass), addAsset, saveGame, saveData, ...uploadOptions(gameMetadata.squishVersion) });
 
         }
 
@@ -173,7 +174,7 @@ const startServer = (sessionInfo) => {
         const HomegamesRoot = require('./homegames_root/HomegamesRoot');
         const HomegamesDashboard = require('./dashboard/HomegamesDashboard');
 
-        const squishVersion = (gameInstance.constructor.metadata && gameInstance.constructor.metadata().squishVersion) || sessionInfo.squishVersion;
+        const squishVersion = gameMetadata.squishVersion;
 
         // Build the GameSession with frame support
         // We need to create a temporary session reference for HomegamesRoot,
@@ -181,6 +182,9 @@ const startServer = (sessionInfo) => {
         // We'll create a shim and then wire things up.
         const sessionShim = {
             game: gameInstance,
+            gameMetadata,
+            media: sessionMedia,
+            userExportsStore: sessionExports,
             port: sessionInfo.port,
             username: sessionInfo.username,
             players: {},
@@ -198,6 +202,8 @@ const startServer = (sessionInfo) => {
 
         console.log('hello this happens what');
         gameSession = new GameSession(gameInstance, squishVersion, {
+            media: sessionMedia,
+            userExportsStore: sessionExports,
             port: sessionInfo.port,
             username: sessionInfo.username,
             spectators: true,
@@ -275,17 +281,17 @@ const startServerNoFrame = (sessionInfo) => {
 
     process.env.SQUISH_PATH = require.resolve(`squish-${sessionInfo.squishVersion}`);
 
-    let GameClass;
+    let GameClass, squishVersion;
     try {
-        GameClass = require(sessionInfo.gamePath);
+        // GameClass = require(sessionInfo.gamePath); // Asset IDs only.
+        GameClass = loadGameClassFromPath(sessionInfo.gamePath);
+        squishVersion = effectiveGameMetadata(GameClass, sessionInfo.gamePath, sessionInfo.squishVersion).squishVersion;
+        process.env.SQUISH_PATH = require.resolve(`squish-${squishVersion}`);
     } catch (err) {
         log.error('Failed to load game class:', err);
         sendProcessMessage({ success: false, error: err.message });
         return;
     }
-
-    const squishVersion = (GameClass.metadata && GameClass.metadata().squishVersion) || sessionInfo.squishVersion;
-    process.env.SQUISH_PATH = require.resolve(`squish-${squishVersion}`);
 
     const addAsset = (key, asset) => {
         if (gameSession) return gameSession.handleNewAsset(key, asset);
@@ -295,7 +301,7 @@ const startServerNoFrame = (sessionInfo) => {
     let gameInstance;
     try {
         const { saveGame, saveData } = buildSaveOptions(sessionInfo, GameClass);
-        gameInstance = new GameClass({ addAsset, saveGame, saveData, ...uploadOptions(squishVersion) });
+        gameInstance = new GameClass({ ...exportOptions(GameClass), addAsset, saveGame, saveData, ...uploadOptions(squishVersion) });
     } catch (err) {
         log.error('Failed to instantiate game:', err);
         sendProcessMessage({ success: false, error: err.message });
@@ -309,6 +315,8 @@ const startServerNoFrame = (sessionInfo) => {
     const homenamesHelper = new HomenamesHelper(sessionInfo.port, sessionInfo.username);
 
     gameSession = new GameSession(gameInstance, squishVersion, {
+        media: sessionMedia,
+            userExportsStore: sessionExports,
         port: sessionInfo.port,
         username: sessionInfo.username,
         spectators: true,
@@ -399,11 +407,15 @@ const startServerNoFrame = (sessionInfo) => {
                         svBuf.push(sv.charCodeAt(i));
                     }
 
-                    ws.send(Buffer.from([2, playerId, gameSession.aspectRatio.x, gameSession.aspectRatio.y, 0, 0, ...svBuf]));
+                    // The optional byte after the length-delimited version is
+                    // ignored by older clients. Bit 0 opts into mouse capture.
+                    // ws.send(Buffer.from([2, playerId, gameSession.aspectRatio.x, gameSession.aspectRatio.y, 0, 0, ...svBuf]));
+                    ws.send(Buffer.from([2, playerId, gameSession.aspectRatio.x, gameSession.aspectRatio.y, 0, 0, ...svBuf,
+                        gameSession.gameMetadata?.pointerLock === true ? 1 : 0]));
                     if (isSpectator) {
                         gameSession.addSpectator(playerId, ws, { clientInfo });
                     } else {
-                        gameSession.addPlayer(playerId, ws, { clientInfo });
+                        gameSession.addPlayer(playerId, ws, { clientInfo, playerName: parsed.playerName });
                     }
                 } else if (gameSession && playerId != null) {
                     gameSession.handleInput(playerId, parsed);
@@ -483,7 +495,7 @@ if (isForked) {
     lastMessage = new Date();
     const sessionConfig = {
         key: process.env.GAME_KEY || path.basename(process.env.GAME_PATH, '.js'),
-        squishVersion: process.env.SQUISH_VERSION || '142',
+        squishVersion: process.env.SQUISH_VERSION || '150',
         gamePath: process.env.GAME_PATH,
         port: Number(process.env.GAME_PORT) || 7002,
         username: process.env.USERNAME || null,

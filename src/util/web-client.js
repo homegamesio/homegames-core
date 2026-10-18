@@ -39,6 +39,7 @@ const createWebClientHandler = ({ webDir = WEB_DIR, clientRoot = null } = {}) =>
             filePath: path.join(webDir, 'bootstrap.js'),
             contentType: 'text/javascript'
         },
+        '/library.js': { filePath: path.join(webDir, 'library.js'), contentType: 'text/javascript' },
         '/favicon.ico': {
             filePath: path.join(webDir, 'favicon.ico'),
             contentType: 'image/x-icon'

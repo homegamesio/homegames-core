@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const { COLORS } = Colors;
 
 const EMPTY = -1;
@@ -15,9 +15,12 @@ const WIN_LINES = [
 class TicTacToe extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png',
+            squishVersion: '150',
             name: 'Tic-Tac-Toe',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'Classic three-in-a-row for one or two players.',
             aspectRatio: { x: 1, y: 1 },
             maxPlayers: 2,
@@ -58,7 +61,6 @@ class TicTacToe extends Game {
             { playerId: null, isBot: true, name: 'Computer' }
         ];
 
-        this.titleText = this.makeText('Tic-Tac-Toe', 50, 5, 4.2, [244, 237, 216, 255]);
         this.statusText = this.makeText('Welcome to the table', 50, 12, 2.2, [244, 237, 216, 255]);
         this.scoreText = this.makeText('X 0   —   0 O', 50, 17, 1.7, [224, 216, 193, 255]);
         this.leftSeatText = this.makeText('X · Open seat', 24, 92, 1.45, SIDE_COLORS[X]);
@@ -98,7 +100,7 @@ class TicTacToe extends Game {
         });
         this.rematchButton.node.playerIds = [0];
 
-        this.base.addChildren(this.titleText, this.statusText, this.scoreText, this.leftSeatText, this.rightSeatText, this.hintText, this.rematchButton);
+        this.base.addChildren(this.statusText, this.scoreText, this.leftSeatText, this.rightSeatText, this.hintText, this.rematchButton);
         this.render();
     }
 

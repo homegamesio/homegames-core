@@ -10,10 +10,12 @@
   },
   "scripts": {
     "test": "node testRunner.js",
+    "test:host-access": "node --test test/host-access.test.cjs",
+    "stage:runtime": "node tools/stage-local-runtime.cjs",
+    "audit:runtime": "node tools/audit-runtime-candidate.cjs",
     "test:sessions": "node testRunner.js ./test/session/*.test.js ./test/GamepadInput.test.js ./test/QuickPointerInput.test.js ./test/SaveGames.test.js ./test/SessionForkGate.test.js ./test/web/*.test.js",
     "start": "node index.js",
-    "develop": "node hotload.js",
-    "postinstall": "node node_modules/homegames-common/link-squish.js"
+    "develop": "node hotload.js"
   },
   "repository": {
     "type": "git",
@@ -23,16 +25,28 @@
     "homegames"
   ],
   "author": "Joseph Garcia",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/homegamesio/homegames/issues"
   },
   "homepage": "https://github.com/homegamesio/homegames#readme",
   "dependencies": {
-    "acme-client": "^5.4.0",
+    "@peculiar/x509": "1.14.3",
     "acorn": "^8.11.3",
-    "homegames-client": "file:../homegames-client",
-    "homegames-common": "file:../homegames-common",
-    "ws": "7.5.10"
+    "homegames-client": "0.2.1",
+    "homegames-common": "1.7.4",
+    "squish-150": "npm:squishjs@1.5.0",
+    "ws": "7.5.13"
+  },
+  "devDependencies": {
+    "fflate": "0.8.3",
+    "homepad": "0.2.1"
+  },
+  "overrides": {
+    "homepad": "0.2.1",
+    "homegames-common": {
+      ".": "$homegames-common",
+      "ws": "7.5.13"
+    }
   }
 }

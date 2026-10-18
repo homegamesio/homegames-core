@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-142');
+const { Asset, GameNode } = require('squish-150');
 const TONES = {
     pulse: [.065, 500, 220, .035], return: [.12, 1100, 140, .085], catch: [.09, 540, 1150, .06],
     perfect: [.22, 880, 1760, .08], kill: [.22, 160, 38, .1], hurt: [.3, 200, 42, .12],

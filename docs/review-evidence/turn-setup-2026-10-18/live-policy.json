@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-18T17:59:21.016Z",
+  "endpoint": "wss://api.homegames.io/rtc",
+  "checks": [
+    "Unauthenticated allocation challenged",
+    "Wrong password rejected",
+    "API-issued credential allocates on deployed TURN",
+    "Loopback, private, metadata, CGNAT and multicast peer permissions denied",
+    "Public peer permission allowed (no peer traffic sent)",
+    "Test allocation explicitly released"
+  ],
+  "notes": [
+    "Coturn permits its own mapped private IP. This probe cannot verify packet filtering; the on-host egress guard and its real-packet check are required."
+  ]
+}

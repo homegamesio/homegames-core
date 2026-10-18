@@ -1,0 +1,8 @@
+Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/homegames-catalog-install-kb0Csv
+PASS: existing saved copies upgrade their embedded player without changing game identity or installation
+PASS: interrupted runtime fetch and quota failure preserve the playable saved copy; later update retries successfully
+PASS: named HTML/ZIP downloads before/during play, including legacy unnamed packs
+PASS: game-specific PNG icons over ordinary HTTP, Apple title, and older unnamed copies
+PASS: no-JS install links, separate game identities, phone instructions, downloadable HTML, Play and legacy links
+PASS: fresh installed-app storage downloads and plays automatically; identity and download failures recover
+PASS: cold app restart, image/audio/input, reload and HTML backup with the origin stopped; no API or external requests

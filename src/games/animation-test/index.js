@@ -1,13 +1,13 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 class AnimationTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
             isTest: true,
-            author: 'Joseph Garcia',
-            thumbnail: '9fbf18d172f421ce98fabf04e10f6c30',
-            squishVersion: '142',
+            author: "Joseph Garcia",
+            thumbnail: './assets/9fbf18d172f421ce98fabf04e10f6c30.png',
+            squishVersion: '150',
             tickRate: 60
         };
     }
@@ -20,123 +20,123 @@ class AnimationTest extends Game {
 
         this.assets = {
             'frame_1': new Asset({
-                'id': 'b7d5c5720146b248f2968a5698d47d34',
+                path: './assets/b7d5c5720146b248f2968a5698d47d34.png',
                 'type': 'image'
             }),
             'frame_2': new Asset({
-                'id': '9c16e5fea84b3f1c9df0ad82792f7b5b',
+                path: './assets/9c16e5fea84b3f1c9df0ad82792f7b5b.png',
                 'type': 'image'
             }),
             'frame_3': new Asset({
-                'id': '474967a53dfa25d7b9bd6e592fbd4cd0',
+                path: './assets/474967a53dfa25d7b9bd6e592fbd4cd0.png',
                 'type': 'image'
             }),
             'frame_4': new Asset({
-                'id': '74a2bdb81449877b4d2ff8526240b30f',
+                path: './assets/74a2bdb81449877b4d2ff8526240b30f.png',
                 'type': 'image'
             }),
             'frame_5': new Asset({
-                'id': '6de58edbfd09a8249965c5ed5c401b76',
+                path: './assets/6de58edbfd09a8249965c5ed5c401b76.png',
                 'type': 'image'
             }),
             'frame_6': new Asset({
-                'id': '82a341cee278824aa82ed98833727064',
+                path: './assets/82a341cee278824aa82ed98833727064.png',
                 'type': 'image'
             }),
             'frame_7': new Asset({
-                'id': 'a9d51822c7fe1440d9d1359f62cba260',
+                path: './assets/a9d51822c7fe1440d9d1359f62cba260.png',
                 'type': 'image'
             }),
             'frame_8': new Asset({
-                'id': '4def94e5207eb6dbf7131c0efd01ded8',
+                path: './assets/4def94e5207eb6dbf7131c0efd01ded8.png',
                 'type': 'image'
             }),
             'frame_9': new Asset({
-                'id': '74112f7093e5d328ba84c9c512615a81',
+                path: './assets/74112f7093e5d328ba84c9c512615a81.png',
                 'type': 'image'
             }),
             'frame_10': new Asset({
-                'id': '0caec7069d2847587dc7467e0104044a',
+                path: './assets/0caec7069d2847587dc7467e0104044a.png',
                 'type': 'image'
             }),
             'frame_11': new Asset({
-                'id': 'e9f6215f74a8075d0ee49ebc37b7ef53',
+                path: './assets/e9f6215f74a8075d0ee49ebc37b7ef53.png',
                 'type': 'image'
             }),
             'frame_12': new Asset({
-                'id': 'eda8942e37a94592179618f27d29f030',
+                path: './assets/eda8942e37a94592179618f27d29f030.png',
                 'type': 'image'
             }),
             'frame_13': new Asset({
-                'id': 'ee28596dd872144b6f35b328c413c4ea',
+                path: './assets/ee28596dd872144b6f35b328c413c4ea.png',
                 'type': 'image'
             }),
             'frame_14': new Asset({
-                'id': 'cbfa874e0478b0ec725e48e9f84cd61d',
+                path: './assets/cbfa874e0478b0ec725e48e9f84cd61d.png',
                 'type': 'image'
             }),
             'frame_15': new Asset({
-                'id': '075c025b39869556da5b34863a2fa08f',
+                path: './assets/075c025b39869556da5b34863a2fa08f.png',
                 'type': 'image'
             }),
             'frame_16': new Asset({
-                'id': '155d43678801b7595ab7d7f3e8515aff',
+                path: './assets/155d43678801b7595ab7d7f3e8515aff.png',
                 'type': 'image'
             }),
             'frame_17': new Asset({
-                'id': 'ba7cf5eda822e0da3fb515f3469906ec',
+                path: './assets/ba7cf5eda822e0da3fb515f3469906ec.png',
                 'type': 'image'
             }),
             'frame_18': new Asset({
-                'id': '347b8f82ccc82e8125f4fc054a9dd7ec',
+                path: './assets/347b8f82ccc82e8125f4fc054a9dd7ec.png',
                 'type': 'image'
             }),
             'frame_19': new Asset({
-                'id': '771654be56b6f8ac24e1c1f4330e0e82',
+                path: './assets/771654be56b6f8ac24e1c1f4330e0e82.png',
                 'type': 'image'
             }),
             'frame_20': new Asset({
-                'id': 'c71522cc122b550a0da14137ab22e445',
+                path: './assets/c71522cc122b550a0da14137ab22e445.png',
                 'type': 'image'
             }),
             'frame_21': new Asset({
-                'id': '6b52130645fe40af0489b72b5d4a9de8',
+                path: './assets/6b52130645fe40af0489b72b5d4a9de8.png',
                 'type': 'image'
             }),
             'frame_22': new Asset({
-                'id': '82c07463d2510e1afa1132b6e63a878d',
+                path: './assets/82c07463d2510e1afa1132b6e63a878d.png',
                 'type': 'image'
             }),
             'frame_23': new Asset({
-                'id': '4fd5523c225ca78ed3f779d36417cd9e',
+                path: './assets/4fd5523c225ca78ed3f779d36417cd9e.png',
                 'type': 'image'
             }),
             'frame_24': new Asset({
-                'id': 'dc3f39a8a49146822c036bef6016ee23',
+                path: './assets/dc3f39a8a49146822c036bef6016ee23.png',
                 'type': 'image'
             }),
             'frame_25': new Asset({
-                'id': 'cdf359e561421393cb0575a8741b9e2f',
+                path: './assets/cdf359e561421393cb0575a8741b9e2f.png',
                 'type': 'image'
             }),
             'frame_26': new Asset({
-                'id': '782ee30969eb50c0fd4e79cb6a353706',
+                path: './assets/782ee30969eb50c0fd4e79cb6a353706.png',
                 'type': 'image'
             }),
             'frame_27': new Asset({
-                'id': '5e7c4aa25db49e2581d0d2d9993f5f88',
+                path: './assets/5e7c4aa25db49e2581d0d2d9993f5f88.png',
                 'type': 'image'
             }),
             'frame_28': new Asset({
-                'id': '1344a16df085d05c6e4c0084e4f5e7de',
+                path: './assets/1344a16df085d05c6e4c0084e4f5e7de.png',
                 'type': 'image'
             }),
             'frame_29': new Asset({
-                'id': '22039e8f2cf4e5eddf6aecc8990e6058',
+                path: './assets/22039e8f2cf4e5eddf6aecc8990e6058.png',
                 'type': 'image'
             }),
             'frame_30': new Asset({
-                'id': '437678f66b5d68a0894e0e0440881156',
+                path: './assets/437678f66b5d68a0894e0e0440881156.png',
                 'type': 'image'
             })
         };

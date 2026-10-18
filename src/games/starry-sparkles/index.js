@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { SparkleAudio } = require('./audio');
 
 const TAU = Math.PI * 2;
@@ -6,6 +6,11 @@ const HIDDEN = [[0, 0], [0, 0], [0, 0]];
 const PALETTE = [
     [255, 133, 167, 255], [255, 183, 121, 255], [255, 220, 124, 255],
     [135, 230, 196, 255], [132, 201, 255, 255], [200, 163, 255, 255],
+];
+const SKY_PICTURES = [
+    { name: 'kite', points: [[50, 30], [72, 47], [50, 65], [28, 47]] },
+    { name: 'house', points: [[28, 62], [28, 42], [50, 28], [72, 42], [72, 62]] },
+    { name: 'crown', points: [[24, 43], [34, 64], [66, 64], [76, 43], [50, 54]] },
 ];
 const C = {
     sky: [39, 34, 72, 255], lowerSky: [48, 40, 80, 255], horizon: [61, 49, 91, 255],
@@ -35,8 +40,11 @@ const petal = (x, y, radius, angle) => oval(0, 0, radius, radius * .47, 12).map(
 class StarrySparkles extends Game {
     static metadata() {
         return {
-            name: 'Starry Sparkles', squishVersion: '142', author: 'Joseph Garcia', createdBy: 'Joseph Garcia',
-            description: 'Tap the twilight sky to grow colorful flower, star and heart fireworks. Choose a color and make gentle musical sparkles with Bunny and Bear. Endless play, no scores or time limits.',
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png',
+            name: 'Starry Sparkles', squishVersion: '150', author: "Joseph Garcia", createdBy: "Joseph Garcia",
+            description: 'Paint colorful fireworks anywhere, or light the big stars to reveal sky pictures and a happy firework finale.',
             aspectRatio: { x: 1, y: 1 }, tickRate: 30, maxPlayers: 1, services: [], assets: {},
             gamepadBindings: { ' ': ['FACE_1', 'FACE_2', 'FACE_3', 'FACE_4'] },
         };
@@ -46,11 +54,18 @@ class StarrySparkles extends Game {
         super();
         this.addAsset = addAsset; this.players = new Map(); this.time = 0; this.sound = true;
         this.selectedColor = null; this.nextColor = 0; this.launched = 0; this.cheerUntil = 0;
+        this.pictureIndex = 0; this.picturesMade = 0; this.litStars = new Set(); this.pictureUntil = 0;
         this.base = this.shape(ShapeUtils.rectangle(0, 0, 100, 100), C.sky);
         this.scenery = this.group(this.base); this.skyEffects = this.group(this.base);
         this.friendsLayer = this.group(this.base); this.hud = this.group(this.base); this.audioRoot = this.group(this.base);
         this.audio = new SparkleAudio(this.audioRoot);
         this.buildScenery(); this.buildFriends(); this.buildHud();
+        this.pictureLines = Array.from({ length: 5 }, () => this.put(this.skyEffects, this.shape(HIDDEN, PALETTE[2])));
+        this.pictureStars = Array.from({ length: 5 }, () => ({
+            rim: this.put(this.skyEffects, this.shape(HIDDEN, C.white)),
+            center: this.put(this.skyEffects, this.shape(HIDDEN, C.sky)),
+        }));
+        this.drawPicture();
         // A fixed budget of six fireworks, with sixteen sparks each. Even rapid
         // taps reuse old slots instead of accumulating a scene full of nodes.
         this.bursts = Array.from({ length: 6 }, () => ({
@@ -66,7 +81,7 @@ class StarrySparkles extends Game {
         const touch = this.put(this.base, this.shape(ShapeUtils.rectangle(0, 0, 100, 100), null, {
             onClick: (id, x, y) => this.pointerDown(id, x, y),
         }));
-        // Squish 142 drops offClick constructor options; the shared dispatcher
+        // Squish 1.5.0 drops offClick constructor options; the shared dispatcher
         // reads the node directly and closes a stale press before a new one.
         touch.node.offClick = id => { const player = this.players.get(id); if (player) player.pointer = false; };
     }
@@ -149,9 +164,8 @@ class StarrySparkles extends Game {
         const inner = [...outer].reverse().map(([px, py]) => [px, py - .18]); return closed([...outer, ...inner]);
     }
     buildHud() {
-        this.text(this.hud, 'L I T T L E   P L A Y T I M E', 50, 3.6, 1.35, C.muted);
-        this.text(this.hud, 'starry sparkles', 48, 8.7, 5.7, C.white);
-        this.text(this.hud, 'Tap the sky. Make it sparkle!', 50, 16.3, 2.25, C.muted);
+
+        this.instruction = this.text(this.hud, 'Tap a star', 50, 16.3, 2.25, C.muted);
         this.disk(this.hud, 91, 7.7, 6.2, 3.3, [68, 56, 97, 255]);
         this.soundLabel = this.text(this.hud, 'sound on', 91, 6.8, 1.5);
         this.swatches = PALETTE.map((color, index) => {
@@ -162,7 +176,34 @@ class StarrySparkles extends Game {
             this.put(this.hud, this.shape(star(x, 92.5, 1.65), tint(color, .8)));
             return { x, y: 92, ring };
         });
-        this.text(this.hud, 'tap / click / space', 50, 98.1, 1.2, C.ink);
+
+    }
+
+    get skyPicture() { return SKY_PICTURES[this.pictureIndex]; }
+    drawPicture() {
+        const points = this.skyPicture.points;
+        this.pictureStars.forEach((node, i) => {
+            node.rim.node.coordinates2d = i < points.length ? star(...points[i], 3.4) : HIDDEN;
+            node.rim.node.fill = this.litStars.has(i) ? PALETTE[2] : C.muted;
+            node.center.node.coordinates2d = i < points.length && !this.litStars.has(i) ? star(...points[i], 2.6) : HIDDEN;
+        });
+        this.pictureLines.forEach((node, i) => {
+            const next = (i + 1) % points.length;
+            node.node.coordinates2d = i < points.length && this.litStars.has(i) && this.litStars.has(next) ? line(...points[i], ...points[next], .45) : HIDDEN;
+        });
+    }
+    lightStar(x, y) {
+        if (this.pictureUntil) return;
+        const i = this.skyPicture.points.findIndex(([px, py], i) => !this.litStars.has(i) && Math.hypot(x - px, y - py) <= 8);
+        if (i < 0) return;
+        this.litStars.add(i); this.drawPicture();
+        if (this.litStars.size === this.skyPicture.points.length) {
+            this.picturesMade++; this.pictureUntil = this.time + 3.5;
+            this.instruction.node.text = { ...this.instruction.node.text, text: 'You made a ' + this.skyPicture.name + '!' };
+            [[21, 32], [79, 32], [50, 49]].forEach(([px, py], n) => this.welcomeBurst(px, py, (this.picturesMade + n * 2) % 6, n, .45));
+            this.cheerUntil = this.pictureUntil;
+        }
+        this.dirty();
     }
 
     welcomeBurst(x, y, color, kind, age) {
@@ -251,7 +292,8 @@ class StarrySparkles extends Game {
             // Choosing paint also makes a firework, so every button is rewarding.
             this.launch(22 + index * 11.2, 37 + index % 2 * 12); return;
         }
-        this.launch(x, y);
+        if (y < 21 || y > 82) return;
+        this.launch(x, y); this.lightStar(x, y);
     }
     handleKeyDown(id, key) {
         const player = this.players.get(id);
@@ -259,13 +301,18 @@ class StarrySparkles extends Game {
         if (!(key === 'Enter' || key.startsWith('Arrow') || key === ' ' || /^[a-z0-9]$/i.test(key))) return;
         player.keys.add(key);
         const positions = [[28, 38], [70, 48], [49, 29], [38, 56], [68, 32], [25, 53]];
-        this.launch(...positions[this.launched % positions.length]);
+        const point = positions[this.launched % positions.length];
+        this.launch(...point); this.lightStar(...point);
     }
     handleKeyUp(id, key) { this.players.get(id)?.keys.delete(key); }
     tick() {
         if (!this.players.size) return;
         const dt = 1 / 30; this.time += dt;
         let changed = this.audio.tick(dt);
+        if (this.pictureUntil && this.time >= this.pictureUntil) {
+            this.pictureUntil = 0; this.pictureIndex = (this.pictureIndex + 1) % SKY_PICTURES.length; this.litStars.clear();
+            this.drawPicture(); this.instruction.node.text = { ...this.instruction.node.text, text: 'Tap a star' }; changed = true;
+        }
         for (const b of this.bursts) {
             if (!b.active) continue;
             b.age += dt; changed = true;

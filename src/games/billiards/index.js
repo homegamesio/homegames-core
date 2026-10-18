@@ -1,10 +1,10 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-145');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const COLORS = Colors.COLORS;
 
 // BILLIARDS — 8-ball with precise, substepped physics.
 //
-// Drag the cue ball back to aim (a guide shows the cue path AND the object
+// Drag anywhere on the table to aim (a guide shows the cue path AND the object
 // ball's projected departure line — cut shots work exactly like real pool:
 // the object ball leaves along the line of centers). Release to shoot.
 //
@@ -114,17 +114,24 @@ const gauss = () => (Math.random() + Math.random() + Math.random()) - 1.5;
 class Billiards extends Game {
     static metadata() {
         return {
-            squishVersion: '145',
+            thumbnail: './assets/thumbnail.png',
             name: 'Billiards',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: '8-ball with precise physics: real cut shots, cushion mouths, ghost-ball aim guide. Play a friend or a beatable bot.',
             aspectRatio: { x: 16, y: 9 },
-            tickRate: TICK_RATE
+            assets: {
+                'pointer-grab': new Asset({ path: './assets/cursor-grab.png', type: 'image' }),
+                'pointer-hold': new Asset({ path: './assets/cursor-hold.png', type: 'image' })
+            },
+            tickRate: TICK_RATE,
+            gameId: "aafd99a8-76fe-5a19-a9b6-3f876f387908",
+            maxPlayers: 2
         };
     }
 
     constructor(options = {}) {
         super();
+        this.setCursor = options.setCursor;
 
         this.balls = [];               // {id, x, y, vx, vy, alive, stripe, node, markerNode}
         this.seats = [null, null];     // {kind: 'human'|'bot', pid?, name}
@@ -186,19 +193,21 @@ class Billiards extends Game {
             shapeType: Shapes.POLYGON,
             coordinates2d: ZERO_COORDS,
             fill: [0, 0, 0, 0],
+            onHover: pid => this.pointerCursor(pid, this.canShoot(Number(pid)) ? 'grab' : null),
+            offHover: pid => { if (!this.aiming) this.pointerCursor(pid, null); },
             onClick: (pid, x, y) => this.startAim(Number(pid), x, y),
             onDrag: (pid, x, y) => this.dragAim(Number(pid), x, y),
             offClick: (pid, x, y) => this.shoot(Number(pid), x, y)
         });
 
         this.turnText = new GameNode.Text({
-            textInfo: { text: 'BILLIARDS', x: 50, y: 3, size: 2, align: 'center', color: HUD_COLOR }
+            textInfo: { text: '', x: 50, y: 3, size: 2, align: 'center', color: HUD_COLOR }
         });
         this.statusText = new GameNode.Text({
             textInfo: { text: 'waiting for players', x: 50, y: 8, size: 1.4, align: 'center', color: DIM }
         });
         this.helpText = new GameNode.Text({
-            textInfo: { text: 'drag the cue ball back to aim, release to shoot', x: 50, y: 93, size: 1.2, align: 'center', color: DIM }
+            textInfo: { text: 'Drag anywhere to aim · Release to shoot', x: 50, y: 93, size: 1.2, align: 'center', color: DIM }
         });
 
         this.button = new GameNode.Shape({
@@ -296,7 +305,7 @@ class Billiards extends Game {
     updateGrabPad() {
         const cue = this.cueBall();
         const coords = (cue && cue.alive && this.state === 'aim')
-            ? ngon(cue.x, cue.y, BALL_R * 3.2, 8)
+            ? ShapeUtils.rectangle(3, 15, 94, 74)
             : ZERO_COORDS;
         this.grabPad.update({ coordinates2d: coords });
     }
@@ -475,6 +484,7 @@ class Billiards extends Game {
     }
 
     handlePlayerDisconnect(playerId) {
+        this.pointerCursor(playerId, null);
         const pid = Number(playerId);
         const seatIdx = this.humanSeats[pid];
         delete this.humanSeats[pid];
@@ -550,7 +560,7 @@ class Billiards extends Game {
     updateTurnText() {
         let text;
         if (this.state === 'lobby') {
-            text = 'BILLIARDS';
+            text = 'Waiting for a player';
         } else if (this.state === 'over') {
             text = `${this.seatLabel(0)}  vs  ${this.seatLabel(1)}`;
         } else {
@@ -575,32 +585,48 @@ class Billiards extends Game {
             && this.seats[this.currentSeat].pid === pid;
     }
 
+    pointerCursor(id, mode) {
+        if (typeof this.setCursor === 'function') this.setCursor(id, mode ? { assetKey: 'pointer-' + mode, size: { width: 32, height: 32 }, hotspot: { x: 16, y: 16 } } : null);
+    }
+
     startAim(pid, x, y) {
+        if (![x, y].every(Number.isFinite)) return;
         if (!this.canShoot(pid)) return;
         if (this.aiming) return;   // re-fired click (old clients)
-        this.aiming = { pid, x, y };
+        const cue = this.cueBall();
+        this.aiming = { pid, startX: x, startY: y, x: cue.x, y: cue.y };
+        this.pointerCursor(pid, 'hold');
         this.renderAimNodes(this.aiming);
     }
 
     dragAim(pid, x, y) {
         if (!this.aiming || this.aiming.pid !== pid) return;
-        this.aiming.x = x;
-        this.aiming.y = y;
+        if (![x, y].every(Number.isFinite)) return;
+        const cue = this.cueBall();
+        this.aiming.x = cue.x + x - this.aiming.startX;
+        this.aiming.y = cue.y + y - this.aiming.startY;
         this.renderAimNodes(this.aiming);
     }
 
     shoot(pid, x, y) {
         if (!this.aiming || this.aiming.pid !== pid) return;
         const cue = this.cueBall();
-        const dx = cue.x - x;
-        const dy = cue.y - y;
+        this.dragAim(pid, x, y);
+        const dx = cue.x - this.aiming.x;
+        const dy = cue.y - this.aiming.y;
         const pull = Math.hypot(dx, dy);
         this.aiming = null;
+        this.pointerCursor(pid, null);
         this.renderAimNodes(null);
         if (pull < MIN_PULL) return;
 
         const speed = Math.min(pull * POWER_SCALE, MAX_SHOT_SPEED);
         this.fireCue((dx / pull), (dy / pull), speed);
+    }
+
+    handleKeyDown(pid, key) {
+        if (key !== 'Escape' || this.aiming?.pid !== Number(pid)) return;
+        this.aiming = null; this.renderAimNodes(null); this.pointerCursor(pid, null);
     }
 
     fireCue(nx, ny, speed) {

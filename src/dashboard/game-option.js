@@ -1,5 +1,5 @@
 const path = require('path');
-const { GameNode, Colors, ShapeUtils, Shapes } = require('squish-142');
+const { GameNode, Colors, ShapeUtils, Shapes } = require('squish-150');
 
 const COLORS = Colors.COLORS;
 
@@ -35,7 +35,18 @@ const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
         color: CARD_BORDER_COLOR
     });
 
-    const nameSize = Math.max(1.2, Math.min(1.8, width / 22));
+    // Keep long titles inside their own card; the modal retains the full name.
+    const title = String(gameName);
+    const nameLines = [];
+    let remaining = title;
+    while (remaining.length > 25 && nameLines.length < 1) {
+        const space = remaining.lastIndexOf(' ', 25);
+        const split = space > 10 ? space : 25;
+        nameLines.push(remaining.slice(0, split));
+        remaining = remaining.slice(split).trimStart();
+    }
+    nameLines.push(remaining.length > 25 ? remaining.slice(0, 24) + '…' : remaining);
+    const nameSize = nameLines.length > 1 ? 1.05 : Math.max(1.2, Math.min(1.8, width / 22));
     const nameStripH = Math.min(7, cardH * 0.2);
     const padX = cardW * 0.06;
     const padTop = cardH * 0.06;
@@ -63,16 +74,17 @@ const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
 
     // vertically center the name in the bottom strip (text height in y-units
     // is size * 16/9 at the dashboard's aspect ratio)
-    const gameNameNode = new GameNode.Text({
+    const lineHeight = nameSize * 16 / 9;
+    const gameNameNodes = nameLines.map((text, line) => new GameNode.Text({
         textInfo: {
-            text: gameName,
+            text,
             x: cardX + (cardW / 2),
-            y: cardY + cardH - nameStripH + ((nameStripH - (nameSize * 16 / 9)) / 2),
+            y: cardY + cardH - nameStripH + ((nameStripH - lineHeight * nameLines.length) / 2) + line * lineHeight,
             color: NAME_COLOR,
             align: 'center',
             size: nameSize
         }
-    });
+    }));
 
     // transparent click target over the card, added last so it sits on top
     const clickHandlerOverlay = new GameNode.Shape({
@@ -81,7 +93,7 @@ const gameOption = ({ x, y, width, height, assetKey, gameName, onClick }) => {
         onClick
     });
 
-    node.addChildren(card, thumbnail, gameNameNode, clickHandlerOverlay);
+    node.addChildren(card, thumbnail, ...gameNameNodes, clickHandlerOverlay);
 
     return node;
 };

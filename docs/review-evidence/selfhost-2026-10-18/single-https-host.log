@@ -1,0 +1,90 @@
+✔ host access accepts direct local clients and denies LAN, proxy claims, rebinding and foreign origins (3.552166ms)
+Found config at /Users/josephgarcia/homegames/homegames-core
+Using default setting: PUBLIC_HOST
+Using config setting: API_URL
+Using environment setting: HOMENAMES_API_SECRET
+✔ HTTPS host access uses the served certificate name, while LAN guests and unknown names stay unprivileged (48.110375ms)
+[Homenames] Session 1 ready on port 7002
+Using environment setting: API_URL
+Using environment setting: LINK_PROXY_URL
+Using environment setting: HOMENAMES_PORT
+Using config setting: BEZEL_SIZE_X
+Using config setting: BEZEL_SIZE_Y
+Using default setting: DOMAIN_NAME
+Using default setting: CERT_DOMAIN
+Using default setting: LOCAL_GAME_DIRECTORY
+Starting regular server on port 0
+Using default setting: RTC_SHARE_ORIGIN
+Using environment setting: PUBLIC_GAMES
+✔ session API blocks supplied code/files, lifecycle changes and logs before guest side effects (98.389167ms)
+client info 
+{ clientInfo: { isHost: true, isAdmin: true } }
+Opened connection to proxy server
+client info 
+{ clientInfo: { isHost: true, isAdmin: true } }
+Using default setting: MAP_ENABLED
+Using config setting: HTTPS_ENABLED
+Using environment setting: API_URL
+Using config setting: LINK_URL
+wattt1
+watdsfdsf3
+{
+  '150': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-150/index.js'
+}
+this is Game
+[class Game]
+Using environment setting: API_URL
+Using dictionary file at /Users/josephgarcia/homegames/homegames-core/dictionary.txt
+Using environment setting: ERROR_REPORTING
+Using config setting: IS_DEMO
+Using config setting: DASHBOARD_PAGE_SIZE
+Using default setting: CHILD_SESSION_HEARTBEAT_INTERVAL
+Using default setting: LOCAL_GAME_DIRECTORY
+Using config setting: TESTS_ENABLED
+Using config setting: TESTS_ENABLED
+Set config value FORK_SESSIONS_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-khef8w/config.json
+Set config value HOME_PORT in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-khef8w/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Using config setting: HOME_PORT
+Using environment setting: HOMENAMES_PORT
+Using config setting: HOME_PORT
+Set config value HOME_PORT in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-khef8w/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Using config setting: HOME_PORT
+Using environment setting: HOMENAMES_PORT
+Using config setting: HOME_PORT
+Using environment setting: HOME_PORT
+Using environment setting: HOMENAMES_PORT
+Using config setting: LINK_ENABLED
+Set config value LINK_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-khef8w/config.json
+Set config value HTTPS_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-khef8w/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Using config setting: HOME_PORT
+Using environment setting: HOMENAMES_PORT
+Using config setting: LINK_ENABLED
+Set config value LINK_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-khef8w/config.json
+Set config value HTTPS_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-khef8w/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Using config setting: HOME_PORT
+Using environment setting: HOMENAMES_PORT
+Using config setting: HOME_PORT
+Using environment setting: HOMENAMES_PORT
+Set config value FORK_SESSIONS_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-khef8w/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Using config setting: HOME_PORT
+Using environment setting: HOMENAMES_PORT
+Using config setting: FORK_SESSIONS_ENABLED
+Using config setting: FORK_SESSIONS_ENABLED
+Using config setting: TESTS_ENABLED
+Using config setting: TESTS_ENABLED
+✔ WebSocket privileges come from the upgrade, ignore ready-message claims, and expire on disconnect (11.334167ms)
+✔ guest dashboard handlers cannot change settings; host fields reject another sender and revoke on disconnect (8.802333ms)
+✔ guests can play installed games but cannot trigger downloads or installs (0.436167ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 216.159084

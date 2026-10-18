@@ -1,0 +1,45 @@
+// Coordinates describe the floor. All three jobs have generous routes for cargo.
+const shell = [
+    { x: 20, y: 5, w: 76, h: 2 }, { x: 94, y: 5, w: 2, h: 62 },
+    { x: 20, y: 65, w: 76, h: 2 }, { x: 20, y: 5, w: 2, h: 42 },
+    { x: 20, y: 62, w: 2, h: 5 },
+];
+module.exports = [
+    {
+        name: 'The Golden Goose', place: 'GILDED GALLERY', color: 'rose',
+        tagline: 'An exceptionally bad investment. An excellent goose.',
+        hero: { x: 81, y: 20, kind: 'goose', name: 'Golden goose', radius: 3.6 },
+        walls: [...shell, { x: 52, y: 7, w: 2, h: 22 }, { x: 52, y: 47, w: 2, h: 18 }, { x: 71, y: 39, w: 23, h: 2 }],
+        props: [{ x: 33, y: 17, w: 7, h: 4 }, { x: 76, y: 54, w: 9, h: 4 }],
+        loot: [{ x: 31, y: 53, kind: 'cup' }, { x: 38, y: 30, kind: 'gem' }, { x: 85, y: 57, kind: 'painting' }],
+        guards: [{ route: [[42, 23], [42, 40], [62, 40], [62, 20], [84, 30], [62, 34]], speed: 5.6 }],
+        hiding: [{ x: 27, y: 34, w: 7, h: 7 }, { x: 60, y: 52, w: 7, h: 7 }],
+        doors: [], lasers: [], bell: { x: 35, y: 11 },
+        art: [[60, 9, 'portrait'], [86, 9, 'portrait'], [25, 23, 'portrait'], [86, 62, 'portrait']],
+    },
+    {
+        name: 'Prickly Business', place: 'ROYAL CONSERVATORY', color: 'mint',
+        tagline: 'Nobody checked if the getaway van was cactus-proof.',
+        hero: { x: 82, y: 18, kind: 'cactus', name: 'Royal cactus', radius: 3.8 },
+        walls: [...shell, { x: 49, y: 7, w: 2, h: 21 }, { x: 49, y: 44, w: 2, h: 21 }, { x: 67, y: 37, w: 27, h: 2 }],
+        props: [{ x: 31, y: 21, w: 6, h: 9 }, { x: 68, y: 49, w: 6, h: 8 }],
+        loot: [{ x: 29, y: 57, kind: 'cup' }, { x: 86, y: 55, kind: 'gem' }, { x: 61, y: 17, kind: 'flower' }],
+        guards: [{ route: [[40, 17], [41, 40], [30, 46]], speed: 5.2 }, { route: [[62, 25], [86, 27], [62, 45], [84, 59]], speed: 5.2 }],
+        hiding: [{ x: 27, y: 9, w: 9, h: 7 }, { x: 79, y: 43, w: 10, h: 6 }],
+        doors: [{ id: 'greenhouse', x: 49, y: 28, w: 2, h: 16, open: false }], lasers: [],
+        bell: { x: 58, y: 57 }, art: [[40, 10, 'plant'], [86, 9, 'plant'], [89, 60, 'plant']],
+    },
+    {
+        name: 'Bone Voyage', place: 'MUSEUM OF VERY BIG THINGS', color: 'blue',
+        tagline: 'Sixty-five million years old. Still not insured for this.',
+        hero: { x: 81, y: 20, kind: 'dino', name: 'Dinosaur skeleton', radius: 4.6 },
+        walls: [...shell, { x: 53, y: 7, w: 2, h: 22 }, { x: 53, y: 47, w: 2, h: 18 }],
+        props: [{ x: 30, y: 20, w: 7, h: 6 }, { x: 69, y: 49, w: 8, h: 5 }],
+        loot: [{ x: 30, y: 56, kind: 'gem' }, { x: 84, y: 57, kind: 'egg' }, { x: 65, y: 16, kind: 'cup' }],
+        guards: [{ route: [[42, 17], [42, 41], [30, 43]], speed: 5.4 }, { route: [[64, 23], [87, 31], [67, 40], [85, 58]], speed: 5.4 }, { route: [[62, 57], [61, 36], [82, 40]], speed: 4.4 }],
+        hiding: [{ x: 27, y: 9, w: 9, h: 6 }, { x: 81, y: 45, w: 8, h: 6 }],
+        doors: [], lasers: [{ x: 54, y: 29, w: .7, h: 18, period: 7, on: 3.5 }],
+        panel: { x: 46, y: 24 }, bell: { x: 88, y: 61 },
+        art: [[73, 9, 'planet'], [40, 60, 'planet'], [89, 12, 'portrait']],
+    },
+];

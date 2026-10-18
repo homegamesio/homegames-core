@@ -1,0 +1,32 @@
+{
+  "name": "homegames-api",
+  "version": "0.0.1",
+  "description": "Homegames services and stuff",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/homegamesio/homegames-api.git"
+  },
+  "author": "Joseph Garcia",
+  "bugs": {
+    "url": "https://github.com/homegamesio/homegames-api/issues"
+  },
+  "homepage": "https://github.com/homegamesio/homegames-api#readme",
+  "overrides": {
+    "homepad": "0.2.1",
+    "homegames-common": {
+      ".": "$homegames-common",
+      "ws": "7.5.13"
+    }
+  },
+  "dependencies": {
+    "@aws-sdk/client-route-53": "3.1152.0",
+    "@peculiar/x509": "1.14.3",
+    "homegames-common": "file:/tmp/homegames-security-runtime-verified/homegames-common-1.7.2.tgz",
+    "mongodb": "^6.8.0"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "private": true
+}

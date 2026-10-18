@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "license": "MIT",
+  "dist": {
+    "shasum": "3a86c5f4b778813a17dc7bf285eb3fb8b59425ce",
+    "tarball": "https://registry.npmjs.org/homegames-client/-/homegames-client-0.2.0.tgz",
+    "fileCount": 45,
+    "integrity": "sha512-XJrKS9eMa9aAsWVtADBG7GnClf2QNOi1FqpZUIAnnCZQmcaT3mojntW3xIcgBxQOQvFfFLcYa2M+STCwT2yKyQ==",
+    "signatures": [
+      {
+        "sig": "MEUCIF3BZnnqpG8jUvlmLHq+kK+bpy2ytEYtWXVUtyqGiN7RAiEAwKTvXlQ67JtBNGGZEVCWkn6i9PcnruD9NDSSVBkie8U=",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+      },
+      {
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+        "sig": "MEYCIQCNgXrSP31JIItUH1DbTBHNwx+P5OG7GhCyZGl5j68LxwIhAPdwKnTGb4hwjM3DmH29UAiuHW919CV6itNBh3tHpl1/"
+      }
+    ],
+    "unpackedSize": 765007
+  },
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "homepad": "0.2.1",
+    "squish-150": "npm:squishjs@1.5.0",
+    "homegames-common": "1.7.3",
+    "qrcode-generator": "^2.0.4"
+  }
+}

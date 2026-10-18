@@ -1,0 +1,874 @@
+{
+  "reviewed": "2026-10-15",
+  "reference": "swish",
+  "scope": {
+    "playableGames": 92,
+    "testAndLegacyEntriesExcluded": 55,
+    "decisions": {
+      "simplified": 79,
+      "retained": 12,
+      "reference": 1
+    }
+  },
+  "principles": [
+    "Show the activity before promotional copy.",
+    "Retain scores, turns, private-role instructions and current objectives.",
+    "Keep detailed help where the mechanics need it.",
+    "Reduce simultaneous choices when controls become cramped."
+  ],
+  "verification": {
+    "desktopBrowser": {
+      "passed": 92,
+      "failed": 0
+    },
+    "phoneBrowser": {
+      "passed": 12,
+      "failed": 0,
+      "games": [
+        "buddy-box",
+        "connect-four",
+        "facet",
+        "house-band",
+        "little-scoop-shop",
+        "nova-guard",
+        "pocket-front",
+        "rainbow-pop",
+        "showboat",
+        "swish",
+        "vector-siege",
+        "world-eater"
+      ]
+    },
+    "focusedTests": "Buddy Box pagination/purchases and JSON module loading pass. Catalog validation and World Eater integration pass.",
+    "existingFailures": [
+      "Little Scoop Shop: repeated full treats retain bounded scenes and valid native player snapshots",
+      "Little Scoop Shop: hosted GameSession broadcasts complete scene and attribute records",
+      "Little Zoo Walk: repeated visits and greetings survive actual hosted player frames with bounded scenes"
+    ],
+    "existingFailureCheck": "All three hosted-frame failures were reproduced using game source captured before this UI pass. Browser launch/render smoke checks pass for both games.",
+    "limits": "Browser checks cover launch, initial rendering and representative scenes; they are not exhaustive playthroughs."
+  },
+  "games": [
+    {
+      "folder": "after-hours",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Condensed the welcome panel to reveal more arena; retained mode, input and ready choices.",
+      "files": [
+        "src/games/after-hours/render.js"
+      ]
+    },
+    {
+      "folder": "aquarium",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/aquarium/index.js"
+      ]
+    },
+    {
+      "folder": "aquarium-forever",
+      "category": "creative-and-playtime",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "backgammon",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/backgammon/index.js"
+      ]
+    },
+    {
+      "folder": "backstage",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Leads with the experiment choices and robot; retained instructions within each experiment.",
+      "files": [
+        "src/games/backstage/index.js"
+      ]
+    },
+    {
+      "folder": "bannerbound",
+      "category": "strategy",
+      "decision": "simplified",
+      "notes": "Reduced promotional copy; preserved mode choices, objectives and detailed help needed for strategy.",
+      "files": [
+        "src/games/bannerbound/index.js"
+      ]
+    },
+    {
+      "folder": "battleship",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/battleship/index.js"
+      ]
+    },
+    {
+      "folder": "billiards",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/billiards/index.js"
+      ]
+    },
+    {
+      "folder": "blackjack",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/blackjack/index.js"
+      ]
+    },
+    {
+      "folder": "block-brawlers",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/block-brawlers/index.js"
+      ]
+    },
+    {
+      "folder": "buddy-box",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Replaced fourteen cramped shop rows with five large choices per page, page arrows and a visible selected item. Purchases survive page changes; hidden cards reject stale clicks.",
+      "files": [
+        "src/games/buddy-box/index.js"
+      ]
+    },
+    {
+      "folder": "checkers",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/checkers/index.js"
+      ]
+    },
+    {
+      "folder": "chess",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/chess/index.js"
+      ]
+    },
+    {
+      "folder": "chronoclast",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/chronoclast/index.js"
+      ]
+    },
+    {
+      "folder": "clicktionary",
+      "category": "social",
+      "decision": "simplified",
+      "notes": "Shortened lobby copy; retained the task, player readiness, private roles and phase-specific instructions.",
+      "files": [
+        "src/games/clicktionary/index.js"
+      ]
+    },
+    {
+      "folder": "clump",
+      "category": "arcade-and-puzzle",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "common-ground",
+      "category": "strategy",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "connect-four",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/connect-four/index.js"
+      ]
+    },
+    {
+      "folder": "copperline",
+      "category": "adventure",
+      "decision": "simplified",
+      "notes": "Removed repeated branding and condensed the opening; preserved story context, objectives, loadouts and progression.",
+      "files": [
+        "src/games/copperline/index.js"
+      ]
+    },
+    {
+      "folder": "counterforge-apex",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/counterforge-apex/index.js"
+      ]
+    },
+    {
+      "folder": "crazy-eights",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/crazy-eights/index.js"
+      ]
+    },
+    {
+      "folder": "deadword",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/deadword/index.js"
+      ]
+    },
+    {
+      "folder": "defuse",
+      "category": "social",
+      "decision": "simplified",
+      "notes": "Shortened lobby copy; retained the task, player readiness, private roles and phase-specific instructions.",
+      "files": [
+        "src/games/defuse/index.js"
+      ]
+    },
+    {
+      "folder": "desert-bloom",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Opening uses the cactus and play triangle instead of polygon lettering.",
+      "files": [
+        "src/games/desert-bloom/index.js"
+      ]
+    },
+    {
+      "folder": "disco-owl",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/disco-owl/index.js"
+      ]
+    },
+    {
+      "folder": "dots-and-boxes",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/dots-and-boxes/index.js"
+      ]
+    },
+    {
+      "folder": "dragon-drop",
+      "category": "arcade-and-puzzle",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "draw",
+      "category": "creative-and-playtime",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "draw-your-own-boss",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Removed the workshop eyebrow; kept Draw your own boss because it describes the actual task.",
+      "files": [
+        "src/games/draw-your-own-boss/index.js"
+      ]
+    },
+    {
+      "folder": "engine-room",
+      "category": "social",
+      "decision": "simplified",
+      "notes": "Shortened lobby copy; retained the task, player readiness, private roles and phase-specific instructions.",
+      "files": [
+        "src/games/engine-room/index.js"
+      ]
+    },
+    {
+      "folder": "facet",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed lobby and HUD branding, retained the jewel-matching cue and modes. Fixed browser JSON module loading so art data can open.",
+      "files": [
+        "src/games/facet/scene.js"
+      ]
+    },
+    {
+      "folder": "fakeout",
+      "category": "social",
+      "decision": "simplified",
+      "notes": "Shortened lobby copy; retained the task, player readiness, private roles and phase-specific instructions.",
+      "files": [
+        "src/games/fakeout/index.js"
+      ]
+    },
+    {
+      "folder": "fleetfall",
+      "category": "strategy",
+      "decision": "simplified",
+      "notes": "Reduced promotional copy; preserved mode choices, objectives and detailed help needed for strategy.",
+      "files": [
+        "src/games/fleetfall/view.js"
+      ]
+    },
+    {
+      "folder": "go-fish",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/go-fish/index.js"
+      ]
+    },
+    {
+      "folder": "hangman",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Replaced abstract start labels with Random word and Choose a word.",
+      "files": [
+        "src/games/hangman/index.js"
+      ]
+    },
+    {
+      "folder": "happy-haulers",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/happy-haulers/index.js"
+      ]
+    },
+    {
+      "folder": "hearts",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/hearts/index.js"
+      ]
+    },
+    {
+      "folder": "house-band",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Removed the large branding and marketing copy; pads and transport controls remain the focus.",
+      "files": [
+        "src/games/house-band/index.js"
+      ]
+    },
+    {
+      "folder": "imposter",
+      "category": "social",
+      "decision": "simplified",
+      "notes": "Shortened lobby copy; retained the task, player readiness, private roles and phase-specific instructions.",
+      "files": [
+        "src/games/imposter/index.js"
+      ]
+    },
+    {
+      "folder": "kaboom-valley",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/kaboom-valley/index.js"
+      ]
+    },
+    {
+      "folder": "keep-up",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/keep-up/index.js"
+      ]
+    },
+    {
+      "folder": "lemonade-tycoon",
+      "category": "strategy",
+      "decision": "simplified",
+      "notes": "Reduced promotional copy; preserved mode choices, objectives and detailed help needed for strategy.",
+      "files": [
+        "src/games/lemonade-tycoon/index.js"
+      ]
+    },
+    {
+      "folder": "little-consequences",
+      "category": "creative-and-playtime",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "little-rambler",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/little-rambler/scene.js"
+      ]
+    },
+    {
+      "folder": "little-scoop-shop",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/little-scoop-shop/index.js"
+      ]
+    },
+    {
+      "folder": "little-slugger",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/little-slugger/index.js"
+      ]
+    },
+    {
+      "folder": "little-zoo-walk",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/little-zoo-walk/index.js"
+      ]
+    },
+    {
+      "folder": "lumen-festival",
+      "category": "creative-and-playtime",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "mancala",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/mancala/index.js"
+      ]
+    },
+    {
+      "folder": "masterpiece",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/masterpiece/index.js"
+      ]
+    },
+    {
+      "folder": "micro-mayhem",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/micro-mayhem/index.js"
+      ]
+    },
+    {
+      "folder": "midnight-movers",
+      "category": "adventure",
+      "decision": "simplified",
+      "notes": "Removed repeated branding and condensed the opening; preserved story context, objectives, loadouts and progression.",
+      "files": [
+        "src/games/midnight-movers/index.js"
+      ]
+    },
+    {
+      "folder": "moonbounce",
+      "category": "adventure",
+      "decision": "simplified",
+      "notes": "Removed persistent game-name branding; retained level names, world map and tutorials. Fixed browser JSON module loading so art data can open.",
+      "files": [
+        "src/games/moonbounce/scene.js"
+      ]
+    },
+    {
+      "folder": "neon-grid",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/neon-grid/index.js"
+      ]
+    },
+    {
+      "folder": "nova-guard",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/nova-guard/index.js"
+      ]
+    },
+    {
+      "folder": "one-unreasonable-hole",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Removed lobby title and subtitle; kept the editor objective, drag-to-putt cue and scorecard.",
+      "files": [
+        "src/games/one-unreasonable-hole/index.js"
+      ]
+    },
+    {
+      "folder": "orbit-breaker",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/orbit-breaker/scene.js"
+      ]
+    },
+    {
+      "folder": "pitch-pot",
+      "category": "social",
+      "decision": "simplified",
+      "notes": "Shortened lobby copy; retained the task, player readiness, private roles and phase-specific instructions.",
+      "files": [
+        "src/games/pitch-pot/index.js"
+      ]
+    },
+    {
+      "folder": "pocket-front",
+      "category": "strategy",
+      "decision": "simplified",
+      "notes": "Shortened the opening and made the HUD reflect recruiting or defending; preserved upgrades, pause and help.",
+      "files": [
+        "src/games/pocket-front/scene.js"
+      ]
+    },
+    {
+      "folder": "polystorm",
+      "category": "arcade-and-puzzle",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "pulsefront",
+      "category": "strategy",
+      "decision": "simplified",
+      "notes": "Reduced promotional copy; preserved mode choices, objectives and detailed help needed for strategy.",
+      "files": [
+        "src/games/pulsefront/index.js"
+      ]
+    },
+    {
+      "folder": "raft",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/raft/index.js"
+      ]
+    },
+    {
+      "folder": "rainbow-pop",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/rainbow-pop/index.js"
+      ]
+    },
+    {
+      "folder": "red-truck-ramble",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/red-truck-ramble/index.js"
+      ]
+    },
+    {
+      "folder": "relic-rush",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/relic-rush/index.js"
+      ]
+    },
+    {
+      "folder": "sandy-castle",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/sandy-castle/index.js"
+      ]
+    },
+    {
+      "folder": "seance",
+      "category": "social",
+      "decision": "simplified",
+      "notes": "Shortened lobby copy; retained the task, player readiness, private roles and phase-specific instructions.",
+      "files": [
+        "src/games/seance/index.js"
+      ]
+    },
+    {
+      "folder": "sheep-drive",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/sheep-drive/index.js"
+      ]
+    },
+    {
+      "folder": "showboat",
+      "category": "social",
+      "decision": "simplified",
+      "notes": "Shortened lobby copy; retained the task, player readiness, private roles and phase-specific instructions.",
+      "files": [
+        "src/games/showboat/index.js"
+      ]
+    },
+    {
+      "folder": "snap-judgment",
+      "category": "social",
+      "decision": "simplified",
+      "notes": "Shortened lobby copy; retained the task, player readiness, private roles and phase-specific instructions.",
+      "files": [
+        "src/games/snap-judgment/index.js"
+      ]
+    },
+    {
+      "folder": "spades",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/spades/index.js"
+      ]
+    },
+    {
+      "folder": "sponge",
+      "category": "arcade-and-puzzle",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "star-sweeper",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Opening uses a ship and collectible shapes; retained short movement and collection guidance.",
+      "files": [
+        "src/games/star-sweeper/index.js"
+      ]
+    },
+    {
+      "folder": "starfall-salvage",
+      "category": "adventure",
+      "decision": "simplified",
+      "notes": "Removed repeated branding and condensed the opening; preserved story context, objectives, loadouts and progression.",
+      "files": [
+        "src/games/starfall-salvage/index.js"
+      ]
+    },
+    {
+      "folder": "starry-sparkles",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/starry-sparkles/index.js"
+      ]
+    },
+    {
+      "folder": "starweld",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/starweld/index.js"
+      ]
+    },
+    {
+      "folder": "sundown",
+      "category": "arcade-and-puzzle",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "sunwake",
+      "category": "adventure",
+      "decision": "simplified",
+      "notes": "Removed repeated branding and condensed the opening; preserved story context, objectives, loadouts and progression.",
+      "files": [
+        "src/games/sunwake/index.js"
+      ]
+    },
+    {
+      "folder": "swarmwell",
+      "category": "strategy",
+      "decision": "simplified",
+      "notes": "Reduced promotional copy; preserved mode choices, objectives and detailed help needed for strategy.",
+      "files": [
+        "src/games/swarmwell/index.js"
+      ]
+    },
+    {
+      "folder": "swish",
+      "category": "arcade-and-puzzle",
+      "decision": "reference",
+      "notes": "Reference for the pass: direct interaction, icon controls, scores and a small number of pre-round choices.",
+      "files": []
+    },
+    {
+      "folder": "tabletop-railway",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/tabletop-railway/index.js"
+      ]
+    },
+    {
+      "folder": "the-argument",
+      "category": "social",
+      "decision": "simplified",
+      "notes": "Shortened lobby copy; retained the task, player readiness, private roles and phase-specific instructions.",
+      "files": [
+        "src/games/the-argument/index.js"
+      ]
+    },
+    {
+      "folder": "tic-tac-toe",
+      "category": "board-and-card",
+      "decision": "simplified",
+      "notes": "Removed repeated game-name headers; retained turns, scores, legal actions, seating and private-hand guidance.",
+      "files": [
+        "src/games/tic-tac-toe/index.js"
+      ]
+    },
+    {
+      "folder": "tiny-bean-cafe",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/tiny-bean-cafe/index.js"
+      ]
+    },
+    {
+      "folder": "tug-club",
+      "category": "adventure",
+      "decision": "simplified",
+      "notes": "Removed repeated branding and condensed the opening; preserved story context, objectives, loadouts and progression.",
+      "files": [
+        "src/games/tug-club/index.js"
+      ]
+    },
+    {
+      "folder": "tumble-tower",
+      "category": "creative-and-playtime",
+      "decision": "simplified",
+      "notes": "Reduced introductory branding and repeated instructions; kept the current activity and its controls prominent.",
+      "files": [
+        "src/games/tumble-tower/index.js"
+      ]
+    },
+    {
+      "folder": "vector-siege",
+      "category": "strategy",
+      "decision": "simplified",
+      "notes": "Kept fleet and solo choices, practice and help; removed promotional framing and shortened control labels.",
+      "files": [
+        "src/games/vector-siege/scene.js"
+      ]
+    },
+    {
+      "folder": "vegas-trail",
+      "category": "arcade-and-puzzle",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "weed-smoke-willie",
+      "category": "arcade-and-puzzle",
+      "decision": "retained",
+      "notes": "Retained the existing activity-first flow and useful mechanic guidance after browser review.",
+      "files": []
+    },
+    {
+      "folder": "wordforge",
+      "category": "arcade-and-puzzle",
+      "decision": "simplified",
+      "notes": "Removed redundant branding or filler; retained concise controls, objectives and useful status.",
+      "files": [
+        "src/games/wordforge/index.js"
+      ]
+    },
+    {
+      "folder": "world-eater",
+      "category": "adventure",
+      "decision": "simplified",
+      "notes": "Replaced the large title and promotional copy with one harvesting objective; preserved resource status, help and private player HUDs.",
+      "files": [
+        "src/games/world-eater/ui.js"
+      ]
+    },
+    {
+      "folder": "worldseed",
+      "category": "strategy",
+      "decision": "simplified",
+      "notes": "Replaced the branded lobby heading with the cooperative choice task; kept private wishes and power choices.",
+      "files": [
+        "src/games/worldseed/index.js"
+      ]
+    }
+  ],
+  "followUp": "See game-curation.json showcase for the later 73-game selection, interaction polish and resolution of the three frame-test fixture failures.",
+  "launchReview": {
+    "reviewed": "2026-10-16",
+    "report": "launch-showcase.json",
+    "featured": [
+      "lemonade-tycoon",
+      "hot-potato",
+      "aquarium-forever",
+      "vegas-trail",
+      "hangman",
+      "swish",
+      "moonbounce",
+      "facet",
+      "tumble-tower",
+      "fleetfall",
+      "weed-smoke-willie",
+      "house-band"
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-142');
+const { Asset, GameNode } = require('squish-150');
 
 // Original Little Rambler score. All instruments are rendered to small, portable
 // PCM assets: the game needs neither browser audio APIs nor remote downloads.

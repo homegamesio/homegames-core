@@ -1,0 +1,21 @@
+{
+  "revision": "fe7d8150de2a514641343081a63e59e3895571698af5f03965b082bf2d7eb1c5",
+  "runs": [
+    {
+      "name": "packaged",
+      "elapsedMs": 15037,
+      "mapRestored": true,
+      "normalFlightCapturedPlanet": true,
+      "reloadStartsFresh": true
+    },
+    {
+      "name": "offline",
+      "elapsedMs": 15005,
+      "mapRestored": true,
+      "normalFlightCapturedPlanet": true,
+      "reloadStartsFresh": true
+    }
+  ],
+  "errors": [],
+  "external": []
+}

@@ -1,0 +1,514 @@
+✖ real touch drag: touchcancel cancels the drop (40.542ms)
+✖ real touch drag: blur cancels the drop (26.29125ms)
+✖ real touch drag: visibilitychange cancels the drop (5.235666ms)
+✖ real touch drag: detach cancels the drop (2.72225ms)
+✔ real touch drag: touchend commits the drop (3.087ms)
+✔ browser game loader parses relative JSON data and caches its identity (1.199667ms)
+✔ malformed JSON reports its source and JSON never executes as JavaScript (0.607541ms)
+✔ Pointer Lock is opt-in: ordinary drag and touch preserve their coordinate contract (2.930958ms)
+✔ acquisition keeps one original click; captured presses target center and motion needs no button (0.31225ms)
+✔ first iframe gesture captures after mousedown precedes native focus, preserving one original click (0.1655ms)
+✔ deferred focus acquisition is cancelled by lifecycle changes and never retries a rejected request (31.74175ms)
+✔ relative motion coalesces at 60 Hz, rejects nonfinite values, and stays within protocol bounds (4.105959ms)
+✔ 60 Hz rAF rounding preserves smooth look while 144 Hz rendering cannot flood relative input (4.725417ms)
+✔ escape releases held keys, fire and pending movement without affecting the next capture (1.379292ms)
+✔ native unlock releases held keys, fire and pending movement without affecting the next capture (2.245167ms)
+✔ blur releases held keys, fire and pending movement without affecting the next capture (0.758083ms)
+✔ hidden releases held keys, fire and pending movement without affecting the next capture (7.945917ms)
+✔ detach releases held keys, fire and pending movement without affecting the next capture (0.648042ms)
+✔ disable releases held keys, fire and pending movement without affecting the next capture (0.216584ms)
+✔ suspend releases held keys, fire and pending movement without affecting the next capture (0.50325ms)
+✔ unsupported, synchronous rejection and asynchronous rejection retain usable drag input (1.516791ms)
+✔ suspending capture cancels pending native and deferred focus requests until a new gesture (0.161ms)
+✔ a Start click can restore capture permission on mouseup without reacquiring until the next press (0.152584ms)
+✔ a click that opens a menu synchronously cancels capture before the native request is made (0.09975ms)
+✔ only canvas mouse gestures request capture; spectators and synthetic touch mouse events cannot (0.067833ms)
+✔ a legacy void-returning request finishing after detach releases capture and removes listeners (0.067708ms)
+✖ a quick ordinary click can synchronously stop its session without dereferencing cleared pointer state (5.67825ms)
+✔ an acquisition click that stops its session never requests capture or retains input timers/listeners (0.362ms)
+✔ relative motion reaches the authenticated player without a held button or coordinate scaling (1.422833ms)
+✔ malformed and unbounded relative motion never reaches game code (0.262208ms)
+✔ relative input leaves ordinary absolute drag handlers untouched (0.22775ms)
+✔ the first canvas touch in an unfocused iframe delivers one press; page controls and blur retain ownership (2.252083ms)
+✔ every gallery, spawn, pickup and floor cell connects through the open museum (6.042958ms)
+✔ all painting planes face floor and back onto actual museum wall faces (0.22575ms)
+✔ DDA rays measure actual wall distance and stop at freestanding artwork walls (0.939792ms)
+✔ circle collision prevents tunneling, retains radius and slides along walls (1.000583ms)
+✔ authoritative movement normalizes diagonal input and rejects invalid axes (3.728708ms)
+✔ hitscan respects line of sight, fire cooldown and closest target (51.290416ms)
+✔ weapon ammo, kill scoring, spawn protection and respawn are authoritative (4.2095ms)
+✔ weapon, health and shield pickups refill once and respawn after a cooldown (3.914583ms)
+✔ first-to-twelve ends the round, pauses combat and resets while preserving visitors (2.879167ms)
+✔ practice drones yield seats to humans, remain collision-safe and clean up on last leave (30.1085ms)
+✔ visitors begin with machinegun ammunition and every arena weapon has an accessible pickup (0.912334ms)
+✔ finite-height hitscan applies stronger head and weaker leg damage and can miss above or below bodies (1.384459ms)
+✔ small head radius is not an invisible full-width headshot cylinder (0.278041ms)
+✔ railgun pierces aligned rivals but a solid museum wall ends its beam (1.033875ms)
+✔ machinegun and shotgun use distinct cadence, consumption and multi-pellet effects (0.432916ms)
+✔ rocket and plasma travel before damage, sweep into targets and consume exactly one charge (0.613833ms)
+✔ projectiles collide with walls, floor and ceiling without leaking through to a player (1.785625ms)
+✔ rocket splash causes self-damage and knockback but respects cover (0.448667ms)
+✔ jumping is edge-triggered, bounded by ceiling height and preserves fast momentum with air control (0.985584ms)
+✔ run acceleration and friction converge to declared speeds without wall tunneling (0.837917ms)
+✔ projectile/effect storage is capped and abandoned projectiles expire or leave with their owner (29.352958ms)
+✔ a human replacing a practice drone also removes that drone’s in-flight projectiles (1.002208ms)
+✔ eight museum visitors receive exactly their own finite Squish view and controls (440.507459ms)
+✔ actors behind a camera or solid display wall are absent and detach when no longer visible (10.57ms)
+✔ opening help and returning to a live match cannot renew spawn protection (8.587625ms)
+✔ captured mouse turns only its visitor without firing and is ignored in menus or after death (7.135334ms)
+✔ vertical aim and jumping use the same eye and target heights as location damage (8.186458ms)
+✔ Space jumps without firing and weapon selection uses the six arena slots (22.495875ms)
+✔ a quick touch jump survives release before the next simulation tick (8.343833ms)
+✔ projectiles and explosion effects are scoped to visible camera geometry (10.505209ms)
+✔ a crowded effect budget keeps the nearest visible incoming projectile (5.455334ms)
+✔ sixty ticks preserve one second of movement, cooldowns and round time (31.326625ms)
+✔ holding F through death requires release before firing after respawn (13.355291ms)
+✔ a held pointer and drag cannot resume firing after respawn until a new press (15.48175ms)
+✔ holding the winning shot through intermission cannot attack automatically in the next round (1049.415625ms)
+✔ a hundred full camera rotations retain only visible nodes and a bounded cache (296.4935ms)
+✔ merged directory walls preserve every wall, doorway and gallery color with bounded nodes (22.687542ms)
+✔ front-facing paintings use one full crop while angled paintings retain perspective strips (1.705417ms)
+✔ real lobby clicks keep player votes independent and all human readiness starts the selected arena (12.860334ms)
+✔ help, map, lobby and match cursor transitions stay scoped to the affected visitor (7.35375ms)
+✔ the last unready visitor leaving immediately restores controls for ready players (8.786083ms)
+✔ team objective geometry is finite and leaves the player tree when behind walls or outside the camera (8.16725ms)
+✔ wall decorations keep their full world-space face while the camera turns (9.5955ms)
+✔ wall decorations retain both visible sides around a foreground obstruction (2.313791ms)
+✔ wall decorations clip safely at the camera plane and disappear from the back (3.098125ms)
+✔ a giant kitchen prop remains visible when only its edge is in the camera and detaches when turned away (2.561375ms)
+✔ repeated arena and lobby transitions keep eight finite, private views with unique bounded scene caches (1098.452667ms)
+ℹ Eight-seat transition peaks: 265 world nodes, 440 lobby nodes, 32672 bytes per player frame.
+✔ map catalog has five distinct layouts and safely defaults to the original museum (5.804958ms)
+✔ After Hours Museum keeps all playable cells, spawns, media and pickups connected (8.8ms)
+✔ After Hours Museum supports eight team spawns, clear objectives and two independent base routes (5.141708ms)
+✔ Tiny Kitchen keeps all playable cells, spawns, media and pickups connected (3.623583ms)
+✔ Tiny Kitchen supports eight team spawns, clear objectives and two independent base routes (3.66125ms)
+✔ Neon Heights keeps all playable cells, spawns, media and pickups connected (1.59ms)
+✔ Neon Heights supports eight team spawns, clear objectives and two independent base routes (2.066584ms)
+✔ Red Foundry keeps all playable cells, spawns, media and pickups connected (14.8965ms)
+✔ Red Foundry supports eight team spawns, clear objectives and two independent base routes (1.868791ms)
+✔ Frost Station keeps all playable cells, spawns, media and pickups connected (1.08675ms)
+✔ Frost Station supports eight team spawns, clear objectives and two independent base routes (1.712542ms)
+✔ giant kitchen keeps recognizable furniture geometry and independently created map state (0.667333ms)
+✔ mounted landmarks span an exposed solid wall face in all four orientations (3.573583ms)
+✔ default remains museum free-for-all while team modes balance humans and replacement drones (19.432917ms)
+✔ team weapons protect teammates while enemy hits and own rocket splash remain effective (9.951959ms)
+✔ capture the flag requires returning the enemy flag while the home flag remains at base (2.262917ms)
+✔ a carrier disconnect drops the flag for pickup, home-team return, or timed recovery (4.860916ms)
+✔ objective scores determine team winners and a new round clears carried flags, bullets and old input (0.798625ms)
+✔ domination requires an uncontested hold, scores occupied control, and pauses scoring while contested (14.601833ms)
+✔ control-point LOS and death exclude hidden and eliminated players from capture (4.212875ms)
+✔ domination ends at its team target and timed tied objective rounds report a draw (4.773833ms)
+✔ only current humans can change independent lobby votes and readiness, and all ready starts the selection (3.284041ms)
+✔ departing voters cannot retain influence and timed no-vote lobbies rotate maps and modes (1.703292ms)
+✔ every map/mode round starts with reachable bodies and fresh objectives without leaking prior state (10.008917ms)
+✔ practice drones actively collect flags and capture points while respecting walls (244.459667ms)
+✔ arena ceiling height consistently clips upward shots and airborne bodies (0.301375ms)
+node:internal/modules/cjs/loader:1520
+  throw err;
+  ^
+
+Error: Cannot find module '../../src/games/aquarium-forever'
+Require stack:
+- /Users/josephgarcia/homegames/homegames-core/test/games/AquariumForeverSave.test.cjs
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1517:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1095:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1122:12)
+    at Module._load (node:internal/modules/cjs/loader:1294:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1617:12)
+    at require (node:internal/modules/helpers:153:16)
+    at Object.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/games/AquariumForeverSave.test.cjs:4:18)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/josephgarcia/homegames/homegames-core/test/games/AquariumForeverSave.test.cjs'
+  ]
+}
+
+Node.js v24.19.0
+✖ test/games/AquariumForeverSave.test.cjs (55.197125ms)
+✔ hands-on route earns real stamps; no-device path stays optional; finale is winnable (40.508875ms)
+✔ private roots survive wire encoding, reject other players, and ignore stale controls (134.472166ms)
+✔ pointer dispatch reaches the decorated socket and a quick release completes the drag (1.25ms)
+✔ independent cameras, controller motion, repeat expiry and disconnects do not affect peers (3.27975ms)
+✔ real players answer one another; duplicate signals and helpers cannot inflate charges (0.822542ms)
+✔ media failure and late completion cannot capture after leaving, overwrite screens or earn false stamps (2.777916ms)
+✔ exports are real portable files, reload the toy, and keep saves separate from copied design (148.9945ms)
+✔ failed persistence is visible and malformed saved data is bounded (39.231584ms)
+✔ shop pages expose five readable choices, preserve purchases, and reject stale cards (4.371625ms)
+Dragon Drop maximum serialized frame: 19966 bytes
+✔ real press/move/release drops the held dragon at its visible location exactly once (22.313791ms)
+✔ invalid release, interruption, Escape, and another player cannot consume the held dragon (7.042875ms)
+✔ tap selection and release-only movement remain usable without a held pointer (1.091125ms)
+✔ landing preview prevents insertion through the pile and stale momentum decays (6.127791ms)
+✔ starting sanctuaries settle without free matches; extended play stays finite and bounded (1337.277041ms)
+✔ matching dragons fly away, score once, and unsupported dragons fall into the space (6.480625ms)
+✔ pause freezes physics; overflow, replay, best score and preferences survive cleanly (2.383417ms)
+✔ all dragon states serialize with bounded frames and finite image geometry (1686.332083ms)
+✔ launches cost real ships, enforce six flights per commander, and reject invalid orders atomically (2.539458ms)
+✔ debris damages the fleet once; steering avoids it; only surviving ships arrive (14.704458ms)
+✔ a destroyed fleet never contributes at its destination and frees its panel slot (72.879959ms)
+✔ simultaneous enemy crossings are mirrored, steerable, and resolve damage symmetrically once (24.224875ms)
+✔ routes crossing at different times do not create phantom enemy debris (1.908459ms)
+✔ fleets in transit keep a faction alive, then a successful capture can end the match (0.381667ms)
+✔ pointer destinations use the clicked panel and stay with the original flight through reflow (66.954916ms)
+✔ six panels fit without overlap, share no keyboard control with other players, and close safely (9.667708ms)
+✔ host permissions, late spectators, AI takeover, reconnect, and fresh empty rooms (7.790792ms)
+✔ hosted Squish frames remain valid and private with six players and 36 simultaneous flights (1635.440958ms)
+✔ all four maps have distinct, connected layouts and support solo, two, and six players (38.341916ms)
+✔ only the host selects a map, the battlefield locks on start, and the selection survives rematches (7.438333ms)
+✔ shots break a rock before impact, preserve ship strength, and cannot fire another commander's fleet (0.679625ms)
+✔ larger wrecks take two hits and missed shots never remove unrelated debris (0.377959ms)
+✔ a fast shot hits the nearest rock only, and long firing holds keep projectiles bounded (2.495042ms)
+✔ space still fires while steering; tapping debris aims without moving or repeating fire (27.53025ms)
+✔ tap coordinates steer independently across all six panel sizes and clamp to the flight edges (173.732667ms)
+✔ aimed shots lead off-axis rocks on both sides, including debris below the muzzle (1.461917ms)
+✔ aimed shots hit the first obstruction along a diagonal and expire if their target disappears (0.676917ms)
+✔ movement and targeting reject invalid input and debris outside the owned flight (0.367709ms)
+✔ compact debris taps select only the clicked flight and wrecks still take two aimed hits (33.40925ms)
+✔ wall-clock sequencer has no interval drift and skips stalled beats (0.76125ms)
+✔ shared edits, independent stations, names and conflict-safe personal undo (290.761834ms)
+✔ single speaker receives audio; takeover stops old voices; departure pauses (346.828333ms)
+✔ malformed saves stay bounded and WAV mix is reproducible with exact duration (70.376791ms)
+✔ arrangement and WAV survive a portable ZIP round trip with no browser storage (506.874333ms)
+✔ failed storage is visible and retry restores the current composition (94.747375ms)
+✔ axe cleaves in front, staggers survivors and fells a cane in one swing (16.074667ms)
+✔ bow pierces three distinct targets once each; power and tempo change output (4.097708ms)
+✔ cannon impact hurts nearby lemons once and leaves distant targets intact (1.41125ms)
+✔ dodge honors arrows, cooldown, key release and invulnerability; specials require charge (1.493875ms)
+✔ kills build a timed combo, bounties must be banked, and harvest bonus pays once (6.206291ms)
+✔ business forecast, tips, goals and stock apply equally to normal and rush sales (1.892375ms)
+✔ six-player majority purchases, capacity, private controls and disconnect voting (240.506708ms)
+✔ boss victory pays once, advances era, and pooled audio/visual assets stay local (138.378709ms)
+✔ all screen nodes serialize, including idle and playing audio voices (55.604875ms)
+✔ drawings crossing camera edges crop instead of wrapping unsigned asset positions (3.559042ms)
+✔ sound expiry sends a frame during prep so the next purchase can replay its cue (1.750625ms)
+✔ all showcase games preserve portable source, MIT licensing and identity (114.523459ms)
+✔ creation export bakes design and declared media into a new revision, preserving the original (138.34375ms)
+✔ boss has a winnable cooperative loop with bounded projectiles and revivals (12.958667ms)
+✔ railway trains hand off across screens, stop at signals and can complete every route (16.27625ms)
+✔ golf captures a gentle putt, rejects shots in motion, and finishes a round (2.407958ms)
+✔ golf walls block high-power shots and authored hazards change trajectories (26.905333ms)
+✔ creator controls reject guests, transfer on departure, and tolerate join/leave during play (25.125792ms)
+✔ chess: drag previews, illegal drops, ownership and tap moves use the real dispatcher (24.149292ms)
+✔ checkers: drag previews, illegal drops, ownership and tap moves use the real dispatcher (7.442791ms)
+✔ Billiards: identical relative drags from different places produce identical shots; taps do not shoot (45.761958ms)
+✔ Dragon Drop: color drags preview and release once, cancelled drops preserve the hand, tap selection still works (23.089417ms)
+✔ Masterpiece: slides stay on their rail, wrong-way drags cancel, peeking locks input and gallery advances only on request (1.884041ms)
+✔ Tumble Tower: tools can be dragged into play without firing or building on press (226.376042ms)
+✔ Draw: a friend joins the visible drawing, can pan independently, and gets the correct tool cursor (9.229667ms)
+✔ three introductory baskets lead to obstacles, with separate player scores (4.236709ms)
+✔ each season has independent obstacle geometry, movement and collisions (1.643083ms)
+✔ late obstacle courses have reachable shots across all themes (37.476125ms)
+✔ rims deflect; upward crossings do not count; misses automatically return (1.83ms)
+✔ balls exchange momentum and the shared court resolves collisions (0.513959ms)
+✔ relative drag from anywhere launches the same shot; players own their gestures (57.953417ms)
+✔ host chooses only between rounds; joins and host departure preserve the running configuration (6.456458ms)
+✔ wall-clock expiry rejects held shots and records a pre-buzzer basket once (99.860458ms)
+✔ ranked records persist independently for all nine theme/time combinations (22.963917ms)
+✔ multiplayer records individual scores, including a player who leaves mid-round (1.902542ms)
+✔ malformed records are bounded and rejected writes remain retryable (2.12075ms)
+✔ short guide never reaches the apex; seasonal scenes stay finite and bounded (143.818ms)
+✔ portable package restores with local audio and multiplayer metadata (209.445041ms)
+node:internal/modules/cjs/loader:1520
+  throw err;
+  ^
+
+Error: Cannot find module '../../src/games/tremulous/world'
+Require stack:
+- /Users/josephgarcia/homegames/homegames-core/test/games/TremulousCollision.test.cjs
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1517:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1095:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1122:12)
+    at Module._load (node:internal/modules/cjs/loader:1294:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1617:12)
+    at require (node:internal/modules/helpers:153:16)
+    at Object.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/games/TremulousCollision.test.cjs:3:21)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/josephgarcia/homegames/homegames-core/test/games/TremulousCollision.test.cjs'
+  ]
+}
+
+Node.js v24.19.0
+✖ test/games/TremulousCollision.test.cjs (54.441917ms)
+node:internal/modules/cjs/loader:1520
+  throw err;
+  ^
+
+Error: Cannot find module '../../src/games/tremulous/engine'
+Require stack:
+- /Users/josephgarcia/homegames/homegames-core/test/games/TremulousEngine.test.cjs
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1517:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1095:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1122:12)
+    at Module._load (node:internal/modules/cjs/loader:1294:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1617:12)
+    at require (node:internal/modules/helpers:153:16)
+    at Object.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/games/TremulousEngine.test.cjs:3:84)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/josephgarcia/homegames/homegames-core/test/games/TremulousEngine.test.cjs'
+  ]
+}
+
+Node.js v24.19.0
+✖ test/games/TremulousEngine.test.cjs (44.309833ms)
+node:internal/modules/cjs/loader:1520
+  throw err;
+  ^
+
+Error: Cannot find module '../../src/games/tremulous/engine'
+Require stack:
+- /Users/josephgarcia/homegames/homegames-core/test/games/TremulousGame.test.cjs
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1517:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1095:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1122:12)
+    at Module._load (node:internal/modules/cjs/loader:1294:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1617:12)
+    at require (node:internal/modules/helpers:153:16)
+    at Object.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/games/TremulousGame.test.cjs:9:17)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/josephgarcia/homegames/homegames-core/test/games/TremulousGame.test.cjs'
+  ]
+}
+
+Node.js v24.19.0
+✖ test/games/TremulousGame.test.cjs (94.922333ms)
+node:internal/modules/cjs/loader:1520
+  throw err;
+  ^
+
+Error: Cannot find module '../../src/games/tremulous/world'
+Require stack:
+- /Users/josephgarcia/homegames/homegames-core/test/games/TremulousWorld.test.cjs
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1517:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1095:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1122:12)
+    at Module._load (node:internal/modules/cjs/loader:1294:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1617:12)
+    at require (node:internal/modules/helpers:153:16)
+    at Object.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/games/TremulousWorld.test.cjs:2:27)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/josephgarcia/homegames/homegames-core/test/games/TremulousWorld.test.cjs'
+  ]
+}
+
+Node.js v24.19.0
+✖ test/games/TremulousWorld.test.cjs (55.306167ms)
+✔ fixture exports/restores identical source, media, license and game identity (70.304042ms)
+✔ imports do not execute source, and trusted execution is a separate opt-in (11.110292ms)
+✔ authored WebM and MP4 preserve media bytes and video transport type through ZIP import without executing source (16.969875ms)
+✔ authored video declarations reject mismatched media and invalid bytes before any source execution (7.426916ms)
+✔ package Asset adapter reads local bytes with Node Squisher and leaves published Asset unchanged (24.5385ms)
+✔ installation identity scopes saves separately from untrusted portable game ID (6.354583ms)
+✔ media changes invalidate a revision; packages sharing filenames keep independent bytes (6.477875ms)
+✔ missing media, hosted IDs, bad signatures and unsupported declarations give specific errors (5.703458ms)
+✔ metadata resolves local constants without evaluating game code (3.009375ms)
+✔ generated assets and large JSON modules keep bytes local and leave published Squish unchanged (51.565959ms)
+✔ authored static SVG and fonts are portable, while active or remote SVG content is rejected (58.771667ms)
+✔ large authored collections travel as complete bounded Squish asset packets (59.681625ms)
+✔ unsupported manifest/runtime and cross-runtime requires fail without fallback (69.031958ms)
+✔ path boundaries and case collisions are rejected before import or execution (3.541792ms)
+✔ corruption, undeclared payloads and forged inventories fail integrity checks (38.549333ms)
+✔ ZIP links, duplicate entries and declared expansion bombs are rejected before decompression (10.797458ms)
+✔ disk restore stages verified files and never overwrites an existing project (13.408958ms)
+✔ a headless non-browser client exports an edited game through the real Node GameSession protocol (173.221083ms)
+✔ individual exports use bounded chunks without needing game source, including empty files and binary bytes (3.850125ms)
+✔ export offers cannot change the requested filename or exceed file limits (0.441584ms)
+✔ large copies use bounded acknowledged chunks and preserve exact bytes (215.15725ms)
+✔ session transfer cancellation discards delayed preparation and invalid offsets (11.304542ms)
+✔ recorded audio uses the shared media contract with a non-browser endpoint (6.842625ms)
+✔ native stream nodes round-trip on their own field with geometry and audio policy (3.704583ms)
+✔ each declared codec works with one lifecycle, ancestor scopes, and cleanup (35.642625ms)
+✔ assets never fetch missing bytes and copy caller data (0.235875ms)
+✔ an environment override cannot silently choose another declared codec (37.123209ms)
+✔ games choose a name and bytes; the host owns storage and snapshots (2.529709ms)
+✔ names cannot choose paths, collide across platforms, or overwrite game source (0.943292ms)
+✔ disk writes are raw bytes, replace by name, and reload manual edits (9.622ms)
+✔ packaging waits for pending exports and never evaluates exported data (148.253125ms)
+✔ a failed write never becomes a downloadable success (0.676166ms)
+✔ audio cancellation before adapter handshake never opens a recorder (1.434166ms)
+node:internal/modules/cjs/loader:1520
+  throw err;
+  ^
+
+Error: Cannot find module '../src/games/tremulous/scene'
+Require stack:
+- /Users/josephgarcia/homegames/homegames-core/test/tremulous-render.test.cjs
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1517:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1095:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1122:12)
+    at Module._load (node:internal/modules/cjs/loader:1294:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1617:12)
+    at require (node:internal/modules/helpers:153:16)
+    at Object.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/tremulous-render.test.cjs:5:30)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/josephgarcia/homegames/homegames-core/test/tremulous-render.test.cjs'
+  ]
+}
+
+Node.js v24.19.0
+✖ test/tremulous-render.test.cjs (69.592ms)
+ℹ tests 226
+ℹ suites 0
+ℹ pass 215
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3566.899709
+
+✖ failing tests:
+
+test at test/DragCancellation.test.cjs:6:82
+✖ real touch drag: touchcancel cancels the drop (40.542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  27 !== 26
+  
+      at TestContext.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/DragCancellation.test.cjs:23:36)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 27,
+    expected: 26,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/DragCancellation.test.cjs:6:82
+✖ real touch drag: blur cancels the drop (26.29125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  27 !== 26
+  
+      at TestContext.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/DragCancellation.test.cjs:23:36)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 27,
+    expected: 26,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/DragCancellation.test.cjs:6:82
+✖ real touch drag: visibilitychange cancels the drop (5.235666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  27 !== 26
+  
+      at TestContext.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/DragCancellation.test.cjs:23:36)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 27,
+    expected: 26,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/DragCancellation.test.cjs:6:82
+✖ real touch drag: detach cancels the drop (2.72225ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  27 !== 26
+  
+      at TestContext.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/DragCancellation.test.cjs:23:36)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 27,
+    expected: 26,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/PointerLockInput.test.cjs:275:1
+✖ a quick ordinary click can synchronously stop its session without dereferencing cleared pointer state (5.67825ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  -   cancelled: true,
+      x: 27,
+      y: 67
+    }
+  
+      at TestContext.<anonymous> (/Users/josephgarcia/homegames/homegames-core/test/PointerLockInput.test.cjs:284:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { x: 27, y: 67 },
+    expected: { x: 27, y: 67, cancelled: true },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/games/AquariumForeverSave.test.cjs:1:1
+✖ test/games/AquariumForeverSave.test.cjs (55.197125ms)
+  'test failed'
+
+test at test/games/TremulousCollision.test.cjs:1:1
+✖ test/games/TremulousCollision.test.cjs (54.441917ms)
+  'test failed'
+
+test at test/games/TremulousEngine.test.cjs:1:1
+✖ test/games/TremulousEngine.test.cjs (44.309833ms)
+  'test failed'
+
+test at test/games/TremulousGame.test.cjs:1:1
+✖ test/games/TremulousGame.test.cjs (94.922333ms)
+  'test failed'
+
+test at test/games/TremulousWorld.test.cjs:1:1
+✖ test/games/TremulousWorld.test.cjs (55.306167ms)
+  'test failed'
+
+test at test/tremulous-render.test.cjs:1:1
+✖ test/tremulous-render.test.cjs (69.592ms)
+  'test failed'

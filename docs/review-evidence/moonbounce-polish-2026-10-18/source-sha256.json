@@ -1,0 +1,18 @@
+{
+  "src/games/moonbounce/README.md": "aacc0a8a31ee5f173034a758f4b092273c032ff6422531aceaa5d4546ed1d26b",
+  "src/games/moonbounce/adventure-scenes.js": "1f2328406d5d189d58b202a3a25211b0e56ccf8b441f9492681d9b853345d96c",
+  "src/games/moonbounce/art.js": "87e9b27d9e88c2b7eba35d9f0f41e6840339b89047bbef2c5497baf88b5efe35",
+  "src/games/moonbounce/assets/thumbnail.png": "ca667c5cb03d714b88a37e4284d9c7bfe52c39b8533ad0fd665febb383675528",
+  "src/games/moonbounce/decorations.js": "df35550eb88dc45b1ab61a4edf36ddcd7e59cdf6b6dc3c7de6e8ee50425ee220",
+  "src/games/moonbounce/engine.js": "3a858fddc003ae3eba100548cee0860c2ad8a03a8035dea8a3666a0d077dc941",
+  "src/games/moonbounce/garden-data.js": "5e2de139cf6c66333ac4eb4d8a7abcc063de0465430dd3be9eba32c2b45222ca",
+  "src/games/moonbounce/garden-data.json": "27956775b64344ed9dce9c3c7b55453e61264289ea5e3e529fc0bab17f2e80a7",
+  "src/games/moonbounce/index.js": "499b25f8b81d4daeb77bfce9c7a0518793a7b092bf922d0c404e1cf5ee4f4647",
+  "src/games/moonbounce/levels.js": "8a047c9a11d832bbd13165e0a471bce3a727ae4fea722416ae04dd8c33371d16",
+  "src/games/moonbounce/painter.js": "5f347e86fd33e636ba2e6a7e5d88a89a84322d3555ab8124326025ed749f70ef",
+  "src/games/moonbounce/progression.js": "6beacf5bcde09da71719a39bd4eddcf265fcfceadb3a4abcfa98f09585032055",
+  "src/games/moonbounce/scene.js": "3f79099658aa6e0b4aa3476725636d575db35780a1961f60aa82e73035bb6aa2",
+  "src/games/moonbounce/sound.js": "cd6bcb6934bcfb7792ee3309f7816b23be1fc5d549967ba9528ced4312c523bb",
+  "src/games/moonbounce/world-art-data.js": "5bf1bd6690c49c24b784bde3a4110bdd7b363460e63e850d885adfc33adff813",
+  "src/games/moonbounce/world-art-data.json": "b04ee7d7becf1aee64b4f95f47169022eb4754fc002a127d6fad21c1ee69f9b5"
+}

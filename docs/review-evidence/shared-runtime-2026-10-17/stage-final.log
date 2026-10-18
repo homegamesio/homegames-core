@@ -1,0 +1,10 @@
+
+> homegames-core@1.4.3 stage:runtime
+> node tools/stage-local-runtime.cjs --out /tmp/hg-runtime-security-20261017/candidate-final
+
+Staged homegames-client
+Staged homegames-core
+Staged homegamesio
+Staged homegames-web
+Staged api
+Local candidate: /tmp/hg-runtime-security-20261017/candidate-final/runtime-candidate.json

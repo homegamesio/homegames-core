@@ -1,15 +1,17 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
-const Deck = require('../../common/Deck');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
+const Deck = require('./Deck');
 const COLORS = Colors.COLORS;
 
 class Slaps extends Game {
     static metadata() {
         return {
+            // Catalog review: Card-dealing demo: highest random card wins immediately, without a player decision or slap mechanic.
+            isTest: true,
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '142',
+            squishVersion: '150',
             services: ['multiplayer'],
-            author: 'Joseph Garcia',
-            thumbnail: '7ed2535330542b675ea166dadee3b346',
+            author: "Joseph Garcia",
+            thumbnail: "./assets/7ed2535330542b675ea166dadee3b346.png",
             name: 'Slaps - Reslapstered',
             description: 'One of the first homegames "games" ever made. Players draw cards and whoever draws a higer value wins.'
         };

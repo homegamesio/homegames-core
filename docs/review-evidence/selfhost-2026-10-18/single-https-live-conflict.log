@@ -1,0 +1,2 @@
+PASS: deployed Link refuses a conflicting HTTPS registration and preserves the original DNS/discovery target
+This was a bounded protocol check from one network, not a second physical server.

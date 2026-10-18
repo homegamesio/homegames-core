@@ -1,0 +1,23 @@
+{
+  "revision": "48781369959db2bcabcecf3a24be64d47f0224ee0ea601ffcd00dc6557238854",
+  "runs": [
+    {
+      "name": "packaged",
+      "elapsedMs": 9500,
+      "customBlocks": 3,
+      "restoredExactBlueprint": true,
+      "demolitionPreservesBlueprint": true,
+      "clearPersists": true
+    },
+    {
+      "name": "offline",
+      "elapsedMs": 9503,
+      "customBlocks": 3,
+      "restoredExactBlueprint": true,
+      "demolitionPreservesBlueprint": true,
+      "clearPersists": true
+    }
+  ],
+  "errors": [],
+  "external": []
+}

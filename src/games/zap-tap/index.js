@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const { COLORS } = Colors;
 
 const TICK_RATE = 15;
@@ -25,10 +25,12 @@ const LIT_GLOW = { shadow: { color: [255, 170, 30, 255], blur: 16 } };
 class ZapTap extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true, // Catalog review: see docs/game-consolidation.md.
+
+            squishVersion: '150',
             services: ['multiplayer'],
             name: 'Zap Tap',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'Tiles light up. Tap them before they go dark. Most zaps wins the round.',
             aspectRatio: { x: 16, y: 9 },
             tickRate: TICK_RATE

@@ -1,0 +1,15 @@
+✔ Docker availability recovers after Desktop starts, and notices it stopping (9.892834ms)
+✔ concurrent launches share image preparation; failed build retries, deleted image rebuilds, ports are released (25.781792ms)
+✔ live containers have a read-only system and cannot acquire privileges; failed starts remove the created container (0.775458ms)
+✔ a container that cannot serve the game fails launch, is removed and releases its port (12.541834ms)
+✔ downloaded runner context uses installed versions without locks or sibling checkouts and excludes private/user files (23.119625ms)
+✔ runner refuses unknown native binaries and links outside an installed package (6.521458ms)
+✔ release building refuses an installed Common that would silently ignore runtime image preparation (6.114292ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 88.136708

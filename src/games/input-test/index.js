@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-146');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 const INK = [28, 34, 45, 255];
 const CREAM = [248, 248, 236, 255];
@@ -8,9 +8,9 @@ const YELLOW = [255, 236, 125, 255];
 class InputTest extends Game {
     static metadata() {
         return {
-            aspectRatio: { x: 16, y: 9 }, squishVersion: '146',
-            author: 'Joseph Garcia', name: 'Input Test',
-            thumbnail: 'c6d38aca68fed708d08d284a5d201a0a',
+            aspectRatio: { x: 16, y: 9 }, squishVersion: '150',
+            author: "Joseph Garcia", name: 'Input Test',
+            thumbnail: './assets/c6d38aca68fed708d08d284a5d201a0a.png',
             isTest: true,
         };
     }

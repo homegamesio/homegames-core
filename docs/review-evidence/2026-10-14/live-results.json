@@ -1,0 +1,125 @@
+[
+  {
+    "url": "https://homegames.io/site-build.json",
+    "status": 200,
+    "type": "application/json",
+    "size": 1734,
+    "sha256": "b14e7e1f686ba91521899b39a72e0c9b8f1639710fc3a74eb806a9035c0270c3",
+    "keys": [
+      "formatVersion",
+      "games",
+      "client"
+    ],
+    "games": 87,
+    "client": "homegames-client.fca6d9bd45c4d569.js"
+  },
+  {
+    "url": "https://homegames.io/games.json",
+    "status": 200,
+    "type": "application/json",
+    "size": 51321,
+    "sha256": "4d750763ee16fdc723240f259359a491dd44b0f580d46c5d3ab0cf53e40027da",
+    "keys": [
+      "formatVersion",
+      "games"
+    ],
+    "games": 87
+  },
+  {
+    "url": "https://homegames.io/builds/manifest.json",
+    "status": 200,
+    "type": "application/json",
+    "size": 555,
+    "sha256": "6bf707978a80c66f2b002b8e4dd994c171e8b9c36f9fce9452a7a6a81ff15352",
+    "keys": [
+      "latest",
+      "builds"
+    ],
+    "latest": "2.0.2"
+  },
+  {
+    "url": "https://homegames.io/studio.html",
+    "status": 200,
+    "type": "text/html",
+    "size": 104426,
+    "sha256": "74f78956dae9e25c4803c32c0360b7cbd734f30e801e5abdc5ea5197dd8ea05a"
+  },
+  {
+    "url": "https://homegames.io/privacy.html",
+    "status": 200,
+    "type": "text/html",
+    "size": 7036,
+    "sha256": "30ee7431bd04cd18635e18cdec00392205e0a518a29bdfd42c61d07c21a442cb"
+  },
+  {
+    "url": "https://homegames.io/terms.html",
+    "status": 200,
+    "type": "text/html",
+    "size": 4222,
+    "sha256": "1de52e472f75c9713d46490ecdc5fa8f2b9bf699d84abca404618b1dc5361554"
+  },
+  {
+    "url": "https://api.homegames.io/health",
+    "status": 200,
+    "type": null,
+    "size": 3,
+    "sha256": "56c82365edb1088db0c0c18905e3b5f9392582a05bb8372be1b7a78926ad4a1f",
+    "body": "ok!"
+  },
+  {
+    "url": "https://api.homegames.io/games?limit=1",
+    "status": 200,
+    "type": "application/json",
+    "size": 421,
+    "sha256": "7d90503b715534262cc88c8e663a24c51de860ff1311989c786a91a50ff462b5",
+    "keys": [
+      "games",
+      "pageCount",
+      "total"
+    ],
+    "games": 1
+  },
+  {
+    "url": "https://api.homegames.io/rooms",
+    "status": 200,
+    "type": "application/json",
+    "size": 22,
+    "sha256": "f8d4b4a1ab7511e72ef79b8b58fb3a65356e62d6db312524b355206c589e7ec7",
+    "keys": [
+      "rooms",
+      "total"
+    ]
+  },
+  {
+    "url": "https://api.homegames.io/studio/templates",
+    "status": 200,
+    "type": "application/json",
+    "size": 1108,
+    "sha256": "73e808234ae8c005d37aca8e56fb267ebbb44437739800ff3b6c0eb76975f725",
+    "keys": [
+      "templates"
+    ]
+  },
+  {
+    "runtime": "homegames-client.fca6d9bd45c4d569.js",
+    "status": 200,
+    "sha256": "a2c6284ff4a188d3dca1147554869f16ebd708bf5c525da172446d4d09ffe083",
+    "localInstalledSha256": "fca6d9bd45c4d569592d503cd5574a0a1529060a09d7ee74148ed7076214f2f9"
+  },
+  {
+    "signaling": "created",
+    "protocol": 2,
+    "iceServers": [
+      {
+        "urls": [
+          "stun:stun.l.google.com:19302"
+        ],
+        "hasUsername": false,
+        "hasCredential": false
+      }
+    ]
+  },
+  {
+    "signaling": "guest joined"
+  }
+]

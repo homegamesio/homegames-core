@@ -1,0 +1,24 @@
+✔ website and embedded toolbar keep common primary actions and preserve popup gestures (3.221709ms)
+✔ player downloads use the game title, honor a recovered name, and keep safe filenames (20.885ms)
+✔ catalog, Studio, and serialized offline frames explicitly allow gamepads while retaining opaque isolation (0.879625ms)
+✔ standalone HTML uses the shared edit control and preserves the full project as data (19.470708ms)
+✔ inspector trees are bounded data, even with deep, cyclic or malformed nodes (1.501708ms)
+✔ isolated Studio debug bridge restores inspection, picking, player views and cleanup (20.345042ms)
+✔ Studio debugging is opt-in and exported game documents do not enable it (21.766083ms)
+✔ complete archive travels directly from null and is acknowledged after persistence (5.84025ms)
+✔ complete archive travels directly from file:// and is acknowledged after persistence (1.8485ms)
+✔ complete archive travels directly from https://game.example and is acknowledged after persistence (0.953291ms)
+✔ unrelated windows, origins, and tokens cannot inject an archive or acknowledge a transfer (0.436083ms)
+✔ failed persistence reaches the sender and releases both sides (0.417791ms)
+✔ popup blocking and archive failures keep a usable recovery error (0.182833ms)
+✔ timeout and closed tabs clean up pending transfers (0.510792ms)
+✔ Studio reads declared local artwork without evaluating game code or requiring other files to compile (3.707917ms)
+✔ missing, unsafe, computed and unfinished thumbnail metadata falls back without executing it (0.672708ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 88.190292

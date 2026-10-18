@@ -1,13 +1,13 @@
 const { LEVELS, WORLDS, CHALLENGES } = require('./levels');
 
 const ACHIEVEMENTS = [
-    { id: 'first-light', title: 'First Light', description: 'Clear your first constellation.', target: 1, metric: 'clearedLevels' },
+    { id: 'first-light', title: 'First Light', description: 'Clear your first board.', target: 1, metric: 'clearedLevels' },
     { id: 'star-collector', title: 'Star Collector', description: 'Earn 30 adventure stars.', target: 30, metric: 'totalStars' },
     { id: 'chain-reaction', title: 'Chain Reaction', description: 'Hit 20 pegs in a single shot.', target: 20, metric: 'bestCombo' },
-    { id: 'catcher', title: 'Safe Hands', description: 'Catch 10 balls in the moonboat.', target: 10, metric: 'catches' },
+    { id: 'catcher', title: 'Safe Hands', description: 'Catch 10 balls in the moving bucket.', target: 10, metric: 'catches' },
     { id: 'trickshot', title: 'A Little Showmanship', description: 'Earn 25 shot-style bonuses.', target: 25, metric: 'styles' },
-    { id: 'worldwalker', title: 'Worldwalker', description: 'Light all eight constellations in a world.', target: 1, metric: 'worlds' },
-    { id: 'stardust', title: 'Stardust Trail', description: 'Light 1,000 pegs across your adventures.', target: 1000, metric: 'pegHits' },
+    { id: 'worldwalker', title: 'Worldwalker', description: 'Complete all eight boards in a world.', target: 1, metric: 'worlds' },
+    { id: 'stardust', title: 'Stardust Trail', description: 'Hit 1,000 pegs across all boards.', target: 1000, metric: 'pegHits' },
     { id: 'challenge', title: 'Challenge Accepted', description: 'Complete your first challenge.', target: 1, metric: 'completedChallenges' },
     { id: 'skykeeper', title: 'Keeper of the Sky', description: 'Complete all five worlds.', target: 5, metric: 'worlds' },
     { id: 'challenge-master', title: 'Against the Odds', description: 'Complete all 15 challenges.', target: 15, metric: 'completedChallenges' },

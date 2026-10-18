@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-150');
 const COLORS = Colors.COLORS;
 
 const PLAYER_SPEED = 0.4;
@@ -7,11 +7,12 @@ const ITEM_SPEED = 0.2;
 class HalloweenWords extends Game {
     static metadata() {
         return {
+            // Catalog review: Unfinished candy prototype: scoring empties the bag before the spider penalty can matter.
+            isTest: true,
             aspectRatio: {x: 1, y: 1},
-            squishVersion: '142',
-            author: 'Joseph Garcia',
-            thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
-            isTest: false,
+            squishVersion: '150',
+            author: "Joseph Garcia",
+            thumbnail: "./assets/f70e1e9e2b5ab072764949a6390a8b96.png",
             tickRate: 60,
             // Reuse the keyboard handlers; no browser or Homepad code in games.
             gamepadBindings: {
@@ -20,43 +21,43 @@ class HalloweenWords extends Game {
             },
             assets: {
                 'happy-halloween': new Asset({
-                    'id': '8c3675b51ce2c4efed73254c5c1cdffa',
+                    path: "./assets/8c3675b51ce2c4efed73254c5c1cdffa.mp3",
                     'type': 'audio'
                 }),
-                'ahm-1': new Asset({'id': '8e33b7e9ffa8e2fecb3b63d38e2ff637', 'type': 'audio'}),
-                'ahm-2': new Asset({'id': 'd25dd461f3c36c30b9e9a258c1d97548', 'type': 'audio'}),
-                'ahm-3': new Asset({'id': '1bb365606c2b76eeedef1cb229d54410', 'type': 'audio'}),
-                'ahm-4': new Asset({'id': 'e8e9e686b208f174995f610d58871b33', 'type': 'audio'}),
-                'ahm-5': new Asset({'id': 'dbee142faedf01d6b7d867d326950066', 'type': 'audio'}),
-                'hee-hee-hee': new Asset({'id': '325cd046da0736ceb2651dea386a4d74', 'type': 'audio'}),
-                'spider-1': new Asset({'id': '358c543e37897c7d449c71b12374fd52', 'type': 'audio'}),
-                'spider-2': new Asset({'id': 'abb537354e756666223f3f232d8f59bc', 'type': 'audio'}),
+                'ahm-1': new Asset({path: "./assets/8e33b7e9ffa8e2fecb3b63d38e2ff637.mp3", 'type': 'audio'}),
+                'ahm-2': new Asset({path: "./assets/d25dd461f3c36c30b9e9a258c1d97548.mp3", 'type': 'audio'}),
+                'ahm-3': new Asset({path: "./assets/1bb365606c2b76eeedef1cb229d54410.mp3", 'type': 'audio'}),
+                'ahm-4': new Asset({path: "./assets/e8e9e686b208f174995f610d58871b33.mp3", 'type': 'audio'}),
+                'ahm-5': new Asset({path: "./assets/dbee142faedf01d6b7d867d326950066.mp3", 'type': 'audio'}),
+                'hee-hee-hee': new Asset({path: "./assets/325cd046da0736ceb2651dea386a4d74.mp3", 'type': 'audio'}),
+                'spider-1': new Asset({path: "./assets/358c543e37897c7d449c71b12374fd52.mp3", 'type': 'audio'}),
+                'spider-2': new Asset({path: "./assets/abb537354e756666223f3f232d8f59bc.mp3", 'type': 'audio'}),
                 'owl': new Asset({
-                    'id': 'a6a47244be5da3730cae21ea96a1e92f',
+                    path: "./assets/a6a47244be5da3730cae21ea96a1e92f.png",
                     'type': 'image'
                 }),
                 'spider': new Asset({
                     'type': 'image',
-                    'id': 'e7df1707e47b1e73da9d95a7bc0b748e'
+                    path: "./assets/e7df1707e47b1e73da9d95a7bc0b748e.png"
                 }),
                 'background': new Asset({
-                    'id': '92988fb1c107889e5f31a0ceccb5ecbf',
+                    path: "./assets/92988fb1c107889e5f31a0ceccb5ecbf.png",
                     'type': 'image'
                 }),
                 'candy-corn': new Asset({
-                    'id': '73002c2d933a14ae74915ef31b79d99e',
+                    path: "./assets/73002c2d933a14ae74915ef31b79d99e.png",
                     'type': 'image'
                 }),
                 'apple': new Asset({
-                    'id': 'e5c8eb3d8f10823374475452651af7c0',
+                    path: "./assets/e5c8eb3d8f10823374475452651af7c0.png",
                     'type': 'image'
                 }),
                 'chocolate': new Asset({
-                    'id': '132dffc5933569f3da3836e335212f56',
+                    path: "./assets/132dffc5933569f3da3836e335212f56.png",
                     'type': 'image'
                 }),
                 'lollipop': new Asset({
-                    'id': 'b60270feb83048685e4e21f7ceda26b7',
+                    path: "./assets/b60270feb83048685e4e21f7ceda26b7.png",
                     'type': 'image'
                 })
             }

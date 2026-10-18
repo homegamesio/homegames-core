@@ -1,0 +1,12 @@
+{
+  "note": "Homegames-authored media is MIT licensed with maintainer-confirmed permission; retain the game LICENSE and any separate third-party notices. Legacy IDs and URLs record provenance, not runtime dependencies.",
+  "files": [
+    {
+      "path": "./assets/14966f35c53029f6e219369038fe1ebf.png",
+      "legacyAssetId": "14966f35c53029f6e219369038fe1ebf",
+      "source": "https://api.homegames.io/assets/14966f35c53029f6e219369038fe1ebf",
+      "sha256": "a4c8e748ac5e5c40a471cd63d5b2eaec727cc783cac1aef5dda040ab492ebd70",
+      "byteLength": 107285
+    }
+  ]
+}

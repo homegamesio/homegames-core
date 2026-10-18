@@ -1,0 +1,23 @@
+✔ a DNS write holds the old claim through disconnect, including failure (102.803583ms)
+✔ a second HTTPS computer cannot overwrite the first; HTTP discovery never writes DNS (158.336708ms)
+✔ a delayed write after disconnection cannot overwrite the next HTTPS computer (127.414875ms)
+✔ a secure server awaiting its certificate is never linked as HTTP in the selector (70.353875ms)
+▶ link server
+  ✔ redirects a single plain-HTTP server to its LAN IP with its port (155.153875ms)
+  ✔ omits the port for legacy clients that do not report one (153.678708ms)
+  ✔ shows the setting-up page while HTTPS is enabled but not ready (153.956958ms)
+  ✔ lists multiple fresh servers in the selector with ports, and drops stale ones (859.527958ms)
+  ✔ a heartbeat must never create a host entry (ghost hosts) (155.377166ms)
+  ✔ disconnect removes the host immediately (306.869416ms)
+  ✔ never trusts a supplied verified hostname or selector markup (155.074958ms)
+  ✔ rejects ambiguous LAN addresses and ports before caching them (610.042333ms)
+  ✔ rejects oversized websocket payloads without stopping the service (1.97425ms)
+✔ link server (2763.944541ms)
+ℹ tests 13
+ℹ suites 1
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2816.076959

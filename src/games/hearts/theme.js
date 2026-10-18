@@ -1,4 +1,4 @@
-const { GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 const T = {
     felt: [48, 76, 57, 255],

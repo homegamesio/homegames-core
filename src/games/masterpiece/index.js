@@ -1,22 +1,23 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const { COLORS } = Colors;
 
 const GRID_COLS = 3;
 const GRID_ROWS = 4;
 const SLOT_COUNT = GRID_COLS * GRID_ROWS;
 
-// painting region — portrait-shaped on a 16:9 canvas (~3:4 physical)
-const PAINT_X = 33;
-const PAINT_Y = 12;
-const PAINT_W = 34;
+// A portrait canvas keeps the painting large on a phone or desktop.
+const PAINT_X = 12;
+const PAINT_Y = 14;
+const PAINT_W = 76;
 const PAINT_H = 72;
 const TILE_W = PAINT_W / GRID_COLS;
 const TILE_H = PAINT_H / GRID_ROWS;
 const SEAM = 0.15;
 
-const SHUFFLE_MOVES = 120;
+const SHUFFLE_MOVES = 24;
+const PAINTINGS = [{ key: 'painting', name: 'La Dame' }, { key: 'night-ferry', name: 'Night Ferry' }, { key: 'sunroom', name: 'Sunroom' }];
 const PEEK_SECONDS = 2;
-const VICTORY_SECONDS = 8;
+
 
 const WALL = [74, 30, 34, 255];
 const MAT = [38, 24, 20, 255];
@@ -45,25 +46,31 @@ const tileCrop = (homeSlot) => {
 class Masterpiece extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            thumbnail: './assets/thumbnail.png',
             name: 'Masterpiece',
-            author: 'Homegames',
-            description: 'A priceless painting has been scrambled. Slide the tiles to restore the masterpiece.',
-            aspectRatio: { x: 16, y: 9 },
+            author: "Joseph Garcia",
+            description: 'Restore three original paintings. Drag tiles into the gap, peek when you need a hint, and open the next work when it is complete.',
+            aspectRatio: { x: 3, y: 4 },
             assets: {
-                // Asset ids must be inline string literals — local play parses
-                // metadata() statically and can't follow variable references.
-                // TODO: replace with the real asset id for the painting
+                'pointer-grab': new Asset({ path: './assets/cursor-grab.png', type: 'image' }),
+                'pointer-hold': new Asset({ path: './assets/cursor-hold.png', type: 'image' }),
+                'night-ferry': new Asset({ path: './assets/night-ferry.svg', type: 'image' }),
+                'sunroom': new Asset({ path: './assets/sunroom.svg', type: 'image' }),
                 'painting': new Asset({
-                    id: 'REPLACE_WITH_PAINTING_ASSET_ID',
+                    path: './assets/la-dame.svg',
                     type: 'image'
                 })
-            }
+            },
+            gameId: "996a0cfe-d512-5f7b-a32a-7baf84f30c46",
+            maxPlayers: 1
         };
     }
 
-    constructor() {
+    constructor({ setCursor } = {}) {
         super();
+        this.setCursor = setCursor;
+        this.drag = null;
+        this.paintingIndex = 0;
         this.moves = 0;
         this.phase = 'play';
         this.peeking = false;
@@ -76,7 +83,7 @@ class Masterpiece extends Game {
 
         // gilded frame around the painting, with a dark mat behind the tiles
         const frameX = 1.8;
-        const frameY = frameX * 16 / 9;
+        const frameY = frameX * 3 / 4;
         this.base.addChild(new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(PAINT_X - frameX, PAINT_Y - frameY, PAINT_W + 2 * frameX, PAINT_H + 2 * frameY),
@@ -94,45 +101,35 @@ class Masterpiece extends Game {
         // brass plaque under the frame
         const plaque = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(41, 90, 18, 5.5),
+            coordinates2d: ShapeUtils.rectangle(25, 93, 50, 5.5),
             fill: GOLD,
             color: GOLD_DARK,
             border: 2
         });
-        plaque.addChild(new GameNode.Text({
-            textInfo: { text: 'La Dame, restored by you', x: 50, y: 91.6, size: 0.9, align: 'center', color: MAT }
-        }));
+        this.plaqueText = new GameNode.Text({ textInfo: { text: PAINTINGS[0].name, x: 50, y: 94.2, size: 1.5, align: 'center', color: MAT } });
+        plaque.addChild(this.plaqueText);
         this.base.addChild(plaque);
 
-        // left panel: title, move counter, peek button
-        this.base.addChild(new GameNode.Text({
-            textInfo: { text: 'THE GALLERY', x: 14, y: 8, size: 1.9, align: 'center', color: CREAM }
-        }));
+        // Compact controls above the painting
+
         this.movesText = new GameNode.Text({
-            textInfo: { text: 'MOVES 0', x: 14, y: 15, size: 1.4, align: 'center', color: GOLD }
+            textInfo: { text: '0', x: 25, y: 4, size: 2.2, align: 'center', color: GOLD }
         });
         this.base.addChild(this.movesText);
 
-        const peekButton = new GameNode.Shape({
+        this.peekButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(8, 70, 12, 9),
+            coordinates2d: ShapeUtils.rectangle(68, 2, 24, 8),
             fill: MAT,
             color: GOLD,
             border: 3,
-            onClick: (playerId) => this.handlePeek(playerId)
+            onClick: (playerId) => this.phase === 'over' ? this.nextPainting() : this.handlePeek(playerId)
         });
-        peekButton.addChild(new GameNode.Text({
-            textInfo: { text: 'PEEK', x: 14, y: 72.6, size: 1.4, align: 'center', color: CREAM }
-        }));
-        this.base.addChild(peekButton);
+        this.peekText = new GameNode.Text({ textInfo: { text: 'PEEK', x: 80, y: 4.2, size: 1.9, align: 'center', color: CREAM } });
+        this.peekButton.addChild(this.peekText);
+        this.base.addChild(this.peekButton);
 
-        // right panel: how to play
-        this.base.addChild(new GameNode.Text({
-            textInfo: { text: 'Tap a tile beside', x: 85, y: 44, size: 1.1, align: 'center', color: CREAM }
-        }));
-        this.base.addChild(new GameNode.Text({
-            textInfo: { text: 'the gap to slide it', x: 85, y: 48, size: 1.1, align: 'center', color: CREAM }
-        }));
+        this.base.addChild(new GameNode.Text({ textInfo: { text: 'Drag a tile into the gap', x: 50, y: 88, size: 1.8, align: 'center', color: CREAM } }));
 
         // the sliding tiles — one Asset node per tile, cropped to its home region.
         // bottom-right slot starts empty.
@@ -143,13 +140,15 @@ class Masterpiece extends Game {
             tile.node = new GameNode.Asset({
                 coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
                 assetInfo: {
-                    'painting': {
+                    [PAINTINGS[this.paintingIndex].key]: {
                         pos: { x: 0, y: 0 },
                         size: { x: TILE_W - 2 * SEAM, y: TILE_H - 2 * SEAM },
                         ...tileCrop(home)
                     }
                 },
-                onClick: (playerId) => this.handleTileTap(tile)
+                onClick: (id, x, y) => this.beginTileDrag(id, tile, x, y),
+                onHover: id => { if (!this.drag) this.pointerCursor(id, this.phase === 'play' && !this.peeking && this.isAdjacent(tile.slot, this.blankSlot) ? 'grab' : null); },
+                offHover: id => { if (!this.drag) this.pointerCursor(id, null); }
             });
             this.placeTile(tile);
             this.tiles.push(tile);
@@ -170,11 +169,11 @@ class Masterpiece extends Game {
         return [{ root: this.base }];
     }
 
-    placeTile(tile) {
-        const { x, y } = slotPos(tile.slot);
+    placeTile(tile, pos = slotPos(tile.slot)) {
+        const { x, y } = pos;
         tile.node.node.coordinates2d = ShapeUtils.rectangle(x, y, TILE_W, TILE_H);
         tile.node.node.asset = {
-            'painting': {
+            [PAINTINGS[this.paintingIndex].key]: {
                 pos: { x: x + SEAM, y: y + SEAM },
                 size: { x: TILE_W - 2 * SEAM, y: TILE_H - 2 * SEAM },
                 ...tileCrop(tile.home)
@@ -198,7 +197,7 @@ class Masterpiece extends Game {
     // shuffle by playing random legal moves backwards from solved — always solvable
     shuffle() {
         let lastMoved = null;
-        for (let i = 0; i < SHUFFLE_MOVES; i++) {
+        for (let i = 0; i < SHUFFLE_MOVES + this.paintingIndex * 20; i++) {
             const candidates = this.tiles.filter(t => t !== lastMoved && this.isAdjacent(t.slot, this.blankSlot));
             const tile = candidates[Math.floor(Math.random() * candidates.length)];
             this.slideTile(tile);
@@ -220,7 +219,7 @@ class Masterpiece extends Game {
         }
         this.slideTile(tile);
         this.moves += 1;
-        this.setMovesText(`MOVES ${this.moves}`);
+        this.setMovesText(String(this.moves));
         if (this.isSolved()) {
             this.handleVictory();
         }
@@ -228,14 +227,14 @@ class Masterpiece extends Game {
     }
 
     setMovesText(text) {
-        this.movesText.node.text = { text, x: 14, y: 15, size: 1.4, align: 'center', color: GOLD };
+        this.movesText.node.text = { text, x: 25, y: 4, size: 2.2, align: 'center', color: GOLD };
     }
 
     fullPainting(effects) {
         return new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(PAINT_X, PAINT_Y, PAINT_W, PAINT_H),
             assetInfo: {
-                'painting': {
+                [PAINTINGS[this.paintingIndex].key]: {
                     pos: { x: PAINT_X, y: PAINT_Y },
                     size: { x: PAINT_W, y: PAINT_H }
                 }
@@ -245,7 +244,7 @@ class Masterpiece extends Game {
     }
 
     handlePeek(playerId) {
-        if (this.phase !== 'play' || this.peeking) {
+        if (this.phase !== 'play' || this.peeking || this.drag) {
             return;
         }
         this.peeking = true;
@@ -256,26 +255,59 @@ class Masterpiece extends Game {
         }, PEEK_SECONDS * 1000);
     }
 
+    pointerCursor(id, mode) {
+        if (typeof this.setCursor === 'function') this.setCursor(id, mode ? { assetKey: 'pointer-' + mode, size: { width: 32, height: 32 }, hotspot: { x: 16, y: 16 } } : null);
+    }
+
+    beginTileDrag(id, tile, x, y) {
+        if (this.drag || this.peeking || this.phase !== 'play' || !this.isAdjacent(tile.slot, this.blankSlot)) return;
+        this.drag = { id, tile, x, y, from: slotPos(tile.slot), to: slotPos(this.blankSlot), progress: 0, moved: false };
+        this.pointerCursor(id, 'hold');
+    }
+
+    handleMouseMove(id, pos) {
+        const d = this.drag;
+        if (!d || d.id !== id || !pos || ![pos.x,pos.y].every(Number.isFinite)) return;
+        const dx = d.to.x - d.from.x, dy = d.to.y - d.from.y;
+        d.moved ||= Math.hypot(pos.x-d.x,pos.y-d.y)>1;
+        d.progress = Math.max(0, Math.min(1, ((pos.x-d.x)*dx+(pos.y-d.y)*dy)/(dx*dx+dy*dy)));
+        this.placeTile(d.tile, { x: d.from.x+dx*d.progress, y: d.from.y+dy*d.progress });
+        this.base.node.onStateChange();
+    }
+
+    handleMouseUp(id, pos) {
+        const d = this.drag;
+        if (!d || d.id !== id) return;
+        if (pos) this.handleMouseMove(id, pos);
+        this.drag = null; this.pointerCursor(id, null); this.placeTile(d.tile);
+        if (!d.moved || d.progress > .25) this.handleTileTap(d.tile);
+        this.base.node.onStateChange();
+    }
+
+    handlePlayerDisconnect(id) {
+        if (this.drag?.id === id) { this.placeTile(this.drag.tile); this.drag = null; this.base.node.onStateChange(); }
+        this.pointerCursor(id, null);
+    }
+
+    handleKeyDown(id, key) { if (key === 'Escape') this.handlePlayerDisconnect(id); }
+
     handleVictory() {
         this.phase = 'over';
         this.overlay.addChild(this.fullPainting(GOLD_GLOW));
-        this.overlay.addChild(new GameNode.Text({
-            textInfo: { text: 'MASTERPIECE', x: 14, y: 38, size: 1.8, align: 'center', color: GOLD }
-        }));
-        this.overlay.addChild(new GameNode.Text({
-            textInfo: { text: 'RESTORED', x: 14, y: 43, size: 1.8, align: 'center', color: GOLD }
-        }));
-        this.overlay.addChild(new GameNode.Text({
-            textInfo: { text: `in ${this.moves} moves`, x: 14, y: 49, size: 1.2, align: 'center', color: CREAM }
-        }));
-        this.setTimeout(() => {
-            this.overlay.clearChildren();
-            this.moves = 0;
-            this.setMovesText('MOVES 0');
-            this.phase = 'play';
-            this.shuffle();
-        }, VICTORY_SECONDS * 1000);
+        this.plaqueText.node.text = { ...this.plaqueText.node.text, text: PAINTINGS[this.paintingIndex].name + ' · Restored' };
+        this.peekText.node.text = { ...this.peekText.node.text, text: 'NEXT →' };
     }
+
+    nextPainting() {
+        if (this.phase !== 'over') return;
+        this.paintingIndex = (this.paintingIndex + 1) % PAINTINGS.length;
+        this.overlay.clearChildren(); this.moves = 0; this.phase = 'play'; this.setMovesText('0');
+        this.plaqueText.node.text = { ...this.plaqueText.node.text, text: PAINTINGS[this.paintingIndex].name };
+        this.peekText.node.text = { ...this.peekText.node.text, text: 'PEEK' };
+        this.tiles.forEach(tile => { tile.slot = tile.home; this.placeTile(tile); }); this.blankSlot = SLOT_COUNT-1;
+        this.shuffle();
+    }
+
 }
 
 module.exports = Masterpiece;

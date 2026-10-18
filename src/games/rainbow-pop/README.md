@@ -1,6 +1,6 @@
 # Rainbow Pop
 
-A gentle balloon garden for little hands. Tap six smiling balloons in any order to make a rainbow and celebrate with Bunny. After a short celebration, a fresh set appears automatically. There are no scores, losses, deadlines, or menus to read.
+A balloon garden with a color-finding game for little hands. Bunny pictures a favorite color in a thought bubble. Find that balloon for a bigger happy hop and a new color request, or pop any other color freely. All six balloons still make a rainbow. New rounds rearrange the colors and increase their gentle drift, so the child follows the pictures instead of memorizing six tap positions. There are no losses, deadlines, or menus to read.
 
 ## Play
 
@@ -13,11 +13,11 @@ For a standalone preview, run `node tools/rainbow-pop-preview.cjs` from the home
 - **Gamepad:** any face button pops the next balloon.
 - **Sound:** the top-right sound button switches the soft musical notes on or off. Browser audio begins after an interaction; platform sound settings also apply.
 
-The square playfield fits portrait and landscape screens. Balloons gently bob in place and wait for the child. The six colors have different note pitches, and popping a balloon briefly displays its color name. Text is optional to play.
+The square playfield fits portrait and landscape screens. Balloons drift within generous, separate touch areas and never escape. The six colors have different note pitches, and popping a balloon briefly displays its color name. Text is optional to play.
 
 ## Implementation
 
-`index.js` contains the game and original polygon illustrations; `audio.js` generates quiet PCM WAV notes and a short celebration melody. All assets are generated locally, with no external downloads. The same game runs in browser-local and hosted Homegames sessions using Squish 142. Particle and sound pools are bounded, and replay resets the current game in place.
+`index.js` contains the game and original polygon illustrations; `audio.js` generates quiet PCM WAV notes and a short celebration melody. All assets are generated locally, with no external downloads. The same game runs in browser-local and hosted Homegames sessions using Squish 1.5.0. Particle and sound pools are bounded, and replay resets the current game in place.
 
 Run the focused regression checks from the homegames-core directory:
 

@@ -1,25 +1,26 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
-const fs = require('fs');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
+const defaultQuestions = require('./questions');
 
 const COLORS = Colors.COLORS;
 
 class Testions extends Game {
     static metadata() {
         return {
+            isTest: true, // Catalog review: see docs/game-consolidation.md.
+
             aspectRatio: {x: 16, y: 9},
-            author: 'Joseph Garcia',
-            squishVersion: '142',
+            author: "Joseph Garcia",
+            squishVersion: '150',
             services: ['multiplayer'],
             description: 'Take turns guessing how the other person would respond to questions. Upload your own JSON file with the green button.',
-            players: 2,
+            maxPlayers: 2,
             name: 'Testions',
-            thumbnail: '6c7eb394c378cc82425bf5850ebaaff9'
+            thumbnail: "./assets/6c7eb394c378cc82425bf5850ebaaff9.png"
         };
     }
 
     constructor() {
         super();
-        this.defaultQuestionUrl = 'https://assets.homegames.io/5b572606196726d24a1e3310ad1c98fe';
         this.baseColor = [245, 126, 66, 255];
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -33,8 +34,6 @@ class Testions extends Game {
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
         });
 
-        // TODO: fix this one
-        
         this.newQuestionButton = new GameNode.Shape({
             color: [53, 196, 91, 255],
             shapeType: Shapes.POLYGON,
@@ -61,7 +60,7 @@ class Testions extends Game {
         this.players = {};
         this.answers = {};
         this.questions = {};
-        this.initQuestions(this.defaultQuestionUrl);
+        this.initQuestions();
     }
 
     initQuestions(url, data) {
@@ -83,35 +82,23 @@ class Testions extends Game {
             }
         };
 
-        if (data) {
-            this.questions = JSON.parse(Buffer.from(data));
-            this.questionIndex = 0;
-            initCounter();
-            if (this.activeGame) {
-                this.newTurn();
+        let questions;
+        try {
+            questions = data ? JSON.parse(Buffer.from(data).toString('utf8')) : defaultQuestions;
+            questions = Object.values(questions);
+            if (!questions.length || questions.some(q => !q ||
+                ['question', 'answerA', 'answerB'].some(key => typeof q[key] !== 'string' || !q[key].trim()))) {
+                return false;
             }
-        } else if (url) {
-            this.questionAsset = new Asset({ type: 'json', id: '5b572606196726d24a1e3310ad1c98fe'});
-            this.questionAsset.getData().then(data => {
-                this.questions = JSON.parse(data);
-                this.questionIndex = 0;
-                initCounter();
-                if (this.activeGame) {
-                    this.newTurn();
-                }
-            });
-            // const initWords = async() => {
-            //     const questionData = await this.questionUrl.getData();
-            //     this.questions = JSON.parse(questionData);
-            //     this.questionIndex = 0;
-            //     initCounter();
-            //     if (this.activeGame) {
-            //         this.newTurn();
-            //     }
-            // };
-            // initWords();
+        } catch (error) {
+            return false; // Keep the playable question set when an upload is invalid.
         }
-
+        clearTimeout(this.nextTurnTimer);
+        this.questions = questions;
+        this.questionIndex = 0;
+        initCounter();
+        if (this.activeGame) this.newTurn();
+        return true;
     }
 
     updateQuestionCounter() {
@@ -121,6 +108,8 @@ class Testions extends Game {
     }
 
     newTurn() {
+        if (Object.keys(this.players).length !== 2 || !this.questions.length) return;
+        this.waiting = false;
         this.waitingForTransition = false;
         this.playerList = Object.keys(this.players).map(p => Number(p));
         this.base.clearChildren([this.excludedNodeRoot.id]);
@@ -386,7 +375,7 @@ class Testions extends Game {
                             this.questionIndex = 0;
                         }
                         this.updateQuestionCounter();
-                        this.setTimeout(this.newTurn.bind(this), 2250);
+                        this.nextTurnTimer = this.setTimeout(this.newTurn.bind(this), 2250);
                     } else {
                         const notSameAnswerNode = new GameNode.Text({
                             textInfo: {
@@ -405,7 +394,7 @@ class Testions extends Game {
                             this.questionIndex = 0;
                         }
                         this.updateQuestionCounter();
-                        this.setTimeout(this.newTurn.bind(this), 2250);
+                        this.nextTurnTimer = this.setTimeout(this.newTurn.bind(this), 2250);
                     }
                 }
             }
@@ -413,11 +402,19 @@ class Testions extends Game {
     }
 
     handleNewPlayer({ playerId, info }) {
+        if (!this.players[playerId] && Object.keys(this.players).length >= 2) return;
         this.players[playerId] = { info };
     }
 
-    handlePlayerDisconnect({ playerId }) {
+    handlePlayerDisconnect(playerId) {
         delete this.players[playerId];
+        clearTimeout(this.nextTurnTimer);
+        this.activeGame = false;
+        this.waiting = false;
+        this.waitingForTransition = false;
+        this.currentPlayerId = null;
+        this.answers = {};
+        this.base.clearChildren([this.excludedNodeRoot.id]);
     }
 
     getLayers() {

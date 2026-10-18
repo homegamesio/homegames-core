@@ -1,0 +1,44 @@
+✔ native ACME signs the complete account/order/DNS/finalize/download exchange and retries badNonce (45.237417ms)
+✔ existing P-256 account keys remain usable (0.570333ms)
+✔ existing P-384 account keys remain usable (1.279791ms)
+✔ existing P-521 account keys remain usable (2.761584ms)
+✔ badNonce retries are bounded and HTTP/network failures never retry an order (39.868834ms)
+✔ foreign CA URLs, oversized responses and cancellation are rejected before further requests (34.638875ms)
+✔ renewal CSRs preserve legacy RSA and EC private keys (40.772083ms)
+✔ the default fetch transport completes the signed flow over verified local HTTPS (150.849083ms)
+✔ real MongoDB: concurrent admission/claims, persisted recovery and issuance acknowledgement failures (1530.820125ms)
+✔ real MongoDB: completed attempt recovers across a crash between result and certificate writes; legacy IDs never requeue (1427.960417ms)
+✔ real MongoDB: broker migration preserves IDs, defers ambiguous work, and only reviewed requests retry (901.742167ms)
+[cert] requesting: Requesting certificate domain from the Homegames API
+[cert] requesting: Submitting certificate request
+[cert] waiting: Request submitted — waiting for certificate
+[cert] valid: Certificate issued
+✔ home server CSR → HTTP API → durable runner → installed certificate → verified HTTPS (937.88925ms)
+✔ ACME account key is private, persistent and shared by concurrent initialization (102.839417ms)
+✔ issuance records order identity, preserves unrelated TXT values and returns the matching public chain (22.687083ms)
+✔ certificate public key mismatch and unauthorized CA identifiers are rejected (58.817833ms)
+✔ a revoked attempt cannot proceed from a pending ACME request into DNS or finalization (15.67325ms)
+✔ DNS cleanup failures retain a checkpoint and can be cleaned independently after interruption (31.827167ms)
+✔ CSR names and signatures are checked before touching durable storage (50.708ms)
+✔ certificate configuration explicitly selects CA, contact and zone (0.157625ms)
+✔ already-aborted network work is never started (0.063083ms)
+✔ the active API starts without account or Forgejo credentials (0.661875ms)
+✔ the active API exposes connection helpers, not accounts or publishing (1.761333ms)
+✔ certificate requests are bounded and invalid JSON fails cleanly (1.278708ms)
+✔ only a configured loopback proxy may supply the client IP (0.06125ms)
+✔ disabled certificate status returns without loading a database or queue client (0.525ms)
+✔ malformed targets return 400 and the HTTP server keeps serving requests (6.785208ms)
+✔ the server contains unexpected failures outside the route error handler (0.125ms)
+✔ response serialization failures do not commit a success status (0.079792ms)
+✔ the certificate runner follows HTTP lifecycle and database failures do not take down health or RTC (48.338833ms)
+✔ certificate status polling has a per-network budget while health stays available (0.771375ms)
+✔ stalled certificate operations cannot consume unbounded concurrent work (0.157875ms)
+✔ a body that never finishes is stopped before reaching certificate issuance (21.682584ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4911.258334

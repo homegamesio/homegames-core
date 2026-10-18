@@ -1,4 +1,4 @@
-const { GameNode, Shapes } = require('squish-145');
+const { GameNode, Shapes } = require('squish-150');
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 const tint = (c, n, alpha = c[3] === undefined ? 255 : c[3]) => [clamp(Math.round(c[0] * n), 0, 255), clamp(Math.round(c[1] * n), 0, 255), clamp(Math.round(c[2] * n), 0, 255), Math.round(alpha)];
 const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));

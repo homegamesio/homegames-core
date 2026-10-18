@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const WORD_BANK = require('./words');
 
 const TICK_RATE = 8;
@@ -51,13 +51,14 @@ const shuffled = (list) => {
 class Imposter extends Game {
     static metadata() {
         return {
+            thumbnail: './assets/thumbnail.png',
             aspectRatio: { x: 9, y: 16 },
-            squishVersion: '142',
-            services: ['multiplayer'],
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             name: 'Imposter',
             description: 'A phone-first party game. Everyone sees the secret word except one imposter. Talk it out, vote, and catch the faker before they blend in.',
-            tickRate: TICK_RATE
+            tickRate: TICK_RATE,
+            gameId: "a461be77-f75a-5ccd-a936-40e9556dd923",
+            maxPlayers: 8
         };
     }
 
@@ -181,13 +182,7 @@ class Imposter extends Game {
         this.confettiLayer.clearChildren();
         this.confetti = [];
 
-        const title = this.makeGlowText('IMPOSTER', 50, 8, 6.5, INK, [215, 55, 130, 255]);
-        this.titleHalos = title.slice(0, 4);
-        title.forEach(n => this.screen.addChild(n, false));
-
-        this.screen.addChild(new GameNode.Text({
-            textInfo: { x: 50, y: 14, text: 'ONE OF YOU IS FAKING IT', size: 1.9, align: 'center', font: 'monospace', color: FAINT }
-        }), false);
+        this.titleHalos = [];
 
         const howTo = [
             'EVERYONE SEES THE SECRET WORD',

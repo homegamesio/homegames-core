@@ -1,0 +1,1329 @@
+wattt1
+watdsfdsf3
+{
+  '142': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-142/index.js',
+  '143': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-143/index.js',
+  '145': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-145/index.js',
+  '146': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-146/index.js'
+}
+this is Game
+[class Game]
+Found config at /Users/josephgarcia/homegames/homegames-core
+Found value https://api.homegames.io for API_URL in config
+Using dictionary file at /Users/josephgarcia/homegames/homegames-core/dictionary.txt
+Found value false for ERROR_REPORTING in config
+Found value false for IS_DEMO in config
+Found value 6 for DASHBOARD_PAGE_SIZE in config
+Using default value (500) for CHILD_SESSION_HEARTBEAT_INTERVAL
+Using default value (null) for LOCAL_GAME_DIRECTORY
+Unable to load game /Users/josephgarcia/homegames/homegames-core/src/games/aquarium/index.js: Cannot find module './data/catalog'
+Require stack:
+- /Users/josephgarcia/homegames/homegames-core/src/games/aquarium/index.js
+- /Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/game-loader.js
+- /Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/index.js
+- /Users/josephgarcia/homegames/homegames-core/src/util/cert-manager.js
+- /Users/josephgarcia/homegames/homegames-core/test/CertManager.test.js
+- /Users/josephgarcia/homegames/homegames-core/testRunner.js
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value https://api.homegames.io for API_URL in config
+[cert] valid: Valid certificate on disk
+✅ (passed)  cert manager: valid cert on disk resolves immediately, no API calls
+Found value https://api.homegames.io for API_URL in config
+[cert] requesting: Requesting certificate domain from the Homegames API
+[cert] requesting: Submitting certificate request
+[cert] waiting: Request submitted — waiting for certificate
+[cert] valid: Certificate issued
+✅ (passed)  cert manager: full acquisition flow — domain, CSR, key write (0600), poll, cert write
+Found value https://api.homegames.io for API_URL in config
+[cert] waiting: Certificate request in flight — checking status
+[cert] valid: Certificate issued
+✅ (passed)  cert manager: key on disk but no cert polls without re-submitting
+Found value https://api.homegames.io for API_URL in config
+[cert] requesting: Requesting certificate domain from the Homegames API
+[cert] requesting: Submitting certificate request
+[cert] waiting: Request submitted — waiting for certificate
+[cert] error: Timed out waiting for certificate
+✅ (passed)  cert manager: poll timeout rejects and reports error status
+Found value https://api.homegames.io for API_URL in config
+[cert] renewing: Certificate within renewal window — requesting a new one
+[cert] requesting: Requesting certificate domain from the Homegames API
+[cert] renewal already in progress; skipping this check
+[cert] requesting: Submitting certificate request
+[cert] waiting: Request submitted — waiting for certificate
+[cert] valid: Certificate issued
+[cert] renewed: Certificate renewed
+✅ (passed)  cert manager: renewal inside the window re-acquires; concurrent checks are guarded
+Found value https://api.homegames.io for API_URL in config
+✅ (passed)  cert manager: garbage cert file is not a valid cert
+Found value https://api.homegames.io for API_URL in config
+✅ (passed)  cert manager: mismatched key/certificate pair is never treated as valid
+Found value https://api.homegames.io for API_URL in config
+[cert] renewing: Certificate within renewal window — requesting a new one
+[cert] requesting: Requesting certificate domain from the Homegames API
+[cert] requesting: Submitting certificate request
+[cert] waiting: Request submitted — waiting for certificate
+[cert] error: Timed out waiting for certificate
+[cert] renewal failed
+Error: Timed out waiting for certificate
+    at pollForCert (/Users/josephgarcia/homegames/homegames-core/src/util/cert-manager.js:174:15)
+    at async requestCertFlow (/Users/josephgarcia/homegames/homegames-core/src/util/cert-manager.js:194:20)
+    at async Object.fn (/Users/josephgarcia/homegames/homegames-core/test/CertManager.test.js:203:24)
+    at async run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:13)
+✅ (passed)  cert manager: failed renewal preserves working files and reuses the current key
+Found value https://api.homegames.io for API_URL in config
+[cert] requesting: Requesting certificate domain from the Homegames API
+[cert] requesting: Submitting certificate request
+[cert] error: response lost
+Found value https://api.homegames.io for API_URL in config
+[cert] requesting: Submitting certificate request
+[cert] waiting: Request submitted — waiting for certificate
+[cert] valid: Certificate issued
+✅ (passed)  cert manager: lost submission response resumes the same persisted request and key
+Found value https://api.homegames.io for API_URL in config
+[cert] requesting: Requesting certificate domain from the Homegames API
+[cert] requesting: Submitting certificate request
+[cert] waiting: Request submitted — waiting for certificate
+[cert] error: Timed out waiting for certificate
+✅ (passed)  cert manager: wrong-key certificate from an old API is ignored until timeout
+Set config value HTTPS_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-config-VeGzbO/nested/config.json
+✅ (passed)  setConfigValue creates the overlay file (and its directory) on first write
+Set config value HOME_PORT in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-config-hvwZOX/nested/config.json
+Set config value DASHBOARD_PAGE_SIZE in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-config-hvwZOX/nested/config.json
+Set config value HOME_PORT in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-config-hvwZOX/nested/config.json
+✅ (passed)  setConfigValue merges with existing overlay keys instead of clobbering
+Unable to read user config at /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-config-n8naYS/nested/config.json
+SyntaxError: Unexpected token 'o', "not json{{{" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at readUserConfig (/Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/index.js:181:25)
+    at setConfigValue (/Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/index.js:224:23)
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/ConfigStore.test.js:41:5)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+Set config value HTTPS_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-config-n8naYS/nested/config.json
+✅ (passed)  setConfigValue survives a corrupt overlay file by starting fresh
+✅ (passed)  hosted: held controller inputs repeat, button edges fire once, releases arrive
+✅ (passed)  hosted: keyboard and multiple controller sources cannot release each other's keys
+✅ (passed)  hosted: legacy packets and malformed input are handled safely
+✅ (passed)  hosted: MoveTest actually moves throughout a steady stick hold
+✅ (passed)  local: held controller inputs repeat, button edges fire once, releases arrive
+✅ (passed)  local: keyboard and multiple controller sources cannot release each other's keys
+✅ (passed)  local: legacy packets and malformed input are handled safely
+✅ (passed)  local: MoveTest actually moves throughout a steady stick hold
+✅ (passed)  pad selection, disconnect/reconnect and same-slot replacement preserve routing
+✅ (passed)  player disconnect releases stored mapped keys and analog state
+✅ (passed)  Gamepad Test exposes bindings and repaints movement, button and analog changes
+✅ (passed)  all-controller polling reserves network capacity for keyboard/mouse input
+✅ (passed)  spectators cannot drive a game with controller input
+✅ (passed)  blur, hidden page and detach release inputs; detached handlers stop polling
+✅ (passed)  Quick pointer: mouse click between frames reaches City Scanner before release
+✅ (passed)  Quick pointer: touch tap between frames reaches City Scanner
+✅ (passed)  Quick pointer: release does not duplicate a press already processed by an animation frame
+✅ (passed)  Quick pointer: cancelled touches, outside clicks and spectator releases do not create actions
+✅ (passed)  Frame controls: keyboard activation stays in the UI and releases previously held game keys
+✅ (passed)  Quick pointer: a second physical press bypasses the previous repeat throttle
+✅ (passed)  Quick pointer: a mouse drag between frames retains its starting point and final movement
+✅ (passed)  Quick pointer: a touch drag starts on the original object even when its first frame is late
+✅ (passed)  sanitizeSaveKey produces filesystem-safe keys
+✅ (passed)  file saveGame round-trips through resolveSaveData
+✅ (passed)  resolveSaveData falls back through saveCompatibility in order
+✅ (passed)  saveGame debounces: rapid calls coalesce, last write wins
+✅ (passed)  saveGame rejects non-serializable and oversized data
+✅ (passed)  extractClientSaveData enforces shape, size, and compatibility
+✅ (passed)  broadcast saveGame pushes an opcode-10 envelope to the session
+Found config at /Users/josephgarcia/homegames/homegames-core
+Using default value (196m) for CHILD_SESSION_MEMORY_LIMIT
+✅ (passed)  fork gate: default (fork disabled) rejects with a clear message
+Using default value (196m) for CHILD_SESSION_MEMORY_LIMIT
+✅ (passed)  fork gate: releases the acquired port on rejection
+Using default value (196m) for CHILD_SESSION_MEMORY_LIMIT
+✅ (passed)  fork gate: allowFork: true passes the gate (fails later, differently)
+Using default value (196m) for CHILD_SESSION_MEMORY_LIMIT
+Using environment value: false for key: FORK_SESSIONS_ENABLED
+Using environment value: true for key: FORK_SESSIONS_ENABLED
+✅ (passed)  fork gate: FORK_SESSIONS_ENABLED config value is read per launch
+❌ (failed) squish-142: framed-layer squish pins off-plane vertices to the frame's inner edge
+AssertionError [ERR_ASSERTION]: x=0 escaped the frame viewport [4.5, 95.5]
+    at /Users/josephgarcia/homegames/homegames-core/test/SquishFrameClamp.test.js:38:13
+    at Array.forEach (<anonymous>)
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/SquishFrameClamp.test.js:37:17)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+✅ (passed)  squish-142: framed-layer squish leaves in-plane geometry at the expected positions
+✅ (passed)  squish-142: unscaled squish still allows slide-off coordinates (100-255)
+❌ (failed) squish-143: framed-layer squish pins off-plane vertices to the frame's inner edge
+AssertionError [ERR_ASSERTION]: x=0 escaped the frame viewport [4.5, 95.5]
+    at /Users/josephgarcia/homegames/homegames-core/test/SquishFrameClamp.test.js:38:13
+    at Array.forEach (<anonymous>)
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/SquishFrameClamp.test.js:37:17)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+✅ (passed)  squish-143: framed-layer squish leaves in-plane geometry at the expected positions
+✅ (passed)  squish-143: unscaled squish still allows slide-off coordinates (100-255)
+✅ (passed)  CatalogClient.list builds a paginated /games query and parses JSON
+✅ (passed)  CatalogClient.list omits empty params and applies defaults
+✅ (passed)  CatalogClient.searchGames encodes the query and parses results
+✅ (passed)  CatalogClient.getGameDetails / getGameVersionDetails hit the right paths
+<Buffer 62 6f 6f 6d>
+✅ (passed)  CatalogClient rejects on a non-2xx response
+✅ (passed)  CatalogClient.assetUrl composes the asset endpoint
+✅ (passed)  createCatalogClient requires an apiUrl
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  handleBrowse loads the first catalog page into browse state
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  loadMoreCatalog appends the next page and advances the offset
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  a short page (fewer than limit) marks the catalog exhausted
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Failed to load catalog
+Error: network down
+    at Object.list (/Users/josephgarcia/homegames/homegames-core/test/dashboard/BrowseCatalog.test.js:145:36)
+    at HomegamesDashboard._fetchCatalogPage (/Users/josephgarcia/homegames/homegames-core/src/dashboard/HomegamesDashboard.js:899:28)
+    at HomegamesDashboard.handleBrowse (/Users/josephgarcia/homegames/homegames-core/src/dashboard/HomegamesDashboard.js:875:14)
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/dashboard/BrowseCatalog.test.js:149:19)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+Found value false for TESTS_ENABLED in config
+✅ (passed)  a catalog fetch failure sets error and stops paging (offline-friendly)
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  exitBrowse clears browse state and returns to the local view
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  paging down while browsing stays on catalog results (does not revert to local games)
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  the down arrow loads the next catalog page once the player scrolls to the end
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  loading into a partially-filled last page keeps the view anchored while new games fill it
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  playCatalogGame installs an uninstalled game from source, then starts it
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  playCatalogGame starts a session directly for an already-installed game
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  _resolveModalView normalizes a built-in source game
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  _resolveModalView normalizes a downloaded game (developer + created date)
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  _resolveModalView fetches a remote catalog game and registers its thumbnail
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  _selectRemoteVersion prefers the requested version, else the latest published
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  creating a session for an installed game starts it directly
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  creating a session for an uninstalled catalog game downloads it from source (selected version)
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  playCatalogGame installs the requested version's commit from source
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  showGameModalNew renders a modal showing the game created date
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  the modal renders a paginated list of active sessions
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  onJoinSession moves the player to the chosen session
+✅ (passed)  game modal: Tiny Bean Café description survives real owner frames and stays private from spectators
+✅ (passed)  game modal: long descriptions, emoji and unbroken words stay within both codec length limits
+✅ (passed)  game modal: short and missing descriptions remain readable and decode normally
+✅ (passed)  getGamePathsHelper finds index.js recursively and ignores everything else
+Unable to read game directory
+Error: ENOENT: no such file or directory, scandir '/var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-scan-does-not-exist-35147'
+    at Object.readdirSync (node:fs:1631:26)
+    at Object.getGamePaths (/Users/josephgarcia/homegames/homegames-core/src/library/LocalLibrary.js:33:22)
+    at module.exports.getGamePathsHelper (/Users/josephgarcia/homegames/homegames-core/src/dashboard/HomegamesDashboard.js:1613:59)
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/dashboard/LocalDiscovery.test.js:76:20)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-scan-does-not-exist-35147'
+}
+✅ (passed)  getGamePathsHelper returns an empty Set for a missing directory (no throw)
+Unable to load game /Users/josephgarcia/homegames/homegames-core/src/games/aquarium/index.js: Cannot find module './data/catalog'
+Require stack:
+- /Users/josephgarcia/homegames/homegames-core/src/games/aquarium/index.js
+- /Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/game-loader.js
+- /Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/index.js
+- /Users/josephgarcia/homegames/homegames-core/src/util/cert-manager.js
+- /Users/josephgarcia/homegames/homegames-core/test/CertManager.test.js
+- /Users/josephgarcia/homegames/homegames-core/testRunner.js
+✅ (passed)  getGameMap surfaces built-in src/games with the local-game-version contract
+✅ (passed)  page size is one of the supported values and derives the grid
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  buildGamePlane lays out PAGE_SIZE games per 100-unit page band
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  no active sessions: no strip, grid uses the full area
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  active sessions render as joinable cards; clicking joins via movePlayer
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  private sessions are never listed
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  more than four sessions shows an overflow count
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✅ (passed)  player counts refresh from the manager and re-render the strip
+✅ (passed)  status lines cover the multiplayer lifecycle
+✅ (passed)  disabled state offers Enable homegames.link, wired to the handler
+✅ (passed)  cert-ready state offers Restart to enable homegames.link (openLink=true)
+✅ (passed)  serving state offers Disable homegames.link
+✅ (passed)  pendingRestart shows the generic restart (openLink=false)
+✅ (passed)  page size buttons pass their value through
+✅ (passed)  fork toggle renders its state and is wired to the handler
+✅ (passed)  cert error state offers a retry wired to enable
+✅ (passed)  Run basic game tests for Cabinet
+✅ (passed)  Cabinet: the assembler encodes CHIP-8 machine code
+✅ (passed)  Cabinet: the CPU does arithmetic with carry flags and XOR sprite drawing
+✅ (passed)  Cabinet: the PONG ROM boots - paddles, scores, and a moving ball
+✅ (passed)  Cabinet: holding a pad drives the paddle inside the emulated machine
+✅ (passed)  Cabinet: a missed ball scores inside the VM
+✅ (passed)  Cabinet: seventh point halts the CPU, winner keeps the seat
+✅ (passed)  Cabinet: seats swap in the lobby, a seated player leaving ends the match
+✅ (passed)  Cabinet: the ROM plays a full unattended match and halts at game over
+❌ (failed) Built-in default games have local media and no missing modules or placeholder IDs
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   {
++     bytes: 305247,
++     dependencies: [],
++     fileCount: 9,
++     folder: 'aquarium',
++     isTest: false,
++     issues: [
++       'Default game needs a local gameplay thumbnail',
++       'Missing module: index.js → ./data/catalog'
++     ],
++     localAssetCount: 0,
++     name: 'Aquarium Forever: Beyond the Surface',
++     projectSha256: '2cefc7086c711cd45029de9110f35e4aa683a458252cb287112c47a4a5e5023a',
++     squishVersion: '142',
++     thumbnail: null
++   },
++   {
++     bytes: 418383,
++     dependencies: [],
++     fileCount: 32,
++     folder: 'dragon-drop',
++     isTest: false,
++     issues: [
++       'Default game needs a local gameplay thumbnail'
++     ],
++     localAssetCount: 26,
++     name: 'Dragon Drop',
++     projectSha256: '1da5a2db66e8731f438a7bd681261e6183664f981aadba9c2956230b8f4ecdcf',
++     squishVersion: '146',
++     thumbnail: './assets/cover.png'
++   },
++   {
++     bytes: 935602,
++     dependencies: [],
++     fileCount: 9,
++     folder: 'hot-potato',
++     isTest: false,
++     issues: [
++       'Default game needs a local gameplay thumbnail'
++     ],
++     localAssetCount: 5,
++     name: 'Hot Potato',
++     projectSha256: '285d398fba8bec12841f0e32e2470d61a195afe33709656b8520188c00f37581',
++     squishVersion: '142',
++     thumbnail: './assets/adfd7a7b28e1e4e5b6ae3dc0b07a5784.png'
++   },
++   {
++     bytes: 7999,
++     dependencies: [],
++     fileCount: 1,
++     folder: 'walkie-talkie',
++     isTest: false,
++     issues: [
++       'Default game needs a local gameplay thumbnail'
++     ],
++     localAssetCount: 0,
++     name: 'Walkie Talkie',
++     projectSha256: '9a253a636f95b16a9f31ef663d8246d00e5783de5b557c981f24974703946f4e',
++     squishVersion: '146',
++     thumbnail: null
++   }
++ ]
+- []
+
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/games/CatalogConsolidation.test.js:13:12)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+❌ (failed) Built-in catalog identities do not silently replace another game
+Error: Cannot find module './data/catalog'
+Require stack:
+- /Users/josephgarcia/homegames/homegames-core/src/games/aquarium/index.js
+- /Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/game-loader.js
+- /Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/index.js
+- /Users/josephgarcia/homegames/homegames-core/src/util/cert-manager.js
+- /Users/josephgarcia/homegames/homegames-core/test/CertManager.test.js
+- /Users/josephgarcia/homegames/homegames-core/testRunner.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1517:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1095:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1122:12)
+    at Module._load (node:internal/modules/cjs/loader:1294:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1617:12)
+    at require (node:internal/modules/helpers:153:16)
+    at Object.<anonymous> (/Users/josephgarcia/homegames/homegames-core/src/games/aquarium/index.js:3:17)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1617:12)
+    at require (node:internal/modules/helpers:153:16)
+❌ (failed) Every curated game has its own verified dashboard screenshot
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+... Skipped lines
+
+  [
+    'after-hours',
++   'aquarium-forever',
+-   'aquarium',
+    'backgammon',
+    'backstage',
+    'battleship',
+    'billiards',
+    'block-brawlers',
+...
+    'happy-haulers',
+-   'hot-potato',
+    'house-band',
+    'imposter',
+    'kaboom-valley',
+    'lemonade-tycoon',
+    'little-consequences',
+...
+    'vegas-trail',
+-   'walkie-talkie',
+-   'weed-smoke-willie',
+    'wordforge',
+    'world-eater',
+    'worldseed'
+  ]
+
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/games/CatalogConsolidation.test.js:32:12)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+❌ (failed) Consolidated game aquarium-forever loads local assets, joins, ticks and disconnects
+Error: Cannot find module '/Users/josephgarcia/homegames/homegames-core/src/games/aquarium-forever/index.js'
+Require stack:
+- /Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/game-loader.js
+- /Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/index.js
+- /Users/josephgarcia/homegames/homegames-core/src/util/cert-manager.js
+- /Users/josephgarcia/homegames/homegames-core/test/CertManager.test.js
+- /Users/josephgarcia/homegames/homegames-core/testRunner.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1517:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1122:12)
+    at require.resolve (node:internal/modules/helpers:171:31)
+    at loadGameClassFromPath (/Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/game-loader.js:80:34)
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/games/CatalogConsolidation.test.js:48:19)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+✅ (passed)  Consolidated game starweld loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game bannerbound loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game counterforge-apex loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game block-brawlers loads local assets, joins, ticks and disconnects
+IMAGE KEYS
+[ 'img1' ]
+a1
+a2
+a3
+✅ (passed)  Consolidated game image-gallery loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game chronoclast loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game city-commons loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game clicktionary loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game common-ground loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game neon-dodge loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game ball-bounce loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game deadword loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game desert-bloom loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dance-fever loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game disco-owl loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dots-and-boxes loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dragon-drop loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game hot-potato loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game railway-reverie loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game lemonade-tycoon loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game neon-shooter loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game lumen-festival loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game little-consequences loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game blank-template loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game bunny-harvest loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game two-player-fight loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game buddy-box loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game pulsefront loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game counterforge-wilds loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game polystorm loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game snap-judgment loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game sponge loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game swarmwell loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game soccer loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game vegas-trail loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game warpoint loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game worldseed loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game weed-smoke-willie loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dump-truck loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game robots-arena loads local assets, joins, ticks and disconnects
+✅ (passed)  Sponge: two numeric seats, seven-point match, rematch and bot handoff
+✅ (passed)  Testions: invalid uploads preserve questions, capacity is two, departures allow a new round
+✅ (passed)  Hot Potato: losing either participant cancels the round and its old explosion
+✅ (passed)  VegasTrail: disconnected players stop consuming food
+✅ (passed)  Clicktionary: gallery captures immutable drawings and can return to the lobby
+✅ (passed)  Snap Judgment: sitting out advances the round and judging controls stay out of later phases
+✅ (passed)  City Scanner: clips crossing polygons, rejects invalid and fully offscreen geometry
+✅ (passed)  City Scanner: every neighborhood and zoom produces valid, bounded wire frames
+✅ (passed)  City Scanner: buildings reappear with their paint after leaving and returning
+✅ (passed)  City Scanner: inactive pool nodes stay out of the encoded scene
+✅ (passed)  City Scanner: pointer navigation, visible world coordinates and hold suppression work through the dispatcher
+✅ (passed)  City Scanner: pause freezes the world and stops idle frame notifications, but permits exploration
+✅ (passed)  City Scanner: players release and disconnect without clearing another player's movement
+✅ (passed)  City Scanner: keyboard repeats cannot repeat discrete actions
+✅ (passed)  City Scanner: clicks are bounded and rate limited separately for each player
+✅ (passed)  City Scanner: coffee customers use the clicked cafe and taxis appear nearby
+✅ (passed)  City Scanner: buses stop on crossing and leave after one stop
+✅ (passed)  City Scanner: pedestrians route around the lake and fish remain visible at its western edge
+✅ (passed)  City Scanner: a long tour and repeated interactions keep entity pools bounded
+✅ (passed)  Classics: battleship renders for a full table and survives disconnects
+✅ (passed)  Classics: connect-four renders for a full table and survives disconnects
+✅ (passed)  Classics: checkers renders for a full table and survives disconnects
+✅ (passed)  Classics: chess renders for a full table and survives disconnects
+✅ (passed)  Classics: mancala renders for a full table and survives disconnects
+✅ (passed)  Classics: backgammon renders for a full table and survives disconnects
+✅ (passed)  Classics: tic-tac-toe renders for a full table and survives disconnects
+✅ (passed)  Classics: crazy-eights renders for a full table and survives disconnects
+✅ (passed)  Classics: hearts renders for a full table and survives disconnects
+✅ (passed)  Classics: spades renders for a full table and survives disconnects
+✅ (passed)  Classics: go-fish renders for a full table and survives disconnects
+✅ (passed)  Classics: blackjack renders for a full table and survives disconnects
+✅ (passed)  Classics: Connect Four accepts one keyboard drop per press and protects an in-flight drop when a friend joins
+✅ (passed)  Classics: Checkers keyboard focus selects once and executes a legal move
+✅ (passed)  Classics: Battleship grid tabs preserve privacy, mark results, and place once per held press
+✅ (passed)  Classics: crazy-eights card and button labels inherit their parent visibility
+✅ (passed)  Classics: hearts card and button labels inherit their parent visibility
+✅ (passed)  Classics: spades card and button labels inherit their parent visibility
+✅ (passed)  Classics: go-fish card and button labels inherit their parent visibility
+✅ (passed)  Classics: blackjack card and button labels inherit their parent visibility
+✅ (passed)  Classics: hearts keeps completed tricks visible without allowing a fifth card
+✅ (passed)  Classics: spades keeps completed tricks visible without allowing a fifth card
+✅ (passed)  Classics: Go Fish clamps the hand page when collecting a set shrinks the hand
+✅ (passed)  Classics: Chess promotion choices stay below the board and complete the move
+✅ (passed)  Classics: Backgammon animates checker shapes and restores the destination stack
+✅ (passed)  Classics: Tic-Tac-Toe numbered input wins once and Enter starts a new round
+✅ (passed)  Run basic game tests for Clicktionary
+✅ (passed)  Clicktionary: full game playthrough with 3 players
+✅ (passed)  Clicktionary: close guesses stay private, scoring favors speed
+✅ (passed)  Clicktionary: pick and draw timers auto-advance
+✅ (passed)  Clicktionary: drawer disconnect ends the round, under 2 players ends the game
+✅ (passed)  Clicktionary: ink cap and clear
+✅ (passed)  Clicktionary: wrong guesses pop up on screen for everyone and expire
+✅ (passed)  Clicktionary: mid-game joiner becomes a guesser immediately
+✅ (passed)  Run basic game tests for Copperline
+✅ (passed)  COPPERLINE: malformed saves remain finite and the title freezes the frontier
+✅ (passed)  COPPERLINE: the complete campaign is playable through combat, train rescue and both endings
+✅ (passed)  COPPERLINE: buying weapons, visible modifications, clothes and property persists and pays rent once
+✅ (passed)  COPPERLINE: ammunition, dodge, focus, armor, recovery and free supplies prevent combat softlocks
+✅ (passed)  COPPERLINE: walking, horses and a moving train use bounded movement without wall tunneling
+✅ (passed)  COPPERLINE: bounties pay once and repeated contracts create fresh enemies
+✅ (passed)  COPPERLINE: checkpoints preserve horse and train travel and partial combat without duplicating enemies
+✅ (passed)  COPPERLINE: only the seated player can control the frontier; disconnect freezes it
+✅ (passed)  COPPERLINE: clicking visible enemy torsos hits both ground enemies and train guards
+COPPERLINE scene budget: 859 nodes, 60996 bytes
+✅ (passed)  COPPERLINE: all major screens round-trip native Squish with finite, clipped geometry
+✅ (passed)  Cursor Test declares its bundled asset and exposes a hover-only target that updates the acting player
+✅ (passed)  Run basic game tests for Defuse
+✅ (passed)  Defuse: full mission playthrough with 3 players
+✅ (passed)  Defuse: three strikes explodes the bomb
+✅ (passed)  Defuse: timer runs out
+✅ (passed)  Defuse: defuser disconnect promotes an expert, then aborts under 2 players
+✅ (passed)  Defuse: mid-bomb joiner spectates, then deals in next bomb
+✅ (passed)  Defuse: wrong inputs strike without disarming
+✅ (passed)  Run basic game tests for Draw
+✅ (passed)  Run basic game tests for EngineRoom
+✅ (passed)  EngineRoom: launch deals unique controls and an order to every crew member
+✅ (passed)  EngineRoom: filling an order scores the fix, credits both crew, and issues a new order
+✅ (passed)  EngineRoom: toggles and dials only complete when they reach the ordered state
+✅ (passed)  EngineRoom: missed orders cost hull, hull zero blows the ship
+✅ (passed)  EngineRoom: repairs advance sectors with a hull bonus, final repair wins
+✅ (passed)  EngineRoom: rebuilding a console keeps the timer bar at the true remaining fraction
+✅ (passed)  EngineRoom: a disconnect mid-game retargets orphaned orders or ends the shift
+✅ (passed)  Facet: actual pointer router handles tap, drag, held repeats and off-board cancellation
+✅ (passed)  Facet: menus, tutorial, pause, locks and default keyboard actions agree
+✅ (passed)  Facet: a held key cannot repeatedly select, start stages or toggle pause
+✅ (passed)  Facet: real browser touch handler delivers between-frame taps and scaled drag swaps
+✅ (passed)  Facet: Homepad controller navigates, selects neighbors, pauses and disconnects safely
+✅ (passed)  Facet: owner controls and paused Rush clock are preserved across reconnect
+✅ (passed)  Facet: stable run save resumes exactly and career stats are credited once
+✅ (passed)  Facet: malformed saves cannot unlock stages or restore a mislabeled Journey
+✅ (passed)  Facet: progress awards survive replays, and results unlock only their next stage
+✅ (passed)  Facet: Journey result persistence and Rush confirm route through the visible CTA
+✅ (passed)  Facet: Zen and Rush stay free of Journey frost, and reduced effects reach simulation
+✅ (passed)  Facet: native local loader includes portable art, sound, progression and game modules
+✅ (passed)  Facet initial and fallback boards are stable, playable and reproducible
+✅ (passed)  Facet invalid swaps animate home without spending moves or radiance
+✅ (passed)  Facet swaps reject diagonal, out-of-range, paused, and exhausted input
+✅ (passed)  Facet four-gem matches retain one lightning gem and clear frost beneath it
+✅ (passed)  Facet five-gem matches create one prism without also creating lightning
+✅ (passed)  Facet intersecting matches create one nova and activate existing specials in that match
+✅ (passed)  Facet prism and ordinary gem clear only the chosen color on their first wave
+✅ (passed)  Facet adjacent lightning combines into a row-column cross without a color match
+✅ (passed)  Facet line-nova, double-nova and double-prism swaps have distinct bounded areas
+✅ (passed)  Facet prism-special conversion triggers every chosen-color gem exactly once
+✅ (passed)  Facet a special triggered by another special fires only once
+✅ (passed)  Facet successful moves consume one move and settle once after all cascades
+✅ (passed)  Facet goals complete on the final move before a loss is considered
+✅ (passed)  Facet unmet goals lose after a last-move cascade and retry resets the whole turn
+✅ (passed)  Facet radiance awards three future successful swaps with double score
+✅ (passed)  Facet rush ends after an accepted final cascade and paused clocks freeze
+✅ (passed)  Facet fixed-step timing, reduced effects and hints cannot change the game outcome
+✅ (passed)  Facet shuffle preserves all earned specials and produces a stable playable board
+✅ (passed)  Facet stable snapshots restore deterministic future play and reject corrupt saves atomically
+✅ (passed)  Facet lengthy play keeps 64 unique gems, finite scores, bounded effects and legal choices
+✅ (passed)  Facet journey wins reward unused moves once, after all goals are satisfied
+✅ (passed)  Facet Journey routes cover every authored stage exactly once without changing content or resources
+✅ (passed)  Facet Journey: all ten Luminous Atelier stages complete through ordinary swaps and full cascades
+✅ (passed)  Facet Journey: all ten Verdant Grotto stages complete through ordinary swaps and full cascades
+✅ (passed)  Facet Journey: all ten Aurora Spire stages complete through ordinary swaps and full cascades
+✅ (passed)  Facet Journey: a saved mid-stage frost puzzle continues along the same legal winning route
+✅ (passed)  Facet scene: all exhibits, menus and simultaneous peak effects fit native Squish frames
+✅ (passed)  Facet scene: modal controls replace background actions and locked exhibits cannot be focused
+✅ (passed)  Facet painter: falling jewels are clipped to the board and pooled nodes survive frame changes
+✅ (passed)  Facet sound: the portable crystal bank has bounded PCM, clean endpoints, and independently owned buffers
+✅ (passed)  Facet sound: cascade groups sing one rising pitch and special types have distinct bounded voices
+✅ (passed)  Facet sound: expired asset keys remain absent long enough for native playback to restart
+✅ (passed)  Facet sound: three original realms change at phrase boundaries and radiance adds a separate sparkling layer
+✅ (passed)  Facet sound: a prism cascade and ambient accompaniment retain mix headroom
+✅ (passed)  Facet sound: deterministic cached synthesis, optional registration failures, mute and disposal are safe
+✅ (passed)  Run basic game tests for Fakeout
+✅ (passed)  Fakeout: full six-round game with truth votes and fooling
+✅ (passed)  Fakeout: writing the actual truth scores and removes your card
+✅ (passed)  Fakeout: identical lies merge and both authors score
+✅ (passed)  Fakeout: deadlines advance stalled phases
+✅ (passed)  Fakeout: disconnects unblock the round, under 2 ends the game
+✅ (passed)  Run basic game tests for HappyHaulers
+✅ (passed)  Happy Haulers: choose distinct projects and place individually selected cargo into nine-piece builds
+✅ (passed)  Happy Haulers: only the visible supplies, truck, and destination advance a job
+✅ (passed)  Happy Haulers: held pointers and busy clicks never queue cargo or deliveries
+✅ (passed)  Happy Haulers: keyboard project/load choices obey key releases and ignore unrelated keys
+✅ (passed)  Happy Haulers: mute is independent, interrupts voices, and stays silent through a whole project
+✅ (passed)  Happy Haulers: malformed or disconnected input cannot select or progress a job
+✅ (passed)  Happy Haulers: original quiet sounds register once for local and hosted runtimes
+✅ (passed)  Happy Haulers: repeated mixed projects retain bounded nodes and valid native frames
+✅ (passed)  Run basic game tests for KeepUp
+✅ (passed)  KeepUp: bops build the streak, floor resets it
+✅ (passed)  KeepUp: balloons keep arriving and the round ends on time
+✅ (passed)  KeepUp: last player leaving returns to lobby
+✅ (passed)  Little Rambler: real dispatcher taps care, suppresses held presses, and respects the care cooldown
+✅ (passed)  Little Rambler: quick touch and keyboard hop taps survive a whole press between ticks
+✅ (passed)  Little Rambler: forward keyboard focus reaches building and outing controls past duplicate pet targets
+✅ (passed)  Little Rambler: a ripe berry harvest wins over the overlapping companion and disappears after one harvest
+✅ (passed)  Little Rambler: native pet and food hover cursors stay cached and a pat press briefly changes the hand
+✅ (passed)  Little Rambler: berry hover priority follows native hit testing, then resets when the target disappears
+✅ (passed)  Little Rambler: cursor transitions preserve the native name field, select the lagoon tool, and reset on disconnect
+✅ (passed)  Little Rambler: held garden controls move, releases stop, pause freezes, and finds return home once
+✅ (passed)  Little Rambler: drag aim and release cast once, held cast buttons stay latched, and off-board releases cancel
+✅ (passed)  Little Rambler: held keyboard casting stays latched through landing and lost movement releases self-expire
+✅ (passed)  Little Rambler: native text input, colors, sound settings, and home discoveries survive save and reload
+✅ (passed)  Little Rambler: non-owner input is ignored, disconnect banks finds once, and a new owner can continue
+✅ (passed)  Little Rambler: save failures are handled without losing the in-memory companion
+✅ (passed)  Little Rambler: local source collection preserves all modules, art, and literal Homegames metadata
+✅ (passed)  Little Rambler: every screen produces bounded valid native Squish packets with well-formed text
+✅ (passed)  Little Rambler validates save shape and bounds, strips unknown data, and exports independent state
+✅ (passed)  Little Rambler care is available without resources, remembers favorites, and rejects repeated pending actions
+✅ (passed)  Little Rambler garden runs to the homeward gate, banks discoveries once, and funds a usable planter
+✅ (passed)  Little Rambler garden collision supports coyote jumps, buffered landings, and stronger grown-up hops
+✅ (passed)  Little Rambler salvage uses rebound physics, collects each piece once, and resolves the last cast
+✅ (passed)  Little Rambler launch validation, bounds, and finite round clocks keep every outing escapable
+✅ (passed)  Little Rambler fixed simulation gives the same outcomes for split frame packets
+✅ (passed)  Little Rambler persistence keeps home discoveries and growth without offline hunger or simulation state
+✅ (passed)  Run basic game tests for LittleScoopShop
+✅ (passed)  Little Scoop Shop: cones and cups accept all six flavors, mixed scoops, and optional toppings
+✅ (passed)  Little Scoop Shop: freely swapping vessels preserves treats and a fourth scoop replaces the top
+✅ (passed)  Little Scoop Shop: pictured wishes change, exact mixtures earn extra delight, and free creations stay welcome
+✅ (passed)  Little Scoop Shop: held taps, animation taps, and keys cannot add unrequested scoops or serve
+✅ (passed)  Little Scoop Shop: invalid and disconnected input cannot change the parlor
+✅ (passed)  Little Scoop Shop: mute stops current sounds and remains silent across servings
+✅ (passed)  Little Scoop Shop: original WAV assets are quiet, complete, registered once, and voice bounded
+✅ (passed)  Little Scoop Shop: repeated full treats retain bounded scenes and valid native player snapshots
+✅ (passed)  Little Scoop Shop: hosted GameSession broadcasts complete scene and attribute records
+✅ (passed)  Run basic game tests for LittleSlugger
+✅ (passed)  Little Slugger: patient start, purposeful aiming and separate swings replace tap-anywhere progress
+✅ (passed)  Little Slugger: three different targets complete a collection and unlock moving targets
+✅ (passed)  Little Slugger: pitches patiently repeat, early swings assist once and good timing makes a higher hit
+✅ (passed)  Little Slugger: pointer and keyboard holds cannot swing or pitch the next ball
+✅ (passed)  Little Slugger: sound toggles, disconnect and invalid input preserve a safe silent session
+✅ (passed)  Little Slugger: generated soft audio registers once and has valid PCM WAV data
+✅ (passed)  Little Slugger: changing targets, all hit styles and repeated collections have bounded production frames
+✅ (passed)  Run basic game tests for LittleZooWalk
+✅ (passed)  Little Zoo Walk: six patient habitats explore forward, backward, and around the loop
+✅ (passed)  Little Zoo Walk: walking visibly moves the visitor, path, and habitat before replacing the animal
+✅ (passed)  Little Zoo Walk: held and busy taps cannot skip habitats or queue greetings
+✅ (passed)  Little Zoo Walk: arrow and hello keys wait for release, with no unrelated-key actions
+✅ (passed)  Little Zoo Walk: mute interrupts audio and keeps all exploration silent until reenabled
+✅ (passed)  Little Zoo Walk: invalid positions and disconnected inputs do not change the game
+✅ (passed)  Little Zoo Walk: snacks require pickup and animal targeting, with stamps that persist across visits
+✅ (passed)  Little Zoo Walk: moving catch targets reward aiming and held pointers cannot play for you
+✅ (passed)  Little Zoo Walk: food flights and catch trajectories stay within production frame limits
+✅ (passed)  Little Zoo Walk: quiet original WAVs register once, reproduce deterministically, and bound voices
+✅ (passed)  Little Zoo Walk: repeated visits and greetings survive actual hosted player frames with bounded scenes
+✅ (passed)  Midnight Movers: all three cargo routes are navigable by a solo mover
+✅ (passed)  Midnight Movers: all optional treasures can be reached and delivered
+✅ (passed)  Midnight Movers: walls and closed doors block sight as well as movement
+✅ (passed)  Midnight Movers: guard light gives warning before pursuit and bushes hide empty hands
+✅ (passed)  Midnight Movers: facing away and solid walls prevent detection
+✅ (passed)  Midnight Movers: helping carries faster, and disconnect releases only that grip
+✅ (passed)  Midnight Movers: crews of two, three and four can haul every exhibit through its exit
+✅ (passed)  Midnight Movers: a caught mover drops loot, gets a grace period, and third catch ends the job
+✅ (passed)  Midnight Movers: whistle and bell lure guards without omniscient pursuit
+✅ (passed)  Midnight Movers: lasers cycle, can be disabled, and do not instantly capture
+✅ (passed)  Midnight Movers: escape needs the big loot and every connected teammate
+✅ (passed)  Midnight Movers: late join, host migration, phase guards, pause and save round-trip
+✅ (passed)  Midnight Movers: malformed input cannot corrupt positions, and fourth player is the cap
+✅ (passed)  Midnight Movers: normalized controller buttons can choose, start, move, whistle and pause
+✅ (passed)  Midnight Movers: portable browser bundle includes local audio and a real dashboard thumbnail
+✅ (passed)  Moonbounce: real dispatcher supports tap, drag preview and release; held clicks fire only once
+✅ (passed)  Moonbounce: held menu presses toggle once and an off-board release cancels the shot
+✅ (passed)  Moonbounce: actual browser touch input supports quick taps and held aim on a scaled canvas
+✅ (passed)  Moonbounce: keyboard aim, precision, action latches and pause use simulation time
+✅ (passed)  Moonbounce: non-owner input is ignored and disconnect preserves a paused shot for a new player
+✅ (passed)  Moonbounce: actual Homepad and input router select powers, aim, shoot, pause and release
+✅ (passed)  Moonbounce: saves sanitize malformed data and embedded artwork/audio own valid buffers
+✅ (passed)  Moonbounce: local library manifest contains every module and native Homegames metadata
+✅ (passed)  Moonbounce: stars persist, unlocked boards can be replayed, and locked selection is guarded
+✅ (passed)  Moonbounce: fast-forward accepts deliberate holds, clears on release and never shoots again
+✅ (passed)  Moonbounce: completing a world saves unlocks once and routes through the adventure map
+✅ (passed)  Moonbounce: challenges are gated, keep separate records, and survive a saved reload
+✅ (passed)  Moonbounce: controller firing taps do not accelerate and held fire never launches twice
+✅ (passed)  Moonbounce: all boards and overlays serialize into bounded, visible Squish frames
+✅ (passed)  Moonbounce adventure has five complete worlds and forty distinct authored silhouettes
+✅ (passed)  Moonbounce authored geometry stays inside its frame and clear of every motion envelope
+✅ (passed)  Moonbounce introduces each mechanic gently and portal pairs have safe matching exits
+✅ (passed)  Moonbounce challenge deck gives every world three achievable, properly gated remixes
+✅ (passed)  Moonbounce every last orange is hittable with its real bumpers, portals, and moving geometry
+✅ (passed)  Moonbounce loads forty bounded boards across five worlds
+✅ (passed)  Moonbounce every orange can still be hit when it is the last peg, with every power
+✅ (passed)  Moonbounce launches once per turn, respects aim bounds, and rejects invalid input
+✅ (passed)  Moonbounce fixed simulation is independent of frame packet sizes
+✅ (passed)  Moonbounce pause freezes physics, effects, bucket, and clocks
+✅ (passed)  Moonbounce aim guide uses actual physics without changing authoritative state
+✅ (passed)  Moonbounce previews match the actual primary launch for every power and charge state
+✅ (passed)  Moonbounce reduced effects preserve future bonus pegs and all gameplay outcomes
+✅ (passed)  Moonbounce moving bucket refunds a ball only on a downward crossing
+✅ (passed)  Moonbounce repeated impacts never score pegs twice and score thresholds award once each
+✅ (passed)  Moonbounce each power has a distinct effect and green pegs recharge it
+✅ (passed)  Moonbounce the last orange wins on the last ball and grants the landing jackpot
+✅ (passed)  Moonbounce a missed final shot loses; retry restores board score and stats
+✅ (passed)  Moonbounce high-speed and vertical impacts remain finite and cannot pin a ball
+✅ (passed)  Moonbounce bank and long shots reward skill once per shot, never repeated contacts
+✅ (passed)  Moonbounce big streaks have bounded milestones and explosions cannot fake long shots
+✅ (passed)  Moonbounce lit pegs persist during flight and only release when they trap the ball
+✅ (passed)  Moonbounce final-orange anticipation is directional, bounded, and once per shot
+✅ (passed)  Moonbounce fast-forward adds fixed physics ticks and is frame-rate independent
+✅ (passed)  Moonbounce a late final-orange hit cannot be lost to cinematic slow motion
+✅ (passed)  Moonbounce fast-forward respects anticipation and fever and shots have a global deadline
+✅ (passed)  Moonbounce results reconcile scoring, stars reward thresholds, and medals survive replay
+✅ (passed)  Moonbounce bumpers add a strong rebound with a cooldown and one bounded style award
+✅ (passed)  Moonbounce paired portals preserve velocity and block immediate re-entry without bonus farming
+✅ (passed)  Moonbounce predictions include portals, bumpers, and moving geometry without mutating them
+✅ (passed)  Moonbounce magnet bends only charged shots, including the last charge
+✅ (passed)  Moonbounce phoenix rescues one miss without minting balls and respects catches and fever
+✅ (passed)  Moonbounce new world mechanics remain deterministic with reduced effects and mixed frame rates
+✅ (passed)  Moonbounce challenge objectives are required alongside orange clear and never grant adventure medals
+✅ (passed)  Moonbounce score goals count the full board score and catch goals accumulate over shots
+✅ (passed)  Moonbounce preserves challenge configuration and progression cannot exceed forty levels
+✅ (passed)  Moonbounce each world introduction and finale can be cleared through normal inputs
+✅ (passed)  Moonbounce navigation: actual pointer routing connects home, crew, trophies, map, and board
+✅ (passed)  Moonbounce navigation: keyboard focus, confirm, and back form a complete playable route
+✅ (passed)  Moonbounce navigation: locked worlds, levels, powers, and challenges cannot be launched through confirm
+✅ (passed)  Moonbounce navigation: world keys and controller shoulders preserve challenges and reset invisible focus
+✅ (passed)  Moonbounce navigation: restored adventure and challenge selection agree with the displayed world
+✅ (passed)  Moonbounce navigation: a newly reached world cannot confirm an old unlocked challenge behind a locked card
+❌ (failed) Moonbounce playthroughs: all forty adventure boards remain winnable using ordinary shots
+AssertionError [ERR_ASSERTION]: The Patient Pendulum
+    at replay (/Users/josephgarcia/homegames/homegames-core/test/games/MoonbouncePlaythroughs.test.js:21:12)
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/games/MoonbouncePlaythroughs.test.js:29:15)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+✅ (passed)  Moonbounce playthroughs: all fifteen challenges can clear with their real extra goal satisfied
+✅ (passed)  Moonbounce adventure: a fresh profile has one starting level and one character
+✅ (passed)  Moonbounce adventure: legacy saves retain original stars and the three original powers
+✅ (passed)  Moonbounce adventure: world finales unlock the next world, character, and three challenges
+✅ (passed)  Moonbounce adventure: trophy thresholds and malformed saves are bounded and idempotent
+✅ (passed)  Moonbounce sound: PCM assets are unique, bounded and free from clipped or discontinuous endpoints
+✅ (passed)  Moonbounce sound: deterministic synthesis and registration leave each instance independently owned
+✅ (passed)  Moonbounce sound: a final-orange combo keeps mix headroom above its accompaniment
+✅ (passed)  Moonbounce sound: dense peg hits stay bounded and reuse only after a rendered silent frame
+✅ (passed)  Moonbounce sound: background alternates complete phrases without interrupting impact sounds
+✅ (passed)  Moonbounce sound: mute clears every voice and three-argument callers never gain background music
+✅ (passed)  Moonbounce sound: five distinct world arrangements change at phrase boundaries and all mute cleanly
+✅ (passed)  Orbit Breaker: analog movement scales, diagonal speed is bounded, aim persists at rest
+✅ (passed)  Orbit Breaker: shield catches only incoming rounds inside its facing cone
+✅ (passed)  Orbit Breaker: perfect catches require a fresh trigger press, storage is bounded
+✅ (passed)  Orbit Breaker: swept collision catches fast rounds and detects hull hits
+✅ (passed)  Orbit Breaker: returned ammunition is consumed and materially stronger than fallback pulse
+✅ (passed)  Orbit Breaker: dash grants invulnerability and cooldown, phase-drive upgrade changes it
+✅ (passed)  Orbit Breaker: red laser is telegraphed, bypasses shield, and is avoidable with dash
+✅ (passed)  Orbit Breaker: nova requires charge, clears the field, damages enemies and applies its upgrade
+✅ (passed)  Orbit Breaker: upgrade transitions preserve the ship and apply capacity / repair bonuses
+✅ (passed)  Orbit Breaker: flight school advances through movement, capture and return without damage
+✅ (passed)  Orbit Breaker: pause freezes combat and repeated keyboard messages do not toggle it
+✅ (passed)  Orbit Breaker: actual Homepad + shared input router drive analog controls and release safely
+✅ (passed)  Orbit Breaker: stalled controller stream pauses, menus need deliberate direction presses
+❌ (failed) Orbit Breaker: Android controller with an empty mapping enters flight school and drives both sticks and triggers
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/games/OrbitBreaker.test.js:137:39)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+✅ (passed)  Orbit Breaker: malformed saved state is ignored and rejected saves do not break play
+✅ (passed)  Orbit Breaker: full seeded runs win using only normal controls, with bounded simulation
+✅ (passed)  Orbit Breaker: all screens round-trip through Squish with opaque fills and bounded frame size
+✅ (passed)  Pitch Pot deals every idea exactly once, never to its author, for every supported room size
+✅ (passed)  Pitch Pot locks writing, rejects unauthorized transitions and admits late arrivals next round
+✅ (passed)  Pitch Pot screens all clips, prevents duplicate/self votes and handles ties and timeout
+✅ (passed)  departures transfer control, preserve credits and completed clips, and cannot stall voting
+✅ (passed)  assigned ideas are private in serialized frames; screening reveals player names and keeps video stable
+✅ (passed)  failed recording retries and completion after skip/disconnect/close never submits a stale pitch
+✅ (passed)  Pitch Pot exports exact video bytes, keeps imported names, and still screens a clip when storage fails
+✅ (passed)  another player submitting an idea keeps an open text-input node alive
+✅ (passed)  Pocket Front: real scene input selects troops, orders a formation and changes the player cursor
+✅ (passed)  Pocket Front: placement spends exactly once, invalid placement stays active, Escape cancels
+✅ (passed)  Pocket Front: help and pause consume map clicks, freeze time, and foreign input cannot control the army
+✅ (passed)  Pocket Front: enemy hover is session-owned and upgrade/replay paths preserve run records
+✅ (passed)  Pocket Front: an enemy dying cannot end a held selection, and help blocks hidden shortcuts
+✅ (passed)  Pocket Front: every screen serializes finite geometry within the persistent painter budget
+✅ (passed)  Pocket Front: deterministic seeds, frozen title, and free starting troops with no prep income
+✅ (passed)  Pocket Front: purchases enforce credits, placement, terrain, army limits and HQ upgrades
+✅ (passed)  Pocket Front: rectangle selection, additive selection, formation orders and captures have real outcomes
+✅ (passed)  Pocket Front: contested outposts stop capture, medics cannot capture, and salvage is collected only once
+✅ (passed)  Pocket Front: attack orders, moving fire, splash shells, healing and rewards affect combat
+✅ (passed)  Pocket Front: every upgrade applies and reset removes campaign state
+✅ (passed)  Pocket Front: seeded six-wave campaigns are winnable with ordinary buying, positioning and target orders
+✅ (passed)  Pocket Front: neglecting the economy and army eventually loses HQ without a siege stalemate
+✅ (passed)  Run basic game tests for Raft
+✅ (passed)  Raft: paddling steers, banks bonk, ducks quack
+✅ (passed)  Raft: run ends on the clock with a crew score
+✅ (passed)  Raft: crew changes mid-run rebuild the raft, empty crew ends it
+✅ (passed)  Run basic game tests for RainbowPop
+✅ (passed)  Rainbow Pop: six distinct taps make a rainbow and automatically prepare another round
+✅ (passed)  Rainbow Pop: dragging and holding a pointer cannot pop extra balloons or clear the next round
+✅ (passed)  Rainbow Pop: a fresh physical press recovers after a lost release
+✅ (passed)  Rainbow Pop: held keys count once and stay held across automatic round changes
+✅ (passed)  Rainbow Pop: disconnected input is harmless and an empty session does not advance
+✅ (passed)  Rainbow Pop: sound control stops active audio, keeps muted rounds silent, and can turn back on
+✅ (passed)  Rainbow Pop: generated sounds register once and contain quiet valid PCM WAV data
+✅ (passed)  Rainbow Pop: many complete rounds retain bounded scenes and clean native Squish frames
+✅ (passed)  Rainbow Pop: pictured color requests reward matching while every color remains playable
+✅ (passed)  Run basic game tests for RedTruckRamble
+✅ (passed)  Red Truck Ramble: metadata, patient start and safe flip guidance
+✅ (passed)  Red Truck Ramble: an early flip tap waits for one ramp and help or disconnect clears it
+✅ (passed)  Red Truck Ramble: GO, back and stop work with taps and held pointers never retoggle
+✅ (passed)  Red Truck Ramble: keyboard driving releases cleanly and an airborne space press flips once
+✅ (passed)  Red Truck Ramble: horn, immediate mute, reconnection and one-time asset registration
+✅ (passed)  Red Truck Ramble: three full courses, flips, dust and sounds retain valid hosted frames
+✅ (passed)  Red Truck Ramble: high late flips stay below the header while the ground shadow follows hills
+✅ (passed)  Red Truck Ramble audio: original WAV assets are complete, quiet, deterministic, and browser safe
+✅ (passed)  Red Truck Ramble audio: driving loops continuously with at most two engines and absent frames before key reuse
+✅ (passed)  Red Truck Ramble audio: speed and airborne state choose appropriate engine textures
+✅ (passed)  Red Truck Ramble audio: stopping is immediately idle quiet and does not cut off a landing or horn
+✅ (passed)  Red Truck Ramble audio: mute persists across ticks and effects until explicitly re-enabled
+✅ (passed)  Red Truck Ramble audio: effects debounce and long mixed driving stays within four quiet voices
+✅ (passed)  Red Truck engine: repeated terrain has a seamless flat joining point and real ramps
+✅ (passed)  Red Truck engine: pedal accelerates, release brakes, and reverse cruises gently
+✅ (passed)  Red Truck engine: ramps really launch the truck and gravity returns it to the road
+✅ (passed)  Red Truck engine: flips require air, finish a full rotation and cannot repeat in one jump
+✅ (passed)  Red Truck engine: a late flip tap gets enough lift to finish before landing
+✅ (passed)  Red Truck engine: an upside-down cab rights itself and reset chooses a nearby clearing
+✅ (passed)  Red Truck engine: fixed substeps are consistent across frame rates and reject invalid time
+✅ (passed)  Red Truck engine: long forward and reverse tours remain finite and never get stuck
+✅ (passed)  Run basic game tests for SandyCastle
+✅ (passed)  Sandy Castle: three patient scoop-pat-flip cycles build towers and wait for a chosen wave
+✅ (passed)  Sandy Castle: large targets forgive near misses, unrelated taps and busy taps cannot skip steps
+✅ (passed)  Sandy Castle: held inputs do not queue play, new physical presses recover, quick mouseup works
+✅ (passed)  Sandy Castle: children choose actual tower shapes and build spots in any order
+✅ (passed)  Sandy Castle: choose-and-place decoration gives position control, stays bounded, and keeps crab play independent
+✅ (passed)  Sandy Castle: mute is immediate and silent construction, decoration and washing still work
+✅ (passed)  Sandy Castle: disconnects pause the toy and malformed input cannot change it
+✅ (passed)  Sandy Castle: original WAV sounds register once, have silent edges, and cap simultaneous voices
+✅ (passed)  Sandy Castle: real GameSession frames preserve every node and fit record and attribute limits through repeated play
+✅ (passed)  Run basic game tests for Seance
+✅ (passed)  Seance: hands pull the planchette and the board keeps receipts
+✅ (passed)  Seance: dwelling on a letter spells it out
+✅ (passed)  Seance: YES appends a word, GOODBYE ends with the fraud reveal
+✅ (passed)  Seance: clear pushes the transcript, messages cap and roll over
+✅ (passed)  Seance: last guest leaving snuffs the candles
+✅ (passed)  Run basic game tests for SheepDrive
+✅ (passed)  SheepDrive: full three-round flow to the flock report
+✅ (passed)  SheepDrive: sheep flee from dogs
+✅ (passed)  SheepDrive: a dog can herd a sheep through the gate
+✅ (passed)  SheepDrive: pen walls block sheep, timer ends the round
+✅ (passed)  SheepDrive: joiners get a dog mid-round, last leaver ends the game
+✅ (passed)  Showboat requests camera only in the room and offers paused camera/mic or mic-only remotely
+✅ (passed)  Showboat permission completion and automatic phases never broadcast without a fresh Go live action
+✅ (passed)  Showboat gives only the star a stable stage, then silences and removes it when guesses begin
+✅ (passed)  Showboat room playback stays silent and explicit pause/disconnect removes the live stage
+✅ (passed)  Showboat serialized cue cards are private to the performer, including late joins and spectator frames
+✅ (passed)  Showboat handles permission failure, departure and reused player IDs without inheriting an old capture
+✅ (passed)  Showboat ignores stale permission success after a mode switch and after game close
+✅ (passed)  Showboat performer departure silences capture before progressing to the next pitch
+✅ (passed)  Showboat rules: a full match gives each player two distinct pitches and scores every guess once
+✅ (passed)  Showboat rules: timers advance unattended games and dirty only on seconds or transitions
+✅ (passed)  Showboat rules: host controls, performer controls and immutable votes enforce identity and phase
+✅ (passed)  Showboat rules: late joiners spectate for the whole match and join the next roster
+✅ (passed)  Showboat rules: a departing performer cancels all partial votes and skips future turns
+✅ (passed)  Showboat rules: a departing voter removes their ballot and can complete the remaining vote
+✅ (passed)  Showboat rules: departure during reveal preserves earned scores and promotes the host
+✅ (passed)  Showboat rules: insufficient original participants abort safely even with spectators present
+✅ (passed)  Showboat rules: a reconnected identity remains a spectator until a new match
+✅ (passed)  Showboat rules: player limits and invalid identities do not corrupt the lobby
+✅ (passed)  Showboat rules: private views never expose the secret or another ballot before reveal
+✅ (passed)  Showboat rules: curated prompts are diverse, concise, immutable and deterministically shuffled
+✅ (passed)  Run basic game tests for Slaps
+✅ (passed)  Run basic game tests for StarfallSalvage
+✅ (passed)  STARFALL SALVAGE: both complete campaigns use real ship combat, walkable boarding and story gates
+✅ (passed)  STARFALL SALVAGE: every derelict has connected walkable airlocks, consoles, crew and enemy spawns
+✅ (passed)  STARFALL SALVAGE: paid physical modules change stats, require a dock and persist without duplicate charges
+✅ (passed)  STARFALL SALVAGE: checkpoints retain away teams, damaged guards and unopened cargo
+✅ (passed)  STARFALL SALVAGE: every purchasable module changes the physical ship drawing
+✅ (passed)  STARFALL SALVAGE: shields, energy, pulse, dash and free recovery keep damaged ships playable
+✅ (passed)  STARFALL SALVAGE: asteroids are mined with real shots and depleted resources survive reload
+✅ (passed)  STARFALL SALVAGE: travel respects story and combat gates and repeat contracts pay only once
+✅ (passed)  STARFALL SALVAGE: menus support keyboard dialogue, fitting and locked-route choices safely
+✅ (passed)  STARFALL SALVAGE: title freezes the world and malformed saves cannot corrupt the simulation
+✅ (passed)  STARFALL SALVAGE: owner input, menu key repeats and disconnected sessions are isolated
+STARFALL SALVAGE rendering budget: 410 nodes / 30873 bytes
+✅ (passed)  STARFALL SALVAGE: native Squish preserves every menu and sector within the rendering budget
+✅ (passed)  Run basic game tests for StarrySparkles
+✅ (passed)  Starry Sparkles: every sky tap grows a colorful firework at the chosen point, then fades away
+✅ (passed)  Starry Sparkles: six generous color targets choose paint and immediately demonstrate it
+✅ (passed)  Starry Sparkles: a held or dragged pointer makes only one burst, and stale releases recover
+✅ (passed)  Starry Sparkles: quick release-only taps work and invalid input is harmless
+✅ (passed)  Starry Sparkles: play keys make varied fireworks and holding never auto-repeats
+✅ (passed)  Starry Sparkles: sound control silences current and future twinkles, then turns back on
+✅ (passed)  Starry Sparkles: disconnected players cannot interact and empty sessions stop advancing
+✅ (passed)  Starry Sparkles: local musical assets are registered once and are quiet valid WAV files
+✅ (passed)  Starry Sparkles: frantic taps and long sessions keep bounded pools and valid native frames
+✅ (passed)  Starry Sparkles: optional sky pictures connect tapped stars and rotate after a finale
+✅ (passed)  Run basic game tests for Sunwake
+✅ (passed)  SUNWAKE: Core fallback delivers generated assets and player frames without live media
+✅ (passed)  SUNWAKE: deterministic worlds, bounded saves, and menus do not run the voyage
+✅ (passed)  SUNWAKE: sounds register once, station keys do not repeat, and logbook awards persist
+✅ (passed)  SUNWAKE: full voyages reach the dawn with one, two, four and six crew
+✅ (passed)  SUNWAKE: roles, shared cooldowns, heat, scans and rescues have distinct effects
+✅ (passed)  SUNWAKE: freeing the skywhale grants a living ally and shields
+✅ (passed)  SUNWAKE: votes settle fairly, routes change hazards, and a broken hull ends only once
+SUNWAKE budget: 229 visible nodes, 16127 bytes per frame, 203 art nodes
+✅ (passed)  SUNWAKE: every phase round-trips native Squish with finite clipped geometry and bounded frames
+✅ (passed)  Run basic game tests for TheArgument
+✅ (passed)  TheArgument: session script covers ~30 min of incidents
+✅ (passed)  TheArgument: startSession enters briefing on first round
+✅ (passed)  TheArgument: long private instructions keep their complete ending
+✅ (passed)  TheArgument: trust reveal pauses discussion then resumes
+✅ (passed)  TheArgument: commit resolves and records history
+✅ (passed)  Run basic game tests for TinyBeanCafe
+✅ (passed)  Tiny Bean Café: animals order all seven drinks and each order waits for the child to prepare and serve it
+✅ (passed)  Tiny Bean Café: coffee cream uses a paper cup and only whipped cream
+✅ (passed)  Tiny Bean Café: only the highlighted target prepares a drink; wrong tools, the footer and keys do nothing
+✅ (passed)  Tiny Bean Café: drink arrows offer all seven recipes while the animal keeps its request
+✅ (passed)  Tiny Bean Café: changing an unfinished drink clears its pour, art and audio without changing the guest
+✅ (passed)  Tiny Bean Café: any drink makes the guest happy and the requested drink gets a bigger celebration
+✅ (passed)  Tiny Bean Café: guests keep their orders through preparation and return in fresh outfits
+✅ (passed)  Tiny Bean Café: grounds fill a broad basket, the tamper presses inside it, and brewing waits for docking
+✅ (passed)  Tiny Bean Café: the landscape target matches its highlighted tool or customer
+✅ (passed)  Tiny Bean Café: a held pointer never queues a tool or serves a drink, even across a new order
+✅ (passed)  Tiny Bean Café: quick-release fallback still requires a target and keyboard repeats cannot serve
+✅ (passed)  Tiny Bean Café: each tool plays its own café sound and wrong or repeated taps stay quiet
+✅ (passed)  Tiny Bean Café: muting stops current sounds and whole orders remain silent
+✅ (passed)  Tiny Bean Café: disconnected players and malformed input cannot change the café
+✅ (passed)  Tiny Bean Café: local and hosted runtimes register distinct quiet WAV assets once
+✅ (passed)  Tiny Bean Café: repeated orders keep bounded scenes and serialize all animations cleanly
+✅ (passed)  Run basic game tests for TumbleTower
+✅ (passed)  Tumble Tower: ready-to-play structures wait patiently and picture choices do not shoot
+✅ (passed)  Tumble Tower: aimed projectiles cause contact-driven collapses without assigning block velocities
+✅ (passed)  Tumble Tower: bounce, heavy and pop balls have different physical behavior across all structures
+✅ (passed)  Tumble Tower: held input, rapid taps and disconnects cannot queue throws
+✅ (passed)  Tumble Tower: free building drops blocks at the chosen coordinates with live gravity and rotation
+✅ (passed)  Tumble Tower: free building supports real balancing and cannot auto-drop from a held finger
+✅ (passed)  Tumble Tower: keyboard aims visibly, chooses balls, rebuilds and switches to free building
+✅ (passed)  Tumble Tower: sound stays muted through impacts, rebuilding and reconnecting until enabled
+✅ (passed)  Tumble Tower: repeated demolition retains bounded bodies, voices, effects and hosted snapshots
+✅ (passed)  Tumble Tower audio: every original material and action WAV is complete, quiet, and bounded
+✅ (passed)  Tumble Tower audio: materials have distinct excitation, decay, and rolling textures
+✅ (passed)  Tumble Tower audio: impact material, strength, floor contact, and pitch variation follow actual contacts
+✅ (passed)  Tumble Tower audio: rolling requires movement and repeated calls cannot stack continuous loops
+✅ (passed)  Tumble Tower audio: contact storms stay at four voices and launch/boom stay audible among collisions
+✅ (passed)  Tumble Tower audio: mute persists through held and repeated events, unmute resumes, and close is final
+✅ (passed)  Tumble Tower audio: byte generation is deterministic and works without browser or Node globals
+✅ (passed)  Tumble Tower physics: circles contact faces, corners and one another with consistent normals
+✅ (passed)  Tumble Tower physics: ten free stacked blocks settle without artificial static supports
+✅ (passed)  Tumble Tower physics: tower, bridge and domino presets settle as ordinary free bodies
+✅ (passed)  Tumble Tower physics: actual projectile contact wakes its support island and leaves a separate tower alone
+✅ (passed)  Tumble Tower physics: a nudge at one end physically propagates through all eleven dominoes
+✅ (passed)  Tumble Tower physics: impulses obey mass and contact torque while radial explosions fall off with distance
+✅ (passed)  Tumble Tower physics: rubber balls bounce, heavy balls transfer momentum, and circles collide
+✅ (passed)  Tumble Tower physics: rapid projectiles and explosions stay finite and bounded, with capped elapsed time
+✅ (passed)  Tumble Tower physics: configurable boundaries keep blocks and projectiles out of the tool area
+✅ (passed)  Tumble Tower structures: finite, bounded free-body layouts have no overlapping starting pieces
+✅ (passed)  Tumble Tower structures: every raised center of mass is supported by pieces connected to the floor
+✅ (passed)  Tumble Tower structures: domino spacing permits a chain and the bridge leaves a real open arch
+✅ (passed)  Tumble Tower structures: thumbnails preserve actual block proportions and presets are independently mutable
+✅ (passed)  Vector Siege: deterministic sectors and immediate direct assault
+✅ (passed)  Vector Siege: normalized diagonal movement and short stopping distance
+✅ (passed)  Vector Siege: dash is bounded, invulnerable, consumes charges and recharges
+✅ (passed)  Vector Siege: swept projectiles cannot tunnel through small targets
+✅ (passed)  Vector Siege: hull damage has a grace period and reduces the multiplier
+✅ (passed)  Vector Siege: geom attraction rewards proximity and raises the multiplier
+✅ (passed)  Vector Siege: convoy delivery adds real reserves and destruction denies them
+✅ (passed)  Vector Siege: capture requires destroyed uplinks, presence, and uncontested space
+✅ (passed)  Vector Siege: capturing all production sites materially weakens the Citadel
+✅ (passed)  Vector Siege: production takes transit time and captured sites cancel shipments
+✅ (passed)  Vector Siege: pause freezes simulation and held mouse keeps firing without movement
+✅ (passed)  Vector Siege: repeated keydown does not trigger repeated dashes
+✅ (passed)  Vector Siege: all screens and live effects round-trip through native Squish
+✅ (passed)  Vector Siege depth: weapons have distinct volleys, range and penetration
+✅ (passed)  Vector Siege depth: a piercing shot hits each body once, including over multiple steps
+✅ (passed)  Vector Siege depth: Bastion armor rewards flanking and Lance bypasses it
+✅ (passed)  Vector Siege depth: Warden shields allies; killing it removes protection and stuns the group
+✅ (passed)  Vector Siege depth: Lancer commits to the telegraphed lane rather than tracking mid-charge
+✅ (passed)  Vector Siege depth: Rail Eye gives a safe warning, and killing its owner cancels the beam
+✅ (passed)  Vector Siege depth: mines detonate after their tell and dash invulnerability protects against them
+✅ (passed)  Vector Siege depth: dash hits once per enemy and converts nearby hostile bullets to flux
+✅ (passed)  Vector Siege depth: Overload spends a full charge, clears danger, and expires
+✅ (passed)  Vector Siege depth: fuel chain explosions are bounded and award each enemy once
+✅ (passed)  Vector Siege depth: scavengers remove real geoms and drop the stolen haul
+✅ (passed)  Vector Siege depth: Arc Conductor and Cryo affect the nearby formation
+✅ (passed)  Vector Siege depth: raids halve stock without stopping production or allowing repeat loot
+✅ (passed)  Vector Siege depth: raid requires its marked target and extraction position
+✅ (passed)  Vector Siege depth: owned sites grant passive flux, drone fire and deployment healing
+✅ (passed)  Vector Siege depth: capture cannot bypass the site elite guard
+✅ (passed)  Vector Siege depth: optional contracts track actual damage, time, cargo and flow
+✅ (passed)  Vector Siege depth: a full enemy pool delays the guard without unlocking capture
+✅ (passed)  Vector Siege depth: repairs, module purchase and rerolls spend salvage atomically
+✅ (passed)  Vector Siege depth: nearly exhausted module catalogs cannot produce an empty upgrade screen
+✅ (passed)  Vector Siege depth: Citadel phase changes clear bullets and unlock telegraphed rails
+✅ (passed)  Vector Siege depth: all archetypes and new screens render with bounded pools
+✅ (passed)  Living Sector: generation is seeded, connected and varies traits and routes
+✅ (passed)  Living Sector: both factions earn real income and pause freezes all simulation
+✅ (passed)  Living Sector: paid construction completes once, preserves ownership and blocks occupied sockets
+✅ (passed)  Living Sector: fleets transport the actual damaged units without duplicating or healing
+✅ (passed)  Living Sector: fleets cannot pass through hostile intermediate outposts
+✅ (passed)  Living Sector: entering and leaving retains battlefield identity, health and projectiles
+✅ (passed)  Living Sector: the rest of the sector continues during a manual battle
+✅ (passed)  Living Sector: hero travel uses connected edges and arrives at a persistent battle
+✅ (passed)  Living Sector: pilot loss is recoverable and does not erase armies or end the run
+✅ (passed)  Living Sector: capture transfers income, cancels hostile construction and pays its cache once
+✅ (passed)  Living Sector: only losing the command core ends a run
+✅ (passed)  Living Sector: the rival pays for construction and dispatches real armies
+✅ (passed)  Living Sector: field defenses use the same purchase queue and persist after leaving
+✅ (passed)  Living Sector: emergency construction continues at half speed during an attack
+✅ (passed)  Living Sector: automatic purchasing and rally orders move paid reinforcements
+✅ (passed)  Living Sector: Warden destruction stuns its own formation offscreen too
+✅ (passed)  Living Sector: all views serialize through native Squish without pool overflow
+✅ (passed)  Living Sector: printable command keys return to the map and cancel pending orders
+✅ (passed)  Living Sector: contextual controls purchase defenses and dispatch a fleet through native pointer hits
+✅ (passed)  Living Sector: optional help restores pause and entering combat works from the paused map
+✅ (passed)  World Eater integration: keyboard, pause edges, help and released movement use the real input router
+✅ (passed)  World Eater integration: analog pads honor owner, aim, disconnect, stale input and menu edges
+✅ (passed)  World Eater integration: scene clicks and drags steer and harvest; release never leaves a stuck command
+✅ (passed)  World Eater integration: six personal HUDs stay private in actual Squish player frames
+✅ (passed)  World Eater integration: every screen and capped battle round-trip with finite coordinates and bounded frames
+✅ (passed)  World Eater integration: checkpoints restore, storage rejection is harmless, final disconnect pauses, close is idempotent
+✅ (passed)  World Eater integration: original audio assets register once with distinct transferable byte copies
+✅ (passed)  World Eater: seeded generation and identical controls are deterministic
+✅ (passed)  World Eater: analog movement is normalized, tethered, finite, and pause freezes time
+✅ (passed)  World Eater: harvesting resolves worlds once and autoassist supplies an immediate resource loop
+✅ (passed)  World Eater: rescue is a distinct nearby choice with resources, energy cost and no repeated reward
+✅ (passed)  World Eater: roles alter real extraction, repair, hull and cannon behavior
+✅ (passed)  World Eater: nova needs a living pilot and charge, clears hazards, damages bosses and restores shield
+✅ (passed)  World Eater: swept shots hit fast targets and telegraphed beams have a real escape window
+✅ (passed)  World Eater: drones rebuild while destruction of the ark ends the campaign
+✅ (passed)  World Eater: forge progression is gated and upgrades spend real cargo and scale their cost
+✅ (passed)  World Eater: checkpoint resumes campaign without leaking player identities or transient hazards
+✅ (passed)  World Eater: malformed and oversized saves are rejected without preventing a fresh game
+✅ (passed)  World Eater: six-pilot membership is bounded and departing pilots leave no stale input
+✅ (passed)  World Eater: complete seeded campaigns win through legal controls with bounded entities
+✅ (passed)  Run basic game tests for LayerTest
+✅ (passed)  Run basic game tests for MoveTest
+✅ (passed)  Run basic game tests for PerfTest
+✅ (passed)  Run basic game tests for SpriteTest
+✅ (passed)  Run basic game tests for Squarer
+✅ (passed)  Run basic game tests for WordMatch
+✅ (passed)  createInstaller requires catalogClient and localLibrary
+✅ (passed)  installFromSource writes every blob to disk and records metadata
+✅ (passed)  installFromSource rejects when the tree has no index.js
+✅ (passed)  installFromSource requires gameId, versionId, and commitSha
+✅ (passed)  getGamePaths finds nested index.js and ignores decoys
+✅ (passed)  scan() resolves a built-in source game into the local-game-version contract
+Using local game at path /private/var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-lib-local-mRaaq6/review/index.js
+✅ (passed)  scan() preserves local asset roots and review flags for a developer game directory
+✅ (passed)  scan() hides explicitly superseded downloads without removing versions or unrelated downloads
+✅ (passed)  scan() maps a downloaded game from .metadata, grouping versions under gameId
+Unknown game at /private/var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-lib-dl3-Sd9GAt/orphan/ver/index.js
+✅ (passed)  scan() skips downloaded paths with no .metadata entry
+✅ (passed)  readMetadataMap returns {} when .metadata is absent, and round-trips a write
+✅ (passed)  createLocalLibrary requires both directories
+✅ (passed)  portable imports validate before writing, preserve revisions, and scan without executing code
+✅ (passed)  pack HTTP import accepts localhost ZIPs and rejects LAN and cross-origin writes
+✅ (passed)  audio decoding preserves session bytes for late RTC joins and respects typed-array bounds
+✅ (passed)  pending audio decode cannot revive assets after teardown
+✅ (passed)  remote view contract: ready handshake, real frame paint, idle frames and resize invalidation
+✅ (passed)  remote view contract: port redirects preserve hostname and switch spectator/player roles
+✅ (passed)  worker view contract: same init/frame behavior and explicit worker disposal
+✅ (passed)  local view contract: save restoration precedes construction; second player and inspector share the game
+✅ (passed)  local view contract: stop during save loading cannot boot a detached game
+✅ (passed)  local view contract: repeated start/stop cycles leave no DOM handlers or animation callbacks
+✅ (passed)  session transition contract: failed local manifest keeps the remote game connected
+✅ (passed)  session transition contract: dashboard to local game to dashboard replaces the active view
+✅ (passed)  cursor client inline: control packets apply independently of frames, invalid packets preserve selection, disconnect resets
+✅ (passed)  cursor client inline: menu capture suspension preserves legacy cursors and cannot override game opt-in
+✅ (passed)  cursor client worker: control packets apply independently of frames, invalid packets preserve selection, disconnect resets
+✅ (passed)  cursor client worker: menu capture suspension preserves legacy cursors and cannot override game opt-in
+✅ (passed)  cursor client RTC: control packets apply independently of frames, invalid packets preserve selection, disconnect resets
+✅ (passed)  cursor client RTC: menu capture suspension preserves legacy cursors and cannot override game opt-in
+✅ (passed)  cursor client: missing and non-image assets use default, late and replaced image assets refresh the retained selection
+✅ (passed)  cursor client: hover, pointer exit, blur and input detach never select or reset the session cursor
+✅ (passed)  cursor client: redirects and stop clear selection before a new session uses the view or asset key
+✅ (passed)  cursor views: shared image assets retain independent selections and Studio override restores the latest session choice
+✅ (passed)  sized cursor: waits for image decode, renders requested pixels and reuses the raster for movement and unchanged selection
+✅ (passed)  sized cursor: copied size survives caller mutation and synchronous decode readiness cannot undo the raster
+✅ (passed)  sized cursor: out-of-order replacement decodes and decodes after reset or stop cannot restore stale image pixels
+✅ (passed)  local cursor service is injected at construction and usable by each joining seat
+✅ (passed)  local menu cursors suspend one seat and carry the same permission flag to remote seats
+✅ (passed)  local cursor selections are independent and pointer movement has no automatic cursor rules
+✅ (passed)  game-authored hover and off-hover cursor changes target only the local or remote actor
+✅ (passed)  local cursor selections survive late and replaced shared image assets for every selected view
+✅ (passed)  local cursor teardown clears departing seats and freeze, while inspector picking restores the current selection
+✅ (passed)  a closed remote cursor transport cannot interrupt player teardown
+✅ (passed)  cursor packets round-trip image keys, hotspots and explicit native reset without retaining caller objects
+✅ (passed)  cursor size is explicit, copied and preserved by the protocol without adding a default
+✅ (passed)  cursor capture preference round-trips only explicit booleans and leaves legacy descriptors unchanged
+✅ (passed)  cursor validation rejects invalid descriptors and malformed or oversized packets
+✅ (passed)  Core cursor updates target one active player, retain independent state, and clear on departure
+Error: Unable to parse squish version
+    at parseSquishVersionFromSource (/Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/game-loader.js:34:15)
+    at parseSquishVersion (/Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/game-loader.js:58:42)
+    at GameSessionManager._startForkSession (/Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/game-session-manager.js:441:33)
+    at GameSessionManager.startSession (/Users/josephgarcia/homegames/homegames-core/node_modules/homegames-common/game-session-manager.js:202:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Object.fn (/Users/josephgarcia/homegames/homegames-core/test/session/HostedLifecycle.test.js:50:33)
+    at async run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:13)
+Using default value (true) for SAVE_FILES_ENABLED
+session log: man what!!!!
+session log: Found config at /Users/josephgarcia/homegames/homegames-core
+session log: Using environment value: http://127.0.0.1:50331 for key: API_URL
+session log: Found value wss://public.homegames.link:81 for LINK_PROXY_URL in config
+session log: Using environment value: 50331 for key: HOMENAMES_PORT
+session log: Found value 9 for BEZEL_SIZE_X in config
+session log: Found value 9 for BEZEL_SIZE_Y in config
+session log: Using default value (null) for DOMAIN_NAME
+session log: Using default value (null) for CERT_DOMAIN
+session log: Using dictionary file at /Users/josephgarcia/homegames/homegames-core/dictionary.txt
+session log: Found value false for ERROR_REPORTING in config
+session log: Using environment value: http://127.0.0.1:50331 for key: API_URL
+session log: Found value false for ERROR_REPORTING in config
+session log: Using environment value: false for key: HTTPS_ENABLED
+session log: Using default value () for HOMENAMES_API_SECRET
+session log: balls and ass
+session log: WHAT THE FUCK WHAT THE FUCK
+session log: [child] Received session config, noFrame: true
+session log: Starting no-frame server with session info
+session log: Using environment value: false for key: HTTPS_ENABLED
+session log: Using environment value: 50331 for key: HOMENAMES_PORT
+session log: No-frame session listening on port 50331
+session log: discontinuing myself (session idle)
+✅ (passed)  hosted lifecycle: fork and standalone children retain spectators, then exit after idle grace and release the port
+✅ (passed)  local input contract: press, legacy repeat, drag and release preserve order and coordinates
+✅ (passed)  local input contract: players have independent presses and a new press closes a lost release
+✅ (passed)  local input contract: removing a dragged node releases it exactly once
+✅ (passed)  local input contract: topmost decoration blocks clicks, scoped nodes only block their player
+✅ (passed)  local input contract: layer order and layer scaling match visible geometry
+✅ (passed)  local input contract: malformed packets are ignored and an exception does not break the next input
+✅ (passed)  local input contract: text, hover, binary uploads and metadata reach the selected node
+✅ (passed)  hosted input contract: press, legacy repeat, drag and release preserve order and coordinates
+✅ (passed)  hosted input contract: players have independent presses and a new press closes a lost release
+✅ (passed)  hosted input contract: removing a dragged node releases it exactly once
+✅ (passed)  hosted input contract: topmost decoration blocks clicks, scoped nodes only block their player
+✅ (passed)  hosted input contract: layer order and layer scaling match visible geometry
+✅ (passed)  hosted input contract: malformed packets are ignored and an exception does not break the next input
+✅ (passed)  hosted input contract: text, hover, binary uploads and metadata reach the selected node
+✅ (passed)  hosted input contract: bezel transforms game coordinates and protects dashboard controls from overflowing geometry
+✅ (passed)  hosted input contract: spectators can use frame controls, cannot click the game, unknown players are ignored
+✅ (passed)  hosted input contract: disconnect releases the press and keys before removing player state
+✅ (passed)  Walkie Talkie can initialize on Core and reports the RTC requirement when capture is unavailable
+✅ (passed)  live media handles are owner-bound, forward to listeners and late joins, and stop pending requests on leave
+✅ (passed)  native stream nodes round-trip Squish 146 without asset bytes
+✅ (passed)  capture completing after permission cancellation stops its tracks and cannot publish
+✅ (passed)  push-to-talk release gates delayed transmit commands locally and never affects another player
+✅ (passed)  toggle-based guest capture cannot cancel a host enable with an initial release packet
+✅ (passed)  local Squish 142 keeps asset metadata without downloading and forwards preloaded bytes to remote seats
+✅ (passed)  local Squish 143 keeps asset metadata without downloading and forwards preloaded bytes to remote seats
+✅ (passed)  local Squish 145 keeps asset metadata without downloading and forwards preloaded bytes to remote seats
+✅ (passed)  local loader: resolves assets against the manifest origin and retains explicit game/version identity
+✅ (passed)  local loader: eligibility and asset errors do not boot a game
+✅ (passed)  session loading: a cancelled asset fetch cannot replace the dashboard or display a stale error
+✅ (passed)  local saves: two games with the same exported class keep separate data; versions require explicit compatibility
+✅ (passed)  downloaded game: generated HTML carries identity safely and boots that exact version
+✅ (passed)  media classification distinguishes video MP4/WebM from audio containers and ignores conflicting MIME for known images
+✅ (passed)  upload helper returns a registered Asset and rejects invalid players, unknown bytes and oversized files
+✅ (passed)  Core registers video without changing legacy Squish aliases and delivers assets to players, spectators and late joiners
+✅ (passed)  local constructor upload helper distributes video and retains exact bytes for late RTC seats
+✅ (passed)  video redraw callbacks, node replay, frozen inspection and teardown have independent lifetimes
+✅ (passed)  video autoplay denial falls back to muted playback and a later gesture unlocks sound
+✅ (passed)  player names: random defaults, local persistence, Unicode and unavailable storage
+✅ (passed)  player names: local and remote joins preserve the callback contract and renames belong to the transport seat
+✅ (passed)  player names: WebSocket session keeps settings and rejects spectator, missing-seat and spoofed updates
+✅ (passed)  player names: edits while saved progress is loading are included in the initial join
+✅ (passed)  player names: inline client announces its name before joining and sends edits without a supplied player id
+✅ (passed)  player names: worker client announces its name before joining and sends edits without a supplied player id
+✅ (passed)  player names: rtc client announces its name before joining and sends edits without a supplied player id
+✅ (passed)  local player views: each seat paints its own frame, resizes, and survives another seat leaving
+✅ (passed)  local player teardown: stop releases every seat before disconnect and closes once
+✅ (passed)  local player teardown: freeze then stop releases every seat before disconnect and closes once
+✅ (passed)  local inspector: recorded frames and picking suspend only primary input; frozen views cannot resume gameplay
+✅ (passed)  local controllers: added views use distinct slots and a removed slot can be reused
+✅ (passed)  local shared assets: a completed decode repaints every seat, then returns to idle
+✅ (passed)  local reentrant teardown: a game stopping from a click does not paint disposed views
+✅ (passed)  pointer capture inline: optional init flags preserve the version and legacy init disables the previous opt-in
+✅ (passed)  pointer capture worker: optional init flags preserve the version and legacy init disables the previous opt-in
+✅ (passed)  pointer capture RTC: optional init flags preserve the version and legacy init disables the previous opt-in
+✅ (passed)  pointer capture remote redirects and explicit stop disable the departing game before the next init
+✅ (passed)  pointer capture local/RTC metadata requires literal true (true/boolean)
+✅ (passed)  pointer capture local/RTC metadata requires literal true (false/boolean)
+✅ (passed)  pointer capture local/RTC metadata requires literal true (undefined/undefined)
+✅ (passed)  pointer capture local/RTC metadata requires literal true (true/string)
+✅ (passed)  pointer capture local/RTC metadata requires literal true (1/number)
+✅ (passed)  self-hosted pointer capture flags and input budget follow strict opt-in (true/boolean)
+✅ (passed)  self-hosted pointer capture flags and input budget follow strict opt-in (false/boolean)
+✅ (passed)  self-hosted pointer capture flags and input budget follow strict opt-in (true/string)
+✅ (passed)  self-hosted After Hours sends every authored image, sound and video byte-identically to new and late visitors
+✅ (passed)  path binding retains legacy asset IDs, preloaded bytes and the original Asset class
+✅ (passed)  game paths resolve from the loaded entry even after the server changes its working directory
+✅ (passed)  project assets fail clearly for missing files, directories, traversal and escaping symlinks
+✅ (passed)  authored video coexists with legacy image, audio and font initialization on every supported Squish version
+✅ (passed)  asset initialization shares pending reads and retries failures without refetching successful assets
+✅ (passed)  replacing an initialized asset invalidates only its cache entry and broadcasts fresh media
+✅ (passed)  an asset replacement during initialization cannot be overwritten by the older pending read
+✅ (passed)  a slow read from a partially failed initialization cannot poison a later successful replacement
+✅ (passed)  recording slots replace prior rounds, remain player-specific, and cannot be selected by file metadata
+✅ (passed)  recording is owner-bound, device-local, size limited, and returned without sharing live tracks
+✅ (passed)  recording requests reject on denial, departure, cancellation and session teardown, and can retry
+✅ (passed)  cancelled permission stops late capture, and page hiding releases recording devices without submitting
+✅ (passed)  Share reports the original signaling failure and can retry after it
+✅ (passed)  RTC seats join the running local game, receive scoped frames, cannot spoof identity, and release input on leave
+✅ (passed)  RTC packets split large assets, reassemble bytes and text, and keep the latest queued frame under pressure
+✅ (passed)  RTC snapshots suppress duplicates but preserve changes, assets and control packets in order
+✅ (passed)  RTC worker mailbox bounds in-flight work and coalesces only waiting frames
+✅ (passed)  RTC worker signaling rejects incompatible services and releases workers before retry
+✅ (passed)  unsupported channel transfers use Window without losing signaling or already-open notification
+✅ (passed)  transferring remote snapshots cannot detach local views or reusable uploaded assets
+✅ (passed)  unchanged Hot Potato gives only the holder a potato over shared Core/RTC frames, and the phone can pass it
+✅ (passed)  scoped frames 142: global content survives and descendant scopes cannot escape a private ancestor
+✅ (passed)  scoped frames 142: unscoped audio honors sound settings and a fully private scene sends a clearing frame
+✅ (passed)  scoped frames 143: global content survives and descendant scopes cannot escape a private ancestor
+✅ (passed)  scoped frames 143: unscoped audio honors sound settings and a fully private scene sends a clearing frame
+✅ (passed)  scoped frames 145: global content survives and descendant scopes cannot escape a private ancestor
+✅ (passed)  scoped frames 145: unscoped audio honors sound settings and a fully private scene sends a clearing frame
+✅ (passed)  scoped frames 146: global content survives and descendant scopes cannot escape a private ancestor
+✅ (passed)  scoped frames 146: unscoped audio honors sound settings and a fully private scene sends a clearing frame
+✅ (passed)  scoped frames preserve Squish layer iteration for sparse arrays and keyed collections
+✅ (passed)  docker lifetime: a full idle grace follows the last connected player or spectator
+✅ (passed)  docker lifetime: pinning resets idle time, unpinning starts a fresh grace
+✅ (passed)  fork lifetime: a full idle grace follows the last connected player or spectator
+✅ (passed)  fork lifetime: pinning resets idle time, unpinning starts a fresh grace
+✅ (passed)  session lifetime: a stalled check uses elapsed time; an occupied session resets the clock
+✅ (passed)  session lifetime: missing fork heartbeat is separate from pinning and from Docker idle cleanup
+✅ (passed)  local ownership: Squish 142 ticks stop on freeze and restart without leaking a game
+✅ (passed)  local ownership: Squish 143 ticks stop on freeze and restart without leaking a game
+✅ (passed)  session ownership: stop disposes an owned local game, its input, chrome and animation
+✅ (passed)  session ownership: stop cancels a pending load even if fetch ignores abort
+✅ (passed)  session ownership: a slow older load cannot replace a newer local game
+✅ (passed)  session ownership: redirect before the next paint leaves one loop and ignores the old socket
+✅ (passed)  local ownership: starting an already-running instance replaces its prior game and view
+✅ (passed)  local ownership: constructor failure cleans up the partially mounted view
+✅ (passed)  worker ownership: close stops painting and queued events cannot revive a terminated client
+✅ (passed)  generated SVG image bytes retain their MIME with direct roots, XML declarations, and typed-array bounds
+✅ (passed)  podium admits the first press, presents exactly one source, and never queues busy holds
+✅ (passed)  device release, stopped capture and player departure free the podium for another player
+✅ (passed)  a fresh pointer claim works after a busy Space press and only its owning control releases it
+✅ (passed)  first-use capture never takes the podium automatically when permission completes
+✅ (passed)  home dashboard launches browser games by default and keeps explicit WebSocket hosting
+✅ (passed)  home dashboard lists RTC and socket sessions, and joins only a live household invitation
+✅ (passed)  household directory: installed games only, scoped owner tokens, same-origin writes and lease expiry
+✅ (passed)  launcher: opens the reported HTTPS URL only after listening and uses fresh URLs after restarts
+✅ (passed)  browser startup: HTTP serves before delayed discovery, then registers when discovery connects
+✅ (passed)  browser startup: HTTPS reports its certificate hostname and advertises ready; disabled link remains disabled
+✅ (passed)  launcher dashboard: legacy installed thumbnails cannot block HTTPS readiness and discovery
+✅ (passed)  collectGameFiles follows relative requires with browser-loader semantics
+✅ (passed)  buildLocalPlayContext extracts metadata (name, squish, services, assets)
+✅ (passed)  metadata path assets are opt-in and preserve legacy API asset IDs
+✅ (passed)  asset bundle reads project-relative files alongside legacy ID assets
+✅ (passed)  local-manifest serves files, metadata, and an asset bundle URL
+✅ (passed)  asset-bundle packs declared assets via the injected fetcher, type-1 format
+✅ (passed)  After Hours manifest and bundle include all local image, video, and audio bytes
+✅ (passed)  missing local media returns an error and a later bundle request can retry
+✅ (passed)  local-play routes 404 unknown games and fall through on other paths
+✅ (passed)  player names and settings use the local service without a public IP lookup
+✅ (passed)  invitation addresses preserve HTTPS certificate names and only substitute LAN IPs for loopback HTTP
+✅ (passed)  public directory validates catalog identity, enforces privacy/capacity, and expires host leases
+✅ (passed)  catalog validation cannot create orphan rooms or race past the room limit
+✅ (passed)  RTC signaling: private invitations bind guests, isolate rooms, and expire when the host leaves
+✅ (passed)  RTC ICE config returns short-lived TURN credentials and never publishes the shared secret
+✅ (passed)  private-only signaling has no discovery route and expires missing application heartbeats
+✅ (passed)  signaling rejects content fields and oversized connection fields before forwarding them
+✅ (passed)  signaling trusts nginx client addresses only when loopback proxy trust is enabled
+✅ (passed)  deployment probe admits a guest and requires TURN credentials when requested
+✅ (passed)  browser invitations default to public services while game source stays local
+✅ (passed)  browser START_PATH serves source and guest bootstrap without a Node game session
+✅ (passed)  the Homegames launcher boots START_PATH in browser mode without waiting on the legacy link service
+✅ (passed)  web client handler serves the landing page at /
+✅ (passed)  web client handler serves the client bundle and socket worker as JS
+✅ (passed)  web client handler serves the bootstrap with a same-origin WS URL
+✅ (passed)  web client handler ignores query strings when routing
+✅ (passed)  web client handler falls through on unknown paths and non-GET methods
+✅ (passed)  web client handler 404s cleanly when a route target file is missing

@@ -15,7 +15,6 @@
  * Save data (if any) is mounted read-write at /app/save/
  */
 
-const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -25,30 +24,11 @@ const GAME_ENTRY = process.env.GAME_ENTRY || null;
 // ---------------------------------------------------------------------------
 // Find the entry point
 // ---------------------------------------------------------------------------
-const findEntryPoint = (dir) => {
-    const walk = (d, depth) => {
-        let results = [];
-        let entries;
-        try { entries = fs.readdirSync(d); } catch (e) { return results; }
+const { findGameEntry } = require('./src/util/game-entry');
 
-        for (const entry of entries) {
-            if (entry === 'node_modules') continue;
-            const full = path.join(d, entry);
-            const stat = fs.statSync(full);
-            if (stat.isFile() && entry === 'index.js') {
-                results.push({ path: full, depth });
-            } else if (stat.isDirectory()) {
-                results = results.concat(walk(full, depth + 1));
-            }
-        }
-        return results;
-    };
-
-    const candidates = walk(dir, 0).sort((a, b) => a.depth - b.depth);
-    return candidates.length > 0 ? candidates[0].path : null;
-};
-
-const entryPath = GAME_ENTRY ? path.join(GAME_DIR, GAME_ENTRY) : findEntryPoint(GAME_DIR);
+let entryPath;
+try { entryPath = findGameEntry(GAME_DIR, GAME_ENTRY); }
+catch (error) { console.error(error.message); process.exit(1); }
 if (!entryPath || !fs.existsSync(entryPath)) {
     console.error('[container-entry] Game entry point not found:', entryPath || GAME_DIR);
     process.exit(1);

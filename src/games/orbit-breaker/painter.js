@@ -1,4 +1,4 @@
-const { GameNode, Shapes } = require('squish-142');
+const { GameNode, Shapes } = require('squish-150');
 const { clamp } = require('./engine');
 const { C } = require('./settings');
 const HIDDEN = [[0, 0], [0, 0], [0, 0]];

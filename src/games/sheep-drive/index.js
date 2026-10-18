@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const TICK_RATE = 15;
 const MAX_PLAYERS = 8;
@@ -75,14 +75,15 @@ const polyCircle = (cx, cy, r, sides = 18) => {
 class SheepDrive extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Sheep Drive',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'Co-op herding. Everyone is a sheepdog - drive the flock into the pen before the bell. The sheep have their own ideas.',
             aspectRatio: { x: 1, y: 1 },
-            services: ['multiplayer'],
-            maxPlayers: MAX_PLAYERS,
-            tickRate: TICK_RATE
+            maxPlayers: 8,
+            tickRate: TICK_RATE,
+            gameId: "32034a9f-ea5c-5d52-a0e4-f0e20549ee83"
         };
     }
 
@@ -596,10 +597,9 @@ class SheepDrive extends Game {
 
     buildLobbyCenter() {
         const s = this.centerLayer;
-        s.addChild(this.text('SHEEP DRIVE', 50.4, 14.4, 5, [0, 0, 0, 110], 'center'));
-        s.addChild(this.text('SHEEP DRIVE', 50, 14, 5, CREAM, 'center'));
-        s.addChild(this.text('EVERYONE IS A SHEEPDOG. HERD THE FLOCK INTO THE PEN.', 50, 26, 1.3, CREAM, 'center'));
-        s.addChild(this.text('NO LOSING. JUST SHEEP, AND YOUR COLLECTIVE FAILURE TO ORGANIZE THEM.', 50, 30, 1.1, FAINT, 'center'));
+
+        s.addChild(this.text('MOVE YOUR DOG TO HERD SHEEP INTO THE PEN.', 50, 26, 1.3, CREAM, 'center'));
+
         const ids = Object.keys(this.players).map(Number);
         s.addChild(this.text(`DOGS (${ids.length}/${MAX_PLAYERS})`, 38, 40, 1.2, FAINT));
         ids.forEach((pid, i) => {

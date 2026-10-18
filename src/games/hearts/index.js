@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { T, text, button, showButton, card, setCard, tableRoot } = require('./theme');
 
 const SUITS = ['C','D','S','H'];
@@ -10,9 +10,12 @@ const PASS_NAMES = ['Pass left', 'Pass right', 'Pass across', 'Hold'];
 class Hearts extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png',
+            squishVersion: '150',
             name: 'Hearts',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'A warm four-player Hearts table with passing, private hands, and shooting the moon.',
             aspectRatio: { x: 1, y: 1 },
             maxPlayers: 4,
@@ -48,11 +51,10 @@ class Hearts extends Game {
         this.botPending = false;
         this.lastEvent = '';
 
-        this.title = text('Hearts', 50, 6, 4.2, T.cream);
         this.subtitle = text('Lowest score wins · Avoid hearts and the queen of spades', 50, 11.5,1.8, T.muted);
         this.status = text('Welcome to the table', 50, 16, 1.8, T.cream);
         this.scoreLine = text('', 50, 20, 1.15, T.muted);
-        this.base.addChildren(this.title, this.subtitle, this.status, this.scoreLine);
+        this.base.addChildren(this.subtitle, this.status, this.scoreLine);
 
         this.seatTexts = [
             text('', 50, 25, 1.25, T.soft),

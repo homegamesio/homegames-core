@@ -1,14 +1,16 @@
-const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { BLACK, GRAY, GOLD, GREEN } = Colors.COLORS;
 
 class Squarer extends Game {
     static metadata() {
         return {
+            // Catalog review: Collision/Frogger prototype lacks a finished progression, ending and replay.
+            isTest: true,
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '142',
+            squishVersion: '150',
             services: ['multiplayer'],
             author: 'Yazeed Loonat',
-            thumbnail: 'b11960b455550b0c38ae7f5544af74ae',
+            thumbnail: "./assets/b11960b455550b0c38ae7f5544af74ae.png",
             tickRate: 60
         };
     }

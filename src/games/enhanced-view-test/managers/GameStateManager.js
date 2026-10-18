@@ -1,5 +1,5 @@
 const UIComponents = require('../utils/UIComponents');
-const { GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 class GameStateManager {
     constructor(game) {

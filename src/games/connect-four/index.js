@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const { COLORS } = Colors;
 
 const ROWS = 6;
@@ -22,13 +22,14 @@ const polyCircle = (cx, cy, r, sides = 18) => {
 class ConnectFour extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Connect Four',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'Drop four in a row before your opponent does.',
             aspectRatio: { x: 1, y: 1 },
             maxPlayers: 2,
-            services: ['multiplayer']
+            gameId: "748764a5-e977-57cc-a2a3-101f319832ad"
         };
     }
 
@@ -70,7 +71,6 @@ class ConnectFour extends Game {
         this.boardXGap = 11;
         this.boardYGap = 9.5;
 
-        this.titleText = this.makeText('Connect Four', 50, 4.5, 4, [244, 237, 216, 255]);
         this.statusText = this.makeText('Welcome to the table', 50, 10.8, 2.1, [244, 237, 216, 255]);
         this.scoreText = this.makeText('Red 0   —   0 Gold', 50, 15.5, 1.55, [224, 216, 193, 255]);
         this.leftSeatText = this.makeText('Red · Open seat', 23, 92, 1.4, SIDE_COLORS[RED]);
@@ -136,7 +136,7 @@ class ConnectFour extends Game {
             if (this.phase === 'over') this.resetRound();
         });
         this.rematchButton.node.playerIds = [0];
-        this.base.addChildren(this.titleText, this.statusText, this.scoreText, this.leftSeatText, this.rightSeatText, this.hintText, this.rematchButton);
+        this.base.addChildren(this.statusText, this.scoreText, this.leftSeatText, this.rightSeatText, this.hintText, this.rematchButton);
         this.render();
     }
 
@@ -176,7 +176,7 @@ class ConnectFour extends Game {
         if (seat < 0) return;
 
         this.seats[seat] = { playerId, isBot: false, name };
-        const youText = this.makeText(`Playing as ${SIDE_NAMES[seat]}`, 50, 95, 1.8, [244, 237, 216, 255], [playerId]);
+        const youText = this.makeText(`You: ${SIDE_NAMES[seat]}`, 50, 95, 1.8, [244, 237, 216, 255], [playerId]);
         this.players[playerId] = { seat, youText };
         this.base.addChild(youText);
         if (this.phase === 'waiting') this.phase = 'playing';
@@ -494,7 +494,7 @@ class ConnectFour extends Game {
         if (this.phase === 'playing') {
             const seat = this.seats[this.turn];
             status = this.animating ? 'Disc dropping…' : (seat && seat.isBot ? 'Computer is choosing…' : `${SIDE_NAMES[this.turn]} · ${seat.name}'s turn`);
-            hint = this.animating || (seat && seat.isBot) ? 'Make a line of 4: across, up, or diagonal' : 'Tap a column or press 1–7 · Connect 4 to win';
+            hint = this.lastDrop || this.animating || (seat && seat.isBot) ? '' : 'Tap a column';
         } else if (this.phase === 'over') {
             status = winner ? `${SIDE_NAMES[winner.side]} wins` : 'Draw';
             hint = winner ? `${this.seats[winner.side].name} connects four` : 'Board full · no winner';
@@ -502,6 +502,7 @@ class ConnectFour extends Game {
 
         this.statusText.node.text = { text: status, x: 50, y: 10.8, size: 2.6, align: 'center', color: [244, 237, 216, 255], font: 'default' };
         this.scoreText.node.text = { text: `Red ● ${this.scores[RED]}   —   ${this.scores[YELLOW]} Gold ○`, x: 50, y: 15.5, size: 1.9, align: 'center', color: [224, 216, 193, 255], font: 'default' };
+        this.scoreText.node.playerIds = this.scores.some(score => score > 0) ? [] : [0];
         this.leftSeatText.node.text = { text: `Red ● · ${this.seats[RED].name}`, x: 25, y: 92, size: 1.8, align: 'center', color: [244, 237, 216, 255], font: 'default' };
         this.rightSeatText.node.text = { text: `Gold ○ · ${this.seats[YELLOW].name}`, x: 75, y: 92, size: 1.8, align: 'center', color: [244, 237, 216, 255], font: 'default' };
         this.hintText.node.text = { text: hint, x: 50, y: 82.3, size: 2.0, align: 'center', color: [244, 237, 216, 255], font: 'default' };

@@ -1,0 +1,17 @@
+✅ (passed)  Orbit Breaker: analog movement scales, diagonal speed is bounded, aim persists at rest
+✅ (passed)  Orbit Breaker: shield catches only incoming rounds inside its facing cone
+✅ (passed)  Orbit Breaker: perfect catches require a fresh trigger press, storage is bounded
+✅ (passed)  Orbit Breaker: swept collision catches fast rounds and detects hull hits
+✅ (passed)  Orbit Breaker: returned ammunition is consumed and materially stronger than fallback pulse
+✅ (passed)  Orbit Breaker: dash grants invulnerability and cooldown, phase-drive upgrade changes it
+✅ (passed)  Orbit Breaker: red laser is telegraphed, bypasses shield, and is avoidable with dash
+✅ (passed)  Orbit Breaker: nova requires charge, clears the field, damages enemies and applies its upgrade
+✅ (passed)  Orbit Breaker: upgrade transitions preserve the ship and apply capacity / repair bonuses
+✅ (passed)  Orbit Breaker: flight school advances through movement, capture and return without damage
+✅ (passed)  Orbit Breaker: pause freezes combat and repeated keyboard messages do not toggle it
+✅ (passed)  Orbit Breaker: actual Homepad + shared input router drive analog controls and release safely
+✅ (passed)  Orbit Breaker: stalled controller stream pauses, menus need deliberate direction presses
+✅ (passed)  Orbit Breaker: Android controller with an empty mapping enters flight school and drives both sticks and triggers
+✅ (passed)  Orbit Breaker: malformed saved state is ignored and rejected saves do not break play
+✅ (passed)  Orbit Breaker: full seeded runs win using only normal controls, with bounded simulation
+✅ (passed)  Orbit Breaker: all screens round-trip through Squish with opaque fills and bounded frame size

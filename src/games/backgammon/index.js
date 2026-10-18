@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const { COLORS } = Colors;
 
 const RED = 0;
@@ -19,13 +19,14 @@ const circle = (x, y, radius) => Array.from({ length: 25 }, (_, i) => {
 class Backgammon extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Backgammon',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'Classic backgammon with hits, bar entry, doubles, forced dice usage, and bearing off.',
             aspectRatio: { x: 1, y: 1 },
             maxPlayers: 2,
-            services: ['multiplayer']
+            gameId: "978cdfe3-4a3d-598a-a755-5d62e5433176"
         };
     }
 
@@ -79,7 +80,6 @@ class Backgammon extends Game {
         this.botPending = false;
         this.animating = false;
 
-        this.titleText = this.makeText('Backgammon', 50, 2.5, 3.8, [244, 237, 216, 255]);
         this.statusText = this.makeText('Welcome to the table', 50, 8.5, 1.9, [244, 237, 216, 255]);
         this.scoreText = this.makeText('Red 0   —   0 White', 50, 12.5, 1.3, [224, 216, 193, 255]);
         this.diceText = this.makeText('—  —', 50, 43.5, 3.8, COLORS.WHITE);
@@ -140,7 +140,7 @@ class Backgammon extends Game {
         this.doubleButton.node.playerIds = [0];
         this.takeButton.node.playerIds = [0];
         this.dropButton.node.playerIds = [0];
-        this.base.addChildren(this.titleText, this.statusText, this.scoreText, this.diceText, this.hintText, this.leftSeatText, this.rightSeatText, this.rollButton, this.offButton, this.rematchButton, this.doubleButton, this.takeButton, this.dropButton);
+        this.base.addChildren(this.statusText, this.scoreText, this.diceText, this.hintText, this.leftSeatText, this.rightSeatText, this.rollButton, this.offButton, this.rematchButton, this.doubleButton, this.takeButton, this.dropButton);
         this.render();
     }
 
@@ -199,7 +199,7 @@ class Backgammon extends Game {
         else if (this.seats[WHITE].isBot) { seat = WHITE; this.invalidateBot(); }
         if (seat < 0) return;
         this.seats[seat] = { playerId, isBot: false, name };
-        const youText = this.makeText(`Playing as ${SIDE_NAMES[seat]}`, 50, 15.3, 1.8, [244, 237, 216, 255], [playerId]);
+        const youText = this.makeText(`You: ${SIDE_NAMES[seat]}`, 50, 15.3, 1.8, [244, 237, 216, 255], [playerId]);
         this.players[playerId] = { seat, youText };
         this.base.addChild(youText);
         if (this.phase === 'waiting') { this.phase = 'opening'; this.openingRolls = [null, null]; }
@@ -803,10 +803,10 @@ class Backgammon extends Game {
         } else if (this.phase === 'playing') {
             const seat = this.seats[this.turn];
             status = seat.isBot ? 'Computer is thinking…' : `${SIDE_NAMES[this.turn]} · ${seat.name}'s turn`;
-            if (!this.rolled) hint = seat.isBot ? '' : 'Tap Roll dice to start your turn';
-            else if (this.selectedSource !== null) hint = 'Tap an outlined point · Collect when home';
-            else if (this.state.bar[this.turn] > 0) hint = 'Tap your captured checkers in the middle first';
-            else hint = 'Choose an outlined point to move a checker';
+            if (!this.rolled || seat.isBot) hint = '';
+            else if (this.selectedSource !== null) hint = 'Choose a highlighted point';
+            else if (this.state.bar[this.turn] > 0) hint = 'Move a captured checker first';
+            else hint = 'Choose a checker';
         } else if (this.phase === 'doubling' && this.doubleOffer) {
             status = `${this.seats[this.doubleOffer.from].name} offers the cube`;
             hint = `Accept: play for ${this.cubeValue * 2} points · Decline: lose ${this.cubeValue}`;
@@ -819,6 +819,7 @@ class Backgammon extends Game {
         const diceDisplay = this.rolled ? this.remainingDice.map(d => `[${d}]`).join(' ') : '—  —';
         this.statusText.node.text = { text: status, x: 50, y: 8.5, size: 2.6, align: 'center', color: [244, 237, 216, 255], font: 'default' };
         this.scoreText.node.text = { text: `Red ${this.matchScores[RED]}   —   ${this.matchScores[WHITE]} White`, x: 50, y: 12.5, size: 1.9, align: 'center', color: [224, 216, 193, 255], font: 'default' };
+        this.scoreText.node.playerIds = this.matchScores.some(score => score > 0) ? [] : [0];
         this.diceText.node.text = { text: diceDisplay, x: 50, y: 43.5, size: 3.8, align: 'center', color: COLORS.WHITE, font: 'default' };
         this.hintText.node.text = { text: hint, x: 50, y: 94, size: 2.0, align: 'center', color: this.phase === 'over' ? [244, 237, 216, 255] : [224, 216, 193, 255], font: 'default' };
         this.leftSeatText.node.text = { text: `Red · ${this.seats[RED].name}`, x: 22, y: 90, size: 1.8, align: 'center', color: [244, 237, 216, 255], font: 'default' };

@@ -1,0 +1,615 @@
+FAIL after-hours: {"game":"after-hours","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL backgammon: {"game":"backgammon","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL backstage: {"game":"backstage","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL battleship: {"game":"battleship","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL billiards: {"game":"billiards","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL block-brawlers: {"game":"block-brawlers","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL buddy-box: {"game":"buddy-box","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL checkers: {"game":"checkers","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL chess: {"game":"chess","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL chronoclast: {"game":"chronoclast","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL clicktionary: {"game":"clicktionary","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL clump: {"game":"clump","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL common-ground: {"game":"common-ground","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL connect-four: {"game":"connect-four","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL copperline: {"game":"copperline","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL counterforge-apex: {"game":"counterforge-apex","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL deadword: {"game":"deadword","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL defuse: {"game":"defuse","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL desert-bloom: {"game":"desert-bloom","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL dragon-drop: {"game":"dragon-drop","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL draw: {"game":"draw","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL draw-your-own-boss: {"game":"draw-your-own-boss","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL engine-room: {"game":"engine-room","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL facet: {"game":"facet","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL fakeout: {"game":"fakeout","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL fleetfall: {"game":"fleetfall","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL hangman: {"game":"hangman","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL happy-haulers: {"game":"happy-haulers","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL hot-potato: {"game":"hot-potato","error":"frame.waitForFunction: Timeout 30000ms exceeded.","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL house-band: {"game":"house-band","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL imposter: {"game":"imposter","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL kaboom-valley: {"game":"kaboom-valley","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL lemonade-tycoon: {"game":"lemonade-tycoon","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL little-consequences: {"game":"little-consequences","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL little-rambler: {"game":"little-rambler","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL little-scoop-shop: {"game":"little-scoop-shop","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL little-zoo-walk: {"game":"little-zoo-walk","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL lumen-festival: {"game":"lumen-festival","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL mancala: {"game":"mancala","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL masterpiece: {"game":"masterpiece","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL micro-mayhem: {"game":"micro-mayhem","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL midnight-movers: {"game":"midnight-movers","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL moonbounce: {"game":"moonbounce","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL neon-grid: {"game":"neon-grid","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL nova-guard: {"game":"nova-guard","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL one-unreasonable-hole: {"game":"one-unreasonable-hole","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL orbit-breaker: {"game":"orbit-breaker","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL pitch-pot: {"game":"pitch-pot","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL pocket-front: {"game":"pocket-front","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL polystorm: {"game":"polystorm","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL pulsefront: {"game":"pulsefront","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL red-truck-ramble: {"game":"red-truck-ramble","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL relic-rush: {"game":"relic-rush","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL sandy-castle: {"game":"sandy-castle","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL seance: {"game":"seance","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL sheep-drive: {"game":"sheep-drive","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL showboat: {"game":"showboat","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL snap-judgment: {"game":"snap-judgment","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL starfall-salvage: {"game":"starfall-salvage","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL starweld: {"game":"starweld","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL sundown: {"game":"sundown","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL sunwake: {"game":"sunwake","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL swarmwell: {"game":"swarmwell","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL swish: {"game":"swish","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL tabletop-railway: {"game":"tabletop-railway","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL tiny-bean-cafe: {"game":"tiny-bean-cafe","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL tug-club: {"game":"tug-club","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL tumble-tower: {"game":"tumble-tower","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL vector-siege: {"game":"vector-siege","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL vegas-trail: {"game":"vegas-trail","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL walkie-talkie: {"game":"walkie-talkie","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL weed-smoke-willie: {"game":"weed-smoke-willie","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL wordforge: {"game":"wordforge","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL world-eater: {"game":"world-eater","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+FAIL worldseed: {"game":"worldseed","error":"Expected values to be strictly equal:\n\ntrue !== false\n","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+AssertionError [ERR_ASSERTION]: Every selected game must launch
++ actual - expected
+
++ [
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'after-hours',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'backgammon',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'backstage',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'battleship',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'billiards',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'block-brawlers',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'buddy-box',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'checkers',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'chess',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'chronoclast',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'clicktionary',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'clump',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'common-ground',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'connect-four',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'copperline',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'counterforge-apex',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'deadword',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'defuse',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'desert-bloom',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'dragon-drop',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'draw',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'draw-your-own-boss',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'engine-room',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'facet',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'fakeout',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'fleetfall',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'hangman',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'happy-haulers',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'frame.waitForFunction: Timeout 30000ms exceeded.',
++     errors: [],
++     external: [],
++     game: 'hot-potato',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'house-band',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'imposter',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'kaboom-valley',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'lemonade-tycoon',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'little-consequences',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'little-rambler',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'little-scoop-shop',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'little-zoo-walk',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'lumen-festival',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'mancala',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'masterpiece',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'micro-mayhem',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'midnight-movers',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'moonbounce',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'neon-grid',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'nova-guard',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'one-unreasonable-hole',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'orbit-breaker',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'pitch-pot',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'pocket-front',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'polystorm',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'pulsefront',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'red-truck-ramble',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'relic-rush',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'sandy-castle',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'seance',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'sheep-drive',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'showboat',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'snap-judgment',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'starfall-salvage',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'starweld',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'sundown',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'sunwake',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'swarmwell',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'swish',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'tabletop-railway',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'tiny-bean-cafe',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'tug-club',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'tumble-tower',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'vector-siege',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'vegas-trail',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'walkie-talkie',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'weed-smoke-willie',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'wordforge',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'world-eater',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   },
++   {
++     error: 'Expected values to be strictly equal:\n\ntrue !== false\n',
++     errors: [],
++     external: [],
++     game: 'worldseed',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   }
++ ]
+- []
+
+    at /Users/josephgarcia/homegames/homegamesio/test/catalog-games-browser.cjs:90:16 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}

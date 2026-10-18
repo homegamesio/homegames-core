@@ -1,4 +1,4 @@
-const { ViewableGame, GameNode, Shapes, ShapeUtils, ViewUtils } = require('squish-142');
+const { ViewableGame, GameNode, Shapes, ShapeUtils, ViewUtils } = require('squish-150');
 
 const TICK_RATE = 20;
 
@@ -35,9 +35,12 @@ const light = (color, f) => [
 class StarSweeper extends ViewableGame {
     static metadata() {
         return {
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png',
             aspectRatio: { x: 1, y: 1 },
-            squishVersion: '142',
-            author: 'Joseph Garcia',
+            squishVersion: '150',
+            author: "Joseph Garcia",
             name: 'Star Sweeper',
             description: 'Race across a world nine screens wide - every player gets their own camera. Sweep up star orbs, dodge asteroids, and top the board before time runs out.',
             tickRate: TICK_RATE
@@ -173,13 +176,17 @@ class StarSweeper extends ViewableGame {
 
         Object.keys(this.playerViews).map(Number).forEach(pid => this.removeCamera(pid));
 
-        const title = this.makeGlowText('STAR SWEEPER', 50, 12, 6, INK, [255, 191, 0, 255]);
-        this.titleHalos = title.slice(0, 4);
-        title.forEach(n => this.overlay.addChild(n, false));
+        this.titleHalos = [];
 
-        this.overlay.addChild(new GameNode.Text({
-            textInfo: { x: 50, y: 21, text: 'A WORLD NINE SCREENS WIDE - YOUR OWN CAMERA', size: 1.7, align: 'center', font: 'monospace', color: FAINT }
-        }), false);
+        // The ship and collectible show the goal before the timed round starts.
+        this.overlay.addChild(new GameNode.Shape({ shapeType: Shapes.POLYGON,
+            coordinates2d: [[50, 30], [42, 49], [50, 44], [58, 49], [50, 30]],
+            fill: PALETTE[0].color, effects: glow(PALETTE[0].color, 12) }), false);
+        for (const [x, y] of [[34, 32], [66, 32], [31, 53], [69, 53]]) {
+            this.overlay.addChild(new GameNode.Shape({ shapeType: Shapes.POLYGON,
+                coordinates2d: [[x, y - 2], [x + 2, y], [x, y + 2], [x - 2, y], [x, y - 2]],
+                fill: ORB_COLOR, effects: glow(ORB_COLOR, 8) }), false);
+        }
 
         this.startButton = this.makeButton('SWEEP', 25, 66, 50, 8, [57, 255, 20, 255], (playerId) => {
             if (this.phase === 'lobby' && this.players[playerId]) {

@@ -1,0 +1,7 @@
+Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/homegames-copy-browser-ntRooj
+PASS: Studio imports and exports a playable HTML; local file creates a private copy invitation
+PASS: format 2, cancellation and receiver/sender disconnect during a real chunked transfer discard partial copies; a fresh invitation retries successfully
+PASS: consent/cancel, >11 MiB RTC copy, identical source/media, downloadable self-contained HTML, per-game manifest; cold offline game launch and HTML file playback with the origin shut down
+PASS: a recipient starts fresh, keeps its own progress across offline reload, and reopening another invitation for the same copy preserves that progress
+PASS: the received HTML itself shares onward; fresh Home Screen-style storage receives its own copy, survives sender disconnect during persistence, and launches directly offline
+PASS: expired invitations, HTML recovery after storage failure, data-only HTML import, separate game identities/launches, explicit Studio restore, no external HTTP or uncaught errors

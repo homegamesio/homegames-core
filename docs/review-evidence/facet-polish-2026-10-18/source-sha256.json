@@ -1,0 +1,14 @@
+{
+  "src/games/facet/README.md": "1ff7611f9396c2ad0e147eb3fc0364f5df5b11b2ebe56aa51ceb899d2d886731",
+  "src/games/facet/art-data.js": "69f9c42fd8d2a2ebd12b9744264b73a29e1f224ee6730b675fe71bec93d6091f",
+  "src/games/facet/art-data.json": "c1510e72c82cf342bf8fa5cf1529bd9dccb19852dbd14c3b66d6958fa1ee92c8",
+  "src/games/facet/art.js": "befe67905d1fb6202d380d5f4b5ffec80027abc8abcc18f65478435728f50708",
+  "src/games/facet/assets/thumbnail.png": "07b8f223d4caf6c31890697f7781b0e864f41786795899b9c8d0d6007b088f7f",
+  "src/games/facet/content.js": "dfd56ef7f6648b53c80cc9c005828b0dd41b7e2120d3188a7dbe843041e25ab5",
+  "src/games/facet/engine.js": "7abf62c2f84c3cb20a2c47dd85e8f459cb8f5d10d5831f2a3177e7c46e286c7f",
+  "src/games/facet/index.js": "e32205c0c2ccfa3573570070595bd62913ec1a5f6ae63b391b9353deb2f34911",
+  "src/games/facet/painter.js": "ffc6d8de1655f5a2956087a4b31cfdec62c84a64390a99e7c2bdec04caaad176",
+  "src/games/facet/progression.js": "ff0cd13310408a60076c7f160d95aac20c32b194a63867a21e76b36dbf96278f",
+  "src/games/facet/scene.js": "d9a4774cbe5fb378e4ff1223cc303bf2949a08d77dc95c5b3e4f2123873ea849",
+  "src/games/facet/sound.js": "c92ac2a3049857dedea185c1d9ffa5c959c783d36db8703d45a55ba81b381d1b"
+}

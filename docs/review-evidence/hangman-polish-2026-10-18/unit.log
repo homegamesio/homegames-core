@@ -1,0 +1,25 @@
+✔ Hangman keeps the approved description and eight-player capacity (1.334458ms)
+✔ accepted phrases survive the old choosing deadline without being replaced (0.6265ms)
+✔ only the current setter can submit through the live private prompt (0.491542ms)
+✔ phrase validation rejects empty, unguessable and overlong answers and normalizes whitespace (0.228958ms)
+✔ literal punctuation and digits stay visible while accented-only answers are rejected (0.817666ms)
+✔ the choosing deadline provides a playable fallback after a suspended tick (0.163625ms)
+✔ guesses require a ready member, exclude the setter, and stop after a win (0.415042ms)
+✔ five distinct wrong guesses end a round once and preserve the existing kill score (0.149292ms)
+✔ an abandoned choosing round cannot revive a departed setter or overwrite the next round (0.133375ms)
+✔ a stale result delay cannot replace a new round with the old scoreboard (0.137208ms)
+✔ repeated visitors release setup views and drawing state and do not join after disconnect (0.898ms)
+✔ the optional drawing editor supports undo, clear and all six cumulative frames (0.900875ms)
+✔ Random word keeps the requesting setter’s drawing while allowing that player to guess (0.186084ms)
+✔ held mousemove draws a continuous stroke and release or capture cancellation separates strokes (0.38925ms)
+✔ drawing frames bound separate strokes, continuous points and serialized polygon size (2.518833ms)
+✔ abandoned drawing callbacks cannot alter or activate a disconnected or replacement player (0.293083ms)
+✔ serialized frames keep the phrase entry private and hide unguessed answer letters (3.393208ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51.271958

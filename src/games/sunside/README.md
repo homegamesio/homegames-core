@@ -4,7 +4,7 @@ An asset-free Homegames character showcase and volleyball timing game. Mika is a
 
 ## Play
 
-Open the included `sunside.html` for offline play, or install this `sunside` folder in `homegames-core/src/games/`. Keep all seven JavaScript modules together. The native entry point targets Squish 142, runs at 20 ticks per second and supports one player.
+Open the included `sunside.html` for offline play, or install this `sunside` folder in `homegames-core/src/games/`. Keep all seven JavaScript modules together. The native entry point targets Squish 1.5.0, runs at 20 ticks per second and supports one player.
 
 | Control | Action | Keyboard |
 | --- | --- | --- |
@@ -43,4 +43,4 @@ This is a desktop-first prototype. The square layout fits phone screens, but the
 
 The scene reuses an 800-face pool. The verification sweep observed at most 657 visible faces and a largest sampled master frame of 54,647 bytes before transport overhead. Offline play is the main showcase path; hosted bandwidth and low-end device performance need measurement. Sound is deferred.
 
-GPL-3.0; see `LICENSE`.
+MIT; see `LICENSE`.

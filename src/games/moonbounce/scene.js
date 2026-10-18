@@ -16,7 +16,7 @@ function background(p, e) {
     p.rect(0, 0, 160, 10.1, C.dark, .78);
     p.rect(0, 85.5, 160, 4.5, C.dark, .83);
     p.star(5.3, 5, 1, C.gold);
-    p.heading('MOONBOUNCE', 8, 3.4, 3, C.cream);
+
     if (e.phase === 'title') {
         p.button('FX ' + (e.reduced ? 'LOW' : 'FULL'), 114, 2.8, 18.5, 5.1, 'effects', false, true);
         p.button('SOUND ' + (e.sound ? 'ON' : 'OFF'), 136, 2.8, 20, 5.1, 'sound', false, true);
@@ -102,7 +102,7 @@ function launcher(p, e) {
     p.circle(x, y, 1.6, color); p.circle(x - .4, y - .5, .46, C.cream);
     if (e.phase === 'ready') p.circle(...point(3, 0), .64, C.cream);
     if (recoil > 0) p.star(...point(5.4, 0), 1.4 * recoil, C.gold, recoil);
-    p.heading(e.phase === 'ready' ? e.aiming ? 'RELEASE!' : 'MAKE YOUR SHOT' : e.fastForward ? 'FAST FORWARD' : e.fever ? 'THE SKY IS YOURS!' : '',
+    p.heading(e.phase === 'ready' ? e.aiming ? 'RELEASE!' : 'AIM AND RELEASE' : e.fastForward ? 'FAST FORWARD' : e.fever ? 'JACKPOT' : '',
         59, 12.2, 1.4, e.fever ? C.gold : C.cream, 'center');
 }
 
@@ -126,7 +126,7 @@ function bucket(p, e) {
     p.line(b.x - half, y, b.x - half + 2.2, y, C.cream, .52); p.line(b.x + half - 2.2, y, b.x + half, y, C.cream, .52);
     for (const sign of [-1, 1]) p.circle(b.x + sign * 1.8, y + 1.2, .35, C.dark);
     p.arc(b.x, y + 1.1, .9, .2, Math.PI - .4, C.dark, .16);
-    p.heading('CATCH ME!', b.x, y - 2.25, 1.5, C.green, 'center');
+    p.heading('CATCH: +1 BALL', b.x, y - 2.25, 1.5, C.green, 'center');
 }
 
 function fever(p, e) {
@@ -147,9 +147,9 @@ function fever(p, e) {
     if (e.phase === 'flight' && !e.paused && age < 1.8) {
         const alpha = Math.min(1, (1.8 - age) / .9), scale = e.reduced ? 1 : 1 + Math.max(0, .2 - age * .5);
         p.circle(59, 43, 22, C.panel, null, alpha * .34);
-        display(p, 'CELESTIAL', 59, 33, 5.2 * scale, C.cream, 'center', alpha);
-        display(p, 'FEVER!', 59, 39, 10.7 * scale, C.gold, 'center', alpha);
-        p.heading('GO FOR THE JACKPOT!', 59, 53, 2.1, C.cream, 'center', alpha);
+        display(p, 'ORANGE CLEARED', 59, 33, 4.8 * scale, C.cream, 'center', alpha);
+        display(p, 'JACKPOT', 59, 39, 10.7 * scale, C.gold, 'center', alpha);
+        p.heading('LAND IN A BONUS SLOT', 59, 53, 2.1, C.cream, 'center', alpha);
         fiveStar(p, 33, 44, 2.5, C.gold, alpha); fiveStar(p, 85, 44, 2.5, C.gold, alpha);
     }
 }
@@ -228,7 +228,7 @@ function hud(p, e) {
     p.arc(136, 24, 11.5, Math.PI * 1.05, Math.PI * .9, C.gold, .25, .6);
     const reaction = e.phase === 'lost' ? 'sad' : e.fever ? 'wow' : e.reactionTime > 0 ? e.reaction : 'idle';
     moon(p, 136, 23, 8.5, reaction, t, C.gold, e.reduced);
-    p.heading('SCORE', 136, 33.4, 1.55, C.muted, 'center');
+    p.heading('SCORE', 136, 33.4, 2.1, C.muted, 'center');
     display(p, number(e.displayScore === undefined ? e.score : e.displayScore), 136, 36, e.score >= 1000000 ? 4.1 : 4.85, C.cream);
     p.line(122, 43, 150, 43, C.line, .16);
     const progress = clamp(1 - e.orangeRemaining / Math.max(1, e.orangeTotal), 0, 1);
@@ -236,11 +236,11 @@ function hud(p, e) {
     if (progress > 0) p.roundRect(122.55, 46.5 + 13.8 * (1 - progress), 3.2, 13.8 * progress, 1.4, C.orange);
     p.line(123.2, 48, 123.2, 58, C.cream, .23, .3); fiveStar(p, 124.15, 45.6, 1.9, e.fever ? C.cream : C.gold);
     display(p, e.orangeRemaining, 140, 45.3, 5.8, e.orangeRemaining === 1 ? C.gold : C.orange);
-    p.heading('ORANGE LEFT', 140, 52.3, 1.5, C.cream, 'center');
+    p.heading('ORANGE LEFT', 140, 52.3, 1.9, C.cream, 'center');
     p.roundRect(131, 55.5, 19.3, 5.3, 2.2, C.panelLight);
-    p.heading('x' + (e.multiplier || 1), 136, 56.2, 3.1, C.gold, 'center'); p.text('FEVER', 146, 57.2, 1.35, C.cream, 'center');
+    p.heading('x' + (e.multiplier || 1), 136, 56.2, 3.1, C.gold, 'center'); p.text('POINTS', 146, 57.2, 1.6, C.cream, 'center');
     p.roundRect(120.5, 63, 30.5, 11.5, 2.7, [19, 31, 54], C.line);
-    p.heading(e.balls + ' BALLS', 136, 64.1, 1.85, C.cream, 'center');
+    p.heading(e.balls + ' BALLS', 136, 64.1, 2.2, C.cream, 'center');
     for (let i = 0; i < Math.min(12, Math.max(0, e.balls)); i++) {
         const x = 124.5 + (i % 6) * 4.5, y = 69 + Math.floor(i / 6) * 2.7;
         p.circle(x, y + .18, 1.07, C.panelLight); p.circle(x, y, .9, i === 0 ? C.cream : C.purple);
@@ -248,8 +248,8 @@ function hud(p, e) {
     }
     p.roundRect(120.5, 76.2, 30.5, 6.2, 2, charged ? [34, 93, 89] : C.panelLight, charged ? C.green : null);
     powerIcon(p, power.id, 124, 79.4, 1.7, charged ? C.green : C.purple);
-    p.heading(power.name, 127.4, 77.2, 1.85, C.cream);
-    p.text(charged ? e.powerShots + ' charged shots' : 'Hit green to recharge', 127.4, 79.8, 1.2, charged ? C.green : C.muted);
+    p.heading(power.name, 127.4, 77.1, 2.0, C.cream);
+    p.text(charged ? e.powerShots + ' charged shots' : 'Green: recharge', 127.4, 79.8, 1.65, charged ? C.green : C.muted);
     if (e.phase === 'flight') {
         const thresholds = [10000, 25000, 50000], next = thresholds.find(n => e.shotScore < n);
         const previous = next === 25000 ? 10000 : next === 50000 ? 25000 : 0, fraction = next ? (e.shotScore - previous) / (next - previous) : 1;
@@ -261,8 +261,8 @@ function hud(p, e) {
         p.text(next ? 'FREE BALL AT ' + number(next) : '3 BONUS BALLS EARNED!', 88, 86.6, 1.35, C.green);
         p.text(e.fastForward ? 'FAST FORWARD >>' : 'HOLD TO SPEED UP', 153, 86.5, 1.4, C.cream, 'right');
     } else {
-        p.text('DRAG + RELEASE  /  ARROWS + SPACE  /  GAMEPAD + A', 8, 86.5, 1.45, C.cream);
-        p.text('P: PAUSE    M: SOUND', 153, 86.5, 1.45, C.muted, 'right');
+        p.text('DRAG + RELEASE / ARROWS + SPACE / GAMEPAD A', 8, 86.3, 1.8, C.cream);
+        p.text('P: PAUSE  M: SOUND', 153, 86.3, 1.8, C.muted, 'right');
     }
 }
 
@@ -273,10 +273,11 @@ function results(p, e) {
     p.roundRect(33.5, 17.5, 93, 62.5, 2.7, [41, 33, 81]);
     if (paused) {
         moon(p, 80, 27, 5.2, 'idle', clock(e), C.gold, e.reduced);
-        display(p, 'TAKE A BREATHER.', 80, 34, 5, C.cream);
-        p.text('Clear orange pegs. Hit green for magic. Catch a free ball.', 80, 41.5, 1.9, C.cream, 'center');
-        p.text('Hold Space, RT, or the board to speed up a shot.', 80, 45.3, 1.7, C.muted, 'center');
-        p.button('BACK TO THE MAGIC', 51, 50.5, 58, 7.8, 'resume', true);
+        display(p, 'PAUSED', 80, 31, 5, C.cream);
+        p.text('Clear orange pegs. Green pegs recharge your power.', 80, 39, 2.15, C.cream, 'center');
+        p.text('Hold Space, RT, or the board to speed up a shot.', 80, 43, 2, C.cream, 'center');
+        p.text('On a phone? Turn sideways.', 80, 47, 2.2, C.gold, 'center');
+        p.button('RESUME', 51, 50.5, 58, 7.8, 'resume', true);
         p.button('SOUND ' + (e.sound ? 'ON' : 'OFF'), 40, 61.5, 25, 6.5, 'sound', false, true);
         p.button('MUSIC ' + (e.music !== false ? 'ON' : 'OFF'), 67.5, 61.5, 25, 6.5, 'music', false, true);
         p.button('FX ' + (e.reduced ? 'LOW' : 'FULL'), 95, 61.5, 25, 6.5, 'effects', false, true);
@@ -287,18 +288,18 @@ function results(p, e) {
     const challenge = e.mode === 'challenge', level = LEVELS[e.levelIndex], world = WORLDS[level.worldIndex];
     const progress = e.progress || { totalStars: 0, completedChallenges: 0, achievements: [] };
     const age = e.resultAge === undefined ? 5 : e.resultAge;
-    const heading = lost ? challenge ? 'CHALLENGE INCOMPLETE' : 'SO CLOSE!' : won ? 'OVER THE MOON!' : challenge ? 'CHALLENGE COMPLETE!' : last ? 'THE WHOLE SKY IS LIT!' : level.finale ? 'WORLD COMPLETE!' : 'CONSTELLATION LIT!';
+    const heading = lost ? challenge ? 'CHALLENGE INCOMPLETE' : 'OUT OF BALLS' : won ? 'ADVENTURE COMPLETE' : challenge ? 'CHALLENGE COMPLETE' : last ? 'ADVENTURE COMPLETE' : level.finale ? 'WORLD COMPLETE' : 'BOARD COMPLETE';
     display(p, heading, 80, 21, heading.length > 19 ? 4.2 : 5.1, lost ? C.cream : C.gold);
     if (lost) {
         moon(p, 80, 37, 6.8, 'sad', clock(e), C.gold, e.reduced);
         if (challenge) {
-            wrap(p, result.reason || 'The orange pegs and the challenge goal both need your magic.', 80, 47.8, 62, 1.9, C.cream, 'center', 2);
+            wrap(p, result.reason || 'Clear every orange peg and complete the challenge goal.', 80, 47.8, 62, 1.9, C.cream, 'center', 2);
             const goal = result.objective || {};
             p.heading('CHALLENGE GOAL  ' + number(goal.progress || e.challengeProgress) + ' / ' + number(goal.target || (e.challenge || {}).goal?.target),
                 80, 55, 1.85, C.gold, 'center');
         } else {
-            p.heading(e.orangeRemaining + ' orange pegs away from magic.', 80, 48, 2.5, C.cream, 'center');
-            p.text('That next bounce could be the one.', 80, 53, 2, C.muted, 'center');
+            p.heading(e.orangeRemaining + ' orange pegs remaining', 80, 48, 2.5, C.cream, 'center');
+            p.text('Retry to start this board again.', 80, 53, 2.2, C.muted, 'center');
         }
         display(p, number(e.score), 80, 59.5, 5.2, C.gold);
     } else {
@@ -316,7 +317,7 @@ function results(p, e) {
             if (friend) powerCharacter(p, friend.id, 47, 37, 3.7, friend.color, clock(e));
             p.roundRect(39, 43.1, 82, 4.5, 1.6, [36, 94, 83], C.green);
             p.heading((firstUnlock.type === 'achievement' ? 'TROPHY EARNED: ' : 'UNLOCKED: ') + firstUnlock.title.toUpperCase(), 80, 44.4, 1.8, C.cream, 'center');
-        } else p.text(won ? 'Forty constellations. Five worlds. Your own magnificent sky.' : challenge ? e.challenge.title + ' mastered!' : last ? 'All ' + LEVELS.length + ' constellations are yours.' : level.finale ? world.name + ' is glowing!' : level.name + ' complete!',
+        } else p.text(won ? 'All 40 boards complete.' : challenge ? e.challenge.title + ' complete' : last ? 'All ' + LEVELS.length + ' boards complete.' : level.finale ? world.name + ' complete' : level.name + ' complete!',
             80, 44.7, won ? 1.75 : 1.95, C.cream, 'center');
         const rows = won ? [['CONSTELLATIONS', '40 / 40'], ['ADVENTURE STARS', progress.totalStars + ' / 120'], ['CHALLENGES', progress.completedChallenges + ' / 15'], ['TROPHIES', progress.achievements.length + ' / 12']] :
             [['PEG POINTS', result.pegPoints || 0], ['STYLE BONUS', result.stylePoints || 0], ['JACKPOT', result.jackpot || e.jackpot || 0], ['BALLS SAVED', result.reserveBonus || 0]];
@@ -326,13 +327,13 @@ function results(p, e) {
         });
         p.line(44, 59, 116, 59, C.line, .16); p.heading(won ? 'SESSION SCORE' : 'BOARD SCORE', 48, 62, 1.6, C.gold);
         display(p, number(won ? e.score : result.boardScore || e.score - (e.levelStartScore || 0)), 111, 59.8, 5, C.gold, 'right');
-        const goal = won ? progress.totalStars < 120 ? 'MORE STARS ARE WAITING ON YOUR WORLD MAP.' : progress.completedChallenges < 15 ? 'YOUR NEXT ADVENTURE: FIFTEEN BONUS CHALLENGES.' : 'EVERY WORLD. EVERY CHALLENGE. WHAT A JOURNEY.' :
-            challenge ? stars >= 3 ? 'CHALLENGE MASTERED!' : 'REPLAY THE CHALLENGE TO CHASE THREE STARS.' :
-                stars >= 3 ? 'CONSTELLATION MASTERED!' : 'NEXT STAR AT ' + number(level.parScore * (stars === 2 ? 1.6 : 1));
+        const goal = won ? progress.totalStars < 120 ? 'REPLAY BOARDS TO EARN MORE STARS.' : progress.completedChallenges < 15 ? '15 BONUS CHALLENGES AVAILABLE.' : 'ALL WORLDS AND CHALLENGES COMPLETE.' :
+            challenge ? stars >= 3 ? 'THREE STARS EARNED' : 'REPLAY TO EARN MORE STARS.' :
+                stars >= 3 ? 'THREE STARS EARNED' : 'NEXT STAR AT ' + number(level.parScore * (stars === 2 ? 1.6 : 1));
         p.heading(goal,
             80, 67.1, 1.55, stars >= 3 ? C.green : C.purple, 'center');
     }
-    p.button(lost ? 'ONE MORE TRY!' : won ? 'BACK TO THE WORLD MAP' : challenge ? 'REPLAY CHALLENGE' : last ? 'CELEBRATE!' : level.finale ? 'NEXT WORLD' : 'NEXT LEVEL',
+    p.button(lost ? 'RETRY BOARD' : won ? 'BACK TO THE WORLD MAP' : challenge ? 'REPLAY CHALLENGE' : last ? 'FINISH ADVENTURE' : level.finale ? 'NEXT WORLD' : 'NEXT LEVEL',
         40, 71, 58, 7.5, lost || challenge ? 'retry' : won ? 'title' : 'next', true);
     p.button(won ? 'HOME' : challenge ? 'CHALLENGES' : 'WORLD MAP', 102, 71, 22, 7.5, won ? 'home' : 'title', false, true);
 }
@@ -344,6 +345,13 @@ function render(p, e) {
     else {
         board(p, e); hud(p, e);
         if (e.paused || ['cleared', 'lost', 'won'].includes(e.phase)) { p.buttons = []; results(p, e); }
+    }
+    if (e.saveFailed) {
+        // A failed write stays visible during play, menus and results.
+        p.roundRect(3, 10.8, 154, 13.5, 2, C.dark, C.coral);
+        p.heading('Progress could not be saved.', 7, 13, 2.3, C.cream);
+        p.text('Use Retry save to try again.', 7, 18, 2.1, C.cream);
+        p.button('RETRY SAVE', 119, 13.5, 34, 8, 'retrySave', true, true);
     }
     p.end();
 }

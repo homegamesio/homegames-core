@@ -1,4 +1,4 @@
-const { GameNode, Shapes } = require('squish-142');
+const { GameNode, Shapes } = require('squish-150');
 
 const HIDDEN = [[0, 0], [0, 0], [0, 0]];
 const WHITE = [255, 247, 226];
@@ -173,8 +173,10 @@ class Painter {
         this.roundRect(x, y + .55, w, h, 1, primary ? [105, 80, 58] : [9, 24, 37]);
         this.roundRect(x, y, w, h, 1, fill, focused ? WHITE : primary ? [255, 240, 185] : [107, 134, 137]);
         this.line(x + 1.4, y + .65, x + w - 1.4, y + .65, primary ? [255, 249, 208] : [124, 174, 172], .17, .75);
-        this.heading(label, x + w / 2, y + (h - (small ? 1.5 : 2.5)) / 2 - .1,
-            small ? 1.5 : 2.5, primary ? [36, 39, 44] : WHITE, 'center');
+        // Leave room for long realm names without shrinking every control.
+        const size = Math.min(small ? 2.6 : 3.2, (w - 3) / Math.max(1, String(label).length) / .61);
+        this.heading(label, x + w / 2, y + (h - size) / 2 - .1,
+            size, primary ? [36, 39, 44] : WHITE, 'center');
         this.buttons.push({ x, y, w, h, action });
     }
 

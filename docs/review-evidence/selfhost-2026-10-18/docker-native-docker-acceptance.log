@@ -1,0 +1,8 @@
+PASS: default-off fork setting starts a real container from the installed runtime
+PASS: two browser players share input; save survives container replacement; stopped container is removed
+Found config at /Users/josephgarcia/homegames/homegames-core
+Using default setting: CHILD_SESSION_MEMORY_LIMIT
+Using default setting: SAVE_FILES_ENABLED
+Using default setting: HOMENAMES_API_SECRET
+PASS: private 0600 TLS key is readable inside the sandbox; verified HTTPS and browser WSS work
+PASS: validation container loads Squish 1.5.0 with networking disabled

@@ -1,0 +1,5 @@
+/tmp/homegames-docker-review-20261018/dmg-mounted/Play Mac.app: accepted
+source=Notarized Developer ID
+PASS: DMG embedded layout {"root":"/private/tmp/homegames-docker-review-20261018/dmg-mounted/Play Mac.app/Contents/Resources/homegames","packages":98,"assets":260,"platforms":[]}
+[verify] Launching a quarantined, standalone Mac app; approve Open if Gatekeeper asks.
+PASS: DMG quarantined app {"target":"darwin-arm64","launcher":"finder","appRoot":"/private/var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/AppTranslocation/35FB18FF-1438-4AFE-8F25-7F15E75B8D58/d/Play Mac.app/Contents/Resources/homegames","translocated":true,"browserRoutes":4,"manifests":33,"dashboard":true,"gameSession":true}

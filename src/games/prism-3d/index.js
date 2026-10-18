@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 // A real-time first-person raycaster. The server casts rays per player per
 // tick and streams each player a private 3D view (playerIds-scoped wall
@@ -67,9 +67,11 @@ const light = (color, f) => [
 class Prism3D extends Game {
     static metadata() {
         return {
+            isTest: true, // Catalog review: see docs/game-consolidation.md.
+
             aspectRatio: { x: 16, y: 9 },
-            squishVersion: '142',
-            author: 'Joseph Garcia',
+            squishVersion: '150',
+            author: "Joseph Garcia",
             name: 'Prism 3D',
             description: 'First-person multiplayer laser tag in a real-time 3D maze - a raycaster running live on the Homegames engine. Every player gets their own eyes.',
             tickRate: TICK_RATE

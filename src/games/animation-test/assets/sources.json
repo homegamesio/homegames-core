@@ -1,0 +1,222 @@
+{
+  "note": "Homegames-authored media is MIT licensed with maintainer-confirmed permission; retain the game LICENSE and any separate third-party notices. Legacy IDs and URLs record provenance, not runtime dependencies.",
+  "files": [
+    {
+      "path": "./assets/9fbf18d172f421ce98fabf04e10f6c30.png",
+      "legacyAssetId": "9fbf18d172f421ce98fabf04e10f6c30",
+      "source": "https://api.homegames.io/assets/9fbf18d172f421ce98fabf04e10f6c30",
+      "sha256": "60c39c87c30a530b70c189f9ffdbf88f0fb31e065d713734c60303835290166a",
+      "byteLength": 506330
+    },
+    {
+      "path": "./assets/b7d5c5720146b248f2968a5698d47d34.png",
+      "legacyAssetId": "b7d5c5720146b248f2968a5698d47d34",
+      "source": "https://api.homegames.io/assets/b7d5c5720146b248f2968a5698d47d34",
+      "sha256": "26b599f05cf5a6c679b7f9cfc319fa944e5bfda66bac90d9810773fd833aaf33",
+      "byteLength": 37522
+    },
+    {
+      "path": "./assets/9c16e5fea84b3f1c9df0ad82792f7b5b.png",
+      "legacyAssetId": "9c16e5fea84b3f1c9df0ad82792f7b5b",
+      "source": "https://api.homegames.io/assets/9c16e5fea84b3f1c9df0ad82792f7b5b",
+      "sha256": "f56f7f8eb332b122c4f0f0f8033571e6b875e80afc80eb87571495488aa41d3a",
+      "byteLength": 43666
+    },
+    {
+      "path": "./assets/474967a53dfa25d7b9bd6e592fbd4cd0.png",
+      "legacyAssetId": "474967a53dfa25d7b9bd6e592fbd4cd0",
+      "source": "https://api.homegames.io/assets/474967a53dfa25d7b9bd6e592fbd4cd0",
+      "sha256": "80ee1a5d705a711312fc88491e9dbdd8a49fed45aa94f0ae2798bc4902617a6f",
+      "byteLength": 43191
+    },
+    {
+      "path": "./assets/74a2bdb81449877b4d2ff8526240b30f.png",
+      "legacyAssetId": "74a2bdb81449877b4d2ff8526240b30f",
+      "source": "https://api.homegames.io/assets/74a2bdb81449877b4d2ff8526240b30f",
+      "sha256": "ab6741613efbf5f32c36386f18c83dd0268659307826fbd575f4a963c664fe2b",
+      "byteLength": 43515
+    },
+    {
+      "path": "./assets/6de58edbfd09a8249965c5ed5c401b76.png",
+      "legacyAssetId": "6de58edbfd09a8249965c5ed5c401b76",
+      "source": "https://api.homegames.io/assets/6de58edbfd09a8249965c5ed5c401b76",
+      "sha256": "a717a4afde83406d3c7a721e8b217cb4003e27e21a7821c548457e31311e9356",
+      "byteLength": 43743
+    },
+    {
+      "path": "./assets/82a341cee278824aa82ed98833727064.png",
+      "legacyAssetId": "82a341cee278824aa82ed98833727064",
+      "source": "https://api.homegames.io/assets/82a341cee278824aa82ed98833727064",
+      "sha256": "e34d6b648db171bd29ba13e621eb86647458bd11245ff77b9e5e40bf3205856a",
+      "byteLength": 44006
+    },
+    {
+      "path": "./assets/a9d51822c7fe1440d9d1359f62cba260.png",
+      "legacyAssetId": "a9d51822c7fe1440d9d1359f62cba260",
+      "source": "https://api.homegames.io/assets/a9d51822c7fe1440d9d1359f62cba260",
+      "sha256": "17accac2550503195239b9cfa285355e9dd76a9c46e52d82c858373931132618",
+      "byteLength": 43648
+    },
+    {
+      "path": "./assets/4def94e5207eb6dbf7131c0efd01ded8.png",
+      "legacyAssetId": "4def94e5207eb6dbf7131c0efd01ded8",
+      "source": "https://api.homegames.io/assets/4def94e5207eb6dbf7131c0efd01ded8",
+      "sha256": "1aabaab0700ac17177f2969e6d1326e6799d25150098d10e3ffad77c0e98e889",
+      "byteLength": 45269
+    },
+    {
+      "path": "./assets/74112f7093e5d328ba84c9c512615a81.png",
+      "legacyAssetId": "74112f7093e5d328ba84c9c512615a81",
+      "source": "https://api.homegames.io/assets/74112f7093e5d328ba84c9c512615a81",
+      "sha256": "67a3873379b367a720db1391d40b47b9b9eef7d6b5da2335ca64c37c62b44198",
+      "byteLength": 43524
+    },
+    {
+      "path": "./assets/0caec7069d2847587dc7467e0104044a.png",
+      "legacyAssetId": "0caec7069d2847587dc7467e0104044a",
+      "source": "https://api.homegames.io/assets/0caec7069d2847587dc7467e0104044a",
+      "sha256": "65719cad26a124dd9f866e4333c10ca7ffc264d5d204931231698b2c84828c1f",
+      "byteLength": 42993
+    },
+    {
+      "path": "./assets/e9f6215f74a8075d0ee49ebc37b7ef53.png",
+      "legacyAssetId": "e9f6215f74a8075d0ee49ebc37b7ef53",
+      "source": "https://api.homegames.io/assets/e9f6215f74a8075d0ee49ebc37b7ef53",
+      "sha256": "7019d5fbda454caa224f58f1f206e7568c0fa870460e510c90009f2b552dcc44",
+      "byteLength": 43806
+    },
+    {
+      "path": "./assets/eda8942e37a94592179618f27d29f030.png",
+      "legacyAssetId": "eda8942e37a94592179618f27d29f030",
+      "source": "https://api.homegames.io/assets/eda8942e37a94592179618f27d29f030",
+      "sha256": "5be393b7aff45d29974f0a69e5550fd6fd4fbabb922c4c2033ca191b31398b4a",
+      "byteLength": 45373
+    },
+    {
+      "path": "./assets/ee28596dd872144b6f35b328c413c4ea.png",
+      "legacyAssetId": "ee28596dd872144b6f35b328c413c4ea",
+      "source": "https://api.homegames.io/assets/ee28596dd872144b6f35b328c413c4ea",
+      "sha256": "30d3905a77a8d3387d5690b17a60f31d2439965bab985e284f462b9d5c068d9e",
+      "byteLength": 45205
+    },
+    {
+      "path": "./assets/cbfa874e0478b0ec725e48e9f84cd61d.png",
+      "legacyAssetId": "cbfa874e0478b0ec725e48e9f84cd61d",
+      "source": "https://api.homegames.io/assets/cbfa874e0478b0ec725e48e9f84cd61d",
+      "sha256": "14dd12f277958938aade99de1875a5a74e56fe90f7f6e5bd07c348da710fbb69",
+      "byteLength": 45021
+    },
+    {
+      "path": "./assets/075c025b39869556da5b34863a2fa08f.png",
+      "legacyAssetId": "075c025b39869556da5b34863a2fa08f",
+      "source": "https://api.homegames.io/assets/075c025b39869556da5b34863a2fa08f",
+      "sha256": "31993e2e0ce147e5f63211e5376101ea1a92430d54dd282419e687975d049762",
+      "byteLength": 47298
+    },
+    {
+      "path": "./assets/155d43678801b7595ab7d7f3e8515aff.png",
+      "legacyAssetId": "155d43678801b7595ab7d7f3e8515aff",
+      "source": "https://api.homegames.io/assets/155d43678801b7595ab7d7f3e8515aff",
+      "sha256": "604f12a0a5c35a9dbe4550522966ca6dd68a2e5b48dd854b977f6c803ead96cb",
+      "byteLength": 45217
+    },
+    {
+      "path": "./assets/ba7cf5eda822e0da3fb515f3469906ec.png",
+      "legacyAssetId": "ba7cf5eda822e0da3fb515f3469906ec",
+      "source": "https://api.homegames.io/assets/ba7cf5eda822e0da3fb515f3469906ec",
+      "sha256": "744124b770a291b5787824b1d867248daf1874987e85ce86e0d125783676818e",
+      "byteLength": 81369
+    },
+    {
+      "path": "./assets/347b8f82ccc82e8125f4fc054a9dd7ec.png",
+      "legacyAssetId": "347b8f82ccc82e8125f4fc054a9dd7ec",
+      "source": "https://api.homegames.io/assets/347b8f82ccc82e8125f4fc054a9dd7ec",
+      "sha256": "2e3e653286c65b2baad1820bd0380b198f90e60ad824b61b77cb9905da24c35f",
+      "byteLength": 92166
+    },
+    {
+      "path": "./assets/771654be56b6f8ac24e1c1f4330e0e82.png",
+      "legacyAssetId": "771654be56b6f8ac24e1c1f4330e0e82",
+      "source": "https://api.homegames.io/assets/771654be56b6f8ac24e1c1f4330e0e82",
+      "sha256": "94f22dc8793e465f901fbfe7ad70df5d9456f2e4abca95085cbdf5ff5bf29459",
+      "byteLength": 94533
+    },
+    {
+      "path": "./assets/c71522cc122b550a0da14137ab22e445.png",
+      "legacyAssetId": "c71522cc122b550a0da14137ab22e445",
+      "source": "https://api.homegames.io/assets/c71522cc122b550a0da14137ab22e445",
+      "sha256": "24b7d3c18e44f494134df3a246b636e3f5977815cbf63ecff6d34021197e3fc8",
+      "byteLength": 109530
+    },
+    {
+      "path": "./assets/6b52130645fe40af0489b72b5d4a9de8.png",
+      "legacyAssetId": "6b52130645fe40af0489b72b5d4a9de8",
+      "source": "https://api.homegames.io/assets/6b52130645fe40af0489b72b5d4a9de8",
+      "sha256": "c9f6dcc85d5703a7c1b4c01959d4870425c688bdf9245d82edb3c7495110e574",
+      "byteLength": 153559
+    },
+    {
+      "path": "./assets/82c07463d2510e1afa1132b6e63a878d.png",
+      "legacyAssetId": "82c07463d2510e1afa1132b6e63a878d",
+      "source": "https://api.homegames.io/assets/82c07463d2510e1afa1132b6e63a878d",
+      "sha256": "ccbb3e03accd7e4fbb3ae380e3b5f0377bf6e28d0440493b32298358e42308fb",
+      "byteLength": 190169
+    },
+    {
+      "path": "./assets/4fd5523c225ca78ed3f779d36417cd9e.png",
+      "legacyAssetId": "4fd5523c225ca78ed3f779d36417cd9e",
+      "source": "https://api.homegames.io/assets/4fd5523c225ca78ed3f779d36417cd9e",
+      "sha256": "f34025bcf5230d993449043cf266918d31fb5e4afe733cdafcf7e7357ea5d2c5",
+      "byteLength": 229540
+    },
+    {
+      "path": "./assets/dc3f39a8a49146822c036bef6016ee23.png",
+      "legacyAssetId": "dc3f39a8a49146822c036bef6016ee23",
+      "source": "https://api.homegames.io/assets/dc3f39a8a49146822c036bef6016ee23",
+      "sha256": "48b797b4b9b70579341cb6641862d09682152ec893981405917651d7ea2f6e67",
+      "byteLength": 285925
+    },
+    {
+      "path": "./assets/cdf359e561421393cb0575a8741b9e2f.png",
+      "legacyAssetId": "cdf359e561421393cb0575a8741b9e2f",
+      "source": "https://api.homegames.io/assets/cdf359e561421393cb0575a8741b9e2f",
+      "sha256": "e0a454c01590b769c58425bdd9e1e97f1c360a0f20c89886004b2f155fdae798",
+      "byteLength": 383534
+    },
+    {
+      "path": "./assets/782ee30969eb50c0fd4e79cb6a353706.png",
+      "legacyAssetId": "782ee30969eb50c0fd4e79cb6a353706",
+      "source": "https://api.homegames.io/assets/782ee30969eb50c0fd4e79cb6a353706",
+      "sha256": "3a0c965b3b75f3f56d715d63831bdd9d9cb8a5b8cb11e240eb220666affec5b8",
+      "byteLength": 436087
+    },
+    {
+      "path": "./assets/5e7c4aa25db49e2581d0d2d9993f5f88.png",
+      "legacyAssetId": "5e7c4aa25db49e2581d0d2d9993f5f88",
+      "source": "https://api.homegames.io/assets/5e7c4aa25db49e2581d0d2d9993f5f88",
+      "sha256": "a68543044c2dc9a723c1e36d764263af9e53c10c5ea8967d8816d56587e4a9da",
+      "byteLength": 562341
+    },
+    {
+      "path": "./assets/1344a16df085d05c6e4c0084e4f5e7de.png",
+      "legacyAssetId": "1344a16df085d05c6e4c0084e4f5e7de",
+      "source": "https://api.homegames.io/assets/1344a16df085d05c6e4c0084e4f5e7de",
+      "sha256": "c4efd6842ddf47b9e5ef31a43889b9f58a84b7667da8ba22dc66eb9f7053d6bc",
+      "byteLength": 736941
+    },
+    {
+      "path": "./assets/22039e8f2cf4e5eddf6aecc8990e6058.png",
+      "legacyAssetId": "22039e8f2cf4e5eddf6aecc8990e6058",
+      "source": "https://api.homegames.io/assets/22039e8f2cf4e5eddf6aecc8990e6058",
+      "sha256": "f094db41347bc1f5b811349f6a2c2670e3104bb692d257eaedab383d46bb44da",
+      "byteLength": 927060
+    },
+    {
+      "path": "./assets/437678f66b5d68a0894e0e0440881156.png",
+      "legacyAssetId": "437678f66b5d68a0894e0e0440881156",
+      "source": "https://api.homegames.io/assets/437678f66b5d68a0894e0e0440881156",
+      "sha256": "c6aa62866f8f3530f6d7f2f3e1ac68cab2bdaabe0b1860450cf91482b4efa080",
+      "byteLength": 1187065
+    }
+  ]
+}

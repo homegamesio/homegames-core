@@ -1,4 +1,4 @@
-const { Asset } = require('squish-142');
+const { Asset } = require('squish-150');
 const worlds = require('./art-data');
 
 // Inline bytes keep the exact same artwork available in browser-local, hosted,

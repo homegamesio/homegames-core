@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-145');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { Frontier } = require('./engine');
 const { FrontierScene } = require('./scene');
 const { FrontierAudio } = require('./audio');
@@ -14,13 +14,20 @@ const ring = (x, y, rx, ry, sides = 8) => Array.from({ length: sides }, (_, i) =
 class Copperline extends Game {
     static metadata() {
         return {
-            name: 'COPPERLINE', author: 'Joseph Garcia', squishVersion: '145',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
+            name: 'COPPERLINE',
+            author: "Joseph Garcia",
             description: 'A West worth saving. Ride a colorful polygonal frontier, fight the Copperline railroad, build a home, and turn a battered six-shooter into a legend. A complete single-player action RPG.',
-            aspectRatio: { x: 16, y: 10 }, tickRate: 20, maxPlayers: 1, assets: {},
+            aspectRatio: { x: 16, y: 10 },
+            tickRate: 20,
+            maxPlayers: 1,
+            assets: {},
             gamepadBindings: { w: ['DIRECTION_UP', 'STICK_1_UP'], s: ['DIRECTION_DOWN', 'STICK_1_DOWN'],
                 a: ['DIRECTION_LEFT', 'STICK_1_LEFT'], d: ['DIRECTION_RIGHT', 'STICK_1_RIGHT'],
                 ' ': 'FACE_1', e: 'FACE_2', x: 'FACE_3', h: 'FACE_4', r: 'LEFT_SHOULDER',
                 q: 'RIGHT_SHOULDER', c: 'START', m: 'SELECT' },
+            gameId: "86e54c64-d0c2-5396-ae97-c2e81a3e5b6e"
         };
     }
     constructor({ saveGame, saveData, addAsset } = {}) {
@@ -170,24 +177,22 @@ class Copperline extends Game {
     }
     title() {
         const r = this.ui;
-        this.box(r, 4, 10, 46, 78, [22, 36, 40, 245]); this.box(r, 4, 10, .35, 78, GOLD);
-        this.text(r, 'A WEST WORTH SAVING', 8, 15, 1.12, TEAL);
-        this.text(r, 'COPPER', 7.6, 21, 6.35, CREAM, 'left', 'Georgia');
-        this.text(r, 'LINE', 7.6, 30.5, 6.35, CREAM, 'left', 'Georgia');
+        this.box(r, 4, 42, 46, 46, [22, 36, 40, 245]); this.box(r, 4, 42, .35, 46, GOLD);
+
         this.box(r, 8, 43, 36, .16, [197, 157, 93, 150]);
         this.lines(r, 'You came home to bury your mother. The railroad came to bury your town.', 8, 46, 35.5, 1.55, CREAM);
-        this.lines(r, 'One six-shooter. A borrowed horse. A valley that still remembers your name.', 8, 55, 35.5, 1.17, MUTED);
-        this.button(r, this.engine.hasSave ? 'CONTINUE YOUR STORY' : 'RIDE INTO COPPERLINE', 8, 65, 37.5, 8.5, () => this.start(), { color: GOLD, ink: INK, size: 1.28 });
+
+        this.button(r, this.engine.hasSave ? 'CONTINUE' : 'PLAY', 8, 65, 37.5, 8.5, () => this.start(), { color: GOLD, ink: INK, size: 1.28 });
         this.text(r, 'SINGLE PLAYER  /  SAVES AUTOMATICALLY', 8, 77.4, .86, MUTED);
         this.text(r, 'WASD move   SPACE fire   E interact', 8, 81.5, 1, CREAM);
-        this.text(r, 'THE SUN GOES DOWN. YOU KEEP RIDING.', 96, 94.5, .95, CREAM, 'right');
+
         this.text(r, 'EST. 1889', 93, 7, 1.2, CREAM, 'right', 'Georgia');
     }
     playHud() {
         const r = this.ui;
         this.box(r, 0, 12, 100, 77, [0, 0, 0, 0], { onClick: (id, x, y) => { if (id === this.owner) this.worldPress(x, y); }, offClick: id => this.handleMouseUp(id) });
         this.box(r, 0, 0, 100, 11.8, [22, 36, 40, 244]); this.box(r, 0, 11.7, 100, .22, GOLD);
-        this.text(r, 'COPPERLINE', 2.5, 1.6, 1.75, CREAM, 'left', 'Georgia');
+
         this.hud.region = this.text(r, '', 2.5, 6.1, .91, MUTED);
         this.hud.objective = this.text(r, '', 21, 2, 1.13, GOLD);
         this.hud.progress = this.text(r, '', 21, 6.3, .96, CREAM);

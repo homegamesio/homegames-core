@@ -13,7 +13,7 @@ Rendering is server-authoritative: games build a tree of `GameNode`s (shapes/tex
 
 ## Running
 
-Requires Node ≥ 18 and a sibling checkout of `../homegames-common` (a `file:` dependency; its postinstall symlinks the squish versions).
+Release builds and checks use Node 24. The installed lock uses published `homegames-common@1.7.4` and `homegames-client@0.2.1`, MIT `squishjs@1.5.0` (aliased as `squish-150`), Homepad `0.2.1`, and WebSocket `7.5.13`. Common 1.7.4 includes the October 18 Docker preparation and recovery fixes; Core and the native launcher pin that published version. The builder rejects incompatible older Common installations. Core declares the runtime it imports directly, so installation does not run a symlink helper or require sibling library checkouts.
 
 ```sh
 npm install
@@ -21,7 +21,17 @@ npm start        # node index.js
 npm test         # node testRunner.js (test/**/*.test.js)
 ```
 
+To validate future unpublished shared-runtime changes across sibling checkouts, run `npm run stage:runtime` with Node 24. It packs Squish and Common, builds Client against those installed packages, and installs the candidate tarballs into Core, the website, the legacy web shell, and the API. It checks resolved dependency versions and source fingerprints, writes `runtime-candidate.json`, and leaves manifests and lockfiles unchanged. Use `-- --out NEW_DIRECTORY` to choose the evidence directory. This modifies local `node_modules` and Client's generated bundle; `npm ci` restores each consumer's published lockfile. It does not publish packages. The current MIT release has completed publication and registry-lock verification; see [the release handoff](docs/mit-release.md).
+
 With the committed `config.json`: dashboard on **9801**, Homenames on **7400**, game sessions on **8300–8400**, HTTPS off, homegames.link registration on. Link failures are non-fatal — the server still runs LAN-only. Set `START_PATH` to a game's `index.js` to boot straight into that game instead of the dashboard.
+
+Server settings and game installation are available only from the host computer. Open the local Homegames page there to import a ZIP, enable homegames.link, change ports, or allow game execution without Docker. Other devices can browse and play installed games. The host can use localhost, its own LAN address, or the server's HTTPS certificate hostname; unrelated browser origins do not receive host privileges.
+
+**Run games without Docker** defaults to Off, including in new native bundles. The setting warns that games run on your machine outside of a sandbox. Turning it on permits new server sessions to use a child process when Docker is unavailable; turning it off blocks that fallback for subsequent launches. Existing sessions keep running, and Docker remains preferred when available. The choice is saved in the host's config overlay and requires no restart. Browser-local play is unaffected.
+
+Docker runner preparation is automatic and works from a downloaded app. Its image is identified by the installed runtime's contents, so app updates cannot reuse stale game code. The first build downloads a Node base image; subsequent starts use the local image. See [Docker setup and acceptance](docker/README.md).
+
+The session API likewise restricts code submission, session deletion, persistence changes, and logs to the host computer. `HOMENAMES_API_SECRET`, when configured, adds a Bearer credential for local API tools; it does not grant remote administration. These checks use the direct socket connection, not forwarding headers. Do not forward guest traffic through a local proxy into the dashboard or administrative endpoints: a proxy changes which computer the server sees as its peer.
 
 ## Process model
 
@@ -47,12 +57,12 @@ Save data is JSON keyed by an md5 of the game path, under the OS app-data dir (`
 | `src/dashboard/` | The Dashboard game: per-player views, local + catalog search, paginated Browse, download-with-progress, session launch |
 | `src/games/` | ~50 built-in games (plus `*-test` diagnostic games, hidden unless `TESTS_ENABLED`) |
 | `src/homegames_root/` | The frame wrapped around every game: bezel, home button, player name label, settings modal, spectate/join, server code display |
-| `src/Homenames.js` | The HTTP API: `GET /info`, session CRUD + SSE logs + persistence toggle, per-player info/settings/client_info endpoints. Internal endpoints gated by `HOMENAMES_API_SECRET` bearer auth |
+| `src/Homenames.js` | The HTTP API: `GET /info`, session CRUD + SSE logs + persistence toggle, per-player info/settings/client_info endpoints. Session mutations and logs require a host connection, plus `HOMENAMES_API_SECRET` bearer auth if configured |
 | `src/library/` | `LocalLibrary` (built-in + downloaded games), `fetchGameSource`/`Installer` (download published games from the API catalog) |
 | `src/catalog/CatalogClient.js` | HTTP client for the platform API (`/games`, source trees/files, assets) |
 | `src/util/` | `socket.js` (game WebSocket server + public relay broadcast), `link-helper.js` (homegames.link client: register, 10s heartbeats, httpsReady), `homenames-helper.js` |
 | `src/services/` | Pluggable game services (only `contentGenerator` is implemented) |
-| `docker/` | The `homegames-runner` image: `build-image.sh` builds it (bundling homegames-common + this repo's `src/`); `container-entry.js` boots a session; `validate.js` is the publish-time validator run with `--network=none` |
+| `docker/` | Prepares an isolated runtime context from installed packages and builds a content-addressed image; `container-entry.js` boots a session; `validate.js` checks games with networking disabled. |
 
 ## Configuration
 
@@ -64,7 +74,7 @@ Main keys: `HOME_PORT`, `HOMENAMES_PORT`, `GAME_SERVER_PORT_RANGE_MIN/MAX`, `LIN
 
 A game is a class extending `Game`/`ViewableGame` from a `squish-<version>` package, with:
 
-- `static metadata()` → `{ squishVersion, aspectRatio, tickRate, author, thumbnail, ... }` (`squishVersion` is required — it's AST-parsed at load time)
+- `static metadata()` → `{ gameId, name, maxPlayers, aspectRatio, tickRate, author, thumbnail, ... }`; Squish 1.5.0 is inferred from `require('squish-150')`, without a duplicate metadata field or services list.
 - `getLayers()` → `[{ root: <GameNode> }, ...]`
 - lifecycle hooks: `handleNewPlayer`, `handlePlayerDisconnect`, `handleKeyDown/Up`, `handleMouseMove/Up`, `tick()`, `close()`, optional `getAssets()` (note: `canAddPlayer()` is NOT a hook — capacity is only `metadata().maxPlayers`)
 

@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-142');
+const { Asset, GameNode } = require('squish-150');
 
 // Original crystal, harp, and soft choir arrangements. These ordinary PCM assets
 // sound the same in hosted Homegames, browser-local play, and offline exports.
@@ -189,6 +189,7 @@ class Sound {
         if (!voice) return false;
         voice.active = true; voice.started = this.clock; voice.until = this.clock + voice.duration;
         voice.node.node.asset = { [voice.key]: { pos: { x: 0, y: 0 }, size: { x: 0, y: 0 }, startTime: 0 } };
+        voice.node.node.onStateChange();
         return true;
     }
     tick(events, dt, enabled, context) {
@@ -196,6 +197,7 @@ class Sound {
         const inputs = Array.isArray(events) ? events : [];
         for (const voice of this.voices) if (voice.active && (!enabled || voice.until <= this.clock || musicVoice(voice.name) && context && context.music === false)) {
             voice.node.node.asset = undefined; voice.active = false; voice.availableAt = this.clock + .04;
+            voice.node.node.onStateChange();
         }
         if (enabled) {
             const names = [...new Set(inputs.map(eventName))].filter(name => name && !musicVoice(name));

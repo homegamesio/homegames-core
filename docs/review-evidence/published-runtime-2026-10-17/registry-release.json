@@ -1,0 +1,21 @@
+{
+  "published": true,
+  "squish": {
+    "name": "squishjs",
+    "version": "1.5.0",
+    "filename": "squishjs-1.5.0.tgz",
+    "integrity": "sha512-wUTrKlZLeo6adbj83zNx1S7GdymCCDajBNDGpLd0DlwoHPFBkNODp6Is8HLj/iCY96ZEJ5kD3YZCMxYCO09awg=="
+  },
+  "common": {
+    "name": "homegames-common",
+    "version": "1.7.3",
+    "filename": "homegames-common-1.7.3.tgz",
+    "integrity": "sha512-MtZ3SMWroN74B32f5VoB1p821mEbaK8Ay6eqHrs6G4Kme1D/mQCq7+9UtIL/5sE968AmJq9diInoIz91MYm7mA=="
+  },
+  "client": {
+    "name": "homegames-client",
+    "version": "0.2.0",
+    "filename": "homegames-client-0.2.0.tgz",
+    "integrity": "sha512-XJrKS9eMa9aAsWVtADBG7GnClf2QNOi1FqpZUIAnnCZQmcaT3mojntW3xIcgBxQOQvFfFLcYa2M+STCwT2yKyQ=="
+  }
+}

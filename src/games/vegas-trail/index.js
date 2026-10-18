@@ -1,21 +1,13 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils, Asset } = require('squish-150');
 const { MapGame, Drive, Fight, Hunt, Talk } = require('./minigames/index.js');
+const TUNING = require('./tuning');
 const COLORS = Colors.COLORS;
 
-const TOTAL_DISTANCE = 420;
-console.log('gmgigigiig');
+const TOTAL_DISTANCE = TUNING.TRIP.totalDistanceMiles;
+
 
 const defaultResources = () => {
-    return {
-        scrap: 50, // money
-        wheels: 3, // 2 needed to drive
-        ammo: 20, // depleted when hunting
-        health: 100, // falls due to illness
-        antibiotics: 2, // increase health
-        food: 100, // jump river
-        weapon: 'baseball',
-        vehicle: 'gas-car'
-    }
+    return Object.assign({}, TUNING.START_RESOURCES);
 };
 
 const defaultUpgrades = () => {
@@ -355,138 +347,39 @@ const talkOptionNode = (onClick) => {
 
 // welcome modal
 const buildInitialModal = (onStart) => {
-    const modal = new GameNode.Shape({
-        shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(12.5, 12.5, 75, 75),
-        fill: Colors.COLORS.HG_BLACK
-    });
-
-    const textOne = new GameNode.Text({
-        textInfo: {
-            x: 50,
-            y: 20,
-            align: 'center',
-            size: 2.4,
-            font: 'amateur',
-            text: 'Welcome to the Vegas Trail!',// Stuff is pretty messed up out here.',
-            color: Colors.COLORS.WHITE
-        }
-    });
-
-    const textTwo = new GameNode.Text({
-        textInfo: {
-            x: 50,
-            y: 30,
-            align: 'center',
-            size: 1.2,
-            font: 'amateur',
-            text: 'The flora and fauna have gone mad.',
-            color: Colors.COLORS.WHITE
-        }
-    });
-
-    const textThree = new GameNode.Text({
-        textInfo: {
-            x: 50,
-            y: 37,
-            align: 'center',
-            size: 1.2,
-            font: 'amateur',
-            text: `Machines have risen up and started making demands.`,
-            color: Colors.COLORS.WHITE
-        }
-    });
-
-    const textFour = new GameNode.Text({
-        textInfo: {
-            x: 50,
-            y: 44,
-            align: 'center',
-            size: 1.2,
-            font: 'amateur',
-            text: `Legend has it that there's a cure for the madness in Vegas.`,
-            color: Colors.COLORS.WHITE
-        }
-    });
-
-    const textFive = new GameNode.Text({
-        textInfo: {
-            x: 50,
-            y: 51,
-            align: 'center',
-            size: 1.2,
-            font: 'amateur',
-            text: `You will need to drive, hunt for scraps, and fight illness to survive.`,
-            color: Colors.COLORS.WHITE
-        }
-    });
-
-    const textSix = new GameNode.Text({
-        textInfo: {
-            x: 50,
-            y: 58,
-            align: 'center',
-            size: 1.2,
-            font: 'amateur',
-            text: `It won't be easy but it might be cool.`,
-            color: Colors.COLORS.WHITE
-        }
-    });
-
-    const textSeven = new GameNode.Text({
-        textInfo: {
-            x: 50,
-            y: 65,
-            align: 'center',
-            size: 1.2,
-            font: 'amateur',
-            text: 'Are you ready to start your journey?',
-            color: Colors.COLORS.WHITE
-        }
-    });
-
-    const songNode = new GameNode.Asset({
-                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
-                assetInfo: {
-                    'introSong': {
-                        'pos': Object.assign({}, { x: 0, y: 0 }),
-                        'size': Object.assign({}, { x: 0, y: 0 }),
-                        'startTime': 0
-                    }
-                }
-            });
-
-            modal.addChild(songNode);
-
-    const startButton = new GameNode.Shape({
-        shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(45, 75, 10, 10),
-        onClick: onStart,
-        fill: Colors.COLORS.HG_BLUE
-    });
-
-    const startText = new GameNode.Text({
-        textInfo: {
-            x: 50,
-            y: 79,
-            align: 'center',
-            size: 1.2,
-            font: 'heavy-amateur',
-            text: 'Embark',
-            color: Colors.COLORS.HG_BLACK
-        }
-    });
-
-    modal.addChildren(textOne, textTwo, textThree, textFour, textFive, textSix, textSeven, startButton, startText);
-
+    const modal = new GameNode.Shape({shapeType:Shapes.POLYGON,
+        coordinates2d:ShapeUtils.rectangle(1,11,98,89),fill:Colors.COLORS.HG_BLACK});
+    const text = (value,y,size=2) => new GameNode.Text({textInfo:{
+        text:value,x:50,y,align:'center',size,font:'amateur',color:Colors.COLORS.WHITE
+    }});
+    modal.addChild(text('Welcome to the Vegas Trail!',13,2.8));
+    const lines = [
+        'The flora and fauna have gone mad.',
+        'Machines have risen up and started making demands.',
+        "Legend has it that there's a cure for the madness",
+        'in Vegas.',
+        'You will need to drive, hunt for scraps,',
+        'and fight illness to survive.',
+        "It won't be easy but it might be cool.",
+        'Are you ready to start your journey?'
+    ];
+    lines.forEach((line,i)=>modal.addChild(text(line,24+i*6.5)));
+    const start=new GameNode.Shape({shapeType:Shapes.POLYGON,
+        coordinates2d:ShapeUtils.rectangle(32,80,36,17),fill:Colors.COLORS.HG_BLUE,onClick:onStart});
+    start.addChild(text('Embark',84,2.8));modal.addChild(start);
+    modal.addChild(new GameNode.Text({textInfo:{text:'Music: @nytan',x:98,y:96,
+        align:'right',size:1.4,font:'amateur',color:Colors.COLORS.WHITE}}));
+    modal.addChild(new GameNode.Asset({coordinates2d:ShapeUtils.rectangle(0,0,0,0),assetInfo:{
+        introSong:{pos:{x:0,y:0},size:{x:0,y:0},startTime:0}
+    }}));
     return modal;
-}
+};
 
 
 const buildWinModal = (onClose) => {
     const modal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(12.5, 12.5, 75, 75),
+        coordinates2d: ShapeUtils.rectangle(1, 11, 98, 89),
         fill: [106, 147, 71, 255]
     });
 
@@ -495,16 +388,16 @@ const buildWinModal = (onClose) => {
             x: 50,
             y: 25,
             align: 'center',
-            size: 1.2,
+            size: 2.1,
             font: 'amateur',
-            text: 'You defeated Las Vegas! Now drive back and forth forever to flex.',
+            text: 'You defeated Las Vegas!',
             color: Colors.COLORS.WHITE
         }
     });
 
     const startButton = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(45, 45, 10, 10),
+        coordinates2d: ShapeUtils.rectangle(35, 45, 30, 15),
         onClick: onClose,
         fill: Colors.COLORS.HG_BLUE
     });
@@ -514,9 +407,9 @@ const buildWinModal = (onClose) => {
             x: 50,
             y: 49,
             align: 'center',
-            size: 1.2,
+            size: 2.1,
             font: 'heavy-amateur',
-            text: 'Thanks',
+            text: 'Play again',
             color: Colors.COLORS.HG_BLACK
         }
     });
@@ -526,10 +419,10 @@ const buildWinModal = (onClose) => {
     return modal;
 }
 
-const buildFailModal = (reason) => {
+const buildFailModal = (reason, onRestart) => {
     const modal = new GameNode.Shape({
         shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(12.5, 12.5, 75, 75),
+        coordinates2d: ShapeUtils.rectangle(1, 11, 98, 89),
         fill: Colors.COLORS.BLUE
     });
 
@@ -544,14 +437,24 @@ const buildFailModal = (reason) => {
             x: 50,
             y: 25,
             align: 'center',
-            size: 1.2,
+            size: 2.1,
             font: 'amateur',
             text: textMap[reason],
             color: Colors.COLORS.WHITE
         }
     });
 
-    modal.addChildren(textOne);
+    const restart = new GameNode.Shape({
+        shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(35, 55, 30, 15),
+        fill: Colors.COLORS.HG_BLUE,
+        onClick: onRestart
+    });
+    restart.addChild(new GameNode.Text({textInfo: {
+        x: 50, y: 60, align: 'center', size: 2, font: 'heavy-amateur',
+        text: 'Play again', color: Colors.COLORS.WHITE
+    }}));
+    modal.addChildren(textOne, restart);
 
     return modal;
 }
@@ -559,379 +462,396 @@ const buildFailModal = (reason) => {
 class VegasTrail extends Game {
     static metadata() {
         return {
+            name: 'Vegas Trail',
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '142',
-            author: 'Joseph & Senovia Garcia',
-            thumbnail: '7ce8c9285df969a93a0d186474a42fb7',
+            author: "Joseph Garcia",
+            thumbnail: './assets/thumbnail.png',
             tickRate: 60,
-            description: 'Attempt to survive the journey from Tucson to Las Vegas. @nytan on bandcamp did the music.',
+            description: 'Travel from Tucson to Las Vegas and conquer foes along the way',
             assets: {
                 'introSong': new Asset({
-                    'id': '6f31e20f5a1acd20b3d7872e6da6ff7b',
+                    path: './assets/6f31e20f5a1acd20b3d7872e6da6ff7b.mp3',
                     type: 'audio'
                 }),
                 'fightSong': new Asset({
-                    'id': '8e07e7e52fccf272363de4c7c0190b8f',
+                    path: './assets/8e07e7e52fccf272363de4c7c0190b8f.mp3',
                     type: 'audio'
                 }),
                 'huntSong': new Asset({
-                    'id': 'b4233fd87368ad7bc275dedb2c680683',
+                    path: './assets/b4233fd87368ad7bc275dedb2c680683.mp3',
                     type: 'audio'
                 }),
                 'mainSong': new Asset({
-                    'id': '6df9eba1d3489e201328ebf1e0300491',
+                    path: './assets/6df9eba1d3489e201328ebf1e0300491.mp3',
                     type: 'audio'
                 }),
                 'driveSong': new Asset({
-                    'id': '3a4125e402945c2762e965fd95dc8ccd',
+                    path: './assets/3a4125e402945c2762e965fd95dc8ccd.mp3',
                     type: 'audio'
                 }),
                 'placeholder': new Asset({
-                    'id': '3b16c6d6ee6d3709bf827b61e61003b1',
+                    path: './assets/3b16c6d6ee6d3709bf827b61e61003b1.png',
                     'type': 'image'
                 }),
                 'map-background': new Asset({
-                    'id': '4e450b680f10d27ddf6575258d031f16',
+                    path: './assets/4e450b680f10d27ddf6575258d031f16.png',
                     'type': 'image'
                 }),
                 'car-default': new Asset({
-                    'id': '0baf045b1c122bada75aacd03318c269',
+                    path: './assets/0baf045b1c122bada75aacd03318c269.png',
                     'type': 'image'
                 }),
                 'car-left': new Asset({
-                    'id': 'ced4e66928666c6e25d7a2464cd039c0',
+                    path: './assets/ced4e66928666c6e25d7a2464cd039c0.png',
                     'type': 'image'
                 }),
                 'car-right': new Asset({
-                    'id': 'f5540376383f7ae23a42347f908a6120',
+                    path: './assets/f5540376383f7ae23a42347f908a6120.png',
                     'type': 'image'
                 }),
                 'big-saguaro': new Asset({
-                    'id': '93fd2644a9b2540cb25cfee8c5f6ee74',
+                    path: './assets/93fd2644a9b2540cb25cfee8c5f6ee74.png',
                     'type': 'image'
                 }),
                 'little-saguaro': new Asset({
-                    'id': '24fd68e8f511f6fafe45da852ac7e95d',
+                    path: './assets/24fd68e8f511f6fafe45da852ac7e95d.png',
                     'type': 'image'
                 }),
                 'guy-1': new Asset({
-                    'id': 'a507a7cfeb28960ba7257f5b7571e5db',
+                    path: './assets/a507a7cfeb28960ba7257f5b7571e5db.png',
                     'type': 'image'
                 }),
                 'guy-2': new Asset({
-                    'id': '7171191eab30d0bf5a57ef5d67fff8ad',
+                    path: './assets/7171191eab30d0bf5a57ef5d67fff8ad.png',
                     'type': 'image'
                 }),
                 'guy-3': new Asset({
-                    'id': 'daee835aa61ff73c93a363d0e3867dab',
+                    path: './assets/daee835aa61ff73c93a363d0e3867dab.png',
                     'type': 'image'
                 }),
                 'guy-4': new Asset({
-                    'id': '88867ca5b2910ce55f29ffaadec4363f',
+                    path: './assets/88867ca5b2910ce55f29ffaadec4363f.png',
                     'type': 'image'
                 }),
                 'dust-1': new Asset({
-                    'id': '4dcd1561824ad8a3b974020bd24d81ed',
+                    path: './assets/4dcd1561824ad8a3b974020bd24d81ed.png',
                     'type': 'image'
                 }),
                 'dust-2': new Asset({
-                    'id': 'c1e2d192f4b2d50f92f99c172cc17a6f',
+                    path: './assets/c1e2d192f4b2d50f92f99c172cc17a6f.png',
                     'type': 'image'
                 }),
-                'tumbleweed': new Asset({
-                    'id': '119aef7e7e1c3e3caf44caf2c306c299',
-                    'type': 'image'
-                }),
+
                 'background-1': new Asset({
-                    'id': 'e5042f6d6837e7bc9412b7e0e8c70aa3',
+                    path: './assets/e5042f6d6837e7bc9412b7e0e8c70aa3.png',
                     'type': 'image'
                 }),
                 'background-2': new Asset({
                     'type': 'image',
-                    'id': '7fcfe0852e627765d7d25d50ac207163'
+                    path: './assets/7fcfe0852e627765d7d25d50ac207163.png'
                 }),
                 'background-3': new Asset({
                     'type': 'image',
-                    'id': '4ab0946f2e7812e410a256092267bfc4'
+                    path: './assets/4ab0946f2e7812e410a256092267bfc4.png'
                 }),
                 'star': new Asset({
-                    'id': 'c1c029155f2af909e55de2486058e32d',
+                    path: './assets/c1c029155f2af909e55de2486058e32d.png',
                     'type': 'image'
                 }),
                 'scrap': new Asset({
-                    'id': 'cb2d71ae46849cd18b257f7b968e0c18',
+                    path: './assets/cb2d71ae46849cd18b257f7b968e0c18.png',
                     'type': 'image'
                 }),
                 'map': new Asset({
-                    'id': '8de0a87b189d3faf9d88d0d0f5de8cfb',
+                    path: './assets/8de0a87b189d3faf9d88d0d0f5de8cfb.png',
                     'type': 'image'
                 }),
                 'amateur': new Asset({
                     'type': 'font',
-                    'id': '026a26ef0dd340681f62565eb5bf08fb'
+                    path: './assets/026a26ef0dd340681f62565eb5bf08fb.bin'
                 }),
                 'heavy-amateur': new Asset({
                     'type': 'font',
-                    'id': '9f11fac62df9c1559f6bd32de1382c20'
+                    path: './assets/9f11fac62df9c1559f6bd32de1382c20.bin'
                 }),
                 'gloves': new Asset({
                     'type': 'image',
-                    'id': '4290252f9a55404862259e48b06f579b'
+                    path: './assets/4290252f9a55404862259e48b06f579b.png'
                 }),
                 'glove-left': new Asset({
                     'type': 'image',
-                    'id': '4be556742e51360b8b487d98edae3849'
+                    path: './assets/4be556742e51360b8b487d98edae3849.png'
                 }),
                 'glove-right': new Asset({
                     'type': 'image',
-                    'id': 'f8e5aaa273de52b87cc3c2a133b2067c'
+                    path: './assets/f8e5aaa273de52b87cc3c2a133b2067c.png'
                 }),
                 'steering-wheel': new Asset({
                     'type': 'image',
-                    'id': '34295b338e6fc3244b2b8d09906abf80'
+                    path: './assets/34295b338e6fc3244b2b8d09906abf80.png'
                 }),
                 'crosshairs': new Asset({
                     'type': 'image',
-                    'id': '076105ecc5a699ff1027fcdabd6c1b86'
+                    path: './assets/076105ecc5a699ff1027fcdabd6c1b86.png'
                 }),
                 'shop': new Asset({
                     'type': 'image',
-                    'id': '98776d66c2f07a58d51db719acb12e63'
+                    path: './assets/98776d66c2f07a58d51db719acb12e63.png'
                 }),
                 'close': new Asset({
                     'type': 'image',
-                    'id': '270fbe2ef81b5e1c66090d5c4716f307'
+                    path: './assets/270fbe2ef81b5e1c66090d5c4716f307.png'
                 }),
                 'legs-1-left-1': new Asset({
                     'type': 'image',
-                    'id': 'a2212e9540f5ac523514f1ec3585d428'
+                    path: './assets/a2212e9540f5ac523514f1ec3585d428.png'
                 }),
                 'legs-1-left-2': new Asset({
                     'type': 'image',
-                    'id': '9f1db961b099e44df6d8bc63efef93f0'
+                    path: './assets/9f1db961b099e44df6d8bc63efef93f0.png'
                 }),
                 'legs-1-right-1': new Asset({
                     'type': 'image',
-                    'id': 'f504e5d0aadf199d0fb9f6df077f6844'
+                    path: './assets/f504e5d0aadf199d0fb9f6df077f6844.png'
                 }),
                 'legs-1-right-2': new Asset({
                     'type': 'image',
-                    'id': 'f5707943a14d3d1696073396cd487ce3'
+                    path: './assets/f5707943a14d3d1696073396cd487ce3.png'
                 }),
                 'legs-2-left-1': new Asset({
                     'type': 'image',
-                    'id': '8dbf4b1df72edb31323b7b71c05ef98a'
+                    path: './assets/8dbf4b1df72edb31323b7b71c05ef98a.png'
                 }),
                 'legs-2-left-2': new Asset({
                     'type': 'image',
-                    'id': 'f865be0349099d904b1f0be7212afac0'
+                    path: './assets/f865be0349099d904b1f0be7212afac0.png'
                 }),
                 'legs-2-right-1': new Asset({
                     'type': 'image',
-                    'id': '8dbf4b1df72edb31323b7b71c05ef98a'
+                    path: './assets/8dbf4b1df72edb31323b7b71c05ef98a.png'
                 }),
                 'legs-2-right-2': new Asset({
                     'type': 'image',
-                    'id': 'f865be0349099d904b1f0be7212afac0'
+                    path: './assets/f865be0349099d904b1f0be7212afac0.png'
                 }),
                 'legs-3-left-1': new Asset({
                     'type': 'image',
-                    'id': '1c805ec41df459ae3c793d6e14682247'
+                    path: './assets/1c805ec41df459ae3c793d6e14682247.png'
                 }),
                 'legs-3-left-2': new Asset({
                     'type': 'image',
-                    'id': '34778726c6bfbc040268ab01e15d3b6b'
+                    path: './assets/34778726c6bfbc040268ab01e15d3b6b.png'
                 }),
                 'legs-3-right-1': new Asset({
                     'type': 'image',
-                    'id': 'ab870956179cb728d3e6c27be8a58f33'
+                    path: './assets/ab870956179cb728d3e6c27be8a58f33.png'
                 }),
                 'legs-3-right-2': new Asset({
                     'type': 'image',
-                    'id': 'b22930bf1f228e3ff495c69a1f9a76ab'
+                    path: './assets/b22930bf1f228e3ff495c69a1f9a76ab.png'
                 }),
                 'chat': new Asset({
                     'type': 'image',
-                    'id': 'f25324ca423d1c1c9d37b058231d1766'
+                    path: './assets/f25324ca423d1c1c9d37b058231d1766.png'
                 }),
                 'wheel': new Asset({
                     'type': 'image',
-                    'id': 'bc5097c2433267ca967cb90d5ae87d60'
+                    path: './assets/bc5097c2433267ca967cb90d5ae87d60.png'
                 }),
                 'ammo': new Asset({
                     'type': 'image',
-                    'id': 'b3ff302f3419228fb3783f6a2158f297'
+                    path: './assets/b3ff302f3419228fb3783f6a2158f297.png'
                 }),
                 'antibiotic': new Asset({
                     'type': 'image',
-                    'id': 'e1e22728cae4837907a513ce8ce8e249'
+                    path: './assets/e1e22728cae4837907a513ce8ce8e249.png'
                 }),
                 'cookie': new Asset({
                     'type': 'image',
-                    'id': '4da57d98625f9b61b6f939e3c2d1129b'
+                    path: './assets/4da57d98625f9b61b6f939e3c2d1129b.png'
                 }),
                 'bug-1-default': new Asset({
                     'type': 'image',
-                    'id': 'b38a862769e5b691e853f0d77a87c3eb'
+                    path: './assets/b38a862769e5b691e853f0d77a87c3eb.png'
                 }),
                 'bug-1-left': new Asset({
                     'type': 'image',
-                    'id': '5d89c5014c9f7a30d75aff244efdfa08'
+                    path: './assets/5d89c5014c9f7a30d75aff244efdfa08.png'
                 }),
                 'bug-1-right': new Asset({
                     'type': 'image',
-                    'id': '6acf1518d2bc3f3671bc7946995708c3'
+                    path: './assets/6acf1518d2bc3f3671bc7946995708c3.png'
                 }),
                 'bug-2-default': new Asset({
                     'type': 'image',
-                    'id': 'f02e67d1a1308b04aeee85df0eec8154'
+                    path: './assets/f02e67d1a1308b04aeee85df0eec8154.png'
                 }),
                 'bug-2-left': new Asset({
                     'type': 'image',
-                    'id': 'ba16fd27e310a452d782e95dc62ab3ff'
+                    path: './assets/ba16fd27e310a452d782e95dc62ab3ff.png'
                 }),
                 'bug-2-right': new Asset({
                     'type': 'image',
-                    'id': 'f5d3b11023a3fd3ed32b39cb084b7c39'
+                    path: './assets/f5d3b11023a3fd3ed32b39cb084b7c39.png'
                 }),
                 'bug-3-default': new Asset({
                     'type': 'image',
-                    'id': 'feb4d5e63ede48064e31da251c228bdd'
+                    path: './assets/feb4d5e63ede48064e31da251c228bdd.png'
                 }),
                 'bug-3-left': new Asset({
                     'type': 'image',
-                    'id': 'ce852844ffff8199637d6950935c8de4'
+                    path: './assets/ce852844ffff8199637d6950935c8de4.png'
                 }),
                 'bug-3-right': new Asset({
                     'type': 'image',
-                    'id': 'f972480121a9762ff73671544d8f7b4c'
+                    path: './assets/f972480121a9762ff73671544d8f7b4c.png'
                 }),
                 'biscuit-1': new Asset({
                     'type': 'image',
-                    'id': 'a164b9aadc788a8e659e977417ec7ec1'
+                    path: './assets/a164b9aadc788a8e659e977417ec7ec1.png'
                 }),
                 'biscuit-2': new Asset({
                     'type': 'image',
-                    'id': 'c958bbe0022fdb367a52c3e5fb384307'
+                    path: './assets/c958bbe0022fdb367a52c3e5fb384307.png'
                 }),
                 'rock-1': new Asset({
                     'type': 'image',
-                    'id': 'cb230f24577fdaad5324de5f4ee32c0b'
+                    path: './assets/cb230f24577fdaad5324de5f4ee32c0b.png'
                 }),
                 'rock-2': new Asset({
                     'type': 'image',
-                    'id': 'bcec761b00b100b9273a63cdf7332efb'
+                    path: './assets/bcec761b00b100b9273a63cdf7332efb.png'
                 }),
                 'baseball-1': new Asset({
                     'type': 'image',
-                    'id': 'ce4ff6a45c5067a6de2428bae13a885d'
+                    path: './assets/ce4ff6a45c5067a6de2428bae13a885d.png'
                 }),
                 'baseball-2': new Asset({
                     'type': 'image',
-                    'id': '9c40ee345797d85c5324ac4fdc3ffab2'
+                    path: './assets/9c40ee345797d85c5324ac4fdc3ffab2.png'
                 }),
                 'desmond-1': new Asset({
                     'type': 'image',
-                    'id': 'f6f6df5eb5daa2313485a543679e5b38'
+                    path: './assets/f6f6df5eb5daa2313485a543679e5b38.png'
                 }),
                 'desmond-2': new Asset({
                     'type': 'image',
-                    'id': 'f48fd7cd35b64e26e02c076963acb450'
+                    path: './assets/f48fd7cd35b64e26e02c076963acb450.png'
                 }),
                 'desmond-smile': new Asset({
                     'type': 'image',
-                    'id': 'c4ad0eaf0074c9cbf1588f26ad655054'
+                    path: './assets/c4ad0eaf0074c9cbf1588f26ad655054.png'
                 }),
                 'drive-1-0': new Asset({
                     'type': 'image',
-                    'id': '8d616b824ffa1f1f03a6cfd8259fed74'
+                    path: './assets/8d616b824ffa1f1f03a6cfd8259fed74.png'
                 }),
                 'drive-1-1': new Asset({
                     'type': 'image',
-                    'id': 'a31a9bf93bfff116198a74d8a3f09a46'
+                    path: './assets/a31a9bf93bfff116198a74d8a3f09a46.png'
                 }),
                 'drive-2-0': new Asset({
                     'type': 'image',
-                    'id': '9d0030fe577bf1db16c2e4eeb3fb35ba'
+                    path: './assets/9d0030fe577bf1db16c2e4eeb3fb35ba.png'
                 }),
                 'drive-2-1': new Asset({
                     'type': 'image',
-                    'id': 'b6e9d6d21f541e4cebf3e005a9c7ae35'
+                    path: './assets/b6e9d6d21f541e4cebf3e005a9c7ae35.png'
                 }),
                 'drive-3-0': new Asset({
                     'type': 'image',
-                    'id': '04ec60cd67401cf1d2cc6d8fe610b794'
+                    path: './assets/04ec60cd67401cf1d2cc6d8fe610b794.png'
                 }),
                 'drive-3-1': new Asset({
                     'type': 'image',
-                    'id': '5de41cd5fbc5ed8fbb585368f760c4dc'
+                    path: './assets/5de41cd5fbc5ed8fbb585368f760c4dc.png'
                 }),
                 'hunt-1': new Asset({
                     'type': 'image',
-                    'id': '9a2221e21fbe77a93c926d1c70d6ece0'
+                    path: './assets/9a2221e21fbe77a93c926d1c70d6ece0.png'
                 }),
                 'hunt-2': new Asset({
                     'type': 'image',
-                    'id': '705e4b2bd1ea5a01cfdd37ecd56253e9'
+                    path: './assets/705e4b2bd1ea5a01cfdd37ecd56253e9.png'
                 }),
                 'hunt-3': new Asset({
                     'type': 'image',
-                    'id': 'df8c8807751828f55e78df47fc3d6f22'
+                    path: './assets/df8c8807751828f55e78df47fc3d6f22.png'
                 }),
                 'fight-1': new Asset({
                     'type': 'image',
-                    'id': 'c2ced3c16e0fd21d999eefb0bb89593f'
+                    path: './assets/c2ced3c16e0fd21d999eefb0bb89593f.png'
                 }),
                 'fight-2': new Asset({
                     'type': 'image',
-                    'id': 'f95cbc8df61b7373d7bedb4ae5f8b549'
+                    path: './assets/f95cbc8df61b7373d7bedb4ae5f8b549.png'
                 }),
                 'fight-3': new Asset({
                     'type': 'image',
-                    'id': 'c0180cb139e5c3599180e5a751611dd1'
+                    path: './assets/c0180cb139e5c3599180e5a751611dd1.png'
                 }),
                 'tumbleweed': new Asset({
                     'type': 'image',
-                    'id': '8063f98069472686db090fdbc544009e'
+                    path: './assets/8063f98069472686db090fdbc544009e.png'
                 }),
                 'drone': new Asset({
                     'type': 'image',
-                    'id': '3e250e3bbe22f1046f8e4c6b0f0a89fe'
+                    path: './assets/3e250e3bbe22f1046f8e4c6b0f0a89fe.png'
                 }),
                 'gas-pump': new Asset({
                     'type': 'image',
-                    'id': 'ad1777daa4e45ab700a8ddc5ddaaa698'
+                    path: './assets/ad1777daa4e45ab700a8ddc5ddaaa698.png'
                 }),
                 'gas-canister': new Asset({
                     'type': 'image',
-                    'id': '24620620ff8fc10f7458ce33199040f2'
+                    path: './assets/24620620ff8fc10f7458ce33199040f2.png'
                 }),
                 'senor-die': new Asset({
                     'type': 'image',
-                    'id': '315077ebc9f8e3eba69e68fe9bdf8170'
+                    path: './assets/315077ebc9f8e3eba69e68fe9bdf8170.png'
                 }),
                 'slot-enemy': new Asset({
                     'type': 'image',
-                    'id': '99ece53d641bbe28d2ddaa22c06ba521'
+                    path: './assets/99ece53d641bbe28d2ddaa22c06ba521.png'
                 }),
-            }
+            },
+            gameId: "62bc5b10-1035-5d5e-a986-3e0f4fb98d82",
+            maxPlayers: 8
         };
     }
 
     constructor(initialState ={}) {
         super();
-        
-        this.sickHealth = 100;
-        this.carHealth = 100;
+        this.initializeRun(initialState);
+    }
+
+    initializeRun(initialState = {}) {
+        this.phase = 'ready';
+        this.won = false;
+        this.failureReason = null;
+        this.lastTravelUpdate = null;
+        this.foodLastEaten = null;
+        this.lastTalkUpdate = null;
+
+        this.sickHealth = TUNING.SURVIVAL.maxSickHealth;
+        this.carHealth = TUNING.SURVIVAL.maxCarHealth;
 
         this.zone = 1;
 
         this.playerStates = {};
 
         this.distanceTraveled = 0;
+
+        // set via markDirty() when an input handler mutates node fields directly;
+        // tick() flushes it with a single onStateChange
+        this.dirty = false;
         
         // main modal will pause game until closed
         this.mainModal = buildInitialModal(() => {
+            if (this.phase !== 'ready') return;
+            this.phase = 'playing';
+            this.lastTravelUpdate = Date.now();
+            this.foodLastEaten = Date.now();
             this.clearMainModal();
 
         const songNode = new GameNode.Asset({
@@ -948,10 +868,10 @@ class VegasTrail extends Game {
                 this.map.root.addChild(songNode);
         });
 
-        this.travelUpdateInterval = 1000; // update distance traveled every one second
+        this.travelUpdateInterval = TUNING.TRIP.travelUpdateIntervalMs;
 
-        // if the trip to vegas takes ~ 10 minutes and that trip is TOTAL_DISTANCE, then we have 10 minutes / travel update interval ticks to travel TOTAL_DISTANCE
-        this.travelTickDistance = (TOTAL_DISTANCE / (10 * 60 * 1000 / this.travelUpdateInterval));
+        // if the trip to vegas takes ~ durationMinutes and that trip is TOTAL_DISTANCE, then we have durationMinutes / travel update interval ticks to travel TOTAL_DISTANCE
+        this.travelTickDistance = (TOTAL_DISTANCE / (TUNING.TRIP.durationMinutes * 60 * 1000 / this.travelUpdateInterval));
 
         this.map = new MapGame(this, mapData, TOTAL_DISTANCE);
         this.drive = new Drive({mainGame: this});
@@ -962,15 +882,17 @@ class VegasTrail extends Game {
                 const textInfo = Object.assign({}, this.ammoText.node.text);
                 textInfo.text = `${this.resources.ammo}`;
                 this.ammoText.node.text = textInfo;
+                this.markDirty();
             }
         });
         this.fight = new Fight({mainGame: this});
-        this.talk = new Talk();
+        this.talk = new Talk({mainGame: this});
 
         this.resources = { ...defaultResources() }
 
         this.state = initialState;
-        this.base = new GameNode.Shape({
+        if (this.base) this.base.clearChildren();
+        this.base = this.base || new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             fill: COLORS.GRAY
@@ -1004,12 +926,10 @@ class VegasTrail extends Game {
             // fill: [179, 232, 194, 255]//Colors.COLORS.HG_BLACK//[192, 180, 144, 255],//Colors.COLORS.GRAY
         });
 
-        // player ids 254 is a hack to make the nodes effectively invisible to all players
-        this.map.getRoot().showFor(254);
-        this.drive.getRoot().showFor(254);
-        this.hunt.getRoot().showFor(254);
-        this.fight.getRoot().showFor(254);
-        this.talk.getRoot().showFor(254);
+        // Player 0 is not a participant; keep inactive views hidden.
+        for (const game of [this.map, this.drive, this.hunt, this.fight, this.talk]) {
+            game.getRoot().node.playerIds = [0];
+        }
 
         this.grayThing.addChildren(this.optionsLayer, this.statsLayer);
 
@@ -1025,21 +945,32 @@ class VegasTrail extends Game {
     }
 
     renderMainModal() {
-        this.mainModal && this.mainModalLayer.addChild(this.mainModal);
+        this.mainModalLayer.clearChildren();
+        this.mainModalLayer.node.coordinates2d = this.mainModal ? ShapeUtils.rectangle(0, 10, 100, 90) : ShapeUtils.rectangle(0, 0, 0, 0);
+        if (this.mainModal) this.mainModalLayer.addChild(this.mainModal);
     }
 
     clearMainModal() {
         if (this.mainModal) {
             this.mainModalLayer.removeChild(this.mainModal.id);
             this.mainModal = null;
+            this.mainModalLayer.node.coordinates2d = ShapeUtils.rectangle(0, 0, 0, 0);
+            this.markDirty();
         }
     }
 
-    handleSickHit(dmg = 2) {
+    // input handlers that mutate node fields directly call this so the next
+    // tick() flushes the change (tree ops like addChild/removeChild notify on
+    // their own and don't need it)
+    markDirty() {
+        this.dirty = true;
+    }
+
+    handleSickHit(dmg = TUNING.SURVIVAL.sickHitDamage) {
         this.sickHealth -= dmg;
         if (this.sickHealth <= 0) {
             if (this.resources.antibiotics > 0) {
-                this.sickHealth = 100;
+                this.sickHealth = TUNING.SURVIVAL.maxSickHealth;
                 this.resources.antibiotics -= 1;
                 this.renderStatsLayer();
             } else {
@@ -1052,7 +983,7 @@ class VegasTrail extends Game {
         this.carHealth -= dmg;
         if (this.carHealth <= 0) {
             if (this.resources.wheels > 0) {
-                this.carHealth = 100;
+                this.carHealth = TUNING.SURVIVAL.maxCarHealth;
                 this.resources.wheels -= 1;
                 this.renderStatsLayer();
             } else {
@@ -1062,17 +993,37 @@ class VegasTrail extends Game {
     }
 
     handleFailure(reason) {
-        this.mainModal = buildFailModal(reason);
+        if (this.phase !== 'playing') return;
+        this.phase = 'lost';
+        this.failureReason = reason;
+        this.mainModal = buildFailModal(reason, playerId => this.restartRun(playerId));
         this.renderMainModal();
     }
 
+    restartRun(playerId) {
+        if (!this.playerStates[playerId] || !['won', 'lost'].includes(this.phase)) return;
+        const ids = Object.keys(this.playerStates).map(Number);
+        this.initializeRun();
+        ids.forEach(id => this.handleNewPlayer({playerId: id}));
+        this.markDirty();
+    }
+
+    canPlay(playerId, minigame) {
+        return this.phase === 'playing' && !this.mainModal &&
+            this.playerStates[playerId]?.currentGame === minigame;
+    }
+
     setCurrentGame(playerId, minigame) {
+        if (!this.playerStates[playerId]) return;
         if (this.playerStates[playerId].currentGame) {
-            this.playerStates[playerId].currentGame.getRoot().hideFor(playerId);
+            const root = this.playerStates[playerId].currentGame.getRoot();
+            root.hideFor(playerId);
         }
         this.playerStates[playerId].currentGame = minigame;
-        
+
         minigame.getRoot().showFor(playerId);
+        // showFor/hideFor mutate playerIds without notifying
+        this.markDirty();
        // this.gameLayer.clearChildren(); 
        // this.activeGame = minigame;
        // this.gameLayer.addChild(minigame.getRoot());
@@ -1087,9 +1038,11 @@ class VegasTrail extends Game {
             huntOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.hunt)),
             fightOptionNode((playerId) => !this.mainModal && this.setCurrentGame(playerId, this.fight)),
             talkOptionNode((playerId) => {
-                if (!this.mainModal && (!this.lastTalkUpdate || this.lastTalkUpdate + 3000 < Date.now())) {
-                    this.lastTalkUpdate = Date.now();
-                    this.talk.update();
+                if (!this.mainModal && this.playerStates[playerId]) {
+                    if (!this.lastTalkUpdate || this.lastTalkUpdate + TUNING.TALK.cooldownMs <= Date.now()) {
+                        this.lastTalkUpdate = Date.now();
+                        this.talk.update();
+                    }
                     this.setCurrentGame(playerId, this.talk);
                 }
             })
@@ -1134,12 +1087,12 @@ class VegasTrail extends Game {
         this.scrapText = new GameNode.Text({
             textInfo: {
                 x: 3.5,
-                y: 7,
+                y: 5.5,
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.scrap}`,
                 align: 'center',
                 font: 'amateur',
-                size: 1
+                size: 1.7
             },
         });
 
@@ -1167,12 +1120,12 @@ class VegasTrail extends Game {
         this.ammoText = new GameNode.Text({
             textInfo: {
                 x: 9.5,
-                y: 7,
+                y: 5.5,
                 font: 'amateur',
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.ammo}`,
                 align: 'center',
-                size: 1
+                size: 1.7
             },
         });
 
@@ -1200,11 +1153,11 @@ class VegasTrail extends Game {
         this.wheelsText = new GameNode.Text({
             textInfo: {
                 x: 15.5,
-                y: 7,
+                y: 5.5,
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.wheels}`,
                 align: 'center',
-                size: 1,
+                size: 1.7,
                 font: 'amateur'
             },
         });
@@ -1233,12 +1186,12 @@ class VegasTrail extends Game {
         this.antibioticsText = new GameNode.Text({
             textInfo: {
                 x: 21.5,
-                y: 7,
+                y: 5.5,
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.antibiotics}`,
                 align: 'center',
                 font: 'amateur',
-                size: 1
+                size: 1.7
             },
         });
 
@@ -1266,12 +1219,12 @@ class VegasTrail extends Game {
         this.foodText = new GameNode.Text({
             textInfo: {
                 x: 27.5,
-                y: 7,
+                y: 5.5,
                 color: Colors.COLORS.WHITE,
                 text: `${this.resources.food}`,
                 align: 'center',
                 font: 'amateur',
-                size: 1
+                size: 1.7
             },
         });
 
@@ -1297,43 +1250,23 @@ class VegasTrail extends Game {
     }
 
     handleNewPlayer({ playerId }) {
-
-        // if we already have a map node add a new one but its invisible lol
-        const node = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            fill: this.addedMapNode ? undefined : Colors.COLORS.RED,
-            coordinates2d: ShapeUtils.rectangle(mapData.mapCoords[0][0], mapData.mapCoords[0][1], 2, 2)
-        });
-
-        this.playerStates[playerId] = {
-            path: Object.assign(new Array(), mapData.mapCoords),
-            currentIndex: 0,
-            movementInterval: 100,
-            node,
-            score: 0
-        }
-
+        if (!Number.isSafeInteger(playerId) || playerId < 1 ||
+            this.playerStates[playerId] || Object.keys(this.playerStates).length >= 8) return;
+        this.playerStates[playerId] = {};
         this.setCurrentGame(playerId, this.hunt);
+        // Joining never clears an introduction or result, or resets the party's route.
+    }
 
-        this.map.map.addChild(node);
-
-        this.addedMapNode = true;
-
-        this.clearMainModal();
-//        const hunt = new Hunt(playerId);
-//        const run = new Run(playerId);
-//        const gridDefense = new GridDefense(playerId);
-//        const fightIllness = new Illness(playerId);
-//        this.activeGame = fightIllness;
-//        this.activeGame = gridDefense;
-//  this.activeGame = hunt;
-
-        // todo: add view here for each player
-//        this.base.addChild(hunt.getRoot());
-//        this.base.addChild(run.getRoot());
-
-//        this.base.addChild(gridDefense.getRoot());
-//        this.base.addChild(fightIllness.getRoot());
+    handlePlayerDisconnect(playerId) {
+        if (!this.playerStates[playerId]) return;
+        for (const game of [this.map, this.drive, this.hunt, this.fight, this.talk]) {
+            game.getRoot().hideFor(playerId);
+        }
+        this.map.removePlayer(playerId);
+        this.hunt.removePlayer(playerId);
+        delete this.fight.clickCounts[playerId];
+        delete this.playerStates[playerId];
+        this.markDirty();
     }
 
     handleKeyUp(player, key) {
@@ -1347,10 +1280,11 @@ class VegasTrail extends Game {
         } else if (landmarkData.name === 'Hoover Dam') {
             this.zone = 3;
         } else if (landmarkData.name === 'Las Vegas Strip') {
-            this.zone = 1;
             if (!this.won) {
                 this.won = true;
-                this.mainModal = buildWinModal(this.clearMainModal.bind(this));
+                this.phase = 'won';
+                this.distanceTraveled = TOTAL_DISTANCE;
+                this.mainModal = buildWinModal(playerId => this.restartRun(playerId));
                 this.renderMainModal();
             }
 
@@ -1361,76 +1295,73 @@ class VegasTrail extends Game {
             this.hunt.handleNewZone(this.zone);
             this.fight.handleNewZone(this.zone);
             this.talk.handleNewZone(this.zone);
+            // handleNewZone swaps background assets by direct field mutation
+            this.markDirty();
         }
         // this.mainModal = buildLandmarkModal(landmarkData, this.clearMainModal.bind(this));
         // this.renderMainModal();
     }
 
     depleteFood() {
-        const val = Object.keys(this.playerStates).length;
+        const val = Object.keys(this.playerStates).length * TUNING.SURVIVAL.foodPerPlayerPerMeal;
         this.resources.food -= val;
         if (this.resources.food < 0) {
+            this.resources.food = 0;
             this.handleFailure('food');
         }
-        
+
         if (this.foodText) {
             const newText = Object.assign({}, this.foodText.node.text);
             newText.text = `${this.resources.food}`;
             this.foodText.node.text = newText;
+            this.markDirty();
         }
     }
 
     tick() {
 
-        if (this.mainModal) {//} && !this.map.paused) {
+        if (this.mainModal || !Object.keys(this.playerStates).length) {
             // this.map.handlePause();
+            if (this.dirty) {
+                this.dirty = false;
+                this.base.node.onStateChange();
+            }
             return;
         }
 
         if (!this.lastTravelUpdate || this.lastTravelUpdate + (this.travelUpdateInterval) <= Date.now()) {
-            this.distanceTraveled = this.distanceTraveled + this.travelTickDistance;
+            this.distanceTraveled = Math.min(TOTAL_DISTANCE, this.distanceTraveled + this.travelTickDistance);
             this.lastTravelUpdate = Date.now();
-            // const newProgress = Object.assign({}, this.progressText.node.text);
-            // newProgress.text = `${this.distanceTraveled.toFixed(2)} / ${TOTAL_DISTANCE} miles`;
-            // this.progressText.node.text = newProgress;
         }
 
-        if (!this.foodLastEaten || this.foodLastEaten + 2000 <= Date.now()) {
+        if (!this.foodLastEaten || this.foodLastEaten + TUNING.SURVIVAL.foodDepleteIntervalMs <= Date.now()) {
             this.depleteFood();
             this.foodLastEaten = Date.now();
         }
 
-        this.map.tick({ 
-            resources: this.resources,
-            playerStates: this.playerStates,
-            distanceTraveled: this.distanceTraveled
-        });
-        
-        this.drive.tick({ 
-            resources: this.resources,
-            playerStates: this.playerStates,
-            distanceTraveled: this.distanceTraveled
-        });
+        if (this.phase !== 'playing') {
+            this.dirty = false;
+            this.base.node.onStateChange();
+            return;
+        }
 
-        this.hunt.tick({ 
+        const tickState = {
             resources: this.resources,
             playerStates: this.playerStates,
             distanceTraveled: this.distanceTraveled
-        }); 
+        };
 
-        this.fight.tick({ 
-            resources: this.resources,
-            playerStates: this.playerStates,
-            distanceTraveled: this.distanceTraveled
-        });
+        // each minigame tick returns true if it mutated node fields directly
+        let changed = this.map.tick(tickState);
+        if (this.phase === 'playing') changed = this.drive.tick(tickState) || changed;
+        if (this.phase === 'playing') changed = this.hunt.tick(tickState) || changed;
+        if (this.phase === 'playing') changed = this.fight.tick(tickState) || changed;
+        changed = this.talk.tick(tickState) || changed;
 
-        this.talk.tick({ 
-            resources: this.resources,
-            playerStates: this.playerStates,
-            distanceTraveled: this.distanceTraveled
-        }); 
-
-        this.base.node.onStateChange();
+        if (changed || this.dirty) {
+            this.dirty = false;
+            this.base.node.onStateChange();
+        }
     }
 
     getLayers() {

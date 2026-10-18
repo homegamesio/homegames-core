@@ -21,7 +21,6 @@ const { fetchGameSource } = require('./library/fetchGameSource');
 // discover which core version this server is running.
 const CORE_VERSION = require('../package.json').version;
 
-const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
 const PUBLIC_HOST = getConfigValue('PUBLIC_HOST', null); // e.g. 'api.homegames.io'
 const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
 
@@ -70,8 +69,9 @@ const MAX_BODY_SIZE = 5 * 1024 * 1024; // 5MB max request body
 // is configured, in which case the gate is disabled). Reads a Bearer token
 // from Authorization and compares it in constant time so a mismatch doesn't
 // leak length/prefix via timing.
+const { isHostRequest } = require('./util/host-access');
 const hasInternalAuth = (req) => {
-    if (!HOMENAMES_API_SECRET) return true; // gate disabled (local/LAN dev)
+    if (!HOMENAMES_API_SECRET) return true; // optional additional credential for local tools
     const header = req.headers['authorization'] || '';
     const match = /^Bearer\s+(.+)$/i.exec(header);
     if (!match) return false;
@@ -268,7 +268,7 @@ class Homenames {
 
                         // Cert is issued for the public domain, not localhost —
                         // loopback traffic to our own session, skip verification.
-                        const socketSession = new WebSocket(`${HTTPS_ENABLED ? 'wss' : 'ws'}://localhost:${sessionPort}`, { rejectUnauthorized: false });
+                        const socketSession = new WebSocket(`${this.certPath ? 'wss' : 'ws'}://localhost:${sessionPort}`, { rejectUnauthorized: false });
                         socketSession.on('open', () => {
                             log.info('opened socket connection to session');
                             this.sessionClients[sessionPort] = socketSession;
@@ -296,7 +296,7 @@ class Homenames {
         };
         console.log('huh');
 
-        const server = HTTPS_ENABLED && this.certPath ? https.createServer({
+        const server = this.certPath ? https.createServer({
             key: fs.readFileSync(`${this.certPath}/homegames.key`).toString(),
             cert: fs.readFileSync(`${this.certPath}/homegames.cert`).toString()
         }, homenamesApp) : http.createServer(homenamesApp);
@@ -319,6 +319,22 @@ class Homenames {
             return;
         }
 
+        // Creating sessions can write and execute supplied code. Session
+        // mutation and logs belong to the host, even with no secret configured.
+        // A shared secret never grants remote administrative access.
+        if (req.method !== 'GET' || req.url.includes('/logs')) {
+            if (!isHostRequest(req)) {
+                res.writeHead(403, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Manage server sessions from the host computer.' }));
+                return;
+            }
+            if (!hasInternalAuth(req)) {
+                res.writeHead(401, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Unauthorized' }));
+                return;
+            }
+        }
+
         // GET /sessions
         if (req.method === 'GET' && !sessionId) {
             this.handleListSessions(req, res);
@@ -331,14 +347,9 @@ class Homenames {
             return;
         }
 
-        // POST /sessions/:id/persistent — internal only. Pin/unpin a session
+        // POST /sessions/:id/persistent — host only. Pin/unpin a session
         // so it survives empty-session teardown. Body: { persistent }.
         if (req.method === 'POST' && sessionId && req.url.includes('/persistent')) {
-            if (!hasInternalAuth(req)) {
-                res.writeHead(401, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Unauthorized' }));
-                return;
-            }
             this.handleSetSessionPersistent(req, res, sessionId);
             return;
         }
@@ -355,16 +366,10 @@ class Homenames {
             return;
         }
 
-        // DELETE /sessions/:id — internal only. Empty sessions self-kill
+        // DELETE /sessions/:id — host only. Empty sessions self-kill
         // (see child_game_server checkPulse), so clients never need to delete;
-        // teardown is an admin/operator action proxied through the API with
-        // the shared secret.
+        // teardown is an action on the host computer.
         if (req.method === 'DELETE' && sessionId) {
-            if (!hasInternalAuth(req)) {
-                res.writeHead(401, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Unauthorized' }));
-                return;
-            }
             this.handleDeleteSession(req, res, sessionId);
             return;
         }
@@ -375,11 +380,8 @@ class Homenames {
 
     // GET /sessions
     handleListSessions(req, res) {
-        // Private (unlisted) sessions are only included for internal callers
-        // (the platform API's admin view). Fail closed: hasInternalAuth passes
-        // everyone when no secret is configured, so also require that a secret
-        // is actually set — a misconfigured server must not list private games.
-        const includePrivate = !!HOMENAMES_API_SECRET && hasInternalAuth(req);
+        // Private (unlisted) sessions are visible in the host's local list.
+        const includePrivate = isHostRequest(req) && hasInternalAuth(req);
         const sessions = this.gameSessionManager.listSessions()
             .filter(s => includePrivate || !s.private);
 
@@ -405,7 +407,7 @@ class Homenames {
             if (PUBLIC_HOST) {
                 wsUrl = `wss://${PUBLIC_HOST}/session/${s.port}`;
             } else {
-                const wsProtocol = HTTPS_ENABLED ? 'wss' : 'ws';
+                const wsProtocol = this.certPath ? 'wss' : 'ws';
                 const wsHost = getLocalIP() || 'localhost';
                 wsUrl = `${wsProtocol}://${wsHost}:${s.port}`;
             }
@@ -617,7 +619,7 @@ class Homenames {
                 if (PUBLIC_HOST) {
                     wsUrl = `wss://${PUBLIC_HOST}/session/${port}`;
                 } else {
-                    const wsProtocol = HTTPS_ENABLED ? 'wss' : 'ws';
+                    const wsProtocol = this.certPath ? 'wss' : 'ws';
                     const wsHost = getLocalIP() || 'localhost';
                     wsUrl = `${wsProtocol}://${wsHost}:${port}`;
                 }
@@ -842,7 +844,7 @@ class Homenames {
         return new Promise((resolve, reject) => {
             // Sessions serve https when certs are enabled; the cert won't
             // match localhost, so skip verification for this loopback check.
-            const req = (HTTPS_ENABLED ? https : http).request({
+            const req = (this.certPath ? https : http).request({
                 hostname: 'localhost',
                 port,
                 path: '/health',

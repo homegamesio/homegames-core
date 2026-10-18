@@ -1,0 +1,85 @@
+AFTER HOURS — MEDIA PROVENANCE
+Created for this game on 2026-10-10.
+
+All media was created for this task. No outside images, stock footage, music,
+recordings, fonts, or sampled sounds were downloaded or incorporated.
+The packaged game LICENSE applies to these included assets.
+
+STILL ARTWORKS
+Four original images generated separately with Codex's built-in image_gen tool
+(default built-in mode; no API/CLI fallback). Each result was visually reviewed,
+then resampled to RGB PNG, 768 × 576, using Pillow/Lanczos for the game bundle.
+Original full-resolution generated results were preserved in Codex's generated
+images directory; runtime references use only the copies in this assets folder.
+
+Exact final prompts:
+
+tidal.png
+Use case: stylized-concept. Asset type: a frameless artwork hung in a virtual contemporary museum, for a multiplayer game. Primary request: create an exquisite underwater fine-art photograph of bioluminescent jellyfish suspended in midnight water. Landscape 4:3 composition. One large translucent jellyfish slightly left of center, smaller luminous forms receding into abyssal depth; delicate veils and long filaments, glowing cyan and lilac edges against very dark cobalt blue. A sparse field of tiny suspended lights, cinematic chiaroscuro, tactile optical beauty, mysterious and tranquil. The image must be the artwork itself, edge to edge. No wall, no picture frame, no border, no typography, no signature, no watermark.
+
+verdant.png
+Use case: stylized-concept. Asset type: a frameless artwork hung in a virtual contemporary museum, for a multiplayer game. Primary request: a surreal botanical conservatory of green glass, lush giant ferns and translucent emerald leaves growing inside impossible curving greenhouse architecture. Landscape 4:3 composition. A serene central reflecting pool, beautiful repeating arches fading into mist, lush deep emerald with chartreuse sunlight and restrained pale mint highlights. Dreamlike fine-art architectural photograph with rich believable textures, otherworldly sophisticated botanical installation, strong quiet composition readable at small scale. The artwork itself fills the image edge to edge. No people, no wall around the image, no picture frame, no border, no typography, no signature, no watermark.
+
+signal.png
+Use case: stylized-concept. Asset type: a frameless abstract artwork hung in a virtual contemporary museum, for a multiplayer game. Primary request: analog futurist geometric signal art; an exquisite abstract screenprint of interlocking concentric rings, radiating wave lines and bold rectangular signal bands, with a single luminous cyan disk. Landscape 4:3 composition. Saturated warm amber, tangerine and pale gold against near-black navy, electric cyan counterpoint. Deliberate asymmetric modernist composition, precision geometry, subtle analog print grain, no schematic labels. The artwork itself fills the image edge to edge. No picture frame, no wall, no border, no typography, no letters, no numbers, no signature, no watermark.
+
+dream.png
+Use case: stylized-concept. Asset type: a frameless artwork hung in a virtual contemporary museum, for a multiplayer game. Primary request: a tranquil surreal pink dune landscape with a gigantic hovering pearl moon close above the horizon. Landscape 4:3 composition. Flowing rose-pink and pale mauve sand dunes, velvety shadow folds, iridescent ivory sphere floating low in an empty lavender sky. Refined minimalist otherworldly landscape photograph, ethereal soft illumination, subtle pink-to-lilac gradients, one pristine pearl moon and elegant long curved dunes. No architecture, no characters. The artwork itself fills the image edge to edge. No picture frame, no wall, no border, no typography, no signature, no watermark.
+
+PROCEDURAL VIDEO INSTALLATIONS
+kinetic.webm — 6.000 seconds, 320 × 240, 24 fps, 144 frames, silent VP9 WebM.
+Original animation of breathing concentric rings, orbiting signal lights,
+rotating diamonds, and rhythmic amber bars on a navy field.
+
+tide.webm — 6.000 seconds, 320 × 240, 24 fps, 144 frames, silent VP9 WebM.
+Original luminous blue waves and drifting particles with soft bloom.
+
+Both clips are generated from periodic trigonometric geometry. Frames are
+rendered at 2× resolution with Pillow, downsampled with Lanczos, and encoded
+with ffmpeg/libvpx-vp9. No footage or generated image was used as a video source.
+
+ORIGINAL SYNTHESIZED SOUND
+All WAV files: 22,050 Hz, mono, signed 16-bit PCM. No recorded sound samples.
+pulse.wav — 0.190 seconds: descending electronic pulse with a noise transient.
+scatter.wav — 0.330 seconds: broad noise burst and low synthesized thump.
+rail.wav — 0.520 seconds: bright descending energy sweep.
+hit.wav — 0.120 seconds: short impact tick, sine plus noise.
+pickup.wav — 0.460 seconds: ascending three-note electronic chime.
+respawn.wav — 0.800 seconds: soft rising three-note shimmer.
+ambient.wav — 8.000 seconds: restrained harmonic museum drone, seamless period.
+
+Sounds use deterministic seeded noise, sine oscillators, analytic frequency
+sweeps, and decaying envelopes. Effects peak below full-scale; ambient is
+normalized to 12% full-scale to leave room for gameplay cues.
+
+REPRODUCIBILITY
+From homegames-core, run:
+  python3 tools/after-hours/media.py
+This rebuilds videos and WAV files without network access. Requirements:
+Python 3, Pillow, and ffmpeg with libvpx-vp9. The script also accepts --tidal,
+--verdant, --signal, and --dream input paths to resample original ImageGen PNGs.
+The exact artwork prompts above document the non-deterministic image step.
+
+MENU CURSOR
+menu-cursor.png — 32 × 32, transparent RGBA PNG. Original museum-gold arrow
+with a dark outline and ivory highlight, drawn from polygon coordinates with
+Pillow at 4× resolution and downsampled with Lanczos. The pointer hotspot is
+(3, 3). No generated image or outside artwork was used for this interface icon.
+Rebuild just this file with: python3 tools/after-hours/media.py --cursor-only
+
+ADDITIONAL ORIGINAL WEAPON AUDIO
+Created for the expanded AFTER HOURS arsenal on 2026-10-10. These files use
+only analytic oscillators, deterministic seeded noise, a one-pole low-pass
+filter, and shaped envelopes. No recordings or outside sound samples.
+All files: 22,050 Hz, mono, signed 16-bit PCM WAV.
+
+machinegun.wav — 0.150 seconds: compact mechanical shot, low impulse and bolt tick.
+shotgun.wav — 0.560 seconds: broad report with low body and delayed pump clack.
+rocket.wav — 0.720 seconds: low pressure launch and decaying turbulent exhaust.
+explosion.wav — 1.250 seconds: filtered low rumble and short bright impact burst.
+plasma.wav — 0.280 seconds: paired descending electronic sweeps and a soft transient.
+
+Rebuild these five files with:
+  python3 tools/after-hours/weapon-audio.py
+Only the Python standard library is required. Existing pulse.wav and rail.wav
+remain the original sounds described above.

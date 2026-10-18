@@ -1,4 +1,4 @@
-const { GameNode, Colors, ShapeUtils, Shapes } = require('squish-142');
+const { GameNode, Colors, ShapeUtils, Shapes } = require('squish-150');
 
 const COLORS = Colors.COLORS;
 
@@ -22,7 +22,9 @@ const button = ({ x, y, width, height, text, playerId, onClick, fill = BUTTER_CO
         fill,
         border: 2,
         color: PANEL_BORDER_COLOR,
-        onClick
+        onClick: (pid, ...args) => {
+            if (Number(pid) === Number(playerId)) onClick(pid, ...args);
+        }
     });
     node.addChild(new GameNode.Text({
         textInfo: {
@@ -44,35 +46,54 @@ const label = ({ x, y, text, playerId, size = 1.2, color = PANEL_TEXT_COLOR, ali
 
 // Human line for the multiplayer/cert block, from the state the dashboard
 // assembles (see HomegamesDashboard._settingsState).
-const multiplayerStatusLines = ({ servingHttps, httpsEnabled, certStatus }) => {
+const multiplayerStatusLines = ({ servingHttps, httpsEnabled, certStatus, discoveryStatus, offline }) => {
+    if (offline) return { headline: "Offline mode", detail: "LAN play is available. Relaunch normally to use homegames.link.", color: OK_COLOR };
+    if ((httpsEnabled || servingHttps) && discoveryStatus?.state === 'network-conflict') return {
+        headline: 'homegames.link is in use on another computer',
+        detail: 'Only one computer per network can use HTTPS. Stop Homegames on the other computer, then check again.',
+        color: CORAL_COLOR
+    };
+    if ((httpsEnabled || servingHttps) && ['dns-unavailable', 'disconnected'].includes(discoveryStatus?.state)) return {
+        headline: 'homegames.link is unavailable',
+        detail: 'Discovery will retry automatically. Games already running can continue.',
+        color: CORAL_COLOR
+    };
+    const state = certStatus && certStatus.state;
+    if (certStatus?.restartRequired) return {
+        headline: 'Certificate ready for this network',
+        detail: 'Restart when everyone is finished playing to update homegames.link.',
+        color: OK_COLOR
+    };
+    if ((httpsEnabled || servingHttps) && (state === 'review' || state === 'error')) {
+        return {
+            headline: state === 'review' ? 'Certificate request needs operator review'
+                : servingHttps ? 'Certificate renewal failed' : 'Certificate request failed',
+            detail: certStatus.detail || 'Please try again later. Local play still works.',
+            color: CORAL_COLOR
+        };
+    }
     if (servingHttps) {
         return {
-            headline: 'Multiplayer is enabled',
-            detail: 'Players can join at homegames.link',
+            headline: certStatus?.networkChanged ? 'Setting up homegames.link for this network' : 'homegames.link is enabled',
+            detail: certStatus?.networkChanged ? 'Preparing a certificate. Keep this window open; existing games can continue.'
+                : state === 'renewing' || state === 'requesting' || state === 'waiting'
+                ? 'Renewing the certificate. Players can keep playing.' : 'Players can join at homegames.link',
             color: OK_COLOR
         };
     }
     if (!httpsEnabled) {
         return {
-            headline: 'Multiplayer via homegames.link is off',
+            headline: 'homegames.link is off',
             detail: 'Enabling requests a certificate for this network (takes a few minutes)',
             color: MUTED_TEXT_COLOR
         };
     }
     // Opted in, not serving yet — the cert manager is (or was) working on it.
-    const state = certStatus && certStatus.state;
     if (state === 'valid' || state === 'renewed') {
         return {
             headline: 'Certificate ready',
             detail: 'Restart to start serving via homegames.link',
             color: OK_COLOR
-        };
-    }
-    if (state === 'error') {
-        return {
-            headline: 'Certificate request failed',
-            detail: (certStatus && certStatus.detail) || 'Unknown error',
-            color: CORAL_COLOR
         };
     }
     if (state === 'requesting' || state === 'waiting' || state === 'renewing') {
@@ -83,7 +104,7 @@ const multiplayerStatusLines = ({ servingHttps, httpsEnabled, certStatus }) => {
         };
     }
     return {
-        headline: 'Multiplayer enabled, waiting for certificate',
+        headline: 'homegames.link waiting for certificate',
         detail: 'Certificate status unavailable',
         color: MUTED_TEXT_COLOR
     };
@@ -94,10 +115,10 @@ const multiplayerStatusLines = ({ servingHttps, httpsEnabled, certStatus }) => {
  *
  * state: {
  *   servingHttps, httpsEnabled, certStatus, pendingRestart,
- *   pageSize, homePort, homenamesPort
+ *   pageSize, homePort, homenamesPort, allowFork
  * }
  * handlers: onEnableMultiplayer, onDisableMultiplayer, onRestart(openLink),
- *   onSetPageSize(n), onSetPort(key, rawValue), onClose
+ *   onRetryCertificate, onSetPageSize(n), onSetPort(key, rawValue), onToggleAllowFork, onClose
  */
 const settingsModal = ({ playerId, state, handlers }) => {
     const modal = new GameNode.Shape({
@@ -125,41 +146,53 @@ const settingsModal = ({ playerId, state, handlers }) => {
     modal.addChild(closeButton);
 
     // --- Multiplayer / homegames.link block ---
-    modal.addChild(label({ x: 10, y: 17, text: 'Multiplayer (homegames.link)', playerId, size: 1.5 }));
+    modal.addChild(label({ x: 10, y: 17, text: 'Easy LAN joining (homegames.link)', playerId, size: 1.5 }));
 
     const status = multiplayerStatusLines(state);
     modal.addChild(label({ x: 10, y: 23, text: status.headline, playerId, size: 1.25, color: status.color }));
-    modal.addChild(label({ x: 10, y: 27, text: status.detail, playerId, size: 1.05, color: MUTED_TEXT_COLOR }));
+    const detailLines = String(status.detail).replace(/\s+/g, ' ').match(/.{1,90}(?:\s|$)|.{1,90}/g) || [];
+    detailLines.slice(0, 2).forEach((text, i) => modal.addChild(label({ x: 10, y: 27 + i * 2.3,
+        text: text.trim() + (i === 1 && detailLines.length > 2 ? '…' : ''), playerId, size: 1.05, color: MUTED_TEXT_COLOR })));
 
     const certReady = state.certStatus && (state.certStatus.state === 'valid' || state.certStatus.state === 'renewed');
 
-    if (!state.httpsEnabled && !state.servingHttps) {
+    if (!state.offline && (state.httpsEnabled || state.servingHttps)
+        && ['network-conflict', 'dns-unavailable', 'disconnected'].includes(state.discoveryStatus?.state)) {
+        modal.addChild(button({ x: 10, y: 32, width: 30, height: 8,
+            text: 'Check homegames.link', playerId, onClick: handlers.onRetryDiscovery }));
+    } else if (!state.offline && state.certStatus?.restartRequired) {
+        modal.addChild(button({
+            x: 10, y: 32, width: 34, height: 8,
+            text: 'Restart to update homegames.link', playerId,
+            onClick: () => handlers.onRestart(true)
+        }));
+    } else if (!state.offline && !state.httpsEnabled && !state.servingHttps) {
         modal.addChild(button({
             x: 10, y: 32, width: 30, height: 8,
-            text: 'Enable multiplayer',
+            text: 'Enable homegames.link',
             playerId,
             onClick: handlers.onEnableMultiplayer
         }));
-    } else if (state.httpsEnabled && !state.servingHttps && certReady) {
+    } else if (!state.offline && state.httpsEnabled && !state.servingHttps && certReady) {
         modal.addChild(button({
             x: 10, y: 32, width: 34, height: 8,
             text: 'Restart to enable homegames.link',
             playerId,
             onClick: () => handlers.onRestart(true)
         }));
-    } else if (state.httpsEnabled && !state.servingHttps && state.certStatus && state.certStatus.state === 'error') {
+    } else if (!state.offline && (state.httpsEnabled || state.servingHttps) && ['error', 'review'].includes(state.certStatus?.state)) {
         modal.addChild(button({
             x: 10, y: 32, width: 30, height: 8,
-            text: 'Retry certificate request',
+            text: state.certStatus.state === 'review' ? 'Check certificate status' : 'Retry certificate request',
             playerId,
-            onClick: handlers.onEnableMultiplayer
+            onClick: handlers.onRetryCertificate
         }));
     }
 
-    if (state.httpsEnabled || state.servingHttps) {
+    if (!state.offline && (state.httpsEnabled || state.servingHttps)) {
         modal.addChild(button({
             x: 46, y: 32, width: 22, height: 8,
-            text: 'Disable multiplayer',
+            text: 'Disable homegames.link',
             playerId,
             fill: COLORS.WHITE,
             onClick: handlers.onDisableMultiplayer
@@ -168,7 +201,7 @@ const settingsModal = ({ playerId, state, handlers }) => {
 
     // --- Server configuration block ---
     modal.addChild(label({ x: 10, y: 46, text: 'Server configuration', playerId, size: 1.5 }));
-    modal.addChild(label({ x: 10, y: 51, text: 'Changes apply after a restart', playerId, size: 1.0, color: MUTED_TEXT_COLOR }));
+    modal.addChild(label({ x: 10, y: 51, text: 'Page size and port changes need a restart', playerId, size: 1.0, color: MUTED_TEXT_COLOR }));
 
     // Games per page: 3 / 6 / 9
     modal.addChild(label({ x: 10, y: 57.5, text: 'Games per page', playerId, size: 1.2 }));
@@ -183,7 +216,7 @@ const settingsModal = ({ playerId, state, handlers }) => {
     });
 
     // Ports: text inputs (same input mechanism as the dashboard search box)
-    const portField = ({ y, labelText, value, configKey }) => {
+    const portField = ({ y, labelText, value, configKey, fromEnvironment }) => {
         modal.addChild(label({ x: 10, y: y + 1.5, text: labelText, playerId, size: 1.2 }));
         const box = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -192,10 +225,14 @@ const settingsModal = ({ playerId, state, handlers }) => {
             fill: COLORS.WHITE,
             border: 2,
             color: PANEL_BORDER_COLOR,
-            input: {
+            ...(fromEnvironment ? {} : { input: {
                 type: 'text',
-                oninput: (pid, input) => handlers.onSetPort(configKey, input)
-            }
+                oninput: (pid, input) => {
+                    // Text inputs are addressed by node ID. A guest can guess
+                    // another player's node, so bind the action to its sender.
+                    if (Number(pid) === Number(playerId)) handlers.onSetPort(configKey, input);
+                }
+            } })
         });
         box.addChild(new GameNode.Text({
             textInfo: {
@@ -208,15 +245,17 @@ const settingsModal = ({ playerId, state, handlers }) => {
             }
         }));
         modal.addChild(box);
+        if (fromEnvironment) modal.addChild(label({ x: 51, y: y + 1.5,
+            text: `Set by ${configKey}`, playerId, size: 1, color: MUTED_TEXT_COLOR }));
     };
 
-    portField({ y: 63.5, labelText: 'Game port', value: state.homePort, configKey: 'HOME_PORT' });
-    portField({ y: 70.5, labelText: 'Identity port', value: state.homenamesPort, configKey: 'HOMENAMES_PORT' });
+    portField({ y: 63.5, labelText: 'Game port', value: state.homePort, configKey: 'HOME_PORT', fromEnvironment: state.homePortFromEnvironment });
+    portField({ y: 70.5, labelText: 'Identity port', value: state.homenamesPort, configKey: 'HOMENAMES_PORT', fromEnvironment: state.homenamesPortFromEnvironment });
 
     // Fork opt-in: without Docker, game sessions run via fork() with no
     // isolation — off by default. Applies to new sessions immediately
     // (the session manager reads it per launch), hence no pendingRestart.
-    modal.addChild(label({ x: 10, y: 79, text: 'Allow fork for child sessions', playerId, size: 1.2 }));
+    modal.addChild(label({ x: 10, y: 79, text: 'Run games without Docker', playerId, size: 1.2 }));
     modal.addChild(button({
         x: 44, y: 77.5, width: 10, height: 6,
         text: state.allowFork ? 'On' : 'Off',
@@ -225,9 +264,14 @@ const settingsModal = ({ playerId, state, handlers }) => {
         onClick: () => handlers.onToggleAllowFork()
     }));
     modal.addChild(label({
-        x: 56, y: 79.5,
-        text: 'Runs games without Docker. Applies immediately.',
-        playerId, size: 0.95, color: MUTED_TEXT_COLOR
+        x: 56, y: 78,
+        text: 'Games run on your machine',
+        playerId, size: 0.95, color: CORAL_COLOR
+    }));
+    modal.addChild(label({
+        x: 56, y: 80.5,
+        text: 'outside of a sandbox.',
+        playerId, size: 0.95, color: CORAL_COLOR
     }));
 
     // --- Restart to apply ---

@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const { Chip8 } = require('./chip8');
 const ROM = require('./rom');
 
@@ -42,9 +42,11 @@ const glow = (color, blur) => ({ shadow: { color: [color[0], color[1], color[2],
 class Cabinet extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true, // Catalog review: see docs/game-consolidation.md.
+
+            squishVersion: '150',
             name: 'The Cabinet',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'Someone left a computer from 1977 in the break room. It is a real emulated CHIP-8 CPU - RAM, registers, and all - and the only ROM anyone can find is PONG. Two take the seats, everyone else watches the machine think.',
             aspectRatio: { x: 16, y: 9 },
             services: ['multiplayer'],

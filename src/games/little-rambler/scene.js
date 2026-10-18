@@ -26,7 +26,7 @@ function resources(p,s,x=100,y=4){
 function header(p,g,subtitle){
     p.rect(0,0,160,10.7,C.dark,.96);
     p.ellipse(4.5,5,1.3,2.2,C.green);p.line(4.1,6.4,5,3.4,C.gold,.2);
-    p.heading('Little Rambler',8,1.9,3.6,C.cream);
+
     p.text(subtitle,8,7,1.35,C.muted);
     resources(p,g.engine.save,91,3.8);
     p.button(g.music?'Music on':'Music off',136,2.4,20,5.6,'music',false,true);
@@ -76,7 +76,6 @@ function home(p,g){
     pill(p,s.name,c.x*1.6-9,66,18);
     for(let i=0;i<5;i++)p.circle(12+(i*23+t*1.2)%101,18+(i*9+t*.7)%35,.10+(i%2)*.06,C.gold,null,.4);
     panel(p,123,14,33,56);
-    p.text('YOUR LITTLE COMPANION',126,17,1.2,[104,111,79]);
     p.heading(s.name,126,21,4,C.ink);
     p.text(growth.label,126,27,1.7,C.rust);
     p.roundRect(126,32,27,1.1,.4,[199,188,153]);p.roundRect(126,32,Math.max(.7,27*growth.progress),1.1,.4,C.green);
@@ -87,7 +86,7 @@ function home(p,g){
     if(next){p.heading(next.name,126,49.3,2,C.ink);wrap(p,next.description.replace(/Pip/g,s.name),126,53,25,1.4,C.ink,3);}
     else{p.heading('A place of our own',126,49.3,2,C.ink);wrap(p,'A berry patch, a tiny song, a place to dream.',126,53,25,1.4,C.ink,3);}
     p.button('Field notes',126,63,27,4.4,'journal',false,true);
-    header(p,g,'A small house. A curious companion.');
+    header(p,g,'');
     p.rect(0,73,160,17,C.dark,.97);
     p.text(e.message,80,75.1,1.65,C.cream,'center');
     p.button('Oat bites',4,80,27,6.4,'feed:staple',false,false);
@@ -95,9 +94,7 @@ function home(p,g){
     p.button('Pet '+s.name,64,80,27,6.4,'pet',false,false);
     p.button('Make a home',94,80,28,6.4,'builds',false,false);
     p.button('Go exploring',125,80,31,6.4,'outings',true,false);
-    p.text('Free, warm, and crumbly',17.5,87.5,1.05,C.muted,'center');
-    p.text(s.favoriteFound?'A very favorite snack':'Try something sweet',47.5,87.5,1.05,C.muted,'center');
-    p.text('Or tap your little friend',77.5,87.5,1.05,C.muted,'center');
+    if(s.favoriteFound)p.text('Favorite!',47.5,87.5,1.05,C.muted,'center');
 }
 function terrain(p,platform,camera){
     const x=(platform.x-camera)*1.6,y=platform.y*.9,w=platform.w*1.6,h=platform.h*.9;
@@ -253,11 +250,9 @@ function result(p,g){
 }
 function welcome(p,g){
     curtain(p);panel(p,24,16,112,60);
-    p.text('WELCOME TO LITTLE RAMBLER',80,21,1.45,C.rust,'center');
-    p.heading('A little home. A big first day.',80,27,4.5,C.ink,'center');
-    creature(p,50,59,2.1,g.clock,{coat:g.engine.save.coat});
-    wrap(p,'This is Pip. Pip likes warm crumbs, strange objects, and probably you.',72,39,35,1.95,C.ink,4);
-    wrap(p,'Share a snack. Take an adventure. Bring a little of the world home.',72,50,36,1.7,C.ink,3);
+
+    creature(p,80,56,2.8,g.clock,{coat:g.engine.save.coat});
+
     p.button('Hello, Pip',53,64,54,7,'welcome:done',true,false);
     p.text('Progress saves automatically. Your friend is safe while you are away.',80,81,1.6,C.cream,'center');
 }

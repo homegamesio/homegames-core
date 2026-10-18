@@ -1,0 +1,25 @@
+{
+  "latest": "2.0.2",
+  "builds": [
+    {
+      "version": "2.0.2",
+      "date": "2026-10-14",
+      "sizeBytes": 430176264,
+      "sha256": "19ceadc2eed74e39f6a4ea0cd48e31ae648d5b7b126f4990ce39d8efc462c0ab",
+      "dmg": {
+        "sizeBytes": 513368081,
+        "sha256": "18d7ef2ea4904195336c2783bcd53039e9c2a28e683d2fdcba7c4fc51fca41a5"
+      }
+    },
+    {
+      "version": "2.0.1",
+      "date": "2026-08-26",
+      "sizeBytes": 279973085
+    },
+    {
+      "version": "2.0.0",
+      "date": "2026-08-23",
+      "sizeBytes": 160800126
+    }
+  ]
+}

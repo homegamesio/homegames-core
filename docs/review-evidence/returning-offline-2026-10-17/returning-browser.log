@@ -1,0 +1,9 @@
+Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/homegames-returning-browser-CGXnmt
+PASS: previous release has an edited legacy project and a saved playing copy in one real profile
+PASS: returning public homepage loads current versioned CSS/JS despite a fresh year-long cache of old bare URLs
+PASS: upgrade from an unpatched worker preserves open editor/game and shell affinity across worker restart
+PASS: returning Studio offers all 8 examples from the current release
+PASS: old active tabs keep playing/export runtime offline; new tabs and saved copies reopen with the new shell offline
+PASS: interrupted download rejects the update and keeps the complete working shell
+PASS: wrong-but-200 release asset rejects the update and keeps the complete working shell
+PASS: retry activates the complete release; later navigation upgrades without losing the project or installed game

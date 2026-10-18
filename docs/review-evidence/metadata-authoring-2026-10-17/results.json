@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-17",
+  "localCandidate": true,
+  "published": false,
+  "gameCount": 78,
+  "featuredCount": 12,
+  "catalogSha256": "adca0def4787082949d4966c98ddecc3eb5ab46cb3e2873a666beb59962a5f53",
+  "common": {
+    "passed": 39,
+    "failed": 0
+  },
+  "coreMetadata": {
+    "passed": 14,
+    "failed": 0
+  },
+  "coreHttp": {
+    "passed": 14,
+    "failed": 0
+  },
+  "coreSessions": {
+    "passed": 224,
+    "failed": 0
+  },
+  "website": {
+    "passed": 64,
+    "failed": 0
+  },
+  "chatgptProjects": {
+    "passed": 7,
+    "failed": 0
+  },
+  "chatgptMcp": {
+    "passed": 1,
+    "failed": 0
+  },
+  "metadataBrowser": {
+    "passedGroups": 3
+  },
+  "examplesBrowser": {
+    "passedGroups": 2
+  },
+  "catalogBrowser": {
+    "passed": 78,
+    "failed": 0
+  },
+  "authoringExamples": {
+    "passed": 2
+  },
+  "catalogAudit": {
+    "passed": 48,
+    "failed": 2
+  },
+  "sourceFingerprintCount": 687,
+  "notes": [
+    "Suites overlap; counts are not summed.",
+    "Catalog smoke is not a full playthrough, physical mobile performance or WAN/TURN test.",
+    "Catalog audit remains open for four thumbnail requirements and stale screenshot inventory."
+  ]
+}

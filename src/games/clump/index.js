@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { TYPES } = require('./shapes');
 
 // tickRate / maxPlayers MUST stay in sync with the metadata() literals below.
@@ -196,13 +196,15 @@ const formatSize = (r) => {
 class Clump extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Clump',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'A polygonal katamari. Roll up pins, cats, cars, and the moon before the King gets bored.',
             aspectRatio: { x: 1, y: 1 },
-            tickRate: 120,       // keep in sync with TUNING.TICK
-            maxPlayers: 1        // keep in sync with TUNING.MAX_PLAYERS
+            tickRate: 120,
+            maxPlayers: 1,
+            gameId: "29eecbfa-9393-5872-a90f-b89882d304f1"
         };
     }
 

@@ -22,7 +22,8 @@ const fs = require('fs');
 const path = require('path');
 
 const { getConfigValue, getAppDataPath } = require('homegames-common');
-const localPlay = require('homegames-common/local-play');
+const { readGameMetadata } = require('./game-metadata');
+const { readGameAsset } = require('homegames-common/local-game-assets');
 // Shared with homegames-client's game-loader — the browser resolves requires
 // against the virtual map with these exact functions, so the map must be
 // built with them too.
@@ -86,7 +87,8 @@ const extractRelativeRequires = (source) => {
 //
 // Returns { files, entryPoint }.
 const collectGameFiles = (entryRealPath) => {
-    const entryPoint = path.basename(entryRealPath);
+    entryRealPath = fs.realpathSync(entryRealPath);
+    const entryPoint = path.relative(require('homegames-common/local-game-assets').gameProjectRoot(entryRealPath), entryRealPath).split(path.sep).join('/');
     const files = {};          // virtual path -> source
     const realByVirtual = {};  // virtual path -> real path (collision detection)
 
@@ -145,21 +147,22 @@ const collectGameFiles = (entryRealPath) => {
 // Context — files + metadata for one installed game version
 // ---------------------------------------------------------------------------
 
-const EMPTY_META = { squishVersion: null, name: null, services: [], assets: [] };
+const EMPTY_META = { squishVersion: null, name: null, maxPlayers: 64, multiplayer: true, assets: [] };
 
 const buildLocalPlayContext = (gameKey, version) => {
     const { files, entryPoint } = collectGameFiles(version.gamePath);
 
     let meta = EMPTY_META;
     if (files[entryPoint]) {
-        const parsed = localPlay.parseGameSourceMetadata(files[entryPoint]);
-        if (!parsed.error) meta = parsed;
+        const parsed = readGameMetadata(version.gamePath);
+        meta = parsed;
     }
 
     return {
         gameName: meta.name || gameKey,
         files,
         entryPoint,
+        entryPath: version.gamePath,
         meta,
     };
 };
@@ -168,21 +171,21 @@ const buildLocalPlayContext = (gameKey, version) => {
 // Asset bundle — bytes for the game's declared assets, packed type-1
 // ---------------------------------------------------------------------------
 
-// Default asset source: squish's Asset class, which reads the shared
+// Legacy asset source: squish's Asset class, which reads the shared
 // <appData>/asset-cache (already warm for any game that has run a hosted
 // session) and falls back to downloading from the API.
 const defaultFetchAssetData = (assetInfo) => {
-    const { Asset } = require(squishMap['142']);
+    const { Asset } = require(squishMap['150']);
     return new Asset({ id: assetInfo.id, type: assetInfo.type }).getData();
 };
 
 const buildAssetBundle = (context, fetchAssetData = defaultFetchAssetData) => {
     const assets = (context.meta && context.meta.assets) || [];
-    if (!assets.length) return Promise.resolve(Buffer.alloc(0));
-
-    return Promise.all(assets.map(a =>
-        fetchAssetData(a).then(data => ({ key: a.key, type: a.type, data }))
-    )).then(entries => localPlay.packAssetBundle(entries));
+    return require('homegames-common/local-play-shared').loadAssetBundle(assets, a =>
+        // Bundled media belongs to the game directory, independent of the
+        // server's working directory, remote API, and legacy asset cache.
+        a.path !== undefined ? readGameAsset(context.entryPath, a.path) : fetchAssetData(a)
+    ).then(bundle => Buffer.from(bundle));
 };
 
 // ---------------------------------------------------------------------------
@@ -249,7 +252,11 @@ const createLocalPlayHandler = ({ localLibrary = null, fetchAssetData = defaultF
         const action = match[2];
         const versionId = new URLSearchParams(query || '').get('versionId');
 
-        const game = lookupGame(gameKey);
+        let game = lookupGame(gameKey);
+        if (game && versionId && !game.versions[versionId]) {
+            games = library.scan();
+            game = games[gameKey];
+        }
         if (!game) {
             jsonResponse(res, 404, { error: `Unknown game: ${gameKey}` });
             return true;
@@ -267,9 +274,12 @@ const createLocalPlayHandler = ({ localLibrary = null, fetchAssetData = defaultF
             jsonResponse(res, 200, {
                 gameKey,
                 versionId: version.versionId,
-                localPlayable: true,
-                reason: null,
-                multiplayer: (context.meta.services || []).includes('multiplayer'),
+                localPlayable: !context.meta.error,
+                reason: context.meta.error || null,
+                multiplayer: context.meta.maxPlayers > 1,
+                maxPlayers: context.meta.maxPlayers || null,
+                gameId: context.meta.gameId || null,
+                saveSchemaVersion: context.meta.saveSchemaVersion || 1,
                 name: context.gameName,
                 squishVersion: context.meta.squishVersion,
                 entryPoint: context.entryPoint,

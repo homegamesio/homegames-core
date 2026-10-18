@@ -1,0 +1,2 @@
+PASS: a stale tab can download all conflicting work and save its exact edits as a new editable copy
+PASS: reload finishes an interrupted restore and preserves its undo backup

@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-142');
+const { Asset, GameNode } = require('squish-150');
 
 const SAMPLE_RATE = 16000;
 const PITCHES = [523.25, 587.33, 659.25, 783.99, 880, 1046.5];

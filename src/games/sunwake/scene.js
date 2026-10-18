@@ -1,4 +1,4 @@
-const { GameNode, Shapes } = require('squish-145');
+const { GameNode, Shapes } = require('squish-150');
 const { BIOMES, clamp } = require('./settings');
 const tint = (c, n, alpha = c[3]) => [clamp(Math.round(c[0] * n), 0, 255), clamp(Math.round(c[1] * n), 0, 255), clamp(Math.round(c[2] * n), 0, 255), alpha];
 const polygon = (x, y, rx, ry, sides = 8, angle = 0) => Array.from({ length: sides }, (_, i) => [x + Math.cos(angle + i * Math.PI * 2 / sides) * rx, y + Math.sin(angle + i * Math.PI * 2 / sides) * ry]);

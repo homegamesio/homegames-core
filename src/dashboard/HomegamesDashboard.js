@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 
 const { getConfigValue, getConfig, setConfigValue, getAppDataPath, log } = require('homegames-common');
+const discovery = require('../util/link-helper');
 
 console.log('wattt1')
 const squishMap = require('../common/squish-map');
@@ -9,7 +10,7 @@ const squishMap = require('../common/squish-map');
 console.log('watdsfdsf3');
 console.log(squishMap);
 
-const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require(squishMap['142']);
+const { Asset, Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require(squishMap['150']);
 
 console.log('this is Game');
 console.log(Game);
@@ -30,7 +31,7 @@ const sessionStrip = require('./session-strip');
 const settingsModal = require('./settings-modal');
 const { getDefaultInstance: getCertManager } = require('../util/cert-manager');
 
-const { createCatalogClient } = require('../catalog/CatalogClient');
+const { createLocalCatalog } = require('../library/LocalCatalog');
 const { createLocalLibrary } = require('../library/LocalLibrary');
 const { createInstaller } = require('../library/Installer');
 
@@ -82,8 +83,6 @@ const CHILD_SESSION_HEARTBEAT_INTERVAL = getConfigValue('CHILD_SESSION_HEARTBEAT
 const SOURCE_GAME_DIRECTORY = path.resolve(`${baseDir}${path.sep}src${path.sep}games`);
 const DOWNLOADED_GAME_DIRECTORY = path.join(getAppDataPath(), 'hg-games');
 
-const networkHelper = createCatalogClient({ apiUrl: API_URL });
-
 const localLibrary = createLocalLibrary({
     sourceGameDir: SOURCE_GAME_DIRECTORY,
     downloadedGameDir: DOWNLOADED_GAME_DIRECTORY,
@@ -91,26 +90,27 @@ const localLibrary = createLocalLibrary({
 });
 
 localLibrary.ensureDirs();
+const networkHelper = createLocalCatalog(localLibrary);
 
 class HomegamesDashboard extends ViewableGame {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
             author: 'Joseph Garcia',
-            squishVersion: '142'
+            squishVersion: '150'
         };
     }
 
 
-    constructor({ movePlayer, requestClientSave, startLocalPlay, requestRestart, servingHttps, addAsset, username, certPath, gameSessionManager, householdRooms, catalogClient, localLibrary: injectedLibrary }) {
+    constructor({ movePlayer, requestClientSave, startLocalPlay, requestRestart, servingHttps, addAsset, username, certPath, gameSessionManager, householdRooms, canManageServer = () => false, catalogClient, localLibrary: injectedLibrary }) {
         super(1000);
         // todo: static vs. addasset
 
         // Catalog client and local library are injectable for testing; they
         // default to the module-level instances (real API + app-data dir). The
         // installer shares both so installs hit the same (possibly mocked) deps.
-        this.networkHelper = catalogClient || networkHelper;
         this.localLibrary = injectedLibrary || localLibrary;
+        this.networkHelper = catalogClient || createLocalCatalog(this.localLibrary);
         this.installer = createInstaller({ catalogClient: this.networkHelper, localLibrary: this.localLibrary });
 
         this.addAsset = addAsset;
@@ -118,16 +118,17 @@ class HomegamesDashboard extends ViewableGame {
         this.certPath = certPath;
         this.gameSessionManager = gameSessionManager;
         this.householdRooms = householdRooms;
+        this.canManageServer = canManageServer;
 
         this.assets = {
             'default': new Asset({
-                'id': 'ff745468e1b725445c65245ce044da21',
+                path: "./assets/ff745468e1b725445c65245ce044da21.png",
                 'type': 'image'
-            }),
+            }, fs.readFileSync(path.join(__dirname, "./assets/ff745468e1b725445c65245ce044da21.png"))),
             'dashboardSong': new Asset({
-                'id': 'd9f097268324319d07a903cb50dc7210',
+                path: "./assets/d9f097268324319d07a903cb50dc7210.mp3",
                 type: 'audio'
-            })
+            }, fs.readFileSync(path.join(__dirname, "./assets/d9f097268324319d07a903cb50dc7210.mp3")))
         };
 
         this.playerModals = {};
@@ -152,6 +153,7 @@ class HomegamesDashboard extends ViewableGame {
         // Live cert progress: re-render any open settings modal when the cert
         // manager reports a change (absent in tests / custom setups).
         this._certManager = getCertManager();
+        this._stopDiscoveryUpdates = discovery.onDiscoveryUpdate(() => this._rerenderSettingsModals());
         if (this._certManager) {
             this._certManager.onUpdate(() => this._rerenderSettingsModals());
         }
@@ -530,6 +532,11 @@ class HomegamesDashboard extends ViewableGame {
     // Server settings
     // -----------------------------------------------------------------------
 
+    close(...args) {
+        this._stopDiscoveryUpdates?.();
+        return super.close(...args);
+    }
+
     // Everything the settings modal needs to render. HTTPS intent is read
     // from the merged config file (NOT getConfigValue) because the env var
     // HTTPS_ENABLED means "serving https in this process right now" — the two
@@ -539,33 +546,50 @@ class HomegamesDashboard extends ViewableGame {
         const configuredPageSizeNow = Number(config.DASHBOARD_PAGE_SIZE);
         return {
             servingHttps: this.servingHttps,
+            offline: process.env.HG_OFFLINE === 'true',
             httpsEnabled: config.HTTPS_ENABLED === true,
             certStatus: this._certManager ? this._certManager.getStatus() : null,
+            discoveryStatus: discovery.getDiscoveryStatus(),
             pendingRestart: this.pendingRestart,
             pageSize: [3, 6, 9].indexOf(configuredPageSizeNow) >= 0 ? configuredPageSizeNow : 6,
-            homePort: config.HOME_PORT || 7001,
-            homenamesPort: config.HOMENAMES_PORT || 7100,
+            homePort: Number(getConfigValue('HOME_PORT', 7001)),
+            homenamesPort: Number(getConfigValue('HOMENAMES_PORT', 7100)),
+            homePortFromEnvironment: process.env.HOME_PORT !== undefined,
+            homenamesPortFromEnvironment: process.env.HOMENAMES_PORT !== undefined,
             allowFork: config.FORK_SESSIONS_ENABLED === true,
         };
     }
 
     _settingsHandlers(playerId) {
-        return {
+        const handlers = {
             onEnableMultiplayer: () => {
+                if (!getConfigValue('LINK_ENABLED', false)) this.pendingRestart = true;
+                setConfigValue('LINK_ENABLED', true);
                 setConfigValue('HTTPS_ENABLED', true);
                 if (this._certManager) {
                     // Background acquisition; progress arrives via onUpdate.
-                    this._certManager.ensureCert().catch(() => {});
+                    const ready = this._certManager.hasValidCert()
+                        ? this._certManager.checkNetwork() : this._certManager.ensureCert();
+                    ready.catch(() => {});
                 }
                 this.showSettingsModal(playerId);
             },
             onDisableMultiplayer: () => {
+                setConfigValue('LINK_ENABLED', false);
                 setConfigValue('HTTPS_ENABLED', false);
-                if (this.servingHttps) {
-                    this.pendingRestart = true;
+                this.pendingRestart = true;
+                this.showSettingsModal(playerId);
+            },
+            onRetryCertificate: () => {
+                if (this._certManager) {
+                    const retry = this._certManager.getStatus().networkChanged
+                        ? this._certManager.checkNetwork()
+                        : this.servingHttps ? this._certManager.maybeRenew() : this._certManager.ensureCert();
+                    retry.catch(() => {});
                 }
                 this.showSettingsModal(playerId);
             },
+            onRetryDiscovery: () => { void discovery.retryDiscovery(); },
             onRestart: (openLink) => {
                 if (this.requestRestart) {
                     this.requestRestart(openLink);
@@ -587,6 +611,7 @@ class HomegamesDashboard extends ViewableGame {
             },
             onSetPort: (key, rawValue) => {
                 if (key !== 'HOME_PORT' && key !== 'HOMENAMES_PORT') return;
+                if (process.env[key] !== undefined) return;
                 const port = Number(String(rawValue).trim());
                 // Unprivileged, sane range only; silently ignore junk input.
                 if (!Number.isInteger(port) || port < 1024 || port > 65535) return;
@@ -598,9 +623,20 @@ class HomegamesDashboard extends ViewableGame {
             },
             onClose: () => this.closeSettingsModal(playerId),
         };
+        // Check at invocation too: hiding a button is not authorization, and
+        // a disconnected player's old callbacks must lose their privileges.
+        for (const name of Object.keys(handlers)) {
+            if (name === 'onClose') continue;
+            const handler = handlers[name];
+            handlers[name] = (...args) => {
+                if (this.canManageServer(playerId)) return handler(...args);
+            };
+        }
+        return handlers;
     }
 
     showSettingsModal(playerId) {
+        if (!this.canManageServer(playerId)) return;
         const playerRoot = this.playerRoots[playerId] && this.playerRoots[playerId].node;
         if (!playerRoot) return;
 
@@ -813,7 +849,7 @@ class HomegamesDashboard extends ViewableGame {
                 this.renderGames(playerId, { searchResults: games, searchQuery: query });
             } else {
                 results.games.forEach(game => {
-                    const thumbnailId = game.thumbnail.indexOf('/') > 0 ? game.thumbnail.split('/')[game.thumbnail.split('/').length  - 1] : game.thumbnail; 
+                    const thumbnailId = game.thumbnail && game.thumbnail.indexOf('/') > 0 ? game.thumbnail.split('/').pop() : game.thumbnail;
 
                     games[game.id] = {
                         metadata: {
@@ -980,6 +1016,11 @@ class HomegamesDashboard extends ViewableGame {
             return;
         }
 
+        if (!this.canManageServer(playerId)) {
+            this.showSessionError(playerId, 'Ask the host to install this game on their computer.');
+            return;
+        }
+
         this.showDownloadProgress(playerId, gameId, null);
 
         // Games have no asset zip anymore; their source lives in git, fetched by
@@ -998,6 +1039,8 @@ class HomegamesDashboard extends ViewableGame {
                 ? (versions.find(v => v.versionId === requestedVersionId) || latest)
                 : latest;
             const displayName = (gameDetails.game && gameDetails.game.name) || gameId;
+
+            if (!this.canManageServer(playerId)) throw new Error('Host disconnected before installation.');
 
             return this.installer.installFromSource({
                 gameId,
@@ -1125,6 +1168,12 @@ class HomegamesDashboard extends ViewableGame {
     // Session launch failed — tell the player why (e.g. fork sessions disabled
     // and Docker not running) instead of leaving them staring at the dashboard.
     showSessionError(playerId, message) {
+        message = String(message || 'Unable to start the game.');
+        // Common 1.7.3 uses the previous setting label in its launch error.
+        // Keep the dashboard's guidance consistent with the visible control.
+        if (message.startsWith('Fork sessions are disabled and Docker is not running.')) {
+            message = 'Start Docker or enable "Run games without Docker" in Settings.';
+        }
         this._showOverlayMessage(playerId, `${message} Tap to dismiss.`, 1.2);
     }
 
@@ -1184,7 +1233,7 @@ class HomegamesDashboard extends ViewableGame {
                 y: centerTextY(TOP_BAR.y, TOP_BAR.height, 1.3),
                 align: 'center',
                 size: 1.3,
-                text: browse ? '◀ Back' : 'Browse',
+                text: browse ? '◀ Back' : 'Library',
                 color: DASHBOARD_TEXT_COLOR
             },
             playerIds: [playerId]
@@ -1256,7 +1305,7 @@ class HomegamesDashboard extends ViewableGame {
             playerSearchBox.addChildren(clearSearchButton);
         }
 
-        // Server settings — open to every connected player for now.
+        // Server settings are shown only to the host computer.
         const settingsButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(76.5, TOP_BAR.y, 11, TOP_BAR.height),
@@ -1384,7 +1433,8 @@ class HomegamesDashboard extends ViewableGame {
 
         downArrow.addChild(downText);
 
-        baseNode.addChildren(browseToggle, playerSearchBox, settingsButton);
+        baseNode.addChildren(browseToggle, playerSearchBox);
+        if (this.canManageServer(playerId)) baseNode.addChild(settingsButton);
         if (canGoUp) {
             baseNode.addChildren(upArrow);
         }
@@ -1426,7 +1476,7 @@ class HomegamesDashboard extends ViewableGame {
                     y: 52,
                     align: 'center',
                     size: 1.2,
-                    text: 'Tap Browse to explore the catalog',
+                    text: this.canManageServer(playerId) ? 'Add a game pack with Import ZIP' : 'Ask the host to add a game pack',
                     color: PLACEHOLDER_TEXT_COLOR
                 },
                 playerIds: [playerId]
@@ -1439,11 +1489,11 @@ class HomegamesDashboard extends ViewableGame {
             // Status line for loading / error / empty catalog.
             let statusText = null;
             if (browseState.error) {
-                statusText = 'Could not reach the catalog. Showing what is available offline.';
+                statusText = 'Could not read the local library.';
             } else if (browseState.loading && Object.keys(browseState.results || {}).length === 0) {
-                statusText = 'Loading catalog…';
+                statusText = 'Reading local games…';
             } else if (!browseState.loading && Object.keys(browseState.results || {}).length === 0) {
-                statusText = 'No games found in the catalog.';
+                statusText = 'No local games found.';
             }
 
             if (statusText) {
@@ -1560,17 +1610,33 @@ class HomegamesDashboard extends ViewableGame {
     _registerLocalThumbnails() {
         const testGamesEnabled = getConfigValue('TESTS_ENABLED', false);
         Object.keys(this.localGames)
-            // Hidden development games must not make a normal dashboard
-            // download their thumbnails before it can start offline.
+            // Hidden development games do not need dashboard thumbnails.
             .filter(k => this.localGames[k].metadata && this.localGames[k].metadata.thumbnail
                 && (testGamesEnabled || !this.localGames[k].metadata.isTest))
             .forEach(key => {
-                this.assets[key] = new Asset({
-                    'id': this.localGames[key].metadata && this.localGames[key].metadata.thumbnail,
-                    'source': this.localGames[key].metadata && this.localGames[key].metadata.thumbnailSource,
-                    'type': 'image'
-                });
+                const metadata = this.localGames[key].metadata;
+                // Older installed games may still declare a hosted asset ID.
+                // Thumbnails are optional: never add an Asset without bytes,
+                // since that prevents the entire dashboard from initializing.
+                // Keep the fallback under the game key for catalog/modal views.
+                this.assets[key] = this.assets.default;
+                if (typeof metadata.thumbnail === 'string' && metadata.thumbnail.startsWith('./') && metadata.gamePath) {
+                    try {
+                        this.assets[key] = new Asset({ path: metadata.thumbnail, type: 'image' },
+                            require('homegames-common/local-game-assets').readGameAsset(metadata.gamePath, metadata.thumbnail));
+                    } catch (err) {
+                        log.error(`Unable to load thumbnail for ${key}: ${err.message}`);
+                    }
+                }
             });
+    }
+
+    async refreshLibrary() {
+        this.localGames = this.localLibrary.scan();
+        const previous = new Set(Object.keys(this.assets));
+        this._registerLocalThumbnails();
+        await Promise.all(Object.entries(this.assets).filter(([key]) => !previous.has(key)).map(([key, asset]) => this.addAsset(key, asset)));
+        for (const playerId of Object.keys(this.playerStates)) this.exitBrowse(playerId);
     }
 
     handlePlayerDisconnect(playerId) {

@@ -1,0 +1,179 @@
+{
+  "reviewDateLocal": "2026-10-14",
+  "timezone": "America/Phoenix",
+  "evidenceRecordedAtUtc": "2026-10-15T05:59:52.538234+00:00",
+  "environment": {
+    "node": "24.19.0",
+    "chrome": "143.0.7499.169",
+    "platform": "macOS",
+    "localRtcTestFlag": "RTC_TEST_DISABLE_MDNS=1"
+  },
+  "repositories": {
+    "homegames-core": {
+      "head": "61a9f58d499d89f2a459ba372528d52d7a120caf",
+      "packageVersion": "1.4.3",
+      "reviewedWorkingTree": true
+    },
+    "homegames-common": {
+      "head": "536d1c6f18ba0614db81b9afe7443eac9d2775cd",
+      "packageVersion": "1.7.1",
+      "reviewedWorkingTree": true
+    },
+    "squish": {
+      "head": "b41989e43b377aa5f5f7342d0ae05f0cc24aaf10",
+      "packageVersion": "1.4.6",
+      "reviewedWorkingTree": true
+    },
+    "homegames-client": {
+      "head": "4bf78c1c7b768ab9fd133226259eef4def336a7c",
+      "packageVersion": "0.1.1",
+      "reviewedWorkingTree": true
+    },
+    "api": {
+      "head": "60c4667524b1f56e8dc7d6f72b8904d984614834",
+      "packageVersion": "0.0.1",
+      "reviewedWorkingTree": true
+    },
+    "worker": {
+      "head": "f1c9bf0b5b1801d17ca3a8246f250e5db0c24a59",
+      "packageVersion": null,
+      "reviewedWorkingTree": true
+    },
+    "homegamesio": {
+      "head": "fd55ab5c52ef2f599b0eb1b8bd73f283a88551e5",
+      "packageVersion": "0.4.2",
+      "reviewedWorkingTree": true
+    },
+    "homegames": {
+      "head": "e338bbf0ad92bf5c99eaf954f74b6f503bf02741",
+      "packageVersion": "2.0.3",
+      "reviewedWorkingTree": true
+    },
+    "homegames.link": {
+      "head": "69aacd10551437ce4ebbeb01945bb81b8897bdbf",
+      "packageVersion": "0.4.2",
+      "reviewedWorkingTree": true
+    }
+  },
+  "sourceSha256": {
+    "api/index.js": "b1d812ef2b8199940881fdb66b55c81505bc90cf35426dfcfda181a40f5b67d7",
+    "api/connection-api.js": "3f0d6cd24d74c16a80f4370c4fca159c603e7c245951e96882d422fa1bdb4fb8",
+    "homegames-core/src/Homenames.js": "14bdfad447a81cd931e820d761e38b3818c07d848eb98da1e65c2081451bf589",
+    "homegames-core/src/dashboard/HomegamesDashboard.js": "b934a873f20fc4a46080d4b63e19ca73689982e94c11a4a3b66118eab0ebbe52",
+    "homegames-core/package-lock.json": "0342afe1cff10e021e88db1fb0d8697842e6445882ed2afab7c82a614f74ab6b",
+    "homegames-common/game-session-manager.js": "2e656c7716d33f9da73b73e0be730d6daccef0f65600a577acbcca9eb8e7a6f7",
+    "homegames-common/portable-html.js": "b825d47e718391f363c84714ed51456ae3ec2c6d4946cf09674d38f7fa1dd544",
+    "homegames-common/portable-runtime.js": "ef3a217e1232a891684e28d950c6de6697b7f22fc3b5251adcbb0096c605dc31",
+    "homegames-common/rtc-signaling.js": "380b796373aedb0336d1669dd07c9807bfbe7443cc27d60c26c2f7b5c61deb5e",
+    "homegames-client/src/rtc-session.js": "af47f95e3b2190d619ba93d0587acfa6fb0a94a30054b61e2967694ae117f2c4",
+    "homegames-client/src/local-session.js": "1131e6fd9818616f3c30bd8a605725bcc54c99128d789e0e64da1a6de74abc70",
+    "homegamesio/site.config.json": "a78f178fc402a7b51f849cdd974fa1a23c4a36722e4edfe0ba4346777d6e005a",
+    "homegamesio/scripts/build-site.js": "cc0784ebef561171bf1828b1ceaace55978e0f8c08f60e716ea0e242abad898a",
+    "homegamesio/scripts/render-game-pages.js": "9420145d063d6535a0167442112434ebdd0bb07ca29004520c5380e48749c732",
+    "homegamesio/studio-project-store.js": "0aeb8c81493036c26b02685e184bb4a6953e7a3c93fc9017f55a062d64786b68",
+    "homegamesio/node_modules/homegames-client/dist/homegames-client.js": "fca6d9bd45c4d569592d503cd5574a0a1529060a09d7ee74148ed7076214f2f9",
+    "homegames-core/node_modules/homegames-common/portable-html.js": "b825d47e718391f363c84714ed51456ae3ec2c6d4946cf09674d38f7fa1dd544",
+    "homegames.link/package-lock.json": "73965c889c65873af87c20e1a1d56bc43b0af5c34fa89263962a0437fc9f7499"
+  },
+  "tests": {
+    "core": {
+      "passed": 911,
+      "failed": 8,
+      "skipped": 0,
+      "log": "/tmp/homegames-final-review/core.log",
+      "logSha256": "8046a8372b1f758f62e8afff261067e47c53865454c7d790f1649b9ff58fbf67"
+    },
+    "squish": {
+      "passed": 38,
+      "failed": 0,
+      "skipped": 0,
+      "log": "/tmp/homegames-final-review/squish.log",
+      "logSha256": "8cc5c20cab93e8bb371bbaa9a8f70d02edf7bcc9f0dbc715e1a9c3dd2b17786d"
+    },
+    "website": {
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0,
+      "log": "/tmp/homegames-final-review/website.log",
+      "logSha256": "5a9119417ffddcc53b223e69dd6f3d25df5aacb9b7cad35b7468c02f5647e99e"
+    },
+    "api": {
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "log": "/tmp/homegames-final-review/api.log",
+      "logSha256": "030f6d8b063e05bab9b18203fc21920590e726e4c9deb63ff87d6c2ae5c0246d"
+    },
+    "worker": {
+      "passed": 22,
+      "failed": 0,
+      "skipped": 0,
+      "log": "/tmp/homegames-final-review/worker.log",
+      "logSha256": "3579ddf5444ca9276b6850c0fb1a0c7818c2ee850e3392f9d3fb2a4adbbe8cc5"
+    },
+    "portable": {
+      "passed": 33,
+      "failed": 0,
+      "skipped": 0,
+      "log": "/tmp/homegames-final-review/portable.log",
+      "logSha256": "f52d878c61248139413b1cdc0800b59f85e5f0af92a9fe9608291411b8f58708"
+    },
+    "release": {
+      "passed": 48,
+      "failed": 0,
+      "skipped": 2,
+      "log": "/tmp/homegames-final-review/release.log",
+      "logSha256": "6ebe7450b093526cab359de6eb4e9a66b392c6329358e16a705c6ddd882fd2e9"
+    },
+    "static-site-browser": {
+      "result": "passed",
+      "log": "/tmp/homegames-final-review/static-site-browser.log",
+      "logSha256": "d26c69dfc284e4f0aa17efcbd3bc6450dd0f3f4cce1b3a9c528ce0c80a4bfd38"
+    },
+    "studio-storage-browser": {
+      "result": "passed",
+      "log": "/tmp/homegames-final-review/studio-storage-browser.log",
+      "logSha256": "19491c9a54cb848d78c52fd5c4b2a011cb81d1cfa227e67e0200d71bf4262ee5"
+    },
+    "rtc-copy-diagnostic": {
+      "result": "passed",
+      "log": "/tmp/homegames-final-review/rtc-copy-diagnostic.log",
+      "logSha256": "ce5257a4f135f712aa79dcaa7904172c8054654aded14846e77a9da41e28cef1",
+      "caveat": "Initial concurrent run timed out; independent rerun passed with added failure diagnostics and no product changes."
+    },
+    "catalog-games-diagnostic": {
+      "result": "passed",
+      "log": "/tmp/homegames-final-review/catalog-games-diagnostic.log",
+      "logSha256": "90e3233f6905a71134bbd740e12a5cbbb09aea0fc0bd51e7ab6b3fd09f949a6f",
+      "caveat": "87 games rendered and accepted first interaction after removing only the outdated More-button-must-be-absent assertion in an in-memory test wrapper. Original test remains failing."
+    }
+  },
+  "verifiedBoundaryResults": {
+    "unauthenticatedSessionSourceAccepted": true,
+    "sessionManagerMocked": true,
+    "arbitraryPlayerCanEnableFork": true,
+    "onlyDisposableConfigChanged": true,
+    "sharingDisabledFrameNavigationReachedSyntheticLocalSink": true,
+    "parentOriginEscapeDemonstrated": false,
+    "malformedUrlProcessExitWithDefaultRtc": 1,
+    "zip64SentinelRejectedBeforeDecompression": true
+  },
+  "publicSnapshot": {
+    "gameCount": 87,
+    "latestDownload": "2.0.2",
+    "clientPackage": "0.1.1",
+    "runtime": "homegames-client.fca6d9bd45c4d569.js",
+    "rtcProtocol": 2,
+    "turnSupplied": false,
+    "legacyContentRoutesRespond": true
+  },
+  "limitations": [
+    "No production attack or private-data access",
+    "No native artifact launch performed in this review",
+    "No physical mobile/Safari/Firefox checks",
+    "No cross-network or forced TURN data-channel test",
+    "No production load test or real certificate issuance"
+  ],
+  "productSourceChanged": false,
+  "deploymentPerformed": false
+}

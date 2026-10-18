@@ -1,0 +1,47 @@
+{
+  "name": "homegames-core",
+  "version": "1.4.3",
+  "description": "Play games at home",
+  "directories": {
+    "lib": "lib"
+  },
+  "pkg": {
+    "assets": "src/**/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/homegamesio/homegames.git"
+  },
+  "keywords": [
+    "homegames"
+  ],
+  "author": "Joseph Garcia",
+  "license": "GPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/homegamesio/homegames/issues"
+  },
+  "homepage": "https://github.com/homegamesio/homegames#readme",
+  "dependencies": {
+    "acorn": "^8.11.3",
+    "homegames-client": "file:/tmp/homegames-security-runtime-verified/homegames-client-0.1.2.tgz",
+    "homegames-common": "file:/tmp/homegames-security-runtime-verified/homegames-common-1.7.2.tgz",
+    "ws": "7.5.13",
+    "squish-142": "npm:squishjs@1.4.2",
+    "squish-143": "npm:squishjs@1.4.3",
+    "squish-145": "npm:squishjs@1.4.5",
+    "squish-146": "npm:squishjs@1.4.6",
+    "@peculiar/x509": "1.14.3"
+  },
+  "devDependencies": {
+    "homepad": "0.2.1",
+    "fflate": "0.8.3"
+  },
+  "overrides": {
+    "homepad": "0.2.1",
+    "homegames-common": {
+      ".": "$homegames-common",
+      "ws": "7.5.13"
+    }
+  },
+  "private": true
+}

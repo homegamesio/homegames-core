@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const { COLORS } = Colors;
 
 const P0 = 0;
@@ -21,13 +21,14 @@ const ellipse = (cx, cy, rx, ry, sides = 20) => {
 class Mancala extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Mancala',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'Classic Kalah mancala with captures and extra turns.',
             aspectRatio: { x: 16, y: 9 },
             maxPlayers: 2,
-            services: ['multiplayer']
+            gameId: "0a1c7aaf-7339-5555-a372-d207effda78a"
         };
     }
 
@@ -63,7 +64,6 @@ class Mancala extends Game {
         this.botToken = 0;
         this.botPending = false;
 
-        this.titleText = this.makeText('Mancala', 50, 4, 3.5, [244, 237, 216, 255]);
         this.statusText = this.makeText('Welcome to the table', 50, 11, 1.7, [244, 237, 216, 255]);
         this.scoreText = this.makeText('Blue 0   —   0 Gold', 50, 17, 1.25, [224, 216, 193, 255]);
         this.hintText = this.makeText('Land in your store for an extra turn', 50, 83, 1.15, [224, 216, 193, 255]);
@@ -144,14 +144,14 @@ class Mancala extends Game {
         this.storeCountNodes[13] = storeText1;
         this.base.addChildren(store0, store1, storeText0, storeText1);
 
-        this.bottomLabel = this.makeText('Blue → to the right store', 50, 71, 1.8, [244, 237, 216, 255]);
-        this.topLabel = this.makeText('Gold ← to the left store', 50, 26, 1.8, [244, 237, 216, 255]);
+        this.bottomLabel = this.makeText('Blue →', 50, 71, 1.8, [244, 237, 216, 255]);
+        this.topLabel = this.makeText('← Gold', 50, 26, 1.8, [244, 237, 216, 255]);
 
         this.rematchButton = this.makeButton(36, 92.5, 28, 6, 'Play again', [116, 82, 53, 255], () => {
             if (this.phase === 'over') this.resetRound();
         });
         this.rematchButton.node.playerIds = [0];
-        this.base.addChildren(this.titleText, this.statusText, this.scoreText, this.hintText, this.leftSeatText, this.rightSeatText, this.bottomLabel, this.topLabel, this.rematchButton);
+        this.base.addChildren(this.statusText, this.scoreText, this.hintText, this.leftSeatText, this.rightSeatText, this.bottomLabel, this.topLabel, this.rematchButton);
         this.render();
     }
 
@@ -197,7 +197,7 @@ class Mancala extends Game {
         else if (this.seats[P1].isBot) { seat=P1; this.invalidateBot(); }
         if (seat<0) return;
         this.seats[seat]={playerId,isBot:false,name};
-        const youText=this.makeText(`Playing as ${SIDE_NAMES[seat]}`,50,87, 1.8, [244, 237, 216, 255],[playerId]);
+        const youText=this.makeText(`You: ${SIDE_NAMES[seat]}`,50,87, 1.8, [244, 237, 216, 255],[playerId]);
         this.players[playerId]={seat,youText};
         this.base.addChild(youText);
         if(this.phase==='waiting') this.phase='playing';
@@ -412,14 +412,14 @@ class Mancala extends Game {
         if(this.phase==='playing'){
             const seat=this.seats[this.turn];
             status=seat.isBot?'Computer is choosing…':`${SIDE_NAMES[this.turn]} · ${seat.name}'s turn`;
-            hint=this.animating?'One stone in each pit along the way…':(seat.isBot?'Finish in your store to take another turn':'Choose an outlined pit · Collect the most stones');
+            hint=this.animating||seat.isBot||this.lastLanding!==null?'':'Choose an outlined pit';
         }else if(this.phase==='over'){
             if(this.board[6]>this.board[13]){status='Blue wins';hint=`${this.seats[P0].name} finishes with ${this.board[6]}`;}
             else if(this.board[13]>this.board[6]){status='Gold wins';hint=`${this.seats[P1].name} finishes with ${this.board[13]}`;}
             else{status='Draw';hint='The stores end even';}
         }
         this.statusText.node.text={text:status,x:50,y:11,size:2.6,align:'center',color:[244, 237, 216, 255],font:'default'};
-        this.scoreText.node.text={text:`${this.board[6]} in Blue store   ·   ${this.board[13]} in Gold store`,x:50,y:17,size:1.9,align:'center',color:[224, 216, 193, 255],font:'default'};
+        this.scoreText.node.text={text:'',x:50,y:17,size:1.9,align:'center',color:[224, 216, 193, 255],font:'default'};
         this.hintText.node.text={text:hint,x:50,y:83,size:2.0,align:'center',color:this.phase==='over'?[244, 237, 216, 255]:[224, 216, 193, 255],font:'default'};
         this.leftSeatText.node.text={text:`Blue · ${this.seats[P0].name} · ${this.scores[P0]}`,x:21,y:91,size:1.8,align:'center',color:[244, 237, 216, 255],font:'default'};
         this.rightSeatText.node.text={text:`Gold · ${this.seats[P1].name} · ${this.scores[P1]}`,x:79,y:91,size:1.8,align:'center',color:[244, 237, 216, 255],font:'default'};

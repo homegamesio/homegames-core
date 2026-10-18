@@ -1,0 +1,23 @@
+{
+  "src/games/aquarium/CREATURE_UNIFICATION_NOTES.md": "5e5fe019ec4ca8858066da7c0c3d469a5c77b6e6c708c6d72dccf6d30df0bf51",
+  "src/games/aquarium/FEEDING_FIX_NOTES.md": "087c7cb3fce666c52ed21ec92232105ff34010470313ed222c129354ae2d3a50",
+  "src/games/aquarium/FINAL_SHOWPIECE_NOTES.md": "922bb969cc307ec325c9f23854e69269aa9e3c857bc459064a727e23f309d574",
+  "src/games/aquarium/FOREVER_POLISH_NOTES.md": "0b3cf7786e1ee627bb2ef3bfe65360d8c50966898621d8feb393f7a0820f0657",
+  "src/games/aquarium/GAMEPLAY_REWARDS_NOTES.md": "6e356154268a8c58b9cd3d49a23dcdf22d5396352982ff1e3acd0118d62af0e5",
+  "src/games/aquarium/HORIZON_PROGRESSION_NOTES.md": "cafa9e99f243bfe499d554e29ed0acd929cbc2ec91836121c4319a387b7a8846",
+  "src/games/aquarium/HORIZON_RENDER_FIX_NOTES.md": "f4ca3224447b19d79180d8df0f03842f8fddf486fe107365ea073ba48704900d",
+  "src/games/aquarium/LICENSE": "0763018bf52f9e9cca6c910857fc8bfc6d0a0cb61340c907aa3728d7fcb870e6",
+  "src/games/aquarium/README.md": "ffd0352cb95bd8f460eb6847ef134cd02f788079f29b75c1b8c5fb79543c37fc",
+  "src/games/aquarium/VISUAL_REWARDS_NOTES.md": "39c96c60d3f15a79e148a5f93f9d85d8458dcbe3f78c073e1171d1ab06738f06",
+  "src/games/aquarium/assets/thumbnail.png": "6b6fe9913999ba55bfda75737990d884a4846855226b215d7242263fe21452fa",
+  "src/games/aquarium/data/art.js": "70fd9a7f9cb7ee83621e2df6880ef6ce92cdbbd13fdfe11ad725d9c9e6572da0",
+  "src/games/aquarium/data/catalog.js": "f4a34b72684686a051a083fd424b8ab6e7e73224222ebaae9cb0fb3ef2d20a59",
+  "src/games/aquarium/data/creature-art.js": "a1070ff358b1d4bd6faee6d73f33e11c04c79f8fd9c5b2944ba47aac21ea20f3",
+  "src/games/aquarium/index.js": "91c262925900118c028872f5a48df9ccf5e0f1da5704592270c11cf46832dfdc",
+  "src/games/aquarium/save-state.js": "a1820899d0235e0cdbb352bc879373dc809eff89c98320be5d95ca06eb6520d4",
+  "test/aquarium-launch-browser.cjs": "a5adaa63ce152d2177e6780a580b600a68374e9584aecc1f9358984fd022c320",
+  "test/aquarium-package-browser.cjs": "510df4c4a6906b8e4a4385f16339a0b509db820eb85ba56af43e182e7fce1bfc",
+  "test/aquarium-rtc-browser.cjs": "09e077d5994043c2f49a4c670a280a362eb7589eec8f9cd5021de80b0b5628ab",
+  "test/games/Aquarium.test.cjs": "b32bc8df2f751433e767949457d069859b3d7ddc88c3d2d30d231e2f75095c5d",
+  "test/games/AquariumForeverSave.test.cjs": "20ab45ddcb8249e95f674c3543e1eddd646d4693dc484326a345492c2c4e4a44"
+}

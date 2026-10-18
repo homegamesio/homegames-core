@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 // The workbench: change these to make your own kind of expedition.
 const RULES = {
@@ -44,10 +44,15 @@ const HIDDEN = [[0, 0], [0, 0], [0, 0]];
 class TugClub extends Game {
     static metadata() {
         return {
-            squishVersion: '142', name: 'Tug Club', author: 'Joseph Garcia', createdBy: 'Joseph Garcia',
+            thumbnail: './assets/thumbnail.png',
+            name: 'Tug Club',
+            author: "Joseph Garcia",
+            createdBy: "Joseph Garcia",
             description: 'Tiny ships. Big hauls. Fly close to latch on, pull together, and build a little home in space. A cozy, chaotic salvage expedition for 1–6 pilots.',
-            aspectRatio: { x: 1, y: 1 }, tickRate: 30, maxPlayers: 6,
-            services: ['multiplayer'],
+            aspectRatio: { x: 1, y: 1 },
+            tickRate: 30,
+            maxPlayers: 6,
+            gameId: "badeeea3-3396-57e8-a9f8-75e5922e4df0"
         };
     }
 
@@ -166,26 +171,22 @@ class TugClub extends Game {
         const o = this.overlay;
         this.put(o, this.rect(0, 0, 100, 100, C.space));
         for (let i = 0; i < 35; i++) this.put(o, this.shape(poly(2 + this.rand() * 96, 8 + this.rand() * 54, .12, 4), C.muted));
-        this.put(o, this.text('HOMEGAMES  /  ORBITAL SALVAGE CO.', 6, 5, 1.4, C.mint));
+
         this.put(o, this.text('01—06 PILOTS', 94, 5, 1.3, C.muted, 'right'));
         this.put(o, this.shape(poly(77, 32, 20, 10, .2), C.mintDark));
         this.put(o, this.shape(closed([[61, 21], [70, 12.8], [88, 15.4], [96, 27], [79, 30], [70, 24]]), C.teal));
         this.put(o, this.shape(closed([[79, 30], [96, 27], [94, 43], [84, 51], [69, 48], [73, 39]]), C.panel));
         this.put(o, this.shape(closed([[70, 24], [79, 30], [73, 39], [60, 34], [57.5, 26]]), C.mint));
         this.put(o, this.shape(line(56, 42, 95, 19, .3), C.gold));
-        this.put(o, this.text('TUG', 5.2, 14, 11.7, C.cream));
-        this.put(o, this.text('CLUB', 5.2, 29, 11.7, C.cream));
-        this.put(o, this.text('BRING IT HOME.', 6, 44, 2.9, C.orange));
-        this.put(o, this.text('Tiny ships. Big hauls.', 6, 50, 1.75));
-        this.put(o, this.text('Better when we pull together.', 6, 53.2, 1.65, C.muted));
+
         this.heroCargo = this.put(o, this.shape(poly(77, 55, 3, 6), C.gold));
         this.hero = this.makeShip(o, C.orange, 1.75);
         this.hero2 = this.makeShip(o, C.mint, 1.15);
         this.put(o, this.rect(6, 62, 88, .16, C.line));
         const instructions = [
-            ['01 / FLY', 'Tap to fly.', 'WASD works too.'],
-            ['02 / TOW', 'Fly close to latch.', 'Pull with friends.'],
-            ['03 / BUILD', 'Light all 12.', 'Then tow the heart.'],
+            ['FLY', 'Tap or WASD.', ''],
+            ['TOW', 'Fly near gold cargo.', ''],
+            ['DELIVER', 'Bring it to the middle.', ''],
         ];
         instructions.forEach((rows, i) => {
             const x = 6 + i * 30;
@@ -193,14 +194,14 @@ class TugClub extends Game {
             this.put(o, this.text(rows[1], x, 71, 1.55));
             this.put(o, this.text(rows[2], x, 74, 1.55, C.muted));
         });
-        this.button(o, 'LET’S MAKE A HOME  >', 6, 81, 63, 11, C.mint, id => this.start(id));
+        this.button(o, 'PLAY', 6, 81, 63, 11, C.mint, id => this.start(id));
         this.put(o, this.text('3 MINUTES', 74, 84, 1.65));
-        this.put(o, this.text('NO ONE LEFT BEHIND', 74, 87, 1.05, C.muted));
+
         this.titleCrew = this.put(o, this.text('', 6, 95, 1.3, C.muted));
         this.updateCrewLabel();
     }
     updateCrewLabel() {
-        if (this.titleCrew) this.setText(this.titleCrew, Object.keys(this.players).length + ' PILOT(S) ABOARD  /  SOLO IS GOOD. COMPANY IS BETTER.');
+        if (this.titleCrew) this.setText(this.titleCrew, Object.keys(this.players).length + ' / 6 PILOTS');
     }
 
     handleNewPlayer({ playerId, info = {} }) {
@@ -285,7 +286,7 @@ class TugClub extends Game {
         this.hud.clearChildren();
         this.put(this.hud, this.rect(0, 0, 100, 11, C.deep));
         this.put(this.hud, this.rect(0, 84, 100, 16, C.deep));
-        this.put(this.hud, this.text('TUG CLUB', 4, 2.4, 2.4));
+
         this.homeScore = this.put(this.hud, this.text('0 / 12', 50, 2, 2.6, C.mint, 'center'));
         this.timeLabel = this.put(this.hud, this.text('03:00', 96, 2, 2.6, C.cream, 'right'));
         this.put(this.hud, this.text('HOME POWER', 50, 6.1, 1, C.muted, 'center'));
@@ -519,7 +520,7 @@ class TugClub extends Game {
         if (won) this.put(o, this.text('HOMES BUILT: ' + this.record.homes + '   BEST: ' + this.formatTime(this.record.bestSeconds), 50, 73, 1.5, C.cream, 'center'));
         else this.put(o, this.text('TIP: BIG PODS LIGHT MORE WINDOWS. PULL WITH FRIENDS.', 50, 73, 1.35, C.cream, 'center'));
         this.button(o, won ? 'ONE MORE EXPEDITION  >' : 'GIVE IT ANOTHER TUG  >', 12, 80, 76, 9, C.mint, id => this.start(id));
-        this.put(o, this.text('SAME CREW. NEW POSSIBILITIES.', 50, 93, 1.2, C.muted, 'center'));
+
         this.dirty();
     }
     formatTime(seconds) {

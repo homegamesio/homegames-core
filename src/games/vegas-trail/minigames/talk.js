@@ -1,14 +1,17 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-150');
 
 const talkOptions = require('../talk-options.js');
 
 class Talk {
-    constructor() {
+    constructor({mainGame}) {
+        this.mainGame = mainGame;
+        this.zone = 1;
         this.root = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             fill: Colors.COLORS.WHITE
         });
+        this.tick({});
     }
 
     tick({ playerStates, resources}) {
@@ -70,7 +73,7 @@ class Talk {
                     align: 'center',
                     size: 1.6,
                     font: 'amateur',
-                    text: 'Hello! You should not be able to read this yet.',
+                    text: '',
                     color: Colors.COLORS.WHITE
                 }
             });
@@ -79,12 +82,19 @@ class Talk {
             this.scene.addChildren(this.blackBox);
             this.root.addChild(this.scene);
         }
+
+        // scene construction above uses tree ops, which notify on their own
+        return false;
     }
 
     update() {
         const options = talkOptions.items.filter(o => !o.zones || !o.zones.length || o.zones.indexOf(this.zone) >= 0);
         const randIndex = Math.floor(options.length * Math.random()); 
         const randOption = options[randIndex];
+        for (const [key, amount] of Object.entries(randOption.resources || {})) {
+            if (Number.isFinite(this.mainGame.resources[key])) this.mainGame.resources[key] += amount;
+        }
+        this.mainGame.renderStatsLayer();
 
         const textNodes = [];
 

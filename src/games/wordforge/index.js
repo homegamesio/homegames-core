@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 // WORD FORGE — demo
 // Type a word, press Enter: it becomes a neon platform you can stand on.
@@ -77,14 +77,15 @@ const clampByte = (v) => Math.max(0, Math.min(255, Math.round(v)));
 class WordForge extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Wordforge',
-            author: 'Demo',
+            author: "Joseph Garcia",
             description: 'Type a word and it becomes a neon platform. Climb above the rising flood.',
             aspectRatio: { x: 16, y: 9 },
-            tickRate: 30, // keep in sync with TUNING.TICK_RATE
-            maxPlayers: 4, // keep in sync with TUNING.MAX_PLAYERS
-            services: ['multiplayer']
+            tickRate: 30,
+            maxPlayers: 4,
+            gameId: "ea1f58a5-76e7-515e-a9cf-599c15145caa"
         };
     }
 
@@ -126,7 +127,6 @@ class WordForge extends Game {
             onClick: () => {}
         });
 
-        this.titleText = this.text('WORD FORGE', 50, 28, 5, NEON, 'center');
         this.subtitleText = this.text('Type a word  ·  Press Enter  ·  It becomes a platform', 50, 40, 1.6, INK, 'center');
         this.hintText = this.text('WASD / arrows to move  ·  Space / W / Up to jump', 50, 48, 1.3, FAINT, 'center');
         this.startBtn = this.makeButton({
@@ -314,7 +314,6 @@ class WordForge extends Game {
         this.phaseReadyAt = immediate ? this._t : this._t + ticksFor(TUNING.UI.inputDebounceSeconds);
         this.overlayLayer.clearChildren();
         this.overlayLayer.addChildren(
-            this.titleText,
             this.subtitleText,
             this.hintText,
             this.startBtn

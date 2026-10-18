@@ -1,0 +1,179 @@
+❌ (failed) Built-in default games have local media and no missing modules or placeholder IDs
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   {
++     bytes: 333623,
++     dependencies: [],
++     fileCount: 13,
++     folder: 'aquarium',
++     isTest: false,
++     issues: [
++       'Default game needs a local gameplay thumbnail'
++     ],
++     localAssetCount: 0,
++     name: 'Aquarium Forever: Beyond the Surface',
++     projectSha256: 'ecb548e80cd7b0eb98085954ad8afbb81c6cb37a520c1cf7c4ad52f5243417e3',
++     squishVersion: '142',
++     thumbnail: null
++   },
++   {
++     bytes: 418352,
++     dependencies: [],
++     fileCount: 32,
++     folder: 'dragon-drop',
++     isTest: false,
++     issues: [
++       'Default game needs a local gameplay thumbnail'
++     ],
++     localAssetCount: 26,
++     name: 'Dragon Drop',
++     projectSha256: '9254d508ef18d93da6ac7fc228544fa6d6973dca04fbbc08f1a26bf5b8b13bb7',
++     squishVersion: '146',
++     thumbnail: './assets/cover.png'
++   },
++   {
++     bytes: 935616,
++     dependencies: [],
++     fileCount: 9,
++     folder: 'hot-potato',
++     isTest: false,
++     issues: [
++       'Default game needs a local gameplay thumbnail'
++     ],
++     localAssetCount: 5,
++     name: 'Hot Potato',
++     projectSha256: '48b5b890a42ecc0daa036e2c6c66531283b7df4598503e3190f1690ffb0cc0fc',
++     squishVersion: '142',
++     thumbnail: './assets/adfd7a7b28e1e4e5b6ae3dc0b07a5784.png'
++   },
++   {
++     bytes: 8054,
++     dependencies: [],
++     fileCount: 1,
++     folder: 'walkie-talkie',
++     isTest: false,
++     issues: [
++       'Default game needs a local gameplay thumbnail'
++     ],
++     localAssetCount: 0,
++     name: 'Walkie Talkie',
++     projectSha256: '1ba03968571730be43df73b98bb3003c10de78a89d864dc6cc5d8e485c539beb',
++     squishVersion: '146',
++     thumbnail: null
++   }
++ ]
+- []
+
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/games/CatalogConsolidation.test.js:13:12)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+    at Object.<anonymous> (/Users/josephgarcia/homegames/homegames-core/testRunner.js:63:1)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+Using dictionary file at /Users/josephgarcia/homegames/homegames-core/dictionary.txt
+Found config at /Users/josephgarcia/homegames/homegames-core
+Found value false for ERROR_REPORTING in config
+✅ (passed)  Built-in catalog identities do not silently replace another game
+❌ (failed) Every curated game has its own verified dashboard screenshot
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+... Skipped lines
+
+  [
+    'after-hours',
++   'aquarium-forever',
+-   'aquarium',
+    'backgammon',
+    'backstage',
+    'battleship',
+    'billiards',
+    'block-brawlers',
+...
+    'fleetfall',
+-   'gold-and-grit',
+    'hangman',
+    'happy-haulers',
+-   'hot-potato',
+    'house-band',
+    'imposter',
+    'kaboom-valley',
+    'lemonade-tycoon',
+    'little-consequences',
+...
+    'moonbounce',
+-   'mouth-house',
+    'neon-grid',
+    'nova-guard',
+    'one-unreasonable-hole',
+    'orbit-breaker',
+    'pitch-pot',
+...
+    'vegas-trail',
+-   'walkie-talkie',
+-   'weed-smoke-willie',
+    'wordforge',
+    'world-eater',
+    'worldseed'
+  ]
+
+    at Object.fn (/Users/josephgarcia/homegames/homegames-core/test/games/CatalogConsolidation.test.js:32:12)
+    at run (/Users/josephgarcia/homegames/homegames-core/testRunner.js:19:21)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+✅ (passed)  Consolidated game aquarium loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game starweld loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game bannerbound loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game counterforge-apex loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game block-brawlers loads local assets, joins, ticks and disconnects
+IMAGE KEYS
+[ 'img1' ]
+a1
+a2
+a3
+✅ (passed)  Consolidated game image-gallery loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game chronoclast loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game city-commons loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game clicktionary loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game common-ground loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game neon-dodge loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game ball-bounce loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game deadword loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game desert-bloom loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dance-fever loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game disco-owl loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dots-and-boxes loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dragon-drop loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game hot-potato loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game railway-reverie loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game lemonade-tycoon loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game neon-shooter loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game lumen-festival loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game little-consequences loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game blank-template loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game bunny-harvest loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game two-player-fight loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game buddy-box loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game pulsefront loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game counterforge-wilds loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game polystorm loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game snap-judgment loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game sponge loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game swarmwell loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game soccer loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game vegas-trail loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game warpoint loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game worldseed loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game weed-smoke-willie loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dump-truck loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game robots-arena loads local assets, joins, ticks and disconnects
+✅ (passed)  Sponge: two numeric seats, seven-point match, rematch and bot handoff
+✅ (passed)  Testions: invalid uploads preserve questions, capacity is two, departures allow a new round
+✅ (passed)  Hot Potato: losing either participant cancels the round and its old explosion
+✅ (passed)  VegasTrail: disconnected players stop consuming food
+✅ (passed)  Clicktionary: gallery captures immutable drawings and can return to the lobby
+✅ (passed)  Snap Judgment: sitting out advances the round and judging controls stay out of later phases

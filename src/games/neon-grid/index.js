@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const COLORS = Colors.COLORS;
 
 const TICK_RATE = 16;
@@ -72,12 +72,14 @@ const shuffled = (list) => {
 class NeonGrid extends Game {
     static metadata() {
         return {
+            thumbnail: './assets/thumbnail.png',
             aspectRatio: { x: 1, y: 1 },
-            squishVersion: '142',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             name: 'Neon Grid',
             description: 'Tron-style light cycle battle. Steer your cycle, wall in your rivals, and be the last rider on the grid. Bots fill empty slots.',
-            tickRate: TICK_RATE
+            tickRate: TICK_RATE,
+            gameId: "63edc66f-e7e1-5c2d-ab8d-6d39c436f964",
+            maxPlayers: 6
         };
     }
 
@@ -225,9 +227,7 @@ class NeonGrid extends Game {
         this.hud.clearChildren();
         this.overlay.clearChildren();
 
-        const title = this.makeGlowText('NEON GRID', 50, 14, 8, [235, 245, 255, 255], [0, 255, 255, 255]);
-        this.titleHalos = title.slice(0, 4);
-        title.forEach(n => this.overlay.addChild(n, false));
+        this.titleHalos = [];
 
         this.overlay.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 24.5, text: 'A LIGHT CYCLE ARENA', size: 2, align: 'center', font: 'monospace', color: [120, 140, 190, 255] }
@@ -252,9 +252,8 @@ class NeonGrid extends Game {
         this.overlay.addChildren(this.joinButton, this.startButton);
 
         const instructions = [
-            ['STEER: ARROWS / WASD - OR TAP THE SIDE YOU WANT TO TURN', 80, 1.4, [140, 150, 180, 255]],
-            ['DODGE THE LIGHT TRAILS - LAST CYCLE RIDING WINS', 84, 1.4, [140, 150, 180, 255]],
-            ['BOTS FILL EMPTY GRID SLOTS', 88, 1.2, [90, 100, 130, 255]]
+            ['Avoid the trails.', 80, 1.8, [140, 150, 180, 255]],
+            ['Arrows / WASD / tap to turn', 86, 1.4, [140, 150, 180, 255]]
         ];
         instructions.forEach(([text, y, size, color]) => this.overlay.addChild(new GameNode.Text({
             textInfo: { x: 50, y, text, size, align: 'center', font: 'monospace', color }

@@ -1,0 +1,210 @@
+✔ the static collection rejects remote content URLs, duplicate IDs and mismatched revisions (0.839583ms)
+✔ search is local and handles literal text and author names (0.196125ms)
+✔ content loads only the static manifest and its local pack, verifies identity, and caches the manifest (2.244709ms)
+✔ failed collection loads can retry and oversized packs are rejected (3.044833ms)
+✔ old manifests still work and invalid versions cannot become file paths (1.515916ms)
+✔ current release offers ZIP, signed DMG, hashes and history (0.67ms)
+✔ legacy releases never invent a DMG or checksum (0.116291ms)
+✔ manifest failures preserve the static download and explain missing version information (0.203459ms)
+✔ local website serves staged manifests/downloads and rejects paths outside the release folder (3086.952792ms)
+✔ saved HTML carries a restorable complete game; importing it never executes the HTML wrapper (26.05125ms)
+✔ HTML extraction rejects unrelated documents, invalid payloads, and damaged archives (0.63875ms)
+✔ install help distinguishes iPhone, desktop-mode iPad, Safari on Mac, and Windows browsers (1.703291ms)
+✔ unsupported browsers offer a copyable link, while native capability takes precedence over detection (0.097625ms)
+✔ native prompt fires synchronously once per event, survives dismissal, and recognizes installation (0.462875ms)
+✔ failed install prompts are consumed and manual instructions remain available (0.235542ms)
+✔ already installed apps never offer a second install prompt (0.075291ms)
+✔ RTC copy preserves source, media, license and revision without executing game code (24.908333ms)
+✔ archives larger than the RTC packet limit use bounded, acknowledged chunks (34.747917ms)
+✔ offers are bounded and no bytes are allocated before the recipient accepts (1.067291ms)
+✔ corruption, changed game identity and malformed archives never reach persistence (13.83275ms)
+✔ unexpected acknowledgements, offsets and premature completion stop a transfer (0.352792ms)
+✔ cancellation during validation does not install, and failed persistence does not acknowledge success (0.65225ms)
+Skipping animation-test: internal test
+Skipping ball-bounce: internal test
+Skipping bannerbound: internal test
+Skipping blackjack: internal test
+Skipping blank-template: internal test
+Skipping bunny-harvest: internal test
+Skipping cabinet: internal test
+Skipping city-commons: internal test
+Skipping city-scanner: internal test
+Skipping counterforge-wilds: internal test
+Skipping crazy-eights: internal test
+Skipping cursor-test: internal test
+Skipping dance-fever: internal test
+Skipping device-test: internal test
+Skipping disco-owl: internal test
+Skipping doodle-invaders: internal test
+Skipping dots-and-boxes: internal test
+Skipping drag-test: internal test
+Skipping dump-truck: internal test
+Skipping enhanced-view-test: internal test
+Skipping flick: internal test
+Skipping gamepad-test: internal test
+Skipping geom-storm: internal test
+Skipping go-fish: internal test
+Skipping grand-finale: internal test
+Skipping grid-test: internal test
+Skipping halloween-words: internal test
+Skipping heart-catcher: no game entry (index.js or homegame.json)
+Skipping hearts: internal test
+Skipping image-gallery: internal test
+Skipping image-test: internal test
+Skipping input-test: internal test
+Skipping iron-keep: internal test
+Skipping keep-up: internal test
+Skipping layer-test: internal test
+Skipping little-slugger: internal test
+Skipping mem-test: internal test
+Skipping move-test: internal test
+Skipping neon-dodge: internal test
+Skipping neon-shooter: internal test
+Skipping perf-test: internal test
+Skipping player-vis-test: internal test
+Skipping prism-3d: internal test
+Skipping raft: internal test
+Skipping railway-reverie: internal test
+Skipping rainbow-pop: internal test
+Skipping robots-arena: internal test
+Skipping savegame_demo: internal test
+Skipping scale-test: internal test
+Skipping shape-test: internal test
+Skipping slaps: internal test
+Skipping soccer: internal test
+Skipping sound-test: internal test
+Skipping spades: internal test
+Skipping sponge: internal test
+Skipping sprite-test: internal test
+Skipping squarer: internal test
+Skipping star-sweeper: internal test
+Skipping starry-sparkles: internal test
+Skipping sunside: internal test
+Skipping testions: internal test
+Skipping text-input: internal test
+Skipping the-argument: internal test
+Skipping tic-tac-toe: internal test
+Skipping two-player-fight: internal test
+Skipping view-test: internal test
+Skipping warpoint: internal test
+Skipping wat: internal test
+Skipping word-match: internal test
+Skipping zap-tap: internal test
+Skipping animation-test: internal test
+Skipping ball-bounce: internal test
+Skipping bannerbound: internal test
+Skipping blackjack: internal test
+Skipping blank-template: internal test
+Skipping bunny-harvest: internal test
+Skipping cabinet: internal test
+Skipping city-commons: internal test
+Skipping city-scanner: internal test
+Skipping counterforge-wilds: internal test
+Skipping crazy-eights: internal test
+Skipping cursor-test: internal test
+Skipping dance-fever: internal test
+Skipping device-test: internal test
+Skipping disco-owl: internal test
+Skipping doodle-invaders: internal test
+Skipping dots-and-boxes: internal test
+Skipping drag-test: internal test
+Skipping dump-truck: internal test
+Skipping enhanced-view-test: internal test
+Skipping flick: internal test
+Skipping gamepad-test: internal test
+Skipping geom-storm: internal test
+Skipping go-fish: internal test
+Skipping grand-finale: internal test
+Skipping grid-test: internal test
+Skipping halloween-words: internal test
+Skipping heart-catcher: no game entry (index.js or homegame.json)
+Skipping hearts: internal test
+Skipping image-gallery: internal test
+Skipping image-test: internal test
+Skipping input-test: internal test
+Skipping iron-keep: internal test
+Skipping keep-up: internal test
+Skipping layer-test: internal test
+Skipping little-slugger: internal test
+Skipping mem-test: internal test
+Skipping move-test: internal test
+Skipping neon-dodge: internal test
+Skipping neon-shooter: internal test
+Skipping perf-test: internal test
+Skipping player-vis-test: internal test
+Skipping prism-3d: internal test
+Skipping raft: internal test
+Skipping railway-reverie: internal test
+Skipping rainbow-pop: internal test
+Skipping robots-arena: internal test
+Skipping savegame_demo: internal test
+Skipping scale-test: internal test
+Skipping shape-test: internal test
+Skipping slaps: internal test
+Skipping soccer: internal test
+Skipping sound-test: internal test
+Skipping spades: internal test
+Skipping sponge: internal test
+Skipping sprite-test: internal test
+Skipping squarer: internal test
+Skipping star-sweeper: internal test
+Skipping starry-sparkles: internal test
+Skipping sunside: internal test
+Skipping testions: internal test
+Skipping text-input: internal test
+Skipping the-argument: internal test
+Skipping tic-tac-toe: internal test
+Skipping two-player-fight: internal test
+Skipping view-test: internal test
+Skipping warpoint: internal test
+Skipping wat: internal test
+Skipping word-match: internal test
+Skipping zap-tap: internal test
+Skipping archived-experiment: no game entry (index.js or homegame.json)
+Skipping internal: internal test
+Skipping tremulous: local-only game
+✔ config paths resolve relative to the config; CLI paths replace the selection and limits preserve order (431.64925ms)
+✔ configured directories combine all games while featured order and CLI overrides stay independent (9.447334ms)
+✔ folders become portable packs that preserve source and licenses and can be built again from ZIP (7.488ms)
+✔ directory selection skips declared tests and private games before portable validation, including an empty selection (3.618625ms)
+✔ all invalid selections are reported without writing an incomplete catalog (0.580458ms)
+✔ featured games must be unique members of the catalog before any output is written (1.400375ms)
+✔ source-only game folders get a stable manifest without executing code or modifying the originals (2.074459ms)
+✔ test games, local-only games, duplicates, symlinks and hosted asset dependencies fail the build (4.277125ms)
+✔ declared thumbnails use their own bytes and detected format, independently of runtime assets (5.1345ms)
+✔ missing thumbnail metadata uses the placeholder even when the game has image assets (1.1055ms)
+✔ invalid declared thumbnails fail before writing a partial catalog (2.8255ms)
+✔ game metadata renders as literal escaped text in HTML, including replacement-string characters (512.044083ms)
+✔ complete build separates ordered featured games from the full catalog and preserves the previous build on failure (914.424083ms)
+✔ asset sorting happens before pagination, with natural names and unknown dates last (0.674542ms)
+✔ videos get preview MIME types without reclassifying recorded WebM audio (0.669917ms)
+✔ view preferences survive storage and fall back safely for older or malformed values (0.148125ms)
+✔ full Studio backups preserve asset dates, MIME types and browser view preferences (30.729625ms)
+✔ Studio ZIP rescues unfinished source and binary assets without evaluating them (4.360584ms)
+✔ damaged or compressed draft archives are rejected before restoration (0.571583ms)
+✔ path conflicts, reserved metadata and project limits remain enforced for drafts (0.55525ms)
+✔ editing a received package preserves every source/asset byte with a separate identity and entry file (26.206916ms)
+✔ failed validation or persistence never reports a saved copy, and closes the database after failed writes (4.453542ms)
+✔ all snippet blocks compile at their documented insertion points using real Squish nodes (8.244208ms)
+✔ button and round recipes handle one action per press and can restart (0.140667ms)
+✔ movement and dragging clamp positions, preserve grab offsets, and release ownership (0.350584ms)
+✔ animation, collisions, countdown and fade reach their expected states (1.735042ms)
+✔ multiplayer recipes use IDs, update names, and remove private nodes on departure (0.346125ms)
+✔ best-score saving rejects invalid data, serializes competing writes and allows retry after failure (0.192625ms)
+✔ every interactive example loads against the runtime and includes source preview regions (4.54075ms)
+✔ player handoff waits for the replacement Studio worker even while an older one is active (3.761625ms)
+✔ cached Studio remains usable offline, while a failed first install never reports readiness (3.325417ms)
+✔ Studio requests a boot-time reload only when its controlling shell changed, without reloading an active editor (2.087709ms)
+✔ workers activate updates only after the complete shell is cached (5.741958ms)
+✔ one complete Studio backup round-trips drafts, history, binary assets, progress, exports and preferences (5.178667ms)
+✔ corruption, truncation, extra bytes and unsupported backup formats are rejected before restore (2.810375ms)
+✔ restoration rejects orphaned history, duplicate identities, unsafe paths and unrelated preferences (1.004584ms)
+✔ preferences restore only the allowlisted Studio keys (0.185375ms)
+ℹ tests 59
+ℹ suites 0
+ℹ pass 59
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3143.593791

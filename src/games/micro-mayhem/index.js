@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const TICK_RATE = 15;
 
@@ -59,13 +59,15 @@ const GAMES = [
 class MicroMayhem extends Game {
     static metadata() {
         return {
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             aspectRatio: { x: 1, y: 1 },
-            squishVersion: '142',
-            services: ['multiplayer'],
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             name: 'Micro Mayhem',
             description: 'A rapid-fire gauntlet of 15-second minigames: odd-one-out, quick draw, mind games, memory, and more. Fastest fingers take the podium.',
-            tickRate: TICK_RATE
+            tickRate: TICK_RATE,
+            gameId: "39c80690-b66b-57d6-af47-62de3da01d41",
+            maxPlayers: 8
         };
     }
 
@@ -167,9 +169,7 @@ class MicroMayhem extends Game {
         this.confetti = [];
         this.renderScoreStrip();
 
-        const title = this.makeGlowText('MICRO MAYHEM', 50, 12, 6, INK, HOT);
-        this.titleHalos = title.slice(0, 4);
-        title.forEach(n => this.arena.addChild(n, false));
+        this.titleHalos = [];
 
         this.arena.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 21, text: '5 TINY GAMES - FASTEST FINGERS WIN', size: 2, align: 'center', font: 'monospace', color: FAINT }
@@ -196,7 +196,7 @@ class MicroMayhem extends Game {
         this.arena.addChildren(this.joinButton, this.startButton);
 
         this.arena.addChild(new GameNode.Text({
-            textInfo: { x: 50, y: 82, text: 'PLAYS GREAT SOLO OR WITH A CROWD - TAPS ONLY', size: 1.5, align: 'center', font: 'monospace', color: FAINT }
+            textInfo: { x: 50, y: 82, text: '', size: 1.5, align: 'center', font: 'monospace', color: FAINT }
         }), false);
 
         this.updateLobbyUi();
@@ -209,7 +209,7 @@ class MicroMayhem extends Game {
         this.lobbyRow.clearChildren();
         if (this.joined.length === 0) {
             this.lobbyRow.addChild(new GameNode.Text({
-                textInfo: { x: 50, y: 40, text: 'TAP JOIN TO GET IN', size: 2, align: 'center', font: 'monospace', color: FAINT }
+                textInfo: { x: 50, y: 40, text: '', size: 2, align: 'center', font: 'monospace', color: FAINT }
             }), false);
         } else {
             this.joined.forEach((pid, i) => {

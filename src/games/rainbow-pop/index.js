@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { RainbowAudio } = require('./audio');
 
 const PALETTE = [
@@ -44,8 +44,11 @@ const stroke = (points, width) => {
 class RainbowPop extends Game {
     static metadata() {
         return {
-            name: 'Rainbow Pop', squishVersion: '142', author: 'Joseph Garcia', createdBy: 'Joseph Garcia',
-            description: 'A little garden of smiling balloons. Tap any color, make a rainbow, and dance with Bunny! Gentle musical sounds, big touch targets, and endless play for little hands. No scores or time limits.',
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png',
+            name: 'Rainbow Pop', squishVersion: '150', author: "Joseph Garcia", createdBy: "Joseph Garcia",
+            description: 'Find Bunny’s favorite colors among gently drifting balloons, pop a rainbow, and discover a new arrangement each round.',
             aspectRatio: { x: 1, y: 1 }, tickRate: 30, maxPlayers: 1, services: [], assets: {},
             gamepadBindings: { ' ': ['FACE_1', 'FACE_2', 'FACE_3', 'FACE_4'] },
         };
@@ -56,6 +59,7 @@ class RainbowPop extends Game {
         this.addAsset = addAsset;
         this.players = new Map(); this.time = 0; this.round = 0; this.phase = 'play';
         this.sound = true; this.cheerUntil = 0; this.messageUntil = 0; this.celebrateUntil = 0;
+        this.matches = 0; this.matchUntil = 0; this.wishIndex = 2;
         this.base = this.shape(ShapeUtils.rectangle(0, 0, 100, 100), C.sky);
         this.scenery = this.group(this.base); this.rainbow = this.group(this.base);
         this.balloonLayer = this.group(this.base); this.bunnyLayer = this.group(this.base);
@@ -69,7 +73,7 @@ class RainbowPop extends Game {
         const touch = this.put(this.base, this.shape(ShapeUtils.rectangle(0, 0, 100, 100), null, {
             onClick: (id, x, y) => this.pointerDown(id, x, y),
         }));
-        // The shared dispatcher supports release hooks; Squish 142's older
+        // The shared dispatcher supports release hooks; Squish 1.5.0's older
         // constructor does not forward this option, so attach it to the node.
         touch.node.offClick = id => { const player = this.players.get(id); if (player) player.pointer = false; };
     }
@@ -122,14 +126,16 @@ class RainbowPop extends Game {
         this.disk(this.scenery, 50, 96, 9, 1.4, C.shadow);
     }
     buildHud() {
-        this.text(this.hud, 'L I T T L E   P L A Y T I M E', 50, 3.7, 1.35, C.muted);
-        this.text(this.hud, 'rainbow', 51, 7.2, 6.4, C.ink, 'right');
-        this.text(this.hud, 'pop!', 53, 7.2, 6.4, PALETTE[0].color, 'left');
-        this.message = this.text(this.hud, 'Tap a balloon. Make a rainbow!', 50, 16.5, 2.25);
+
+        this.message = this.text(this.hud, 'Find Bunny’s color', 50, 16.5, 2.25);
         this.progress = PALETTE.map((p, i) => this.disk(this.hud, 39 + i * 4.4, 23.3, 1.35, 1.35, tint(p.color, .78)));
         this.disk(this.hud, 91, 8.3, 6, 3.1, C.white);
         this.soundLabel = this.text(this.hud, 'sound on', 91, 7.35, 1.5, C.muted);
-        this.text(this.hud, 'tap / click / space', 50, 98, 1.25, C.muted);
+        this.disk(this.hud, 73, 85, 9, 7, C.white); this.disk(this.hud, 63, 89, 2, 1.6, C.white);
+        this.wishBalloon = this.disk(this.hud, 73, 83, 3.3, 3.7, PALETTE[2].color);
+        this.wishString = this.put(this.hud, this.shape(stroke([[73, 86], [72.3, 88], [73, 90]], .25), C.muted));
+        this.matchBadge = this.text(this.hud, '', 73, 82, 3.8, PALETTE[2].color);
+
     }
 
     // Parts retain their local coordinates so animation never allocates new nodes.
@@ -144,7 +150,8 @@ class RainbowPop extends Game {
         ]);
     }
     makeBalloon(index) {
-        const p = PALETTE[index], b = { index, x: 21 + index % 3 * 29, y: index < 3 ? 39 : 65,
+        const slot = this.round ? (index * 5 + this.round) % 6 : index;
+        const p = PALETTE[index], b = { index, x: 21 + slot % 3 * 29, y: slot < 3 ? 39 : 65,
             popped: false, root: this.group(this.balloonLayer), parts: [] };
         this.part(b, stroke([[0, 9.7], [-.9, 12.1], [.7, 14.1], [0, 16]], .26), [203, 186, 178, 255]);
         this.part(b, oval(.45, .8, 9.45, 10.55), tint(p.color, .48));
@@ -181,11 +188,20 @@ class RainbowPop extends Game {
         this.place(b, 50, 91);
     }
     newRound() {
-        this.phase = 'play'; this.collected = 0; this.celebrateUntil = 0;
+        this.phase = 'play'; this.collected = 0; this.celebrateUntil = 0; this.matches = 0;
         this.rainbow.clearChildren(); this.balloonLayer.clearChildren();
         this.balloons = PALETTE.map((_, i) => this.makeBalloon(i));
         this.progress.forEach((n, i) => { n.node.fill = tint(PALETTE[i].color, .78); });
-        this.setText(this.message, 'Tap a balloon. Make a rainbow!'); this.messageUntil = 0; this.dirty();
+        this.chooseWish(); this.setText(this.message, 'Find Bunny’s color'); this.messageUntil = 0; this.dirty();
+    }
+    chooseWish() {
+        const offset = (this.round * 3 + this.collected * 2 + 2) % 6;
+        const next = Array.from({ length: 6 }, (_, i) => (i + offset) % 6).find(i => !this.balloons[i].popped);
+        this.wishIndex = next ?? -1;
+        this.wishBalloon.node.coordinates2d = next === undefined ? HIDDEN : oval(73, 83, 3.3, 3.7);
+        this.wishString.node.coordinates2d = next === undefined ? HIDDEN : stroke([[73, 86], [72.3, 88], [73, 90]], .25);
+        if (next !== undefined) this.wishBalloon.node.fill = PALETTE[next].color;
+        this.setText(this.matchBadge, next === undefined ? '♥' : '', PALETTE[0].color);
     }
     burst(x, y, color, count = 10, big = false) {
         for (const p of this.particles) {
@@ -201,12 +217,15 @@ class RainbowPop extends Game {
     pop(index) {
         const b = this.balloons[index];
         if (this.phase !== 'play' || !b || b.popped) return;
+        const matched = index === this.wishIndex;
         b.popped = true; this.collected++;
         this.balloonLayer.removeChild(b.root.id);
         this.progress[index].node.fill = PALETTE[index].color;
-        this.burst(b.x, b.drawY ?? b.y, PALETTE[index].color, 12);
+        this.burst(b.drawX ?? b.x, b.drawY ?? b.y, PALETTE[index].color, 12);
         this.cheerUntil = this.time + 1;
-        this.setText(this.message, PALETTE[index].name + '!', C.ink); this.messageUntil = this.time + 1.2;
+        if (matched) { this.matches++; this.matchUntil = this.time + 1.5; this.burst(50, 78, PALETTE[index].color, 12, true); }
+        this.setText(this.message, matched ? PALETTE[index].name + '! Bunny’s favorite!' : PALETTE[index].name + '!', C.ink); this.messageUntil = this.time + 1.2;
+        if (matched || this.collected === 6) this.chooseWish();
         if (this.sound) this.audio.play(index);
         if (this.collected === PALETTE.length) this.celebrate();
         this.dirty();
@@ -250,7 +269,7 @@ class RainbowPop extends Game {
             else this.audio.play(4);
             this.setText(this.soundLabel, this.sound ? 'sound on' : 'sound off', C.muted); this.dirty(); return;
         }
-        const b = this.balloons.find(b => !b.popped && Math.abs(x - b.x) <= 12 && Math.abs(y - (b.drawY ?? b.y)) <= 12);
+        const b = this.balloons.find(b => !b.popped && Math.abs(x - (b.drawX ?? b.x)) <= 12 && Math.abs(y - (b.drawY ?? b.y)) <= 12);
         if (b && this.phase === 'play') this.pop(b.index);
         else {
             this.burst(x, y, PALETTE[Math.floor(Math.random() * 6)].color, 5);
@@ -272,15 +291,16 @@ class RainbowPop extends Game {
         const dt = 1 / 30; this.time += dt; this.audio.tick(dt);
         if (this.phase === 'celebrate' && this.time >= this.celebrateUntil) this.newRound();
         if (this.messageUntil && this.time >= this.messageUntil) {
-            this.messageUntil = 0; this.setText(this.message, 'Tap a balloon. Make a rainbow!');
+            this.messageUntil = 0; this.setText(this.message, this.phase === 'play' ? 'Find Bunny’s color' : 'You made a rainbow!');
         }
         for (const b of this.balloons) {
             if (b.popped) continue;
-            b.drawY = b.y + Math.sin(this.time * 1.5 + b.index * 1.3) * .7;
-            this.place(b, b.x, b.drawY, 1, Math.sin(this.time * 1.2 + b.index) * .025);
+            b.drawX = b.x + Math.sin(this.time * .65 + b.index * 1.7) * (this.round ? 3 : 1);
+            b.drawY = b.y + Math.sin(this.time * 1.1 + b.index * 1.3) * (this.round ? 1.8 : .7);
+            this.place(b, b.drawX, b.drawY, 1, Math.sin(this.time * 1.2 + b.index) * .025);
         }
         const happy = this.time < this.cheerUntil;
-        const hop = happy ? Math.abs(Math.sin(this.time * 6)) * 2 : Math.sin(this.time * 2) * .15;
+        const hop = this.time < this.matchUntil ? Math.abs(Math.sin(this.time * 7)) * 4 : happy ? Math.abs(Math.sin(this.time * 6)) * 2 : Math.sin(this.time * 2) * .15;
         this.place(this.bunny, 50, 91 - hop, 1, happy ? Math.sin(this.time * 7) * .07 : 0);
         for (const p of this.particles) {
             if (p.life <= 0) continue;

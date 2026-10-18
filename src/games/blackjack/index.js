@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { T, text, button, showButton, card, setCard, tableRoot } = require('./theme');
 
 const SUITS = ['C','D','S','H'];
@@ -8,9 +8,11 @@ const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 class Blackjack extends Game {
     static metadata() {
         return {
-            squishVersion:'142',
+            isTest: true, // Showcase review: docs/game-curation.json.
+            thumbnail: './assets/thumbnail.png',
+            squishVersion:'150',
             name:'Blackjack',
-            author:'Homegames',
+            author: "Joseph Garcia",
             description:'A warm multiplayer blackjack table with chips, doubles, pair splitting, and dealer play.',
             aspectRatio:{x:1,y:1},
             maxPlayers:4,
@@ -33,10 +35,9 @@ class Blackjack extends Game {
         this.botToken = 0;
         this.lastEvent = '';
 
-        this.title = text('Blackjack',50,6,4.2,T.cream);
         this.subtitle = text('Get closer to 21 than the dealer · Play chips only',50,11.5,1.8,T.muted);
         this.status = text('Welcome to the table',50,16,1.8,T.cream);
-        this.base.addChildren(this.title,this.subtitle,this.status);
+        this.base.addChildren(this.subtitle,this.status);
 
         this.dealerLabel = text('Dealer',50,22,1.25,T.soft);
         this.base.addChild(this.dealerLabel);

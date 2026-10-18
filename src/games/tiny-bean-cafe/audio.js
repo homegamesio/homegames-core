@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-142');
+const { Asset, GameNode } = require('squish-150');
 
 const SAMPLE_RATE = 22050;
 const TAU = Math.PI * 2;

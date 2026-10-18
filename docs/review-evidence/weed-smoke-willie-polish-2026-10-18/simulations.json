@@ -1,0 +1,167 @@
+{
+  "method": "Normal initial resources; seeded spawns and predictive aiming via left/right/drop only; accelerated 60 Hz simulation for 600 seconds. This is a skilled automated diagnostic, not human difficulty or fun validation.",
+  "runs": [
+    {
+      "seed": 1,
+      "phase": "time",
+      "seconds": 600,
+      "tiers": [
+        {
+          "tier": 1,
+          "seconds": 0
+        },
+        {
+          "tier": 2,
+          "seconds": 107
+        },
+        {
+          "tier": 3,
+          "seconds": 318
+        }
+      ],
+      "cash": 3941147,
+      "total": 4217845,
+      "drops": 402,
+      "max": {
+        "fish": 6,
+        "loads": 3,
+        "popups": 5
+      }
+    },
+    {
+      "seed": 2,
+      "phase": "time",
+      "seconds": 600,
+      "tiers": [
+        {
+          "tier": 1,
+          "seconds": 0
+        },
+        {
+          "tier": 2,
+          "seconds": 65
+        },
+        {
+          "tier": 3,
+          "seconds": 205
+        }
+      ],
+      "cash": 3662375,
+      "total": 4086705,
+      "drops": 406,
+      "max": {
+        "fish": 6,
+        "loads": 3,
+        "popups": 5
+      }
+    },
+    {
+      "seed": 3,
+      "phase": "time",
+      "seconds": 600,
+      "tiers": [
+        {
+          "tier": 1,
+          "seconds": 0
+        },
+        {
+          "tier": 2,
+          "seconds": 88
+        },
+        {
+          "tier": 3,
+          "seconds": 159
+        }
+      ],
+      "cash": 2677670,
+      "total": 3160280,
+      "drops": 415,
+      "max": {
+        "fish": 6,
+        "loads": 2,
+        "popups": 5
+      }
+    },
+    {
+      "seed": 4,
+      "phase": "time",
+      "seconds": 600,
+      "tiers": [
+        {
+          "tier": 1,
+          "seconds": 0
+        },
+        {
+          "tier": 2,
+          "seconds": 83
+        },
+        {
+          "tier": 3,
+          "seconds": 266
+        }
+      ],
+      "cash": 1752171,
+      "total": 2084435,
+      "drops": 400,
+      "max": {
+        "fish": 6,
+        "loads": 3,
+        "popups": 5
+      }
+    },
+    {
+      "seed": 5,
+      "phase": "time",
+      "seconds": 600,
+      "tiers": [
+        {
+          "tier": 1,
+          "seconds": 0
+        },
+        {
+          "tier": 2,
+          "seconds": 135
+        },
+        {
+          "tier": 3,
+          "seconds": 314
+        }
+      ],
+      "cash": 5143633,
+      "total": 5427755,
+      "drops": 398,
+      "max": {
+        "fish": 6,
+        "loads": 3,
+        "popups": 5
+      }
+    },
+    {
+      "seed": 42,
+      "phase": "time",
+      "seconds": 600,
+      "tiers": [
+        {
+          "tier": 1,
+          "seconds": 0
+        },
+        {
+          "tier": 2,
+          "seconds": 123
+        },
+        {
+          "tier": 3,
+          "seconds": 345
+        }
+      ],
+      "cash": 1228909,
+      "total": 1478405,
+      "drops": 393,
+      "max": {
+        "fish": 6,
+        "loads": 3,
+        "popups": 5
+      }
+    }
+  ]
+}

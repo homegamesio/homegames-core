@@ -1,0 +1,9989 @@
+[
+  {
+    "version": 1,
+    "id": "trail-1",
+    "name": "A few bad hats",
+    "theme": 0,
+    "paths": [
+      [
+        [
+          5,
+          36
+        ],
+        [
+          30,
+          36
+        ],
+        [
+          30,
+          65
+        ],
+        [
+          61,
+          65
+        ],
+        [
+          61,
+          34
+        ],
+        [
+          91,
+          34
+        ],
+        [
+          91,
+          56
+        ],
+        [
+          111,
+          56
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "cactus",
+        "x": 13,
+        "y": 23
+      },
+      {
+        "kind": "cactus",
+        "x": 70,
+        "y": 24
+      },
+      {
+        "kind": "rock",
+        "x": 44,
+        "y": 46
+      },
+      {
+        "kind": "barrel",
+        "x": 116,
+        "y": 70
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 15,
+        "y": 75
+      },
+      {
+        "kind": "trough",
+        "x": 112,
+        "y": 25
+      },
+      {
+        "kind": "cactus",
+        "x": 100,
+        "y": 75
+      },
+      {
+        "kind": "fence",
+        "x": 43,
+        "y": 76
+      }
+    ],
+    "cash": 140,
+    "gold": 20,
+    "unlocked": [
+      "deputy"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "drifter",
+          "count": 10,
+          "gap": 0.6,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "drifter",
+          "count": 12,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 8,
+          "gap": 0.5,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "drifter",
+          "count": 16,
+          "gap": 0.3,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 10,
+          "gap": 0.35,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 24,
+          "gap": 0.25,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 12,
+          "gap": 0.25,
+          "delay": 2,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "drifter",
+          "count": 24,
+          "gap": 0.2,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 28,
+          "gap": 0.2,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ]
+  },
+  {
+    "version": 1,
+    "id": "trail-2",
+    "name": "The long shot",
+    "theme": 0,
+    "paths": [
+      [
+        [
+          5,
+          60
+        ],
+        [
+          24,
+          60
+        ],
+        [
+          24,
+          29
+        ],
+        [
+          53,
+          29
+        ],
+        [
+          53,
+          66
+        ],
+        [
+          84,
+          66
+        ],
+        [
+          84,
+          44
+        ],
+        [
+          111,
+          44
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "cactus",
+        "x": 13,
+        "y": 23
+      },
+      {
+        "kind": "cactus",
+        "x": 70,
+        "y": 24
+      },
+      {
+        "kind": "rock",
+        "x": 44,
+        "y": 46
+      },
+      {
+        "kind": "barrel",
+        "x": 116,
+        "y": 70
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 15,
+        "y": 75
+      },
+      {
+        "kind": "trough",
+        "x": 112,
+        "y": 25
+      },
+      {
+        "kind": "cactus",
+        "x": 100,
+        "y": 75
+      },
+      {
+        "kind": "fence",
+        "x": 43,
+        "y": 76
+      }
+    ],
+    "cash": 165,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "drifter",
+          "count": 12,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "drifter",
+          "count": 18,
+          "gap": 0.35,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 8,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 24,
+          "gap": 0.3,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 12,
+          "gap": 0.35,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 5,
+          "gap": 1.1,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 14,
+          "gap": 0.4,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 32,
+          "gap": 0.25,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 6,
+          "gap": 0.8,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 9,
+          "gap": 0.7,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 36,
+          "gap": 0.25,
+          "delay": 4,
+          "route": 0
+        }
+      ]
+    ]
+  },
+  {
+    "version": 1,
+    "id": "trail-3",
+    "name": "Dust in a hurry",
+    "theme": 0,
+    "paths": [
+      [
+        [
+          5,
+          28
+        ],
+        [
+          38,
+          28
+        ],
+        [
+          38,
+          53
+        ],
+        [
+          20,
+          53
+        ],
+        [
+          20,
+          71
+        ],
+        [
+          72,
+          71
+        ],
+        [
+          72,
+          37
+        ],
+        [
+          111,
+          37
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "cactus",
+        "x": 13,
+        "y": 23
+      },
+      {
+        "kind": "cactus",
+        "x": 70,
+        "y": 24
+      },
+      {
+        "kind": "rock",
+        "x": 44,
+        "y": 46
+      },
+      {
+        "kind": "barrel",
+        "x": 116,
+        "y": 70
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 15,
+        "y": 75
+      },
+      {
+        "kind": "trough",
+        "x": 112,
+        "y": 25
+      },
+      {
+        "kind": "cactus",
+        "x": 100,
+        "y": 75
+      },
+      {
+        "kind": "fence",
+        "x": 43,
+        "y": 76
+      }
+    ],
+    "cash": 175,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "drifter",
+          "count": 14,
+          "gap": 0.45,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 5,
+          "gap": 0.6,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 24,
+          "gap": 0.3,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 10,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 32,
+          "gap": 0.25,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 18,
+          "gap": 0.25,
+          "delay": 2,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 40,
+          "gap": 0.22,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 6,
+          "gap": 0.9,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 10,
+          "gap": 0.7,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 40,
+          "gap": 0.25,
+          "delay": 5,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 12,
+          "gap": 0.6,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 50,
+          "gap": 0.2,
+          "delay": 4,
+          "route": 0
+        }
+      ]
+    ]
+  },
+  {
+    "version": 1,
+    "id": "trail-4",
+    "name": "Hold your horses",
+    "theme": 0,
+    "paths": [
+      [
+        [
+          5,
+          66
+        ],
+        [
+          37,
+          66
+        ],
+        [
+          37,
+          28
+        ],
+        [
+          66,
+          28
+        ],
+        [
+          66,
+          61
+        ],
+        [
+          94,
+          61
+        ],
+        [
+          94,
+          39
+        ],
+        [
+          111,
+          39
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "cactus",
+        "x": 13,
+        "y": 23
+      },
+      {
+        "kind": "cactus",
+        "x": 70,
+        "y": 24
+      },
+      {
+        "kind": "rock",
+        "x": 44,
+        "y": 46
+      },
+      {
+        "kind": "barrel",
+        "x": 116,
+        "y": 70
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 15,
+        "y": 75
+      },
+      {
+        "kind": "trough",
+        "x": 112,
+        "y": 25
+      },
+      {
+        "kind": "cactus",
+        "x": 100,
+        "y": 75
+      },
+      {
+        "kind": "fence",
+        "x": 43,
+        "y": 76
+      }
+    ],
+    "cash": 190,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "drifter",
+          "count": 12,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 8,
+          "gap": 0.5,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 6,
+          "gap": 0.65,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 12,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 10,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 14,
+          "gap": 0.35,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 14,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 16,
+          "gap": 0.3,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 32,
+          "gap": 0.25,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 12,
+          "gap": 0.45,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 20,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 30,
+          "gap": 0.25,
+          "delay": 2,
+          "route": 0
+        }
+      ]
+    ]
+  },
+  {
+    "version": 1,
+    "id": "trail-5",
+    "name": "Iron on the trail",
+    "theme": 0,
+    "paths": [
+      [
+        [
+          5,
+          44
+        ],
+        [
+          24,
+          44
+        ],
+        [
+          24,
+          70
+        ],
+        [
+          53,
+          70
+        ],
+        [
+          53,
+          26
+        ],
+        [
+          84,
+          26
+        ],
+        [
+          84,
+          53
+        ],
+        [
+          111,
+          53
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "cactus",
+        "x": 13,
+        "y": 23
+      },
+      {
+        "kind": "cactus",
+        "x": 70,
+        "y": 24
+      },
+      {
+        "kind": "rock",
+        "x": 44,
+        "y": 46
+      },
+      {
+        "kind": "barrel",
+        "x": 116,
+        "y": 70
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 15,
+        "y": 75
+      },
+      {
+        "kind": "trough",
+        "x": 112,
+        "y": 25
+      },
+      {
+        "kind": "cactus",
+        "x": 100,
+        "y": 75
+      },
+      {
+        "kind": "fence",
+        "x": 43,
+        "y": 76
+      }
+    ],
+    "cash": 200,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "drifter",
+          "count": 12,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 3,
+          "gap": 1.2,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 7,
+          "gap": 0.8,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 10,
+          "gap": 0.4,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 10,
+          "gap": 0.6,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 8,
+          "gap": 0.6,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 14,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 22,
+          "gap": 0.3,
+          "delay": 1,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 18,
+          "gap": 0.45,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 24,
+          "gap": 0.25,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 20,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 20,
+          "gap": 0.4,
+          "delay": 4,
+          "route": 0
+        }
+      ]
+    ]
+  },
+  {
+    "version": 1,
+    "id": "trail-6",
+    "name": "Powder & promise",
+    "theme": 0,
+    "paths": [
+      [
+        [
+          5,
+          28
+        ],
+        [
+          27,
+          28
+        ],
+        [
+          27,
+          66
+        ],
+        [
+          59,
+          66
+        ],
+        [
+          59,
+          37
+        ],
+        [
+          88,
+          37
+        ],
+        [
+          88,
+          66
+        ],
+        [
+          111,
+          66
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "cactus",
+        "x": 13,
+        "y": 23
+      },
+      {
+        "kind": "cactus",
+        "x": 70,
+        "y": 24
+      },
+      {
+        "kind": "rock",
+        "x": 44,
+        "y": 46
+      },
+      {
+        "kind": "barrel",
+        "x": 116,
+        "y": 70
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 15,
+        "y": 75
+      },
+      {
+        "kind": "trough",
+        "x": 112,
+        "y": 25
+      },
+      {
+        "kind": "cactus",
+        "x": 100,
+        "y": 75
+      },
+      {
+        "kind": "fence",
+        "x": 43,
+        "y": 76
+      }
+    ],
+    "cash": 225,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "drifter",
+          "count": 16,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 3,
+          "gap": 1.1,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 8,
+          "gap": 1.3,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 8,
+          "gap": 0.7,
+          "delay": 7,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 12,
+          "gap": 0.6,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 20,
+          "gap": 0.3,
+          "delay": 5,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 16,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 28,
+          "gap": 0.25,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 24,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 30,
+          "gap": 0.25,
+          "delay": 2,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 24,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 28,
+          "gap": 0.35,
+          "delay": 4,
+          "route": 0
+        }
+      ]
+    ]
+  },
+  {
+    "version": 1,
+    "id": "trail-7",
+    "name": "Red rock welcome",
+    "theme": 1,
+    "paths": [
+      [
+        [
+          5,
+          74
+        ],
+        [
+          35,
+          74
+        ],
+        [
+          48,
+          39
+        ],
+        [
+          91,
+          39
+        ],
+        [
+          105,
+          76
+        ],
+        [
+          149,
+          76
+        ],
+        [
+          162,
+          42
+        ],
+        [
+          196,
+          42
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 67,
+        "y": 58
+      },
+      {
+        "kind": "rock",
+        "x": 74,
+        "y": 62
+      },
+      {
+        "kind": "rock",
+        "x": 127,
+        "y": 55
+      },
+      {
+        "kind": "rock",
+        "x": 134,
+        "y": 59
+      },
+      {
+        "kind": "rock",
+        "x": 180,
+        "y": 84
+      },
+      {
+        "kind": "rock",
+        "x": 187,
+        "y": 88
+      },
+      {
+        "kind": "barrel",
+        "x": 208,
+        "y": 44
+      },
+      {
+        "kind": "trough",
+        "x": 184,
+        "y": 54
+      },
+      {
+        "kind": "cactus",
+        "x": 10,
+        "y": 25
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 53,
+        "y": 56
+      },
+      {
+        "kind": "cactus",
+        "x": 96,
+        "y": 87
+      },
+      {
+        "kind": "barrel",
+        "x": 139,
+        "y": 48
+      },
+      {
+        "kind": "fence",
+        "x": 182,
+        "y": 79
+      },
+      {
+        "kind": "cactus",
+        "x": 32,
+        "y": 40
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 75,
+        "y": 71
+      },
+      {
+        "kind": "cactus",
+        "x": 118,
+        "y": 32
+      },
+      {
+        "kind": "fence",
+        "x": 11,
+        "y": 94
+      },
+      {
+        "kind": "cactus",
+        "x": 162,
+        "y": 62
+      }
+    ],
+    "cash": 230,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "drifter",
+          "count": 10,
+          "gap": 0.6,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 3,
+          "gap": 0.9,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 20,
+          "gap": 0.42,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 5,
+          "gap": 0.7,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 6,
+          "gap": 0.65,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 14,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 7,
+          "gap": 0.55,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 23,
+          "gap": 0.53,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "drifter",
+          "count": 25,
+          "gap": 0.52,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 10,
+          "gap": 0.52,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 13,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 18,
+          "gap": 0.5,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 208,
+      "h": 86
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-8",
+    "name": "The crooked mile",
+    "theme": 1,
+    "paths": [
+      [
+        [
+          34,
+          20
+        ],
+        [
+          34,
+          54
+        ],
+        [
+          84,
+          54
+        ],
+        [
+          84,
+          93
+        ],
+        [
+          43,
+          93
+        ],
+        [
+          43,
+          137
+        ],
+        [
+          100,
+          137
+        ],
+        [
+          113,
+          112
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 58,
+        "y": 72
+      },
+      {
+        "kind": "rock",
+        "x": 65,
+        "y": 76
+      },
+      {
+        "kind": "rock",
+        "x": 64,
+        "y": 115
+      },
+      {
+        "kind": "rock",
+        "x": 71,
+        "y": 119
+      },
+      {
+        "kind": "rock",
+        "x": 106,
+        "y": 34
+      },
+      {
+        "kind": "rock",
+        "x": 113,
+        "y": 38
+      },
+      {
+        "kind": "barrel",
+        "x": 125,
+        "y": 114
+      },
+      {
+        "kind": "trough",
+        "x": 101,
+        "y": 124
+      },
+      {
+        "kind": "cactus",
+        "x": 70,
+        "y": 69
+      },
+      {
+        "kind": "barrel",
+        "x": 113,
+        "y": 100
+      },
+      {
+        "kind": "cactus",
+        "x": 82,
+        "y": 32
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 125,
+        "y": 63
+      },
+      {
+        "kind": "barrel",
+        "x": 94,
+        "y": 125
+      },
+      {
+        "kind": "fence",
+        "x": 20,
+        "y": 26
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 106,
+        "y": 88
+      },
+      {
+        "kind": "cactus",
+        "x": 32,
+        "y": 119
+      },
+      {
+        "kind": "barrel",
+        "x": 75,
+        "y": 150
+      },
+      {
+        "kind": "fence",
+        "x": 118,
+        "y": 51
+      },
+      {
+        "kind": "cactus",
+        "x": 44,
+        "y": 82
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 87,
+        "y": 113
+      },
+      {
+        "kind": "cactus",
+        "x": 13,
+        "y": 144
+      },
+      {
+        "kind": "barrel",
+        "x": 56,
+        "y": 45
+      },
+      {
+        "kind": "fence",
+        "x": 99,
+        "y": 76
+      },
+      {
+        "kind": "cactus",
+        "x": 25,
+        "y": 107
+      },
+      {
+        "kind": "barrel",
+        "x": 37,
+        "y": 70
+      },
+      {
+        "kind": "fence",
+        "x": 80,
+        "y": 101
+      },
+      {
+        "kind": "cactus",
+        "x": 123,
+        "y": 132
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 49,
+        "y": 33
+      },
+      {
+        "kind": "cactus",
+        "x": 92,
+        "y": 64
+      },
+      {
+        "kind": "barrel",
+        "x": 18,
+        "y": 95
+      },
+      {
+        "kind": "fence",
+        "x": 61,
+        "y": 126
+      },
+      {
+        "kind": "cactus",
+        "x": 104,
+        "y": 27
+      }
+    ],
+    "cash": 230,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "iron",
+          "count": 3,
+          "gap": 0.95,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 10,
+          "gap": 0.55,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 8,
+          "gap": 0.55,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 12,
+          "gap": 0.35,
+          "delay": 2,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 18,
+          "gap": 0.85,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 6,
+          "gap": 0.7,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 7,
+          "gap": 0.53,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 24,
+          "gap": 0.51,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "drifter",
+          "count": 28,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 12,
+          "gap": 0.5,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 14,
+          "gap": 0.49,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 19,
+          "gap": 0.49,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 7,
+          "gap": 0.47,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 12,
+          "gap": 0.47,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 132,
+      "h": 146
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-9",
+    "name": "A fistful of lead",
+    "theme": 1,
+    "paths": [
+      [
+        [
+          5,
+          40
+        ],
+        [
+          42,
+          40
+        ],
+        [
+          68,
+          82
+        ],
+        [
+          104,
+          82
+        ],
+        [
+          123,
+          45
+        ],
+        [
+          162,
+          45
+        ],
+        [
+          192,
+          77
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 83,
+        "y": 57
+      },
+      {
+        "kind": "rock",
+        "x": 90,
+        "y": 61
+      },
+      {
+        "kind": "rock",
+        "x": 143,
+        "y": 69
+      },
+      {
+        "kind": "rock",
+        "x": 150,
+        "y": 73
+      },
+      {
+        "kind": "rock",
+        "x": 22,
+        "y": 86
+      },
+      {
+        "kind": "rock",
+        "x": 29,
+        "y": 90
+      },
+      {
+        "kind": "barrel",
+        "x": 204,
+        "y": 79
+      },
+      {
+        "kind": "trough",
+        "x": 180,
+        "y": 89
+      },
+      {
+        "kind": "cactus",
+        "x": 173,
+        "y": 74
+      },
+      {
+        "kind": "barrel",
+        "x": 109,
+        "y": 27
+      },
+      {
+        "kind": "fence",
+        "x": 152,
+        "y": 58
+      },
+      {
+        "kind": "cactus",
+        "x": 195,
+        "y": 89
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 67,
+        "y": 65
+      },
+      {
+        "kind": "barrel",
+        "x": 26,
+        "y": 32
+      }
+    ],
+    "cash": 255,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "runner",
+          "count": 20,
+          "gap": 0.35,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 4,
+          "gap": 0.8,
+          "delay": 2,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 6,
+          "gap": 0.65,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 18,
+          "gap": 0.32,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 14,
+          "gap": 0.7,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 12,
+          "gap": 0.65,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 8,
+          "gap": 0.51,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 27,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "drifter",
+          "count": 29,
+          "gap": 0.48,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 12,
+          "gap": 0.48,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 15,
+          "gap": 0.47,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 20,
+          "gap": 0.47,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 8,
+          "gap": 0.45,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 12,
+          "gap": 0.45,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 208,
+      "h": 86
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-10",
+    "name": "Two ways to trouble",
+    "theme": 1,
+    "paths": [
+      [
+        [
+          5,
+          42
+        ],
+        [
+          40,
+          42
+        ],
+        [
+          40,
+          86
+        ],
+        [
+          83,
+          86
+        ],
+        [
+          83,
+          53
+        ],
+        [
+          124,
+          53
+        ],
+        [
+          124,
+          101
+        ],
+        [
+          176,
+          101
+        ]
+      ],
+      [
+        [
+          188,
+          27
+        ],
+        [
+          157,
+          27
+        ],
+        [
+          157,
+          65
+        ],
+        [
+          124,
+          65
+        ],
+        [
+          124,
+          101
+        ],
+        [
+          176,
+          101
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 61,
+        "y": 63
+      },
+      {
+        "kind": "rock",
+        "x": 68,
+        "y": 67
+      },
+      {
+        "kind": "rock",
+        "x": 102,
+        "y": 32
+      },
+      {
+        "kind": "rock",
+        "x": 109,
+        "y": 36
+      },
+      {
+        "kind": "rock",
+        "x": 155,
+        "y": 85
+      },
+      {
+        "kind": "rock",
+        "x": 162,
+        "y": 89
+      },
+      {
+        "kind": "barrel",
+        "x": 188,
+        "y": 103
+      },
+      {
+        "kind": "trough",
+        "x": 164,
+        "y": 113
+      },
+      {
+        "kind": "fence",
+        "x": 104,
+        "y": 95
+      },
+      {
+        "kind": "cactus",
+        "x": 147,
+        "y": 30
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 17,
+        "y": 61
+      },
+      {
+        "kind": "barrel",
+        "x": 103,
+        "y": 27
+      },
+      {
+        "kind": "cactus",
+        "x": 16,
+        "y": 89
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 59,
+        "y": 120
+      },
+      {
+        "kind": "barrel",
+        "x": 145,
+        "y": 86
+      },
+      {
+        "kind": "fence",
+        "x": 15,
+        "y": 117
+      },
+      {
+        "kind": "cactus",
+        "x": 58,
+        "y": 52
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 101,
+        "y": 83
+      },
+      {
+        "kind": "cactus",
+        "x": 144,
+        "y": 114
+      },
+      {
+        "kind": "cactus",
+        "x": 100,
+        "y": 111
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 143,
+        "y": 46
+      },
+      {
+        "kind": "cactus",
+        "x": 13,
+        "y": 77
+      },
+      {
+        "kind": "barrel",
+        "x": 56,
+        "y": 108
+      },
+      {
+        "kind": "fence",
+        "x": 99,
+        "y": 43
+      },
+      {
+        "kind": "cactus",
+        "x": 142,
+        "y": 74
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 12,
+        "y": 105
+      },
+      {
+        "kind": "cactus",
+        "x": 55,
+        "y": 40
+      },
+      {
+        "kind": "barrel",
+        "x": 98,
+        "y": 71
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 54,
+        "y": 68
+      },
+      {
+        "kind": "cactus",
+        "x": 97,
+        "y": 99
+      },
+      {
+        "kind": "barrel",
+        "x": 140,
+        "y": 34
+      },
+      {
+        "kind": "fence",
+        "x": 10,
+        "y": 65
+      }
+    ],
+    "cash": 275,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "drifter",
+          "count": 8,
+          "gap": 0.55,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 8,
+          "gap": 0.5,
+          "delay": 3,
+          "route": 1
+        },
+        {
+          "kind": "iron",
+          "count": 2,
+          "gap": 0.8,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 6,
+          "gap": 0.6,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "runner",
+          "count": 16,
+          "gap": 0.4,
+          "delay": 1,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 14,
+          "gap": 0.6,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 10,
+          "gap": 0.75,
+          "delay": 12,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 8,
+          "gap": 0.49,
+          "delay": 0,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 28,
+          "gap": 0.48,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "drifter",
+          "count": 32,
+          "gap": 0.47,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 13,
+          "gap": 0.47,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 15,
+          "gap": 0.45,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 22,
+          "gap": 0.45,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 8,
+          "gap": 0.44,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 13,
+          "gap": 0.44,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 188,
+      "h": 112
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-11",
+    "name": "Heavy traffic",
+    "theme": 1,
+    "paths": [
+      [
+        [
+          5,
+          110
+        ],
+        [
+          34,
+          110
+        ],
+        [
+          34,
+          43
+        ],
+        [
+          98,
+          43
+        ],
+        [
+          119,
+          64
+        ],
+        [
+          119,
+          111
+        ],
+        [
+          76,
+          111
+        ],
+        [
+          76,
+          77
+        ],
+        [
+          142,
+          77
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 53,
+        "y": 66
+      },
+      {
+        "kind": "rock",
+        "x": 60,
+        "y": 70
+      },
+      {
+        "kind": "rock",
+        "x": 99,
+        "y": 92
+      },
+      {
+        "kind": "rock",
+        "x": 106,
+        "y": 96
+      },
+      {
+        "kind": "rock",
+        "x": 141,
+        "y": 123
+      },
+      {
+        "kind": "rock",
+        "x": 148,
+        "y": 127
+      },
+      {
+        "kind": "barrel",
+        "x": 154,
+        "y": 79
+      },
+      {
+        "kind": "trough",
+        "x": 130,
+        "y": 89
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 23,
+        "y": 31
+      },
+      {
+        "kind": "cactus",
+        "x": 66,
+        "y": 62
+      },
+      {
+        "kind": "fence",
+        "x": 11,
+        "y": 124
+      },
+      {
+        "kind": "cactus",
+        "x": 140,
+        "y": 109
+      },
+      {
+        "kind": "barrel",
+        "x": 42,
+        "y": 32
+      },
+      {
+        "kind": "fence",
+        "x": 85,
+        "y": 63
+      },
+      {
+        "kind": "cactus",
+        "x": 128,
+        "y": 94
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 30,
+        "y": 125
+      },
+      {
+        "kind": "cactus",
+        "x": 61,
+        "y": 33
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 104,
+        "y": 64
+      },
+      {
+        "kind": "cactus",
+        "x": 147,
+        "y": 95
+      },
+      {
+        "kind": "barrel",
+        "x": 49,
+        "y": 126
+      },
+      {
+        "kind": "cactus",
+        "x": 80,
+        "y": 34
+      },
+      {
+        "kind": "fence",
+        "x": 25,
+        "y": 96
+      },
+      {
+        "kind": "cactus",
+        "x": 68,
+        "y": 127
+      },
+      {
+        "kind": "cactus",
+        "x": 13,
+        "y": 81
+      },
+      {
+        "kind": "barrel",
+        "x": 56,
+        "y": 112
+      },
+      {
+        "kind": "fence",
+        "x": 99,
+        "y": 35
+      },
+      {
+        "kind": "cactus",
+        "x": 142,
+        "y": 66
+      }
+    ],
+    "cash": 255,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "iron",
+          "count": 6,
+          "gap": 0.7,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 8,
+          "gap": 0.45,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 16,
+          "gap": 0.75,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 16,
+          "gap": 0.4,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 2,
+          "gap": 1.2,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 8,
+          "gap": 0.5,
+          "delay": 4,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 12,
+          "gap": 0.35,
+          "delay": 6,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 9,
+          "gap": 0.48,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 29,
+          "gap": 0.46,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "drifter",
+          "count": 33,
+          "gap": 0.45,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 13,
+          "gap": 0.45,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 17,
+          "gap": 0.43,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 23,
+          "gap": 0.43,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 9,
+          "gap": 0.42,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 13,
+          "gap": 0.42,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 156,
+      "h": 124
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-12",
+    "name": "The noon express",
+    "theme": 1,
+    "paths": [
+      [
+        [
+          5,
+          42
+        ],
+        [
+          58,
+          42
+        ],
+        [
+          72,
+          68
+        ],
+        [
+          117,
+          68
+        ],
+        [
+          133,
+          40
+        ],
+        [
+          170,
+          40
+        ],
+        [
+          170,
+          77
+        ],
+        [
+          207,
+          77
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 92,
+        "y": 46
+      },
+      {
+        "kind": "rock",
+        "x": 99,
+        "y": 50
+      },
+      {
+        "kind": "rock",
+        "x": 149,
+        "y": 62
+      },
+      {
+        "kind": "rock",
+        "x": 156,
+        "y": 66
+      },
+      {
+        "kind": "rock",
+        "x": 26,
+        "y": 74
+      },
+      {
+        "kind": "rock",
+        "x": 33,
+        "y": 78
+      },
+      {
+        "kind": "barrel",
+        "x": 219,
+        "y": 79
+      },
+      {
+        "kind": "trough",
+        "x": 195,
+        "y": 89
+      },
+      {
+        "kind": "cactus",
+        "x": 95,
+        "y": 28
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 138,
+        "y": 59
+      },
+      {
+        "kind": "cactus",
+        "x": 181,
+        "y": 28
+      },
+      {
+        "kind": "barrel",
+        "x": 19,
+        "y": 59
+      },
+      {
+        "kind": "fence",
+        "x": 62,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 105,
+        "y": 59
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 148,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 191,
+        "y": 59
+      },
+      {
+        "kind": "barrel",
+        "x": 29,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 115,
+        "y": 28
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 158,
+        "y": 59
+      },
+      {
+        "kind": "cactus",
+        "x": 201,
+        "y": 28
+      },
+      {
+        "kind": "barrel",
+        "x": 39,
+        "y": 59
+      },
+      {
+        "kind": "fence",
+        "x": 82,
+        "y": 28
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 168,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 211,
+        "y": 59
+      },
+      {
+        "kind": "barrel",
+        "x": 49,
+        "y": 28
+      },
+      {
+        "kind": "fence",
+        "x": 92,
+        "y": 59
+      },
+      {
+        "kind": "cactus",
+        "x": 135,
+        "y": 28
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 178,
+        "y": 59
+      },
+      {
+        "kind": "cactus",
+        "x": 16,
+        "y": 28
+      },
+      {
+        "kind": "barrel",
+        "x": 59,
+        "y": 59
+      },
+      {
+        "kind": "fence",
+        "x": 102,
+        "y": 28
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 188,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 26,
+        "y": 59
+      },
+      {
+        "kind": "barrel",
+        "x": 69,
+        "y": 28
+      },
+      {
+        "kind": "fence",
+        "x": 112,
+        "y": 59
+      },
+      {
+        "kind": "cactus",
+        "x": 155,
+        "y": 28
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 198,
+        "y": 59
+      }
+    ],
+    "cash": 260,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "rider",
+          "count": 6,
+          "gap": 0.65,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 14,
+          "gap": 0.35,
+          "delay": 2,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 12,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 18,
+          "gap": 0.3,
+          "delay": 2,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 10,
+          "gap": 0.45,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 8,
+          "gap": 0.45,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 9,
+          "gap": 0.46,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "runner",
+          "count": 32,
+          "gap": 0.44,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "drifter",
+          "count": 35,
+          "gap": 0.43,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 14,
+          "gap": 0.43,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 18,
+          "gap": 0.42,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 24,
+          "gap": 0.42,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 9,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 14,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 220,
+      "h": 78
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-13",
+    "name": "A song for the posse",
+    "theme": 2,
+    "paths": [
+      [
+        [
+          5,
+          50
+        ],
+        [
+          45,
+          50
+        ],
+        [
+          45,
+          97
+        ],
+        [
+          105,
+          97
+        ],
+        [
+          105,
+          52
+        ],
+        [
+          76,
+          52
+        ],
+        [
+          76,
+          124
+        ],
+        [
+          131,
+          124
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 24,
+        "y": 108
+      },
+      {
+        "kind": "rock",
+        "x": 31,
+        "y": 112
+      },
+      {
+        "kind": "rock",
+        "x": 124,
+        "y": 72
+      },
+      {
+        "kind": "rock",
+        "x": 131,
+        "y": 76
+      },
+      {
+        "kind": "fence",
+        "x": 20,
+        "y": 72
+      },
+      {
+        "kind": "trough",
+        "x": 23,
+        "y": 79
+      },
+      {
+        "kind": "trough",
+        "x": 25,
+        "y": 87
+      },
+      {
+        "kind": "fence",
+        "x": 119,
+        "y": 34
+      },
+      {
+        "kind": "trough",
+        "x": 122,
+        "y": 41
+      },
+      {
+        "kind": "barrel",
+        "x": 143,
+        "y": 126
+      },
+      {
+        "kind": "trough",
+        "x": 119,
+        "y": 136
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 112,
+        "y": 103
+      },
+      {
+        "kind": "cactus",
+        "x": 26,
+        "y": 134
+      },
+      {
+        "kind": "barrel",
+        "x": 69,
+        "y": 51
+      },
+      {
+        "kind": "cactus",
+        "x": 26,
+        "y": 113
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 69,
+        "y": 30
+      },
+      {
+        "kind": "barrel",
+        "x": 26,
+        "y": 92
+      },
+      {
+        "kind": "cactus",
+        "x": 112,
+        "y": 40
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 26,
+        "y": 71
+      },
+      {
+        "kind": "barrel",
+        "x": 112,
+        "y": 133
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 112,
+        "y": 112
+      },
+      {
+        "kind": "cactus",
+        "x": 26,
+        "y": 29
+      },
+      {
+        "kind": "cactus",
+        "x": 26,
+        "y": 122
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 69,
+        "y": 39
+      },
+      {
+        "kind": "barrel",
+        "x": 26,
+        "y": 101
+      },
+      {
+        "kind": "fence",
+        "x": 69,
+        "y": 132
+      },
+      {
+        "kind": "cactus",
+        "x": 112,
+        "y": 49
+      },
+      {
+        "kind": "barrel",
+        "x": 112,
+        "y": 28
+      },
+      {
+        "kind": "fence",
+        "x": 26,
+        "y": 59
+      },
+      {
+        "kind": "cactus",
+        "x": 26,
+        "y": 38
+      }
+    ],
+    "cash": 325,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "runner",
+          "count": 14,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 5,
+          "gap": 0.8,
+          "delay": 2,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 8,
+          "gap": 0.65,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 8,
+          "gap": 0.55,
+          "delay": 2,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 16,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 20,
+          "gap": 0.3,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 15,
+          "gap": 0.47,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 4,
+          "gap": 0.45,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 28,
+          "gap": 0.45,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 23,
+          "gap": 0.44,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 13,
+          "gap": 0.44,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 23,
+          "gap": 0.43,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 32,
+          "gap": 0.43,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 7,
+          "gap": 0.41,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 20,
+          "gap": 0.41,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 144,
+      "h": 130
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-14",
+    "name": "The green mile",
+    "theme": 2,
+    "paths": [
+      [
+        [
+          98,
+          20
+        ],
+        [
+          98,
+          57
+        ],
+        [
+          49,
+          57
+        ],
+        [
+          28,
+          82
+        ],
+        [
+          28,
+          132
+        ],
+        [
+          79,
+          132
+        ],
+        [
+          79,
+          101
+        ],
+        [
+          111,
+          101
+        ],
+        [
+          111,
+          158
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 72,
+        "y": 79
+      },
+      {
+        "kind": "rock",
+        "x": 79,
+        "y": 83
+      },
+      {
+        "kind": "rock",
+        "x": 48,
+        "y": 111
+      },
+      {
+        "kind": "rock",
+        "x": 55,
+        "y": 115
+      },
+      {
+        "kind": "fence",
+        "x": 13,
+        "y": 37
+      },
+      {
+        "kind": "trough",
+        "x": 16,
+        "y": 44
+      },
+      {
+        "kind": "fence",
+        "x": 18,
+        "y": 151
+      },
+      {
+        "kind": "trough",
+        "x": 21,
+        "y": 158
+      },
+      {
+        "kind": "barrel",
+        "x": 123,
+        "y": 160
+      },
+      {
+        "kind": "cactus",
+        "x": 20,
+        "y": 116
+      },
+      {
+        "kind": "barrel",
+        "x": 63,
+        "y": 147
+      },
+      {
+        "kind": "fence",
+        "x": 106,
+        "y": 40
+      },
+      {
+        "kind": "cactus",
+        "x": 17,
+        "y": 133
+      },
+      {
+        "kind": "barrel",
+        "x": 60,
+        "y": 26
+      },
+      {
+        "kind": "cactus",
+        "x": 37,
+        "y": 88
+      },
+      {
+        "kind": "barrel",
+        "x": 57,
+        "y": 43
+      },
+      {
+        "kind": "fence",
+        "x": 100,
+        "y": 74
+      },
+      {
+        "kind": "cactus",
+        "x": 11,
+        "y": 29
+      },
+      {
+        "kind": "fence",
+        "x": 97,
+        "y": 91
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 74,
+        "y": 153
+      },
+      {
+        "kind": "cactus",
+        "x": 117,
+        "y": 46
+      },
+      {
+        "kind": "barrel",
+        "x": 51,
+        "y": 77
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 71,
+        "y": 32
+      },
+      {
+        "kind": "cactus",
+        "x": 114,
+        "y": 63
+      },
+      {
+        "kind": "barrel",
+        "x": 48,
+        "y": 94
+      },
+      {
+        "kind": "fence",
+        "x": 91,
+        "y": 125
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 68,
+        "y": 49
+      },
+      {
+        "kind": "cactus",
+        "x": 111,
+        "y": 80
+      }
+    ],
+    "cash": 300,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "iron",
+          "count": 5,
+          "gap": 0.7,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 10,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 12,
+          "gap": 0.5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 8,
+          "gap": 0.45,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 3,
+          "gap": 1,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 10,
+          "gap": 0.5,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 17,
+          "gap": 0.45,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 4,
+          "gap": 0.44,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 30,
+          "gap": 0.44,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 24,
+          "gap": 0.42,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 14,
+          "gap": 0.42,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 24,
+          "gap": 0.41,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 34,
+          "gap": 0.41,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 7,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 22,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 9,
+          "gap": 2.7,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 22,
+          "gap": 0.38,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 124,
+      "h": 154
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-15",
+    "name": "Riders on the ridge",
+    "theme": 2,
+    "paths": [
+      [
+        [
+          5,
+          99
+        ],
+        [
+          36,
+          99
+        ],
+        [
+          57,
+          63
+        ],
+        [
+          89,
+          35
+        ],
+        [
+          119,
+          63
+        ],
+        [
+          151,
+          99
+        ],
+        [
+          181,
+          75
+        ],
+        [
+          181,
+          36
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 83,
+        "y": 78
+      },
+      {
+        "kind": "rock",
+        "x": 90,
+        "y": 82
+      },
+      {
+        "kind": "rock",
+        "x": 159,
+        "y": 49
+      },
+      {
+        "kind": "rock",
+        "x": 166,
+        "y": 53
+      },
+      {
+        "kind": "fence",
+        "x": 24,
+        "y": 30
+      },
+      {
+        "kind": "trough",
+        "x": 27,
+        "y": 37
+      },
+      {
+        "kind": "fence",
+        "x": 35,
+        "y": 30
+      },
+      {
+        "kind": "trough",
+        "x": 38,
+        "y": 37
+      },
+      {
+        "kind": "barrel",
+        "x": 193,
+        "y": 38
+      },
+      {
+        "kind": "trough",
+        "x": 169,
+        "y": 48
+      },
+      {
+        "kind": "barrel",
+        "x": 146,
+        "y": 45
+      },
+      {
+        "kind": "fence",
+        "x": 189,
+        "y": 76
+      },
+      {
+        "kind": "cactus",
+        "x": 39,
+        "y": 107
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 82,
+        "y": 54
+      },
+      {
+        "kind": "cactus",
+        "x": 125,
+        "y": 85
+      },
+      {
+        "kind": "barrel",
+        "x": 168,
+        "y": 32
+      },
+      {
+        "kind": "fence",
+        "x": 18,
+        "y": 63
+      },
+      {
+        "kind": "cactus",
+        "x": 61,
+        "y": 94
+      },
+      {
+        "kind": "cactus",
+        "x": 147,
+        "y": 72
+      },
+      {
+        "kind": "barrel",
+        "x": 190,
+        "y": 103
+      },
+      {
+        "kind": "fence",
+        "x": 40,
+        "y": 50
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 126,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 169,
+        "y": 59
+      },
+      {
+        "kind": "barrel",
+        "x": 19,
+        "y": 90
+      },
+      {
+        "kind": "fence",
+        "x": 62,
+        "y": 37
+      },
+      {
+        "kind": "cactus",
+        "x": 105,
+        "y": 68
+      },
+      {
+        "kind": "cactus",
+        "x": 191,
+        "y": 46
+      },
+      {
+        "kind": "fence",
+        "x": 84,
+        "y": 108
+      },
+      {
+        "kind": "cactus",
+        "x": 127,
+        "y": 55
+      },
+      {
+        "kind": "fence",
+        "x": 106,
+        "y": 95
+      }
+    ],
+    "cash": 310,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "rider",
+          "count": 10,
+          "gap": 0.55,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 8,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 18,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 6,
+          "gap": 0.5,
+          "delay": 2,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 10,
+          "gap": 0.6,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 16,
+          "gap": 0.35,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 18,
+          "gap": 0.43,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 4,
+          "gap": 0.42,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 32,
+          "gap": 0.42,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 27,
+          "gap": 0.41,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 15,
+          "gap": 0.41,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 27,
+          "gap": 0.39,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 37,
+          "gap": 0.39,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 8,
+          "gap": 0.38,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 23,
+          "gap": 0.38,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 7,
+          "gap": 0.36,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 23,
+          "gap": 0.36,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 208,
+      "h": 100
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-16",
+    "name": "Company coming",
+    "theme": 2,
+    "paths": [
+      [
+        [
+          5,
+          44
+        ],
+        [
+          45,
+          44
+        ],
+        [
+          45,
+          83
+        ],
+        [
+          81,
+          83
+        ],
+        [
+          81,
+          48
+        ],
+        [
+          122,
+          48
+        ],
+        [
+          122,
+          112
+        ],
+        [
+          165,
+          112
+        ]
+      ],
+      [
+        [
+          177,
+          24
+        ],
+        [
+          151,
+          24
+        ],
+        [
+          151,
+          75
+        ],
+        [
+          104,
+          75
+        ],
+        [
+          104,
+          48
+        ],
+        [
+          81,
+          48
+        ],
+        [
+          122,
+          48
+        ],
+        [
+          122,
+          112
+        ],
+        [
+          165,
+          112
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 64,
+        "y": 65
+      },
+      {
+        "kind": "rock",
+        "x": 71,
+        "y": 69
+      },
+      {
+        "kind": "rock",
+        "x": 133,
+        "y": 95
+      },
+      {
+        "kind": "fence",
+        "x": 20,
+        "y": 117
+      },
+      {
+        "kind": "trough",
+        "x": 23,
+        "y": 124
+      },
+      {
+        "kind": "fence",
+        "x": 32,
+        "y": 117
+      },
+      {
+        "kind": "trough",
+        "x": 35,
+        "y": 124
+      },
+      {
+        "kind": "fence",
+        "x": 45,
+        "y": 117
+      },
+      {
+        "kind": "trough",
+        "x": 48,
+        "y": 124
+      },
+      {
+        "kind": "barrel",
+        "x": 177,
+        "y": 114
+      },
+      {
+        "kind": "trough",
+        "x": 153,
+        "y": 124
+      },
+      {
+        "kind": "fence",
+        "x": 163,
+        "y": 32
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 84,
+        "y": 94
+      },
+      {
+        "kind": "cactus",
+        "x": 127,
+        "y": 125
+      },
+      {
+        "kind": "barrel",
+        "x": 170,
+        "y": 46
+      },
+      {
+        "kind": "cactus",
+        "x": 91,
+        "y": 108
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 134,
+        "y": 29
+      },
+      {
+        "kind": "cactus",
+        "x": 12,
+        "y": 60
+      },
+      {
+        "kind": "barrel",
+        "x": 55,
+        "y": 91
+      },
+      {
+        "kind": "fence",
+        "x": 98,
+        "y": 122
+      },
+      {
+        "kind": "cactus",
+        "x": 141,
+        "y": 43
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 19,
+        "y": 74
+      },
+      {
+        "kind": "cactus",
+        "x": 62,
+        "y": 105
+      },
+      {
+        "kind": "barrel",
+        "x": 105,
+        "y": 26
+      },
+      {
+        "kind": "cactus",
+        "x": 26,
+        "y": 88
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 69,
+        "y": 119
+      },
+      {
+        "kind": "cactus",
+        "x": 112,
+        "y": 40
+      },
+      {
+        "kind": "fence",
+        "x": 33,
+        "y": 102
+      },
+      {
+        "kind": "cactus",
+        "x": 76,
+        "y": 133
+      },
+      {
+        "kind": "cactus",
+        "x": 162,
+        "y": 85
+      },
+      {
+        "kind": "barrel",
+        "x": 40,
+        "y": 116
+      },
+      {
+        "kind": "fence",
+        "x": 83,
+        "y": 37
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 169,
+        "y": 99
+      },
+      {
+        "kind": "cactus",
+        "x": 47,
+        "y": 130
+      },
+      {
+        "kind": "cactus",
+        "x": 11,
+        "y": 113
+      }
+    ],
+    "cash": 330,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "iron",
+          "count": 3,
+          "gap": 0.8,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 5,
+          "gap": 0.65,
+          "delay": 1,
+          "route": 1
+        },
+        {
+          "kind": "runner",
+          "count": 10,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 12,
+          "gap": 0.6,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "outlaw",
+          "count": 11,
+          "gap": 0.6,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 16,
+          "gap": 0.7,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 16,
+          "gap": 0.7,
+          "delay": 1,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 19,
+          "gap": 0.42,
+          "delay": 0,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 5,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 34,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 28,
+          "gap": 0.39,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "iron",
+          "count": 15,
+          "gap": 0.39,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 28,
+          "gap": 0.37,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 39,
+          "gap": 0.37,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 8,
+          "gap": 0.36,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 25,
+          "gap": 0.36,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 7,
+          "gap": 0.35,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 25,
+          "gap": 0.35,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.33,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "iron",
+          "count": 22,
+          "gap": 0.33,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 180,
+      "h": 126
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-17",
+    "name": "A rolling fortune",
+    "theme": 2,
+    "paths": [
+      [
+        [
+          5,
+          47
+        ],
+        [
+          47,
+          47
+        ],
+        [
+          47,
+          89
+        ],
+        [
+          94,
+          89
+        ],
+        [
+          94,
+          45
+        ],
+        [
+          137,
+          45
+        ],
+        [
+          156,
+          89
+        ],
+        [
+          194,
+          89
+        ],
+        [
+          194,
+          53
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 69,
+        "y": 68
+      },
+      {
+        "kind": "rock",
+        "x": 76,
+        "y": 72
+      },
+      {
+        "kind": "rock",
+        "x": 170,
+        "y": 62
+      },
+      {
+        "kind": "rock",
+        "x": 177,
+        "y": 66
+      },
+      {
+        "kind": "fence",
+        "x": 20,
+        "y": 100
+      },
+      {
+        "kind": "trough",
+        "x": 23,
+        "y": 107
+      },
+      {
+        "kind": "fence",
+        "x": 32,
+        "y": 100
+      },
+      {
+        "kind": "trough",
+        "x": 35,
+        "y": 107
+      },
+      {
+        "kind": "fence",
+        "x": 115,
+        "y": 25
+      },
+      {
+        "kind": "trough",
+        "x": 118,
+        "y": 32
+      },
+      {
+        "kind": "barrel",
+        "x": 206,
+        "y": 55
+      },
+      {
+        "kind": "trough",
+        "x": 182,
+        "y": 65
+      },
+      {
+        "kind": "cactus",
+        "x": 180,
+        "y": 77
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 26,
+        "y": 30
+      },
+      {
+        "kind": "cactus",
+        "x": 69,
+        "y": 61
+      },
+      {
+        "kind": "barrel",
+        "x": 112,
+        "y": 92
+      },
+      {
+        "kind": "fence",
+        "x": 155,
+        "y": 45
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 44,
+        "y": 29
+      },
+      {
+        "kind": "barrel",
+        "x": 130,
+        "y": 91
+      },
+      {
+        "kind": "fence",
+        "x": 173,
+        "y": 44
+      },
+      {
+        "kind": "cactus",
+        "x": 19,
+        "y": 75
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 62,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 105,
+        "y": 59
+      },
+      {
+        "kind": "barrel",
+        "x": 148,
+        "y": 90
+      },
+      {
+        "kind": "fence",
+        "x": 191,
+        "y": 43
+      },
+      {
+        "kind": "cactus",
+        "x": 37,
+        "y": 74
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 80,
+        "y": 27
+      },
+      {
+        "kind": "cactus",
+        "x": 123,
+        "y": 58
+      },
+      {
+        "kind": "cactus",
+        "x": 55,
+        "y": 73
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 98,
+        "y": 26
+      },
+      {
+        "kind": "cactus",
+        "x": 159,
+        "y": 56
+      },
+      {
+        "kind": "barrel",
+        "x": 202,
+        "y": 87
+      },
+      {
+        "kind": "fence",
+        "x": 48,
+        "y": 40
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 134,
+        "y": 102
+      }
+    ],
+    "cash": 330,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "wagon",
+          "count": 2,
+          "gap": 1.2,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 6,
+          "gap": 0.65,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 3,
+          "gap": 1,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 10,
+          "gap": 0.5,
+          "delay": 4,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 12,
+          "gap": 0.55,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 18,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 20,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 5,
+          "gap": 0.39,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 37,
+          "gap": 0.39,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 29,
+          "gap": 0.37,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 17,
+          "gap": 0.37,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 29,
+          "gap": 0.36,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 42,
+          "gap": 0.36,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.34,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 27,
+          "gap": 0.34,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 7,
+          "gap": 0.33,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 27,
+          "gap": 0.33,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.32,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 23,
+          "gap": 0.32,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 212,
+      "h": 94
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-18",
+    "name": "The county line",
+    "theme": 2,
+    "paths": [
+      [
+        [
+          5,
+          46
+        ],
+        [
+          49,
+          46
+        ],
+        [
+          49,
+          92
+        ],
+        [
+          111,
+          92
+        ],
+        [
+          111,
+          139
+        ],
+        [
+          74,
+          139
+        ],
+        [
+          74,
+          69
+        ],
+        [
+          133,
+          69
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 27,
+        "y": 72
+      },
+      {
+        "kind": "rock",
+        "x": 34,
+        "y": 76
+      },
+      {
+        "kind": "rock",
+        "x": 129,
+        "y": 119
+      },
+      {
+        "kind": "rock",
+        "x": 136,
+        "y": 123
+      },
+      {
+        "kind": "fence",
+        "x": 22,
+        "y": 133
+      },
+      {
+        "kind": "trough",
+        "x": 25,
+        "y": 140
+      },
+      {
+        "kind": "fence",
+        "x": 33,
+        "y": 133
+      },
+      {
+        "kind": "trough",
+        "x": 36,
+        "y": 140
+      },
+      {
+        "kind": "fence",
+        "x": 123,
+        "y": 38
+      },
+      {
+        "kind": "trough",
+        "x": 126,
+        "y": 45
+      },
+      {
+        "kind": "barrel",
+        "x": 145,
+        "y": 71
+      },
+      {
+        "kind": "trough",
+        "x": 121,
+        "y": 81
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 64,
+        "y": 36
+      },
+      {
+        "kind": "barrel",
+        "x": 17,
+        "y": 98
+      },
+      {
+        "kind": "fence",
+        "x": 60,
+        "y": 129
+      },
+      {
+        "kind": "cactus",
+        "x": 103,
+        "y": 28
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 13,
+        "y": 59
+      },
+      {
+        "kind": "barrel",
+        "x": 99,
+        "y": 121
+      },
+      {
+        "kind": "fence",
+        "x": 142,
+        "y": 152
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 95,
+        "y": 82
+      },
+      {
+        "kind": "cactus",
+        "x": 138,
+        "y": 113
+      },
+      {
+        "kind": "barrel",
+        "x": 48,
+        "y": 144
+      },
+      {
+        "kind": "fence",
+        "x": 91,
+        "y": 43
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 44,
+        "y": 105
+      },
+      {
+        "kind": "barrel",
+        "x": 130,
+        "y": 35
+      },
+      {
+        "kind": "fence",
+        "x": 40,
+        "y": 66
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 126,
+        "y": 128
+      },
+      {
+        "kind": "cactus",
+        "x": 36,
+        "y": 27
+      },
+      {
+        "kind": "barrel",
+        "x": 79,
+        "y": 58
+      },
+      {
+        "kind": "fence",
+        "x": 122,
+        "y": 89
+      },
+      {
+        "kind": "cactus",
+        "x": 32,
+        "y": 120
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 75,
+        "y": 151
+      },
+      {
+        "kind": "cactus",
+        "x": 118,
+        "y": 50
+      },
+      {
+        "kind": "barrel",
+        "x": 28,
+        "y": 81
+      }
+    ],
+    "cash": 340,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "outlaw",
+          "count": 8,
+          "gap": 0.65,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 10,
+          "gap": 0.35,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 12,
+          "gap": 0.6,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 10,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 24,
+          "gap": 0.8,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 12,
+          "gap": 0.6,
+          "delay": 5,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 22,
+          "gap": 0.38,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 5,
+          "gap": 0.37,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "drifter",
+          "count": 38,
+          "gap": 0.37,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "rider",
+          "count": 32,
+          "gap": 0.35,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 18,
+          "gap": 0.35,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 32,
+          "gap": 0.34,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 43,
+          "gap": 0.34,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.33,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 28,
+          "gap": 0.33,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 12,
+          "gap": 2.2,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 28,
+          "gap": 0.31,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.3,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 24,
+          "gap": 0.3,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 148,
+      "h": 148
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-19",
+    "name": "Copper & smoke",
+    "theme": 3,
+    "paths": [
+      [
+        [
+          5,
+          50
+        ],
+        [
+          43,
+          50
+        ],
+        [
+          66,
+          88
+        ],
+        [
+          101,
+          88
+        ],
+        [
+          101,
+          49
+        ],
+        [
+          145,
+          49
+        ],
+        [
+          145,
+          111
+        ],
+        [
+          195,
+          111
+        ]
+      ],
+      [
+        [
+          205,
+          24
+        ],
+        [
+          175,
+          24
+        ],
+        [
+          175,
+          72
+        ],
+        [
+          124,
+          72
+        ],
+        [
+          124,
+          111
+        ],
+        [
+          195,
+          111
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 48,
+        "y": 107
+      },
+      {
+        "kind": "rock",
+        "x": 55,
+        "y": 111
+      },
+      {
+        "kind": "rock",
+        "x": 81,
+        "y": 65
+      },
+      {
+        "kind": "rock",
+        "x": 88,
+        "y": 69
+      },
+      {
+        "kind": "rock",
+        "x": 166,
+        "y": 93
+      },
+      {
+        "kind": "rock",
+        "x": 173,
+        "y": 97
+      },
+      {
+        "kind": "barrel",
+        "x": 207,
+        "y": 113
+      },
+      {
+        "kind": "trough",
+        "x": 183,
+        "y": 123
+      },
+      {
+        "kind": "cactus",
+        "x": 21,
+        "y": 71
+      },
+      {
+        "kind": "barrel",
+        "x": 64,
+        "y": 102
+      },
+      {
+        "kind": "fence",
+        "x": 107,
+        "y": 133
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 193,
+        "y": 85
+      },
+      {
+        "kind": "cactus",
+        "x": 43,
+        "y": 116
+      },
+      {
+        "kind": "barrel",
+        "x": 86,
+        "y": 37
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 22,
+        "y": 130
+      },
+      {
+        "kind": "cactus",
+        "x": 65,
+        "y": 51
+      },
+      {
+        "kind": "cactus",
+        "x": 194,
+        "y": 34
+      },
+      {
+        "kind": "cactus",
+        "x": 87,
+        "y": 96
+      },
+      {
+        "kind": "barrel",
+        "x": 130,
+        "y": 127
+      },
+      {
+        "kind": "cactus",
+        "x": 23,
+        "y": 79
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 66,
+        "y": 110
+      },
+      {
+        "kind": "cactus",
+        "x": 109,
+        "y": 31
+      },
+      {
+        "kind": "fence",
+        "x": 195,
+        "y": 93
+      },
+      {
+        "kind": "cactus",
+        "x": 45,
+        "y": 124
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 88,
+        "y": 45
+      },
+      {
+        "kind": "fence",
+        "x": 24,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 67,
+        "y": 59
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 110,
+        "y": 90
+      },
+      {
+        "kind": "cactus",
+        "x": 153,
+        "y": 121
+      },
+      {
+        "kind": "barrel",
+        "x": 196,
+        "y": 42
+      }
+    ],
+    "cash": 435,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "rider",
+          "count": 9,
+          "gap": 0.6199999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 9,
+          "gap": 0.6199999999999999,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 16,
+          "gap": 0.5999999999999999,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "runner",
+          "count": 22,
+          "gap": 0.5999999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 22,
+          "gap": 0.5799999999999998,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 5,
+          "gap": 0.5599999999999998,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 18,
+          "gap": 0.5599999999999998,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 8,
+          "gap": 0.5399999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 28,
+          "gap": 0.5399999999999999,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 20,
+          "gap": 0.5199999999999999,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "outlaw",
+          "count": 18,
+          "gap": 0.5199999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 7,
+          "gap": 0.4999999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 22,
+          "gap": 0.4999999999999999,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 12,
+          "gap": 0.47999999999999987,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "outlaw",
+          "count": 22,
+          "gap": 0.47999999999999987,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 8,
+          "gap": 0.45999999999999985,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 22,
+          "gap": 0.45999999999999985,
+          "delay": 3,
+          "route": 1
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 208,
+      "h": 126
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-20",
+    "name": "Hairpin ambush",
+    "theme": 3,
+    "paths": [
+      [
+        [
+          27,
+          20
+        ],
+        [
+          27,
+          65
+        ],
+        [
+          89,
+          65
+        ],
+        [
+          89,
+          112
+        ],
+        [
+          44,
+          112
+        ],
+        [
+          44,
+          152
+        ],
+        [
+          111,
+          152
+        ],
+        [
+          111,
+          91
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 56,
+        "y": 89
+      },
+      {
+        "kind": "rock",
+        "x": 63,
+        "y": 93
+      },
+      {
+        "kind": "rock",
+        "x": 68,
+        "y": 132
+      },
+      {
+        "kind": "rock",
+        "x": 75,
+        "y": 136
+      },
+      {
+        "kind": "rock",
+        "x": 109,
+        "y": 42
+      },
+      {
+        "kind": "rock",
+        "x": 116,
+        "y": 46
+      },
+      {
+        "kind": "barrel",
+        "x": 123,
+        "y": 93
+      },
+      {
+        "kind": "trough",
+        "x": 99,
+        "y": 103
+      },
+      {
+        "kind": "barrel",
+        "x": 118,
+        "y": 52
+      },
+      {
+        "kind": "fence",
+        "x": 48,
+        "y": 83
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 21,
+        "y": 145
+      },
+      {
+        "kind": "cactus",
+        "x": 64,
+        "y": 34
+      },
+      {
+        "kind": "barrel",
+        "x": 107,
+        "y": 65
+      },
+      {
+        "kind": "fence",
+        "x": 37,
+        "y": 96
+      },
+      {
+        "kind": "cactus",
+        "x": 80,
+        "y": 127
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 10,
+        "y": 158
+      },
+      {
+        "kind": "cactus",
+        "x": 53,
+        "y": 47
+      },
+      {
+        "kind": "fence",
+        "x": 26,
+        "y": 109
+      },
+      {
+        "kind": "cactus",
+        "x": 69,
+        "y": 140
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 112,
+        "y": 29
+      },
+      {
+        "kind": "fence",
+        "x": 15,
+        "y": 122
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 101,
+        "y": 42
+      },
+      {
+        "kind": "cactus",
+        "x": 31,
+        "y": 73
+      },
+      {
+        "kind": "barrel",
+        "x": 74,
+        "y": 104
+      },
+      {
+        "kind": "cactus",
+        "x": 47,
+        "y": 166
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 90,
+        "y": 55
+      },
+      {
+        "kind": "cactus",
+        "x": 20,
+        "y": 86
+      },
+      {
+        "kind": "cactus",
+        "x": 36,
+        "y": 37
+      },
+      {
+        "kind": "cactus",
+        "x": 122,
+        "y": 99
+      },
+      {
+        "kind": "barrel",
+        "x": 52,
+        "y": 130
+      },
+      {
+        "kind": "fence",
+        "x": 95,
+        "y": 161
+      }
+    ],
+    "cash": 445,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "rider",
+          "count": 19,
+          "gap": 0.5949999999999999,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 17,
+          "gap": 0.5749999999999998,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 24,
+          "gap": 0.5749999999999998,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 24,
+          "gap": 0.5549999999999998,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 5,
+          "gap": 0.5349999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 19,
+          "gap": 0.5349999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 9,
+          "gap": 0.5149999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 30,
+          "gap": 0.5149999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 22,
+          "gap": 0.4949999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 19,
+          "gap": 0.4949999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 8,
+          "gap": 0.47499999999999987,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 24,
+          "gap": 0.47499999999999987,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 13,
+          "gap": 0.45499999999999985,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 24,
+          "gap": 0.45499999999999985,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.43499999999999983,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 24,
+          "gap": 0.43499999999999983,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 26,
+          "gap": 0.41499999999999987,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 128,
+      "h": 158
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-21",
+    "name": "The gathering storm",
+    "theme": 3,
+    "paths": [
+      [
+        [
+          5,
+          37
+        ],
+        [
+          45,
+          37
+        ],
+        [
+          70,
+          80
+        ],
+        [
+          111,
+          80
+        ],
+        [
+          131,
+          42
+        ],
+        [
+          172,
+          42
+        ],
+        [
+          172,
+          96
+        ],
+        [
+          209,
+          96
+        ]
+      ],
+      [
+        [
+          217,
+          27
+        ],
+        [
+          191,
+          27
+        ],
+        [
+          191,
+          71
+        ],
+        [
+          149,
+          71
+        ],
+        [
+          149,
+          96
+        ],
+        [
+          209,
+          96
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 90,
+        "y": 55
+      },
+      {
+        "kind": "rock",
+        "x": 97,
+        "y": 59
+      },
+      {
+        "kind": "rock",
+        "x": 131,
+        "y": 105
+      },
+      {
+        "kind": "rock",
+        "x": 138,
+        "y": 109
+      },
+      {
+        "kind": "rock",
+        "x": 37,
+        "y": 91
+      },
+      {
+        "kind": "rock",
+        "x": 44,
+        "y": 95
+      },
+      {
+        "kind": "trough",
+        "x": 197,
+        "y": 108
+      },
+      {
+        "kind": "fence",
+        "x": 43,
+        "y": 27
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 129,
+        "y": 89
+      },
+      {
+        "kind": "cactus",
+        "x": 172,
+        "y": 30
+      },
+      {
+        "kind": "barrel",
+        "x": 10,
+        "y": 61
+      },
+      {
+        "kind": "fence",
+        "x": 53,
+        "y": 92
+      },
+      {
+        "kind": "cactus",
+        "x": 96,
+        "y": 33
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 139,
+        "y": 64
+      },
+      {
+        "kind": "cactus",
+        "x": 106,
+        "y": 98
+      },
+      {
+        "kind": "barrel",
+        "x": 30,
+        "y": 101
+      },
+      {
+        "kind": "fence",
+        "x": 73,
+        "y": 42
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 159,
+        "y": 104
+      },
+      {
+        "kind": "cactus",
+        "x": 202,
+        "y": 45
+      },
+      {
+        "kind": "barrel",
+        "x": 40,
+        "y": 76
+      },
+      {
+        "kind": "fence",
+        "x": 83,
+        "y": 107
+      },
+      {
+        "kind": "cactus",
+        "x": 212,
+        "y": 110
+      },
+      {
+        "kind": "cactus",
+        "x": 17,
+        "y": 85
+      },
+      {
+        "kind": "barrel",
+        "x": 60,
+        "y": 26
+      },
+      {
+        "kind": "fence",
+        "x": 103,
+        "y": 57
+      }
+    ],
+    "cash": 455,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "rider",
+          "count": 11,
+          "gap": 0.5699999999999998,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 10,
+          "gap": 0.5699999999999998,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 18,
+          "gap": 0.5499999999999998,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "runner",
+          "count": 25,
+          "gap": 0.5499999999999998,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 25,
+          "gap": 0.5299999999999998,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 6,
+          "gap": 0.5099999999999998,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 21,
+          "gap": 0.5099999999999998,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 9,
+          "gap": 0.4899999999999998,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 32,
+          "gap": 0.4899999999999998,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 23,
+          "gap": 0.46999999999999986,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "outlaw",
+          "count": 21,
+          "gap": 0.46999999999999986,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 8,
+          "gap": 0.44999999999999984,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 25,
+          "gap": 0.44999999999999984,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 14,
+          "gap": 0.4299999999999998,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "outlaw",
+          "count": 25,
+          "gap": 0.4299999999999998,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.4099999999999998,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 25,
+          "gap": 0.4099999999999998,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 28,
+          "gap": 0.38999999999999985,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 220,
+      "h": 106
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-22",
+    "name": "Split decision",
+    "theme": 3,
+    "paths": [
+      [
+        [
+          5,
+          48
+        ],
+        [
+          45,
+          48
+        ],
+        [
+          45,
+          91
+        ],
+        [
+          84,
+          91
+        ],
+        [
+          84,
+          56
+        ],
+        [
+          125,
+          56
+        ],
+        [
+          125,
+          129
+        ],
+        [
+          88,
+          129
+        ]
+      ],
+      [
+        [
+          164,
+          24
+        ],
+        [
+          145,
+          24
+        ],
+        [
+          145,
+          101
+        ],
+        [
+          105,
+          101
+        ],
+        [
+          105,
+          56
+        ],
+        [
+          125,
+          56
+        ],
+        [
+          125,
+          129
+        ],
+        [
+          88,
+          129
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 62,
+        "y": 69
+      },
+      {
+        "kind": "rock",
+        "x": 69,
+        "y": 73
+      },
+      {
+        "kind": "rock",
+        "x": 63,
+        "y": 119
+      },
+      {
+        "kind": "rock",
+        "x": 70,
+        "y": 123
+      },
+      {
+        "kind": "rock",
+        "x": 115,
+        "y": 77
+      },
+      {
+        "kind": "trough",
+        "x": 76,
+        "y": 141
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 155,
+        "y": 119
+      },
+      {
+        "kind": "cactus",
+        "x": 45,
+        "y": 150
+      },
+      {
+        "kind": "cactus",
+        "x": 21,
+        "y": 111
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 64,
+        "y": 142
+      },
+      {
+        "kind": "cactus",
+        "x": 107,
+        "y": 41
+      },
+      {
+        "kind": "fence",
+        "x": 40,
+        "y": 103
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 126,
+        "y": 33
+      },
+      {
+        "kind": "cactus",
+        "x": 16,
+        "y": 64
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 35,
+        "y": 56
+      },
+      {
+        "kind": "fence",
+        "x": 11,
+        "y": 149
+      },
+      {
+        "kind": "cactus",
+        "x": 54,
+        "y": 48
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 97,
+        "y": 79
+      },
+      {
+        "kind": "cactus",
+        "x": 140,
+        "y": 110
+      },
+      {
+        "kind": "barrel",
+        "x": 30,
+        "y": 141
+      },
+      {
+        "kind": "fence",
+        "x": 73,
+        "y": 40
+      },
+      {
+        "kind": "cactus",
+        "x": 116,
+        "y": 71
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 159,
+        "y": 102
+      },
+      {
+        "kind": "cactus",
+        "x": 49,
+        "y": 133
+      },
+      {
+        "kind": "barrel",
+        "x": 92,
+        "y": 32
+      },
+      {
+        "kind": "fence",
+        "x": 135,
+        "y": 63
+      },
+      {
+        "kind": "cactus",
+        "x": 25,
+        "y": 94
+      }
+    ],
+    "cash": 465,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "rider",
+          "count": 11,
+          "gap": 0.5449999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 11,
+          "gap": 0.5449999999999999,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 20,
+          "gap": 0.5249999999999999,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "runner",
+          "count": 27,
+          "gap": 0.5249999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 27,
+          "gap": 0.5049999999999999,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 6,
+          "gap": 0.48499999999999993,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 22,
+          "gap": 0.48499999999999993,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 10,
+          "gap": 0.4649999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 34,
+          "gap": 0.4649999999999999,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 25,
+          "gap": 0.44499999999999995,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "outlaw",
+          "count": 22,
+          "gap": 0.44499999999999995,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.42499999999999993,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 27,
+          "gap": 0.42499999999999993,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 15,
+          "gap": 0.4049999999999999,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "outlaw",
+          "count": 27,
+          "gap": 0.4049999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.3849999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 27,
+          "gap": 0.3849999999999999,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 29,
+          "gap": 0.36499999999999994,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 17,
+          "gap": 0.3449999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.3449999999999999,
+          "delay": 3,
+          "route": 1
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 168,
+      "h": 148
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-23",
+    "name": "No easy money",
+    "theme": 3,
+    "paths": [
+      [
+        [
+          5,
+          113
+        ],
+        [
+          43,
+          113
+        ],
+        [
+          43,
+          61
+        ],
+        [
+          91,
+          61
+        ],
+        [
+          91,
+          104
+        ],
+        [
+          139,
+          104
+        ],
+        [
+          139,
+          52
+        ],
+        [
+          190,
+          52
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 65,
+        "y": 85
+      },
+      {
+        "kind": "rock",
+        "x": 72,
+        "y": 89
+      },
+      {
+        "kind": "rock",
+        "x": 114,
+        "y": 80
+      },
+      {
+        "kind": "rock",
+        "x": 121,
+        "y": 84
+      },
+      {
+        "kind": "rock",
+        "x": 167,
+        "y": 102
+      },
+      {
+        "kind": "rock",
+        "x": 174,
+        "y": 106
+      },
+      {
+        "kind": "rock",
+        "x": 24,
+        "y": 36
+      },
+      {
+        "kind": "rock",
+        "x": 31,
+        "y": 40
+      },
+      {
+        "kind": "barrel",
+        "x": 202,
+        "y": 54
+      },
+      {
+        "kind": "trough",
+        "x": 178,
+        "y": 64
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 93,
+        "y": 127
+      },
+      {
+        "kind": "barrel",
+        "x": 179,
+        "y": 83
+      },
+      {
+        "kind": "cactus",
+        "x": 76,
+        "y": 39
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 119,
+        "y": 70
+      },
+      {
+        "kind": "cactus",
+        "x": 162,
+        "y": 101
+      },
+      {
+        "kind": "barrel",
+        "x": 16,
+        "y": 26
+      },
+      {
+        "kind": "cactus",
+        "x": 102,
+        "y": 88
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 145,
+        "y": 119
+      },
+      {
+        "kind": "cactus",
+        "x": 128,
+        "y": 31
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 171,
+        "y": 62
+      },
+      {
+        "kind": "cactus",
+        "x": 25,
+        "y": 93
+      },
+      {
+        "kind": "barrel",
+        "x": 68,
+        "y": 124
+      },
+      {
+        "kind": "fence",
+        "x": 111,
+        "y": 49
+      },
+      {
+        "kind": "cactus",
+        "x": 154,
+        "y": 80
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 197,
+        "y": 111
+      },
+      {
+        "kind": "cactus",
+        "x": 51,
+        "y": 36
+      },
+      {
+        "kind": "cactus",
+        "x": 180,
+        "y": 129
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 34,
+        "y": 54
+      },
+      {
+        "kind": "cactus",
+        "x": 77,
+        "y": 85
+      },
+      {
+        "kind": "barrel",
+        "x": 120,
+        "y": 116
+      },
+      {
+        "kind": "fence",
+        "x": 163,
+        "y": 41
+      },
+      {
+        "kind": "cactus",
+        "x": 17,
+        "y": 72
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 60,
+        "y": 103
+      },
+      {
+        "kind": "cactus",
+        "x": 103,
+        "y": 28
+      }
+    ],
+    "cash": 475,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "rider",
+          "count": 23,
+          "gap": 0.5199999999999999,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 21,
+          "gap": 0.4999999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 29,
+          "gap": 0.4999999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 29,
+          "gap": 0.4799999999999999,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 7,
+          "gap": 0.4599999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 23,
+          "gap": 0.4599999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 10,
+          "gap": 0.4399999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 36,
+          "gap": 0.4399999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 26,
+          "gap": 0.41999999999999993,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 23,
+          "gap": 0.41999999999999993,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.3999999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 29,
+          "gap": 0.3999999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 16,
+          "gap": 0.3799999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 29,
+          "gap": 0.3799999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.3599999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 29,
+          "gap": 0.3599999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 31,
+          "gap": 0.3399999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 18,
+          "gap": 0.3199999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.3199999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 204,
+      "h": 122
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-24",
+    "name": "The canyon king",
+    "theme": 3,
+    "paths": [
+      [
+        [
+          5,
+          56
+        ],
+        [
+          37,
+          56
+        ],
+        [
+          37,
+          111
+        ],
+        [
+          103,
+          111
+        ],
+        [
+          103,
+          51
+        ],
+        [
+          69,
+          51
+        ],
+        [
+          69,
+          145
+        ],
+        [
+          139,
+          145
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 52,
+        "y": 83
+      },
+      {
+        "kind": "rock",
+        "x": 59,
+        "y": 87
+      },
+      {
+        "kind": "rock",
+        "x": 123,
+        "y": 86
+      },
+      {
+        "kind": "rock",
+        "x": 130,
+        "y": 90
+      },
+      {
+        "kind": "rock",
+        "x": 20,
+        "y": 147
+      },
+      {
+        "kind": "rock",
+        "x": 27,
+        "y": 151
+      },
+      {
+        "kind": "rock",
+        "x": 126,
+        "y": 32
+      },
+      {
+        "kind": "rock",
+        "x": 133,
+        "y": 36
+      },
+      {
+        "kind": "barrel",
+        "x": 151,
+        "y": 147
+      },
+      {
+        "kind": "trough",
+        "x": 127,
+        "y": 157
+      },
+      {
+        "kind": "cactus",
+        "x": 25,
+        "y": 106
+      },
+      {
+        "kind": "fence",
+        "x": 111,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 103,
+        "y": 121
+      },
+      {
+        "kind": "fence",
+        "x": 52,
+        "y": 43
+      },
+      {
+        "kind": "cactus",
+        "x": 95,
+        "y": 74
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 138,
+        "y": 105
+      },
+      {
+        "kind": "cactus",
+        "x": 44,
+        "y": 136
+      },
+      {
+        "kind": "barrel",
+        "x": 87,
+        "y": 27
+      },
+      {
+        "kind": "fence",
+        "x": 130,
+        "y": 58
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 79,
+        "y": 120
+      },
+      {
+        "kind": "barrel",
+        "x": 28,
+        "y": 42
+      },
+      {
+        "kind": "cactus",
+        "x": 114,
+        "y": 104
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 20,
+        "y": 135
+      },
+      {
+        "kind": "cactus",
+        "x": 63,
+        "y": 26
+      },
+      {
+        "kind": "fence",
+        "x": 12,
+        "y": 88
+      },
+      {
+        "kind": "cactus",
+        "x": 55,
+        "y": 119
+      },
+      {
+        "kind": "cactus",
+        "x": 141,
+        "y": 41
+      },
+      {
+        "kind": "barrel",
+        "x": 47,
+        "y": 72
+      },
+      {
+        "kind": "fence",
+        "x": 90,
+        "y": 103
+      },
+      {
+        "kind": "cactus",
+        "x": 133,
+        "y": 134
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 39,
+        "y": 25
+      }
+    ],
+    "cash": 485,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "rider",
+          "count": 25,
+          "gap": 0.4949999999999999,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 22,
+          "gap": 0.47499999999999987,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 30,
+          "gap": 0.47499999999999987,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 30,
+          "gap": 0.4549999999999999,
+          "delay": 0,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 7,
+          "gap": 2.2,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 25,
+          "gap": 0.4349999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 11,
+          "gap": 2.2,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 39,
+          "gap": 0.41499999999999987,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 28,
+          "gap": 0.3949999999999999,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 25,
+          "gap": 0.3949999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 2.2,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 30,
+          "gap": 0.3749999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 17,
+          "gap": 2.2,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 30,
+          "gap": 0.35499999999999987,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 11,
+          "gap": 2.2,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 30,
+          "gap": 0.33499999999999985,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 33,
+          "gap": 0.3149999999999999,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 19,
+          "gap": 2.2,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "wagon",
+          "count": 11,
+          "gap": 2.2,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 152,
+      "h": 156
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-25",
+    "name": "Last chance crossing",
+    "theme": 4,
+    "paths": [
+      [
+        [
+          5,
+          43
+        ],
+        [
+          48,
+          43
+        ],
+        [
+          48,
+          90
+        ],
+        [
+          98,
+          90
+        ],
+        [
+          98,
+          48
+        ],
+        [
+          148,
+          48
+        ],
+        [
+          170,
+          91
+        ],
+        [
+          204,
+          91
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 70,
+        "y": 65
+      },
+      {
+        "kind": "rock",
+        "x": 77,
+        "y": 69
+      },
+      {
+        "kind": "rock",
+        "x": 125,
+        "y": 75
+      },
+      {
+        "kind": "rock",
+        "x": 132,
+        "y": 79
+      },
+      {
+        "kind": "rock",
+        "x": 188,
+        "y": 46
+      },
+      {
+        "kind": "rock",
+        "x": 195,
+        "y": 50
+      },
+      {
+        "kind": "barrel",
+        "x": 216,
+        "y": 93
+      },
+      {
+        "kind": "trough",
+        "x": 192,
+        "y": 103
+      },
+      {
+        "kind": "barrel",
+        "x": 115,
+        "y": 63
+      },
+      {
+        "kind": "fence",
+        "x": 158,
+        "y": 94
+      },
+      {
+        "kind": "cactus",
+        "x": 201,
+        "y": 27
+      },
+      {
+        "kind": "barrel",
+        "x": 129,
+        "y": 120
+      },
+      {
+        "kind": "fence",
+        "x": 172,
+        "y": 53
+      },
+      {
+        "kind": "cactus",
+        "x": 14,
+        "y": 84
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 57,
+        "y": 115
+      },
+      {
+        "kind": "barrel",
+        "x": 143,
+        "y": 79
+      },
+      {
+        "kind": "fence",
+        "x": 186,
+        "y": 110
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 71,
+        "y": 74
+      },
+      {
+        "kind": "cactus",
+        "x": 114,
+        "y": 105
+      },
+      {
+        "kind": "barrel",
+        "x": 157,
+        "y": 38
+      },
+      {
+        "kind": "fence",
+        "x": 200,
+        "y": 69
+      },
+      {
+        "kind": "cactus",
+        "x": 42,
+        "y": 100
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 85,
+        "y": 33
+      },
+      {
+        "kind": "cactus",
+        "x": 128,
+        "y": 64
+      },
+      {
+        "kind": "fence",
+        "x": 13,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 56,
+        "y": 59
+      },
+      {
+        "kind": "cactus",
+        "x": 142,
+        "y": 121
+      },
+      {
+        "kind": "barrel",
+        "x": 185,
+        "y": 54
+      },
+      {
+        "kind": "fence",
+        "x": 27,
+        "y": 85
+      },
+      {
+        "kind": "cactus",
+        "x": 70,
+        "y": 116
+      },
+      {
+        "kind": "cactus",
+        "x": 156,
+        "y": 80
+      },
+      {
+        "kind": "barrel",
+        "x": 199,
+        "y": 111
+      }
+    ],
+    "cash": 710,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "outlaw",
+          "count": 24,
+          "gap": 0.51,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 18,
+          "gap": 0.51,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 24,
+          "gap": 0.49,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 30,
+          "gap": 0.49,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 8,
+          "gap": 0.47000000000000003,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 26,
+          "gap": 0.47000000000000003,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 14,
+          "gap": 0.45,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 24,
+          "gap": 0.45,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 30,
+          "gap": 0.43,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 30,
+          "gap": 0.41000000000000003,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 30,
+          "gap": 0.41000000000000003,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.39,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 26,
+          "gap": 0.39,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 18,
+          "gap": 0.37,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "wagon",
+          "count": 8,
+          "gap": 0.37,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 12,
+          "gap": 0.35,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 38,
+          "gap": 0.33,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 30,
+          "gap": 0.33,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 216,
+      "h": 114
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-26",
+    "name": "Six guns at sunset",
+    "theme": 4,
+    "paths": [
+      [
+        [
+          27,
+          20
+        ],
+        [
+          27,
+          73
+        ],
+        [
+          85,
+          73
+        ],
+        [
+          85,
+          119
+        ],
+        [
+          49,
+          119
+        ],
+        [
+          49,
+          157
+        ],
+        [
+          117,
+          157
+        ],
+        [
+          117,
+          91
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 52,
+        "y": 95
+      },
+      {
+        "kind": "rock",
+        "x": 59,
+        "y": 99
+      },
+      {
+        "kind": "rock",
+        "x": 75,
+        "y": 138
+      },
+      {
+        "kind": "rock",
+        "x": 82,
+        "y": 142
+      },
+      {
+        "kind": "rock",
+        "x": 111,
+        "y": 47
+      },
+      {
+        "kind": "rock",
+        "x": 118,
+        "y": 51
+      },
+      {
+        "kind": "fence",
+        "x": 12,
+        "y": 137
+      },
+      {
+        "kind": "trough",
+        "x": 15,
+        "y": 144
+      },
+      {
+        "kind": "fence",
+        "x": 20,
+        "y": 163
+      },
+      {
+        "kind": "trough",
+        "x": 23,
+        "y": 170
+      },
+      {
+        "kind": "barrel",
+        "x": 129,
+        "y": 93
+      },
+      {
+        "kind": "trough",
+        "x": 105,
+        "y": 103
+      },
+      {
+        "kind": "fence",
+        "x": 91,
+        "y": 128
+      },
+      {
+        "kind": "cactus",
+        "x": 13,
+        "y": 159
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 56,
+        "y": 46
+      },
+      {
+        "kind": "cactus",
+        "x": 99,
+        "y": 77
+      },
+      {
+        "kind": "barrel",
+        "x": 21,
+        "y": 108
+      },
+      {
+        "kind": "fence",
+        "x": 64,
+        "y": 139
+      },
+      {
+        "kind": "cactus",
+        "x": 107,
+        "y": 26
+      },
+      {
+        "kind": "cactus",
+        "x": 72,
+        "y": 88
+      },
+      {
+        "kind": "fence",
+        "x": 37,
+        "y": 150
+      },
+      {
+        "kind": "cactus",
+        "x": 80,
+        "y": 37
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 123,
+        "y": 68
+      },
+      {
+        "kind": "cactus",
+        "x": 45,
+        "y": 99
+      },
+      {
+        "kind": "cactus",
+        "x": 85,
+        "y": 132
+      },
+      {
+        "kind": "barrel",
+        "x": 128,
+        "y": 163
+      },
+      {
+        "kind": "fence",
+        "x": 50,
+        "y": 50
+      },
+      {
+        "kind": "cactus",
+        "x": 93,
+        "y": 81
+      }
+    ],
+    "cash": 720,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "outlaw",
+          "count": 26,
+          "gap": 0.485,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 19,
+          "gap": 0.485,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 26,
+          "gap": 0.46499999999999997,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 32,
+          "gap": 0.46499999999999997,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.445,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 28,
+          "gap": 0.445,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 15,
+          "gap": 0.425,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 26,
+          "gap": 0.425,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 32,
+          "gap": 0.40499999999999997,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 32,
+          "gap": 0.385,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 32,
+          "gap": 0.385,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 11,
+          "gap": 0.365,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 28,
+          "gap": 0.365,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 19,
+          "gap": 0.345,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.345,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 13,
+          "gap": 0.32499999999999996,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 41,
+          "gap": 0.305,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 32,
+          "gap": 0.305,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 15,
+          "gap": 0.285,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 19,
+          "gap": 0.285,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 136,
+      "h": 160
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-27",
+    "name": "Gold fever",
+    "theme": 4,
+    "paths": [
+      [
+        [
+          5,
+          103
+        ],
+        [
+          43,
+          103
+        ],
+        [
+          63,
+          61
+        ],
+        [
+          103,
+          61
+        ],
+        [
+          103,
+          101
+        ],
+        [
+          151,
+          101
+        ],
+        [
+          151,
+          51
+        ],
+        [
+          206,
+          51
+        ],
+        [
+          206,
+          102
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 81,
+        "y": 83
+      },
+      {
+        "kind": "rock",
+        "x": 88,
+        "y": 87
+      },
+      {
+        "kind": "rock",
+        "x": 129,
+        "y": 78
+      },
+      {
+        "kind": "rock",
+        "x": 136,
+        "y": 82
+      },
+      {
+        "kind": "rock",
+        "x": 178,
+        "y": 75
+      },
+      {
+        "kind": "rock",
+        "x": 185,
+        "y": 79
+      },
+      {
+        "kind": "barrel",
+        "x": 218,
+        "y": 104
+      },
+      {
+        "kind": "trough",
+        "x": 194,
+        "y": 114
+      },
+      {
+        "kind": "cactus",
+        "x": 141,
+        "y": 93
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 184,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 18,
+        "y": 59
+      },
+      {
+        "kind": "barrel",
+        "x": 61,
+        "y": 90
+      },
+      {
+        "kind": "fence",
+        "x": 104,
+        "y": 25
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 190,
+        "y": 87
+      },
+      {
+        "kind": "cactus",
+        "x": 24,
+        "y": 118
+      },
+      {
+        "kind": "barrel",
+        "x": 67,
+        "y": 53
+      },
+      {
+        "kind": "cactus",
+        "x": 153,
+        "y": 115
+      },
+      {
+        "kind": "cactus",
+        "x": 30,
+        "y": 81
+      },
+      {
+        "kind": "barrel",
+        "x": 73,
+        "y": 112
+      },
+      {
+        "kind": "fence",
+        "x": 116,
+        "y": 47
+      },
+      {
+        "kind": "cactus",
+        "x": 159,
+        "y": 78
+      },
+      {
+        "kind": "cactus",
+        "x": 36,
+        "y": 44
+      },
+      {
+        "kind": "barrel",
+        "x": 79,
+        "y": 75
+      },
+      {
+        "kind": "cactus",
+        "x": 165,
+        "y": 41
+      },
+      {
+        "kind": "barrel",
+        "x": 85,
+        "y": 38
+      },
+      {
+        "kind": "fence",
+        "x": 128,
+        "y": 69
+      },
+      {
+        "kind": "cactus",
+        "x": 171,
+        "y": 100
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 214,
+        "y": 35
+      },
+      {
+        "kind": "cactus",
+        "x": 48,
+        "y": 66
+      },
+      {
+        "kind": "barrel",
+        "x": 91,
+        "y": 97
+      },
+      {
+        "kind": "fence",
+        "x": 134,
+        "y": 32
+      },
+      {
+        "kind": "cactus",
+        "x": 177,
+        "y": 63
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 11,
+        "y": 94
+      }
+    ],
+    "cash": 730,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "outlaw",
+          "count": 28,
+          "gap": 0.46,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 21,
+          "gap": 0.46,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 28,
+          "gap": 0.44,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 35,
+          "gap": 0.44,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.42000000000000004,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 30,
+          "gap": 0.42000000000000004,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 16,
+          "gap": 0.4,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 28,
+          "gap": 0.4,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 35,
+          "gap": 0.38,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 35,
+          "gap": 0.36,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 35,
+          "gap": 0.36,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 12,
+          "gap": 0.34,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 30,
+          "gap": 0.34,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 21,
+          "gap": 0.32,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "wagon",
+          "count": 9,
+          "gap": 0.32,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 14,
+          "gap": 0.30000000000000004,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 44,
+          "gap": 0.28,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "iron",
+          "count": 35,
+          "gap": 0.28,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 16,
+          "gap": 0.26,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 21,
+          "gap": 0.26,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 224,
+      "h": 112
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-28",
+    "name": "The long goodbye",
+    "theme": 4,
+    "paths": [
+      [
+        [
+          5,
+          49
+        ],
+        [
+          43,
+          49
+        ],
+        [
+          43,
+          95
+        ],
+        [
+          88,
+          95
+        ],
+        [
+          88,
+          54
+        ],
+        [
+          138,
+          54
+        ],
+        [
+          138,
+          132
+        ],
+        [
+          191,
+          132
+        ]
+      ],
+      [
+        [
+          205,
+          26
+        ],
+        [
+          170,
+          26
+        ],
+        [
+          170,
+          91
+        ],
+        [
+          115,
+          91
+        ],
+        [
+          115,
+          132
+        ],
+        [
+          191,
+          132
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 64,
+        "y": 71
+      },
+      {
+        "kind": "rock",
+        "x": 71,
+        "y": 75
+      },
+      {
+        "kind": "rock",
+        "x": 115,
+        "y": 31
+      },
+      {
+        "kind": "rock",
+        "x": 122,
+        "y": 35
+      },
+      {
+        "kind": "rock",
+        "x": 158,
+        "y": 113
+      },
+      {
+        "kind": "rock",
+        "x": 165,
+        "y": 117
+      },
+      {
+        "kind": "rock",
+        "x": 25,
+        "y": 132
+      },
+      {
+        "kind": "rock",
+        "x": 32,
+        "y": 136
+      },
+      {
+        "kind": "barrel",
+        "x": 203,
+        "y": 134
+      },
+      {
+        "kind": "trough",
+        "x": 179,
+        "y": 144
+      },
+      {
+        "kind": "cactus",
+        "x": 24,
+        "y": 69
+      },
+      {
+        "kind": "cactus",
+        "x": 153,
+        "y": 32
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 196,
+        "y": 63
+      },
+      {
+        "kind": "barrel",
+        "x": 89,
+        "y": 125
+      },
+      {
+        "kind": "fence",
+        "x": 132,
+        "y": 26
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 25,
+        "y": 88
+      },
+      {
+        "kind": "cactus",
+        "x": 68,
+        "y": 119
+      },
+      {
+        "kind": "barrel",
+        "x": 111,
+        "y": 150
+      },
+      {
+        "kind": "fence",
+        "x": 154,
+        "y": 51
+      },
+      {
+        "kind": "cactus",
+        "x": 197,
+        "y": 82
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 47,
+        "y": 113
+      },
+      {
+        "kind": "cactus",
+        "x": 90,
+        "y": 144
+      },
+      {
+        "kind": "barrel",
+        "x": 133,
+        "y": 45
+      },
+      {
+        "kind": "cactus",
+        "x": 26,
+        "y": 107
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 69,
+        "y": 138
+      },
+      {
+        "kind": "cactus",
+        "x": 112,
+        "y": 39
+      },
+      {
+        "kind": "barrel",
+        "x": 155,
+        "y": 70
+      },
+      {
+        "kind": "fence",
+        "x": 198,
+        "y": 101
+      },
+      {
+        "kind": "cactus",
+        "x": 48,
+        "y": 132
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 91,
+        "y": 33
+      },
+      {
+        "kind": "barrel",
+        "x": 177,
+        "y": 95
+      },
+      {
+        "kind": "fence",
+        "x": 27,
+        "y": 126
+      },
+      {
+        "kind": "cactus",
+        "x": 70,
+        "y": 27
+      }
+    ],
+    "cash": 740,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "outlaw",
+          "count": 29,
+          "gap": 0.435,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 22,
+          "gap": 0.435,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 29,
+          "gap": 0.415,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "runner",
+          "count": 37,
+          "gap": 0.415,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.395,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 32,
+          "gap": 0.395,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 17,
+          "gap": 0.375,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "outlaw",
+          "count": 29,
+          "gap": 0.375,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 37,
+          "gap": 0.355,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 37,
+          "gap": 0.33499999999999996,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 37,
+          "gap": 0.33499999999999996,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 12,
+          "gap": 0.315,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 32,
+          "gap": 0.315,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 22,
+          "gap": 0.295,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.295,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 15,
+          "gap": 0.275,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 47,
+          "gap": 0.255,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "iron",
+          "count": 37,
+          "gap": 0.255,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 17,
+          "gap": 0.24,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 22,
+          "gap": 0.24,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 2,
+          "gap": 5,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 37,
+          "gap": 0.24,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 208,
+      "h": 146
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-29",
+    "name": "All roads lead home",
+    "theme": 4,
+    "paths": [
+      [
+        [
+          5,
+          49
+        ],
+        [
+          43,
+          49
+        ],
+        [
+          43,
+          102
+        ],
+        [
+          85,
+          102
+        ],
+        [
+          85,
+          63
+        ],
+        [
+          128,
+          63
+        ],
+        [
+          128,
+          143
+        ],
+        [
+          89,
+          143
+        ]
+      ],
+      [
+        [
+          168,
+          26
+        ],
+        [
+          150,
+          26
+        ],
+        [
+          150,
+          115
+        ],
+        [
+          106,
+          115
+        ],
+        [
+          106,
+          143
+        ],
+        [
+          89,
+          143
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 64,
+        "y": 75
+      },
+      {
+        "kind": "rock",
+        "x": 71,
+        "y": 79
+      },
+      {
+        "kind": "rock",
+        "x": 111,
+        "y": 86
+      },
+      {
+        "kind": "rock",
+        "x": 118,
+        "y": 90
+      },
+      {
+        "kind": "rock",
+        "x": 63,
+        "y": 127
+      },
+      {
+        "kind": "rock",
+        "x": 70,
+        "y": 131
+      },
+      {
+        "kind": "fence",
+        "x": 20,
+        "y": 151
+      },
+      {
+        "kind": "trough",
+        "x": 23,
+        "y": 158
+      },
+      {
+        "kind": "fence",
+        "x": 32,
+        "y": 151
+      },
+      {
+        "kind": "trough",
+        "x": 35,
+        "y": 158
+      },
+      {
+        "kind": "trough",
+        "x": 77,
+        "y": 155
+      },
+      {
+        "kind": "cactus",
+        "x": 70,
+        "y": 27
+      },
+      {
+        "kind": "cactus",
+        "x": 42,
+        "y": 120
+      },
+      {
+        "kind": "cactus",
+        "x": 128,
+        "y": 40
+      },
+      {
+        "kind": "barrel",
+        "x": 14,
+        "y": 71
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 143,
+        "y": 164
+      },
+      {
+        "kind": "barrel",
+        "x": 72,
+        "y": 84
+      },
+      {
+        "kind": "cactus",
+        "x": 158,
+        "y": 146
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 44,
+        "y": 35
+      },
+      {
+        "kind": "fence",
+        "x": 16,
+        "y": 128
+      },
+      {
+        "kind": "cactus",
+        "x": 59,
+        "y": 159
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 102,
+        "y": 48
+      },
+      {
+        "kind": "barrel",
+        "x": 31,
+        "y": 110
+      },
+      {
+        "kind": "fence",
+        "x": 74,
+        "y": 141
+      },
+      {
+        "kind": "cactus",
+        "x": 117,
+        "y": 30
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 160,
+        "y": 61
+      },
+      {
+        "kind": "barrel",
+        "x": 89,
+        "y": 123
+      },
+      {
+        "kind": "fence",
+        "x": 132,
+        "y": 154
+      },
+      {
+        "kind": "cactus",
+        "x": 104,
+        "y": 105
+      },
+      {
+        "kind": "barrel",
+        "x": 147,
+        "y": 136
+      }
+    ],
+    "cash": 750,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "outlaw",
+          "count": 31,
+          "gap": 0.41000000000000003,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 23,
+          "gap": 0.41000000000000003,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 31,
+          "gap": 0.39,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "runner",
+          "count": 39,
+          "gap": 0.39,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.37000000000000005,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 34,
+          "gap": 0.37000000000000005,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 18,
+          "gap": 0.35000000000000003,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "outlaw",
+          "count": 31,
+          "gap": 0.35000000000000003,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 39,
+          "gap": 0.33,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 39,
+          "gap": 0.31000000000000005,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 39,
+          "gap": 0.31000000000000005,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 13,
+          "gap": 0.29000000000000004,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 34,
+          "gap": 0.29000000000000004,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 23,
+          "gap": 0.27,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "wagon",
+          "count": 10,
+          "gap": 0.27,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 16,
+          "gap": 0.25,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 49,
+          "gap": 0.24,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "iron",
+          "count": 39,
+          "gap": 0.24,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 18,
+          "gap": 0.24,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 23,
+          "gap": 0.24,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 3,
+          "gap": 5,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 39,
+          "gap": 0.24,
+          "delay": 3,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 172,
+      "h": 158
+    }
+  },
+  {
+    "version": 1,
+    "id": "trail-30",
+    "name": "The last stand",
+    "theme": 4,
+    "paths": [
+      [
+        [
+          5,
+          46
+        ],
+        [
+          41,
+          46
+        ],
+        [
+          41,
+          93
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          79,
+          54
+        ],
+        [
+          124,
+          54
+        ],
+        [
+          124,
+          118
+        ],
+        [
+          92,
+          118
+        ],
+        [
+          92,
+          79
+        ]
+      ],
+      [
+        [
+          205,
+          138
+        ],
+        [
+          169,
+          138
+        ],
+        [
+          169,
+          91
+        ],
+        [
+          149,
+          91
+        ],
+        [
+          149,
+          54
+        ],
+        [
+          124,
+          54
+        ],
+        [
+          124,
+          118
+        ],
+        [
+          92,
+          118
+        ],
+        [
+          92,
+          79
+        ]
+      ]
+    ],
+    "decor": [
+      {
+        "kind": "rock",
+        "x": 60,
+        "y": 68
+      },
+      {
+        "kind": "rock",
+        "x": 67,
+        "y": 72
+      },
+      {
+        "kind": "rock",
+        "x": 148,
+        "y": 113
+      },
+      {
+        "kind": "rock",
+        "x": 155,
+        "y": 117
+      },
+      {
+        "kind": "rock",
+        "x": 111,
+        "y": 29
+      },
+      {
+        "kind": "rock",
+        "x": 118,
+        "y": 33
+      },
+      {
+        "kind": "rock",
+        "x": 23,
+        "y": 123
+      },
+      {
+        "kind": "rock",
+        "x": 30,
+        "y": 127
+      },
+      {
+        "kind": "fence",
+        "x": 57,
+        "y": 137
+      },
+      {
+        "kind": "trough",
+        "x": 60,
+        "y": 144
+      },
+      {
+        "kind": "fence",
+        "x": 68,
+        "y": 137
+      },
+      {
+        "kind": "trough",
+        "x": 71,
+        "y": 144
+      },
+      {
+        "kind": "fence",
+        "x": 181,
+        "y": 52
+      },
+      {
+        "kind": "trough",
+        "x": 184,
+        "y": 59
+      },
+      {
+        "kind": "barrel",
+        "x": 104,
+        "y": 81
+      },
+      {
+        "kind": "barrel",
+        "x": 15,
+        "y": 64
+      },
+      {
+        "kind": "cactus",
+        "x": 101,
+        "y": 126
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 144,
+        "y": 27
+      },
+      {
+        "kind": "fence",
+        "x": 80,
+        "y": 120
+      },
+      {
+        "kind": "cactus",
+        "x": 123,
+        "y": 151
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 166,
+        "y": 52
+      },
+      {
+        "kind": "cactus",
+        "x": 16,
+        "y": 83
+      },
+      {
+        "kind": "barrel",
+        "x": 59,
+        "y": 114
+      },
+      {
+        "kind": "fence",
+        "x": 102,
+        "y": 145
+      },
+      {
+        "kind": "cactus",
+        "x": 145,
+        "y": 46
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 188,
+        "y": 77
+      },
+      {
+        "kind": "cactus",
+        "x": 38,
+        "y": 108
+      },
+      {
+        "kind": "barrel",
+        "x": 81,
+        "y": 139
+      },
+      {
+        "kind": "fence",
+        "x": 124,
+        "y": 40
+      },
+      {
+        "kind": "cactus",
+        "x": 167,
+        "y": 71
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 17,
+        "y": 102
+      },
+      {
+        "kind": "barrel",
+        "x": 103,
+        "y": 34
+      },
+      {
+        "kind": "cactus",
+        "x": 189,
+        "y": 96
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 39,
+        "y": 127
+      },
+      {
+        "kind": "cactus",
+        "x": 82,
+        "y": 28
+      },
+      {
+        "kind": "cactus",
+        "x": 18,
+        "y": 121
+      },
+      {
+        "kind": "tumbleweed",
+        "x": 61,
+        "y": 152
+      },
+      {
+        "kind": "fence",
+        "x": 190,
+        "y": 115
+      }
+    ],
+    "cash": 760,
+    "gold": 20,
+    "unlocked": [
+      "deputy",
+      "rifle",
+      "lasso",
+      "dynamite",
+      "gatling",
+      "banjo"
+    ],
+    "waves": [
+      [
+        {
+          "kind": "outlaw",
+          "count": 33,
+          "gap": 0.385,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 25,
+          "gap": 0.385,
+          "delay": 12,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 33,
+          "gap": 0.365,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "runner",
+          "count": 41,
+          "gap": 0.365,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 11,
+          "gap": 0.34500000000000003,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "rider",
+          "count": 36,
+          "gap": 0.34500000000000003,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 19,
+          "gap": 0.325,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "outlaw",
+          "count": 33,
+          "gap": 0.325,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "runner",
+          "count": 41,
+          "gap": 0.305,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "iron",
+          "count": 41,
+          "gap": 0.28500000000000003,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 41,
+          "gap": 0.28500000000000003,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 14,
+          "gap": 0.265,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "outlaw",
+          "count": 36,
+          "gap": 0.265,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "brute",
+          "count": 25,
+          "gap": 0.245,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "wagon",
+          "count": 11,
+          "gap": 0.245,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 1,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 17,
+          "gap": 0.24,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "outlaw",
+          "count": 52,
+          "gap": 0.24,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "iron",
+          "count": 41,
+          "gap": 0.24,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "wagon",
+          "count": 19,
+          "gap": 0.24,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 25,
+          "gap": 0.24,
+          "delay": 3,
+          "route": 1
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 3,
+          "gap": 5,
+          "delay": 0,
+          "route": 1
+        },
+        {
+          "kind": "rider",
+          "count": 41,
+          "gap": 0.24,
+          "delay": 3,
+          "route": 0
+        }
+      ],
+      [
+        {
+          "kind": "baron",
+          "count": 3,
+          "gap": 5,
+          "delay": 0,
+          "route": 0
+        },
+        {
+          "kind": "brute",
+          "count": 33,
+          "gap": 0.24,
+          "delay": 3,
+          "route": 1
+        },
+        {
+          "kind": "wagon",
+          "count": 14,
+          "gap": 0.24,
+          "delay": 6,
+          "route": 0
+        }
+      ]
+    ],
+    "bounds": {
+      "w": 208,
+      "h": 146
+    }
+  }
+]

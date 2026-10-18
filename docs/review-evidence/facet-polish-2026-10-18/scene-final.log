@@ -1,0 +1,5 @@
+✅ (passed)  Facet scene: all exhibits, menus and simultaneous peak effects fit native Squish frames
+✅ (passed)  Facet scene: modal controls replace background actions and locked exhibits cannot be focused
+✅ (passed)  Facet painter: falling jewels are clipped to the board and pooled nodes survive frame changes
+✅ (passed)  Facet scene: save and replacement dialogs stay actionable over peak scenes
+✅ (passed)  Facet collection: two readable pages expose all twelve achievements

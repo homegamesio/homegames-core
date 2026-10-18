@@ -1,4 +1,4 @@
-const { Asset, Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Asset, Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 // IRON KEEP — a textured multiplayer first-person shooter.
 //
@@ -108,10 +108,12 @@ const frameCrop = (col, row, cols, rows) => ({
 class IronKeep extends Game {
     static metadata() {
         return {
+            // Catalog review: Repair hold: all nine required visual/audio assets are still placeholders.
+            isTest: true,
             aspectRatio: { x: 16, y: 9 },
-            squishVersion: '142',
+            squishVersion: '150',
             services: ['multiplayer'],
-            author: 'Homegames',
+            author: 'Joseph Garcia',
             name: 'Iron Keep',
             description: 'A texture-mapped multiplayer FPS in a haunted castle. Real-time raycasting, animated knights, and a crossbow with your name on it.',
             tickRate: TICK_RATE,

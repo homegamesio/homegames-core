@@ -1,0 +1,34 @@
+[
+  {
+    "repo": "homegames-common",
+    "lockSha256": "cf08d2e72f56542c840c5bf5228bb5b2c292ce63217ad649c5c63df8ed36e82c"
+  },
+  {
+    "repo": "homegames-client",
+    "lockSha256": "4f457c3ee6238e7d4ba8c04f9f4cd0ccf6522fdcda5a7a602ff72da57fe90b4c"
+  },
+  {
+    "repo": "homegames-core",
+    "lockSha256": "4e254be3c99978901013c1e48f36ce2da26875b7472107e15a73afb9d1a23407"
+  },
+  {
+    "repo": "homegamesio",
+    "lockSha256": "a713dee38e13c3c68768fcc4386afad9eae125849112e76e4bba2aee9b817cae"
+  },
+  {
+    "repo": "api",
+    "lockSha256": "acb7491d04c417edb106b11bc1c2813c184cafc2e43ea0bf3207dd13a9c6096b"
+  },
+  {
+    "repo": "homegames-web",
+    "lockSha256": "e03dbf6e8291fd7147ad20aec1c87429855dbc0ca9c47f7577915ce175ba3e07"
+  },
+  {
+    "repo": "homegames-core/docker",
+    "lockSha256": "09badbfc553f707008e68b79dfd70648e9ac40242c94c688f1363d69d4638bb9"
+  },
+  {
+    "repo": "homegames",
+    "lockSha256": "14164dba8d4b5c03dc39d2d976495840c8ae6db3fd83c31ef7b460c714d65f61"
+  }
+]

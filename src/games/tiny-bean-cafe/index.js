@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { CafeAudio } = require('./audio');
 const { ANIMALS, OUTFITS, createCustomer } = require('./customers');
 const { makePaperCup, addWhippedCream, makeCreamDispenser } = require('./cream');
@@ -10,7 +10,7 @@ const C = {
     coffee: [133, 72, 36, 255], caramel: [190, 123, 66, 255], milk: [255, 225, 165, 255],
     whip: [255, 252, 229, 255], foam: [255, 252, 229, 255], chocolate: [92, 49, 32, 255], water: [203, 150, 89, 255],
 };
-const TUNING = { tickRate: 30, actionSeconds: 1, artSeconds: .8, serveSeconds: 1.1, cheerSeconds: 1.8, particles: 32 };
+const TUNING = { tickRate: 30, actionSeconds: 1, artSeconds: .8, serveSeconds: 1.1, cheerSeconds: 1.8, superCheerSeconds: 2.6, particles: 32 };
 // Author the landscape UI in square units; project to Squish's 0–100 axes.
 const VIEW = { width: 150, aspect: 1.5, stageScale: 1.34, stageX: 8, stageY: -14 };
 const CREAM_POUR = { x: 61, y: 36, angle: -2.3 };
@@ -70,9 +70,16 @@ const liquidShape = (bottom, top) => {
 class TinyBeanCafe extends Game {
     static metadata() {
         return {
-            name: 'Tiny Bean Café', squishVersion: '142', author: 'Joseph Garcia', createdBy: 'Joseph Garcia',
-            description: 'A colorful pretend café for little hands. Follow animal orders, tap the glowing tools, make seven little treats including whipped-cream cups, then tap the customer to serve. Gentle sounds and endless play.',
-            aspectRatio: { x: 3, y: 2 }, tickRate: TUNING.tickRate, maxPlayers: 1, services: [], assets: {},
+            thumbnail: './assets/thumbnail.png',
+            name: 'Tiny Bean Café',
+            author: "Joseph Garcia",
+            createdBy: "Joseph Garcia",
+            description: 'A colorful pretend café for little hands. Choose any of seven little treats, tap the glowing tools, then serve an animal friend. Every drink brings a smile; their favorite brings extra happy hearts. Gentle sounds and endless play.',
+            aspectRatio: { x: 3, y: 2 },
+            tickRate: TUNING.tickRate,
+            maxPlayers: 1,
+            assets: {},
+            gameId: "6ed87ed9-b749-5105-a8ec-22f172f2a5b8"
         };
     }
     constructor({ addAsset, random = Math.random } = {}) {
@@ -93,12 +100,14 @@ class TinyBeanCafe extends Game {
         this.steam = Array.from({ length: 3 }, () => this.put(this.effects, this.shape(HIDDEN, C.white)));
         this.resetCup(); this.draw();
         const touch = this.put(this.base, this.shape(ShapeUtils.rectangle(0, 0, VIEW.width, 100), null, { onClick: (id, x, y) => this.pointerDown(id, x, y) }));
-        // Squish 142's constructor omits offClick; its dispatcher reads this node hook.
+        // Squish 1.5.0's constructor omits offClick; its dispatcher reads this node hook.
         touch.node.offClick = id => { const p = this.players.get(id); if (p) p.pointer = false; };
     }
     getLayers() { return [{ root: this.base }]; }
     getAssets() { return this.audio.assets; }
     get recipe() { return RECIPES[this.selectedRecipe]; }
+    get order() { return RECIPES[this.orderIndex]; }
+    get canSelectRecipe() { return this.phase !== 'serving' && this.phase !== 'celebrate'; }
     get nextStep() { return this.recipe.steps[this.stepIndex]; }
     get targetStep() { return this.phase === 'serve_ready' ? 'serve' : this.phase === 'ready' ? this.nextStep : null; }
     get activeTarget() {
@@ -266,45 +275,61 @@ class TinyBeanCafe extends Game {
         return cup;
     }
     buildHud() {
-        this.text(this.hud, 'tiny bean café', 49, 4.4, 4.3, C.cream);
+
         this.disk(this.hud, 12, 7, 9, 4.2, C.cream);
         this.soundLabel = this.text(this.hud, 'sound on', 12, 5.65, 2.2);
         this.rect(this.hud, 85, 2, 53, 10, C.cream);
         this.disk(this.hud, 85, 7, 5, 5, C.cream);
         this.disk(this.hud, 138, 7, 5, 5, C.cream);
         this.put(this.hud, this.shape(closed([[120, 10], [129, 10], [124, 17]]), C.cream));
-        this.orderSpeech = this.text(this.hud, '', 111.5, 5.3, 2.8);
+        this.orderPreview = this.group(this.hud);
+        this.orderSpeech = this.text(this.hud, '', 115, 5.3, 2.6);
 
-        // The guest's picture order replaces the free-play drink selector.
-        this.rect(this.hud, 7, 83, 60, 14, C.cream);
+        // The child's choice and the guest's request remain separate pictures.
+        this.previousDrink = { x: 11 / VIEW.aspect, y: 90 };
+        this.nextDrink = { x: 72 / VIEW.aspect, y: 90 };
+        this.drinkArrows = [11, 72].map((x, i) => {
+            const circle = this.disk(this.hud, x, 90, 5.6, 5.6, C.teal), direction = i ? 1 : -1;
+            this.line(this.hud, [[x - direction * 1.2, 87.7], [x + direction * 1.2, 90], [x - direction * 1.2, 92.3]], 1, C.cream);
+            return circle;
+        });
+        this.rect(this.hud, 19, 83, 45, 14, C.cream);
         this.recipePreview = this.group(this.hud);
-        this.text(this.hud, 'OUR ORDER', 44, 85, 1.8, C.teal);
-        this.recipeLabel = this.text(this.hud, '', 44, 89, 3.1);
+
+        this.recipeLabel = this.text(this.hud, '', 46, 89, 2.9);
         this.message = this.text(this.hud, '', 109, 85.1, 3.6, C.brown);
         this.tapLabel = this.text(this.hud, 'tap the glowing circle', 109, 92, 2.2, C.teal);
         this.previewRecipe = -1;
+        this.previewOrder = -1;
     }
-    updateRecipePreview() {
-        if (this.previewRecipe === this.selectedRecipe) return;
-        this.previewRecipe = this.selectedRecipe;
-        this.recipePreview.clearChildren();
-        const cup = this.recipe.paper ? makePaperCup(this, this.recipePreview) : this.makeCup(this.recipePreview);
+    drinkPicture(parent, recipe, x, y, scale) {
+        parent.clearChildren();
+        const cup = recipe.paper ? makePaperCup(this, parent) : this.makeCup(parent);
         let level = 4.9;
         for (const ingredient of INGREDIENTS) {
-            if (!this.recipe.layers[ingredient] || ingredient === 'whip') continue;
-            const next = level - this.recipe.layers[ingredient] * 10;
+            if (!recipe.layers[ingredient] || ingredient === 'whip') continue;
+            const next = level - recipe.layers[ingredient] * 10;
             this.part(cup, liquidShape(level, next), ingredient === 'espresso' ? C.coffee : C[ingredient]);
             level = next;
         }
-        if (this.recipe.layers.foam) this.part(cup, heart(0, level + .8, 1.2), C.caramel);
-        if (this.recipe.paper) addWhippedCream(this, cup).update(1);
-        this.place(cup, 18, this.recipe.paper ? 92.1 : 90, this.recipe.paper ? .53 : .7);
-        this.setText(this.recipeLabel, this.recipe.name);
-        this.setText(this.orderSpeech, this.recipe.name + ', please!');
+        if (recipe.layers.foam) this.part(cup, heart(0, level + .8, 1.2), C.caramel);
+        if (recipe.paper) addWhippedCream(this, cup).update(1);
+        this.place(cup, x, y, scale);
+    }
+    updateRecipePreview() {
+        if (this.previewRecipe !== this.selectedRecipe) {
+            this.previewRecipe = this.selectedRecipe;
+            this.drinkPicture(this.recipePreview, this.recipe, 27, this.recipe.paper ? 92.1 : 90, this.recipe.paper ? .48 : .6);
+            this.setText(this.recipeLabel, this.recipe.name);
+        }
+        if (this.previewOrder !== this.orderIndex) {
+            this.previewOrder = this.orderIndex;
+            this.drinkPicture(this.orderPreview, this.order, 87, this.order.paper ? 9 : 7.3, this.order.paper ? .32 : .37);
+        }
     }
     resetCup() {
         if (this.customerForDrink !== this.drinksServed) this.nextCustomer();
-        this.phase = 'ready'; this.phaseStarted = this.time; this.stepIndex = 0; this.ingredients = {};
+        this.phase = 'ready'; this.phaseStarted = this.time; this.stepIndex = 0; this.ingredients = {}; this.orderMatched = null;
         this.artProgress = 0; this.cupLayer.clearChildren();
         this.cup = this.recipe.paper ? makePaperCup(this, this.cupLayer) : this.makeCup(this.cupLayer);
         this.whippedCream = this.recipe.paper ? addWhippedCream(this, this.cup) : null;
@@ -315,15 +340,22 @@ class TinyBeanCafe extends Game {
         if (this.phase === 'art') text = 'A little heart!';
         else if (this.phase === 'serve_ready') text = STEP_NAMES.serve;
         else if (this.phase === 'serving') text = 'For our friend!';
-        else if (this.phase === 'celebrate') text = 'Thank you!';
+        else if (this.phase === 'celebrate') text = this.orderMatched ? 'Super happy!' : 'Thank you!';
         this.setText(this.message, text);
-        this.setText(this.tapLabel, this.phase === 'ready' ? 'tap the glowing circle' : this.phase === 'serve_ready' ? 'tap the animal' : '');
-        this.setText(this.orderSpeech, this.phase === 'celebrate' ? 'Thank you!' : this.recipe.name + ', please!');
+        this.setText(this.tapLabel, '');
+        this.setText(this.orderSpeech, this.phase === 'celebrate' ? (this.orderMatched ? 'Yay! My favorite!' : 'Thank you!') : this.order.name + ', please!');
+        this.drinkArrows.forEach(arrow => { arrow.node.fill = this.canSelectRecipe ? C.teal : C.mint; });
         this.updateRecipePreview();
+    }
+    selectRecipe(index) {
+        if (!this.canSelectRecipe || !Number.isInteger(index) || !RECIPES[index] || index === this.selectedRecipe) return;
+        this.audio.mute();
+        this.selectedRecipe = index; this.resetCup(); this.playSound('select'); this.draw(); this.dirty();
     }
     playSound(name) { if (this.sound) this.audio.play(name); }
     advance() {
         if (this.phase === 'serve_ready') {
+            this.orderMatched = this.selectedRecipe === this.orderIndex;
             this.phase = 'serving'; this.phaseStarted = this.time;
             this.updateHud(); this.draw(); this.dirty(); return;
         }
@@ -448,17 +480,18 @@ class TinyBeanCafe extends Game {
             });
         }
         if (this.phase === 'art') this.artProgress = ease(elapsed / TUNING.artSeconds);
-        const hop = this.phase === 'celebrate' ? Math.abs(Math.sin(elapsed * 6)) * 1 : Math.sin(this.time * 2) * .08;
-        this.place(this.customer, 91, 42 - hop, .8, this.phase === 'celebrate' ? Math.sin(elapsed * 6) * .045 : 0);
+        const superHappy = this.phase === 'celebrate' && this.orderMatched;
+        const hop = this.phase === 'celebrate' ? Math.abs(Math.sin(elapsed * 6)) * (superHappy ? 1.8 : .7) : Math.sin(this.time * 2) * .08;
+        this.place(this.customer, 91, 42 - hop, .8, this.phase === 'celebrate' ? Math.sin(elapsed * 6) * (superHappy ? .06 : .035) : 0);
         this.drawCup();
     }
-    burst(x, y, count) {
+    burst(x, y, count, sizeScale = 1) {
         for (const particle of this.particles) {
             if (count <= 0) break;
             if (particle.life > 0) continue;
             const a = Math.random() * TAU;
             particle.x = x; particle.y = y; particle.vx = Math.cos(a) * 8; particle.vy = Math.sin(a) * 7 - 5;
-            particle.life = .8 + Math.random() * .6; particle.size = .6 + Math.random() * .4;
+            particle.life = .8 + Math.random() * .6; particle.size = (.6 + Math.random() * .4) * sizeScale;
             particle.node.node.fill = [C.coral, C.gold, C.teal, C.orange][count % 4]; count--;
         }
     }
@@ -488,6 +521,14 @@ class TinyBeanCafe extends Game {
             if (this.sound) this.audio.play('select'); else this.audio.mute();
             this.setText(this.soundLabel, this.sound ? 'sound on' : 'sound off'); this.dirty(); return;
         }
+        if (Math.abs(y - 90) <= 8) {
+            if (Math.abs(x - this.previousDrink.x) <= 7 / VIEW.aspect) {
+                this.selectRecipe((this.selectedRecipe + RECIPES.length - 1) % RECIPES.length); return;
+            }
+            if (Math.abs(x - this.nextDrink.x) <= 7 / VIEW.aspect) {
+                this.selectRecipe((this.selectedRecipe + 1) % RECIPES.length); return;
+            }
+        }
         const target = this.activeTarget;
         if (!target) return;
         const dx = (x - target.x) / target.radiusX, dy = (y - target.y) / target.radiusY;
@@ -505,8 +546,8 @@ class TinyBeanCafe extends Game {
             this.artProgress = 1; this.phase = 'serve_ready'; this.phaseStarted = this.time; this.updateHud();
         } else if (this.phase === 'serving' && elapsed >= TUNING.serveSeconds) {
             this.drinksServed++; this.phase = 'celebrate'; this.phaseStarted = this.time;
-            this.burst(87, 38, 22); this.playSound('serve'); this.updateHud();
-        } else if (this.phase === 'celebrate' && elapsed >= TUNING.cheerSeconds) this.resetCup();
+            this.burst(87, 38, this.orderMatched ? 32 : 14, this.orderMatched ? 1.8 : 1); this.playSound('serve'); this.updateHud();
+        } else if (this.phase === 'celebrate' && elapsed >= (this.orderMatched ? TUNING.superCheerSeconds : TUNING.cheerSeconds)) this.resetCup();
         this.draw();
         for (const p of this.particles) {
             if (p.life <= 0) continue;

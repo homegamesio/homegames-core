@@ -1,0 +1,4 @@
+Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/fleetfall-package-p63z2E
+PASS actual Fleetfall package and downloaded HTML offline: touch map selection, preference reload, natural launch/flight/capture, fresh-match reload and phone text bounds
+Runs: [{"name":"packaged","elapsedMs":15037,"mapRestored":true,"normalFlightCapturedPlanet":true,"reloadStartsFresh":true},{"name":"offline","elapsedMs":15005,"mapRestored":true,"normalFlightCapturedPlanet":true,"reloadStartsFresh":true}]
+Revision: fe7d8150de2a514641343081a63e59e3895571698af5f03965b082bf2d7eb1c5

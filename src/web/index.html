@@ -12,6 +12,10 @@
     </head>
     <body>
         <div id="homegames-main"></div>
+        <button id="import-pack" hidden style="position:fixed;bottom:8px;left:8px;z-index:1000;padding:8px 12px;border:1px solid #555;border-radius:6px;background:#fbfff2;color:#222;cursor:pointer">Import ZIP</button>
+        <input id="import-file" type="file" accept=".zip,application/zip" hidden>
+        <p id="import-status" role="status" style="position:fixed;bottom:48px;left:8px;max-width:90vw;background:#fbfff2;color:#222;font:14px system-ui;padding:8px;z-index:1000" hidden></p>
+        <script src="/library.js"></script>
         <script src="/homegames-client.js"></script>
         <script src="/bootstrap.js"></script>
     </body>

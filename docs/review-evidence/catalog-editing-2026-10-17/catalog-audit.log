@@ -1,0 +1,7 @@
+147 games: 32 default, 115 tests/review
+enhanced-view-test [test/review]: External helper: ../../common/util
+iron-keep [test/review]: metadata.assets must be a literal object; Missing authored media: REPLACE_WALL_SHEET_ID; Missing authored media: REPLACE_ENEMY_SHEET_ID; Missing authored media: REPLACE_HANDS_ID; Missing authored media: REPLACE_FACE_SHEET_ID; Missing authored media: REPLACE_SKY_ID; Missing authored media: REPLACE_MUSIC_ID; Missing authored media: REPLACE_SHOOT_SFX_ID; Missing authored media: REPLACE_HIT_SFX_ID; Missing authored media: REPLACE_FANFARE_ID
+mem-test [test/review]: External helper: ../../common/util
+sprite-test [test/review]: Games need one static metadata() returning a literal object
+view-test [test/review]: External helper: ../../common/util
+word-match [test/review]: External helper: ../../common/util/dictionary

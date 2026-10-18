@@ -52,25 +52,21 @@ function backdrop(d, e) {
     }
     d.line(6, 11, 154, 11, C.line, .08);
     d.line(6, 81, 154, 81, C.line, .08);
-    d.text('V / S', 6, 4.4, 2.4, C.cyan);
-    d.text('HOMEGAMES  /  VECTOR SIEGE', 17, 5.3, 1.05, C.dim);
+
     d.text('SINGLE PILOT   /   SECTOR '+String(e.seed % 100000).padStart(5, '0'), 154, 5.3, 1.05, C.dim, 'right');
 }
 function footer(d, text = 'WASD  MOVE     HOLD MOUSE  AIM + FIRE     SPACE  DASH     P  PAUSE') {
     d.text(text, 6, 84.2, 1.06, C.dim);
-    d.text('A SMALL SHIP. A BIG CONSEQUENCE.', 154, 84.2, 1.02, C.teal, 'right');
+
 }
 function title(d, e) {
     backdrop(d, e);
-    d.text('03 / COMMAND THE WAR. DIVE INTO THE FIGHT.', 9, 20, 1.15, C.cyan);
-    d.text('VECTOR', 8, 26, 10.5, C.white);
-    d.text('SIEGE', 8, 37.5, 10.5, C.cyan);
-    d.text('Outfly the swarm. Break the supply chain.', 9, 52, 1.7, C.white);
-    d.text('Take their worlds. Then take their fortress.', 9, 55.8, 1.5, C.dim);
-    d.button('LIVING SECTOR / RTS', 9, 65, 32, 6.5, 'war', C.cyan);
-    d.button('CLASSIC SIEGE', 44, 65, 30, 6.5, 'start', C.line);
-    d.button('FLIGHT SCHOOL', 9, 74, 32, 4, 'practice', C.line);
-    d.button('FIELD MANUAL / H', 44, 74, 30, 4, 'guide', C.line);
+
+    d.text('Capture worlds. Break the Citadel.', 9, 35, 2.3, C.white);
+    d.button('COMMAND A FLEET', 9, 49, 32, 9, 'war', C.cyan);
+    d.button('SOLO MISSIONS', 44, 49, 30, 9, 'start', C.line);
+    d.button('PRACTICE', 9, 64, 32, 7, 'practice', C.line);
+    d.button('HELP / H', 44, 64, 30, 7, 'guide', C.line);
     const x = 117, y = 44, t = e.time;
     for (let i = 0; i < 3; i++) d.poly(polygon(x, y, 13 + i * 6.5, 48), null, C.line, .07, .6);
     emblem(d, x, y, 'fortress', 10, C.red, t, true);
@@ -402,7 +398,7 @@ function combat(d, e, customHud) {
 function hud(d, e) {
     d.rect(0, 0, 160, 13, C.bg); d.rect(0, 80, 160, 10, C.bg);
     d.line(6, 12, 154, 12, C.line, .09);
-    d.text('V / S', 6, 3.5, 2.6, C.cyan);
+
     const name = e.practice ? 'FLIGHT SCHOOL' : SITES[e.mission.type].name;
     d.text(name, 19, 3.4, 1.9, C.white);
     const weapon = WEAPONS.find(w => w.id === e.weapon);

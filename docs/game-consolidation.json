@@ -1,0 +1,566 @@
+{
+  "archiveDirectory": "imports/hg_games",
+  "originalCount": 104,
+  "archives": [
+    {
+      "archive": "aquarium-main.zip",
+      "archiveSha256": "64a363377108d9bb0f4210e8027c8aeb127481b5986c7ec66b0ff1e536fe19a8",
+      "target": "src/games/aquarium",
+      "decision": "import",
+      "reason": "Beyond the Surface is the current Aquarium, retained at src/games/aquarium with its existing catalog identity. The user restored its data directory on October 17. Automatic save/resume now preserves creatures, purchases, upgrades and eras."
+    },
+    {
+      "archive": "astra-testing-main.zip",
+      "archiveSha256": "a8439fff3dcc4a0dc2857d6d40da24e950f191a20457c835bc64eb9116b8b557",
+      "target": "src/games/starweld",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "backgammon-main.zip",
+      "archiveSha256": "f66afd20b086a74f80e2fb23111602f22c94e979283167d1167e8023e9fba010",
+      "target": "src/games/backgammon",
+      "decision": "retain-core",
+      "reason": "Keep the locally polished classic table, controls and readable labels."
+    },
+    {
+      "archive": "bannerbound-main.zip",
+      "archiveSha256": "e0ecbd94565deedf3ce8061503b6dd4b3f689e0e2c0ce140a26e0d723a773de9",
+      "target": "src/games/bannerbound",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "battle-boats-main.zip",
+      "archiveSha256": "02d3e4fc54fa069985356d18c88981a6fe55f7283315d35e915af82bccf6c81c",
+      "target": "src/games/battleship",
+      "decision": "retain-core",
+      "reason": "Keep local fleet-placement and interface improvements."
+    },
+    {
+      "archive": "blackjack-main.zip",
+      "archiveSha256": "e54e9570a1bcaee86df1247c41cc1a5119080aee42a347b2beadcd22be4620c4",
+      "target": "src/games/blackjack",
+      "decision": "retain-core",
+      "reason": "Keep local onboarding, larger labels and play-chip descriptions."
+    },
+    {
+      "archive": "blank-main.zip",
+      "archiveSha256": "53d3283a4bc5638c3fed57ffb1d8799b42d141e66b4021bc43057d85e95bf96a",
+      "target": "src/games/counterforge-apex",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "block-fight-main.zip",
+      "archiveSha256": "73c8723488722c0d41df6e4b36326c806dc7cf36c94021ad53c8f4bcae61974a",
+      "target": "src/games/block-brawlers",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "butt2-main.zip",
+      "archiveSha256": "6f71b90a2008236968586417d895fd824079ac09dd4d42e5ce7296fe3e62e89e",
+      "target": "src/games/image-gallery",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "cabinet-main.zip",
+      "archiveSha256": "c8074bc8af699f780640b8febd2e47ba645071111639fdb57984e02dece4f6a5",
+      "target": "src/games/cabinet",
+      "decision": "retain-core",
+      "reason": "Identical entry point."
+    },
+    {
+      "archive": "checkers-main.zip",
+      "archiveSha256": "ec73eecd6f285757a0d0fc1d9a7b026c545263c2035f609f6a50d87cc662ffa4",
+      "target": "src/games/checkers",
+      "decision": "retain-core",
+      "reason": "Keep local keyboard focus, legal move cues and interface improvements."
+    },
+    {
+      "archive": "chess-main.zip",
+      "archiveSha256": "b6e83b2c6cb43cceb52b025d7f342e31fc5aec7d6291928364aa02b59f061d84",
+      "target": "src/games/chess",
+      "decision": "retain-core",
+      "reason": "Keep local keyboard focus and legible interface."
+    },
+    {
+      "archive": "chronoclast-main.zip",
+      "archiveSha256": "5b8b6c649dccc80b174db17ac4d447323a699e8c98034b16188303ff5277e372",
+      "target": "src/games/chronoclast",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "city-scanner-main.zip",
+      "archiveSha256": "09d424c345d8ab7d7c12316c50e72fb60761933810831496ee5e1b91b948377a",
+      "target": "src/games/city-commons",
+      "decision": "import",
+      "reason": "Import as City Commons; it is a different city simulation, not a replacement for the interactive City Scanner toy."
+    },
+    {
+      "archive": "clicktionary-main.zip",
+      "archiveSha256": "d43cc5275610193dc3ef77307635113bdfebf1b1dcd87d4be560a1c9603907c2",
+      "target": "src/games/clicktionary",
+      "decision": "merge-upgrade",
+      "reason": "Merge gallery, drawing capture, bounded strokes and word aliases. Preserve local drag/mouse-up, capacity checks, local thumbnail and 10 Hz timing."
+    },
+    {
+      "archive": "clump-main.zip",
+      "archiveSha256": "125b8e431662623bbe00c4d491bc9c76ec73ca09eabcc67c3c2c22fbfedd94d2",
+      "target": "src/games/clump",
+      "decision": "retain-core",
+      "reason": "Identical entry point."
+    },
+    {
+      "archive": "common-ground-main.zip",
+      "archiveSha256": "9769af5cb1168848a1a800d3181517c80a6b178b13214e2d4754952da324f75d",
+      "target": "src/games/common-ground",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "connect-more-main.zip",
+      "archiveSha256": "46a3da7e1f7a315b029058ec204061eb9601adce3ba5be802f87c8b2e022d7d2",
+      "target": "src/games/connect-four",
+      "decision": "retain-core",
+      "reason": "Keep local Connect Four with keyboard and animation/join fixes."
+    },
+    {
+      "archive": "cool2-main.zip",
+      "archiveSha256": "4e37f01f43490ff621386b0ee486fae9fd65a506d6a5657552dd99adb5410c60",
+      "target": "src/games/neon-dodge",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "crazy-eights-main.zip",
+      "archiveSha256": "87a0941663fb1df0ae4075e82b42e15d92954852bc2012ee2dbcb5281e53c585",
+      "target": "src/games/crazy-eights",
+      "decision": "retain-core",
+      "reason": "Keep local legible hints and accessible legal-card markers."
+    },
+    {
+      "archive": "dddd-main.zip",
+      "archiveSha256": "608576ce44d3bd88ccec59b1978c5e48a2c080077eb3b69503960e152ee1e89a",
+      "target": "src/games/ball-bounce",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "deadword-main.zip",
+      "archiveSha256": "14f1dc8bd193a330c789fb651e3c9c6847c31b104e6e9e9c8befbe643c5e09ff",
+      "target": "src/games/deadword",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "defuser-main.zip",
+      "archiveSha256": "d5415e826292717f51d699476075afaa7407cbfac6928a1440776713b0bbc0f0",
+      "target": "src/games/defuse",
+      "decision": "retain-core",
+      "reason": "Retain local fixes, media conversion and/or later polish; review notes describe meaningful differences."
+    },
+    {
+      "archive": "desert-bloom-main.zip",
+      "archiveSha256": "071a155b1d95a00517d2dbd85d6f2bcff9ea2265505574e515ebaa0969587fed",
+      "target": "src/games/desert-bloom",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "diff-main.zip",
+      "archiveSha256": "1c5a76da38c4e37a7ed8db64f4afec5c7a1308e53a3687649ad39e9d45e6bfab",
+      "target": "src/games/dance-fever",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "disco-owl-main.zip",
+      "archiveSha256": "092262871fe52ec2abf0f48cb0983cc21a9b70f0dfdde5338a593102eba54f24",
+      "target": "src/games/disco-owl",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "djdjdjd-main.zip",
+      "archiveSha256": "291828f0b990ab5431cc8cbfe0680e29ab26bc19b976b06b45d996364589264d",
+      "target": "src/games/heart-catcher",
+      "decision": "archive-incompatible",
+      "reason": "Canvas API experiment, no Homegames metadata/getLayers contract. Preserved without a discoverable index.js."
+    },
+    {
+      "archive": "doodle-invaders-main.zip",
+      "archiveSha256": "e24af5f40dfd3281dc5ef066b5bc6a5bbe3d9d7ca4008ddcf7ec9245306a527a",
+      "target": "src/games/doodle-invaders",
+      "decision": "retain-core",
+      "reason": "Keep local version and bring across the archive ship image. Local literal metadata replaces placeholder promises; other visuals use intentional shape fallbacks."
+    },
+    {
+      "archive": "dots-and-boxes-main.zip",
+      "archiveSha256": "32cd909b3e8659fe1d12725fd64611a8a9b013c20548f6ee0a5b4c00bc886bc1",
+      "target": "src/games/dots-and-boxes",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "dragon-drop-main.zip",
+      "archiveSha256": "af4fd1a2af3c91da8255ab62884a65f780074ec9af5547335018cd2cf695572d",
+      "target": "src/games/dragon-drop",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "draw-main.zip",
+      "archiveSha256": "3a05491c8a9fada5d1f7e2e8af2e63cc4399b02f3fd590cc7667a42828a1954e",
+      "target": "src/games/draw",
+      "decision": "retain-core",
+      "reason": "Keep local drag/crop fixes and media; carry across multiplayer declaration."
+    },
+    {
+      "archive": "engine-room-main.zip",
+      "archiveSha256": "526240dcc4218f8a617e27112395f21174abea3a3261f86567dbb7ed707cd0e6",
+      "target": "src/games/engine-room",
+      "decision": "retain-core",
+      "reason": "Identical entry point."
+    },
+    {
+      "archive": "facet-main.zip",
+      "archiveSha256": "35acfd5e6bc3861d3034fd31a8edddb6ddce5c552173c2c1d5ba83c57f59ed2c",
+      "target": "src/games/facet",
+      "decision": "retain-core",
+      "reason": "Keep the local 30-stage, saved adventure with Zen/Rush and art/sound modules; archive is the earlier endless match-three."
+    },
+    {
+      "archive": "fakeout-main.zip",
+      "archiveSha256": "f4a9a617cad77e688dbf8288b9e254aa600666e4f2dcc5062542d532feb561ec",
+      "target": "src/games/fakeout",
+      "decision": "retain-core",
+      "reason": "Identical entry point."
+    },
+    {
+      "archive": "go-fish-main.zip",
+      "archiveSha256": "3fdd8d97cd8a9ac64dc63009ca4e3e91dd8b264358676508df36f5d3cf06ff1e",
+      "target": "src/games/go-fish",
+      "decision": "retain-core",
+      "reason": "Keep local hand-pagination clamp and legible table layout."
+    },
+    {
+      "archive": "grand-finale-main.zip",
+      "archiveSha256": "5fc42cde5091258f31f9363c00fff9d168c800b21bd18e9ee4813c871b026990",
+      "target": "src/games/grand-finale",
+      "decision": "retain-core",
+      "reason": "Keep local timing/readability and correct Unicode; carry across multiplayer declaration."
+    },
+    {
+      "archive": "halloween-words-main.zip",
+      "archiveSha256": "f9e591612326b230ab20276d57b0cd96338e08da1f18402f6e69911dfbc5ccf8",
+      "target": "src/games/halloween-words",
+      "decision": "retain-core",
+      "reason": "Retain local fixes, media conversion and/or later polish; review notes describe meaningful differences."
+    },
+    {
+      "archive": "hangman-main.zip",
+      "archiveSha256": "aff32a7eacaed090df4d33dd377f562ebfdef0616bbf04081a8e6bd4b3f9d0dd",
+      "target": "src/games/hangman",
+      "decision": "retain-core",
+      "reason": "Retain local fixes, media conversion and/or later polish; review notes describe meaningful differences."
+    },
+    {
+      "archive": "hot-potato-main.zip",
+      "archiveSha256": "cf10b7b2f1b33123a3331851a893a9f938ebfa0c864a7bf8a9842674b34bf9ec",
+      "target": "src/games/hot-potato",
+      "decision": "merge-upgrade",
+      "reason": "Merge player backdrops and holder disconnect handoff; also cancel stale explosion timers and avoid overlapping rounds. Keep as a prototype pending match structure."
+    },
+    {
+      "archive": "idk-main.zip",
+      "archiveSha256": "af92dc2deca54f34e2e060285f1b2756b6a7845ec3c80aea5d7659a7a38f94c1",
+      "target": "src/games/railway-reverie",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "imposter-main.zip",
+      "archiveSha256": "0b419ba025ff9c003d1caaa599f25503ae0df483281377a72f8ed3de2b3da130",
+      "target": "src/games/imposter",
+      "decision": "retain-core",
+      "reason": "Retain local fixes, media conversion and/or later polish; review notes describe meaningful differences."
+    },
+    {
+      "archive": "ims-main.zip",
+      "archiveSha256": "2f094eb9d1d5b35ce53b339fe7fbd297932a54031fc436b788c394cf479d88a0",
+      "target": "src/games/ball-bounce",
+      "decision": "duplicate",
+      "reason": "Exact same index.js as dddd-main.zip."
+    },
+    {
+      "archive": "iron-keep-main.zip",
+      "archiveSha256": "09fc92cc3a082d2f3632ae713f83183c308881113753e920650fbaab3a77842e",
+      "target": "src/games/iron-keep",
+      "decision": "retain-core",
+      "reason": "Retain local fixes, media conversion and/or later polish; review notes describe meaningful differences."
+    },
+    {
+      "archive": "kaboom-valley-main.zip",
+      "archiveSha256": "f9e2e3c44206b6cb6e5f057b7162d559f0b43802f8d3db6d8e9f1f512117e8fb",
+      "target": "src/games/kaboom-valley",
+      "decision": "retain-core",
+      "reason": "Retain local fixes, media conversion and/or later polish; review notes describe meaningful differences."
+    },
+    {
+      "archive": "keep-up-main.zip",
+      "archiveSha256": "d80b69a62efad6649cb190c59a09c48c358ade1fbe3b3329e4e2ddb58f2afc8e",
+      "target": "src/games/keep-up",
+      "decision": "retain-core",
+      "reason": "Keep the local 15 Hz simulation; the archive changes only tick rate to 60 without a gameplay upgrade."
+    },
+    {
+      "archive": "lemonade-stand-main.zip",
+      "archiveSha256": "3fd5f53b589b9261b22bd1004b000d26736e7e37d5f8a286379a7cb14833f98e",
+      "target": "src/games/lemonade-tycoon",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "lets-see-main.zip",
+      "archiveSha256": "63fafbd9fd9adef8b805317342ee93ff53b382221b5a34a80a9c5e80d54aaf40",
+      "target": "src/games/neon-shooter",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "light-show-main.zip",
+      "archiveSha256": "21a30c4c0d6e2f5795e02957bb70fa74e15418a7f0abf8d78fc456920497e191",
+      "target": "src/games/lumen-festival",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "little-consequences-main.zip",
+      "archiveSha256": "7a6f76e8beb33fd5c4366dc3911e4c60ebd3bc290375a15a236739d688c25514",
+      "target": "src/games/little-consequences",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "micro-mayhem-main.zip",
+      "archiveSha256": "0762a999413c84c888465ab66d3d8e27fa01c60ff33732bacbfd7854279d902d",
+      "target": "src/games/micro-mayhem",
+      "decision": "retain-core",
+      "reason": "Identical entry point."
+    },
+    {
+      "archive": "nasty-test-main.zip",
+      "archiveSha256": "e4bdc4fc649b3426ee5d2513434ce814c12d2acef66a0fcfb3fc54fe1a958962",
+      "target": "src/games/masterpiece",
+      "decision": "retain-core",
+      "reason": "Keep Masterpiece with working local la-dame.svg instead of reintroducing remote media."
+    },
+    {
+      "archive": "nastycabinet-main.zip",
+      "archiveSha256": "e3aaa101c839c806ce9b7dafe54d47f6e2445300c6ca5e2372bdceb2f6fe3b1b",
+      "target": "src/games/blank-template",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "neon-grid-main.zip",
+      "archiveSha256": "5e54cd0a4e2d20911827c11983d31c53c75de44361d83b0f17a49c0cce806709",
+      "target": "src/games/neon-grid",
+      "decision": "retain-core",
+      "reason": "Keep correct Unicode and existing gameplay; carry across multiplayer declaration."
+    },
+    {
+      "archive": "newone-main.zip",
+      "archiveSha256": "6af05ec2ec1c9e61f6b976226b8aa250941012e8e433aa9a997f52e6bc0d6957",
+      "target": "src/games/bunny-harvest",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "nova-guard-main.zip",
+      "archiveSha256": "bf2c35b6c15ec81e9dd4215587b60227527e180077c684c71759adb70bbaa7d0",
+      "target": "src/games/nova-guard",
+      "decision": "retain-core",
+      "reason": "Keep existing game; carry across multiplayer declaration."
+    },
+    {
+      "archive": "nuts-main.zip",
+      "archiveSha256": "0352e759f47d052920602e31bfcffa3f2a9cb38e0aaeba7765d88a967b445e47",
+      "target": "src/games/two-player-fight",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "pain-guy-main.zip",
+      "archiveSha256": "6c44b8f09c79cd6c8b6928bb0da5b5388954b354a6cc555bd4cf2d9484644a48",
+      "target": "src/games/buddy-box",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "prism-3d-main.zip",
+      "archiveSha256": "dc90ceab79be11f0bb2ef36acd26b4db61c5912e2e659d20140bec1e103916a1",
+      "target": "src/games/prism-3d",
+      "decision": "retain-core",
+      "reason": "Identical entry point."
+    },
+    {
+      "archive": "pulsefront-main.zip",
+      "archiveSha256": "a603ed20d11bb07bd600690c838de9c0ed28adadaef6a065e358fdb4bb52c106",
+      "target": "src/games/pulsefront",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "raft-main.zip",
+      "archiveSha256": "49721a885d6f63b2e9186a0f0b2c7cfd89a7423ab341bf28893d60de14e2e396",
+      "target": "src/games/raft",
+      "decision": "retain-core",
+      "reason": "Identical entry point."
+    },
+    {
+      "archive": "relaxing-aquarium-main.zip",
+      "archiveSha256": "6e3de8711dfd3d5dd54b12a0ffd2fd0dd7e4fbd3449a0c56978515f99719bc18",
+      "target": "src/games/aquarium",
+      "decision": "superseded",
+      "reason": "Intermediate Bigger Tank network edition; Beyond the Surface incorporates this lineage and adds Horizon progression."
+    },
+    {
+      "archive": "relic-rush-main.zip",
+      "archiveSha256": "1f266424a8c7ae6cbba5e8a1f92294a20a4ddc95b53de4e919c3e19bb9c7f78b",
+      "target": "src/games/relic-rush",
+      "decision": "retain-core",
+      "reason": "Identical entry point."
+    },
+    {
+      "archive": "rpg-main.zip",
+      "archiveSha256": "b587dde24f1be342cdfa150bd18982a0d9e0e1c05236bc45b574c929bea9956b",
+      "target": "src/games/counterforge-wilds",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "shape-fight-main.zip",
+      "archiveSha256": "1083d945da5a80559a85d1c8654ffd8947c28278e5b73ee989646f557424b859",
+      "target": "src/games/geom-storm",
+      "decision": "retain-core",
+      "reason": "Same Geom Storm benchmark with a 60 Hz tick-rate change; retain local version as test."
+    },
+    {
+      "archive": "sheep-drive-main.zip",
+      "archiveSha256": "1cdf424397483829ada908ff69f2b451b924959d34c38ac4c8fd8e713ab1b9aa",
+      "target": "src/games/sheep-drive",
+      "decision": "retain-core",
+      "reason": "Retain local fixes, media conversion and/or later polish; review notes describe meaningful differences."
+    },
+    {
+      "archive": "shmup-main.zip",
+      "archiveSha256": "5def2b93783f582b5186ede850b5bfe45af1d4608cc6ea25e85833ca374b16a9",
+      "target": "src/games/polystorm",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "snap-judgment-main.zip",
+      "archiveSha256": "ea29db4dd9dab2b887c082c2830d25fc0b7bd956a85e6888c30a16f79d6e2f7f",
+      "target": "src/games/snap-judgment",
+      "decision": "merge-upgrade",
+      "reason": "Merge phase-specific visibility, sitting out, upload help and custom font; bundle the font."
+    },
+    {
+      "archive": "sponge-main.zip",
+      "archiveSha256": "4fde58f8eff73b7ece59874ce23d107fb6225037347bc772794cb9655e079ed4",
+      "target": "src/games/sponge",
+      "decision": "merge-upgrade",
+      "reason": "Adopt seven-point match, bot, lifecycle timers, numeric seat IDs and rematch; preserve bundled media."
+    },
+    {
+      "archive": "star-sweeper-main.zip",
+      "archiveSha256": "033734a35c424710da9cc282375c1a4cc886026c4b7a36b70d75d978e8ee05eb",
+      "target": "src/games/star-sweeper",
+      "decision": "retain-core",
+      "reason": "Identical entry point."
+    },
+    {
+      "archive": "swarmwell-main.zip",
+      "archiveSha256": "b90034e177766643548fabe2e708cf3b60e52027602eb5950a564a16d4365a8a",
+      "target": "src/games/swarmwell",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "tic-tac-toe-main.zip",
+      "archiveSha256": "59f2e30a5e499f3ece54fdac97cae199097e99413926fbe0ba02761f925f48cc",
+      "target": "src/games/tic-tac-toe",
+      "decision": "retain-core",
+      "reason": "Keep local keyboard/board interface improvements."
+    },
+    {
+      "archive": "ting-main.zip",
+      "archiveSha256": "9f0188ef2ef29d77c221e151b89a8691a87515474d19f01873bfae9681276df9",
+      "target": "src/games/soccer",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "typewriter-main.zip",
+      "archiveSha256": "bb6aa0d0c0a25e4db9a858188057d9ad23e381febcaf1b34d82f0913c9391e52",
+      "target": "src/games/text-input",
+      "decision": "retain-core",
+      "reason": "Retain local fixes, media conversion and/or later polish; review notes describe meaningful differences."
+    },
+    {
+      "archive": "vegas-trail-main.zip",
+      "archiveSha256": "a302e89dd5a2d301eebad1425b77e6cebb6835b92e964f46d6c9ace535b107b7",
+      "target": "src/games/vegas-trail",
+      "decision": "merge-upgrade",
+      "reason": "Merge tuning and dirty-frame/minigame improvements; preserve media and add departed-player cleanup."
+    },
+    {
+      "archive": "waaaaar-main.zip",
+      "archiveSha256": "5b230bc0fd492deb968dbb33bb922fed5995c0452205aacfca87bce9017a940c",
+      "target": "src/games/warpoint",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "watt-main.zip",
+      "archiveSha256": "00a2827b0d88b1ab4a27d499b017b1317600bdaeb7dc7301d6499f51a5b8449f",
+      "target": "src/games/worldseed",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "weed-smoke-willie-main.zip",
+      "archiveSha256": "731b5028f2e73a35e322b4f7395b6ac9e9c66919524b096e327cf66d05b3900a",
+      "target": "src/games/weed-smoke-willie",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "yo-main.zip",
+      "archiveSha256": "1180b91047f591a86afcc53e1d3ac87bb26cc8719b42282f5c797d12f03fe6a9",
+      "target": "src/games/dump-truck",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "yoo-main.zip",
+      "archiveSha256": "f7b3e4c3e802bc9ad75327d7b45ec7d8ed6ea0a655b9ba37af0ac7d3a04c17d5",
+      "target": "src/games/robots-arena",
+      "decision": "import",
+      "reason": "Distinct game imported under its actual title; see review report for disposition."
+    },
+    {
+      "archive": "zap-tap-main.zip",
+      "archiveSha256": "e36f0cb0a434b6653d02e5970a6d55ad83d8e0a81849ebee5fc11eb80373bea0",
+      "target": "src/games/zap-tap",
+      "decision": "retain-core",
+      "reason": "Retain local fixes, media conversion and/or later polish; review notes describe meaningful differences."
+    }
+  ]
+}

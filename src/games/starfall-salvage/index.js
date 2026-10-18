@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-145');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { Salvage } = require('./engine');
 const { SalvageScene } = require('./scene');
 const { SalvageAudio } = require('./audio');
@@ -15,11 +15,20 @@ const SLOT_NAMES = { weapon: 'WEAPONS', port: 'PORT', starboard: 'STARBOARD', dr
 
 class StarfallSalvage extends Game {
     static metadata() {
-        return { name: 'STARFALL SALVAGE', author: 'Joseph Garcia', squishVersion: '145',
+        return {
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
+            name: 'STARFALL SALVAGE',
+            author: "Joseph Garcia",
             description: 'Make a home out of the end of the world. Build a visibly modular salvage ship, explore six brilliant sectors, board haunted wrecks, find your crew, and decide the fate of a living moon. A complete single-player space adventure.',
-            aspectRatio: { x: 16, y: 10 }, tickRate: 20, maxPlayers: 1, assets: {},
+            aspectRatio: { x: 16, y: 10 },
+            tickRate: 20,
+            maxPlayers: 1,
+            assets: {},
             gamepadBindings: { w: ['DIRECTION_UP', 'STICK_1_UP'], s: ['DIRECTION_DOWN', 'STICK_1_DOWN'], a: ['DIRECTION_LEFT', 'STICK_1_LEFT'], d: ['DIRECTION_RIGHT', 'STICK_1_RIGHT'],
-                ' ': 'FACE_1', e: 'FACE_2', x: 'FACE_3', q: 'FACE_4', f: 'LEFT_SHOULDER', v: 'RIGHT_SHOULDER', c: 'START', m: 'SELECT' } };
+                ' ': 'FACE_1', e: 'FACE_2', x: 'FACE_3', q: 'FACE_4', f: 'LEFT_SHOULDER', v: 'RIGHT_SHOULDER', c: 'START', m: 'SELECT' },
+            gameId: "4bb6fbe0-cdd4-5eb5-a021-e6ae80b0b192"
+        };
     }
     constructor({ saveGame, saveData, addAsset } = {}) {
         super(); this.saveGame = saveGame; this.engine = new Salvage(saveData); this.owner = null;
@@ -181,24 +190,22 @@ class StarfallSalvage extends Game {
     draw() { this.scene.render(this.engine, this.engine.phase === 'title'); if (this.engine.phase !== 'title') this.updateHud(); this.base.node.onStateChange(); }
     title() {
         const r = this.ui;
-        this.box(r, 4, 9, 47, 81, [12, 22, 41, 242]); this.box(r, 4, 9, .4, 81, C.mint);
-        this.text(r, 'A LITTLE SHIP. A VERY BIG TOMORROW.', 8, 14, .92, C.mint);
-        this.text(r, 'STARFALL', 7.6, 23, 5.45, C.cream, 'left', 'Georgia');
-        this.text(r, 'S A L V A G E', 8.3, 34, 2.35, C.coral);
+        this.box(r, 4, 42, 47, 48, [12, 22, 41, 242]); this.box(r, 4, 42, .4, 48, C.mint);
+
         this.rule(r, 8, 43, 38);
         this.lines(r, 'The moon broke. We kept the pieces.', 8, 47, 37, 1.65, C.cream, 2);
         this.lines(r, 'Build a ship from the wreckage. Find a crew in the quiet. Bring something worth saving home.', 8, 55, 36, 1.15, C.muted, 4);
-        this.button(r, this.engine.hasSave ? 'CONTINUE VOYAGE' : 'LAUNCH THE KESTREL', 8, 70, 38, 8.2, () => this.start(), { fill: C.mint, ink: C.ink, size: 1.16 });
+        this.button(r, this.engine.hasSave ? 'CONTINUE' : 'PLAY', 8, 70, 38, 8.2, () => this.start(), { fill: C.mint, ink: C.ink, size: 1.16 });
         this.text(r, 'WASD fly   SPACE fire   E dock / board', 8, 82, .94, C.cream);
         this.text(r, 'SINGLE PLAYER  /  SAVES AUTOMATICALLY', 8, 86, .72, C.muted);
         this.text(r, 'KESTREL / SALVAGE CLASS', 94, 6, .85, C.mint, 'right');
-        this.text(r, 'NOT EVERYTHING BROKEN IS LOST.', 95, 94, 1.05, C.cream, 'right');
+
     }
     playHud() {
         const r = this.ui;
         this.box(r, 0, 12, 100, 77, [0, 0, 0, 0], { onClick: (id, x, y) => { if (id === this.owner) this.worldPress(x, y); }, offClick: id => this.handleMouseUp(id) });
         this.box(r, 0, 0, 100, 11.8, C.panel); this.rule(r, 0, 11.7, 100, C.mint);
-        this.text(r, 'STARFALL', 2.3, 1.3, 1.8, C.cream, 'left', 'Georgia');
+
         this.hud.region = this.text(r, '', 2.4, 6.4, .8, C.mint);
         this.hud.objective = this.text(r, '', 21.5, 1.9, 1.12, C.gold);
         this.hud.progress = this.text(r, '', 21.5, 6.6, .87, C.muted);

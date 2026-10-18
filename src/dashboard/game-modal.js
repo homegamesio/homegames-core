@@ -2,7 +2,7 @@ const { fork } = require('child_process');
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-142');
+const { Game, ViewableGame, GameNode, Colors, ShapeUtils, Shapes, squish, unsquish, ViewUtils } = require('squish-150');
 
 const fs = require('fs');
 
@@ -20,6 +20,28 @@ const MUTED_TEXT_COLOR = [206, 209, 200, 255]; // light gray-green on charcoal
 // Vertically center a text of `size` in a bar at (barY, barH) — text height in
 // y-units is size * 16/9 at the dashboard's aspect ratio.
 const centerTextY = (barY, barH, size) => barY + ((barH - (size * 16 / 9)) / 2);
+
+// Squish 1.5.0 stores text as three bytes per code point and caps each
+// attribute at 510 bytes. Separate short lines fit both the wire format and
+// the space above the modal's player-count label.
+const descriptionLines = value => {
+    let remaining = Array.from(String(value || 'No description available').replace(/\s+/gu, ' ').trim());
+    const lines = [];
+    while (remaining.length && lines.length < 3) {
+        if (remaining.length <= 80) {
+            lines.push(remaining.join(''));
+            break;
+        }
+        const lastLine = lines.length === 2;
+        const limit = lastLine ? 79 : 80;
+        const space = remaining.slice(0, limit + 1).lastIndexOf(' ');
+        const end = space > 0 ? space : limit;
+        lines.push(remaining.slice(0, end).join('') + (lastLine ? '…' : ''));
+        remaining = remaining.slice(end);
+        if (remaining[0] === ' ') remaining.shift();
+    }
+    return lines.length ? lines : ['No description available'];
+};
 
 const formatDate = (ting) => {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -146,18 +168,18 @@ const infoSection = ({ gameKey, gameMetadata}) => {
         }
     });
 
-    const descriptionText = new GameNode.Text({
+    const descriptionText = descriptionLines(gameMetadata.description).map((text, index) => new GameNode.Text({
         textInfo: {
             x: 50,
-            y: 48.5,
+            y: 47.5 + index * 2.3,
             align: 'center',
             color: PANEL_TEXT_COLOR,
-            size: 1.2,
-            text: gameMetadata.description || 'No description available'
+            size: 1.1,
+            text
         }
-    });
+    }));
 
-    infoContainer.addChildren(thumbnail, title, author, descriptionText);
+    infoContainer.addChildren(thumbnail, title, author, ...descriptionText);
 
     return infoContainer;
 };

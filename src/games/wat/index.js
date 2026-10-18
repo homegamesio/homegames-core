@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const { COLORS } = Colors;
 
 // ──────────────────────────────────────────────
@@ -49,9 +49,11 @@ class TowerDefense extends Game {
 
     static metadata() {
         return {
-            squishVersion: '142',
+            // Catalog review: Unfinished tower defense: broken wave/enemy lifecycle and no base-health loss loop.
+            isTest: true,
+            squishVersion: '150',
             name: 'Tower Defense',
-            author: 'AI',
+            author: "Joseph Garcia",
             description: 'Place towers along the path. Survive endless waves of enemies!',
             aspectRatio: { x: 1, y: 1 },
             tickRate: T.TICK,

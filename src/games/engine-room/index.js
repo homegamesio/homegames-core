@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const TICK_RATE = 10;
 const MAX_PLAYERS = 8;
@@ -51,14 +51,15 @@ const shuffled = (list) => {
 class EngineRoom extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Engine Room',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'The ship is falling apart and the repair orders are on the wrong screens. Shout "SET THE QUARTERLY FLANGE TO 3" at your crew before the hull gives out. Loud, fast, and nobody\'s fault in particular.',
             aspectRatio: { x: 16, y: 9 },
-            services: ['multiplayer'],
-            maxPlayers: MAX_PLAYERS,
-            tickRate: TICK_RATE
+            maxPlayers: 8,
+            tickRate: TICK_RATE,
+            gameId: "deda961d-ef30-5ff3-a6cf-dc8d15bdae6b"
         };
     }
 
@@ -84,7 +85,6 @@ class EngineRoom extends Game {
 
         this.base = this.rect(0, 0, 100, 100, BG);
 
-        this.titleLabel = this.text('ENGINE ROOM', 2, 1.5, 1.2, FAINT);
         this.hullLabel = this.text('', 2, 4.6, 1.2, AMBER);
         this.sectorLabel = this.text('', 50, 1.5, 1.5, INK, 'center');
         this.progressLabel = this.text('', 50, 4.8, 1.1, FAINT, 'center');
@@ -94,7 +94,7 @@ class EngineRoom extends Game {
         this.playerLayer = this.container();
 
         this.base.addChildren(
-            this.titleLabel, this.hullLabel, this.sectorLabel, this.progressLabel,
+            this.hullLabel, this.sectorLabel, this.progressLabel,
             ...this.feedNodes,
             this.mainLayer, this.playerLayer
         );
@@ -468,11 +468,9 @@ class EngineRoom extends Game {
 
     buildLobby() {
         const s = this.mainLayer;
-        s.addChild(this.text('ENGINE ROOM', 50.4, 8.4, 5, [0, 0, 0, 130], 'center'));
-        s.addChild(this.text('ENGINE ROOM', 50, 8, 5, AMBER, 'center'));
-        s.addChild(this.text('THE SHIP IS FALLING APART. THE REPAIR ORDERS ARE ON THE WRONG SCREENS.', 50, 22, 1.2, INK, 'center'));
-        s.addChild(this.text('READ YOUR ORDER OUT LOUD. SOMEONE ELSE HAS THAT CONTROL.', 50, 26, 1.2, FAINT, 'center'));
-        s.addChild(this.text(`SURVIVE ${SECTOR_COUNT} SECTORS. MISSED ORDERS COST HULL. SHOUTING HELPS.`, 50, 30, 1.2, FAINT, 'center'));
+
+        s.addChild(this.text('READ YOUR ORDER OUT LOUD.', 50, 21, 2.4, FAINT, 'center'));
+        s.addChild(this.text('SOMEONE ELSE HAS THE CONTROL YOU NEED.', 50, 28, 1.7, FAINT, 'center'));
         if (this.lobbyMsg) {
             s.addChild(this.text(this.lobbyMsg, 50, 35, 1.3, BAD, 'center'));
         }
@@ -573,7 +571,7 @@ class EngineRoom extends Game {
             const mine = control && control.owner === pid;
             p.root.addChild(this.text(this.orderText(order), 50, 9.2, 1.7, INK, 'center'));
             p.root.addChild(this.text(
-                mine ? "IT'S ON YOUR CONSOLE - DO IT!" : "SHOUT IT OUT - IT'S ON SOMEONE ELSE'S CONSOLE",
+                mine ? 'On your console' : 'Tell your crew',
                 50, 13, 1, FAINT, 'center'
             ));
             p.root.addChild(this.rect(20, 15.8, 60, 1.8, BAR_BG));
@@ -592,14 +590,11 @@ class EngineRoom extends Game {
             card.addChild(this.text(control.label, x + 22, y + 2.2, 1.15, AMBER, 'center'));
             if (control.type === 'button') {
                 card.addChild(this.text('[ ENGAGE ]', x + 22, y + 13, 2.2, BAD, 'center'));
-                card.addChild(this.text('TAP TO ENGAGE', x + 22, y + 29, 0.9, FAINT, 'center'));
             } else if (control.type === 'toggle') {
                 card.addChild(this.text(control.state ? 'ON' : 'OFF', x + 22, y + 11.5, 3, control.state ? GOOD : FAINT, 'center'));
-                card.addChild(this.text('TAP TO FLIP', x + 22, y + 29, 0.9, FAINT, 'center'));
             } else {
                 card.addChild(this.text(String(control.state), x + 22, y + 10.5, 3.4, INK, 'center'));
-                card.addChild(this.text(`POSITION ${control.state} OF 4`, x + 22, y + 24.5, 1, FAINT, 'center'));
-                card.addChild(this.text('TAP TO CYCLE', x + 22, y + 29, 0.9, FAINT, 'center'));
+                for (let step = 0; step < 4; step++) card.addChild(this.rect(x + 15 + step * 4, y + 25, 2.5, 1.5, step + 1 === control.state ? AMBER : CARD_EDGE));
             }
             p.root.addChild(card);
         });

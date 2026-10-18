@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 // GEOM STORM — a Geometry Wars-style arena shooter, built deliberately as a
 // polygon stress test: every enemy death sprays particles and drops magnetic
@@ -71,9 +71,11 @@ const text = (x, y, size, message, color, align) => new GameNode.Text({
 class GeomStorm extends Game {
     static metadata() {
         return {
+            // Catalog review: Renderer stress showcase; retain as a benchmark rather than a default arcade game.
+            isTest: true,
             aspectRatio: { x: 16, y: 9 },
-            squishVersion: '142',
-            author: 'Joseph Garcia',
+            squishVersion: '150',
+            author: "Joseph Garcia",
             name: 'Geom Storm',
             description: 'A neon arena shooter built to melt renderers: swarms, particle bursts, and magnetic geoms — the HUD counts the polygons so you can watch it strain.',
             tickRate: TICK_RATE,

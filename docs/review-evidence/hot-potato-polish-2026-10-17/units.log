@@ -1,0 +1,14 @@
+✔ only the current holder can pass; the original fuse and sound position survive passing (1.844333ms)
+✔ full explosion audio finishes, replay waits three seconds, and old callbacks cannot pass a new potato (0.30075ms)
+✔ a delayed expiry is resolved against the holder before accepting a late pass (0.193708ms)
+✔ departure passes with the same fuse; falling below two clears live and result timers (0.219083ms)
+✔ a thousand rounds retain bounded timer and scene state; close cancels pending work (5.58375ms)
+✔ capacity, duplicate joins and invalid destinations do not corrupt the round (0.362125ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.480167

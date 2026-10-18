@@ -1,0 +1,26 @@
+[
+  {
+    "name": "common-tests",
+    "code": 0
+  },
+  {
+    "name": "website-tests",
+    "code": 0
+  },
+  {
+    "name": "api-tests",
+    "code": 0
+  },
+  {
+    "name": "launcher-tests",
+    "code": 0
+  },
+  {
+    "name": "core-sessions",
+    "code": 0
+  },
+  {
+    "name": "portable-tests",
+    "code": 0
+  }
+]

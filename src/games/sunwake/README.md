@@ -12,7 +12,7 @@ Restart Homegames, open **homegames.link**, find **SUNWAKE** in the local librar
 
 The game uses the existing upload and live-media features. This build also fixes a client audio bug: enabling sound detached the original asset bytes and broke later RTC joins. The local client has been rebuilt with that fix. Hard-refresh existing host tabs. Website-hosted sessions should use the updated client too; no API changes are needed. The game has not been published to the public catalog.
 
-The matching website client and player page are staged at `/tmp/sunwake-rtc-release`; its `DEPLOY.md` lists the minimal S3/CloudFront commands. Publishing SUNWAKE itself is separate: its five JavaScript files and GPL `LICENSE` are the complete game source, with no external art or sound downloads.
+The matching website client and player page are staged at `/tmp/sunwake-rtc-release`; its `DEPLOY.md` lists the minimal S3/CloudFront commands. Publishing SUNWAKE itself is separate: its five JavaScript files and MIT `LICENSE` are the complete game source, with no external art or sound downloads.
 
 Phones work with touch; landscape gives the sky and controls more room. Keyboard and gamepad controls are also available. A first voyage is intended to take a few minutes, with room to explore, rescue people and learn stations. Solo play is supported; two to four communicating players are the intended sweet spot, with six seats available.
 

@@ -1,4 +1,5 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-150');
+const TUNING = require('../tuning');
 
 const COLORS = {
     BLURPLE: [71, 51, 255, 255],
@@ -127,415 +128,53 @@ const landmarkModal = (playerId, landmarkData, onClose) => {
     return modalBase;
 }
 
+// Stock/prices live in tuning.js (TUNING.SHOP.inventoryByLandmark).
+// Deep-copied so accumulation into this.shopInventory can never mutate the config.
 const shopInventoryMap = () => {
-    return {
-        "St. Mary's Mexican Food": {
-            "consumables": {
-                "food": {
-                    "amount": 40,
-                    "cost": 1
-                },
-                "wheels": {
-                    "amount": 1,
-                    "cost": 50
-                },
-                "ammo": {
-                    "amount": 100,
-                    "cost": 2
-                },
-                "antibiotics": {
-                    "amount": 4,
-                    "cost": 50
-                }
-            }, 
-            "upgrades": {
-                // "weapons": {
-                    "rock": {
-                        "cost": 50
-                    },
-                // },
-                // "vehicle": {
-                    "biscuit": {
-                        "cost": 100
-                    },
-                // },
-                // "resilience": {
-                // }
-            }
-        },
-        "Phoenix": {
-
-        },
-        "Gas Station": {
-
-        },
-        "Hoover Dam": {
-
-        },
-        "Las Vegas Strip": {
-
-        }
-    };
+    return JSON.parse(JSON.stringify(TUNING.SHOP.inventoryByLandmark));
 }
 
-const shopModal = (shopInventory, playerIds, onClose, onBuy) => {
-    let selectedKey;
-    const modalBase = new GameNode.Shape({
-        shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(14, 14, 72, 72),
-        // fill: Colors.COLORS.HG_BLACK,//[194, 151, 90, 255],//[106, 147, 70, 255]
-        playerIds
-    });
-
-    const modal = new GameNode.Shape({
-        shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(15, 15, 70, 70),
-        fill: [194, 151, 90, 255],//Colors.COLORS.HG_BLACK,//[194, 151, 90, 255],//[106, 147, 70, 255]
-        playerIds
-    });
-
-    const assetWindow = new GameNode.Shape({
-        shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(52.5, 75, 0, 0),
-        fill: Colors.COLORS.BLACK
-    });
-
-    const buyButton = new GameNode.Shape({
-        shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(57.5, 75, 0, 0),
-        fill: [106, 147, 70, 255],//Colors.COLORS.GREEN,
-        onClick: (playerId) => selectedKey && onBuy(playerId, selectedKey)
-    });
-
-    const buyText = new GameNode.Text({
-        textInfo: {
-            x: 66,
-            y: 77.5,
-            font: 'heavy-amateur',
-            size: 1.2,
-            text: 'Buy',
-            align: 'center',
-            color: [194, 151, 90, 255]
+const shopModal = (shopInventory, playerIds, onClose, onBuy, markDirty) => {
+    const root = new GameNode.Shape({shapeType: Shapes.POLYGON,
+        coordinates2d: ShapeUtils.rectangle(1, 11, 98, 89), fill: [194,151,90,255], playerIds});
+    const items = [...Object.entries(shopInventory.consumables), ...Object.entries(shopInventory.upgrades)];
+    let page = 0, selected;
+    const text = (value,x,y,size=2.3,align='left',color=Colors.COLORS.HG_BLACK) => new GameNode.Text({textInfo:{
+        text:value,x,y,size,align,color,font:'amateur'
+    }});
+    const button = (x,y,w,h,callback) => new GameNode.Shape({shapeType:Shapes.POLYGON,
+        coordinates2d:ShapeUtils.rectangle(x,y,w,h),fill:[166,124,67,255],onClick:callback});
+    const render = (feedback) => {
+        root.clearChildren();
+        root.addChild(text("Mr. Stick's Shop",50,15,3,'center'));
+        const close = button(2,12,14,16,onClose);
+        close.addChild(text('X',9,15,3,'center'));root.addChild(close);
+        root.addChild(new GameNode.Asset({coordinates2d:ShapeUtils.rectangle(65,26,24,27),assetInfo:{
+            'desmond-1':{pos:{x:65,y:26},size:{x:24,y:27}}
+        }}));
+        for (const [i,[key,item]] of items.slice(page*3,page*3+3).entries()) {
+            const row = button(3,32+i*18,49,16,() => {selected=key;render();});
+            if(selected===key) row.node.fill=[106,147,70,255];
+            row.addChildren(text(key,5,33+i*18,2.6),text(`${item.amount ? item.amount+' for ' : ''}${item.cost} scrap`,5,41+i*18,2));
+            root.addChild(row);
         }
-    });
-
-    buyButton.addChild(buyText);
-
-    const showBuyButton = () => {
-        buyButton.node.coordinates2d = ShapeUtils.rectangle(57.5, 75, 15, 8);
-        const visibleText = Object.assign({}, buyText.node.text);
-        visibleText.color = Colors.COLORS.WHITE;
-        buyText.node.text = visibleText;
-    }
-
-    const hideBuyButton = () => {
-        buyButton.node.coordinates2d = ShapeUtils.rectangle(57.5, 75, 0, 0);
-    }
-
-    const desmondTvBase = new GameNode.Shape({
-        shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(50, 30, 30, 30),
-        fill: Colors.COLORS.HG_BLACK,
-        playerIds
-    });
-
-    const desmondTvScreen = new GameNode.Shape({
-        shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(52, 32, 26, 26),
-        fill: Colors.COLORS.BLACK,
-        playerIds
-    });
-
-    desmondTvBase.addChild(desmondTvScreen);
-
-    const desmondAsset = new GameNode.Asset({
-        coordinates2d:  ShapeUtils.rectangle(
-            55,
-            38,
-            20,
-            20
-        ),
-        assetInfo: {
-            'desmond-1': {
-                pos: {
-                    x: 55,
-                    y: 38
-                },
-                size: {
-                    x: 20,
-                    y: 20
-                }
-            }
-        }
-    });
-
-    desmondTvScreen.addChild(desmondAsset);
-
-    const introMessages = [
-        'Welcome!',
-        'Hello!',
-        'Hi there!'
-    ];
-
-    const randIndex = Math.floor(Math.random() * 3);
-
-    const desmondText = new GameNode.Text({
-        textInfo: {
-            x: 65,
-            y: 65,
-            text: introMessages[randIndex],
-            size: 1.4,
-            font: 'amateur',
-            align: 'center',
-            color: Colors.COLORS.BLACK
-        }
-    });
-
-    const currentItemAsset = new GameNode.Asset({
-        coordinates2d:  ShapeUtils.rectangle(
-            60,
-            60,
-            0,
-            0
-        ),
-        assetInfo: {
-            'rock-1': {
-                pos: {
-                    x: 60,
-                    y: 60
-                },
-                size: {
-                    x: 0,
-                    y: 0
-                }
-            }
-        }
-    });
-
-    const showAsset = (assetKey) => {
-        assetWindow.node.coordinates2d = ShapeUtils.rectangle(52.5, 75, 8, 8);
-        currentItemAsset.node.asset = {
-            [assetKey]: {
-                pos: {
-                    x: 52.5,
-                    y: 75
-                }, 
-                size: {
-                    x: 8,
-                    y: 8
-                }
-            }
-        } 
-    }
-
-    const hideAsset = (assetKey) => {
-        assetWindow.node.coordinates2d = ShapeUtils.rectangle(52.5, 60, 0, 0);
-
-        currentItemAsset.node.asset = {
-            [assetKey]: {
-                pos: {
-                    x: 60,
-                    y: 60
-                }, 
-                size: {
-                    x: 0,
-                    y: 0
-                }
-            }
-        } 
-    }
-
-    assetWindow.addChild(currentItemAsset);
-    modal.addChildren(desmondTvBase, desmondText, buyButton, assetWindow);
-
-    const closeIcon = new GameNode.Asset({
-        coordinates2d:  ShapeUtils.rectangle(
-            16,
-            16,
-            10,
-            10
-        ),
-        assetInfo: {
-            'close': {
-                pos: {
-                    x: 16,
-                    y: 16
-                },
-                size: {
-                    x: 5,
-                    y: 5
-                }
-            }
-        }
-    });
-
-    const closeButton = new GameNode.Shape({
-        shapeType: Shapes.POLYGON,
-        coordinates2d: ShapeUtils.rectangle(16, 16, 5, 5),
-        onClick: onClose
-    });
-
-    const upgradesText = new GameNode.Text({
-        textInfo: {
-            text: `Mr. Stick's Shop`,
-            x: 50,
-            y: 20,
-            align: 'center',
-            size: 2,
-            color: Colors.COLORS.WHITE,
-            font: 'heavy-amateur'
-        }
-    });
-
-    closeIcon.addChild(closeButton);
-
-    modalBase.addChild(modal);
-    modal.addChildren(closeIcon, upgradesText);
-
-    const thingsLabel = new GameNode.Text({
-        textInfo: {
-            x: 23,
-            y: 35,
-            text: 'Things',
-            size: 2,
-            font: 'heavy-amateur',
-            align: 'center',
-            color: Colors.COLORS.HG_BLACK
-        }
-    });
-
-    const upgradesLabel = new GameNode.Text({
-        textInfo: {
-            x: 41,
-            y: 35,
-            text: 'Upgrades',
-            size: 2,
-            font: 'heavy-amateur',
-            align: 'center',
-            color: Colors.COLORS.HG_BLACK
-        }
-    });
-
-    modal.addChildren(thingsLabel, upgradesLabel);
-
-    const itemAssetMap = {
-        'antibiotics': 'antibiotic',
-        'rock': 'rock-1',
-        'wheels': 'wheel',
-        'food': 'cookie',
-        'ammo': 'ammo',
-        'biscuit': 'biscuit-1'
+        if (selected) {
+            const words=descriptions[selected].split(' '),lines=[''];
+            for(const word of words){let i=lines.length-1;if((lines[i]+' '+word).trim().length>22)lines.push(word);else lines[i]=(lines[i]+' '+word).trim();}
+            lines.forEach((line,i)=>root.addChild(text(line,76,55+i*6,2,'center')));
+            const buy=button(58,76,38,16,playerId=>render(onBuy(playerId,selected)?'Bought':'Unavailable'));
+            buy.addChild(text(feedback || 'Buy',77,81,2.5,'center'));root.addChild(buy);
+        } else root.addChild(text('Welcome!',76,59,2.4,'center'));
+        const prev=button(3,89,20,10,()=>{page=(page+Math.ceil(items.length/3)-1)%Math.ceil(items.length/3);render();});
+        prev.addChild(text('<',13,90,2.6,'center'));
+        const next=button(32,89,20,10,()=>{page=(page+1)%Math.ceil(items.length/3);render();});
+        next.addChild(text('>',42,90,2.6,'center'));
+        root.addChildren(prev,next,text(`${page+1}/${Math.ceil(items.length/3)}`,27,91,1.8,'center'));
+        markDirty();
     };
-
-    const setCurrentItem = (key) => {
-        const updatedText = Object.assign({}, desmondText.node.text);
-        updatedText.text = descriptions[key];
-        desmondText.node.text = updatedText;
-        selectedKey = key;
-        showBuyButton();
-        if (itemAssetMap[key]) {
-            showAsset(itemAssetMap[key]);
-        } else {
-            hideAsset();
-        }
-    }
-
-    let i = 0;
-    for (let key in shopInventory.consumables) {
-        const consumableEntry = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(16, 43 + (6 * i), 15, 4),
-            onClick: (playerId) => {
-                setCurrentItem(key);
-            }//onBuy(playerId, key)
-        });
-
-        const consumableText = new GameNode.Text({
-            textInfo: {
-                x: 17,
-                y: 43 + (6 * i),
-                size: 1.1,
-                color: Colors.COLORS.WHITE,
-                text: key,
-                font: 'amateur',
-                align: 'left'
-            }
-        });
-
-        const consumableCostText = new GameNode.Text({
-            textInfo: {
-                x: 28,
-                y: 43 + (6 * i),
-                size: 1.1,
-                color: Colors.COLORS.BLACK,
-                text: `${shopInventory.consumables[key].cost}`,
-                font: 'amateur',
-                align: 'left'
-            }
-        });
-
-
-        consumableEntry.addChildren(consumableText, consumableCostText);
-
-        modal.addChild(consumableEntry);
-        i++;
-    }
-
-    i = 0;
-
-    for (let key in shopInventory.upgrades) {
-        const consumableEntry = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(34, 43 + (6 * i), 15, 4),
-            onClick: (playerId) => {
-                setCurrentItem(key)
-            }
-        });
-
-        const consumableText = new GameNode.Text({
-            textInfo: {
-                x: 34,
-                y: 43 + (6 * i),
-                size: 1.1,
-                color: Colors.COLORS.WHITE,
-                text: key,
-                font: 'amateur',
-                align: 'left'
-            }
-        });
-
-        const upgradeCostText = new GameNode.Text({
-            textInfo: {
-                x: 45,
-                y: 43 + (6 * i),
-                size: 1.1,
-                color: Colors.COLORS.BLACK,
-                text: `${shopInventory.upgrades[key].cost}`,
-                font: 'amateur',
-                align: 'left'
-            }
-        });
-
-        consumableEntry.addChildren(consumableText, upgradeCostText);
-
-        modal.addChild(consumableEntry);
-        i++;
-    }
-
-    // const titleText = new GameNode.Text({
-    //     textInfo: {
-    //         text: 'Shop with me and get ya order',
-    //         x: 50,
-    //         y: 45,
-    //         align: 'center',
-    //         size: 2,
-    //         color: Colors.COLORS.WHITE
-    //     }
-    // });
-
-
-    return modalBase;
-}
+    render();
+    return root;
+};
 
 class MapGame {
     constructor(mainGame, mapData, distanceMiles) {
@@ -574,15 +213,25 @@ class MapGame {
             upgrades: {}
         };
 
-        // a game should take ~10 minutes to get to vegas. all coords are for vegas and back
+        // a game should take ~TUNING.TRIP.durationMinutes to get to vegas. all coords are for vegas and back
 
         this.coordCount = mapData.mapCoords.length;
+        const finish = mapData.landmarks.at(-1).coord;
+        this.route = mapData.mapCoords.slice(0, mapData.mapCoords.findIndex(p => p[0] === finish[0] && p[1] === finish[1]) + 1);
+        this.currentIndex = 0;
+        this.visitedLandmarks = new Set();
 
-        // i want to go through coordCount / 2 points over 10 minutes
+        // i want to go through coordCount / 2 points over the trip duration
 
-        this.moveInterval = (10 * 60 * 1000) / (this.coordCount / 2);
+        this.moveInterval = (TUNING.TRIP.durationMinutes * 60 * 1000) / (this.coordCount / 2);
 
         this.map = this.constructMap(mapData);
+        this.partyNode = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(...this.route[0], 2, 2), fill: Colors.COLORS.RED
+        });
+        this.map.addChild(this.partyNode);
+        this.visitLandmark(mapData.landmarks[0]);
 
         const shopBase = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -622,12 +271,13 @@ class MapGame {
 
         shopBase.addChild(shopIcon);
 
-        this.root.addChildren(this.map, shopBase, this.modalRoot, this.currentStatusNode);
+        this.root.addChildren(this.map, shopBase, this.currentStatusNode, this.modalRoot);
     }
 
-    callShop(playerId) {    
+    callShop(playerId) {
+        if (!this.mainGame.canPlay(playerId, this) || this.playerModals[playerId]) return;
         if (this.movingShop) {
-            this.movingShop.playerIds.push(playerId);
+            if (!this.movingShop.playerIds.includes(playerId)) this.movingShop.playerIds.push(playerId);
         } else {
 
             const shopNode = new GameNode.Asset({
@@ -651,10 +301,10 @@ class MapGame {
                 }
             });
 
-            const playerState = Object.values(this.playerStates)[0];
-            const currentPos = [playerState.path[playerState.currentIndex][0], playerState.path[playerState.currentIndex][1]]
+            const currentPos = this.route[this.currentIndex];
 
-            const shopPath = Physics.getPath(0, 50, (currentPos[0] / 8), (currentPos[1] - 50) / 8, currentPos[0], 100);
+            const steps = TUNING.SHOP.droneTripSteps;
+            const shopPath = Physics.getPath(0, 50, (currentPos[0] / steps), (currentPos[1] - 50) / steps, currentPos[0], 100);
 
             this.root.addChild(shopNode);
 
@@ -703,6 +353,7 @@ class MapGame {
                 shapeType: Shapes.POLYGON,
                 coordinates2d: ShapeUtils.rectangle(landmarkData.coord[0], landmarkData.coord[1], 6, 6),
                 onClick: (playerId) => {
+                    if (!this.mainGame.canPlay(playerId, this)) return;
                     const modalNode = landmarkModal(playerId, mapData.landmarks[i], (playerId) => { 
                         if (this.playerModals[playerId]) {
                             this.modalRoot.removeChild(this.playerModals[playerId].node.id);
@@ -766,75 +417,31 @@ class MapGame {
     tick({ playerStates, resources }) {
         this.playerStates = playerStates;
         const now = Date.now();
-        for (let key in playerStates) {
-            const playerState = playerStates[key];
-            if (!playerState.lastMovementTime || playerState.lastMovementTime + (this.moveInterval) <= now) {
-                if (playerState.currentIndex >= playerState.path.length) {
-                    playerState.currentIndex = 0;
-                    // continue;
-                }
 
-                const currentCoords = playerState.path[playerState.currentIndex];
-                const currentLandmarks = this.mapData.landmarks.filter(l => l.coord[0] == currentCoords[0] && l.coord[1] == currentCoords[1]);
-                if (currentLandmarks.length > 0) {
-                    this.mostRecentLandmark = currentLandmarks[0];
+        // true when this tick mutated node fields directly (tree ops notify on their own)
+        let changed = false;
 
-                    this.mainGame.handleNewLandmark(this.mostRecentLandmark);
-                    const landmarkInventory = shopInventoryMap()[this.mostRecentLandmark.name];
-                    for (const key in landmarkInventory.consumables) {
-                        if (!this.shopInventory.consumables[key]) {
-                            this.shopInventory.consumables[key] = {
-                                amount: 0
-                            };
-                        }
-                        this.shopInventory.consumables[key].amount += landmarkInventory.consumables[key].amount;
-                        this.shopInventory.consumables[key].cost = landmarkInventory.consumables[key].cost;
-                    }
-
-                    for (let key in landmarkInventory.upgrades) {
-                        this.shopInventory.upgrades[key] = Object.assign({}, landmarkInventory.upgrades[key]);
-                    }
-                }
-
-                const newCoords = ShapeUtils.rectangle(playerState.path[playerState.currentIndex][0], playerState.path[playerState.currentIndex][1], 2, 2);
-                // feels filthy but hey you know
-                playerStates[key].node.node.coordinates2d = newCoords;
-                playerStates[key].lastMovementTime = now;
-                playerStates[key].currentIndex = playerStates[key].currentIndex + 1;
-            }
+        const index = Math.min(this.route.length - 1, Math.floor(this.mainGame.distanceTraveled / this.distanceMiles * (this.route.length - 1)));
+        for (let i = this.currentIndex; i <= index; i++) {
+            const coord = this.route[i];
+            const landmark = this.mapData.landmarks.find(l => l.coord[0] === coord[0] && l.coord[1] === coord[1]);
+            if (landmark) this.visitLandmark(landmark);
+        }
+        if (index !== this.currentIndex) {
+            this.currentIndex = index;
+            this.partyNode.node.coordinates2d = ShapeUtils.rectangle(...this.route[index], 2, 2);
+            changed = true;
         }
 
         if (this.movingShop) {
-            if (!this.movingShop.lastShopMovement || this.movingShop.lastShopMovement + 200 <= now) {
+            if (!this.movingShop.lastShopMovement || this.movingShop.lastShopMovement + TUNING.SHOP.droneMoveIntervalMs <= now) {
                 if (this.movingShop.currentIndex >= this.movingShop.path.length) {
                     const node = this.movingShop.node;
                     this.root.removeChild(node.id);
                     const playerIds = this.movingShop.playerIds;
                     this.movingShop = null;
 
-                    const playerShopModal = shopModal(this.shopInventory, playerIds, () => {
-                        this.modalRoot.removeChild(playerShopModal.node.id);
-                    }, 
-                    (playerId, key) => {
-                        const cost = this.shopInventory.consumables[key] ? this.shopInventory.consumables[key].cost : this.shopInventory.upgrades[key].cost;
-                        // if (this.mainGame.resources.scrap - )
-                        if (this.mainGame.resources.scrap - cost >= 0) {
-                            this.mainGame.resources.scrap -= cost;
-                            if (this.mainGame.resources[key] !== null && this.mainGame.resources[key] !== undefined) {
-                                this.mainGame.resources[key] = this.mainGame.resources[key] + 1;
-                            } else {
-                                if (key === 'rock' || key === 'biscuit') {
-                                    this.mainGame.resources.weapon = key;
-                                    // horrific hack
-                                    this.mainGame.hunt.lastResources.weapon = key;
-                                    this.mainGame.hunt.renderWeaponNode();
-                                } 
-                            }
-                            this.mainGame.renderStatsLayer();
-                        }
-                    })
-
-                    this.modalRoot.addChild(playerShopModal);
+                    for (const playerId of playerIds) this.openShop(playerId);
                 } else {
 
                     const newCoords = ShapeUtils.rectangle(this.movingShop.path[this.movingShop.currentIndex][0], this.movingShop.path[this.movingShop.currentIndex][1], 2, 2);
@@ -855,16 +462,78 @@ class MapGame {
                     this.movingShop.node.node.asset = newAssetInfo;
                     this.movingShop.lastShopMovement = now;
                     this.movingShop.currentIndex = this.movingShop.currentIndex + 1;
+                    changed = true;
                 }
             }
         }
 
         if (!this.lastDistanceUpdate || this.lastDistanceUpdate + 500 <= now) {
-            const newText = Object.assign({}, this.currentStatusNode.node.text);
-            newText.text = `Distance traveled: ${this.mainGame.distanceTraveled.toFixed(2)} of ${this.distanceMiles} miles`;
-            this.currentStatusNode.node.text = newText;
+            this.lastDistanceUpdate = now;
+            const newValue = `Distance traveled: ${this.mainGame.distanceTraveled.toFixed(2)} of ${this.distanceMiles} miles`;
+            if (this.currentStatusNode.node.text.text !== newValue) {
+                const newText = Object.assign({}, this.currentStatusNode.node.text);
+                newText.text = newValue;
+                this.currentStatusNode.node.text = newText;
+                changed = true;
+            }
         }
- 
+
+        return changed;
+    }
+
+    visitLandmark(landmark) {
+        if (this.visitedLandmarks.has(landmark.name)) return;
+        this.visitedLandmarks.add(landmark.name);
+        this.mostRecentLandmark = landmark;
+        const inventory = shopInventoryMap()[landmark.name] || {};
+        Object.assign(this.shopInventory.consumables, inventory.consumables);
+        Object.assign(this.shopInventory.upgrades, inventory.upgrades);
+        // During construction the first landmark only initializes stock.
+        if (this.mainGame.map === this) this.mainGame.handleNewLandmark(landmark);
+    }
+
+    openShop(playerId) {
+        if (!this.mainGame.playerStates[playerId]) return;
+        this.closeModal(playerId);
+        const modal = shopModal(this.shopInventory, [playerId], () => this.closeModal(playerId),
+            (id, key) => this.buyItem(id, key), () => this.mainGame.markDirty());
+        this.playerModals[playerId] = modal;
+        this.modalRoot.addChild(modal);
+    }
+
+    buyItem(playerId, key) {
+        if (!this.mainGame.canPlay(playerId, this) || !this.playerModals[playerId]) return false;
+        const consumable = this.shopInventory.consumables[key];
+        const upgrade = this.shopInventory.upgrades[key];
+        const item = consumable || upgrade;
+        if (!item || this.mainGame.resources.scrap < item.cost) return false;
+        if (upgrade && this.mainGame.resources.weapon === key) return false;
+        this.mainGame.resources.scrap -= item.cost;
+        if (consumable) this.mainGame.resources[key] += item.amount;
+        else {
+            this.mainGame.resources.weapon = key;
+            this.mainGame.hunt.lastResources = this.mainGame.resources;
+            this.mainGame.hunt.renderWeaponNode();
+        }
+        this.mainGame.renderStatsLayer();
+        return true;
+    }
+
+    closeModal(playerId) {
+        if (!this.playerModals[playerId]) return;
+        this.modalRoot.removeChild(this.playerModals[playerId].id);
+        delete this.playerModals[playerId];
+    }
+
+    removePlayer(playerId) {
+        this.closeModal(playerId);
+        if (this.movingShop) {
+            this.movingShop.playerIds = this.movingShop.playerIds.filter(id => id !== playerId);
+            if (!this.movingShop.playerIds.length) {
+                this.root.removeChild(this.movingShop.node.id);
+                this.movingShop = null;
+            }
+        }
     }
 
     getRoot() {

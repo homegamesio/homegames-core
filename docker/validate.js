@@ -9,8 +9,8 @@
  *
  * Behavior:
  *   1. Find and load game class from /app/game/
- *   2. Verify metadata() exists and its fields are sane (name, squishVersion,
- *      aspectRatio, tickRate, services, assets)
+ *   2. Verify metadata() exists and its fields are sane (name, player capacity,
+ *      aspectRatio, tickRate, assets; runtime comes from the Squish import)
  *   3. Instantiate the game with the same options a real session passes
  *   4. Verify getLayers() returns a valid structure
  *   5. Squish every node in every layer — the actual serialization contract a
@@ -26,7 +26,7 @@
  * result.
  *
  * Output (stdout, one line):
- *   __HG_VALIDATE_RESULT__{"success":true,"squishVersion":"142","assetIds":[],"warnings":[]}
+ *   __HG_VALIDATE_RESULT__{"success":true,"squishVersion":"150","assetIds":[],"warnings":[]}
  *
  * Exit code: 0 = validation passed, 1 = validation failed
  */
@@ -34,7 +34,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const SQUISH_VERSION = process.env.SQUISH_VERSION || '142';
+const SQUISH_VERSION = process.env.SQUISH_VERSION || '150';
 const GAME_DIR = '/app/game';
 const VALIDATION_RUN_MS = 5000; // let the game run for 5 seconds
 const RESULT_MARKER = '__HG_VALIDATE_RESULT__';
@@ -73,28 +73,7 @@ process.exit = (code) => {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-const findEntryPoint = (dir) => {
-    const walk = (d, depth) => {
-        let results = [];
-        let entries;
-        try { entries = fs.readdirSync(d); } catch (e) { return results; }
-
-        for (const entry of entries) {
-            if (entry === 'node_modules') continue;
-            const full = path.join(d, entry);
-            const stat = fs.statSync(full);
-            if (stat.isFile() && entry === 'index.js') {
-                results.push({ path: full, depth });
-            } else if (stat.isDirectory()) {
-                results = results.concat(walk(full, depth + 1));
-            }
-        }
-        return results;
-    };
-
-    const candidates = walk(dir, 0).sort((a, b) => a.depth - b.depth);
-    return candidates.length > 0 ? candidates[0].path : null;
-};
+const { findGameEntry } = require('./src/util/game-entry');
 
 const isPlainObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const isFiniteNumber = (v) => typeof v === 'number' && Number.isFinite(v);
@@ -102,88 +81,7 @@ const isFiniteNumber = (v) => typeof v === 'number' && Number.isFinite(v);
 // ---------------------------------------------------------------------------
 // Metadata validation. Returns a list of error strings (empty = valid).
 // ---------------------------------------------------------------------------
-const KNOWN_SERVICES = new Set(['multiplayer', 'contentGenerator']);
-
-const validateMetadata = (metadata, detectedSquishVersion) => {
-    const errors = [];
-    const warnings = [];
-
-    if (!isPlainObject(metadata)) {
-        return { errors: ['metadata() must return an object'], warnings };
-    }
-
-    // squishVersion — required, supported, and consistent with the version
-    // detected from the require() in source.
-    if (!metadata.squishVersion) {
-        errors.push('metadata() must return a squishVersion');
-    } else if (typeof metadata.squishVersion !== 'string') {
-        errors.push('metadata().squishVersion must be a string');
-    } else if (!squishMap[metadata.squishVersion]) {
-        errors.push(`metadata().squishVersion "${metadata.squishVersion}" is not a supported squish version (supported: ${Object.keys(squishMap).join(', ')})`);
-    } else if (detectedSquishVersion && metadata.squishVersion !== detectedSquishVersion) {
-        errors.push(`metadata().squishVersion is "${metadata.squishVersion}" but the game requires squish-${detectedSquishVersion} — these must match`);
-    }
-
-    // name — required for catalog display
-    if (metadata.name === undefined || metadata.name === null) {
-        errors.push('metadata() must return a name');
-    } else if (typeof metadata.name !== 'string' || metadata.name.trim().length === 0) {
-        errors.push('metadata().name must be a non-empty string');
-    } else if (metadata.name.length > 100) {
-        errors.push('metadata().name must be 100 characters or fewer');
-    }
-
-    if (metadata.description !== undefined && (typeof metadata.description !== 'string' || metadata.description.length > 1000)) {
-        errors.push('metadata().description must be a string of 1000 characters or fewer');
-    }
-
-    if (metadata.author !== undefined && typeof metadata.author !== 'string') {
-        errors.push('metadata().author must be a string');
-    }
-
-    if (metadata.aspectRatio !== undefined) {
-        const ar = metadata.aspectRatio;
-        if (!isPlainObject(ar) || !isFiniteNumber(ar.x) || !isFiniteNumber(ar.y) || ar.x <= 0 || ar.y <= 0) {
-            errors.push('metadata().aspectRatio must be an object like { x: 16, y: 9 } with positive numbers');
-        }
-    }
-
-    if (metadata.tickRate !== undefined) {
-        if (!isFiniteNumber(metadata.tickRate) || metadata.tickRate < 1 || metadata.tickRate > 120) {
-            errors.push('metadata().tickRate must be a number between 1 and 120');
-        }
-    }
-
-    if (metadata.services !== undefined) {
-        if (!Array.isArray(metadata.services) || metadata.services.some(s => typeof s !== 'string')) {
-            errors.push('metadata().services must be an array of strings');
-        } else {
-            for (const service of metadata.services) {
-                if (!KNOWN_SERVICES.has(service)) {
-                    warnings.push(`metadata().services contains unknown service "${service}"`);
-                }
-            }
-        }
-    }
-
-    if (metadata.assets !== undefined) {
-        if (!isPlainObject(metadata.assets)) {
-            errors.push('metadata().assets must be an object mapping keys to Asset instances');
-        } else {
-            for (const key of Object.keys(metadata.assets)) {
-                const asset = metadata.assets[key];
-                const info = asset && asset.info;
-                if (!info || typeof info !== 'object') {
-                    errors.push(`metadata().assets["${key}"] is not a valid Asset (missing info)`);
-                } else if (info.id !== undefined && (typeof info.id !== 'string' || info.id.trim().length === 0)) {
-                    errors.push(`metadata().assets["${key}"] has an invalid id`);
-                }
-            }
-        }
-    }
-
-    return { errors, warnings };
-};
+const { validateMetadata } = require('./src/util/validate-game-metadata');
 
 // ---------------------------------------------------------------------------
 // Node tree walking + squish checks
@@ -278,9 +176,11 @@ const run = () => {
     };
 
     // Step 1: Find entry point
-    const entryPath = findEntryPoint(GAME_DIR);
+    let entryPath;
+    try { entryPath = findGameEntry(GAME_DIR, process.env.GAME_ENTRY); }
+    catch (error) { return writeResult({ success: false, error: error.message }); }
     if (!entryPath) {
-        return writeResult({ success: false, error: 'No index.js found in game directory' });
+        return writeResult({ success: false, error: 'No game entry found in game directory' });
     }
 
     // Step 2: Detect squish version from source (AST-based)
@@ -294,12 +194,11 @@ const run = () => {
     const squishVersion = detectedSquishVersion || SQUISH_VERSION;
 
     // Set up squish path
-    const squishPkg = squishMap[squishVersion] || squishMap[DEFAULT_SQUISH_VERSION];
+    const squishPkg = squishMap[squishVersion];
     let squishLib;
     try {
         process.env.SQUISH_PATH = require.resolve(squishPkg);
         squishLib = require(squishPkg);
-        require('homegames-common/stream-node').installStreamNode(squishLib.GameNode);
     } catch (err) {
         return writeResult({ success: false, error: `Squish version ${squishVersion} (package ${squishPkg}) not installed` });
     }
@@ -347,6 +246,8 @@ const run = () => {
     if (metadataCheck.errors.length > 0) {
         return writeResult({ success: false, error: metadataCheck.errors.slice(0, 5).join('; ') });
     }
+
+    metadata = metadataCheck.metadata;
 
     // Step 5: Instantiate the game with the same options shape a real
     // session passes (child_game_server.js: { addAsset, saveGame, saveData }).
@@ -419,7 +320,7 @@ const run = () => {
     // Players joining is the most basic lifecycle event — a throwing
     // handleNewPlayer means the game is broken for everyone, so it's fatal.
     if (gameInstance.handleNewPlayer) {
-        for (const playerId of [1, 2]) {
+        for (const playerId of metadata.maxPlayers > 1 ? [1, 2] : [1]) {
             try {
                 gameInstance.handleNewPlayer(makePlayerPayload(playerId));
             } catch (err) {
@@ -518,7 +419,7 @@ const run = () => {
     setTimeout(runInputPokes, Math.floor(VALIDATION_RUN_MS * 0.3));
 
     setTimeout(() => {
-        if (gameInstance.handlePlayerDisconnect) {
+        if (metadata.maxPlayers > 1 && gameInstance.handlePlayerDisconnect) {
             try {
                 gameInstance.handlePlayerDisconnect(2);
             } catch (err) {

@@ -1,17 +1,17 @@
-const { Asset, Game, GameNode, Shapes, ShapeUtils } = require('squish-145');
+const { Asset, Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 class CursorTest extends Game {
     static metadata() {
         return {
             name: 'Cursor Test',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'Hover over the center square to try a custom cursor.',
-            squishVersion: '145',
+            squishVersion: '150',
             aspectRatio: { x: 16, y: 9 },
             isTest: true,
             assets: {
                 'test-cursor': new Asset({
-                    id: 'a168ae244a71ea100ff1d9ca4c1fa101',
+                    path: './assets/a168ae244a71ea100ff1d9ca4c1fa101.jpg',
                     type: 'image'
                 })
             }

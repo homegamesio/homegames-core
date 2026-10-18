@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-145');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const ShowboatRules = require('./rules');
 
 const C = {
@@ -11,9 +11,15 @@ const C = {
 class Showboat extends Game {
     static metadata() {
         return {
-            name: 'Showboat', author: 'Joseph Garcia', squishVersion: '145',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
+            name: 'Showboat',
+            author: "Joseph Garcia",
             description: 'Turn ordinary objects into outrageous inventions. Pitch your secret purpose on the live camera stage, then guess your friends\' pitches. 2–6 players, together or remote.',
-            aspectRatio: { x: 4, y: 5 }, services: ['multiplayer'], maxPlayers: 6, tickRate: 10,
+            aspectRatio: { x: 4, y: 5 },
+            maxPlayers: 6,
+            tickRate: 10,
+            gameId: "c9d7200e-4a80-5ae5-a0cc-f6c0f05d7f08"
         };
     }
 
@@ -203,9 +209,7 @@ class Showboat extends Game {
         this.shared.clearChildren();
         const { phase } = this.rules;
         this.rect(this.shared, 0, 0, 100, 1.2, C.coral);
-        this.text(this.shared, phase === 'lobby' ? 'SHOWBOAT' : 'Showboat',
-            phase === 'lobby' ? 50 : 6, phase === 'lobby' ? 7 : 5,
-            phase === 'lobby' ? 8 : 4.2, C.ink, phase === 'lobby' ? 'center' : 'left');
+
         this.timer = null;
         if (phase === 'lobby') this.renderLobby();
         else if (phase === 'finished') this.renderFinal();

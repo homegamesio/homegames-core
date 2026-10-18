@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { T, text, button, showButton, card, setCard, tableRoot } = require('./theme');
 
 const SUITS=['C','D','H','S'];
@@ -7,7 +7,10 @@ const RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const VALUE=Object.fromEntries(RANKS.map((r,i)=>[r,i+2]));
 
 class Spades extends Game {
-    static metadata(){return{ squishVersion:'142', name:'Spades', author:'Homegames', description:'Partnership Spades with full bidding, nils, bags, and private hands.', aspectRatio:{x:1,y:1}, maxPlayers:4, services:['multiplayer']};}
+    static metadata(){return{
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png', squishVersion:'150', name:'Spades', author: "Joseph Garcia", description:'Partnership Spades with full bidding, nils, bags, and private hands.', aspectRatio:{x:1,y:1}, maxPlayers:4, services:['multiplayer']};}
     constructor(){
         super(); const table=tableRoot(); this.base=table.root;
         this.players={}; this.seats=[
@@ -18,9 +21,9 @@ class Spades extends Game {
         this.hands=[[],[],[],[]]; this.bids=[null,null,null,null]; this.tricksWon=[0,0,0,0];
         this.trick=[]; this.turn=0; this.leader=0; this.spadesBroken=false; this.trickNumber=0;
         this.dealer=0; this.bidCount=0; this.botToken=0; this.botPending=false; this.lastEvent='';
-        this.title=text('Spades',50,6,4.2,T.cream); this.subtitle=text('Team up with the player opposite · Spades beat other suits',50,11.5,1.8,T.muted);
+        this.subtitle=text('Team up with the player opposite · Spades beat other suits',50,11.5,1.8,T.muted);
         this.status=text('Welcome to the table',50,16,1.8,T.cream); this.score=text('',50,20,1.15,T.muted);
-        this.base.addChildren(this.title,this.subtitle,this.status,this.score);
+        this.base.addChildren(this.subtitle,this.status,this.score);
         this.seatTexts=[text('',50,25,1.2,T.soft),text('',86,46,1.2,T.soft),text('',50,65,1.2,T.soft),text('',14,46,1.2,T.soft)];
         this.base.addChildren(...this.seatTexts);
         const pos=[[45,30],[58,39],[45,48],[32,39]]; this.trickCards=[];

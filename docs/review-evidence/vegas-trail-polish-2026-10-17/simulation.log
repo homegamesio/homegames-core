@@ -1,0 +1,4 @@
+{"seed":42,"phase":"won","reason":null,"simulatedSeconds":901.0166666666667,"distance":420,"resources":{"scrap":543,"wheels":4,"ammo":29,"health":100,"antibiotics":3,"food":40,"weapon":"baseball","vehicle":"gas-car"},"shots":901,"purchases":22,"maxNodes":107}
+{"seed":2026,"phase":"won","reason":null,"simulatedSeconds":901.0166666666667,"distance":420,"resources":{"scrap":515,"wheels":4,"ammo":29,"health":100,"antibiotics":3,"food":40,"weapon":"baseball","vehicle":"gas-car"},"shots":901,"purchases":22,"maxNodes":108}
+{"seed":1017,"phase":"won","reason":null,"simulatedSeconds":901.0166666666667,"distance":420,"resources":{"scrap":525,"wheels":4,"ammo":29,"health":100,"antibiotics":3,"food":40,"weapon":"baseball","vehicle":"gas-car"},"shots":901,"purchases":22,"maxNodes":107}
+PASS three complete simulated-clock trips with eight scripted players, ordinary starting supplies and paid purchases

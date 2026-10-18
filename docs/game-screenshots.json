@@ -1,0 +1,270 @@
+{
+  "method": "Offline Chrome game renderer; regular game entry points in tools/catalog-scenes.cjs. Full game frame preserved with letterboxing.",
+  "screenshots": [
+    {
+      "folder": "aquarium",
+      "path": "src/games/aquarium/assets/thumbnail.png",
+      "scene": "play",
+      "width": 960,
+      "height": 600,
+      "sha256": "6b6fe9913999ba55bfda75737990d884a4846855226b215d7242263fe21452fa"
+    },
+    {
+      "folder": "billiards",
+      "path": "src/games/billiards/assets/thumbnail.png",
+      "scene": "rolling",
+      "width": 960,
+      "height": 600,
+      "sha256": "ae43d57c7d3f67fac679e63b62a227efa02aecc94ae4a3b606a01683760ef045"
+    },
+    {
+      "folder": "clicktionary",
+      "path": "src/games/clicktionary/assets/thumbnail.png",
+      "scene": "drawing",
+      "width": 960,
+      "height": 600,
+      "sha256": "df16b8a27cc1706bdbd6033ebe4fde8fee687279305341df889a660bd868b707"
+    },
+    {
+      "folder": "defuse",
+      "path": "src/games/defuse/assets/thumbnail.png",
+      "scene": "active",
+      "width": 960,
+      "height": 600,
+      "sha256": "9e87bc0c2f76734ad34538816cfbde433c87d4c3e568de1ffc9f29450845e1e9"
+    },
+    {
+      "folder": "dragon-drop",
+      "path": "src/games/dragon-drop/assets/thumbnail.png",
+      "scene": "play",
+      "width": 960,
+      "height": 600,
+      "sha256": "74ba2ff6cc606f879ff0105d3af35e57de94542adfefc6c51e898fd15b1a9000"
+    },
+    {
+      "folder": "draw",
+      "path": "src/games/draw/assets/thumbnail.png",
+      "scene": "play",
+      "width": 960,
+      "height": 600,
+      "sha256": "1a2d80a07e480a7bff4397681d855c4802b683fbc2753da023eeb0e33a5d6bd5"
+    },
+    {
+      "folder": "draw-your-own-boss",
+      "path": "src/games/draw-your-own-boss/assets/thumbnail.png",
+      "scene": "fight",
+      "width": 960,
+      "height": 600,
+      "sha256": "71b4f13170fb09d439f4ca03b6e877e9b406fcbb08484de1cb794723560e03e3"
+    },
+    {
+      "folder": "facet",
+      "path": "src/games/facet/assets/thumbnail.png",
+      "scene": "First Light opening board, actual browser renderer",
+      "width": 960,
+      "height": 600,
+      "sha256": "07b8f223d4caf6c31890697f7781b0e864f41786795899b9c8d0d6007b088f7f"
+    },
+    {
+      "folder": "fleetfall",
+      "path": "src/games/fleetfall/assets/thumbnail.png",
+      "scene": "Orbit first flight, actual portable-client renderer",
+      "width": 960,
+      "height": 600,
+      "sha256": "221b3a5b421562482786777fc7c536c8b797b8df037c4e389de171aa4355db13"
+    },
+    {
+      "folder": "gold-and-grit",
+      "path": "src/games/gold-and-grit/assets/thumbnail.png",
+      "scene": "play",
+      "width": 960,
+      "height": 600,
+      "sha256": "629908325e707389d43828bcf3370c2f428d8de8a5b6fa297f622437cb7e870c"
+    },
+    {
+      "folder": "hangman",
+      "path": "src/games/hangman/assets/thumbnail.png",
+      "scene": "play",
+      "width": 960,
+      "height": 600,
+      "sha256": "b0623d90f828f89ad7a8f9c87b2fce21a78fb16f3a52f22c25832d90c129cae6"
+    },
+    {
+      "folder": "happy-haulers",
+      "path": "src/games/happy-haulers/assets/thumbnail.png",
+      "scene": "returning",
+      "width": 960,
+      "height": 600,
+      "sha256": "890845964cfa0715a6675439e2052e71a3e15df205deb82510899a27a9e02371"
+    },
+    {
+      "folder": "home-run",
+      "path": "src/games/home-run/assets/thumbnail.png",
+      "scene": "home run",
+      "width": 960,
+      "height": 600,
+      "sha256": "4fd3e783969bc18b63c23e71b24a4e645bfa4dd3681e5b2f739c3a95dc0ce3c3",
+      "method": "Real portable Homegames client; natural mouse input in test/home-run-browser.cjs. Full frame preserved with letterboxing."
+    },
+    {
+      "folder": "hot-potato",
+      "path": "src/games/hot-potato/assets/thumbnail.png",
+      "scene": "Holder during a real RTC round; original artwork and no status captions, per maintainer direction",
+      "width": 960,
+      "height": 600,
+      "sha256": "6e6a3673e503f536b1572b9af53a5300a624a24f4935d4f85d2a0512b3ceade4"
+    },
+    {
+      "folder": "house-band",
+      "path": "src/games/house-band/assets/thumbnail.png",
+      "scene": "drums-playing",
+      "width": 960,
+      "height": 600,
+      "sha256": "3ed0c3ad64b3d04943c9019cad787b581540d9a10d3c60aff62afbe381aafa25"
+    },
+    {
+      "folder": "imposter",
+      "path": "src/games/imposter/assets/thumbnail.png",
+      "scene": "vote",
+      "width": 960,
+      "height": 600,
+      "sha256": "6a23aa36bbd3851abbc08f150b8280bddc5421f9260b2da68cdeac13c7e204f6"
+    },
+    {
+      "folder": "kaboom-valley",
+      "path": "src/games/kaboom-valley/assets/thumbnail.png",
+      "scene": "playing",
+      "width": 960,
+      "height": 600,
+      "sha256": "a89d7dce02c9ab152926a301d9888f807fc9049df48ff2aa33ca40dca5727c91"
+    },
+    {
+      "folder": "lemonade-tycoon",
+      "path": "src/games/lemonade-tycoon/assets/thumbnail.png",
+      "scene": "sales",
+      "width": 960,
+      "height": 600,
+      "sha256": "d1b72e97cd1f96637246d7ba1bd2114ed4d2ce8455f770b8c24263949cd62fc3"
+    },
+    {
+      "folder": "little-rambler",
+      "path": "src/games/little-rambler/assets/thumbnail.png",
+      "scene": "garden",
+      "width": 960,
+      "height": 600,
+      "sha256": "8e66c91e1291b6b1fe093881632165c0a4f9653f83bd63dc791c938c85abef15"
+    },
+    {
+      "folder": "masterpiece",
+      "path": "src/games/masterpiece/assets/thumbnail.png",
+      "scene": "play",
+      "width": 960,
+      "height": 600,
+      "sha256": "e5874a43971e023713da841945bae86a27fa593bedfcd46c3cd49063c5f70478"
+    },
+    {
+      "folder": "midnight-movers",
+      "path": "src/games/midnight-movers/assets/thumbnail.png",
+      "scene": "playing",
+      "width": 960,
+      "height": 600,
+      "sha256": "00b81a29ab833ccd93666887e06c0880bc839e7ff0c023b7c937072536fe60ac"
+    },
+    {
+      "folder": "moonbounce",
+      "path": "src/games/moonbounce/assets/thumbnail.png",
+      "scene": "opening board, actual browser mouse shot in flight",
+      "width": 960,
+      "height": 600,
+      "sha256": "ca667c5cb03d714b88a37e4284d9c7bfe52c39b8533ad0fd665febb383675528"
+    },
+    {
+      "folder": "mouth-house",
+      "path": "src/games/mouth-house/assets/thumbnail.png",
+      "scene": "feedback",
+      "width": 960,
+      "height": 600,
+      "sha256": "13e76ba3ed89fe63a2c845f5cae3c9a59a206d49849934b87cf95f3750aa08a4"
+    },
+    {
+      "folder": "neon-grid",
+      "path": "src/games/neon-grid/assets/thumbnail.png",
+      "scene": "playing",
+      "width": 960,
+      "height": 600,
+      "sha256": "cd727e4a269966903683414f8bb9eb24063074f5fcc8367cb42cce7c62c12fcf"
+    },
+    {
+      "folder": "one-unreasonable-hole",
+      "path": "src/games/one-unreasonable-hole/assets/thumbnail.png",
+      "scene": "play",
+      "width": 960,
+      "height": 600,
+      "sha256": "fe663fa603a96f9c425b6498400603763a7f3f2afe037818fd1b314a3cf7ff4d"
+    },
+    {
+      "folder": "pocket-front",
+      "path": "src/games/pocket-front/assets/thumbnail.png",
+      "scene": "battle",
+      "width": 960,
+      "height": 600,
+      "sha256": "98dd84e5c2c3537902148673d7192891b1949f8f3a05cf9032a8ea5748a79eb4"
+    },
+    {
+      "folder": "swish",
+      "path": "src/games/swish/assets/thumbnail.png",
+      "scene": "four-player court",
+      "width": 960,
+      "height": 600,
+      "sha256": "16321ad9a58845c4a2716f3e89971bad6177c4e30849495c133c3f8a8e742174"
+    },
+    {
+      "folder": "tabletop-railway",
+      "path": "src/games/tabletop-railway/assets/thumbnail.png",
+      "scene": "run",
+      "width": 960,
+      "height": 600,
+      "sha256": "22552c61bb44471f1adcf4aefa776b83295f51998dcc736eb46379f55f5ce5e6"
+    },
+    {
+      "folder": "tiny-bean-cafe",
+      "path": "src/games/tiny-bean-cafe/assets/thumbnail.png",
+      "scene": "celebrate",
+      "width": 960,
+      "height": 600,
+      "sha256": "e87fc5038e4006056251959850c51992119cf3ab70ed4f15189bfbb2d74e8abf"
+    },
+    {
+      "folder": "tug-club",
+      "path": "src/games/tug-club/assets/thumbnail.png",
+      "scene": "playing",
+      "width": 960,
+      "height": 600,
+      "sha256": "381c55780b155f4d4f3461e0bcfc505fc2913d43a4ee04db947617e74ecede8d"
+    },
+    {
+      "folder": "tumble-tower",
+      "path": "src/games/tumble-tower/assets/thumbnail.png",
+      "scene": "opening preset; real portable client, 960x600 letterboxed capture",
+      "width": 960,
+      "height": 600,
+      "sha256": "c1bcf2f6bce715c301c1db7960b18ddd0ed7e3d9b602adcd2e1a3b065e80bae2"
+    },
+    {
+      "folder": "vegas-trail",
+      "path": "src/games/vegas-trail/assets/thumbnail.png",
+      "scene": "map",
+      "width": 960,
+      "height": 600,
+      "sha256": "d0cb2215050f737b3d4a8baf209b5fcd3289c9ee564a88ee6f7940d908a96675"
+    },
+    {
+      "folder": "weed-smoke-willie",
+      "path": "src/games/weed-smoke-willie/assets/thumbnail.png",
+      "scene": "play",
+      "width": 960,
+      "height": 600,
+      "sha256": "1501cf8b48d9e278d27a5e2b50f39dd2b0394c4d28791d5ac2ed562b52fa3f2b"
+    }
+  ]
+}

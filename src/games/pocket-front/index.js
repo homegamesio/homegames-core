@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes } = require('squish-145');
+const { Game, GameNode, Shapes } = require('squish-150');
 const { Engine } = require('./engine');
 const { render } = require('./scene');
 const Feedback = require('./feedback');
@@ -48,9 +48,17 @@ class Painter {
 
 class PocketFront extends Game {
     static metadata() {
-        return { name: 'Pocket Front', author: 'Joseph Garcia', squishVersion: '145',
+        return {
+            thumbnail: './assets/thumbnail.png',
+            name: 'Pocket Front',
+            author: "Joseph Garcia",
             description: 'Tiny army. Big last stand. Build a colorful pocket battlefield, capture supply points, and survive six waves with a different upgrade combo every run.',
-            aspectRatio: { x: 16, y: 9 }, tickRate: 30, maxPlayers: 1, assets: {} };
+            aspectRatio: { x: 16, y: 9 },
+            tickRate: 30,
+            maxPlayers: 1,
+            assets: {},
+            gameId: "735a4238-91d4-57f3-ad24-faeaeb19f9b7"
+        };
     }
     constructor(options = {}) {
         super();

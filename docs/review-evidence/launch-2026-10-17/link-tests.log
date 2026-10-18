@@ -1,0 +1,16 @@
+▶ link server
+  ✔ redirects a single plain-HTTP server to its LAN IP with its port (155.157291ms)
+  ✔ omits the port for legacy clients that do not report one (153.29625ms)
+  ✔ shows the setting-up page while HTTPS is enabled but not ready (152.989ms)
+  ✔ lists multiple fresh servers in the selector with ports, and drops stale ones (857.54275ms)
+  ✔ a heartbeat must never create a host entry (ghost hosts) (155.201042ms)
+  ✔ disconnect removes the host immediately (306.862292ms)
+✔ link server (1996.229042ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2070.4825

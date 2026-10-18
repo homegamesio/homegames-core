@@ -1,0 +1,21 @@
+{
+  "revision": "f47e03fee19dc6c1098b90622fa6d5721de3596eaad75283478f07b22e585cb6",
+  "runs": [
+    {
+      "name": "packaged",
+      "naturalSale": true,
+      "savedBest": 5,
+      "freshReload": true,
+      "soundRestored": true
+    },
+    {
+      "name": "offline",
+      "naturalSale": true,
+      "savedBest": 5,
+      "freshReload": true,
+      "soundRestored": true
+    }
+  ],
+  "errors": [],
+  "external": []
+}

@@ -1,0 +1,1023 @@
+{
+  "reviewed": "2026-10-16",
+  "scope": "Launch homepage selection and focused polish, following a catalog-wide opening/UI review.",
+  "selectionCriteria": [
+    "Preserve the five human-art games requested by the owner.",
+    "Make the first useful action easy to find.",
+    "Favor satisfying feedback and a reason to return.",
+    "Offer a variety of arcade, puzzle, strategy, party, and creative play."
+  ],
+  "featured": [
+    {
+      "folder": "lemonade-tycoon",
+      "name": "Lemonade Tycoon",
+      "humanArtAnchor": true,
+      "reason": "Handmade anchor: a silly shop by day and physical combat at night. Preserve the existing artwork and mechanics."
+    },
+    {
+      "folder": "hot-potato",
+      "name": "Hot Potato",
+      "humanArtAnchor": true,
+      "reason": "Handmade anchor: immediately recognizable party play. Deliberately retain its rough charm; needs at least two players."
+    },
+    {
+      "folder": "aquarium-forever",
+      "name": "Aquarium Forever",
+      "humanArtAnchor": false,
+      "reason": "Relaxed long-term toy with a surprisingly large world. New save/resume protects the time players invest."
+    },
+    {
+      "folder": "vegas-trail",
+      "name": "Vegas Trail",
+      "humanArtAnchor": true,
+      "reason": "Handmade anchor: distinctive road-trip art, music, and personality. Preserve the existing experience."
+    },
+    {
+      "folder": "hangman",
+      "name": "Hangman",
+      "humanArtAnchor": true,
+      "reason": "Handmade anchor: familiar play with expressive character art. A very accessible counterpoint to the larger games."
+    },
+    {
+      "folder": "swish",
+      "name": "Swish",
+      "humanArtAnchor": false,
+      "reason": "Quick tactile arcade play with a clear goal, immediate feedback, records, and short multiplayer rounds."
+    },
+    {
+      "folder": "moonbounce",
+      "name": "Moonbounce",
+      "humanArtAnchor": false,
+      "reason": "Expressive arcade adventure with one-shot play, collectible progress, and strong visual variety. First Play now starts a level directly."
+    },
+    {
+      "folder": "facet",
+      "name": "Facet",
+      "humanArtAnchor": false,
+      "reason": "Recognizable jewel swapping, rewarding cascades, authored progression, and a quieter Zen option. The first board teaches through a highlighted match."
+    },
+    {
+      "folder": "tumble-tower",
+      "name": "Tumble Tower",
+      "humanArtAnchor": false,
+      "reason": "Readable physical cause and effect: knock down structures, trigger chain reactions, and build your own."
+    },
+    {
+      "folder": "fleetfall",
+      "name": "Fleetfall",
+      "humanArtAnchor": false,
+      "reason": "A distinctive strategy/action hybrid: choose a destination, then pilot the fleet. Best viewed in landscape."
+    },
+    {
+      "folder": "weed-smoke-willie",
+      "name": "Weed Smoke Willie",
+      "humanArtAnchor": true,
+      "reason": "Handmade anchor requested by the owner. Preserve the original artwork and character; replaces Draw Your Own Boss in the featured lineup."
+    },
+    {
+      "folder": "house-band",
+      "name": "House Band",
+      "humanArtAnchor": false,
+      "reason": "A collaborative creative toy with immediate audible feedback and a song to keep. Balances the competitive games."
+    }
+  ],
+  "catalog": {
+    "count": 77,
+    "behavior": "All existing eligible games remain in the catalog; featured is a separate ordered list.",
+    "configuration": "../homegamesio/site.config.json"
+  },
+  "polish": [
+    "Aquarium Forever now restores fish, purchases, decor, expanded worlds, and era progress; saves after purchases, every ten seconds, and on close.",
+    "Moonbounce starts a new player in the first level; returning players retain map navigation.",
+    "Facet starts with a playable highlighted match; detailed help remains available.",
+    "Swish hides empty record placeholders; records remain visible after a real result.",
+    "Tumble Tower and House Band retire their first-action hints after use.",
+    "Shortened game-card descriptions and made them wrap without cutting off important context.",
+    "Removed duplicate headings, persistent control footers, redundant instructions, and empty scores where they obscured play across the catalog.",
+    "One Unreasonable Hole: the aiming line no longer intercepts the ball\u2019s drag input; the playfield receives the press above decorative geometry."
+  ],
+  "changedGameFiles": [
+    "src/games/after-hours/render.js",
+    "src/games/aquarium-forever/README.md",
+    "src/games/aquarium-forever/index.js",
+    "src/games/aquarium/index.js",
+    "src/games/backgammon/index.js",
+    "src/games/backstage/index.js",
+    "src/games/battleship/index.js",
+    "src/games/checkers/index.js",
+    "src/games/chess/index.js",
+    "src/games/clicktionary/index.js",
+    "src/games/connect-four/index.js",
+    "src/games/counterforge-apex/index.js",
+    "src/games/draw-your-own-boss/index.js",
+    "src/games/engine-room/index.js",
+    "src/games/facet/index.js",
+    "src/games/facet/scene.js",
+    "src/games/fakeout/index.js",
+    "src/games/fleetfall/index.js",
+    "src/games/hangman/index.js",
+    "src/games/hot-potato/index.js",
+    "src/games/house-band/index.js",
+    "src/games/kaboom-valley/index.js",
+    "src/games/little-rambler/scene.js",
+    "src/games/mancala/index.js",
+    "src/games/micro-mayhem/index.js",
+    "src/games/moonbounce/adventure-scenes.js",
+    "src/games/moonbounce/index.js",
+    "src/games/neon-grid/index.js",
+    "src/games/one-unreasonable-hole/index.js",
+    "src/games/pulsefront/index.js",
+    "src/games/swish/index.js",
+    "src/games/swish/interface.js",
+    "src/games/tabletop-railway/index.js",
+    "src/games/tiny-bean-cafe/index.js",
+    "src/games/tumble-tower/index.js",
+    "src/games/walkie-talkie/index.js",
+    "src/games/worldseed/index.js"
+  ],
+  "verification": {
+    "catalogDesktop": {
+      "launchesPassed": 77,
+      "games": 77,
+      "representativeInputPasses": 74,
+      "results": [
+        {
+          "folder": "after-hours",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 8,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "aquarium",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "aquarium-forever",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 6,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "backgammon",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "backstage",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "battleship",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 8,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "billiards",
+          "status": "pass",
+          "phase": "rolling",
+          "played": true,
+          "steps": 1,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "block-brawlers",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "buddy-box",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 12,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "checkers",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 1,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "chess",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 1,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "chronoclast",
+          "status": "pass",
+          "phase": "running",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "clicktionary",
+          "status": "pass",
+          "phase": "drawing",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "clump",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 2,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "common-ground",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "connect-four",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 2,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "copperline",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "counterforge-apex",
+          "status": "pass",
+          "phase": "duel",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "deadword",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "defuse",
+          "status": "pass",
+          "phase": "active",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "desert-bloom",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "dragon-drop",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 1,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "draw",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 1,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "draw-your-own-boss",
+          "status": "pass",
+          "phase": "fight",
+          "played": true,
+          "steps": 20,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "engine-room",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "facet",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 11,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "fakeout",
+          "status": "pass",
+          "phase": "writing",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "fleetfall",
+          "status": "pass",
+          "phase": "running",
+          "played": true,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "hangman",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 8,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "happy-haulers",
+          "status": "pass",
+          "phase": "returning",
+          "played": true,
+          "steps": 6,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "hot-potato",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "house-band",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 6,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "imposter",
+          "status": "pass",
+          "phase": "vote",
+          "played": true,
+          "steps": 8,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "kaboom-valley",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 6,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "lemonade-tycoon",
+          "status": "pass",
+          "phase": "sales",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "little-consequences",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "little-rambler",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "little-scoop-shop",
+          "status": "pass",
+          "phase": "celebrate",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "little-zoo-walk",
+          "status": "pass",
+          "phase": "feeding",
+          "played": true,
+          "steps": 6,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "lumen-festival",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "mancala",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 2,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "masterpiece",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 1,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "micro-mayhem",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 6,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "midnight-movers",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "moonbounce",
+          "status": "pass",
+          "phase": "flight",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "neon-grid",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 6,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "nova-guard",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "one-unreasonable-hole",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "orbit-breaker",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 6,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "pitch-pot",
+          "status": "pass",
+          "phase": "write",
+          "played": false,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "pocket-front",
+          "status": "pass",
+          "phase": "battle",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "polystorm",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "pulsefront",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "red-truck-ramble",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "relic-rush",
+          "status": "pass",
+          "phase": "running",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "sandy-castle",
+          "status": "pass",
+          "phase": "washing",
+          "played": true,
+          "steps": 12,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "seance",
+          "status": "pass",
+          "phase": "seance",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "sheep-drive",
+          "status": "pass",
+          "phase": "intro",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "showboat",
+          "status": "pass",
+          "phase": "perform",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "snap-judgment",
+          "status": "pass",
+          "phase": "shoot",
+          "played": false,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "starfall-salvage",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "starweld",
+          "status": "pass",
+          "phase": "battle",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "sundown",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "sunwake",
+          "status": "pass",
+          "phase": "sail",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "swarmwell",
+          "status": "pass",
+          "phase": "running",
+          "played": true,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "swish",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 2,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "tabletop-railway",
+          "status": "pass",
+          "phase": "lobby",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "tiny-bean-cafe",
+          "status": "pass",
+          "phase": "celebrate",
+          "played": true,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "tug-club",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "tumble-tower",
+          "status": "pass",
+          "phase": "building",
+          "played": true,
+          "steps": 1,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "vector-siege",
+          "status": "pass",
+          "phase": "combat",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "vegas-trail",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "walkie-talkie",
+          "status": "pass",
+          "phase": "play",
+          "played": false,
+          "steps": 2,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "weed-smoke-willie",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "wordforge",
+          "status": "pass",
+          "phase": "playing",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "world-eater",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "worldseed",
+          "status": "pass",
+          "phase": "reveal",
+          "played": true,
+          "steps": 2,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        }
+      ]
+    },
+    "featuredPhone": {
+      "passed": 12,
+      "games": 12,
+      "viewport": "390 \u00d7 844; touch input where supported. Some keyboard-driven games also received keyboard input.",
+      "results": [
+        {
+          "folder": "aquarium-forever",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "draw-your-own-boss",
+          "status": "pass",
+          "phase": "fight",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "facet",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 4,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "fleetfall",
+          "status": "pass",
+          "phase": "running",
+          "played": true,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "hangman",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 14,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "hot-potato",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 3,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "house-band",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 6,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "lemonade-tycoon",
+          "status": "pass",
+          "phase": "sales",
+          "played": true,
+          "steps": 7,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "moonbounce",
+          "status": "pass",
+          "phase": "flight",
+          "played": true,
+          "steps": 2,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "swish",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 2,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "tumble-tower",
+          "status": "pass",
+          "phase": "building",
+          "played": true,
+          "steps": 1,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        },
+        {
+          "folder": "vegas-trail",
+          "status": "pass",
+          "phase": "play",
+          "played": true,
+          "steps": 5,
+          "waitMs": 100,
+          "legacyAssetStartupWarnings": 0
+        }
+      ]
+    },
+    "deeperChecks": [
+      "Aquarium purchase and reload through the website\u2019s opaque iframe and save bridge.",
+      "Facet completed its first level and advanced to the next stage using actual tile clicks.",
+      "Draw Your Own Boss completed a losing fight and successfully rematched using actual movement and buttons.",
+      "Hangman completed a word, showed round scores, and moved to the next round.",
+      "Swish browser suite: mouse/touch shooting, round endings, records after reload, and real RTC multiplayer.",
+      "Fleetfall browser suite: four maps, firing, asteroid destruction, fleet arrivals, and multiple simultaneous flights.",
+      "House Band browser suite: audible output, pause, real RTC editing, independent stations, touch FX, speaker takeover, WAV export, saved ZIP, and offline HTML.",
+      "Website browser suite: exact featured list, all catalog entries, search, no-JavaScript browsing, downloads, isolated play, RTC invitations, Studio copy/export/import, and narrow layout.",
+      "Creative website browser suite: actual painting and renaming, recorded roar saved to ZIP/HTML, identical peer-to-peer copies, two-player boss combat/railway/golf input, and cold offline phone-sized playback of all three creations. The recording uses a synthetic test microphone."
+    ],
+    "unitChecks": {
+      "featuredNodeTest": {
+        "passed": 62,
+        "failed": 0,
+        "log": "/tmp/homegames-ui-play-pass/featured-unit.log"
+      },
+      "otherFocusedChecks": "Facet, Moonbounce navigation/progression, Tumble Tower physics/structures, classic board games, and Clicktionary passed; see final-core-js.log.",
+      "syntax": "All changed game JavaScript files pass node --check.",
+      "golfAfterFix": {
+        "passed": 7,
+        "failed": 0,
+        "log": "/tmp/homegames-ui-play-pass/showcase-unit.log"
+      }
+    },
+    "limitations": [
+      "This is not an exhaustive playthrough of every campaign, map, difficulty, or group size.",
+      "Pitch Pot, Snap Judgment, and Walkie Talkie received lobby/role/setup review; their real microphone/camera social rounds were not exercised.",
+      "Some catalog multiplayer paths use explicitly recorded simulated teammates; dedicated RTC suites cover the named featured games above.",
+      "Phone checks are browser emulation, not physical iOS/Android device certification.",
+      "Hot Potato and Vegas Trail retain their existing rough mechanics as requested."
+    ],
+    "evidenceDirectory": "/tmp/homegames-ui-play-pass",
+    "evidenceLogs": [
+      "site-browser.log",
+      "showcase-launch.log",
+      "featured-desktop.log",
+      "featured-phone.log",
+      "featured-rounds.log",
+      "swish-launch.log",
+      "fleetfall-launch.log",
+      "house-band-launch.log",
+      "featured-unit.log",
+      "final-core-js.log"
+    ],
+    "screenshots": [
+      "docs/review-evidence/launch-2026-10-16/home-no-js.png",
+      "docs/review-evidence/launch-2026-10-16/home-mobile.png"
+    ]
+  },
+  "alternates": [
+    "little-rambler",
+    "midnight-movers",
+    "tug-club",
+    "one-unreasonable-hole"
+  ],
+  "deployment": "Built and previewed locally. No production deployment performed.",
+  "humanArtPreservation": "No artwork changed. Lemonade Tycoon, Vegas Trail, and Weed Smoke Willie source stayed unchanged during the launch pass; Hot Potato and Hangman received description-only edits.",
+  "websiteFiles": [
+    "../homegamesio/site.config.json",
+    "../homegamesio/index.html"
+  ],
+  "lineupChange": {
+    "removedFromFeatured": "draw-your-own-boss",
+    "addedToFeatured": "weed-smoke-willie",
+    "reason": "Owner request; preserve handmade games.",
+    "catalog": "Both games remain in the full catalog.",
+    "verificationNote": "The detailed launch-pass evidence and screenshots record the original twelve. Weed Smoke Willie passed the catalog desktop launch/input review; this lineup swap does not add a phone or full playthrough claim."
+  }
+}

@@ -1,0 +1,27 @@
+✔ real MongoDB: concurrent admission/claims, persisted recovery and issuance acknowledgement failures (1622.5795ms)
+✔ real MongoDB: completed attempt recovers across a crash between result and certificate writes; legacy IDs never requeue (1406.936958ms)
+✔ real MongoDB: broker migration preserves IDs, defers ambiguous work, and only reviewed requests retry (900.207042ms)
+[cert] requesting: Requesting certificate domain from the Homegames API
+[cert] requesting: Submitting certificate request
+[cert] waiting: Request submitted — waiting for certificate
+[cert] valid: Certificate issued
+✔ home server CSR → HTTP API → durable runner → installed certificate → verified HTTPS (1063.317542ms)
+✔ the EC2 staging acceptance harness isolates state and resumes completed requests without new orders (4024.292ms)
+✔ ACME account key is private, persistent and shared by concurrent initialization (108.753791ms)
+✔ issuance records order identity, preserves unrelated TXT values and returns the matching public chain (36.510458ms)
+✔ certificate public key mismatch and unauthorized CA identifiers are rejected (142.965667ms)
+✔ a valid ACME authorization issues without creating or cleaning a DNS challenge (62.032708ms)
+✔ a revoked attempt cannot proceed from a pending ACME request into DNS or finalization (87.445875ms)
+✔ DNS cleanup failures retain a checkpoint and can be cleaned independently after interruption (31.085875ms)
+✔ DNS cleanup waits for propagation beyond fifteen seconds and can be repeated safely (16043.23175ms)
+✔ CSR names and signatures are checked before touching durable storage (74.733917ms)
+✔ certificate configuration explicitly selects CA, contact and zone (0.194917ms)
+✔ already-aborted network work is never started (0.075125ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16690.048583

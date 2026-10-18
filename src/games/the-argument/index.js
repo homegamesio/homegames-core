@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { ROUND_SCRIPT, setupRound, systemCommentary, shuffled } = require('./rounds');
 
 const TICK_RATE = 10;
@@ -40,12 +40,27 @@ const PALETTE = [
 
 const glow = (color, blur) => ({ shadow: { color: [color[0], color[1], color[2], 255], blur } });
 
+// Wrap complete clues; truncating their endings can remove the crucial instruction.
+const wrapCopy = (text, width) => {
+    const lines = [];
+    let line = '';
+    for (const word of String(text || '').split(/\s+/)) {
+        if (line && (line + ' ' + word).length > width) { lines.push(line); line = ''; }
+        line += (line ? ' ' : '') + word;
+    }
+    if (line) lines.push(line);
+    return lines;
+};
+
 class TheArgument extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png',
+            squishVersion: '150',
             name: 'The Argument',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'Compliance Module 7 gave everyone a different briefing. Argue for 30 minutes. Trust nothing — except maybe Trust Tokens.',
             aspectRatio: { x: 16, y: 9 },
             services: ['multiplayer'],
@@ -188,12 +203,9 @@ class TheArgument extends Game {
         this.phase = 'lobby';
         this.clearScreen();
 
-        this.glowText('THE ARGUMENT', 50, 8, 5, INK, CYAN).forEach(n => this.screen.addChild(n, false));
-        this.screen.addChild(this.text('COMPLIANCE MODULE 7', 50, 14, 2, FAINT, 'center'), false);
-
         const how = [
             'EVERYONE GETS A DIFFERENT BRIEFING',
-            'ARGUE. COMMIT. SEE WHO WAS TOLD WHAT.',
+            'DISCUSS, THEN CHOOSE TOGETHER',
             '2 TRUST TOKENS EACH — USE WISELY',
             `${MIN_PLAYERS}-${MAX_PLAYERS} PLAYERS · ~30 MIN`
         ];
@@ -303,7 +315,7 @@ class TheArgument extends Game {
     renderMeters() {
         const hx = 3;
         const hy = 2;
-        this.screen.addChild(this.text('COMPANY HEALTH', hx, hy, 1.2, FAINT), false);
+        this.screen.addChild(this.text('COMPANY HEALTH', hx, 0.8, 1.1, FAINT), false);
         this.screen.addChild(this.rect(hx, hy + 2.2, 40, 2.5, [40, 45, 55, 255]), false);
         const hw = Math.max(0, Math.min(40, (this.health / 100) * 40));
         const hColor = this.health >= 50 ? GOOD : this.health >= 25 ? GOLD : BAD;
@@ -311,60 +323,45 @@ class TheArgument extends Game {
         this.screen.addChild(this.healthBar, false);
         this.screen.addChild(this.text(String(Math.round(this.health)), hx + 41, hy + 2, 1.3, INK), false);
 
-        this.screen.addChild(this.text('AUDIT', 55, hy, 1.2, FAINT), false);
-        const ah = Math.min(25, this.audit);
-        this.screen.addChild(this.rect(55, hy + 2.2, 3, 25, [40, 45, 55, 255]), false);
+        this.screen.addChild(this.text('AUDIT', 55, 0.8, 1.1, FAINT), false);
+        const ah = 38 * Math.max(0, Math.min(100, this.audit)) / 100;
+        this.screen.addChild(this.rect(55, hy + 2.2, 38, 2.5, [40, 45, 55, 255]), false);
         const aColor = this.audit >= 50 ? BAD : this.audit >= 25 ? GOLD : FAINT;
-        this.screen.addChild(this.rect(55, hy + 2.2 + (25 - ah), 3, ah, aColor, { effects: glow(aColor, 6) }), false);
+        this.screen.addChild(this.rect(55, hy + 2.2, ah, 2.5, aColor, { effects: glow(aColor, 6) }), false);
     }
 
     renderPrivateBriefing() {
-        const participants = this.participants;
-        participants.forEach(pid => {
+        this.participants.forEach(pid => {
             const b = this.briefings[pid];
             if (!b) return;
-            const col = this.colorOf(pid).color;
-            const panel = this.rect(2, 10, 28, 38, PANEL, {
-                color: CYAN,
-                border: 4,
-                effects: glow(CYAN, 8),
-                playerIds: [pid]
-            });
-            panel.addChild(this.text('YOUR BRIEFING', 16, 11.5, 1.5, CYAN, 'center', [pid]), false);
-            panel.addChild(this.text(`P${pid}`, 16, 14, 1.2, col, 'center', [pid]), false);
-            (b.lines || []).slice(0, 5).forEach((line, i) => {
-                panel.addChild(this.text(line.slice(0, 38), 3, 17 + i * 4.5, 1.35, INK, 'left', [pid]), false);
-            });
+            const panel = this.rect(2, 11, 40, 37, PANEL, { color: CYAN, border: 2, playerIds: [pid] });
+            panel.addChild(this.text('YOUR PRIVATE BRIEFING', 4, 13, 1.35, CYAN, 'left', [pid]), false);
+            const lines = (b.lines || []).flatMap(line => wrapCopy(line, 35));
+            lines.forEach((line, i) => panel.addChild(this.text(line, 4, 19 + i * 3.2, 1.3, INK, 'left', [pid]), false));
             const tokens = this.trustTokens[pid] || 0;
-            panel.addChild(this.text(`TRUST ●`.repeat(tokens) + `○`.repeat(Math.max(0, TRUST_TOKENS - tokens)), 16, 44, 1.2, GOLD, 'center', [pid]), false);
+            panel.addChild(this.text(`TRUST TOKENS  ${tokens}/${TRUST_TOKENS}`, 4, 44, 1.1, GOLD, 'left', [pid]), false);
             this.screen.addChild(panel, false);
         });
     }
 
     renderSharedSituation() {
         const sit = this.roundData.situation;
-        const title = this.roundDef.title + (this.roundDef.systemLine ? '' : '');
-        this.screen.addChild(this.text(title, 50, 10, 2.2, GOLD, 'center'), false);
-        this.screen.addChild(this.text(sit.prompt, 50, 14, 2.8, INK, 'center'), false);
-        this.screen.addChild(this.text(sit.sub, 50, 18.5, 1.5, FAINT, 'center'), false);
-
-        if (sit.logLines) {
-            sit.logLines.forEach((line, i) => {
-                this.screen.addChild(this.text(`${i + 1}. ${line}`, 50, 24 + i * 3.5, 1.4, INK, 'center'), false);
-            });
-        }
-        if (sit.slotHint) {
-            this.screen.addChild(this.text(sit.slotHint, 50, 38, 1.2, FAINT, 'center'), false);
-        }
-        if (sit.officerId) {
-            this.screen.addChild(this.text(`OFFICER: PLAYER ${sit.officerId}`, 50, 42, 1.6, CORAL, 'center'), false);
-        }
-        if (sit.hiddenNote) {
-            this.screen.addChild(this.text(sit.hiddenNote, 50, 46, 1.3, GOLD, 'center'), false);
-        }
-        if (this.roundDef.systemLine && this.phase === 'briefing') {
-            this.screen.addChild(this.text(this.roundDef.systemLine, 50, 48, 1.3, CYAN, 'center'), false);
-        }
+        this.screen.addChild(this.text(this.roundDef.title, 46, 11, 1.4, GOLD), false);
+        let y = 16;
+        const add = (value, color = INK, size = 1.25) => {
+            for (const line of wrapCopy(value, 45)) {
+                this.screen.addChild(this.text(line, 46, y, size, color), false);
+                y += 3.3;
+            }
+            y += 1;
+        };
+        if (sit.prompt !== this.roundDef.title) add(sit.prompt, INK, 1.5);
+        add(sit.sub, FAINT);
+        if (sit.logLines) sit.logLines.forEach((line, i) => add(`${i + 1}. ${line}`));
+        if (sit.slotHint) add(sit.slotHint, FAINT);
+        if (sit.officerId) add(`OFFICER: PLAYER ${sit.officerId}`, CORAL);
+        if (sit.hiddenNote) add(sit.hiddenNote, GOLD);
+        if (this.roundDef.systemLine && this.phase === 'briefing') add(this.roundDef.systemLine, CYAN);
     }
 
     renderPhaseUi() {
@@ -399,7 +396,7 @@ class TheArgument extends Game {
         this.participants.forEach(pid => {
             const tokens = this.trustTokens[pid] || 0;
             if (tokens <= 0 || this.trustUsedThisRound) return;
-            this.phaseLayer.addChild(this.makeButton('USE TRUST', 2, 50, 26, 6, GOLD, (p) => {
+            this.phaseLayer.addChild(this.makeButton('REVEAL MY BRIEFING', 3, 62, 35, 7, GOLD, (p) => {
                 if (Number(p) !== Number(pid)) return;
                 this.invokeTrust(pid);
             }, [pid]), false);
@@ -494,7 +491,7 @@ class TheArgument extends Game {
     updateCommitStatus() {
         if (!this.commitStatus) return;
         const n = this.participants.filter(p => this.commitLocked[p]).length;
-        this.commitStatus.node.text = `${n}/${this.participants.length} committed`;
+        this.commitStatus.node.text = { ...this.commitStatus.node.text, text: `${n}/${this.participants.length} committed` };
         this.dirty();
     }
 

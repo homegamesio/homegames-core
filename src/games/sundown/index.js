@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 // SUNDOWN — polygonal Outrun. A Mode-7 road of pooled trapezoids,
 // a single glowing sun, and billboard palms. Solo, 120Hz.
@@ -104,13 +104,15 @@ const clipX = (pts) => pts.map(p => [Math.max(0, p[0]), p[1]]);
 class Sundown extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Sundown',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'Race the sun. Distance is the score.',
             aspectRatio: { x: 16, y: 9 },
-            tickRate: 120,       // keep in sync with TUNING.TICK
-            maxPlayers: 1        // keep in sync with TUNING.MAX_PLAYERS
+            tickRate: 120,
+            maxPlayers: 1,
+            gameId: "e9c4e23c-0487-5a19-a0aa-4238893dab45"
         };
     }
 

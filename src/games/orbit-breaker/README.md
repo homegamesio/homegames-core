@@ -71,7 +71,7 @@ This is a desktop / controller game; touch-only combat is not supported.
   100 × 100 plane with persistent node pools, rebuilt on screen changes.
 - `sound.js` generates small PCM WAV assets, registered after a player joins.
   There are no downloads or external assets.
-- The game imports only `squish-142` and its own files. Homepad is a dependency
+- The game imports only `squish-150` and its own files. Homepad is a dependency
   of the client / shared input layer, never of the game. Both local and hosted
   sessions use the same `handleGamepadInput` adapter.
 
@@ -88,4 +88,4 @@ browser Gamepad API → Homepad → client → dispatcher → game path. Fixture
 also expose boss and upgrade screens for visual checks. None of those controls
 are shipped in the offline artifact or game source.
 
-GPL-3.0. See `LICENSE`.
+MIT. See `LICENSE`.

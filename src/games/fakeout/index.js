@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const FACTS = require('./facts');
 
 const TICK_RATE = 10;
@@ -70,14 +70,15 @@ const wrapText = (str, max) => {
 class Fakeout extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Fakeout',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'Bluffing trivia. Everyone writes a fake answer to a weird true fact, then votes for the truth. Fool your friends, find the facts.',
             aspectRatio: { x: 16, y: 9 },
-            services: ['multiplayer'],
-            maxPlayers: MAX_PLAYERS,
-            tickRate: TICK_RATE
+            maxPlayers: 8,
+            tickRate: TICK_RATE,
+            gameId: "3a2663be-a3f6-5e0f-a70a-91cc1b9ccf39"
         };
     }
 
@@ -431,7 +432,6 @@ class Fakeout extends Game {
             this.buildLobby();
         } else if (this.phase === 'writing') {
             const submitted = this.roster.filter(pid => this.lies[pid] !== undefined || this.tooClose.has(pid)).length;
-            this.mainLayer.addChild(this.text('EVERYONE: WRITE A CONVINCING FAKE ANSWER', 40, 24, 1.4, INK, 'center'));
             this.mainLayer.addChild(this.text(`LIES LOCKED IN: ${submitted}/${this.roster.length}`, 40, 78, 1.4, FAINT, 'center'));
         } else if (this.phase === 'voting' || this.phase === 'reveal') {
             this.buildCards();
@@ -471,10 +471,8 @@ class Fakeout extends Game {
 
     buildLobby() {
         const s = this.mainLayer;
-        s.addChild(this.text('FAKEOUT', 50.4, 8.4, 5, [0, 0, 0, 130], 'center'));
-        s.addChild(this.text('FAKEOUT', 50, 8, 5, GOLD, 'center'));
-        s.addChild(this.text('A WEIRD TRUE FACT, MISSING A PIECE.', 50, 22, 1.4, INK, 'center'));
-        s.addChild(this.text('WRITE A FAKE ANSWER. FIND THE REAL ONE. FOOL YOUR COWORKERS.', 50, 26, 1.2, FAINT, 'center'));
+
+        s.addChild(this.text('WRITE A LIE. THEN GUESS THE TRUE ANSWER.', 50, 26, 1.2, FAINT, 'center'));
         s.addChild(this.text(`TRUTH +${TRUTH_PTS} / EACH PERSON FOOLED +${FOOL_PTS}`, 50, 30, 1.2, FAINT, 'center'));
         if (this.lobbyMsg) {
             s.addChild(this.text(this.lobbyMsg, 50, 35, 1.3, BAD, 'center'));
@@ -562,7 +560,7 @@ class Fakeout extends Game {
                         oninput: (playerId, value) => this.submitLie(Number(playerId), value)
                     }
                 });
-                box.addChild(this.text('TAP TO WRITE YOUR LIE', 40, 46 + (8 - TEXT_H(1.3)) / 2, 1.3, GOLD, 'center'));
+                box.addChild(this.text('WRITE A LIE', 40, 46 + (8 - TEXT_H(1.3)) / 2, 1.3, GOLD, 'center'));
                 p.root.addChild(box);
             }
         } else if (this.phase === 'voting') {

@@ -256,8 +256,8 @@ function battlefield(p, e, ui) {
 }
 
 function hud(p, e, ui) {
-    p.text('POCKET', 4, 3.4, 2.7, C.white); p.text('FRONT', 22.5, 3.4, 2.7, C.mint);
-    p.text('TINY TROOPS. BIG PLANS.', 4, 8.5, 1.7, C.dim);
+    p.text(e.phase === 'prep' ? 'RECRUIT A SQUAD' : e.phase === 'battle' ? 'DEFEND HQ' : '', 4, 4.5, 2.3, C.white);
+
     p.rect(40, 2, 22, 9, C.panel); coin(p, 43.5, 6.4, 1.6);
     p.text(String(number(e.credits)), 47, 3.2, 3, C.gold);
     p.rect(64, 2, 23, 9, C.panel);
@@ -329,10 +329,8 @@ function modal(p, x, y, w, h) {
 }
 function title(p, e, ui) {
     modal(p, 9, 18, 142, 62);
-    p.text('A LITTLE REAL-TIME STRATEGY GAME', 15, 22, 1.8, C.gold);
-    p.text('POCKET', 14.5, 28, 9, C.white); p.text('FRONT', 14.5, 39, 9, C.mint);
-    p.text('Build a tiny army. Make a big stand.', 15, 52, 2.3, C.white);
-    p.text(`Recruit. Capture. Defend. Survive ${WAVE_NAMES.length} waves.`, 15, 57, 1.8, C.dim);
+
+    p.text(`Keep HQ standing for ${WAVE_NAMES.length} waves.`, 15, 40, 2.4, C.dim);
     p.poly([[99, 29], [142, 36], [142, 56], [110, 62], [90, 48]], C.grassDark, null, 0);
     p.poly([[99, 27], [142, 34], [142, 51], [110, 57], [90, 43]], C.grassLight, null, 0);
     p.rect(108, 40, 24, 4, C.road);
@@ -341,14 +339,14 @@ function title(p, e, ui) {
     soldier(p, 'ranger', 107, 51, 1.55, false, -.1);
     soldier(p, 'medic', 136, 49, 1.3, false);
     diamond(p, 140, 30, 2, C.gold); diamond(p, 95, 51, 1.15, C.white);
-    button(p, 'DEPLOY YOUR ARMY', 15, 65, 39, 9, 'start', C.mint, C.bg);
-    button(p, 'HOW TO PLAY', 58, 65, 29, 9, 'help');
+    button(p, 'PLAY', 15, 65, 39, 9, 'start', C.mint, C.bg);
+    button(p, 'HELP', 58, 65, 29, 9, 'help');
     p.text(`BEST WAVE  ${number(ui.bestWave)}   /   BEST KILLS  ${number(ui.bestKills)}`, 144, 70, 1.7, C.dim, 'right');
 }
 function upgrade(p, e) {
     modal(p, 14, 19, 132, 57);
-    p.text('NICE WORK, COMMANDER.', 80, 23, 1.8, C.gold, 'center');
-    p.text('CHOOSE YOUR NEXT EDGE', 80, 28, 4, C.white, 'center');
+
+    p.text('CHOOSE AN UPGRADE', 80, 28, 4, C.white, 'center');
     p.text('One free upgrade. Your army keeps it for the rest of the run.', 80, 34.5, 1.9, C.dim, 'center');
     const choices = e.upgrades || e.options || e.upgradeChoices || [];
     choices.slice(0, 3).forEach((choice, i) => {
@@ -379,7 +377,7 @@ function ending(p, e, ui) {
 }
 function help(p) {
     modal(p, 31, 16, 98, 65);
-    p.text('YOUR POCKET FIELD GUIDE', 80, 22, 3.8, C.white, 'center');
+    p.text('HOW TO PLAY', 80, 22, 3.8, C.white, 'center');
     const rows = [
         ['01', 'BUILD A SQUAD', 'Recruit Rangers, Tanks and Medics from the right panel.'],
         ['02', 'GIVE THE ORDERS', 'Drag a box to select. Click ground to move or a badbot to attack.'],
@@ -396,9 +394,9 @@ function help(p) {
 }
 function pause(p) {
     modal(p, 47, 30, 66, 32);
-    p.text('TAKE FIVE, COMMANDER.', 80, 35, 1.8, C.gold, 'center');
-    p.text('FRONT ON HOLD', 80, 40, 4.2, C.white, 'center');
-    button(p, 'BACK TO IT', 62, 51, 36, 7.5, 'pause', C.mint, C.bg);
+
+    p.text('PAUSED', 80, 40, 4.2, C.white, 'center');
+    button(p, 'RESUME', 62, 51, 36, 7.5, 'pause', C.mint, C.bg);
 }
 
 function render(p, e, ui = {}) {

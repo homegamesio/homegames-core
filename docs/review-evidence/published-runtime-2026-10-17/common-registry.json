@@ -1,0 +1,30 @@
+{
+  "version": "1.7.3",
+  "license": "MIT",
+  "dist": {
+    "shasum": "deaac18e503cf649b06d7f4356026e4e554bc846",
+    "tarball": "https://registry.npmjs.org/homegames-common/-/homegames-common-1.7.3.tgz",
+    "fileCount": 52,
+    "integrity": "sha512-MtZ3SMWroN74B32f5VoB1p821mEbaK8Ay6eqHrs6G4Kme1D/mQCq7+9UtIL/5sE968AmJq9diInoIz91MYm7mA==",
+    "signatures": [
+      {
+        "sig": "MEQCIA95RtiEAQI4XenBihxCBljGpagQ3qi0I1fG17C+vUIoAiA4i8xeSwSqhPdvEYSpo9DNATGsOPA2dadsGo1zhfOIow==",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+      },
+      {
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+        "sig": "MEQCIAJ/6GtoDS7+LaQtT+RC3wNZARF5BhmwR5PA4lpuZ2TRAiAlTTVji1Reqw8aCb68a2mou4SiklCMdZk94olDBd8+iQ=="
+      }
+    ],
+    "unpackedSize": 574983
+  },
+  "dependencies": {
+    "ws": "7.5.13",
+    "tar": "^7.5.22",
+    "acorn": "^8.11.3",
+    "fflate": "0.8.3",
+    "homepad": "0.2.1",
+    "dockerode": "5.0.1",
+    "squish-150": "npm:squishjs@1.5.0"
+  }
+}

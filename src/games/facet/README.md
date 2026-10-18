@@ -1,8 +1,6 @@
 # Facet
 
-A native Homegames match-three game set in a luminous crystal observatory.
-Swap neighboring jewels to make matches, build special combinations, and let
-the cascades sing. Every jewel has a distinct silhouette as well as a color.
+Match jewels and gems to make them go away
 
 ## Play modes
 
@@ -16,7 +14,7 @@ the cascades sing. Every jewel has a distinct silhouette as well as a color.
   entire cascade before the result. Pausing freezes the clock. Retry plays the
   same starting seed; a new run starts fresh.
 
-## The satisfying bits
+## Matches and combinations
 
 Four gems in a line create a **Ray**. A T or L creates a **Nova**. Five in a
 line create a **Prism**. Specials activate when matched or caught in another
@@ -66,14 +64,19 @@ disconnect pauses it until the next player resumes.
 ## Progress and portability
 
 Scores, stars, achievements, preferences, and the last stable board use the
-Homegames save API. The local preview stores them in the browser under `facet`.
+Homegames save API. The local preview stores them in the browser.
 The **Continue** button restores an unfinished board, including its jewels,
 specials, frost, goals, remaining moves, Radiance, and refill seed. Closing
 during a cascade resumes from the last completed move. Restored statistics
-are not credited twice. The original Facet had no persistent save format.
+are not credited twice. One unfinished game is kept across all three modes;
+starting another game asks before replacing it. Failed saves stay visible and
+can be retried. The original Facet had no persistent save format.
 
-The game streams native Squish 142 geometry at 30 frames per second while its
-simulation runs in fixed 120 Hz steps. Drawing clips falling gems to the board,
+The game streams native Squish 1.5.0 geometry at 30 frames per second while its
+simulation runs in fixed 120 Hz steps. Elapsed-time updates keep Rush at two
+minutes of active play; pause, Help and automatic reshuffling stop its clock.
+Animation catch-up is capped at 250 ms after a long stall, while Rush still
+counts the elapsed active time. Turn phones sideways for larger controls. Drawing clips falling gems to the board,
 reuses bounded node pools, and stays below the native 64 KiB frame limit.
 Background PNGs and original synthesized audio are embedded, with no runtime
 filesystem or network dependencies. See [art/prompts.md](art/prompts.md) for
@@ -83,7 +86,7 @@ the saved artwork and built-in image generation prompts.
 
 Run the local preview with `node tools/facet/serve.cjs` and visit
 `http://127.0.0.1:9899/`. `/qa` has explicit developer scene controls and uses
-the separate `facet-qa` save key. It is never included in the offline export.
+a separate QA save profile. It is never included in the offline export.
 
 Build a portable HTML copy with `node tools/facet/build.cjs /tmp/facet.html`.
 The preview uses the actual Homegames browser-local loader, input router,
@@ -92,6 +95,7 @@ asset system, and renderer.
 Run the regression suite:
 
 ```sh
+node --test test/games/FacetLaunch.test.cjs
 node testRunner.js ./test/games/FacetEngine.test.js ./test/games/Facet.test.js ./test/games/FacetPlaythroughs.test.js ./test/games/FacetScene.test.js ./test/games/FacetSound.test.js
 ```
 

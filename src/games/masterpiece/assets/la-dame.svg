@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Original Homegames illustration. SPDX-License-Identifier: MIT -->
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#183c52"/><stop offset="1" stop-color="#dfb071"/></linearGradient>
+    <linearGradient id="gown" x2="1" y2="1"><stop stop-color="#40756c"/><stop offset="1" stop-color="#163f48"/></linearGradient>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h600v800H0z"/>
+  <circle cx="455" cy="140" r="60" fill="#f4d992"/>
+  <path fill="#557d7a" d="M0 330 120 210 250 350 395 255 600 365v435H0z"/>
+  <path fill="#244e5b" d="M0 460 150 340 305 415 500 290 600 355v445H0z"/>
+  <path fill="#deb975" d="m430 385 50 20-105 65 40 20-80 130h-85l105-120-45-30z"/>
+  <path fill="#122d37" d="M12 0h30v800H12zM558 0h30v800h-30z"/>
+  <path fill="#b99b61" d="M35 40h530v8H35zM35 740h530v8H35z"/>
+  <path fill="#251f29" d="M178 360c-80-260 250-320 256-82l-13 205-258 38z"/>
+  <path fill="#c78561" d="m261 348-17 111 120 31-30-159z"/>
+  <path fill="url(#gown)" d="M237 399c-140 16-136 140-157 343h440c-27-235-18-299-148-337l-63 73z"/>
+  <path fill="#e4ac7b" d="M217 219c23-60 102-52 144-12l17 64-15 64-56 64-57-30-35-63z"/>
+  <path fill="#382632" d="M201 279c-29-107 35-146 92-146 65-2 112 51 109 154-24-69-85-45-119-93-7 45-46 54-82 85z"/>
+  <path fill="none" stroke="#604142" stroke-width="5" stroke-linecap="round" d="m237 266 29-3m49-1 27 4m-51 14-7 34 15 3m-29 23q23 12 42-2"/>
+  <path fill="#2d2834" d="M244 272h11v7h-11zm79 0h10v7h-10z"/>
+  <path fill="none" stroke="#d8bd79" stroke-width="5" d="m229 414 76 101 80-98"/>
+  <circle cx="305" cy="514" r="13" fill="#eecf82"/>
+  <path fill="#a86250" d="m158 577 186 77 29-22-196-109zm290-30-213 87 5 27 228-59z"/>
+  <path fill="#e1a77b" d="m279 625 61 19 59-9 27 20-73 26-70-19zm-48 9 49-21 42 12-26 21-60 17z"/>
+  <path fill="none" stroke="#7b9d80" stroke-width="3" d="m130 680 10-64m47 107 7-54m245 36-10-68m55 83-8-70"/>
+  <path fill="#d5aa63" d="M46 756h508v5H46z"/>
+</svg>

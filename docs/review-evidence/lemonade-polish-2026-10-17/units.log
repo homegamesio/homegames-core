@@ -1,0 +1,27 @@
+✔ axe cleaves in front, staggers survivors and fells a cane in one swing (5.910125ms)
+✔ bow pierces three distinct targets once each; power and tempo change output (2.250209ms)
+✔ cannon impact hurts nearby lemons once and leaves distant targets intact (0.790417ms)
+✔ dodge honors arrows, cooldown, key release and invulnerability; specials require charge (1.552125ms)
+✔ kills build a timed combo, bounties must be banked, and harvest bonus pays once (0.72825ms)
+✔ business forecast, tips, goals and stock apply equally to normal and rush sales (0.977417ms)
+✔ six-player majority purchases, capacity, private controls and disconnect voting (45.369292ms)
+✔ boss victory pays once, advances era, and pooled audio/visual assets stay local (70.381291ms)
+✔ all screen nodes serialize, including idle and playing audio voices (17.071417ms)
+✔ drawings crossing camera edges crop instead of wrapping unsigned asset positions (0.724291ms)
+✔ sound expiry sends a frame during prep so the next purchase can replay its cue (0.830041ms)
+✔ customer reactions use the maintainer lines without changing the sales rules (0.388125ms)
+✔ night frames omit empty pool slots, preserve drawing order and isolate each player view (12.057166ms)
+✔ morning saves preserve the whole business and forecast, not players or mid-day purchases (5.2505ms)
+✔ loss retires the saved run, replay creates a fresh morning, and victory saves the next era (2.669875ms)
+✔ replacing a saved run needs two clicks from the same player and resume cancels that choice (1.811125ms)
+✔ unreadable and future saves are preserved without partially restoring or overwriting them (3.651625ms)
+✔ failed writes show an error and retry the original morning, never the current battle (7.978292ms)
+✔ slow writes coalesce to the latest checkpoint and shutdown submits an end marker before the bridge closes (0.687208ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 310.425875

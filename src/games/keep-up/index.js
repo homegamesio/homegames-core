@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const TICK_RATE = 15;
 const MAX_PLAYERS = 8;
@@ -43,9 +43,12 @@ const polyCircle = (cx, cy, r, sides = 14) => {
 class KeepUp extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png',
+            squishVersion: '150',
             name: 'Break Room Keep-Up',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'Co-op balloon keep-up. Tap balloons to keep them off the floor and build the team streak. More balloons keep arriving.',
             aspectRatio: { x: 1, y: 1 },
             services: ['multiplayer'],
@@ -355,10 +358,9 @@ class KeepUp extends Game {
         this.centerLayer.clearChildren();
         if (this.phase === 'lobby') {
             const s = this.centerLayer;
-            s.addChild(this.text('BREAK ROOM KEEP-UP', 50.3, 16.3, 3.6, [0, 0, 0, 110], 'center'));
-            s.addChild(this.text('BREAK ROOM KEEP-UP', 50, 16, 3.6, INK, 'center'));
+
             s.addChild(this.text('TAP BALLOONS. KEEP THEM OFF THE FLOOR.', 50, 26, 1.4, INK, 'center'));
-            s.addChild(this.text('THE STREAK BELONGS TO EVERYONE. SO DOES THE FLOOR.', 50, 30, 1.15, FAINT, 'center'));
+
             const ids = Object.keys(this.players).map(Number);
             s.addChild(this.text(`PLAYERS (${ids.length}/${MAX_PLAYERS})`, 38, 40, 1.2, FAINT));
             ids.forEach((pid, i) => {

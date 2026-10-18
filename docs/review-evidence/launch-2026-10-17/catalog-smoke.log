@@ -1,0 +1,106 @@
+TOOLBAR After Hours by Homegames
+homegames.io
+
+Ready offline · Playing locally
+
+Share
+Download app
+Edit this game
+⋯
+PASS after-hours {"paints":12288,"images":64,"readyMs":836}
+PASS backgammon {"paints":387,"images":0,"readyMs":414}
+PASS backstage {"paints":117,"images":0,"readyMs":407}
+PASS battleship {"paints":714,"images":0,"readyMs":400}
+PASS billiards {"paints":46,"images":0,"readyMs":400}
+PASS block-brawlers {"paints":7958,"images":0,"readyMs":407}
+PASS buddy-box {"paints":16324,"images":0,"readyMs":409}
+PASS checkers {"paints":382,"images":0,"readyMs":354}
+PASS chess {"paints":274,"images":0,"readyMs":425}
+PASS chronoclast {"paints":44,"images":0,"readyMs":375}
+PASS clicktionary {"paints":18,"images":0,"readyMs":412}
+PASS clump {"paints":33306,"images":0,"readyMs":357}
+PASS common-ground {"paints":33624,"images":0,"readyMs":362}
+PASS connect-four {"paints":300,"images":0,"readyMs":396}
+PASS copperline {"paints":1800,"images":0,"readyMs":422}
+PASS counterforge-apex {"paints":264,"images":0,"readyMs":358}
+PASS deadword {"paints":486,"images":0,"readyMs":402}
+PASS defuse {"paints":22,"images":0,"readyMs":399}
+PASS desert-bloom {"paints":3504,"images":0,"readyMs":396}
+PASS dragon-drop {"paints":4602,"images":536,"readyMs":436}
+PASS draw {"paints":88,"images":0,"readyMs":450}
+PASS draw-your-own-boss {"paints":552,"images":0,"readyMs":439}
+PASS engine-room {"paints":26,"images":0,"readyMs":335}
+PASS facet {"paints":2649,"images":49,"readyMs":2336}
+PASS fakeout {"paints":18,"images":0,"readyMs":335}
+PASS fleetfall {"paints":742,"images":0,"readyMs":349}
+PASS hangman {"paints":28,"images":0,"readyMs":509}
+PASS happy-haulers {"paints":5022,"images":0,"readyMs":407}
+FAIL hot-potato: {"game":"hot-potato","error":"frame.waitForFunction: Timeout 30000ms exceeded.","status":"Saved on this device. Ready to play offline. Download the HTML to keep a file too.","errors":[],"external":[]}
+PASS house-band {"paints":2664,"images":0,"readyMs":412}
+PASS imposter {"paints":80,"images":0,"readyMs":344}
+PASS kaboom-valley {"paints":918,"images":0,"readyMs":433}
+PASS lemonade-tycoon {"paints":53,"images":9,"readyMs":1396}
+PASS little-consequences {"paints":28474,"images":0,"readyMs":460}
+PASS little-rambler {"paints":6456,"images":44,"readyMs":1809}
+PASS little-scoop-shop {"paints":7749,"images":0,"readyMs":410}
+PASS little-zoo-walk {"paints":3807,"images":0,"readyMs":408}
+PASS lumen-festival {"paints":113974,"images":0,"readyMs":420}
+PASS mancala {"paints":302,"images":0,"readyMs":345}
+PASS masterpiece {"paints":58,"images":22,"readyMs":430}
+PASS micro-mayhem {"paints":98,"images":0,"readyMs":393}
+PASS midnight-movers {"paints":4394,"images":0,"readyMs":422}
+PASS moonbounce {"paints":13205,"images":141,"readyMs":5118}
+PASS neon-grid {"paints":476,"images":0,"readyMs":331}
+PASS nova-guard {"paints":780,"images":0,"readyMs":333}
+PASS one-unreasonable-hole {"paints":108,"images":0,"readyMs":341}
+PASS orbit-breaker {"paints":2800,"images":0,"readyMs":462}
+PASS pitch-pot {"paints":22,"images":0,"readyMs":341}
+PASS pocket-front {"paints":8208,"images":1,"readyMs":402}
+PASS polystorm {"paints":35405,"images":0,"readyMs":404}
+PASS pulsefront {"paints":26,"images":0,"readyMs":407}
+PASS red-truck-ramble {"paints":4563,"images":0,"readyMs":414}
+PASS relic-rush {"paints":1027,"images":0,"readyMs":339}
+PASS sandy-castle {"paints":4896,"images":0,"readyMs":349}
+PASS seance {"paints":24,"images":0,"readyMs":430}
+PASS sheep-drive {"paints":30,"images":0,"readyMs":957}
+PASS showboat {"paints":42,"images":0,"readyMs":354}
+PASS snap-judgment {"paints":63,"images":0,"readyMs":409}
+PASS starfall-salvage {"paints":948,"images":0,"readyMs":513}
+PASS starweld {"paints":268,"images":0,"readyMs":422}
+PASS sundown {"paints":34272,"images":0,"readyMs":440}
+PASS sunwake {"paints":327,"images":0,"readyMs":413}
+PASS swarmwell {"paints":160,"images":0,"readyMs":956}
+PASS swish {"paints":8379,"images":0,"readyMs":432}
+PASS tabletop-railway {"paints":30,"images":0,"readyMs":427}
+PASS tiny-bean-cafe {"paints":5876,"images":0,"readyMs":535}
+PASS tug-club {"paints":9994,"images":0,"readyMs":942}
+PASS tumble-tower {"paints":8251,"images":0,"readyMs":949}
+PASS vector-siege {"paints":3708,"images":0,"readyMs":499}
+PASS vegas-trail {"paints":2924,"images":1892,"readyMs":2321}
+PASS walkie-talkie {"paints":28,"images":0,"readyMs":955}
+PASS weed-smoke-willie {"paints":653,"images":281,"readyMs":1690}
+PASS wordforge {"paints":3670,"images":0,"readyMs":976}
+PASS world-eater {"paints":7215,"images":0,"readyMs":949}
+PASS worldseed {"paints":318,"images":0,"readyMs":971}
+AssertionError [ERR_ASSERTION]: Every selected game must launch
++ actual - expected
+
++ [
++   {
++     error: 'frame.waitForFunction: Timeout 30000ms exceeded.',
++     errors: [],
++     external: [],
++     game: 'hot-potato',
++     status: 'Saved on this device. Ready to play offline. Download the HTML to keep a file too.'
++   }
++ ]
+- []
+
+    at /Users/josephgarcia/homegames/homegamesio/test/catalog-games-browser.cjs:92:16 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}

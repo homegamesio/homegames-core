@@ -1,0 +1,27 @@
+✔ wall-clock sequencer has no interval drift and skips stalled beats (0.337167ms)
+✔ shared edits, independent stations, names and conflict-safe personal undo (50.209875ms)
+✔ sound is opt-in per guest, muting is private, and departure keeps other listeners playing (43.639875ms)
+✔ malformed saves stay bounded and WAV mix is reproducible with exact duration (22.483625ms)
+✔ arrangement and WAV survive a portable ZIP round trip with no browser storage (137.861459ms)
+✔ failed storage is visible and retry restores the current composition (39.410458ms)
+✔ approved description, eight-player capacity and valid numeric seats (50.935916ms)
+✔ holding a pad, play or sound control performs one action (43.548167ms)
+✔ clear requires two distinct presses and another edit cancels confirmation (41.43675ms)
+✔ cancelled FX gestures and keyboard transitions cannot apply a stale release (39.678042ms)
+✔ quick releases work, and rebuilding another view does not repeat a held edit (39.318917ms)
+✔ stale and foreign view callbacks are inert; unknown keys stay bounded (39.897125ms)
+✔ no opted-in listeners means no unscoped audio; rejoining never inherits a departed listener (38.867458ms)
+✔ idle sessions emit no frames after notes and meters settle; eight seats serialize (70.85525ms)
+✔ clock rollback and invalid tempo cannot corrupt the sequencer (38.46175ms)
+✔ late input and pending export work cannot revive a closed session (39.066416ms)
+✔ serialized eight-player frames contain audio only for opted-in devices and private controls once (51.7145ms)
+✔ an old successful write cannot conceal a newer save failure; retry captures the current pattern (37.526125ms)
+✔ WAV export captures the arrangement at the action, even if edits occur while saving (54.596708ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 622.366959

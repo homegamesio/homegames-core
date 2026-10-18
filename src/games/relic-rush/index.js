@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 // A first-person endless temple runner built on the prism-3d rendering ideas,
 // simplified: the world is one endless corridor, so wall columns come from an
@@ -47,12 +47,15 @@ const glow = (color, blur) => ({ shadow: { color: [color[0], color[1], color[2],
 class RelicRush extends Game {
     static metadata() {
         return {
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             aspectRatio: { x: 16, y: 9 },
-            squishVersion: '142',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             name: 'Relic Rush',
             description: 'A first-person endless temple run rendered in real 3D. Dodge, jump, and slide through a procedurally generated corridor - friends spectate your run live.',
-            tickRate: TICK_RATE
+            tickRate: TICK_RATE,
+            gameId: "59966e1e-86d8-5edf-aa98-eca5712f5146",
+            maxPlayers: 8
         };
     }
 
@@ -169,13 +172,8 @@ class RelicRush extends Game {
         this.resetRunState();
         this.generateAhead();
 
-        const title = this.makeGlowText('RELIC RUSH', 50, 12, 6.5, INK, GOLD);
-        this.titleHalos = title.slice(0, 4);
-        title.forEach(n => this.overlay.addChild(n, false));
+        this.titleHalos = [];
 
-        this.overlay.addChild(new GameNode.Text({
-            textInfo: { x: 50, y: 24, text: 'AN ENDLESS TEMPLE - IN FIRST PERSON', size: 1.8, align: 'center', font: 'monospace', color: FAINT }
-        }), false);
         if (this.best > 0) {
             this.overlay.addChild(new GameNode.Text({
                 textInfo: { x: 50, y: 29, text: 'BEST RUN: ' + this.best, size: 1.6, align: 'center', font: 'monospace', color: GOLD }
@@ -189,12 +187,12 @@ class RelicRush extends Game {
         }), false);
 
         const lines = [
-            'RED BARS: JUMP (SPACE / TAP TOP) - AMBER BEAMS: DUCK (DOWN / TAP BOTTOM)',
-            'STONE BLOCKS: CHANGE LANE (LEFT + RIGHT / TAP SIDES) - GRAB EVERY COIN',
-            'ONE RUNNER AT A TIME - EVERYONE ELSE RIDES ALONG'
+            'JUMP: TAP TOP / SPACE',
+            'DUCK: TAP BOTTOM / DOWN',
+            'CHANGE LANE: TAP SIDES / LEFT + RIGHT'
         ];
         lines.forEach((text, i) => this.overlay.addChild(new GameNode.Text({
-            textInfo: { x: 50, y: 66 + i * 4, text, size: 1.25, align: 'center', font: 'monospace', color: FAINT }
+            textInfo: { x: 50, y: 66 + i * 4, text, size: 1.7, align: 'center', font: 'monospace', color: FAINT }
         }), false));
 
         this.renderFrame();

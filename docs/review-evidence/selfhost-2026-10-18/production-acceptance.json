@@ -1,0 +1,27 @@
+{
+  "requestId": "36a422d6-9c03-4819-8ea8-0ea3759e41a0",
+  "domain": "836af03e856dd433605f7cff2157a8d1.homegames.link",
+  "requestedAt": "2026-10-18T19:48:08.211Z",
+  "fingerprint": "69:62:A6:D2:49:A2:2B:FD:A5:FD:79:A0:F2:66:46:97:BB:B0:9C:22:DB:C1:84:29:F8:C0:0C:0B:A9:CA:0E:3F",
+  "expiresAt": "Jan 16 18:50:35 2027 GMT",
+  "httpsVerifiedAt": "2026-10-18T20:12:51.588Z",
+  "discoveryStatus": 307,
+  "discoveryLocation": "https://836af03e856dd433605f7cff2157a8d1.homegames.link:9802",
+  "operatorMongoCheck": {
+    "source": "Maintainer-provided EC2 output, 2026-10-18",
+    "state": "COMPLETED",
+    "attempts": 1,
+    "cleanupFinished": true,
+    "totalCleanupPending": 0
+  },
+  "apiRestart": {
+    "maintainerReported": "hg-api.service active; issuer ready and idle after restart",
+    "verification": "production-api-restart.log",
+    "sameCertificateRetrieved": true
+  },
+  "phoneLanCheck": {
+    "source": "Maintainer report, same Wi-Fi",
+    "result": "connects to the dashboard and everything looks like it works",
+    "scope": "Physical phone dashboard discovery confirmed; no claim of an extended multiplayer playthrough"
+  }
+}

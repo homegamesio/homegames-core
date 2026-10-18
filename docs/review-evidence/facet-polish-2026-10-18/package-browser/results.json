@@ -1,0 +1,25 @@
+{
+  "revision": "4fb80f582a29437e65cbad52764ed73ce05c93b4124f81cfc1773955c55504cb",
+  "runs": [
+    {
+      "name": "packaged",
+      "elapsedMs": 11446,
+      "medal": 3,
+      "completedScore": 7000,
+      "restoredScore": 300,
+      "continuedScore": 3600,
+      "totalMoves": 3
+    },
+    {
+      "name": "offline",
+      "elapsedMs": 11305,
+      "medal": 3,
+      "completedScore": 7000,
+      "restoredScore": 300,
+      "continuedScore": 3600,
+      "totalMoves": 3
+    }
+  ],
+  "errors": [],
+  "external": []
+}

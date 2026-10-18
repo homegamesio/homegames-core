@@ -1,0 +1,204 @@
+{
+  "node": "v24.19.0",
+  "method": "Actual installed Common/Squish runtime; synthetic 30 Hz clock, four measured seconds after one warmup second. Six legal launch orders per human from a seeded 120-ship home; one-player cases include normal bots. Full private-frame bytes, excluding transport/startup, asset loading, browser rendering and WAN. These desktop timings do not establish EC2 or phone capacity.",
+  "sourceSha256": {
+    "engine.js": "a2a66b33d21f1274ba3d9ba4779726f01b721a05b802bc34b59006db091895c3",
+    "index.js": "8ec3f53214508db79e2ff0c1bdd52e776dfaf55e6d2001850b3c80a825de1986",
+    "maps.js": "105240957827229786131cc43784f776af5b3528fac33ce7480b891e8498c4f2",
+    "view.js": "9b5c7fca4a91ac25104fca06df3dd25568ddd6aceef38f07af5e4f98a71a5ad9"
+  },
+  "results": [
+    {
+      "map": "orbit",
+      "players": 1,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 23186,
+      "maxTotalSceneNodes": 320,
+      "maxSimultaneousFlights": 6,
+      "perPlayerPayloadMbps": [
+        5.391
+      ],
+      "browserHostGuestPayloadMbps": 0,
+      "selfHostedAllPlayersPayloadMbps": 5.391,
+      "tickAndFramesP95Ms": 3.178
+    },
+    {
+      "map": "orbit",
+      "players": 2,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 23231,
+      "maxTotalSceneNodes": 640,
+      "maxSimultaneousFlights": 12,
+      "perPlayerPayloadMbps": [
+        5.415,
+        5.41
+      ],
+      "browserHostGuestPayloadMbps": 5.41,
+      "selfHostedAllPlayersPayloadMbps": 10.825,
+      "tickAndFramesP95Ms": 3.508
+    },
+    {
+      "map": "orbit",
+      "players": 6,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 25240,
+      "maxTotalSceneNodes": 2115,
+      "maxSimultaneousFlights": 36,
+      "perPlayerPayloadMbps": [
+        5.901,
+        5.896,
+        5.9,
+        5.893,
+        5.902,
+        5.901
+      ],
+      "browserHostGuestPayloadMbps": 29.491,
+      "selfHostedAllPlayersPayloadMbps": 35.392,
+      "tickAndFramesP95Ms": 11.817
+    },
+    {
+      "map": "rift",
+      "players": 1,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 21201,
+      "maxTotalSceneNodes": 281,
+      "maxSimultaneousFlights": 6,
+      "perPlayerPayloadMbps": [
+        4.914
+      ],
+      "browserHostGuestPayloadMbps": 0,
+      "selfHostedAllPlayersPayloadMbps": 4.914,
+      "tickAndFramesP95Ms": 1.257
+    },
+    {
+      "map": "rift",
+      "players": 2,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 21246,
+      "maxTotalSceneNodes": 562,
+      "maxSimultaneousFlights": 12,
+      "perPlayerPayloadMbps": [
+        4.939,
+        4.934
+      ],
+      "browserHostGuestPayloadMbps": 4.934,
+      "selfHostedAllPlayersPayloadMbps": 9.872,
+      "tickAndFramesP95Ms": 2.447
+    },
+    {
+      "map": "rift",
+      "players": 6,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 23255,
+      "maxTotalSceneNodes": 1875,
+      "maxSimultaneousFlights": 36,
+      "perPlayerPayloadMbps": [
+        5.43,
+        5.425,
+        5.438,
+        5.423,
+        5.431,
+        5.438
+      ],
+      "browserHostGuestPayloadMbps": 27.155,
+      "selfHostedAllPlayersPayloadMbps": 32.586,
+      "tickAndFramesP95Ms": 8.098
+    },
+    {
+      "map": "binary",
+      "players": 1,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 23396,
+      "maxTotalSceneNodes": 318,
+      "maxSimultaneousFlights": 6,
+      "perPlayerPayloadMbps": [
+        5.441
+      ],
+      "browserHostGuestPayloadMbps": 0,
+      "selfHostedAllPlayersPayloadMbps": 5.441,
+      "tickAndFramesP95Ms": 1.37
+    },
+    {
+      "map": "binary",
+      "players": 2,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 23441,
+      "maxTotalSceneNodes": 636,
+      "maxSimultaneousFlights": 12,
+      "perPlayerPayloadMbps": [
+        5.465,
+        5.46
+      ],
+      "browserHostGuestPayloadMbps": 5.46,
+      "selfHostedAllPlayersPayloadMbps": 10.926,
+      "tickAndFramesP95Ms": 2.721
+    },
+    {
+      "map": "binary",
+      "players": 6,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 25450,
+      "maxTotalSceneNodes": 2097,
+      "maxSimultaneousFlights": 36,
+      "perPlayerPayloadMbps": [
+        5.949,
+        5.944,
+        5.948,
+        5.941,
+        5.949,
+        5.948
+      ],
+      "browserHostGuestPayloadMbps": 29.729,
+      "selfHostedAllPlayersPayloadMbps": 35.678,
+      "tickAndFramesP95Ms": 8.729
+    },
+    {
+      "map": "belt",
+      "players": 1,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 22333,
+      "maxTotalSceneNodes": 290,
+      "maxSimultaneousFlights": 6,
+      "perPlayerPayloadMbps": [
+        5.186
+      ],
+      "browserHostGuestPayloadMbps": 0,
+      "selfHostedAllPlayersPayloadMbps": 5.186,
+      "tickAndFramesP95Ms": 1.379
+    },
+    {
+      "map": "belt",
+      "players": 2,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 22378,
+      "maxTotalSceneNodes": 580,
+      "maxSimultaneousFlights": 12,
+      "perPlayerPayloadMbps": [
+        5.211,
+        5.206
+      ],
+      "browserHostGuestPayloadMbps": 5.206,
+      "selfHostedAllPlayersPayloadMbps": 10.417,
+      "tickAndFramesP95Ms": 2.491
+    },
+    {
+      "map": "belt",
+      "players": 6,
+      "measuredSeconds": 4,
+      "maxFrameBytes": 24390,
+      "maxTotalSceneNodes": 1929,
+      "maxSimultaneousFlights": 36,
+      "perPlayerPayloadMbps": [
+        5.694,
+        5.69,
+        5.694,
+        5.686,
+        5.695,
+        5.694
+      ],
+      "browserHostGuestPayloadMbps": 28.459,
+      "selfHostedAllPlayersPayloadMbps": 34.153,
+      "tickAndFramesP95Ms": 8.659
+    }
+  ]
+}

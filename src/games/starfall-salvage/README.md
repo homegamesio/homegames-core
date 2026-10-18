@@ -78,4 +78,4 @@ node testRunner.js ./test/games/StarfallSalvage.test.js
 
 A real-client browser acceptance harness is included in `test/starfall-browser.cjs`. Supply `PLAYWRIGHT_MODULE` and, if necessary, `CHROME_PATH` for your local installation. It launches an isolated local session, exercises keyboard and touch controls, and writes representative screenshots to `/tmp/starfall-*.png`.
 
-Licensed under GNU GPL version 3; see `LICENSE`.
+Licensed under MIT; see `LICENSE`.

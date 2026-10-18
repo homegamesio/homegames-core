@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-145');
+const { Asset, GameNode } = require('squish-150');
 const NOTES = {
     shot: [.09, 680, 210, .045, .12], hit: [.1, 200, 70, .035, .35], burst: [.35, 100, 35, .1, .55],
     boost: [.4, 130, 700, .09, .2], repair: [.32, 390, 780, .05, 0], salvage: [.24, 740, 1100, .06, 0],

@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { T, text, button, showButton, card, setCard, tableRoot } = require('./theme');
 
 const SUITS=['C','D','S','H'];
@@ -7,12 +7,15 @@ const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const PAGE=10;
 
 class GoFish extends Game{
-    static metadata(){return{ squishVersion:'142', name:'Go Fish', author:'Homegames', description:'A friendly four-seat Go Fish table with private hands and books to collect.', aspectRatio:{x:1,y:1}, maxPlayers:4, services:['multiplayer']};}
+    static metadata(){return{
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png', squishVersion:'150', name:'Go Fish', author: "Joseph Garcia", description:'A friendly four-seat Go Fish table with private hands and books to collect.', aspectRatio:{x:1,y:1}, maxPlayers:4, services:['multiplayer']};}
     constructor(){
         super();const table=tableRoot();this.base=table.root;this.players={};this.seats=[
             {playerId:null,isBot:false,name:'Open seat'},{playerId:null,isBot:true,name:'Poppy'},{playerId:null,isBot:true,name:'Sam'},{playerId:null,isBot:true,name:'Lou'}];
         this.phase='waiting';this.turn=0;this.hands=[[],[],[],[]];this.books=[[],[],[],[]];this.deck=[];this.selectedRank=null;this.botToken=0;this.botPending=false;this.lastEvent='';this.matchWins=[0,0,0,0];
-        this.title=text('Go Fish',50,6,4.2,T.cream);this.subtitle=text('Collect sets of 4 matching cards · Most sets wins',50,11.5,1.8,T.muted);this.status=text('Welcome to the table',50,16,1.8,T.cream);this.deckText=text('',50,47,1.3,T.muted);this.base.addChildren(this.title,this.subtitle,this.status,this.deckText);
+        this.subtitle=text('Collect sets of 4 matching cards · Most sets wins',50,11.5,1.8,T.muted);this.status=text('Welcome to the table',50,16,1.8,T.cream);this.deckText=text('',50,47,1.3,T.muted);this.base.addChildren(this.subtitle,this.status,this.deckText);
         this.seatTexts=[text('',50,25,1.2,T.soft),text('',85,42,1.2,T.soft),text('',50,58,1.2,T.soft),text('',15,42,1.2,T.soft)];this.base.addChildren(...this.seatTexts);
         this.pool=new GameNode.Shape({shapeType:Shapes.POLYGON,coordinates2d:ShapeUtils.rectangle(43,32,14,20),fill:[74,92,72,255],color:T.gold,border:4});this.base.addChild(this.pool);this.base.removeChild(this.deckText.id);this.base.addChild(this.deckText);
         this.nextButton=button(39,61,22,6,'New round',()=>this.newRound());this.nextButton.node.playerIds=[0];this.base.addChild(this.nextButton);this.render();

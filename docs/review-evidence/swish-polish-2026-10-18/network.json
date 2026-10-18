@@ -1,0 +1,117 @@
+{
+  "players": 4,
+  "sampleMs": 4000,
+  "scenario": "seeded stage-six course with ready balls",
+  "before": {
+    "worker": true,
+    "channels": [
+      {
+        "id": 1,
+        "mode": "worker",
+        "sentPackets": 208,
+        "receivedPackets": 10,
+        "wireMessages": 418,
+        "wireBytes": 1540365,
+        "duplicateFrames": 2,
+        "replacedFrames": 0,
+        "maxBufferedBytes": 53085,
+        "queuedBytes": 0,
+        "bufferedBytes": 0,
+        "receiveQueueBytes": 0,
+        "receiveReplacedFrames": 0,
+        "sendQueueBytes": 0,
+        "sendReplacedFrames": 1
+      },
+      {
+        "id": 2,
+        "mode": "worker",
+        "sentPackets": 7,
+        "receivedPackets": 1,
+        "wireMessages": 16,
+        "wireBytes": 88305,
+        "duplicateFrames": 1,
+        "replacedFrames": 0,
+        "maxBufferedBytes": 54817,
+        "queuedBytes": 0,
+        "bufferedBytes": 0,
+        "receiveQueueBytes": 0,
+        "receiveReplacedFrames": 0,
+        "sendQueueBytes": 0,
+        "sendReplacedFrames": 1
+      },
+      {
+        "id": 3,
+        "mode": "worker",
+        "sentPackets": 6,
+        "receivedPackets": 1,
+        "wireMessages": 14,
+        "wireBytes": 76440,
+        "duplicateFrames": 0,
+        "replacedFrames": 0,
+        "maxBufferedBytes": 56103,
+        "queuedBytes": 0,
+        "bufferedBytes": 0,
+        "receiveQueueBytes": 0,
+        "receiveReplacedFrames": 0,
+        "sendQueueBytes": 0,
+        "sendReplacedFrames": 1
+      }
+    ]
+  },
+  "after": {
+    "worker": true,
+    "channels": [
+      {
+        "id": 1,
+        "mode": "worker",
+        "sentPackets": 327,
+        "receivedPackets": 10,
+        "wireMessages": 656,
+        "wireBytes": 2784435,
+        "duplicateFrames": 2,
+        "replacedFrames": 0,
+        "maxBufferedBytes": 53085,
+        "queuedBytes": 0,
+        "bufferedBytes": 0,
+        "receiveQueueBytes": 0,
+        "receiveReplacedFrames": 0,
+        "sendQueueBytes": 0,
+        "sendReplacedFrames": 1
+      },
+      {
+        "id": 2,
+        "mode": "worker",
+        "sentPackets": 126,
+        "receivedPackets": 1,
+        "wireMessages": 254,
+        "wireBytes": 1332375,
+        "duplicateFrames": 1,
+        "replacedFrames": 0,
+        "maxBufferedBytes": 54817,
+        "queuedBytes": 0,
+        "bufferedBytes": 0,
+        "receiveQueueBytes": 0,
+        "receiveReplacedFrames": 0,
+        "sendQueueBytes": 0,
+        "sendReplacedFrames": 1
+      },
+      {
+        "id": 3,
+        "mode": "worker",
+        "sentPackets": 125,
+        "receivedPackets": 1,
+        "wireMessages": 252,
+        "wireBytes": 1320510,
+        "duplicateFrames": 0,
+        "replacedFrames": 0,
+        "maxBufferedBytes": 56103,
+        "queuedBytes": 0,
+        "bufferedBytes": 0,
+        "receiveQueueBytes": 0,
+        "receiveReplacedFrames": 0,
+        "sendQueueBytes": 0,
+        "sendReplacedFrames": 1
+      }
+    ]
+  }
+}

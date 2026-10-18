@@ -1,0 +1,13 @@
+✔ the active API starts without account or Forgejo credentials (0.628542ms)
+✔ the active API exposes connection helpers, not accounts or publishing (5.458166ms)
+✔ certificate requests are bounded and invalid JSON fails cleanly (1.299667ms)
+✔ only a configured loopback proxy may supply the client IP (0.101875ms)
+✔ disabled certificate status returns without loading a database or queue client (0.558458ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.848083

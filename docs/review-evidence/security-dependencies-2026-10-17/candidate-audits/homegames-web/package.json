@@ -1,0 +1,48 @@
+{
+  "name": "homegames-web",
+  "version": "1.4.2",
+  "description": "Play games at home- the web package",
+  "directories": {
+    "lib": "lib"
+  },
+  "browser": {
+    "./index.js": "web/bundle.js"
+  },
+  "bin": "index.js",
+  "pkg": {
+    "assets": [
+      "src/*",
+      "web/**/*"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/homegamesio/homegames.git"
+  },
+  "keywords": [
+    "homegames"
+  ],
+  "author": "Joseph Garcia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/homegamesio/homegames/issues"
+  },
+  "homepage": "https://github.com/homegamesio/homegames#readme",
+  "dependencies": {
+    "assert": "^2.1.0",
+    "homegames-client": "file:/tmp/homegames-security-runtime-verified/homegames-client-0.1.2.tgz",
+    "homegames-common": "file:/tmp/homegames-security-runtime-verified/homegames-common-1.7.2.tgz"
+  },
+  "overrides": {
+    "homepad": "0.2.1",
+    "homegames-common": {
+      ".": "$homegames-common",
+      "ws": "7.5.13"
+    }
+  },
+  "devDependencies": {
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.3.1"
+  },
+  "private": true
+}

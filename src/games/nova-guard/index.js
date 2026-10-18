@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const TICK_RATE = 20;
 
@@ -54,12 +54,15 @@ const angleDiff = (a, b) => {
 class NovaGuard extends Game {
     static metadata() {
         return {
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             aspectRatio: { x: 1, y: 1 },
-            squishVersion: '142',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             name: 'Nova Guard',
             description: 'Co-op arcade defense. Every player pilots an orbital shield around a shared core - block the swarm together and see how many waves your crew survives.',
-            tickRate: TICK_RATE
+            tickRate: TICK_RATE,
+            gameId: "6ca7be52-c375-53c6-a1bd-c640ae80d1af",
+            maxPlayers: 6
         };
     }
 
@@ -237,13 +240,7 @@ class NovaGuard extends Game {
         this.hud.clearChildren();
         this.overlay.clearChildren();
 
-        const title = this.makeGlowText('NOVA GUARD', 50, 12, 6, INK, ACCENT);
-        this.titleHalos = title.slice(0, 4);
-        title.forEach(n => this.overlay.addChild(n, false));
-
-        this.overlay.addChild(new GameNode.Text({
-            textInfo: { x: 50, y: 21, text: 'CO-OP CORE DEFENSE', size: 2, align: 'center', font: 'monospace', color: FAINT }
-        }), false);
+        this.titleHalos = [];
 
         if (this.bestWave > 0) {
             this.overlay.addChild(new GameNode.Text({
@@ -259,10 +256,8 @@ class NovaGuard extends Game {
         this.overlay.addChild(this.startButton, false);
 
         const lines = [
-            'TAP ANYWHERE TO SWING YOUR SHIELD THERE',
-            'OR STEER WITH ARROW KEYS / A + D',
-            'BLOCK THE SWARM - PROTECT THE CORE - NOBODY FIGHTS ALONE',
-            'FRIENDS CAN DROP IN MID-RUN'
+            'TAP TO MOVE YOUR SHIELD. PROTECT THE CORE.',
+            'ARROWS / A + D ALSO STEER'
         ];
         lines.forEach((text, i) => this.overlay.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 85 + i * 3, text, size: 1.3, align: 'center', font: 'monospace', color: FAINT }

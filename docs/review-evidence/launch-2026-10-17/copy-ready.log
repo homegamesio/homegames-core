@@ -1,0 +1,14 @@
+Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/homegames-copy-browser-1LRMYz
+PASS: Studio imports and exports a playable HTML; local file creates a private copy invitation
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#status').filter({ hasText: 'Saved on this device' }) to be visible[22m
+
+    at saved (/Users/josephgarcia/homegames/homegamesio/test/rtc-copy-browser.cjs:67:95)
+    at accept (/Users/josephgarcia/homegames/homegamesio/test/rtc-copy-browser.cjs:78:162)
+    at async /Users/josephgarcia/homegames/homegamesio/test/rtc-copy-browser.cjs:124:35 {
+  log: [
+    "  - waiting for locator('#status').filter({ hasText: 'Saved on this device' }) to be visible"
+  ],
+  name: 'TimeoutError'
+}

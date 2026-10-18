@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const TICK_RATE = 15;
 const MAX_PLAYERS = 8;
@@ -45,9 +45,12 @@ const polyCircle = (cx, cy, r, sides = 12) => {
 class Raft extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png',
+            squishVersion: '150',
             name: 'Raft',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'One raft, everyone paddles. Steer down the river together, scoop up ducks, and try not to hit the banks. You will hit the banks.',
             aspectRatio: { x: 1, y: 1 },
             services: ['multiplayer'],
@@ -455,11 +458,9 @@ class Raft extends Game {
         this.centerLayer.clearChildren();
         if (this.phase === 'lobby') {
             const s = this.centerLayer;
-            s.addChild(this.text('RAFT', 50.4, 14.4, 6, [0, 0, 0, 110], 'center'));
-            s.addChild(this.text('RAFT', 50, 14, 6, CREAM, 'center'));
-            s.addChild(this.text('ONE RAFT. EVERYONE PADDLES. GOOD LUCK.', 50, 27, 1.4, CREAM, 'center'));
-            s.addChild(this.text('STEERING IS THE SUM OF EVERYONE MASHING LEFT AND RIGHT.', 50, 31, 1.15, FAINT, 'center'));
-            s.addChild(this.text('COLLECT DUCKS. THE BANKS FORGIVE, BUT THEY DO NOT FORGET.', 50, 34.5, 1.15, FAINT, 'center'));
+
+            s.addChild(this.text('PADDLE LEFT OR RIGHT TO STEER TOGETHER.', 50, 31, 1.15, FAINT, 'center'));
+            s.addChild(this.text('COLLECT DUCKS. AVOID THE BANKS.', 50, 34.5, 1.15, FAINT, 'center'));
             const ids = Object.keys(this.players).map(Number);
             s.addChild(this.text(`CREW (${ids.length}/${MAX_PLAYERS})`, 38, 43, 1.2, FAINT));
             ids.forEach((pid, i) => {

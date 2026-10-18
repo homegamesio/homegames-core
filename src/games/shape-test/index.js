@@ -1,4 +1,4 @@
-const { Colors, Game, GameNode, Shapes } = require('squish-142');
+const { Colors, Game, GameNode, Shapes } = require('squish-150');
 const COLORS = Colors.COLORS;
 
 class ShapeTest extends Game {
@@ -8,10 +8,10 @@ class ShapeTest extends Game {
                 x: 16,
                 y: 9
             },
-            author: 'Joseph Garcia',
-            squishVersion: '142',
+            author: "Joseph Garcia",
+            squishVersion: '150',
             name: 'Shape Test',
-            thumbnail: 'e5eea80e9a43152a4b65811cd648228d',
+            thumbnail: './assets/e5eea80e9a43152a4b65811cd648228d.png',
             isTest: true
         };
     }

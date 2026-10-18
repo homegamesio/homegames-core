@@ -1,0 +1,21 @@
+✔ served game manifests validate JSON as data and JavaScript without executing either (10.6925ms)
+✔ native Mac verification explicitly enables smoke while preserving the default supervisor path (0.466667ms)
+✔ a self-contained bundle passes without using ancestor node_modules (21.961583ms)
+✔ historical dynamic fixtures stay hidden, while selected fixtures and malformed release games fail (15.504375ms)
+✔ Mac packaging is self-contained and the verifier rejects missing embedded files despite valid siblings (45.753208ms)
+✔ missing browser bundle and declared runtime stop release verification (12.130709ms)
+✔ missing transitive dependencies and root squish aliases stop release verification (12.063333ms)
+✔ native binaries, linked packages, and private source state stop release verification (11.976292ms)
+✔ missing bytes and assets omitted from a game manifest stop release verification (14.036041ms)
+✔ a configured game cannot depend on an absolute developer path (7.886334ms)
+✔ game-relative assets and helper imports must survive packaging (16.84125ms)
+✔ JSON game data is validated as data, including extensionless imports (15.635834ms)
+✔ constructor-only hosted assets cannot evade the release gate (13.478375ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 240.878709

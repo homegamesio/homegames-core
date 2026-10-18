@@ -1,0 +1,570 @@
+{
+  "repositories": [
+    {
+      "repository": "homegames-core",
+      "packageLicense": "GPL-3.0-only",
+      "rootNotices": [
+        {
+          "path": "/Users/josephgarcia/homegames/homegames-core/LICENSE.md",
+          "detected": "GPL-3.0 text"
+        }
+      ],
+      "commitAuthors": [
+        "1155\tJoseph Garcia",
+        "    23\tYazeedLoonat",
+        "    13\tdependabot[bot]",
+        "     9\tYazeed Loonat",
+        "     2\tAlexander Reed"
+      ]
+    },
+    {
+      "repository": "homegames-common",
+      "packageLicense": "GPL-3.0-only",
+      "rootNotices": [
+        {
+          "path": "/Users/josephgarcia/homegames/homegames-common/LICENSE.md",
+          "detected": "GPL-3.0 text"
+        }
+      ],
+      "commitAuthors": [
+        "110\tJoseph Garcia"
+      ]
+    },
+    {
+      "repository": "squish",
+      "packageLicense": "GPL-3.0-only",
+      "rootNotices": [
+        {
+          "path": "/Users/josephgarcia/homegames/squish/LICENSE.md",
+          "detected": "GPL-3.0 text"
+        }
+      ],
+      "commitAuthors": [
+        "233\tJoseph Garcia",
+        "    15\tYazeedLoonat",
+        "     5\tYazeed Loonat"
+      ]
+    },
+    {
+      "repository": "homegames-client",
+      "packageLicense": "GPL-3.0",
+      "rootNotices": [
+        {
+          "path": "/Users/josephgarcia/homegames/homegames-client/LICENSE",
+          "detected": "GPL-3.0 text"
+        }
+      ],
+      "commitAuthors": [
+        "24\tJoseph Garcia"
+      ]
+    },
+    {
+      "repository": "worker",
+      "packageLicense": null,
+      "rootNotices": [],
+      "commitAuthors": [
+        "22\tJoseph Garcia"
+      ]
+    },
+    {
+      "repository": "api",
+      "packageLicense": null,
+      "rootNotices": [],
+      "commitAuthors": [
+        "126\tJoseph Garcia"
+      ]
+    },
+    {
+      "repository": "homepad",
+      "packageLicense": "MIT",
+      "rootNotices": [],
+      "commitAuthors": [
+        "18\tJoseph Garcia"
+      ]
+    },
+    {
+      "repository": "homegames.link",
+      "packageLicense": "MIT",
+      "rootNotices": [],
+      "commitAuthors": [
+        "88\tJoseph Garcia",
+        "     5\tdependabot[bot]"
+      ]
+    },
+    {
+      "repository": "homegames-web",
+      "packageLicense": "ISC",
+      "rootNotices": [
+        {
+          "path": "/Users/josephgarcia/homegames/homegames-web/license.txt",
+          "detected": "GPL-3.0 text"
+        }
+      ],
+      "commitAuthors": [
+        "329\tJoseph Garcia",
+        "    12\tdependabot[bot]",
+        "     1\tAlexander Reed",
+        "     1\troot"
+      ]
+    },
+    {
+      "repository": "homegamesio",
+      "packageLicense": "MIT",
+      "rootNotices": [
+        {
+          "path": "/Users/josephgarcia/homegames/homegamesio/license.txt",
+          "detected": "GPL-3.0 text"
+        }
+      ],
+      "commitAuthors": [
+        "244\tJoseph Garcia",
+        "     5\tdependabot[bot]"
+      ]
+    },
+    {
+      "repository": "homegames",
+      "packageLicense": "ISC",
+      "rootNotices": [],
+      "commitAuthors": [
+        "132\tJoseph Garcia"
+      ]
+    }
+  ],
+  "gameLicenses": {
+    "GPL-3.0 text": 80,
+    "MIT text": 6
+  },
+  "assetProvenance": [
+    {
+      "path": "sponge/assets/sources.json",
+      "recordCount": 8,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "perf-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "savegame_demo/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "hot-potato/assets/sources.json",
+      "recordCount": 5,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "grid-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "clicktionary/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "doodle-invaders/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "weed-smoke-willie/assets/sources.json",
+      "recordCount": 26,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "lemonade-tycoon/assets/sources.json",
+      "recordCount": 26,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source",
+        "sourceCutout"
+      ]
+    },
+    {
+      "path": "image-test/assets/sources.json",
+      "recordCount": 2,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "disco-owl/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "sprite-test/assets/sources.json",
+      "recordCount": 6,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "sound-test/assets/sources.json",
+      "recordCount": 2,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "move-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "vegas-trail/assets/sources.json",
+      "recordCount": 86,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "player-vis-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "scale-test/assets/sources.json",
+      "recordCount": 2,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "layer-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "shape-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "cursor-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "animation-test/assets/sources.json",
+      "recordCount": 31,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "word-match/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "image-gallery/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "snap-judgment/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "device-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "view-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "mem-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    },
+    {
+      "path": "input-test/assets/sources.json",
+      "recordCount": 1,
+      "fields": [
+        "byteLength",
+        "legacyAssetId",
+        "path",
+        "sha256",
+        "source"
+      ]
+    }
+  ],
+  "contributorsPermission": "User confirmed written permissions or assignments exist on 2026-10-17; documents and scope not independently inspected.",
+  "dependencyLicenseHints": [
+    {
+      "repo": "homegames-core",
+      "nonPermissiveOrReview": [],
+      "missingLicenseMetadata": 282
+    },
+    {
+      "repo": "homegames-common",
+      "nonPermissiveOrReview": [],
+      "missingLicenseMetadata": 248
+    },
+    {
+      "repo": "homegames-client",
+      "nonPermissiveOrReview": [],
+      "missingLicenseMetadata": 253
+    },
+    {
+      "repo": "api",
+      "nonPermissiveOrReview": [
+        {
+          "path": "node_modules/@img/sharp-libvips-darwin-arm64",
+          "version": "1.0.4",
+          "license": "LGPL-3.0-or-later"
+        },
+        {
+          "path": "node_modules/@img/sharp-libvips-darwin-x64",
+          "version": "1.0.4",
+          "license": "LGPL-3.0-or-later"
+        },
+        {
+          "path": "node_modules/@img/sharp-libvips-linux-arm",
+          "version": "1.0.5",
+          "license": "LGPL-3.0-or-later"
+        },
+        {
+          "path": "node_modules/@img/sharp-libvips-linux-arm64",
+          "version": "1.0.4",
+          "license": "LGPL-3.0-or-later"
+        },
+        {
+          "path": "node_modules/@img/sharp-libvips-linux-s390x",
+          "version": "1.0.4",
+          "license": "LGPL-3.0-or-later"
+        },
+        {
+          "path": "node_modules/@img/sharp-libvips-linux-x64",
+          "version": "1.0.4",
+          "license": "LGPL-3.0-or-later"
+        },
+        {
+          "path": "node_modules/@img/sharp-libvips-linuxmusl-arm64",
+          "version": "1.0.4",
+          "license": "LGPL-3.0-or-later"
+        },
+        {
+          "path": "node_modules/@img/sharp-libvips-linuxmusl-x64",
+          "version": "1.0.4",
+          "license": "LGPL-3.0-or-later"
+        },
+        {
+          "path": "node_modules/@img/sharp-wasm32",
+          "version": "0.33.5",
+          "license": "Apache-2.0 AND LGPL-3.0-or-later AND MIT"
+        },
+        {
+          "path": "node_modules/@img/sharp-win32-ia32",
+          "version": "0.33.5",
+          "license": "Apache-2.0 AND LGPL-3.0-or-later"
+        },
+        {
+          "path": "node_modules/@img/sharp-win32-x64",
+          "version": "0.33.5",
+          "license": "Apache-2.0 AND LGPL-3.0-or-later"
+        },
+        {
+          "path": "node_modules/node-forge",
+          "version": "1.4.0",
+          "license": "(BSD-3-Clause OR GPL-2.0)"
+        }
+      ],
+      "missingLicenseMetadata": 11
+    },
+    {
+      "repo": "worker",
+      "nonPermissiveOrReview": [
+        {
+          "path": "node_modules/node-forge",
+          "version": "1.3.1",
+          "license": "(BSD-3-Clause OR GPL-2.0)"
+        }
+      ],
+      "missingLicenseMetadata": 212
+    },
+    {
+      "repo": "homegamesio",
+      "nonPermissiveOrReview": [
+        {
+          "path": "node_modules/dompurify",
+          "version": "3.4.5",
+          "license": "(MPL-2.0 OR Apache-2.0)"
+        }
+      ],
+      "missingLicenseMetadata": 250
+    },
+    {
+      "repo": "homegames.link",
+      "nonPermissiveOrReview": [],
+      "missingLicenseMetadata": 71
+    },
+    {
+      "repo": "homegames",
+      "nonPermissiveOrReview": [
+        {
+          "path": "../homegames-core",
+          "version": "1.4.3",
+          "license": "GPL-3.0-only"
+        }
+      ],
+      "missingLicenseMetadata": 1
+    }
+  ]
+}

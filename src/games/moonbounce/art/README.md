@@ -1,8 +1,8 @@
 # Moon Garden
 
 `moon-garden-v2.png` is original environmental art generated for Moonbounce with
-the built-in imagegen tool. `../garden-data.js` embeds these exact PNG bytes as
-base64 for Homegames browser-local and hosted sessions. The image needs no
+the built-in imagegen tool. `../garden-data.json` embeds these exact PNG bytes as
+base64, loaded through the `garden-data.js` shim for Homegames browser-local and hosted sessions. The image needs no
 external asset server. The game draws interactive pegs, characters, UI, and
 effects over the painting.
 

@@ -16,6 +16,7 @@ const LOG_LEVEL = getConfigValue('LOG_LEVEL', 'INFO');
 // if DEBUG, log all
 
 const msgToString = (msg) => {
+    if (msg instanceof Error) return msg.stack || msg.message;
     return typeof msg === 'object' ? JSON.stringify(msg) : msg;
 };
 

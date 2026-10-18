@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const WORDS = require('./words');
 
 const TICK_RATE = 10;
@@ -36,14 +36,18 @@ const BRUSH_SIZES = { S: 0.7, M: 1.3, L: 2.4 };
 // link into one polyline, extruded into a thin closed strip.
 // A strip has 2 * points + 1 vertices; the wire format caps a node at ~126.
 const MAX_POINTS_PER_STROKE = 55;
+const MAX_STROKE_NODES = 96;
 const STROKE_LINK_MS = 400;   // held-drag re-clicks arrive ~every 30ms; a longer gap ends the stroke
 const MIN_POINT_DIST = 0.25;
+const MAX_LINK_DIST = 6;
 // At 16:9, y-units are physically 9/16 the size of x-units; strokes correct
 // for this so lines stay visually round in every direction.
 const ASPECT = 16 / 9;
 
 // Canvas bounds
 const CANVAS = { x: 15, y: 11, w: 70, h: 78 };
+const RECAP_CANVAS = { x: 22, y: 18, w: 56, h: 62.4 };
+const RECAP_SCALE = RECAP_CANVAS.w / CANVAS.w;
 
 const shuffled = (list) => {
     const copy = list.slice();
@@ -53,6 +57,12 @@ const shuffled = (list) => {
     }
     return copy;
 };
+
+const normalizeAnswer = (value) => (value || '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
 
 const levenshtein = (a, b) => {
     const dp = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
@@ -74,13 +84,12 @@ class Clicktionary extends Game {
         return {
             aspectRatio: { x: 16, y: 9 },
             description: 'Take turns drawing while everyone else races to guess the word. Fast guesses score big - the artist scores when you do.',
-            author: 'Joseph Garcia',
-            thumbnail: '4b5f169186bc542e14b5d001d25ce6bb',
-            squishVersion: '142',
-            services: ['multiplayer'],
+            author: "Joseph Garcia",
+            thumbnail: './assets/thumbnail.png',
             name: 'Clicktionary',
-            maxPlayers: MAX_PLAYERS,
-            tickRate: TICK_RATE
+            maxPlayers: 8,
+            tickRate: 10,
+            gameId: "a709a5bf-4cd1-5c0e-a2d9-c5524a052b52"
         };
     }
 
@@ -98,10 +107,12 @@ class Clicktionary extends Game {
         this.choices = [];
         this.usedWords = new Set();
         this.correct = new Set();
+        this.correctOrder = [];
         this.feed = [];
         this.activeStroke = null;
         this.lastStrokeAt = 0;
         this.dirtyStrokes = new Set();
+        this.strokes = [];
         this.inkUsed = 0;
         this.brush = { color: 0, size: 'M' };
         this.pickDeadline = 0;
@@ -113,7 +124,13 @@ class Clicktionary extends Game {
         this.toastUntil = {};
         this.lobbyMsg = null;
         this.lastReveal = null;
+        this.gallery = [];
+        this.galleryIdx = 0;
+        this.roundStartedAt = 0;
+        this.firstGuessAt = null;
         this.canvas = null;
+        this.strokeLayer = null;
+        this.drawCatcher = null;
         this.blanksNode = null;
         this.wordNode = null;
         this.inkNode = null;
@@ -215,7 +232,7 @@ class Clicktionary extends Game {
         delete this.players[pid];
         delete this.toastUntil[pid];
         this.correct.delete(pid);
-        const inGame = this.phase !== 'lobby' && this.phase !== 'podium';
+        const inGame = this.phase === 'picking' || this.phase === 'drawing' || this.phase === 'reveal';
         if (inGame && Object.keys(this.players).length < 2) {
             return this.abortToLobby('GAME ENDED - NOT ENOUGH PLAYERS');
         }
@@ -254,6 +271,9 @@ class Clicktionary extends Game {
             this.drawQueue.push(...order);
         }
         this.usedWords = new Set();
+        this.gallery = [];
+        this.galleryIdx = 0;
+        this.lastReveal = null;
         this.lobbyMsg = null;
         this.roundIdx = 0;
         this.startRound();
@@ -265,14 +285,18 @@ class Clicktionary extends Game {
         this.word = null;
         this.choices = this.pickChoices();
         this.correct = new Set();
+        this.correctOrder = [];
         this.feed = [];
         this.activeStroke = null;
         this.dirtyStrokes.clear();
+        this.strokes = [];
         this.inkUsed = 0;
         this.revealed = new Set();
         this.brush = { color: 0, size: 'M' };
         this.pickDeadline = this._t + PICK_SECONDS * TICK_RATE;
         this.canvas = null;
+        this.strokeLayer = null;
+        this.drawCatcher = null;
         this.inkNode = null;
         this.canvasLayer.clearChildren();
         this.wordLayer.clearChildren();
@@ -295,15 +319,26 @@ class Clicktionary extends Game {
         this.word = this.choices[choiceIdx % this.choices.length];
         this.usedWords.add(this.word);
         this.phase = 'drawing';
+        this.roundStartedAt = this._t;
+        this.firstGuessAt = null;
         this.drawDeadline = this._t + DRAW_SECONDS * TICK_RATE;
-        this.hintAt = [this._t + 370, this._t + 560];
+        this.hintAt = [
+            this._t + 37 * TICK_RATE,
+            this._t + 56 * TICK_RATE
+        ];
         this.hintIdx = 0;
 
         this.canvas = this.rect(CANVAS.x, CANVAS.y, CANVAS.w, CANVAS.h, PAPER_WHITE, {
-            border: 3, color: NAVY,
+            border: 3,
+            color: NAVY
+        });
+        this.strokeLayer = this.container();
+        this.drawCatcher = this.rect(CANVAS.x, CANVAS.y, CANVAS.w, CANVAS.h, [0, 0, 0, 0], {
             onClick: (playerId, x, y) => this.drawDot(Number(playerId), x, y)
         });
-        this.canvasLayer.addChild(this.canvas);
+        this.drawCatcher.node.onDrag = (playerId, x, y) => this.drawDot(Number(playerId), x, y);
+        // The transparent catcher is last so completed strokes never swallow drawing input.
+        this.canvasLayer.addChildren(this.canvas, this.strokeLayer, this.drawCatcher);
 
         this.blanksNode = new GameNode.Text({
             textInfo: { text: '', x: 50, y: 2.5, size: 2.2, align: 'center', font: 'monospace', color: NAVY },
@@ -331,6 +366,7 @@ class Clicktionary extends Game {
             of: guessers.length,
             reason
         };
+        this.archiveCurrentDrawing(this.lastReveal);
         if (this.blanksNode) {
             this.blanksNode.node.playerIds = [0];
         }
@@ -359,17 +395,46 @@ class Clicktionary extends Game {
     }
 
     playAgain(pid) {
-        if (this.phase !== 'podium' || !this.players[pid]) {
+        if ((this.phase !== 'podium' && this.phase !== 'gallery') || !this.players[pid]) {
             return;
         }
         this.abortToLobby(null);
+    }
+
+    showGallery(pid) {
+        if (this.phase !== 'podium' || !this.players[pid] || !this.gallery.length) {
+            return;
+        }
+        this.phase = 'gallery';
+        this.galleryIdx = 0;
+        this.refresh();
+    }
+
+    galleryStep(pid, delta) {
+        if (this.phase !== 'gallery' || !this.players[pid] || !this.gallery.length) {
+            return;
+        }
+        this.galleryIdx = (this.galleryIdx + delta + this.gallery.length) % this.gallery.length;
+        this.refresh();
+    }
+
+    backToPodium(pid) {
+        if (this.phase !== 'gallery' || !this.players[pid]) {
+            return;
+        }
+        this.phase = 'podium';
+        this.refresh();
     }
 
     abortToLobby(msg) {
         this.phase = 'lobby';
         this.lobbyMsg = msg;
         this.word = null;
+        this.gallery = [];
+        this.galleryIdx = 0;
         this.canvas = null;
+        this.strokeLayer = null;
+        this.drawCatcher = null;
         this.blanksNode = null;
         this.wordNode = null;
         this.canvasLayer.clearChildren();
@@ -394,11 +459,20 @@ class Clicktionary extends Game {
         const cy = Math.max(CANVAS.y + 0.3 + h / 2, Math.min(CANVAS.y + CANVAS.h - 0.3 - h / 2, y));
 
         const now = Date.now();
-        const linked = this.activeStroke && (now - this.lastStrokeAt) < STROKE_LINK_MS;
+        const previousStroke = this.activeStroke;
+        const previousPoint = previousStroke
+            ? previousStroke.points[previousStroke.points.length - 1]
+            : null;
+        const linkDistance = previousPoint
+            ? Math.hypot(cx - previousPoint[0], (cy - previousPoint[1]) / ASPECT)
+            : Infinity;
+        const linked = previousStroke
+            && (now - this.lastStrokeAt) < STROKE_LINK_MS
+            && linkDistance <= MAX_LINK_DIST;
         this.lastStrokeAt = now;
 
         if (linked) {
-            let stroke = this.activeStroke;
+            let stroke = previousStroke;
             const last = stroke.points[stroke.points.length - 1];
             if (Math.hypot(cx - last[0], (cy - last[1]) / ASPECT) < MIN_POINT_DIST) {
                 return;
@@ -406,23 +480,34 @@ class Clicktionary extends Game {
             if (stroke.points.length >= MAX_POINTS_PER_STROKE) {
                 // Chain a new stroke starting where the full one ended so the line stays continuous.
                 stroke = this.startStroke(last[0], last[1], w);
+                if (!stroke) {
+                    this.activeStroke = null;
+                    return this.toastFor(pid, 'TOO MANY STROKES - HIT CLEAR');
+                }
                 this.activeStroke = stroke;
             }
             stroke.points.push([cx, cy]);
             this.dirtyStrokes.add(stroke);
         } else {
             this.activeStroke = this.startStroke(cx, cy, w);
+            if (!this.activeStroke) {
+                return this.toastFor(pid, 'TOO MANY STROKES - HIT CLEAR');
+            }
         }
         this.inkUsed++;
     }
 
     startStroke(x, y, thickness) {
+        if (this.strokes.length >= MAX_STROKE_NODES) {
+            return null;
+        }
         const stroke = {
             points: [[x, y]],
             thickness,
-            color: PALETTE[this.brush.color],
+            color: PALETTE[this.brush.color].slice(),
             node: null
         };
+        this.strokes.push(stroke);
         this.dirtyStrokes.add(stroke);
         return stroke;
     }
@@ -456,16 +541,15 @@ class Clicktionary extends Game {
     }
 
     handleMouseUp(playerId) {
-        if (Number(playerId) === this.drawerId) {
-            this.activeStroke = null;
-        }
+        if (Number(playerId) === this.drawerId) this.activeStroke = null;
     }
 
     clearCanvas(pid) {
-        if (this.phase !== 'drawing' || pid !== this.drawerId || !this.canvas) {
+        if (this.phase !== 'drawing' || pid !== this.drawerId || !this.strokeLayer) {
             return;
         }
-        this.canvas.clearChildren();
+        this.strokeLayer.clearChildren();
+        this.strokes = [];
         this.activeStroke = null;
         this.dirtyStrokes.clear();
         this.inkUsed = 0;
@@ -491,13 +575,24 @@ class Clicktionary extends Game {
         if (this.phase !== 'drawing' || pid === this.drawerId || !this.players[pid] || this.correct.has(pid)) {
             return;
         }
-        const guess = (value || '').toString().trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 24);
-        if (!guess) {
+        const displayGuess = (value || '').toString().trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 24);
+        if (!displayGuess) {
             return;
         }
-        const hit = guess === this.word || (this.word.length >= 5 && guess.includes(this.word));
+        const guess = normalizeAnswer(displayGuess);
+        const accepted = [
+            this.word,
+            ...((WORDS.aliases && WORDS.aliases[this.word]) || [])
+        ].map(normalizeAnswer);
+        const hit = accepted.some(answer =>
+            guess === answer || (answer.length >= 5 && guess.includes(answer))
+        );
         if (hit) {
             this.correct.add(pid);
+            this.correctOrder.push(pid);
+            if (this.firstGuessAt === null) {
+                this.firstGuessAt = this._t;
+            }
             const secLeft = Math.max(0, Math.ceil((this.drawDeadline - this._t) / TICK_RATE));
             const pts = 100 + secLeft;
             this.players[pid].score += pts;
@@ -511,12 +606,14 @@ class Clicktionary extends Game {
             this.rebuildPlayerRoot(pid);
             this.rebuildSide();
             this.checkAllGuessed();
-        } else if (levenshtein(guess, this.word) <= (this.word.length >= 6 ? 2 : 1)) {
+        } else if (accepted.some(answer =>
+            levenshtein(guess, answer) <= (answer.length >= 6 ? 2 : 1)
+        )) {
             // Near-misses stay private so the feed doesn't spoil the word
             this.toastFor(pid, 'SO CLOSE!');
         } else {
-            this.pushFeed(this.players[pid].name, guess.toUpperCase(), false);
-            this.spawnBubble(`${this.players[pid].name.slice(0, 8)}: ${guess.slice(0, 14).toUpperCase()}`);
+            this.pushFeed(this.players[pid].name, displayGuess.toUpperCase(), false);
+            this.spawnBubble(`${this.players[pid].name.slice(0, 8)}: ${displayGuess.slice(0, 14).toUpperCase()}`);
             this.rebuildSide();
         }
     }
@@ -601,6 +698,53 @@ class Clicktionary extends Game {
         this.updateWordNodes();
     }
 
+    archiveCurrentDrawing(reveal) {
+        const firstPid = this.correctOrder[0];
+        const firstPlayer = firstPid !== undefined ? this.players[firstPid] : null;
+        this.gallery.push({
+            word: reveal.word,
+            drawerName: (this.players[this.drawerId] || {}).name || 'UNKNOWN',
+            got: reveal.got,
+            of: reveal.of,
+            reason: reveal.reason,
+            firstGuesser: firstPlayer ? firstPlayer.name : null,
+            secondsToFirst: this.firstGuessAt === null
+                ? null
+                : Math.max(0, Math.round((this.firstGuessAt - this.roundStartedAt) / TICK_RATE)),
+            strokes: this.strokes.map(stroke => ({
+                thickness: stroke.thickness,
+                color: stroke.color.slice(),
+                points: stroke.points.map(point => [point[0], point[1]])
+            }))
+        });
+    }
+
+    recapCaption(entry) {
+        if (entry.of > 0 && entry.got === entry.of) {
+            return entry.secondsToFirst !== null && entry.secondsToFirst <= 10
+                ? 'INSTANT MASTERPIECE'
+                : 'A CROWD-PLEASER';
+        }
+        if (entry.got === 0) {
+            return entry.strokes.length >= 60 ? 'COMMITTED TO THE VISION' : 'MODERN ART';
+        }
+        if (entry.got === 1) {
+            return 'ONE TRUE BELIEVER';
+        }
+        return 'THE TEAM FIGURED IT OUT';
+    }
+
+    recapStroke(stroke) {
+        return {
+            thickness: stroke.thickness * RECAP_SCALE,
+            color: stroke.color,
+            points: stroke.points.map(([x, y]) => [
+                RECAP_CANVAS.x + (x - CANVAS.x) * RECAP_SCALE,
+                RECAP_CANVAS.y + (y - CANVAS.y) * RECAP_SCALE
+            ])
+        };
+    }
+
     // ---- game loop ----
 
     tick() {
@@ -622,7 +766,7 @@ class Clicktionary extends Game {
                     this.hintIdx++;
                     this.revealHint();
                 }
-                if (this.dirtyStrokes.size && this.canvas) {
+                if (this.dirtyStrokes.size && this.strokeLayer) {
                     for (const stroke of this.dirtyStrokes) {
                         if (stroke.node) {
                             stroke.node.node.coordinates2d = this.buildStrokeCoordinates(stroke);
@@ -632,7 +776,7 @@ class Clicktionary extends Game {
                                 coordinates2d: this.buildStrokeCoordinates(stroke),
                                 fill: stroke.color
                             });
-                            this.canvas.addChild(stroke.node);
+                            this.strokeLayer.addChild(stroke.node);
                         }
                     }
                     this.dirtyStrokes.clear();
@@ -683,11 +827,12 @@ class Clicktionary extends Game {
         this.rebuildSide();
         this.rebuildCenter();
         Object.keys(this.players).forEach(pid => this.rebuildPlayerRoot(Number(pid)));
+        this.dirty = false;
         this.base.node.onStateChange();
     }
 
     updateTop() {
-        const inGame = this.phase !== 'lobby' && this.phase !== 'podium';
+        const inGame = this.phase === 'picking' || this.phase === 'drawing' || this.phase === 'reveal';
         this.setText(this.roundLabel, inGame ? `ROUND ${Math.min(this.roundIdx + 1, this.drawQueue.length)}/${this.drawQueue.length}` : '');
         const dName = (this.players[this.drawerId] || {}).name;
         let line = '';
@@ -701,7 +846,7 @@ class Clicktionary extends Game {
 
     rebuildSide() {
         this.sideLayer.clearChildren();
-        if (this.phase === 'lobby' || this.phase === 'podium') {
+        if (this.phase === 'lobby' || this.phase === 'podium' || this.phase === 'gallery') {
             return;
         }
         this.sideLayer.addChild(this.text('SCORES', 1, 12, 1.1, FAINT));
@@ -727,13 +872,6 @@ class Clicktionary extends Game {
         this.centerLayer.clearChildren();
         if (this.phase === 'lobby') {
             this.buildLobbyCenter();
-        } else if (this.phase === 'picking') {
-            this.centerLayer.addChild(this.rect(20, 38, 60, 18, CARD, { border: 4, color: NAVY }));
-            this.centerLayer.addChild(this.text(
-                `${(this.players[this.drawerId] || {}).name || '...'} IS PICKING A WORD`,
-                50, 44, 1.8, NAVY, 'center'
-            ));
-            this.centerLayer.addChild(this.text('GET YOUR GUESSING FINGERS READY', 50, 49.5, 1.1, FAINT, 'center'));
         } else if (this.phase === 'reveal' && this.lastReveal) {
             const r = this.lastReveal;
             this.centerLayer.addChild(this.rect(20, 34, 60, 24, CARD, { border: 4, color: CORAL }));
@@ -747,15 +885,16 @@ class Clicktionary extends Game {
             ));
         } else if (this.phase === 'podium') {
             this.buildPodiumCenter();
+        } else if (this.phase === 'gallery') {
+            this.buildGalleryCenter();
         }
     }
 
     buildLobbyCenter() {
         const s = this.centerLayer;
-        s.addChild(this.text('CLICKTIONARY', 50.4, 10.4, 4.5, [0, 0, 0, 120], 'center'));
-        s.addChild(this.text('CLICKTIONARY', 50, 10, 4.5, CORAL, 'center'));
-        s.addChild(this.text('TAKE TURNS DRAWING. EVERYONE ELSE RACES TO GUESS.', 50, 22, 1.3, NAVY, 'center'));
-        s.addChild(this.text('FAST GUESSES SCORE BIG. THE ARTIST SCORES WHEN YOU DO.', 50, 26, 1.15, FAINT, 'center'));
+
+        s.addChild(this.text('ONE DRAWS. EVERYONE ELSE GUESSES.', 50, 22, 1.3, NAVY, 'center'));
+
         if (this.lobbyMsg) {
             s.addChild(this.text(this.lobbyMsg, 50, 31, 1.3, CORAL, 'center'));
         }
@@ -788,10 +927,78 @@ class Clicktionary extends Game {
                 50, y, size, i === 0 ? NAVY : FAINT, 'center'
             ));
         });
+        if (this.gallery.length) {
+            s.addChild(this.makeButton({
+                x: 29, y: 82, w: 19, h: 8, label: 'GALLERY', size: 1.4, fill: NAVY,
+                onClick: (playerId) => this.showGallery(Number(playerId))
+            }));
+            s.addChild(this.makeButton({
+                x: 52, y: 82, w: 19, h: 8, label: 'PLAY AGAIN', size: 1.25, fill: CORAL,
+                onClick: (playerId) => this.playAgain(Number(playerId))
+            }));
+        } else {
+            s.addChild(this.makeButton({
+                x: 37, y: 82, w: 26, h: 8, label: 'PLAY AGAIN', size: 1.6, fill: CORAL,
+                onClick: (playerId) => this.playAgain(Number(playerId))
+            }));
+        }
+    }
+
+    buildGalleryCenter() {
+        const s = this.centerLayer;
+        const entry = this.gallery[this.galleryIdx];
+        if (!entry) {
+            this.phase = 'podium';
+            return this.buildPodiumCenter();
+        }
+
+        s.addChild(this.text('GAME RECAP', 50, 2, 2.4, CORAL, 'center'));
+        s.addChild(this.text(entry.word.toUpperCase(), 50, 7.5, 2.5, NAVY, 'center'));
+        s.addChild(this.text(
+            `DRAWN BY ${entry.drawerName} - ${entry.got}/${entry.of} GUESSED IT`,
+            50, 13, 1.1, FAINT, 'center'
+        ));
+        s.addChild(this.rect(
+            RECAP_CANVAS.x,
+            RECAP_CANVAS.y,
+            RECAP_CANVAS.w,
+            RECAP_CANVAS.h,
+            PAPER_WHITE,
+            { border: 3, color: NAVY }
+        ));
+
+        entry.strokes.forEach(stroke => {
+            const scaled = this.recapStroke(stroke);
+            s.addChild(new GameNode.Shape({
+                shapeType: Shapes.POLYGON,
+                coordinates2d: this.buildStrokeCoordinates(scaled),
+                fill: scaled.color
+            }));
+        });
+
+        s.addChild(this.text(this.recapCaption(entry), 50, 82, 1.25, CORAL, 'center'));
+        if (entry.firstGuesser) {
+            const firstText = entry.secondsToFirst === null
+                ? `FIRST GUESS: ${entry.firstGuesser}`
+                : `FIRST GUESS: ${entry.firstGuesser} IN ${entry.secondsToFirst}s`;
+            s.addChild(this.text(firstText, 50, 85.5, 0.95, FAINT, 'center'));
+        }
         s.addChild(this.makeButton({
-            x: 37, y: 80, w: 26, h: 8, label: 'PLAY AGAIN', size: 1.6, fill: CORAL,
-            onClick: (playerId) => this.playAgain(Number(playerId))
+            x: 18, y: 89, w: 17, h: 7, label: '< PREV', size: 1.1, fill: NAVY,
+            onClick: (playerId) => this.galleryStep(Number(playerId), -1)
         }));
+        s.addChild(this.makeButton({
+            x: 41, y: 89, w: 18, h: 7, label: 'SCORES', size: 1.1, fill: CORAL,
+            onClick: (playerId) => this.backToPodium(Number(playerId))
+        }));
+        s.addChild(this.makeButton({
+            x: 65, y: 89, w: 17, h: 7, label: 'NEXT >', size: 1.1, fill: NAVY,
+            onClick: (playerId) => this.galleryStep(Number(playerId), 1)
+        }));
+        s.addChild(this.text(
+            `${this.galleryIdx + 1} / ${this.gallery.length}`,
+            50, 97, 0.9, FAINT, 'center'
+        ));
     }
 
     rebuildPlayerRoot(pid) {
@@ -833,7 +1040,7 @@ class Clicktionary extends Game {
                     oninput: (playerId, value) => this.submitGuess(Number(playerId), value)
                 }
             });
-            guessBox.addChild(this.text('TAP TO GUESS', 50, 90 + (6.5 - TEXT_H(1.4)) / 2, 1.4, NAVY, 'center'));
+            guessBox.addChild(this.text('GUESS', 50, 90 + (6.5 - TEXT_H(1.4)) / 2, 1.4, NAVY, 'center'));
             p.root.addChild(guessBox);
         }
     }

@@ -1,0 +1,37 @@
+{
+  "node": "v24.19.0",
+  "samples": 500,
+  "scope": "local dispatch only; flat synthetic tree; not mobile/network latency",
+  "results": [
+    {
+      "nodes": 1001,
+      "visibleTargetAtEnd": {
+        "medianMs": 0.05179199999999895,
+        "p95Ms": 0.17799999999999727
+      },
+      "privateBranch": {
+        "medianMs": 0.0003750000000053433,
+        "p95Ms": 0.00041699999999877946
+      },
+      "heldPress": {
+        "medianMs": 0.005291999999997188,
+        "p95Ms": 0.014540999999994142
+      }
+    },
+    {
+      "nodes": 10001,
+      "visibleTargetAtEnd": {
+        "medianMs": 0.3726249999999993,
+        "p95Ms": 0.8896670000000029
+      },
+      "privateBranch": {
+        "medianMs": 0.00012500000002546585,
+        "p95Ms": 0.00016700000003311288
+      },
+      "heldPress": {
+        "medianMs": 0.04541700000004312,
+        "p95Ms": 0.047708000000000084
+      }
+    }
+  ]
+}

@@ -58,7 +58,7 @@ function panel(p, x, y, w, h, alpha = .94, color = C.gold) {
 }
 function disabled(p, label, x, y, w, h) {
     p.roundRect(x, y, w, h, 1, [24, 41, 52], C.line);
-    p.heading(label, x + w / 2, y + (h - 1.7) / 2, 1.7, C.muted, 'center');
+    p.heading(label, x + w / 2, y + (h - 2.6) / 2, 2.6, C.muted, 'center');
 }
 function lock(p, x, y, r = 1.3) {
     p.arc(x, y - r * .25, r * .56, Math.PI, Math.PI, C.muted, r * .17);
@@ -133,13 +133,13 @@ function background(p, s) {
     }
     if (s.screen !== 'home') {
         p.rect(0, 0, 160, 9.3, C.deep, .87);
-        p.heading('F A C E T', 7, 3.1, 3.2, C.cream);
+
         p.ngon(3.5, 5, .95, 4, 0, C.gold);
     }
     if (s.screen === 'play') {
         const callout = s.engine.callout, celebrating = callout && callout.life > 0 && callout.priority >= 2 && !s.engine.paused && !s.tutorial && !['won', 'lost'].includes(s.engine.phase);
         const label = celebrating ? callout.title : mode(s) === 'zen' ? 'Zen' : mode(s) === 'rush' ? 'Rush' : selectedLevel(s).name;
-        p.heading(label, 79, celebrating ? 3.5 : 4.2, celebrating ? 2.6 : 1.75, celebrating ? callout.color : C.gold, 'center');
+        p.heading(label, 79, 3.2, 2.6, celebrating ? callout.color : C.gold, 'center');
         p.button('PAUSE', 136, 2.4, 18.5, 5.2, 'pause', false, true);
     } else {
         p.button('SOUND ' + (s.settings.sound ? 'ON' : 'OFF'), 133, 2.4, 22, 5.2, 'sound', false, true);
@@ -148,12 +148,14 @@ function background(p, s) {
 function nav(p, s) {
     const items = [['HOME', 'home', 22], ['JOURNEY', 'journey', 28], ['COLLECTION', 'collection', 31]];
     let x = 7;
-    for (const [label, screen, w] of items) { p.button(label, x, 85.7, w, 3.5, 'screen:' + screen, s.screen === screen, true); x += w + 3; }
+    for (const [label, screen, w] of items) { p.button(label, x, 84.2, w, 5.4, 'screen:' + screen, s.screen === screen, true); x += w + 3; }
 }
 function home(p, s) {
     const pr = progress(s), t = clock(s);
-    p.text('FACET', 10.4, 24.8, 15.5, C.deep, 'left', .9, 'Georgia, serif');
-    p.text('FACET', 10, 24, 15.5, C.cream, 'left', 1, 'Georgia, serif');
+    titleText(p, 'FACET', 11, 17, 14, C.cream, 'left');
+    p.heading('Match three jewels', 11, 38, 3.5, C.cream);
+    p.text('On a phone? Turn sideways.', 11, 45.5, 2.4, C.gold);
+
     p.arc(123, 39, 22, t * .03, TAU * .92, C.gold, .15, .65);
     p.arc(123, 39, 18.5, -t * .08, TAU * .87, C.mint, .13, .5);
     jewel(p, 5, 123, 39, 14.5, { special: 'prism' });
@@ -161,14 +163,14 @@ function home(p, s) {
     if (s.hasResume) {
         p.button('CONTINUE', 11, 56.5, 45, 10, 'continue', true);
         p.button('JOURNEY', 59, 56.5, 29, 10, 'screen:journey');
-        p.text(s.resumeLabel || '', 33.5, 68, 1.55, C.muted, 'center');
+        p.text(s.resumeLabel || '', 49.5, 67.5, 2.1, C.muted, 'center');
     } else p.button('PLAY', 11, 56.5, 77, 10, 'screen:journey', true);
     p.button('ZEN', 11, 71, 37, 7.7, 'zen', false, true);
     p.button('RUSH · 2 MIN', 51, 71, 37, 7.7, 'rush', false, true);
     panel(p, 100, 65, 48, 15.2, .9, C.line);
     p.heading('COLLECTION', 124, 68.2, 2.1, C.cream, 'center');
     star(p, 118, 75.4, 1.2, C.gold);
-    p.text(pr.totalStars + ' / 90', 121, 74.4, 1.9, C.gold);
+    p.text(pr.totalStars + ' / 90', 121, 73.9, 2.5, C.gold);
     p.buttons.push({ x: 100, y: 65, w: 48, h: 15.2, action: 'screen:collection' });
 }
 function journey(p, s) {
@@ -191,38 +193,43 @@ function journey(p, s) {
         if (unlocked) p.buttons.push({ x: x - 5, y: y - 4.8, w: 10, h: 12, action: 'level:' + level.index });
     });
     panel(p, 112, 24, 42, 58, .97, C.gold);
-    p.text(String(selected.index + 1).padStart(2, '0'), 133, 27, 1.5, C.gold, 'center');
+    p.text(String(selected.index + 1).padStart(2, '0'), 133, 26.5, 2.2, C.gold, 'center');
     textLines(p, selected.name, 133, 31, 23, 2.7, C.cream, 'center', 2);
-    p.heading(selected.moves + ' MOVES', 133, 41.3, 2.2, C.mint, 'center');
-    p.text('2 STAR SCORE', 116, 46, 1.5, C.muted); p.heading(number(selected.parScore), 150, 45.9, 1.8, C.gold, 'right');
-    if (pr.bests[selected.index]) { p.text('BEST', 116, 50, 1.5, C.muted); p.heading(number(pr.bests[selected.index]), 150, 49.9, 1.8, C.cream, 'right'); }
-    if (!canPlay(s, selected.index)) textLines(p, 'Clear the previous level to unlock.', 116, 59, 30, 1.6, C.muted, 'left', 2);
+    p.heading(selected.moves + ' MOVES', 133, 41.3, 2.6, C.mint, 'center');
+    p.text('2 STAR SCORE', 116, 47, 2.1, C.muted);
+    p.heading(number(selected.parScore), 150, 50, 2.6, C.gold, 'right');
+    if (pr.bests[selected.index]) { p.text('BEST', 116, 55, 2.1, C.muted); p.heading(number(pr.bests[selected.index]), 150, 58, 2.6, C.cream, 'right'); }
+    if (!canPlay(s, selected.index)) textLines(p, 'Clear the previous level to unlock.', 116, 59, 25, 2.2, C.muted, 'left', 3);
     if (canPlay(s, selected.index)) p.button(pr.medals[selected.index] ? 'REPLAY' : 'PLAY', 117, 72.5, 32, 6.6, 'start', true, true);
     else disabled(p, 'LOCKED', 117, 72.5, 32, 6.6);
     nav(p, s);
 }
 function collection(p, s) {
     const pr = progress(s);
-    titleText(p, 'COLLECTION', 80, 13, 4.9, C.cream);
+    titleText(p, 'COLLECTION', 80, 12, 4.9, C.cream);
+    const page = s.collectionPage === 1 ? 1 : 0;
+    p.button('<', 113, 12, 9, 6, 'collectionPage:0', page === 0, true);
+    p.roundRect(124, 12, 21, 6, 1, C.deep, null, .94);
+    p.text((page + 1) + ' / 2', 135, 13.1, 2.5, C.cream, 'center');
+    p.button('>', 147, 12, 9, 6, 'collectionPage:1', page === 1, true);
     REALMS.forEach((realm, i) => {
         const x = 7 + i * 50, earned = pr.completedRealms.includes(i);
         panel(p, x, 23, 46, 15, .93, earned ? C.gold : C.line);
         keepsake(p, i, x + 7, 30.5, 3.9, earned ? 1 : .3);
-        p.heading(realm.keepsake.name, x + 14, 25.7, 2, earned ? C.gold : C.muted);
-        if (!earned) textLines(p, 'Complete ' + realm.name, x + 14, 30, 30, 1.5, C.muted, 'left', 2);
+        p.heading(realm.keepsake.name, x + 14, 25.2, 2.5, earned ? C.gold : C.muted);
+        if (!earned) textLines(p, 'Complete ' + realm.name, x + 14, 29.5, 26, 2, C.muted, 'left', 2);
     });
-    const rows = Math.ceil(ACHIEVEMENTS.length / 3), height = Math.min(13, 41 / Math.max(1, rows));
-    ACHIEVEMENTS.forEach((award, i) => {
-        const x = 7 + i % 3 * 50, y = 41 + Math.floor(i / 3) * height, earned = pr.achievements.includes(award.id);
+    ACHIEVEMENTS.slice(page * 6, page * 6 + 6).forEach((award, i) => {
+        const x = 7 + i % 2 * 76, y = 40 + Math.floor(i / 2) * 14.2, earned = pr.achievements.includes(award.id);
         const value = Math.min(award.target, achievementValue(pr, award));
-        p.roundRect(x, y, 46, height - 1, 1.1, C.panel, earned ? C.gold : C.line, .95);
+        p.roundRect(x, y, 71, 13.2, 1.1, C.panel, earned ? C.gold : C.line, .95);
         star(p, x + 3.5, y + 3.7, 1.6, earned ? C.gold : C.line);
-        p.heading(award.title, x + 7, y + 1.1, 1.85, earned ? C.gold : C.cream);
-        textLines(p, award.description, x + 7, y + 4, 39, 1.4, C.muted, 'left', 2);
-        if (!earned) p.text(number(value) + '/' + number(award.target), x + 44, y + height - 3.5, 1.2, C.mint, 'right');
+        p.heading(award.title, x + 7, y + 1.1, 2.8, earned ? C.gold : C.cream);
+        textLines(p, award.description, x + 7, y + 5, 50, 2.2, C.muted, 'left', 2);
+        if (!earned) p.text(number(value) + '/' + number(award.target), x + 68, y + 9.3, 2, C.mint, 'right');
     });
     nav(p, s);
-    p.button('HOW TO PLAY', 120, 85.7, 33, 3.5, 'tutorial', false, true);
+    p.button('HOW TO PLAY', 120, 84.2, 33, 5.4, 'tutorial', false, true);
 }
 
 function boardFrame(p, s) {
@@ -325,10 +332,10 @@ function goalLabel(goal) {
 function hud(p, s) {
     const e = s.engine, currentMode = mode(s), goals = e.goalProgress || [];
     panel(p, 96, 12, 58, 71.8, .95, C.line);
-    p.text('SCORE', 101, 16, 1.55, C.muted);
+    p.text('SCORE', 101, 15, 2.4, C.muted);
     titleText(p, number(s.displayScore === undefined ? e.score : s.displayScore), 101, 20, e.score >= 1000000 ? 5.1 : 6.2, C.cream, 'left');
     p.line(101, 29.3, 149, 29.3, C.gold, .12, .7);
-    p.heading(currentMode === 'rush' ? 'TIME' : currentMode === 'zen' ? 'BEST CASCADE' : 'MOVES', 101, 33.1, 1.7, C.muted);
+    p.heading(currentMode === 'rush' ? 'TIME' : currentMode === 'zen' ? 'BEST CASCADE' : 'MOVES', 101, 33.1, currentMode === 'zen' ? 2.2 : 2.6, C.muted);
     p.heading(currentMode === 'rush' ? formatTime(e.timeLeft) : currentMode === 'zen' ? '×' + (e.maxCascade || 1) : e.movesLeft, 149, 31, 4.9,
         currentMode === 'rush' && e.timeLeft < 20 || currentMode === 'journey' && e.movesLeft <= 5 ? C.jewel[0] : C.gold, 'right');
     if (currentMode === 'journey') goals.slice(0, 3).forEach((goal, i) => {
@@ -336,23 +343,23 @@ function hud(p, s) {
         if (goal.type === 'collect' || goal.type === 'color') jewel(p, goal.color || 0, 103.5, y + 1, 1.45);
         else if (goal.type === 'frost') p.ngon(103.5, y + 1, 1.45, 6, 0, C.light[5], C.cream, .7);
         else star(p, 103.5, y + 1, 1.4, C.gold);
-        p.text(goalLabel(goal), 107, y - .1, 1.45, color);
-        p.heading(number(Math.min(goal.target, goal.current || 0)) + ' / ' + number(goal.target), 149, y + 2.4, 1.55, color, 'right');
+        p.text(goalLabel(goal), 107, y - .6, 2.1, color);
+        p.heading(number(Math.min(goal.target, goal.current || 0)) + ' / ' + number(goal.target), 149, y + 1.8, 2.2, color, 'right');
         p.roundRect(107, y + 3.9, 25, .5, .2, C.line);
         if (goal.current > 0) p.roundRect(107, y + 3.9, 25 * Math.min(1, goal.current / goal.target), .5, .2, goal.complete ? C.mint : C.gold);
     });
     else {
-        p.text('Best  ' + number(currentMode === 'zen' ? progress(s).zenBest : progress(s).rushBest), 125, 49, 1.8, C.gold, 'center');
+        p.text('Best  ' + number(currentMode === 'zen' ? progress(s).zenBest : progress(s).rushBest), 125, 49, 2.5, C.gold, 'center');
     }
     const radiant = e.radiantMoves > 0 || e.radiantActive, charge = clamp((e.radiance || 0) / 100, 0, 1);
     p.arc(108, 72.5, 7.1, 0, TAU, C.line, .24, .65);
     if (radiant || charge > 0) p.arc(108, 72.5, 7.1, -Math.PI / 2, TAU * (radiant ? 1 : charge), radiant ? C.mint : C.gold, .46);
     jewel(p, 5, 108, 72.5, 3.7, { special: radiant ? 'prism' : null });
     p.heading(radiant ? 'RADIANT!' : 'RADIANCE', 119, 65.4, 2.35, radiant ? C.mint : C.gold);
-    p.text(radiant ? (e.radiantMoves || 1) + ' moves · ×2' : Math.floor(e.radiance || 0) + '%', 119, 70, 1.55, C.cream);
+    p.text(radiant ? (e.radiantMoves || 1) + ' moves · ×2' : Math.floor(e.radiance || 0) + '%', 119, 70, 2.3, C.cream);
     p.button('HINT', 119, 75.3, 14, 5.4, 'hint', false, true);
     p.button('HELP', 136, 75.3, 14, 5.4, 'tutorial', false, true);
-
+    if (!progress(s).tutorialSeen && !e.score) p.text('Swap two jewels to match three', 48, 85.8, 2.2, C.cream, 'center');
 }
 
 function modal(p, s) {
@@ -361,22 +368,23 @@ function modal(p, s) {
     panel(p, 30, 15, 100, 67, .99, C.gold);
     if (tutorial) {
         titleText(p, 'HOW TO PLAY', 80, 20, 5.2, C.cream);
-        p.text('Swap neighboring jewels to match three or more.', 80, 28, 2, C.muted, 'center');
+        p.text('Swap neighbors to match three or more.', 80, 28, 2.6, C.muted, 'center');
         const specials = [['row', 'MATCH 4', 'A beam clears a full line.'], ['burst', 'MATCH A T OR L', 'A starburst clears its neighbors.'], ['prism', 'MATCH 5', 'A prism clears one whole color.']];
         specials.forEach(([special, heading, caption], i) => {
             const x = 48 + i * 32;
             jewel(p, i + 1, x, 40, 4.5, { special });
-            p.heading(heading, x, 47.7, 1.85, C.gold, 'center');
-            textLines(p, caption, x, 52.2, 24, 1.6, C.muted, 'center', 2);
+            p.heading(heading, x, 47.7, 2.3, C.gold, 'center');
+            textLines(p, caption, x, 52.2, 22, 2.1, C.muted, 'center', 2);
         });
-        p.text('Swap two specials to combine them.', 80, 61, 2, C.cream, 'center');
-        p.text('Radiance: 3 moves at ×2. Match over frost to clear it.', 80, 65, 1.55, C.muted, 'center');
-        p.text('Drag or tap · Arrows + Enter · H: hint · P: pause', 80, 68.5, 1.45, C.muted, 'center');
+        p.text('Swap two specials to combine them.', 80, 60.8, 2.5, C.cream, 'center');
+        p.text('Radiance: 3 moves at ×2. Match over frost to clear it.', 80, 65, 2.1, C.muted, 'center');
+        p.text('Drag or tap · Arrows + Enter · H: hint · P: pause', 80, 68.5, 2.1, C.muted, 'center');
         p.button('PLAY', 52, 72.5, 56, 7, 'dismissTutorial', true); return;
     }
     if (paused) {
         jewel(p, 5, 80, 29, 6, { special: 'prism' });
         titleText(p, 'PAUSED', 80, 38, 4.6, C.cream);
+        p.text('On a phone? Turn sideways.', 80, 44, 2.3, C.gold, 'center');
         p.button('RESUME', 49, 47.5, 62, 8, 'resume', true);
         p.button('SOUND ' + (s.settings.sound ? 'ON' : 'OFF'), 38, 60, 26, 6, 'sound', false, true);
         p.button('MUSIC ' + (s.settings.music ? 'ON' : 'OFF'), 67, 60, 26, 6, 'music', false, true);
@@ -394,13 +402,13 @@ function modal(p, s) {
     } else jewel(p, won || currentMode === 'rush' ? 5 : 0, 80, 37, 6.8, { special: won || currentMode === 'rush' ? 'prism' : null });
     titleText(p, number(s.displayScore === undefined ? e.score : s.displayScore), 80, 46, 6.7, C.gold);
     if (won && currentMode === 'journey') {
-        p.text('Move bonus  +' + number(result.reserveBonus), 80, 57, 1.85, C.muted, 'center');
+        p.text('Move bonus  +' + number(result.reserveBonus), 80, 57, 2.6, C.muted, 'center');
     }
     const awards = s.newAwards || [];
     const noteY = won && currentMode === 'journey' ? 65.1 : 61;
-    if (awards.length) p.heading((awards[0].title || awards[0].name || awards[0]), 80, noteY, 1.8, C.mint, 'center');
-    else if (currentMode === 'journey') p.text(won ? stars >= 3 ? '' : 'Next star at ' + number(selectedLevel(s).parScore * (stars === 2 ? 1.6 : 1)) : '', 80, noteY, 1.9, C.muted, 'center');
-    else p.text('Best cascade ×' + (e.maxCascade || 1) + '   /   Personal best ' + number(currentMode === 'rush' ? progress(s).rushBest : progress(s).zenBest), 80, 61, 1.8, C.muted, 'center');
+    if (awards.length) p.heading((awards[0].title || awards[0].name || awards[0]), 80, noteY, 2.6, C.mint, 'center');
+    else if (currentMode === 'journey') p.text(won ? stars >= 3 ? '' : 'Next star at ' + number(selectedLevel(s).parScore * (stars === 2 ? 1.6 : 1)) : '', 80, noteY, 2.6, C.muted, 'center');
+    else p.text('Best cascade ×' + (e.maxCascade || 1) + '   /   Personal best ' + number(currentMode === 'rush' ? progress(s).rushBest : progress(s).zenBest), 80, 61, 2.4, C.muted, 'center');
     const nextLabel = selectedLevel(s).index === LEVELS.length - 1 ? 'COLLECTION' : selectedLevel(s).finale ? 'NEXT REALM' : 'NEXT';
     p.button(won && currentMode === 'journey' ? nextLabel : 'RETRY', 42, 71, 54, 7, won && currentMode === 'journey' ? 'next' : 'retry', true);
     p.button('HOME', 102, 71, 19, 7, 'home', false, true);
@@ -413,6 +421,25 @@ function render(p, s) {
     else ({ journey, collection, home }[s.screen] || home)(p, s);
     if (s.tutorial || s.screen === 'play' && (s.engine.paused || s.paused || ['won', 'lost'].includes(s.engine.phase))) {
         p.buttons = []; modal(p, s);
+    }
+    if (s.pendingStart) {
+        p.buttons = [];
+        p.rect(0, 0, 160, 90, C.deep, .85);
+        panel(p, 24, 24, 112, 43, 1, C.gold);
+        titleText(p, 'Replace saved game?', 80, 31, 4.3, C.cream);
+        p.text('Your unfinished game will be replaced.', 80, 42, 2.6, C.muted, 'center');
+        p.button('REPLACE', 34, 53, 43, 8, 'confirmStart', true);
+        p.button('CANCEL', 83, 53, 43, 8, 'cancelStart');
+    }
+    if (s.saveFailed) {
+        // Keep the failure visible and actionable in menus, play, and results.
+        p.rect(4, 0, 152, 9.3, C.deep);
+        p.text('Progress not saved', 7, 2.7, 2.6, C.cream);
+        p.buttons = p.buttons.filter(button => button.y >= 9.3);
+        if (s.screen === 'play' && !s.engine.paused && !s.tutorial && !s.pendingStart && !['won', 'lost'].includes(s.engine.phase)) {
+            p.button('PAUSE', 87, 1.2, 27, 6.8, 'pause', false, true);
+        }
+        p.button('RETRY SAVE', 119, 1.2, 34, 6.8, 'retrySave', true, true);
     }
     p.end();
 }

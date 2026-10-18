@@ -1,0 +1,113 @@
+✅ (passed)  Facet initial and fallback boards are stable, playable and reproducible
+✅ (passed)  Facet invalid swaps animate home without spending moves or radiance
+✅ (passed)  Facet swaps reject diagonal, out-of-range, paused, and exhausted input
+✅ (passed)  Facet four-gem matches retain one lightning gem and clear frost beneath it
+✅ (passed)  Facet five-gem matches create one prism without also creating lightning
+✅ (passed)  Facet intersecting matches create one nova and activate existing specials in that match
+✅ (passed)  Facet prism and ordinary gem clear only the chosen color on their first wave
+✅ (passed)  Facet adjacent lightning combines into a row-column cross without a color match
+✅ (passed)  Facet line-nova, double-nova and double-prism swaps have distinct bounded areas
+✅ (passed)  Facet prism-special conversion triggers every chosen-color gem exactly once
+✅ (passed)  Facet a special triggered by another special fires only once
+✅ (passed)  Facet successful moves consume one move and settle once after all cascades
+✅ (passed)  Facet goals complete on the final move before a loss is considered
+✅ (passed)  Facet unmet goals lose after a last-move cascade and retry resets the whole turn
+✅ (passed)  Facet radiance awards three future successful swaps with double score
+✅ (passed)  Facet rush ends after an accepted final cascade and paused clocks freeze
+✅ (passed)  Facet fixed-step timing, reduced effects and hints cannot change the game outcome
+✅ (passed)  Facet shuffle preserves all earned specials and produces a stable playable board
+✅ (passed)  Facet stable snapshots restore deterministic future play and reject corrupt saves atomically
+✅ (passed)  Facet lengthy play keeps 64 unique gems, finite scores, bounded effects and legal choices
+✅ (passed)  Facet snapshots cannot import gem identities, coordinates or animation state into the live pool
+✅ (passed)  Facet journey wins reward unused moves once, after all goals are satisfied
+✅ (passed)  Facet: actual pointer router handles tap, drag, held repeats and off-board cancellation
+✅ (passed)  Facet: menus, tutorial, pause, locks and default keyboard actions agree
+✅ (passed)  Facet: a held key cannot repeatedly select, start stages or toggle pause
+✅ (passed)  Facet: real browser touch handler delivers between-frame taps and scaled drag swaps
+✅ (passed)  Facet: Homepad controller navigates, selects neighbors, pauses and disconnects safely
+✅ (passed)  Facet: owner controls and paused Rush clock are preserved across reconnect
+✅ (passed)  Facet: stable run save resumes exactly and career stats are credited once
+✅ (passed)  Facet: malformed saves cannot unlock stages or restore a mislabeled Journey
+✅ (passed)  Facet: progress awards survive replays, and results unlock only their next stage
+✅ (passed)  Facet: Journey result persistence and Rush confirm route through the visible CTA
+✅ (passed)  Facet: Zen and Rush stay free of Journey frost, and reduced effects reach simulation
+✅ (passed)  Facet: native local loader includes portable art, sound, progression and game modules
+✅ (passed)  Facet Journey routes cover every authored stage exactly once without changing content or resources
+✅ (passed)  Facet Journey: all ten Luminous Atelier stages complete through ordinary swaps and full cascades
+✅ (passed)  Facet Journey: all ten Verdant Grotto stages complete through ordinary swaps and full cascades
+✅ (passed)  Facet Journey: all ten Aurora Spire stages complete through ordinary swaps and full cascades
+✅ (passed)  Facet Journey: a saved mid-stage frost puzzle continues along the same legal winning route
+✅ (passed)  Facet scene: all exhibits, menus and simultaneous peak effects fit native Squish frames
+✅ (passed)  Facet scene: modal controls replace background actions and locked exhibits cannot be focused
+✅ (passed)  Facet painter: falling jewels are clipped to the board and pooled nodes survive frame changes
+✅ (passed)  Facet scene: save and replacement dialogs stay actionable over peak scenes
+✅ (passed)  Facet collection: two readable pages expose all twelve achievements
+✅ (passed)  Facet sound: the portable crystal bank has bounded PCM, clean endpoints, and independently owned buffers
+✅ (passed)  Facet sound: cascade groups sing one rising pitch and special types have distinct bounded voices
+✅ (passed)  Facet sound: expired asset keys remain absent long enough for native playback to restart
+✅ (passed)  Facet sound: three original realms change at phrase boundaries and radiance adds a separate sparkling layer
+✅ (passed)  Facet sound: a prism cascade and ambient accompaniment retain mix headroom
+✅ (passed)  Facet sound: deterministic cached synthesis, optional registration failures, mute and disposal are safe
+✅ (passed)  Hot Potato gives only the holder a potato over shared Core/RTC frames, and the phone can pass it
+✅ (passed)  Hot Potato late arrivals see their potato above the backdrop and recover to the waiting state
+✅ (passed)  scoped frames 150: global content survives and descendant scopes cannot escape a private ancestor
+✅ (passed)  scoped frames 150: unscoped audio honors sound settings and a fully private scene sends a clearing frame
+✅ (passed)  scoped frames preserve Squish layer iteration for sparse arrays and keyed collections
+✅ (passed)  Built-in default games have local media and no missing modules or placeholder IDs
+Using dictionary file at /Users/josephgarcia/homegames/homegames-core/dictionary.txt
+Found config at /Users/josephgarcia/homegames/homegames-core
+Using config setting: ERROR_REPORTING
+✅ (passed)  Built-in catalog identities do not silently replace another game
+✅ (passed)  Every curated game has its own verified dashboard screenshot
+✅ (passed)  Consolidated game aquarium loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game starweld loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game bannerbound loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game counterforge-apex loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game block-brawlers loads local assets, joins, ticks and disconnects
+IMAGE KEYS
+[ 'img1' ]
+a1
+a2
+a3
+✅ (passed)  Consolidated game image-gallery loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game chronoclast loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game city-commons loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game clicktionary loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game common-ground loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game neon-dodge loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game ball-bounce loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game deadword loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game desert-bloom loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dance-fever loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game disco-owl loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dots-and-boxes loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dragon-drop loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game hot-potato loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game railway-reverie loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game lemonade-tycoon loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game neon-shooter loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game lumen-festival loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game little-consequences loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game blank-template loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game bunny-harvest loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game two-player-fight loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game buddy-box loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game pulsefront loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game counterforge-wilds loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game polystorm loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game snap-judgment loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game sponge loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game swarmwell loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game soccer loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game vegas-trail loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game warpoint loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game worldseed loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game weed-smoke-willie loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game dump-truck loads local assets, joins, ticks and disconnects
+✅ (passed)  Consolidated game robots-arena loads local assets, joins, ticks and disconnects
+✅ (passed)  Sponge: two numeric seats, seven-point match, rematch and bot handoff
+✅ (passed)  Testions: invalid uploads preserve questions, capacity is two, departures allow a new round
+✅ (passed)  Hot Potato: losing either participant cancels the round and its old explosion
+✅ (passed)  VegasTrail: disconnected players stop consuming food
+✅ (passed)  Clicktionary: gallery captures immutable drawings and can return to the lobby
+✅ (passed)  Snap Judgment: sitting out advances the round and judging controls stay out of later phases

@@ -1,0 +1,37 @@
+{
+  "node": "v24.19.0",
+  "method": "Installed Common/Squish serializer; 60 Hz synthetic clock, one warmup second and ten measured seconds. Tier and $1m cash are explicit fixtures, holding Drop. Desktop CPU only; excludes rendering, assets and transport overhead. Browser-local solo play has zero game-frame network upload.",
+  "sourceSha256": {
+    "index.js": "a9ff5e2cb5eab6784aa931cd1a7ddf51f5e0e0adf88214ac3e572fd826c63e81",
+    "engine.js": "504d3b4a9eaabe6a8eb72314ae1d1839d37870b96c24a9e5998e1f0023a19c42"
+  },
+  "results": [
+    {
+      "level": 1,
+      "measuredSeconds": 10,
+      "maxFrameBytes": 4193,
+      "maxSceneNodes": 48,
+      "selfHostedOnePlayerPayloadMbps": 1.907,
+      "tickAndSerializationP95Ms": 0.268,
+      "idleFrames": 0
+    },
+    {
+      "level": 2,
+      "measuredSeconds": 10,
+      "maxFrameBytes": 4193,
+      "maxSceneNodes": 48,
+      "selfHostedOnePlayerPayloadMbps": 1.908,
+      "tickAndSerializationP95Ms": 0.291,
+      "idleFrames": 0
+    },
+    {
+      "level": 3,
+      "measuredSeconds": 10,
+      "maxFrameBytes": 4193,
+      "maxSceneNodes": 48,
+      "selfHostedOnePlayerPayloadMbps": 1.911,
+      "tickAndSerializationP95Ms": 0.263,
+      "idleFrames": 0
+    }
+  ]
+}

@@ -1,215 +1,197 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
-
-const { data: questionsBase64 } = require('./questions');// not sure if i want to do it like this
-
-const { questions } = JSON.parse(Buffer.from(questionsBase64, 'base64').toString('utf8'));
-
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
+const { questions } = require('./questions');
 const { WHITE, BLACK } = Colors.COLORS;
-
-// Smooth strokes, same technique as src/games/draw: clicks that arrive close
-// together in time link into one polyline, extruded into a thin closed strip.
-// A strip has 2 * points + 1 vertices; the wire format caps a node at ~126.
 const MAX_POINTS_PER_STROKE = 55;
-const STROKE_LINK_MS = 400;   // held-drag re-clicks arrive ~every 30ms; a longer gap ends the stroke
+const MAX_POINTS_PER_FRAME = 600;
+const MAX_STROKES_PER_FRAME = 32;
+const STROKE_LINK_MS = 400;
 const MIN_POINT_DIST = 0.25;
-// At 2:3, y-units are physically 3/2 the size of x-units; strokes correct for
-// this so lines stay visually round in every direction.
 const ASPECT = 2 / 3;
-const PEN_WIDTH = 2;          // matches the weight of the old 2x2 pixel cells
-
+const PEN_WIDTH = 2;
 const CREATOR_CANVAS = { x: 5, y: 15, w: 90, h: 60 };
+const MAX_PHRASE_LENGTH = 60;
+const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
 
 class Hangman extends Game {
     static metadata() {
         return {
+            name: 'Hangman',
+            description: 'Classic hangman',
             aspectRatio: {x: 2, y: 3},
-            author: 'Joseph Garcia',
-            thumbnail: 'bb3af9630c2ee9d54f27dd378468c4ee',
-            squishVersion: '142',
-            services: ['multiplayer'],
+            author: "Joseph Garcia",
+            thumbnail: './assets/thumbnail.png',
             tickRate: 60,
             assets: {
                 'amateur': new Asset({
                     'type': 'font',
-                    'id': '026a26ef0dd340681f62565eb5bf08fb'
+                    path: "./assets/026a26ef0dd340681f62565eb5bf08fb.bin"
                 }),
                 'heavy-amateur': new Asset({
                     'type': 'font',
-                    'id': '9f11fac62df9c1559f6bd32de1382c20'
+                    path: "./assets/9f11fac62df9c1559f6bd32de1382c20.bin"
                 }), 
                 'hangman_0': new Asset({
                     'type': 'image',
-                    'id': 'f5c92180db47539d4a92ee947b137aae'
+                    path: "./assets/f5c92180db47539d4a92ee947b137aae.png"
                 }),
                 'hangman_1': new Asset({
                     'type': 'image',
-                    'id': '6e89789a60d9cc55c490eee96b0a8bfe'
+                    path: "./assets/6e89789a60d9cc55c490eee96b0a8bfe.png"
                 }),
                 'hangman_2': new Asset({
                     'type': 'image',
-                    'id': '413d6a8e94bdb81bac8cc02debbe0c11'
+                    path: "./assets/413d6a8e94bdb81bac8cc02debbe0c11.png"
                 }),
                 'hangman_3': new Asset({
                     'type': 'image',
-                    'id': 'a816e4b84ae74df580c7b93c15e2f2ae'
+                    path: "./assets/a816e4b84ae74df580c7b93c15e2f2ae.png"
                 }),
                 'hangman_4': new Asset({
                     'type': 'image',
-                    'id': 'af52c4ad108055ec0099d9246bc04516'
+                    path: "./assets/af52c4ad108055ec0099d9246bc04516.png"
                 }),
                 'hangman_5': new Asset({
                     'type': 'image',
-                    'id': '59d08314d9184f8e3f1b54bd65b230a9'
+                    path: "./assets/59d08314d9184f8e3f1b54bd65b230a9.png"
                 }),
                 'strikethrough_0': new Asset({
                     'type': 'image',
-                    'id': 'bf83d4c187d7f997c5a93547150482b8'
+                    path: "./assets/bf83d4c187d7f997c5a93547150482b8.png"
                 }),
                 'strikethrough_1': new Asset({
                     'type': 'image',
-                    'id': '433ebba7ceea900df41e825fe6445fe5'
+                    path: "./assets/433ebba7ceea900df41e825fe6445fe5.png"
                 }),
                 'strikethrough_2': new Asset({
                     'type': 'image',
-                    'id': '25fa2a38b52580789082a224a66f3ad7'
+                    path: "./assets/25fa2a38b52580789082a224a66f3ad7.png"
                 }),
                 'scribbles_1': new Asset({
                     'type': 'audio',
-                    'id': '28f764486fc2e5d6747d0d7a872cc760'
+                    path: "./assets/28f764486fc2e5d6747d0d7a872cc760.mp3"
                 }),
                 'scribbles_2': new Asset({
                     'type': 'audio',
-                    'id': 'ec68b3be88ba9d892ff29103385fd401'
+                    path: "./assets/ec68b3be88ba9d892ff29103385fd401.mp3"
                 }),
                 'scribbles_3': new Asset({
                     'type': 'audio',
-                    'id': 'baf78f36dcd7a49390e77e88738e7203'
+                    path: "./assets/baf78f36dcd7a49390e77e88738e7203.mp3"
                 })
-            }
+            },
+            gameId: "1494ecd3-d322-5f69-ae07-f331bfde9303",
+            maxPlayers: 8
         };
     }
+
 
     constructor() {
         super();
         this.players = {};
         this.overrideRoots = {};
         this.customHangmen = {};
-        this.actions = [];
         this.needsMouseUp = {};
         this.creatorMouseUps = {};
-
-        this.base = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: [
-                [0, 0],
-                [100, 0],
-                [100, 100],
-                [0, 100],
-                [0, 0]
-            ],
-            fill: WHITE
-        });
-
-        this.gameBase = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
-        });
-
-        this.soundRoot = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
-        });
-
-        this.playerOverrideRoot = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
-        });
-
-        this.base.addChildren(this.gameBase, this.playerOverrideRoot, this.soundRoot);
-
-        this.layers = [
-            {
-                root: this.base
-            }
-        ];
+        this.playerIndex = 0;
+        this.playerOrder = [];
+        this.base = this.shape(0,0,100,100,WHITE);
+        this.gameBase = this.shape();
+        this.soundRoot = this.shape();
+        this.playerOverrideRoot = this.shape();
+        this.base.addChildren(this.gameBase,this.playerOverrideRoot,this.soundRoot);
+        this.layers = [{root:this.base}];
     }
 
-    showHangmanOptions(playerId, actionPayload) {
-        const fullScreenTakeOver = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
-            fill: WHITE,
-            playerIds: [playerId]
-        });
-
-        const useDefaultHangman = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            fill: BLACK,
-            coordinates2d: ShapeUtils.rectangle(15, 20, 70, 20),
-            onClick: () => {
-                this.actions.push(actionPayload);
-            }
-        });
-
-        const useDefaultHangmanText = new GameNode.Text({
-            textInfo: {
-                text: 'use default hangman',
-                font: 'heavy-amateur',
-                color: WHITE,
-                x: 50,
-                y: 29,
-                align: 'center',
-                size: 4
-            }
-        });
-
-        useDefaultHangman.addChild(useDefaultHangmanText);
-
-        const createMyOwnHangman = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            fill: BLACK,
-            coordinates2d: ShapeUtils.rectangle(15, 60, 70, 20),
-            onClick: () => {
-                const hangmanCreator = this.hangmanCreator(playerId, actionPayload);
-                fullScreenTakeOver.clearChildren();
-                fullScreenTakeOver.addChild(hangmanCreator);
-            }
-        });
-    
-        const createCustomHangmanText = new GameNode.Text({
-            textInfo: {
-                text: 'create custom hangman',
-                font: 'heavy-amateur',
-                color: WHITE,
-                x: 50,
-                y: 69,
-                align: 'center',
-                size: 4
-            }
-        });
-
-        const orText = new GameNode.Text({
-            textInfo: {
-                text: 'or',
-                size: 8,
-                x: 50,
-                y: 47,
-                font: 'amateur',
-                align: 'center',
-                color: BLACK
-            }
-        });
-
-        createMyOwnHangman.addChild(createCustomHangmanText);
-
-        fullScreenTakeOver.addChildren(useDefaultHangman, createMyOwnHangman, orText);
-
-        this.overrideRoots[playerId] = fullScreenTakeOver;
-
-        this.playerOverrideRoot.addChildren(fullScreenTakeOver);
+    shape(x=0,y=0,w=0,h=0,fill) {
+        return new GameNode.Shape({shapeType:Shapes.POLYGON,coordinates2d:ShapeUtils.rectangle(x,y,w,h),fill});
     }
 
-    hangmanCreator(playerId, actionPayload) {
+    label(text,x,y,size=4,align='center',color=BLACK,font='amateur') {
+        return new GameNode.Text({textInfo:{text,x,y,size,align,color,font}});
+    }
+
+    button(text,x,y,w,h,onClick,size=4) {
+        const n=new GameNode.Shape({shapeType:Shapes.POLYGON,coordinates2d:ShapeUtils.rectangle(x,y,w,h),fill:BLACK,onClick});
+        n.addChild(this.label(text,x+w/2,y+h/2-size/3,size,'center',WHITE,'heavy-amateur'));
+        return n;
+    }
+
+    takePress(playerId) {
+        if (!this.players[playerId] || this.needsMouseUp[playerId]) return false;
+        this.needsMouseUp[playerId]=true;
+        return true;
+    }
+
+    playerName(id) {
+        const name=this.players[id]?.info?.name || 'Player';
+        return name.length > 22 ? name.slice(0,21)+'…' : name;
+    }
+
+    showHangmanOptions(playerId) {
+        const owner=this.players[playerId];
+        if (!owner || owner.ready) return;
+        if (this.overrideRoots[playerId]) this.playerOverrideRoot.removeChild(this.overrideRoots[playerId].id);
+        const root=this.shape(0,0,100,100,WHITE);root.node.playerIds=[playerId];
+        root.addChildren(
+            this.button('Play',15,20,70,20,id => {if(this.players[id]===owner)this.activatePlayer(id);}),
+            this.button('Draw your own',15,60,70,20,id => {
+                if(this.players[id]!==owner || owner.ready || !this.takePress(id))return;
+                root.clearChildren();root.addChild(this.hangmanCreator(id));
+            }),
+            this.label('or',50,47,8)
+        );
+        this.overrideRoots[playerId]=root;
+        this.playerOverrideRoot.addChild(root);
+    }
+
+    handleNewPlayer({playerId,info={}}) {
+        if (!Number.isSafeInteger(playerId) || playerId<1 || this.players[playerId] || Object.keys(this.players).length>=8) return;
+        this.players[playerId]={playerId,ready:false,correctGuesses:0,incorrectGuesses:0,kills:0,
+            info:{name:typeof info.name==='string' && info.name.trim() ? info.name.trim().slice(0,80) : `Player ${playerId}`}};
+        this.showHangmanOptions(playerId);
+    }
+
+    activatePlayer(playerId) {
+        const p=this.players[playerId];
+        if (!p || p.ready) return;
+        p.ready=true;
+        delete this.creatorMouseUps[playerId];
+        if(this.overrideRoots[playerId])this.playerOverrideRoot.removeChild(this.overrideRoots[playerId].id);
+        delete this.overrideRoots[playerId];
+        this.playerOrder.push(String(playerId));
+        if (!this.currentRound) this.startNextRound();
+        else if(this.currentRound.player != playerId && !this.currentRound.guessers.includes(String(playerId)))this.currentRound.guessers.push(String(playerId));
+    }
+
+    handlePlayerDisconnect(playerId) {
+        if (!this.players[playerId]) return;
+        if(this.overrideRoots[playerId])this.playerOverrideRoot.removeChild(this.overrideRoots[playerId].id);
+        for(const map of [this.players,this.overrideRoots,this.customHangmen,this.needsMouseUp,this.creatorMouseUps])delete map[playerId];
+        this.playerOrder=this.playerOrder.filter(id=>id!=playerId);
+        const round=this.currentRound;
+        if(round) round.guessers=round.guessers.filter(id=>id!=playerId);
+        if(!this.readyPlayers().length) {
+            this.clearRound();this.currentRound=null;
+        } else if(round && ['choosing','playing'].includes(round.phase) &&
+            (round.player==playerId || !round.guessers.length)) {
+            this.clearRound();this.currentRound=null;this.startNextRound();
+        } else if(round?.phase==='scores')this.renderScores();
+    }
+
+    readyPlayers() { return Object.keys(this.players).filter(id=>this.players[id].ready); }
+    getLayers() { return this.layers; }
+
+    handleMouseUp(playerId) {
+        if(!this.players[playerId])return;
+        this.needsMouseUp[playerId]=false;
+        this.creatorMouseUps[playerId]?.();
+    }
+
+    handleKeyDown(playerId,key) {
+        if(typeof key==='string' && /^[a-z]$/i.test(key))this.guess(playerId,key);
+    }
+
+    hangmanCreator(playerId) {
         const container = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0)
@@ -222,18 +204,31 @@ class Hangman extends Game {
         });
 
         let currentStep = 0;
+        const owner = this.players[playerId];
+        const isActive = () => this.players[playerId] === owner && !owner.ready && this.creatorMouseUps[playerId];
 
         const frameStrokes = { 0: [] };
         let activeStroke = null;
         let lastStrokeAt = 0;
 
         const startStroke = (x, y) => {
+            if (frameStrokes[currentStep].length >= MAX_STROKES_PER_FRAME) {
+                status.node.text.text = 'Frame full: Undo, Clear or Next';
+                status.node.onStateChange();
+                return null;
+            }
             const stroke = { points: [[x, y]], thickness: PEN_WIDTH, node: null };
             frameStrokes[currentStep].push(stroke);
             return stroke;
         };
 
         const drawStroke = (x, y) => {
+            if (!isActive() || !Number.isFinite(x) || !Number.isFinite(y)) return;
+            if (frameStrokes[currentStep].reduce((sum,s) => sum+s.points.length,0) >= MAX_POINTS_PER_FRAME) {
+                status.node.text.text = 'Frame full: Undo, Clear or Next';
+                status.node.onStateChange();
+                return;
+            }
             const halfX = PEN_WIDTH / 2;
             const halfY = halfX * ASPECT;
             const cx = Math.max(CREATOR_CANVAS.x + halfX, Math.min(CREATOR_CANVAS.x + CREATOR_CANVAS.w - halfX, x));
@@ -249,14 +244,17 @@ class Hangman extends Game {
                     return;
                 }
                 if (activeStroke.points.length >= MAX_POINTS_PER_STROKE) {
+                    if (frameStrokes[currentStep].reduce((sum,s) => sum+s.points.length,0) > MAX_POINTS_PER_FRAME-2) return;
                     // Chain a new stroke starting where the full one ended so the line stays continuous
                     activeStroke = startStroke(last[0], last[1]);
                 }
+                if (!activeStroke) return;
                 activeStroke.points.push([cx, cy]);
             } else {
                 activeStroke = startStroke(cx, cy);
             }
 
+            if (!activeStroke) return;
             if (activeStroke.node) {
                 activeStroke.node.node.coordinates2d = this.buildStrokeCoordinates(activeStroke.points, activeStroke.thickness);
                 activeStroke.node.node.onStateChange();
@@ -276,6 +274,9 @@ class Hangman extends Game {
             coordinates2d: ShapeUtils.rectangle(CREATOR_CANVAS.x, CREATOR_CANVAS.y, CREATOR_CANVAS.w, CREATOR_CANVAS.h),
             onClick: (_, x, y) => drawStroke(x, y)
         });
+        // Squish 1.5 sends movement during a held press to onDrag.
+        canvas.node.onDrag = (_, x, y) => drawStroke(x, y);
+        canvas.node.offClick = () => { activeStroke = null; };
 
         canvasContainer.addChild(canvas);
 
@@ -297,10 +298,10 @@ class Hangman extends Game {
 
         const doneText = new GameNode.Text({
             textInfo: {
-                x: 50,
+                x: 83,
                 y: 85,
                 font: 'heavy-amateur',
-                text: 'next',
+                text: 'Next',
                 color: WHITE,
                 size: 4,
                 align: 'center'
@@ -310,9 +311,9 @@ class Hangman extends Game {
         const doneButton = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             fill: BLACK,
-            coordinates2d: ShapeUtils.rectangle(40, 82, 20, 10),
+            coordinates2d: ShapeUtils.rectangle(70, 82, 26, 10),
             onClick: () => {
-                if (!this.needsMouseUp[playerId]) {
+                if (isActive() && !this.needsMouseUp[playerId]) {
                     this.needsMouseUp[playerId] = true;
                     activeStroke = null;
                     if (currentStep === 5) {
@@ -323,7 +324,7 @@ class Hangman extends Game {
                         });
                         this.customHangmen[playerId] = frames;
                         delete this.creatorMouseUps[playerId];
-                        this.actions.push(actionPayload);
+                        this.activatePlayer(playerId);
                     } else {
                         currentStep += 1;
                         frameStrokes[currentStep] = [];
@@ -331,6 +332,10 @@ class Hangman extends Game {
                         newText.text = `Frame ${currentStep + 1} of 6`;
                         currentTextLabel.node.text = newText;
                         currentTextLabel.node.onStateChange();
+                        doneText.node.text.text = currentStep === 5 ? 'Done' : 'Next';
+                        status.node.text.text = '';
+                        status.node.onStateChange();
+                        doneText.node.onStateChange();
                     }
                 }
             }
@@ -338,35 +343,30 @@ class Hangman extends Game {
 
         doneButton.addChild(doneText);
 
-        container.addChildren(canvasContainer, currentTextLabel, doneButton);
+        const status = this.label('',50,77,2.8);
+        const undo = this.button('Undo',4,82,26,10,id => {
+            if (!isActive() || !this.takePress(id)) return;
+            activeStroke = null;
+            const removed = frameStrokes[currentStep].pop();
+            if (removed?.node) canvas.removeChild(removed.node.id);
+            status.node.text.text = '';status.node.onStateChange();
+        });
+        const clear = this.button('Clear',37,82,26,10,id => {
+            if (!isActive() || !this.takePress(id)) return;
+            activeStroke = null;
+            for (const s of frameStrokes[currentStep]) if(s.node) canvas.removeChild(s.node.id);
+            frameStrokes[currentStep] = [];
+            status.node.text.text = '';status.node.onStateChange();
+        });
+        const cancel = this.button('Use original',25,93,50,7,id => {
+            if (!isActive() || !this.takePress(id)) return;
+            delete this.customHangmen[playerId];this.activatePlayer(playerId);
+        },3);
+        container.addChildren(canvasContainer, currentTextLabel, doneButton, undo, clear, cancel, status);
 
         return container;
     }
 
-    handleNewPlayer({ playerId, info, settings }) {
-        this.showHangmanOptions(playerId, {'type': 'addPlayer', payload: { playerId, correctGuesses: 0, incorrectGuesses: 0, kills: 0, info} });
-    }
-
-    handlePlayerDisconnect(playerId) {
-        if (this.players[playerId]) {
-            delete this.players[playerId];
-        }
-
-        if (this.currentRound && playerId == this.currentRound.player) {
-            this.endRound();
-        } 
-    }
-
-    handleMouseUp(playerId) {
-        this.needsMouseUp[playerId] = false;
-        if (this.creatorMouseUps[playerId]) {
-            this.creatorMouseUps[playerId]();
-        }
-    }
-
-    // A stroke's polyline extruded into a thin closed strip. Normals are
-    // computed in physical space (y divided by ASPECT) so thickness is
-    // uniform on screen despite the 2:3 aspect ratio.
     buildStrokeCoordinates(points, thickness) {
         const half = thickness / 2;
         if (points.length === 1) {
@@ -392,712 +392,202 @@ class Hangman extends Game {
         return strip;
     }
 
-    getLayers() {
-        return this.layers;
+
+    clearRound() {
+        this.gameBase.clearChildren();this.soundRoot.clearChildren();
+        if(this.roundPromptRoot)this.playerOverrideRoot.removeChild(this.roundPromptRoot.id);
+        this.roundPromptRoot=null;this.timerNodeInfo=null;this.soundEndsAt=null;
+        this.nextRoundStartTime=null;
     }
 
-    newGame() {
-        this.base.clearChildren([this.gameBase.node.id, this.playerOverrideRoot.node.id, this.soundRoot.node.id]); 
-        const playerOrder = Object.keys(this.players).sort((a, b) => Math.random() - Math.random());
-        this.playerOrder = playerOrder;
-        this.nextRoundStartTime = Date.now();
+    newGame() { this.startNextRound(); }
+
+    startNextRound() {
+        const ready=this.readyPlayers();
+        if(!ready.length){this.clearRound();this.currentRound=null;return;}
+        const order=this.playerOrder.filter(id=>this.players[id]?.ready).concat('cpu');
+        const setter=ready.length===1 ? 'cpu' : order[this.playerIndex++ % order.length];
+        this.startRound(setter);
     }
 
-    renderHangmanSection(showMissingCharacters) {
-        const container = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(5, 5, 25, 95)
-        });
+    startRound(playerKey) {
+        this.clearRound();
+        const ready=this.readyPlayers();
+        if(!ready.length){this.currentRound=null;return;}
+        const player=ready.length<2 || !ready.includes(String(playerKey)) ? 'cpu' : String(playerKey);
+        const drawingPlayer=player==='cpu' ? (ready.length===1 ? ready[0] : null) : player;
+        const round=this.currentRound={player,drawingPlayer,setterName:player==='cpu'?'CPU':this.playerName(player),
+            guessers:ready.filter(id=>id!==player),phase:'choosing',correctGuesses:[],incorrectGuesses:[],strikethroughs:{}};
+        if(player==='cpu'){this.useRandomPhrase(round);return;}
+        const timer=this.label('30',50,82,8);
+        this.gameBase.addChildren(this.label('Waiting for',50,42,5),this.label(round.setterName,50,52,4),timer);
+        const prompt=this.shape(0,0,100,80,WHITE);prompt.node.playerIds=[Number(player)];
+        const input=this.shape(10,33,80,16,BLACK);
+        input.node.input={type:'text',oninput:(id,text)=>this.submitPhrase(id,text,round)};
+        input.addChild(this.label('Enter your secret phrase',50,39,3.5,'center',WHITE,'heavy-amateur'));
+        const error=this.label('',50,56,2.6);
+        prompt.addChildren(input,error,this.button('Random word',20,66,60,10,id=>{
+            if(id==round.player && this.currentRound===round && round.phase==='choosing')this.useRandomPhrase(round);
+        },3.5));
+        this.roundPromptRoot=prompt;round.errorNode=error;
+        this.playerOverrideRoot.addChild(prompt);
+        this.timerNodeInfo={node:timer,expireAt:Date.now()+30000,round,lastRemaining:30};
+    }
 
-        let secretPhraseText = "";
-
-        const correctGuesses = new Set(this.currentRound.correctGuesses);
-        const incorrectGuesses = new Set(this.currentRound.incorrectGuesses);
-
-        const secretPhraseWords = this.currentRound.secretPhrase.split(' ');
-        const secretPhrasePieces = secretPhraseWords.map(w => {
-            let secretPhraseText = "";
-            for (let i = 0; i < w.length; i++) {
-                const currentChar = w.charAt(i).toLowerCase();
-                if (currentChar <= 'z' && currentChar >= 'a') {
-                    if (showMissingCharacters || correctGuesses.has(currentChar)) {
-                        secretPhraseText += w.charAt(i);
-                    } else {
-                        secretPhraseText += " _";
-                    }
-                } else {
-                    secretPhraseText += currentChar;
-                }
-            }
-            return secretPhraseText;
-        });
-
-        if (secretPhrasePieces.length < 3) {
-            const secretPhraseNode = new GameNode.Text({
-                textInfo: {
-                    x: 50,
-                    y: 40,
-                    align: 'center',
-                    size: 4,
-                    text: secretPhrasePieces.join('    '),
-                    font: 'amateur',
-                    color: BLACK
-                }
-            });
-
-            container.addChildren(secretPhraseNode);
-        } else if (secretPhrasePieces.length < 5) {
-            const secretPhraseNode1 = new GameNode.Text({
-                textInfo: {
-                    x: 50,
-                    y: 36,
-                    align: 'center',
-                    size: 4,
-                    text: secretPhrasePieces.slice(0, 2).join('    '),
-                    font: 'amateur',
-                    color: BLACK
-                }
-            });
-
-            const secretPhraseNode2 = new GameNode.Text({
-                textInfo: {
-                    x: 50,
-                    y: 42,
-                    align: 'center',
-                    size: 4,
-                    text: secretPhrasePieces.slice(2).join('    '),
-                    font: 'amateur',
-                    color: BLACK
-                }
-            });
-
-            container.addChildren(secretPhraseNode1, secretPhraseNode2);
-
-        } else {
-            const secretPhraseNode1 = new GameNode.Text({
-                textInfo: {
-                    x: 50,
-                    y: 30,
-                    align: 'center',
-                    size: 4,
-                    text: secretPhrasePieces.slice(0, 2).join('    '),
-                    font: 'amateur',
-                    color: BLACK
-                }
-            });
-
-            const secretPhraseNode2 = new GameNode.Text({
-                textInfo: {
-                    x: 50,
-                    y: 36,
-                    align: 'center',
-                    size: 4,
-                    text: secretPhrasePieces.slice(2, 4).join('    '),
-                    font: 'amateur',
-                    color: BLACK
-                }
-            });
-
-            const secretPhraseNode3 = new GameNode.Text({
-                textInfo: {
-                    x: 50,
-                    y: 42,
-                    align: 'center',
-                    size: 4,
-                    text: secretPhrasePieces.slice(4).join('    '),
-                    font: 'amateur',
-                    color: BLACK
-                }
-            });
-
-            container.addChildren(secretPhraseNode1, secretPhraseNode2, secretPhraseNode3);
-
-
+    submitPhrase(playerId,text,round=this.currentRound) {
+        if(this.currentRound!==round || round?.phase!=='choosing' || round.player!=playerId || !this.players[playerId]?.ready)return false;
+        const phrase=typeof text==='string' ? text.replace(/[‘’]/g,"'").replace(/\s+/g,' ').trim() : '';
+        if(!phrase || phrase.length>MAX_PHRASE_LENGTH || /[^\x20-\x7e]/.test(phrase) || !/[a-z]/i.test(phrase)) {
+            if(round.errorNode){round.errorNode.node.text.text='Use 1–60 characters, including A–Z.';round.errorNode.node.onStateChange();}
+            return false;
         }
+        round.secretPhrase=phrase;this.beginGuessing(round);return true;
+    }
 
-        const currentPlayerId = this.currentRound.player;
+    useRandomPhrase(round) {
+        if(this.currentRound!==round || round.phase!=='choosing')return;
+        round.secretPhrase=questions[Math.floor(Math.random()*questions.length)].replace(/[‘’]/g,"'");
+        round.player='cpu';round.setterName='CPU';round.guessers=this.readyPlayers();
+        this.beginGuessing(round);
+    }
 
-        if (currentPlayerId === 'cpu' || !this.customHangmen[currentPlayerId]) {
-            const key = `hangman_${this.currentRound.incorrectGuesses.length}`;
+    beginGuessing(round) {
+        this.timerNodeInfo=null;
+        if(this.roundPromptRoot)this.playerOverrideRoot.removeChild(this.roundPromptRoot.id);
+        this.roundPromptRoot=null;delete round.errorNode;
+        round.phase='playing';this.nextTurn();
+    }
 
-            const image = new GameNode.Asset({
-                coordinates2d: ShapeUtils.rectangle(30, 4, 30, 25),
-                assetInfo: {
-                    [key]: {
-                        pos: {x: 30, y: 4},
-                        size: {x: 30, y: 25}
-                    }
-                }
-            });
-
-            container.addChild(image);
-        } else {
-            // Frames accumulate: one more frame of strokes per incorrect guess.
-            // Strokes are stored in creator-canvas space and scaled by half
-            // into the display area, same mapping as the old pixel grid.
-            for (let k = 0; k <= this.currentRound.incorrectGuesses.length; k++) {
-                const frame = this.customHangmen[currentPlayerId][k];
-                if (frame) {
-                    for (const stroke of frame) {
-                        const scaledPoints = stroke.points.map(([x, y]) => [
-                            27.5 + (x - CREATOR_CANVAS.x) / 2,
-                            5 + (y - CREATOR_CANVAS.y) / 2
-                        ]);
-                        container.addChild(new GameNode.Shape({
-                            shapeType: Shapes.POLYGON,
-                            fill: BLACK,
-                            coordinates2d: this.buildStrokeCoordinates(scaledPoints, stroke.thickness / 2)
-                        }));
-                    }
-                }
-            }
-
+    phraseLines(phrase) {
+        // Fixed letter cells keep long words and revealed answers inside the phone canvas.
+        const lines=[];let line='';
+        for(const word of phrase.split(' ')) {
+            if(line && line.length+1+word.length>22){lines.push(line);line='';}
+            let remaining=word;
+            while(remaining.length>22){lines.push(remaining.slice(0,22));remaining=remaining.slice(22);}
+            line+=(line?' ':'')+remaining;
         }
+        if(line)lines.push(line);
+        return lines;
+    }
 
-        const currentPlayerName = currentPlayerId === 'cpu' ? 'CPU' : this.players[currentPlayerId].info.name;
-
-        const currentPlayerTextNode = new GameNode.Text({
-            textInfo: {
-                text: `${currentPlayerName}`,
-                x: 50,
-                y: 1,
-                align: 'center',
-                font: 'amateur',
-                color: BLACK,
-                size: 3
-            }
+    renderHangmanSection(reveal=false) {
+        const round=this.currentRound,container=this.shape();
+        const lines=this.phraseLines(round.secretPhrase);
+        const size=Math.min(3.8,14/lines.length);
+        lines.forEach((line,row)=>{
+            const step=4, start=50-(line.length-1)*step/2;
+            [...line].forEach((char,col)=>{
+                const shown=/[a-z]/i.test(char)&&!reveal&&!round.correctGuesses.includes(char.toLowerCase())?'_':char;
+                if(shown!==' ')container.addChild(this.label(shown,start+col*step,33+row*(16/lines.length),size));
+            });
         });
-
-        container.addChild(currentPlayerTextNode);
-
+        const frames=this.customHangmen[round.drawingPlayer];
+        if(!frames) {
+            const key=`hangman_${round.incorrectGuesses.length}`;
+            container.addChild(new GameNode.Asset({coordinates2d:ShapeUtils.rectangle(30,4,30,25),assetInfo:{[key]:{pos:{x:30,y:4},size:{x:30,y:25}}}}));
+        } else {
+            for(let i=0;i<=round.incorrectGuesses.length;i++)for(const stroke of frames[i]||[]) {
+                const points=stroke.points.map(([x,y])=>[32+(x-CREATOR_CANVAS.x)*.4,5+(y-CREATOR_CANVAS.y)*.4]);
+                const n=this.shape();n.node.fill=BLACK;n.node.coordinates2d=this.buildStrokeCoordinates(points,stroke.thickness*.4);container.addChild(n);
+            }
+        }
+        container.addChild(this.label(round.setterName,50,1,3));
         return container;
     }
 
     renderLettersSection() {
-        const container = new GameNode.Shape({
-            shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(5, 50, 95, 50),
-        });
-        
-        // A is 65
-        // Z is 90
-        const alphabet = [];
-        for (let i = 65; i <= 90; i++) {
-            alphabet.push(String.fromCharCode(i).toLowerCase());
-        }
-
-        let n = 0;
-        const textNodes = alphabet.map(a => {
-            const xPos = 6.5 + (14.5 * (n % 7));
-            const yPos = 50 + (12 * Math.floor(n / 7));
-
-            const node = new GameNode.Text({
-                textInfo: {
-                    x: xPos,
-                    y: yPos,
-                    size: 10,
-                    text: a.toUpperCase(),
-                    color: BLACK,
-                    align: 'center',
-                    font: 'amateur'
-                }
-            });
-
-            if (this.currentRound.incorrectGuesses.indexOf(a) >= 0 || this.currentRound.correctGuesses.indexOf(a) >= 0) {
-                let key;
-                if (this.currentRound.strikethroughs[a]) {
-                    key = this.currentRound.strikethroughs[a];
-                } else {
-                    const rand = Math.floor(Math.random() * 3);
-                    key = `strikethrough_${rand}`;
-                    this.currentRound.strikethroughs[a] = key;
-                }
-
-                const strikethrough = new GameNode.Asset({
-                    coordinates2d: ShapeUtils.rectangle(xPos - 6, yPos - 2, 13, 13),
-                    assetInfo: {
-                        [key]: {
-                            pos: { x: xPos - 6, y: yPos - 2 },
-                            size: { x: 13, y: 13}
-                        }
-                    }
-                });
-                node.addChild(strikethrough);
+        const round=this.currentRound,container=this.shape();
+        [...LETTERS].forEach((a,i)=>{
+            const x=7+(i%7)*14.3,y=51+Math.floor(i/7)*12;
+            const key=new GameNode.Shape({shapeType:Shapes.POLYGON,coordinates2d:ShapeUtils.rectangle(x-6.5,y,13,11),onClick:id=>{
+                if(this.currentRound===round)this.guess(id,a);
+            }});
+            key.addChild(this.label(a.toUpperCase(),x,y,9));
+            if(round.correctGuesses.includes(a)||round.incorrectGuesses.includes(a)) {
+                const asset=round.strikethroughs[a] ||= `strikethrough_${Math.floor(Math.random()*3)}`;
+                key.addChild(new GameNode.Asset({coordinates2d:ShapeUtils.rectangle(x-6,y-1,13,12),assetInfo:{[asset]:{pos:{x:x-6,y:y-1},size:{x:13,y:12}}}}));
             }
-
-            const clickWrapper = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(xPos - 5, yPos, 10, 10),
-                onClick: (playerId) => {
-                    if (this.currentRound?.player == playerId) {
-                        return;
-                    }
- 
-                    this.guess(playerId, a);
-                },
-                onHover: (playerId) => {
-                    if (this.currentRound?.player == playerId) {
-                        return;
-                    }
-                    if (!this.currentRound.strikethroughs[a] && this.currentRound.incorrectGuesses.length < 5) {
-                        const textInfo = Object.assign({}, node.node.text);
-                        textInfo.font = 'heavy-amateur';
-                        node.node.text = textInfo;
-                        this.base.node.onStateChange();
-                    }
-                },
-                offHover: (playerId) => {
-                    if (this.currentRound?.player == playerId) {
-                        return;
-                    }
- 
-                    const textInfo = Object.assign({}, node.node.text);
-                    textInfo.font = 'amateur';
-                    node.node.text = textInfo;
-                    this.base.node.onStateChange();
-                }
-
-            });
-
-            node.addChild(clickWrapper);
-            
-            n++;
-
-            return node;
+            container.addChild(key);
         });
-
-        container.addChildren(...textNodes);
-
         return container;
     }
 
-    guess(playerId, guessChar) {
-        if (!this.currentRound) {
-            return;
+    guess(playerId,guessChar) {
+        const round=this.currentRound,p=this.players[playerId];
+        if(!p?.ready || round?.phase!=='playing' || round.player==playerId || !round.guessers.includes(String(playerId)) ||
+            typeof guessChar!=='string' || !/^[a-z]$/i.test(guessChar))return;
+        const char=guessChar.toLowerCase();
+        if(round.correctGuesses.includes(char)||round.incorrectGuesses.includes(char))return;
+        if(round.secretPhrase.toLowerCase().includes(char)){round.correctGuesses.push(char);p.correctGuesses++;}
+        else {
+            round.incorrectGuesses.push(char);p.incorrectGuesses++;
+            if(round.incorrectGuesses.length===5){round.killer=playerId;round.killerName=this.playerName(playerId);p.kills++;}
         }
+        this.soundRoot.clearChildren();
+        this.soundRoot.addChild(new GameNode.Asset({coordinates2d:ShapeUtils.rectangle(0,0,0,0),assetInfo:{
+            [`scribbles_${Math.floor(Math.random()*3)+1}`]:{pos:{x:0,y:0},size:{x:0,y:0},startTime:0,loop:false}
+        }}));
+        this.soundEndsAt=Date.now()+1000;
+        this.nextTurn();
+    }
 
-        const { correctGuesses, incorrectGuesses, secretPhrase } = this.currentRound;
-
-        if (correctGuesses.indexOf(guessChar) >= 0 || incorrectGuesses.indexOf(guessChar) >= 0) {
-            return;
-        }
-
-        const scribbleSound = () => {
-            const randIndex = Math.floor(Math.random() * 3) + 1;
-            if (this.actions?.[0]?.type === 'clearSound') {
-                this.actions.shift();
-            }
-            const songNode = new GameNode.Asset({
-                coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
-                assetInfo: {
-                    [`scribbles_${randIndex}`]: {
-                        'pos': Object.assign({}, { x: 0, y: 0 }),
-                        'size': Object.assign({}, { x: 0, y: 0 }),
-                        'startTime': 0,
-                        'loop': false 
-                    }
-                }
-            });
-
-            this.soundRoot.clearChildren();
-            this.soundRoot.addChild(songNode);
-
-            this.actions.push({'type': 'clearSound', 'timestamp': Date.now() + 1000}); 
-        };
-
-        if (secretPhrase.toLowerCase().indexOf(guessChar) > -1) {
-            scribbleSound();
-            correctGuesses.push(guessChar);
-            this.players[playerId].correctGuesses++;
-            this.nextTurn();
+    nextTurn() {
+        const round=this.currentRound;
+        if(round?.phase!=='playing')return;
+        const solved=[...round.secretPhrase.toLowerCase()].filter(c=>/[a-z]/.test(c)).every(c=>round.correctGuesses.includes(c));
+        const lost=round.incorrectGuesses.length===5;
+        this.gameBase.clearChildren();
+        this.hangmanSection=this.renderHangmanSection(lost);this.gameBase.addChild(this.hangmanSection);
+        if(solved||lost) {
+            round.phase='result';round.resultEndsAt=Date.now()+3000;
+            this.gameBase.addChild(this.label(lost?'R.I.P':'Solved',50,60,6,'center',BLACK,'heavy-amateur'));
+            if(lost&&round.killerName)this.gameBase.addChild(this.label(`killed by ${round.killerName}`,50,73,3.5));
+            this.gameBase.addChild(this.button('Scores',25,86,50,10,id=>{
+                if(this.currentRound===round&&round.phase==='result'&&this.players[id]?.ready&&this.takePress(id))this.endRound();
+            }));
         } else {
-            scribbleSound();
-            incorrectGuesses.push(guessChar);
-            this.players[playerId].incorrectGuesses++;
-            if (incorrectGuesses.length == 5) {
-                this.currentRound.killer = playerId;
-                this.players[playerId].kills++;
-                this.nextTurn();
-            } else if (incorrectGuesses.length > 5) {
-                console.log('this shouldnt happen');
-            } else {
-                this.nextTurn();
-            }
+            this.lettersSection=this.renderLettersSection();this.gameBase.addChild(this.lettersSection);
         }
-
     }
 
     endRound() {
+        const round=this.currentRound;
+        if(!round || round.phase==='scores')return;
+        round.phase='scores';this.timerNodeInfo=null;
+        this.nextRoundStartTime=Date.now()+5000;
+        this.renderScores();
+    }
+
+    renderScores() {
+        const round=this.currentRound;
         this.gameBase.clearChildren();
-        let count = 0;
-
-        const playerHeader = new GameNode.Text({
-            textInfo: {
-                x: 18,
-                y: 4,
-                text: 'Player',
-                font: 'heavy-amateur',
-                align: 'center',
-                color: BLACK,
-                size: 5
-            }
+        this.gameBase.addChildren(this.label('Player',18,4,4,'center',BLACK,'heavy-amateur'),
+            this.label('Score',60,4,4,'center',BLACK,'heavy-amateur'),this.label('Kills',88,4,4,'center',BLACK,'heavy-amateur'));
+        this.readyPlayers().forEach((id,i)=>{
+            const p=this.players[id],y=14+i*8.5;
+            const name=this.playerName(id),split=name.lastIndexOf(' ',12);
+            const cut=split>0 && name.length-split-1<=12?split:12;
+            const lines=name.length>12?[name.slice(0,cut),name.slice(cut).trim()]:[name];
+            lines.forEach((line,row)=>this.gameBase.addChild(this.label(line,5,y+row*3.2,2.4,'left')));
+            this.gameBase.addChildren(
+                this.label(`-${p.incorrectGuesses}`,53,y,3.5),this.label(`+${p.correctGuesses}`,67,y,3.5),this.label(String(p.kills),88,y,3.5));
         });
-
-        const scoreHeader = new GameNode.Text({
-            textInfo: {
-                x: 57.5,
-                y: 4,
-                text: 'Score',
-                font: 'heavy-amateur',
-                align: 'center',
-                color: BLACK,
-                size: 5
-            }
-        });
-
-        const killsHeader = new GameNode.Text({
-            textInfo: {
-                x: 85,
-                y: 4,
-                text: 'Kills',
-                font: 'heavy-amateur',
-                align: 'center',
-                color: BLACK,
-                size: 5
-            }
-        });
-
-        this.gameBase.addChildren(playerHeader, scoreHeader, killsHeader);
-        const playerScoreList = Object.keys(this.players).filter(k => k !== 'cpu').map(k => {
-            const node = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                coordinates2d: ShapeUtils.rectangle(5, 10 + (count * 15), 90, 10)
-            });
-
-            const { incorrectGuesses, correctGuesses, info, kills } = this.players[k];
-
-            const playerName = info.name;
-
-            const playerNameText = new GameNode.Text({
-                textInfo: {
-                    x: 6,
-                    y: 14 + (count * 15),
-                    size: 3,
-                    align: 'left',
-                    font: 'amateur',
-                    color: BLACK,
-                    text: `${playerName}`
-                }
-            });
-
-            const incorrectGuessesText = new GameNode.Text({
-                textInfo: {
-                    x: 50,
-                    y: 14 + (count * 15),
-                    size: 4,
-                    align: 'center',
-                    font: 'amateur',
-                    color: BLACK,
-                    text: `-${incorrectGuesses}`
-                }
-            });
-
-            const correctGuessesText = new GameNode.Text({
-                textInfo: {
-                    x: 60,
-                    y: 14 + (count * 15),
-                    size: 4,
-                    align: 'center',
-                    font: 'amateur',
-                    color: BLACK,
-                    text: `+${correctGuesses}`
-                }
-            });
-            
-            const killsText = new GameNode.Text({
-                textInfo: {
-                    x: 85,
-                    y: 14 + (count * 15),
-                    size: 4,
-                    align: 'center',
-                    font: 'amateur',
-                    color: BLACK,
-                    text: `${kills}`
-                }
-            });
-
-            node.addChildren(playerNameText, incorrectGuessesText, correctGuessesText, killsText);
-
-            count++;
-            return node;
-        });
-
-        this.gameBase.addChildren(...playerScoreList);
-        this.nextRoundStartTime = Date.now() + 5000;
+        this.gameBase.addChild(this.button('Next round',25,86,50,10,id=>{
+            if(this.currentRound===round&&round.phase==='scores'&&this.players[id]?.ready&&this.takePress(id))this.startNextRound();
+        }));
     }
 
-    nextTurn() { 
-        let charsGuessed = {};
-
-        for (let i = 0; i < this.currentRound.secretPhrase.length; i++) {
-            const currentChar = this.currentRound.secretPhrase.charAt(i).toLowerCase();
-            if (currentChar !== ' ' && currentChar <= 'z' && currentChar >= 'a') {
-                charsGuessed[currentChar.toLowerCase()] = false;
-            }
-        }
-        
-        for (let i = 0; i < this.currentRound.correctGuesses.length; i++) {
-           charsGuessed[this.currentRound.correctGuesses[i].toLowerCase()] = true; 
-        }
-
-        const allLettersGuessed = Object.keys(charsGuessed).filter(k => !charsGuessed[k]).length === 0;
-
-        if (this.currentRound.incorrectGuesses.length >= 5) {
-            if (this.lettersSection) {
-                this.gameBase.removeChild(this.lettersSection.node.id);
-            }
-
-            const ripText = new GameNode.Text({
-                textInfo: {
-                    font: 'heavy-amateur',
-                    text: 'R.I.P',
-                    size: 6,
-                    color: BLACK,
-                    x: 50, 
-                    y: 60,
-                    align: 'center'
-                }
-            });
-            
-            if (this.currentRound.killer) {
-                const killedByName = this.players[this.currentRound.killer].info.name;
-                const killedByText = new GameNode.Text({
-                    textInfo: {
-                        font: 'heavy-amateur',
-                        text: `killed by ${killedByName}`,
-                        size: 4,
-                        color: BLACK,
-                        x: 50, 
-                        y: 75,
-                        align: 'center'
-                    }
-                });
-
-                this.gameBase.addChild(killedByText);
-            }
-
-            this.gameBase.removeChild(this.hangmanSection.node.id);
-            this.hangmanSection = this.renderHangmanSection(true);
-            this.gameBase.addChildren(ripText, this.hangmanSection);
-            this.actions.push({'type': 'endRound', 'timestamp': Date.now() + 3000});
-        } else {
-            this.gameBase.clearChildren();
-            if (!this.currentRound.round) {
-                this.currentRound.round = 1;
-            } else {
-                this.currentRound.round++;
-            }
-
-            this.hangmanSection = this.renderHangmanSection();
-            this.gameBase.addChildren(this.hangmanSection);
-            
-            if (allLettersGuessed) {
-                this.actions.push({'type': 'endRound', 'timestamp': Date.now() + 3000});
-            } else {
-                this.lettersSection = this.renderLettersSection();
-                this.gameBase.addChildren(this.lettersSection);
-            }
-        }
-        
-    }
-
-    startRound(playerKey) {
-        this.base.clearChildren([this.gameBase.node.id, this.playerOverrideRoot.node.id, this.soundRoot.node.id]); 
-        this.nextRoundStartTime = null;
-
-        // if cpu is the only possible guesser, force the only player to be the guesser
-        let nonCpuPlayers = Object.keys(this.players).filter(k => k !== 'cpu').sort((a, b) => Math.random() - Math.random());
-        let guessers = nonCpuPlayers.filter(k => k !== playerKey).sort((a, b) => Math.random() - Math.random());
-        let player = playerKey;
-
-        if (nonCpuPlayers.length == 1) {
-            player = 'cpu';
-            guessers = nonCpuPlayers;
-        }
-
-        this.currentRound = {
-            player,
-            guessers,
-            correctGuesses: [],
-            incorrectGuesses: [],
-            strikethroughs: {},
-            guesserIndex: 0
-        };
-
-        if (player === 'cpu') {
-            const randomIndex = Math.floor(Math.random() * questions.length);
-            const randomPhrase = questions[randomIndex];
-            this.currentRound.secretPhrase = randomPhrase;
-            this.nextTurn();
-        } else {
-            const waitingForPlayerMessage = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                fill: WHITE,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100)
-            });
-
-            const timerNode = new GameNode.Text({
-                textInfo: {
-                    x: 50,
-                    y: 80,
-                    text: '30',
-                    align: 'center',
-                    size: 10,
-                    font: 'heavy-amateur',
-                    color: BLACK
-                }
-            });
-
-            let c = 0;
-
-            let userPromptRoot;
-
-            let ting = () => {
-                this.timerNodeInfo = {
-                    node: timerNode,
-                    expireAt: Date.now() + (1000),
-                    onExpire: () => {
-                        if (c == 30) {    
-                            this.timerNodeInfo = null;
-                            const randomIndex = Math.floor(Math.random() * questions.length);
-                            const randomPhrase = questions[randomIndex];
-                            this.currentRound.secretPhrase = randomPhrase.trim();
-                            this.actions.push({type: 'nextTurn'});
-                            if (userPromptRoot) {
-                                this.playerOverrideRoot.removeChild(userPromptRoot.node.id);
-                            }
-                        } else {
-                            const curText = Object.assign({}, timerNode.node.text);
-                            curText.text = `${30 - c}`;
-                            timerNode.node.text = curText;
-                            timerNode.node.onStateChange();
-                            ting();
-                        }
-                    }
-               }
-
-               c++
-            }
-
-            ting();
-
-            const waitingText1 = new GameNode.Text({
-                textInfo: {
-                    x: 50,
-                    y: 45,
-                    align: 'center',
-                    text: `Waiting for`,
-                    color: BLACK,
-                    font: 'amateur',
-                    size: 5
-                }
-            });
-
-            const waitingText2 = new GameNode.Text({
-                textInfo: {
-                    x: 50,
-                    y: 55,
-                    align: 'center',
-                    text: `${this.players[player]?.info?.name || 'Unknown player'}...`,
-                    color: BLACK,
-                    font: 'amateur',
-                    size: 5
-                }
-            });
-
-            userPromptRoot = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                fill: WHITE,
-                coordinates2d: ShapeUtils.rectangle(0, 0, 100, 80),
-                playerIds: [player]
-            });
-
-            const userPromptMessage = new GameNode.Shape({
-                shapeType: Shapes.POLYGON,
-                fill: BLACK,
-                coordinates2d: ShapeUtils.rectangle(15, 40, 70, 20),
-                input: {
-                    type: 'text',
-                    oninput: (_, text) => {
-                        if (text?.trim().length) {
-                            this.currentRound.secretPhrase = text.trim();
-                            this.actions.push({type: 'nextTurn'});
-                            this.playerOverrideRoot.removeChild(userPromptRoot.node.id);
-                        }
-                    }
-                }
-            });
-
-            const promptInputText = new GameNode.Text({
-                textInfo: {
-                    x: 50, 
-                    y: 50,
-                    text: 'Enter your secret phrase',
-                    color: WHITE,
-                    align: 'center',
-                    font: 'heavy-amateur',
-                    size: 3
-                }
-            });
-
-            userPromptMessage.addChild(promptInputText);
-            userPromptRoot.addChild(userPromptMessage);
-
-            waitingForPlayerMessage.addChildren(waitingText1, waitingText2);
-
-            this.gameBase.addChildren(waitingForPlayerMessage, timerNode);
-            this.playerOverrideRoot.addChild(userPromptRoot);
-        }
-    }
-    
     tick() {
-        if (this.actions.length && (!this.actions[0].timestamp || this.actions[0].timestamp < Date.now())) {
-            const action = this.actions.shift();
-            if (action.type == 'endRound') {
-                this.endRound();
-            } else if (action.type === 'nextTurn') {
-                this.nextTurn();
-            } else if (action.type == 'addPlayer') {
-                this.players[action.payload.playerId] = action.payload;
-                if (this.overrideRoots[action.payload.playerId]) {
-                    this.playerOverrideRoot.removeChild(this.overrideRoots[action.payload.playerId].node.id);
-                }
-                const playerOrder = Object.keys(this.players).sort((a, b) => Math.random() - Math.random());
-                this.playerOrder = playerOrder;
-                if (!this.players['cpu']) {
-                    this.players['cpu'] = {};
-                    this.newGame();
-                } 
-            } else if (action.type == 'clearSound') {
-                this.soundRoot.clearChildren();
-            }
-        }
-
-        if (this.nextRoundStartTime && this.nextRoundStartTime < Date.now()) {
-            if (!this.playerIndex) {
-                this.playerIndex = 0;
-            }
-            const nextPlayer = this.playerOrder[this.playerIndex % this.playerOrder.length];
-            this.playerIndex += 1;
-            this.startRound(nextPlayer);
-        }
-
-        if (this.timerNodeInfo?.expireAt <= Date.now()) {
-            if (this.timerNodeInfo.onExpire) {
-                this.timerNodeInfo.onExpire();
-            } 
-        }
+        const now=Date.now(),round=this.currentRound;
+        if(this.soundEndsAt && now>=this.soundEndsAt){this.soundRoot.clearChildren();this.soundEndsAt=null;}
+        if(!round)return;
+        if(round.phase==='choosing' && this.timerNodeInfo?.round===round) {
+            const timer=this.timerNodeInfo,remaining=Math.max(0,Math.ceil((timer.expireAt-now)/1000));
+            if(!remaining)this.useRandomPhrase(round);
+            else if(remaining!==timer.lastRemaining){timer.lastRemaining=remaining;timer.node.node.text.text=String(remaining);timer.node.node.onStateChange();}
+        } else if(round.phase==='result' && now>=round.resultEndsAt)this.endRound();
+        else if(round.phase==='scores' && now>=this.nextRoundStartTime)this.startNextRound();
     }
 }
-
 module.exports = Hangman;

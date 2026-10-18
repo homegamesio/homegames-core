@@ -1,11 +1,11 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const C = Colors.COLORS;
 
 class GamepadTest extends Game {
     static metadata() {
         return {
-            name: 'Gamepad Test', squishVersion: '142', aspectRatio: { x: 16, y: 9 },
-            author: 'Joseph Garcia', isTest: true,
+            name: 'Gamepad Test', squishVersion: '150', aspectRatio: { x: 16, y: 9 },
+            author: "Joseph Garcia", isTest: true,
             gamepadBindings: {
                 ArrowLeft: ['DIRECTION_LEFT', 'STICK_1_LEFT'],
                 ArrowRight: ['DIRECTION_RIGHT', 'STICK_1_RIGHT'],

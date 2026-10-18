@@ -1,4 +1,5 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-150');
+const TUNING = require('../tuning');
 
 class Fight {
     constructor({mainGame}) {
@@ -33,21 +34,6 @@ class Fight {
         this.root.addChild(this.backgroundAssetNode);
 
         this.clickCounts = {};
-
-        this.enemyConfig = {
-            'x': {
-                increaseInterval: 1000,
-                initialWidth: 4,
-                maxWidth: 16,
-                timeout: 3000, // wait 3 seconds after hitting max size
-                widthIncrement: 2,
-                initialHeight: 4,
-                maxHeight: 16,
-                heightIncrement: 2,
-                health: 100,
-                value: 100
-            }
-        };
 
         this.enemyLayer = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -126,6 +112,11 @@ class Fight {
     }
 
     attack(playerId, x, y) {
+        if (!this.mainGame.canPlay(playerId, this) || !Number.isFinite(x) ||
+            (this.clickCounts[playerId] && Date.now() < this.clickCounts[playerId] + TUNING.FIGHT.gloveResetMs)) return;
+        this.clickCounts[playerId] = Date.now();
+        // glove/enemy assets are mutated directly below; make sure the next tick flushes it
+        this.mainGame.markDirty();
         if (x <= 50) {
             this.leftGloveAsset.node.asset = {
                 'glove-left': {
@@ -139,12 +130,12 @@ class Fight {
                     }
                 }
             }
-            this.resetLeftTime = Date.now() + 250;
+            this.resetLeftTime = Date.now() + TUNING.FIGHT.gloveResetMs;
 
             if (this.enemy && this.enemy.state === 'left') {
                 this.enemy.hits += 1;
 
-                if (this.enemy.hits >= 3) {
+                if (this.enemy.hits >= TUNING.FIGHT.hitsToWin) {
                     this.enemyLayer.clearChildren();
                     this.enemy = null;
 
@@ -190,12 +181,12 @@ class Fight {
                 }
             }
 
-            this.resetRightTime = Date.now() + 250;
+            this.resetRightTime = Date.now() + TUNING.FIGHT.gloveResetMs;
 
             if (this.enemy && this.enemy.state === 'right') {
                 this.enemy.hits += 1;
 
-                if (this.enemy.hits >= 3) {
+                if (this.enemy.hits >= TUNING.FIGHT.hitsToWin) {
                     this.enemyLayer.clearChildren();
                     this.enemy = null;
 
@@ -272,16 +263,19 @@ class Fight {
     tick({ playerStates, resources}) {
         const now = Date.now();
 
+        // true when this tick mutated node fields directly (tree ops notify on their own)
+        let changed = false;
+
         if (!this.enemy) {
             if (this.dustAsset) {
-                if (this.dustAsset.createdAt + 500 <= now) {
+                if (this.dustAsset.createdAt + TUNING.FIGHT.dustLifetimeMs <= now) {
                     this.enemyLayer.removeChild(this.dustAsset.node.id);
                     this.dustAsset = null;
                 }
             } else {
                 this.spawnEnemy();
             }
-        } else if (!this.lastEnemyMoveTime || this.lastEnemyMoveTime + 750 < Date.now()) {
+        } else if (!this.lastEnemyMoveTime || this.lastEnemyMoveTime + TUNING.FIGHT.enemyMoveIntervalMs < Date.now()) {
             if (this.enemy.state === 'default') {
                 const left = Math.random() < .5;
 
@@ -291,11 +285,11 @@ class Fight {
 
                 this.updateEnemy('default');
             }
+            changed = true;
         }
 
-        // const enemiesToRemove = new Set();
-
         if (this.resetLeftTime && this.resetLeftTime <= now) {
+            this.resetLeftTime = null;
             this.leftGloveAsset.node.asset = {
                 'glove-left': {
                     pos: {
@@ -308,9 +302,11 @@ class Fight {
                     }
                 }
             }
+            changed = true;
         }
 
         if (this.resetRightTime && this.resetRightTime <= now) {
+            this.resetRightTime = null;
             this.rightGloveAsset.node.asset = {
                 'glove-right': {
                     pos: {
@@ -323,7 +319,10 @@ class Fight {
                     }
                 }
             }
+            changed = true;
         }
+
+        return changed;
     }
 
     spawnEnemy() {

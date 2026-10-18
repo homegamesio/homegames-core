@@ -1,145 +1,35 @@
-const path = require('path');
-const os = require('os');
 const http = require('http');
 const https = require('https');
-
-let baseDir = path.dirname(require.main.filename);
-
-if (baseDir.endsWith('/src')) {
-    baseDir = baseDir.substring(0, baseDir.length - 3);
-}
-
-const { getConfigValue, getHash, log } = require('homegames-common');
-
-const API_URL = getConfigValue('API_URL', 'https://api.homegames.io:443');
-const parsedUrl = new URL(API_URL);
-
-const isSecure = parsedUrl.protocol == 'https:';
-
+const { getConfigValue, log } = require('homegames-common');
 const HTTPS_ENABLED = getConfigValue('HTTPS_ENABLED', false);
-
-const DOMAIN_NAME = getConfigValue('DOMAIN_NAME', null);
-const CERT_DOMAIN = getConfigValue('CERT_DOMAIN', null);
-
-// Port Homenames listens on. Has a default so this never throws in the
-// container; the host injects the real value via the HOMENAMES_PORT env var.
 const HOMENAMES_PORT = getConfigValue('HOMENAMES_PORT', 7100);
 
-const getLocalIP = () => {
-    const ifaces = os.networkInterfaces();
-    let localIP;
-
-    Object.keys(ifaces).forEach((ifname) => {
-        ifaces[ifname].forEach((iface) => {
-            if ('IPv4' !== iface.family || iface.internal) {
-                return;
-            }
-            localIP = localIP || iface.address;
-        });
-    });
-
-    return localIP;
-};
-
-const getPublicIP = () => new Promise((resolve, reject) => {
-    const req = (isSecure ? https : http).get(`${API_URL}/ip`, (res) => {
-        let buf = '';
-        res.on('data', (chunk) => {
-            buf += chunk.toString();
-        });
-
+// Player names/settings belong to this home server. A public-IP lookup is
+// unnecessary and would delay every player connection without internet.
+const request = (method, pathname, value) => new Promise((resolve, reject) => {
+    const payload = value === undefined ? null : JSON.stringify(value);
+    const req = (HTTPS_ENABLED ? https : http).request({
+        hostname: process.env.DOCKER_HOST_HOSTNAME || 'localhost',
+        port: HOMENAMES_PORT, path: pathname, method,
+        // Certificates name the homegames.link address. These requests stay
+        // on loopback or the configured Docker bridge.
+        rejectUnauthorized: false,
+        headers: payload === null ? {} : { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) },
+    }, res => {
+        let body = '';
+        res.on('data', chunk => { body += chunk; });
+        res.on('error', reject);
         res.on('end', () => {
-            resolve(buf.toString());
+            if (res.statusCode < 200 || res.statusCode >= 300) { reject(new Error(`Local player service returned ${res.statusCode}`)); return; }
+            try { resolve(method === 'GET' ? JSON.parse(body) : body); } catch (error) { reject(error); }
         });
     });
-    req.on('error', (err) => {
-        console.log('ereoreorer');
-        console.log(err);
-        resolve();
-    });
-
+    req.on('error', reject);
+    req.setTimeout(5000, () => req.destroy(new Error('Local player service timed out')));
+    req.end(payload);
 });
-
-const makeGet = (_path = '', headers = {}, username) => new Promise((resolve, reject) => {
-    const dockerHost = process.env.DOCKER_HOST_HOSTNAME;
-    if (dockerHost) {
-        // Running inside Docker — reach Homenames on the host. It's https
-        // exactly when the host has certs (HTTPS_ENABLED is passed into the
-        // container). The cert is issued for the public domain, not
-        // host.docker.internal, so skip verification — this traffic never
-        // leaves the docker bridge.
-        const mod = HTTPS_ENABLED ? https : http;
-        const base = `${HTTPS_ENABLED ? 'https' : 'http'}://${dockerHost}:${HOMENAMES_PORT}`;
-        mod.get(`${base}${_path}`, { rejectUnauthorized: false }, (res) => {
-            let buf = '';
-            res.on('data', (chunk) => { buf += chunk.toString(); });
-            res.on('end', () => { resolve(JSON.parse(buf)); });
-        }).on('error', (err) => { reject(err); });
-        return;
-    }
-
-    const protocol = HTTPS_ENABLED ? 'https' : 'http';
-    // todo: fix
-    getPublicIP().then(publicIp => {
-        const host = 'localhost';//HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
-        const base = `${protocol}://${host}:${HOMENAMES_PORT}`;
-
-        // Cert is issued for the public domain, not localhost —
-        // loopback traffic to our own Homenames, skip verification.
-        (HTTPS_ENABLED ? https : http).get(`${base}${_path}`, { rejectUnauthorized: false }, (res) => {
-            let buf = '';
-            res.on('data', (chunk) => {
-                buf += chunk.toString();
-            });
-
-            res.on('end', () => {
-                resolve(JSON.parse(buf));
-            });
-        }).on('error', (err) => { reject(err); });
-    });
-});
-
-const makePost = (_postPath, _payload, username) => new Promise((resolve, reject) => {
-    const payload = JSON.stringify(_payload);
-    const port = HOMENAMES_PORT;
-
-    const doPost = (hostname, mod) => {
-        const headers = {
-            'Content-Type': 'application/json',
-            'Content-Length': payload.length
-        };
-
-        const options = {
-            hostname,
-            path: _postPath,
-            port,
-            method: 'POST',
-            headers,
-            // Cert is issued for the public domain, not localhost or
-            // host.docker.internal — local-only traffic, skip verification.
-            rejectUnauthorized: false
-        };
-
-        let responseData = '';
-        const req = mod.request(options, (res) => {
-            res.on('data', (chunk) => { responseData += chunk; });
-            res.on('end', () => { resolve(responseData); });
-        });
-        req.on('error', (err) => { reject(err); });
-        req.write(payload);
-        req.end();
-    };
-
-    const dockerHost = process.env.DOCKER_HOST_HOSTNAME;
-    if (dockerHost) {
-        doPost(dockerHost, HTTPS_ENABLED ? https : http);
-    } else {
-        getPublicIP().then(publicIp => {
-            const hostname = 'localhost';//HTTPS_ENABLED ? (DOMAIN_NAME || (`${getUserHash(publicIp)}.${CERT_DOMAIN}`)) : 'localhost';
-            doPost(hostname, HTTPS_ENABLED ? https : http);
-        });
-    }
-});
+const makeGet = pathname => request('GET', pathname);
+const makePost = (pathname, payload) => request('POST', pathname, payload);
 
 class HomenamesHelper {
     constructor(sessionPort, username) {

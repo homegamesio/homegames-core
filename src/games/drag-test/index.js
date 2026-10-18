@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-145');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const COLORS = Colors.COLORS;
 
@@ -33,9 +33,9 @@ const BOXES = [
 class DragTest extends Game {
     static metadata() {
         return {
-            squishVersion: '145',
+            squishVersion: '150',
             name: 'Drag Test',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'Test game for squish 1.4.4 click + drag support: grab boxes, rubber-band new ones.',
             aspectRatio: { x: 16, y: 9 },
             isTest: true

@@ -1,13 +1,13 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const COLORS = Colors.COLORS;
 
 class SoundTest extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '142',
-            author: 'Joseph Garcia',
-            thumbnail: '18a17230e3b5b8edad5f44d73a496a2c',
+            squishVersion: '150',
+            author: "Joseph Garcia",
+            thumbnail: './assets/18a17230e3b5b8edad5f44d73a496a2c.png',
             isTest: true
         };
     }
@@ -84,7 +84,7 @@ class SoundTest extends Game {
     getAssets() {
         return {
             'song': new Asset({
-                'id': 'd9f097268324319d07a903cb50dc7210',
+                path: './assets/d9f097268324319d07a903cb50dc7210.mp3',
                 'type': 'audio'
             })
         };

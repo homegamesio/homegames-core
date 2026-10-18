@@ -1,10 +1,16 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-145');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const INK = [233, 244, 230, 255], MUTED = [154, 178, 161, 255];
 
 class WalkieTalkie extends Game {
     static metadata() {
-        return { name: 'Walkie Talkie', author: 'Joseph Garcia', squishVersion: '145',
-            aspectRatio: { x: 4, y: 5 }, isTest: true, services: ['multiplayer'], maxPlayers: 6 };
+        return {
+            isTest: true,
+            name: 'Walkie Talkie',
+            author: "Joseph Garcia",
+            aspectRatio: { x: 4, y: 5 },
+            maxPlayers: 6,
+            gameId: "5a32359b-17ad-5ecd-ab79-f23f8b837d2d"
+        };
     }
     constructor({ media }) {
         super(); this.media = media; this.people = new Map(); this.speaker = null;
@@ -110,10 +116,10 @@ class WalkieTalkie extends Game {
     renderPodium() {
         const speaker = this.people.get(this.speaker);
         const stream = speaker?.stream || null;
-        this.setText(this.audienceLabel, `${this.people.size} connected. One shared broadcast.`);
-        this.setText(this.speakerLabel, speaker ? `${speaker.name} has the podium` : 'First to hold gets the podium');
+        this.setText(this.audienceLabel, `${this.people.size} connected`);
+        this.setText(this.speakerLabel, speaker && speaker.video ? speaker.name : '');
         this.setText(this.stageTitle, !speaker ? 'The podium is open' : speaker.video ? '' : speaker.name);
-        this.setText(this.stageHint, !speaker ? 'Hold below to claim the broadcast' : speaker.video ? '' : 'LIVE AUDIO');
+        this.setText(this.stageHint, speaker && !speaker.video ? 'LIVE AUDIO' : '');
         // Only the current broadcast is in the shared scene. Keep its node
         // stable through other players' joins, permission prompts and presses.
         if (this.podiumStream !== stream) {
@@ -127,10 +133,10 @@ class WalkieTalkie extends Game {
         }
         for (const [id, person] of this.people) {
             const own = this.speaker === id;
-            this.setText(person.talk.label, own ? 'LIVE - RELEASE TO FINISH' : speaker ? 'PODIUM OCCUPIED' : 'HOLD TO CLAIM PODIUM');
+            this.setText(person.talk.label, own ? 'LIVE - RELEASE TO FINISH' : speaker ? 'PODIUM OCCUPIED' : 'HOLD TO TALK');
             const fill = own ? [142, 60, 42, 255] : speaker ? [43, 68, 59, 255] : [92, 114, 53, 255];
             if (String(person.talk.node.fill) !== String(fill)) { person.talk.node.fill = fill; person.talk.node.onStateChange(); }
-            this.setText(person.status, person.notice || (own ? 'Everyone is tuned in to you' : person.blocked ? 'Release, then press again when the podium is open.' : speaker ? 'Listen now. Claim the podium when it opens.' : person.stream ? 'Ready. Hold the button or Space to broadcast.' : 'Choose microphone or camera below to get ready.'));
+            this.setText(person.status, person.notice || (person.blocked ? 'Release, then press again when the podium is open.' : ''));
         }
     }
     getLayers() { return [{ root: this.base }]; }

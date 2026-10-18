@@ -1,0 +1,30 @@
+wattt1
+watdsfdsf3
+{
+  '142': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-142/index.js',
+  '143': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-143/index.js',
+  '145': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-145/index.js',
+  '146': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-146/index.js'
+}
+this is Game
+[class Game]
+Found config at /Users/josephgarcia/homegames/homegames-core
+Found value https://api.homegames.io for API_URL in config
+Using dictionary file at /Users/josephgarcia/homegames/homegames-core/dictionary.txt
+Found value true for ERROR_REPORTING in config
+Found value http://localhost/bugs for ERROR_REPORTING_ENDPOINT in config
+Found value false for IS_DEMO in config
+Found value 6 for DASHBOARD_PAGE_SIZE in config
+Using default value (500) for CHILD_SESSION_HEARTBEAT_INTERVAL
+Using default value (null) for LOCAL_GAME_DIRECTORY
+Set config value FORK_SESSIONS_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-review-state-7nkBcl/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Found value true for FORK_SESSIONS_ENABLED in config
+CONFIRMED: arbitrary player settings handler enabled fork in disposable app-data directory
+Using default value (null) for PUBLIC_HOST
+Found value https://api.homegames.io for API_URL in config
+Using environment value: review-fixture-only for key: HOMENAMES_API_SECRET
+[Homenames] Session 1 timeout waiting for onReady, responding anyway
+CONFIRMED: unauthenticated POST /sessions forwarded supplied source despite a configured internal secret; session manager mocked, no source executed
+MITIGATED: malformed ZIP64 compressed-size sentinel rejected before fflate unzipSync
+{"sandbox":"allow-scripts allow-pointer-lock","sharing":false,"iframeNavigationReachedSink":true,"frames":["http://127.0.0.1:56997/","http://127.0.0.1:56997/sink?probe=synthetic-sentinel"]}

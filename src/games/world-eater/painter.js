@@ -1,4 +1,4 @@
-const { GameNode, Shapes } = require('squish-145');
+const { GameNode, Shapes } = require('squish-150');
 
 const HIDDEN = [[0, 0], [0, 0], [0, 0]];
 const WHITE = [232, 242, 250];

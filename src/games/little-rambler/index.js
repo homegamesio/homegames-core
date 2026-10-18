@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes } = require('squish-142');
+const { Game, GameNode, Shapes } = require('squish-150');
 const { LittleRamblerEngine } = require('./engine');
 const { Painter, HIDDEN } = require('./painter');
 const { render } = require('./scene');
@@ -9,12 +9,21 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 
 class LittleRambler extends Game {
     static metadata() {
-        return { name: 'Little Rambler', squishVersion: '142', author: 'Joseph Garcia', createdBy:'Joseph Garcia',
+        return {
+            thumbnail: './assets/thumbnail.png',
+            name: 'Little Rambler',
+            author: "Joseph Garcia",
+            createdBy: "Joseph Garcia",
             description: 'Raise a curious little companion in a travelling house. Share snacks and scratches, hop through a giant garden, cast a bouncing magnet into a forgotten lagoon, and turn your discoveries into a home your friend can use. Original painted scenery, music and saved progress.',
-            aspectRatio:{x:16,y:9}, tickRate:30, maxPlayers:1, assets:{},
+            aspectRatio:{x:16,y:9},
+            tickRate:30,
+            maxPlayers: 1,
+            assets:{},
             gamepadBindings: { ArrowLeft:['DIRECTION_LEFT','STICK_1_LEFT'], ArrowRight:['DIRECTION_RIGHT','STICK_1_RIGHT'],
                 ArrowUp:['DIRECTION_UP','STICK_1_UP'], ArrowDown:['DIRECTION_DOWN','STICK_1_DOWN'],
-                ' ':'FACE_1', b:'FACE_2', Enter:'START', p:'SELECT' } };
+                ' ':'FACE_1', b:'FACE_2', Enter:'START', p:'SELECT' },
+            gameId: "151f3211-1ea9-51a0-aea8-8fd1e040d602"
+        };
     }
     constructor(options={}) {
         super();

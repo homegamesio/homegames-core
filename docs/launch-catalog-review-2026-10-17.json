@@ -1,0 +1,778 @@
+{
+  "reviewed": "2026-10-17",
+  "scope": "Aggressive launch curation requested by the maintainer; all currently configured featured games are protected.",
+  "basis": "Current metadata and control/loop source inspection, existing real-renderer captures, and a fresh catalog opening/input pass. These are editorial launch choices, not a claim of exhaustive playthroughs or measured audience enjoyment.",
+  "baselineCount": 78,
+  "retainedCount": 32,
+  "movedToTestsCount": 46,
+  "reductionPercent": 58.97435897435898,
+  "featured": [
+    "lemonade-tycoon",
+    "hot-potato",
+    "aquarium",
+    "vegas-trail",
+    "hangman",
+    "swish",
+    "moonbounce",
+    "facet",
+    "tumble-tower",
+    "fleetfall",
+    "weed-smoke-willie",
+    "house-band"
+  ],
+  "criteria": [
+    "Preserve all configured featured games.",
+    "A clear first action and satisfying central interaction.",
+    "A reason to replay, create, cooperate or return to progress.",
+    "A distinct role in the smaller collection, with a feasible polish scope.",
+    "Young-child activities count as real play; retain two focused examples instead of several overlapping activities."
+  ],
+  "games": [
+    {
+      "id": "after-hours",
+      "name": "After Hours",
+      "decision": "test",
+      "featured": false,
+      "reason": "Hold for a dedicated shooter/performance pass. Arena maps and modes are substantial, but the measured eight-player scene traffic is too expensive for ordinary home uplinks; this also needs weapon feel, navigation and real-group validation beyond launch smoke tests.",
+      "polish": null,
+      "source": "src/games/after-hours/index.js"
+    },
+    {
+      "id": "aquarium",
+      "name": "Aquarium",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local polish and maintainer copy complete: larger three-item shop and controls, correct hit areas/reset cleanup, bounded players, 30 Hz updates with unchanged game-time pacing. Normal feeding/purchase, save/resume, all shop pages, multiplayer era reset, eight-player populated visibility/performance, and offline package checks pass. Physical phones, constrained WAN/TURN and natural long-term progression/enjoyment remain.",
+      "source": "src/games/aquarium/index.js",
+      "evidence": "docs/review-evidence/aquarium-polish-2026-10-17/README.md"
+    },
+    {
+      "id": "backgammon",
+      "name": "Backgammon",
+      "decision": "test",
+      "featured": false,
+      "reason": "The rules and bot are developed, but the small generic table needs a dedicated teaching and tactile presentation pass. Billiards is the stronger immediate physical table-game choice for this smaller launch.",
+      "polish": null,
+      "source": "src/games/backgammon/index.js"
+    },
+    {
+      "id": "backstage",
+      "name": "Homegames Backstage",
+      "decision": "test",
+      "featured": false,
+      "reason": "Eight framework experiments are useful learning material, but their purpose is to demonstrate Homegames features. Preserve as a developer test/example rather than ask a player looking for a game to choose it.",
+      "polish": null,
+      "source": "src/games/backstage/index.js"
+    },
+    {
+      "id": "battleship",
+      "name": "Battleship",
+      "decision": "test",
+      "featured": false,
+      "reason": "Private grids and ship placement work as a rules implementation, but the sparse table and repeated coordinate hunting need more personality and payoff to earn one of the limited launch slots.",
+      "polish": null,
+      "source": "src/games/battleship/index.js"
+    },
+    {
+      "id": "billiards",
+      "name": "Billiards",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Aiming, strength and cushion shots offer a tactile skill game; the bot makes it playable immediately without arranging a group.",
+      "polish": "Finish a mouse and phone match against the bot and a friend; check fouls, cue-ball placement, aiming feedback and rematch.",
+      "source": "src/games/billiards/index.js"
+    },
+    {
+      "id": "block-brawlers",
+      "name": "Block Brawlers",
+      "decision": "test",
+      "featured": false,
+      "reason": "The first-to-three fight is real, but the small procedural fighters and several attack/guard controls need a dedicated readability and combat-feel pass. More attack systems alone would not make this a strong general entry point.",
+      "polish": null,
+      "source": "src/games/block-brawlers/index.js"
+    },
+    {
+      "id": "buddy-box",
+      "name": "Buddy Box",
+      "decision": "test",
+      "featured": false,
+      "reason": "The central loop is damaging a ragdoll to buy more tools. The sparse scene and tool-shop discovery need a stronger expressive payoff and clear activity arc before this earns a public slot alongside Tumble Tower.",
+      "polish": null,
+      "source": "src/games/buddy-box/index.js"
+    },
+    {
+      "id": "checkers",
+      "name": "Checkers",
+      "decision": "test",
+      "featured": false,
+      "reason": "Legal moves, dragging and bots are useful, but the same small standard table adds breadth more than a distinctive Homegames experience. Keep the implementation for a future focused board-game collection.",
+      "polish": null,
+      "source": "src/games/checkers/index.js"
+    },
+    {
+      "id": "chess",
+      "name": "Chess",
+      "decision": "test",
+      "featured": false,
+      "reason": "A complete rules implementation is valuable, but the current generic table lacks a distinctive teaching, social or presentation reason to choose it here. A polished chess offering deserves its own focused effort rather than incidental inclusion.",
+      "polish": null,
+      "source": "src/games/chess/index.js"
+    },
+    {
+      "id": "chronoclast",
+      "name": "Chronoclast",
+      "decision": "test",
+      "featured": false,
+      "reason": "Replaying six seconds of combat as an ally is promising, but the sparse geometric combat and multiple simultaneous movement/fire/dash/echo actions make its best idea hard to appreciate quickly. Needs a focused encounter and feedback redesign.",
+      "polish": null,
+      "source": "src/games/chronoclast/index.js"
+    },
+    {
+      "id": "clicktionary",
+      "name": "Clicktionary",
+      "decision": "keep",
+      "featured": false,
+      "reason": "The players supply fresh drawings and guesses every round. It has a clear social payoff and a recap worth sharing.",
+      "polish": "Play a complete three-person match; improve the first drawer/guesser instructions, phone drawing, late joining and gallery-to-rematch flow.",
+      "source": "src/games/clicktionary/index.js"
+    },
+    {
+      "id": "clump",
+      "name": "Clump",
+      "decision": "test",
+      "featured": false,
+      "reason": "Growing by collecting increasingly large objects has a satisfying premise, but the distant, tiny shapes make scale changes and what can be collected hard to read. Needs a substantial camera, object and collision-feedback pass.",
+      "polish": null,
+      "source": "src/games/clump/index.js"
+    },
+    {
+      "id": "common-ground",
+      "name": "Common Ground",
+      "decision": "test",
+      "featured": false,
+      "reason": "Roads, zones and metrics simulate a town, but the dense tools and small buildings ask for systems learning before a strong personal goal emerges. Hold for a focused city-building experience rather than another broad simulation.",
+      "polish": null,
+      "source": "src/games/common-ground/index.js"
+    },
+    {
+      "id": "connect-four",
+      "name": "Connect Four",
+      "decision": "test",
+      "featured": false,
+      "reason": "The familiar rules and bot make this usable, but the standard sparse table has little distinct personality. Retain as a compact example; the smaller catalog can provide immediate competition through Swish and Neon Grid.",
+      "polish": null,
+      "source": "src/games/connect-four/index.js"
+    },
+    {
+      "id": "copperline",
+      "name": "COPPERLINE",
+      "decision": "test",
+      "featured": false,
+      "reason": "The RPG includes combat, missions, equipment and property, but that breadth brings a large onboarding and campaign-writing burden. Hold until the opening mission and moment-to-moment combat justify maintaining the entire adventure.",
+      "polish": null,
+      "source": "src/games/copperline/index.js"
+    },
+    {
+      "id": "counterforge-apex",
+      "name": "Counterforge: Apex",
+      "decision": "test",
+      "featured": false,
+      "reason": "The learning-opponent experiment is interesting, but tiny combat presentation and an intentionally unbeatable final form need a clearer player-facing payoff and fairness story. Preserve as an experiment pending a focused duel redesign.",
+      "polish": null,
+      "source": "src/games/counterforge-apex/index.js"
+    },
+    {
+      "id": "deadword",
+      "name": "Deadword",
+      "decision": "test",
+      "featured": false,
+      "reason": "Typing words to stop waves provides a loop, but small text under time pressure and keyboard-led input narrow its appeal. It needs stronger enemy character, readable targeting and a convincing mobile interaction before inclusion.",
+      "polish": null,
+      "source": "src/games/deadword/index.js"
+    },
+    {
+      "id": "defuse",
+      "name": "Defuse",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Different information on each screen gives people a concrete reason to talk and cooperate. This earns a separate slot from ordinary quizzes.",
+      "polish": "Play with two and four real people; make the bomb/manual roles obvious and verify every module can be explained and solved with visible information.",
+      "source": "src/games/defuse/index.js"
+    },
+    {
+      "id": "desert-bloom",
+      "name": "Desert Bloom",
+      "decision": "test",
+      "featured": false,
+      "reason": "Watering and shading one cactus reaches a bloom, then resets the same small activity. It needs more expressive choices or meaningful variety to sustain return visits; Aquarium and Little Rambler cover longer care play.",
+      "polish": null,
+      "source": "src/games/desert-bloom/index.js"
+    },
+    {
+      "id": "dragon-drop",
+      "name": "Dragon Drop",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Drag, tumble and matching provide an immediate, repeatable physical puzzle. The current version has character art, cancellation handling and bounded physics.",
+      "polish": "Tune the opening pile and loss/retry pacing, inspect touch placement and validate long-session settling and frame size.",
+      "source": "src/games/dragon-drop/index.js"
+    },
+    {
+      "id": "draw",
+      "name": "Draw",
+      "decision": "keep",
+      "featured": false,
+      "reason": "An open shared canvas serves drawing, hanging out and making things together. It is useful beyond a scored round and belongs alongside the games.",
+      "polish": "Make the first mark immediate on phones; verify pan/zoom does not accidentally draw, shared changes remain legible and creations can be kept.",
+      "source": "src/games/draw/index.js"
+    },
+    {
+      "id": "draw-your-own-boss",
+      "name": "Draw Your Own Boss",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Making a monster and then fighting it connects creation to play in one short loop; the player's own drawing gives the encounter a personal payoff.",
+      "polish": "Play the complete draw-to-fight-to-rematch flow on touch and keyboard; ensure a basic drawing is enough to start and a microphone is optional.",
+      "source": "src/games/draw-your-own-boss/index.js"
+    },
+    {
+      "id": "engine-room",
+      "name": "Engine Room",
+      "decision": "test",
+      "featured": false,
+      "reason": "Shouting mismatched repair orders can work socially, but its grid of abstract controls overlaps Defuse's clearer shared emergency. Concentrate real-group onboarding and communication testing on Defuse first.",
+      "polish": null,
+      "source": "src/games/engine-room/index.js"
+    },
+    {
+      "id": "facet",
+      "name": "Facet",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local input/cancellation, Rush timing, save/failure recovery, replacement confirmation, factual copy, larger controls, all 30 recorded stage solutions and real website/offline exact-board resume checks complete. Validate physical-phone aiming, Journey difficulty and Zen appeal with players; remote self-hosted payload remains about 9.6\u201311.8 Mbps per player in measured active scenes.",
+      "source": "src/games/facet/index.js"
+    },
+    {
+      "id": "fakeout",
+      "name": "Fakeout",
+      "decision": "test",
+      "featured": false,
+      "reason": "Bluff trivia has social potential, but fixed fact quality and the writing/voting/reveal presentation need editorial work. Imposter and Clicktionary provide more immediate social play without this extra authored trivia burden.",
+      "polish": null,
+      "source": "src/games/fakeout/index.js"
+    },
+    {
+      "id": "fleetfall",
+      "name": "Fleetfall",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local input, elapsed timing, map-only saves/retry, solo defeat/replay, disconnected-faction retirement, six-player RTC and website/offline play checks complete. Larger labels retain all six flight panels. Publish the Client touch-focus fix and validate physical phones, natural wins/group pacing and constrained networks; busy six-player scenes model 27\u201330 Mbps of host upload to five guests.",
+      "source": "src/games/fleetfall/index.js"
+    },
+    {
+      "id": "gold-and-grit",
+      "name": "Gold & Grit",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Fixed, previewed tower-defense waves, branching upgrades and editable maps give clear choices and durable replay value. It provides a longer strategy experience.",
+      "polish": "Play the first six stages without developer knowledge; check losses teach a useful adjustment, phone camera controls, checkpoint recovery and map-copy persistence.",
+      "source": "src/games/gold-and-grit/index.js"
+    },
+    {
+      "id": "hangman",
+      "name": "Hangman",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local word-entry, drawing, lifecycle, eight-player UI and RTC/offline checks complete. Verify drawing comfort, phrase difficulty and round pacing with a real group on physical phones; public-network/TURN acceptance remains.",
+      "source": "src/games/hangman/index.js"
+    },
+    {
+      "id": "happy-haulers",
+      "name": "Happy Haulers",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Choosing a project and colors produces a visible finished construction. This is a purposeful, readable activity for young children rather than another general arcade game.",
+      "polish": "Test with a child and parent; check no-reading guidance, fresh-press behavior, all three complete projects and immediate replay without unwanted actions.",
+      "source": "src/games/happy-haulers/index.js"
+    },
+    {
+      "id": "hot-potato",
+      "name": "Hot Potato",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected featured choice; maintainer explicitly reaffirmed keeping the simple in-person demo because it is fun. Scores, elimination and explanatory captions are not required.",
+      "polish": "Local lifecycle/audio/input polish and complete RTC rounds pass. Finish physical-phone and real-group acceptance while preserving the simple in-person demo.",
+      "source": "src/games/hot-potato/index.js",
+      "polishCheckpoint": {
+        "date": "2026-10-17",
+        "status": "Local implementation and automated acceptance complete; physical devices/groups pending",
+        "newUnitTests": 6,
+        "scopeAndCatalogTests": 55,
+        "evidence": "docs/review-evidence/hot-potato-polish-2026-10-17/README.md",
+        "nextFeatured": "aquarium"
+      }
+    },
+    {
+      "id": "house-band",
+      "name": "House Band",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local polish complete: approved description, per-device opt-in sound, held/cancelled input and clear-confirmation fixes, bounded/idle scene work, eight real RTC participants, WAV export and saved website/offline copies. Physical phones, sustained group jams and constrained-network audio timing remain acceptance gates; publish the pending Client focus fix. Eight-player scenes model about 12.5 Mbps of host upload to seven guests.",
+      "source": "src/games/house-band/index.js"
+    },
+    {
+      "id": "imposter",
+      "name": "Imposter",
+      "decision": "keep",
+      "featured": false,
+      "reason": "A secret word, conversation and a vote are easy to explain; players generate the variety and phones suit the private information.",
+      "polish": "Run full four- and six-person rounds; check private-word visibility, equal understanding of roles, reveal timing and departures during voting.",
+      "source": "src/games/imposter/index.js"
+    },
+    {
+      "id": "kaboom-valley",
+      "name": "Kaboom Valley",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Aiming against wind and changing terrain gives each shot an understandable consequence. Local rivals can create replay value without a long campaign.",
+      "polish": "Improve the first aiming/strength instruction; finish a phone match, check terrain readability, fair spawns, eliminated-player waiting and rematch.",
+      "source": "src/games/kaboom-valley/index.js"
+    },
+    {
+      "id": "lemonade-tycoon",
+      "name": "Lemonade Tycoon: Night of the Lemons",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local polish, morning saves, timed two-player RTC cycle and offline package checks complete. Observe new players on physical phones; test real groups, later bosses and sustained six-player uplink/TURN costs.",
+      "source": "src/games/lemonade-tycoon/index.js",
+      "polishCheckpoint": {
+        "date": "2026-10-17",
+        "status": "Local implementation and automated acceptance complete; real-device/group and later-era acceptance pending",
+        "unitTests": 19,
+        "evidence": "docs/review-evidence/lemonade-polish-2026-10-17/README.md",
+        "nextFeatured": "hot-potato"
+      }
+    },
+    {
+      "id": "little-consequences",
+      "name": "Little Consequences",
+      "decision": "test",
+      "featured": false,
+      "reason": "The living diorama has many reactive systems, but much of the activity is moving a camera and triggering events. It needs a clearer personal project or expressive interaction to turn observation into sustained play.",
+      "polish": null,
+      "source": "src/games/little-consequences/index.js"
+    },
+    {
+      "id": "little-rambler",
+      "name": "Little Rambler",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Care, two outings and useful home projects form a coherent return loop with a companion. It offers a different pace from the featured arcade games.",
+      "polish": "Play care through the first home project with no shortcuts; test phone movement/casting, reward clarity, save/resume and the point where the finite content ends.",
+      "source": "src/games/little-rambler/index.js"
+    },
+    {
+      "id": "little-scoop-shop",
+      "name": "Little Scoop Shop",
+      "decision": "test",
+      "featured": false,
+      "reason": "A gentle, coherent child activity, but serving a decorated treat substantially overlaps Tiny Bean Caf\u00e9. Keep one stronger serving loop and preserve this as an alternative for a later children's collection.",
+      "polish": null,
+      "source": "src/games/little-scoop-shop/index.js"
+    },
+    {
+      "id": "little-zoo-walk",
+      "name": "Little Zoo Walk",
+      "decision": "test",
+      "featured": false,
+      "reason": "Feeding, catch and stamps are approachable for children, but six similar visits add another short tap-through activity. Focus the initial child collection on the more visibly constructive Happy Haulers and recipe-based Tiny Bean Caf\u00e9.",
+      "polish": null,
+      "source": "src/games/little-zoo-walk/index.js"
+    },
+    {
+      "id": "lumen-festival",
+      "name": "Lumen Festival: Bonkers",
+      "decision": "test",
+      "featured": false,
+      "reason": "The fireworks are attractive, but launching bursts and chaining lanterns presently offers less personal authorship than House Band or Draw and less goal-driven play than the kept arcade games. Needs a clearer expressive or skill-based return loop.",
+      "polish": null,
+      "source": "src/games/lumen-festival/index.js"
+    },
+    {
+      "id": "mancala",
+      "name": "Mancala",
+      "decision": "test",
+      "featured": false,
+      "reason": "Captures, extra turns and a bot establish the classic game, but the small standard board needs a tactile sowing and teaching pass. Preserve the rules implementation without expanding the launch's generic board-game shelf.",
+      "polish": null,
+      "source": "src/games/mancala/index.js"
+    },
+    {
+      "id": "masterpiece",
+      "name": "Masterpiece",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Dragging tiles to restore a visible painting is immediately understandable, and its finite three-work collection gives a clear completion goal.",
+      "polish": "Verify every shuffle is solvable; polish touch targets, hints, completion feedback and the next-painting flow without extending the content for its own sake.",
+      "source": "src/games/masterpiece/index.js"
+    },
+    {
+      "id": "micro-mayhem",
+      "name": "Micro Mayhem",
+      "decision": "test",
+      "featured": false,
+      "reason": "Five short reflex/memory tests offer variety, but their flat tile-and-text presentation makes them feel like exercises more than a memorable party. Needs a cohesive personality and group-tested pacing before returning.",
+      "polish": null,
+      "source": "src/games/micro-mayhem/index.js"
+    },
+    {
+      "id": "midnight-movers",
+      "name": "Midnight Movers",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Carrying oversized loot through guards and obstacles creates shared physical problems. Three authored heists and medals supply a manageable polish target.",
+      "polish": "Complete all three heists solo and with a friend; clarify pickup/carry/drop, readability of guard sight lines, escape and saved medal feedback.",
+      "source": "src/games/midnight-movers/index.js"
+    },
+    {
+      "id": "moonbounce",
+      "name": "Moonbounce",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local input/cancellation, saves/failure recovery, factual copy, larger controls, five-world rendering, all 55 recorded board/challenge solutions and real website/offline checks complete. Keep completed-board checkpoints. Validate physical-phone aiming and campaign difficulty/enjoyment with players; remote self-hosted payload remains about 10 Mbps per player in measured active scenes.",
+      "source": "src/games/moonbounce/index.js"
+    },
+    {
+      "id": "mouth-house",
+      "name": "Mouth House",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Combining food clues to feed a changing creature gives a small deduction puzzle with a visible reward. It works solo and gains conversation with friends.",
+      "polish": "Finish several five-course dinners on a phone; check clue fairness, negative rules, rejected-food feedback, join/leave redistribution and a quick next dinner.",
+      "source": "src/games/mouth-house/index.js"
+    },
+    {
+      "id": "neon-grid",
+      "name": "Neon Grid",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Steering into open space and trapping opponents has a readable short-round skill loop. Bots let someone find the fun before inviting friends.",
+      "polish": "Check phone turning and keyboard response, countdown fairness, distinguishable riders, short waits after a crash and consistent rematches.",
+      "source": "src/games/neon-grid/index.js"
+    },
+    {
+      "id": "nova-guard",
+      "name": "Nova Guard",
+      "decision": "test",
+      "featured": false,
+      "reason": "Moving shields around a shared core is simple to explain, but the abstract wave-defense presentation provides less memorable shared action than Tug Club's visible hauling and building. Hold for enemy variety and impact/readability work.",
+      "polish": null,
+      "source": "src/games/nova-guard/index.js"
+    },
+    {
+      "id": "one-unreasonable-hole",
+      "name": "One Hole, Absolutely Unreasonable",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Building a course and challenging a friend makes players' ideas the replay content. It directly supports keeping and sharing something personal.",
+      "polish": "Ensure the first putt is obvious before editing; finish solo and friend rounds, cancel drags safely and verify the exported copy includes the edited course.",
+      "source": "src/games/one-unreasonable-hole/index.js"
+    },
+    {
+      "id": "orbit-breaker",
+      "name": "Orbit Breaker",
+      "decision": "test",
+      "featured": false,
+      "reason": "Catching and returning fire is a strong specialist premise, but twin-stick movement, timed counterattacks and a dark sparse field need substantial combat teaching and feel work. Keep as a future focused action title, not extra launch volume.",
+      "polish": null,
+      "source": "src/games/orbit-breaker/index.js"
+    },
+    {
+      "id": "pitch-pot",
+      "name": "Pitch Pot",
+      "decision": "test",
+      "featured": false,
+      "reason": "Recording sales pitches asks for writing, microphone permission and performance before the group gets a payoff. Its social setup and recordings need a separate real-group polish pass; prioritize lower-friction party games first.",
+      "polish": null,
+      "source": "src/games/pitch-pot/index.js"
+    },
+    {
+      "id": "pocket-front",
+      "name": "Pocket Front",
+      "decision": "keep",
+      "featured": false,
+      "reason": "A six-wave defense run with troop placement and upgrade choices is a contained, replayable introduction to strategy, distinct from Gold & Grit's fixed campaign.",
+      "polish": "Make a first successful deployment obvious; finish a full run and loss/retry on desktop and touch, then tune upgrade tradeoffs and small-unit readability.",
+      "source": "src/games/pocket-front/index.js"
+    },
+    {
+      "id": "polystorm",
+      "name": "Polystorm",
+      "decision": "test",
+      "featured": false,
+      "reason": "The staged shmup and bosses provide content, but sparse geometric enemies, small targets and a keyboard-led high-speed loop need a larger presentation and accessibility pass. Stage count alone does not earn a slot.",
+      "polish": null,
+      "source": "src/games/polystorm/index.js"
+    },
+    {
+      "id": "pulsefront",
+      "name": "Pulsefront",
+      "decision": "test",
+      "featured": false,
+      "reason": "Sending forces between nodes overlaps featured Fleetfall's strategy layer. Keep Fleetfall's direct piloting as the distinctive version and avoid maintaining several visually similar conquest games at launch.",
+      "polish": null,
+      "source": "src/games/pulsefront/index.js"
+    },
+    {
+      "id": "red-truck-ramble",
+      "name": "Red Truck Ramble",
+      "decision": "test",
+      "featured": false,
+      "reason": "Driving, flipping and honking are pleasant but the cruise loop has less player-directed construction than Happy Haulers. Keep the latter as the clearer vehicle activity in the small child selection.",
+      "polish": null,
+      "source": "src/games/red-truck-ramble/index.js"
+    },
+    {
+      "id": "relic-rush",
+      "name": "Relic Rush",
+      "decision": "test",
+      "featured": false,
+      "reason": "Lane dodging, jumping and ducking form a familiar runner, but the plain corridor and repeated obstacles need a stronger visual identity and encounter progression. Watching one person run also adds little to the multiplayer promise.",
+      "polish": null,
+      "source": "src/games/relic-rush/index.js"
+    },
+    {
+      "id": "sandy-castle",
+      "name": "Sandy Castle",
+      "decision": "test",
+      "featured": false,
+      "reason": "Making and washing a sandcastle is a valid gentle toy, but it overlaps the retained construction and pretend-play activities. Preserve it for a dedicated child collection rather than fill the launch with similar short loops.",
+      "polish": null,
+      "source": "src/games/sandy-castle/index.js"
+    },
+    {
+      "id": "seance",
+      "name": "Seance",
+      "decision": "test",
+      "featured": false,
+      "reason": "Shared planchette movement is an amusing experiment, but its enjoyment relies heavily on players inventing a performance around a letter board. Needs authored surprises and clearer agency before it is a dependable standalone activity.",
+      "polish": null,
+      "source": "src/games/seance/index.js"
+    },
+    {
+      "id": "sheep-drive",
+      "name": "Sheep Drive",
+      "decision": "test",
+      "featured": false,
+      "reason": "Herding through three timed fields can be fun, but the bare field and small flock need much stronger character and steering feedback. Concentrate cooperative physics polish on Midnight Movers and Tug Club first.",
+      "polish": null,
+      "source": "src/games/sheep-drive/index.js"
+    },
+    {
+      "id": "showboat",
+      "name": "Showboat",
+      "decision": "test",
+      "featured": false,
+      "reason": "Live-camera improvisation can be social, but it imposes permission, performance and group-coordination friction before the first payoff. Hold for a dedicated real-person camera-party trial and clearer onboarding.",
+      "polish": null,
+      "source": "src/games/showboat/index.js"
+    },
+    {
+      "id": "snap-judgment",
+      "name": "Snap Judgment",
+      "decision": "test",
+      "featured": false,
+      "reason": "A household photo scavenger hunt is distinct, but photographing, uploading and waiting for a judge makes a slow first round. Needs real-phone/group pacing and prompt editing before inclusion in an immediate-play launch.",
+      "polish": null,
+      "source": "src/games/snap-judgment/index.js"
+    },
+    {
+      "id": "starfall-salvage",
+      "name": "STARFALL SALVAGE",
+      "decision": "test",
+      "featured": false,
+      "reason": "The adventure has crew, equipment, travel and story, but its dense menus and broad campaign need sustained writing and pacing work. Defer until one complete opening episode establishes an engaging moment-to-moment experience.",
+      "polish": null,
+      "source": "src/games/starfall-salvage/index.js"
+    },
+    {
+      "id": "starweld",
+      "name": "STARWELD",
+      "decision": "test",
+      "featured": false,
+      "reason": "Ship upgrades and four bosses are developed, but another dark geometric space-combat campaign dilutes the collection. Needs more readable attachment effects and a stronger first battle to compete for a future action slot.",
+      "polish": null,
+      "source": "src/games/starweld/index.js"
+    },
+    {
+      "id": "sundown",
+      "name": "Sundown",
+      "decision": "test",
+      "featured": false,
+      "reason": "Distance racing has immediate movement, but repeating the road before sunset offers limited distinct decisions and payoff. Needs traffic/route character and a stronger run progression rather than just a distance score.",
+      "polish": null,
+      "source": "src/games/sundown/index.js"
+    },
+    {
+      "id": "sunwake",
+      "name": "SUNWAKE",
+      "decision": "test",
+      "featured": false,
+      "reason": "Crew roles and a cooperative skyship expedition are promising, but role assignment, navigation and campaign systems demand a larger group-polish effort. Tug Club provides the clearer shared-vehicle objective for this launch.",
+      "polish": null,
+      "source": "src/games/sunwake/index.js"
+    },
+    {
+      "id": "swarmwell",
+      "name": "Swarmwell",
+      "decision": "test",
+      "featured": false,
+      "reason": "Growing nests and sending swarms is another node-conquest game. Its food/frenzy systems add explanation without enough separation from featured Fleetfall; hold for a more distinctive colony interaction.",
+      "polish": null,
+      "source": "src/games/swarmwell/index.js"
+    },
+    {
+      "id": "swish",
+      "name": "Swish",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local aiming/input, slow-host timing, bounded score retention, phone labels, four-player RTC and offline/save checks complete. Assess touch aiming, replay appeal and difficulty with a real group on physical phones; sustained WAN/TURN upload remains a gate despite geometry reductions and 30 Hz scenes.",
+      "source": "src/games/swish/index.js"
+    },
+    {
+      "id": "tabletop-railway",
+      "name": "Tabletop Railway",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Trains crossing physically adjacent screens make multiplayer tangible. Twelve deliveries provide a finite shared objective, with solo practice available.",
+      "polish": "Test actual adjacent phones; explain screen ordering and cargo labels visually, verify switch timing and make join/leave resets clear.",
+      "source": "src/games/tabletop-railway/index.js"
+    },
+    {
+      "id": "tiny-bean-cafe",
+      "name": "Tiny Bean Caf\u00e9",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Large pictured tools, animal requests and seven recipes make a coherent pretend-play activity. It earns one of two focused young-child slots.",
+      "polish": "Watch a child make and serve drinks without reading; check each recipe, off-target taps, mute behavior and visible differences between requested and chosen drinks.",
+      "source": "src/games/tiny-bean-cafe/index.js"
+    },
+    {
+      "id": "tug-club",
+      "name": "Tug Club",
+      "decision": "keep",
+      "featured": false,
+      "reason": "Attaching to cargo and hauling it home is a simple cooperative physical interaction. The home visibly improves, giving a round a shared payoff.",
+      "polish": "Play alone and with several real guests; improve first tether feedback, tune cargo mass and time pressure, and test recovery from broken lines and departures.",
+      "source": "src/games/tug-club/index.js"
+    },
+    {
+      "id": "tumble-tower",
+      "name": "Tumble Tower",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local input/controller, physics/support removal, custom blueprint and sound saves, failure/retry, factual copy, larger labels, all three presets, repeated destruction and website/offline recovery checks complete. Validate physical-phone construction and controller comfort plus repeat-play appeal with players; remote self-hosted payload remains about 4.2\u20134.9 Mbps per player in measured active scenes.",
+      "source": "src/games/tumble-tower/index.js"
+    },
+    {
+      "id": "vector-siege",
+      "name": "Vector Siege",
+      "decision": "test",
+      "featured": false,
+      "reason": "Fleet command plus direct combat overlaps featured Fleetfall while adding a dense persistent-war layer. Keep the clearer featured hybrid and defer this larger strategy simulation.",
+      "polish": null,
+      "source": "src/games/vector-siege/index.js"
+    },
+    {
+      "id": "vegas-trail",
+      "name": "Vegas Trail",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local route/shop/input/replay polish and RTC/offline checks complete. Finish a natural full trip with a real group, assess solo difficulty, and test physical phones plus the roughly 12 MB-per-guest startup transfer on constrained uplinks/TURN.",
+      "source": "src/games/vegas-trail/index.js"
+    },
+    {
+      "id": "walkie-talkie",
+      "name": "Walkie Talkie",
+      "decision": "test",
+      "featured": false,
+      "reason": "Push-to-talk and microphone access demonstrate communication, but there is no game objective or expressive creation loop. Preserve as a media test rather than a release game.",
+      "polish": null,
+      "source": "src/games/walkie-talkie/index.js"
+    },
+    {
+      "id": "weed-smoke-willie",
+      "name": "Weed Smoke Willie",
+      "decision": "keep",
+      "featured": true,
+      "reason": "Protected maintainer choice from homegamesio/site.config.json. Keep and polish; inclusion is not a claim that QA is finished.",
+      "polish": "Local ten-minute runs, $50,000 tier-three threshold, best-total/sound saves, replay, control/collision fixes and website/offline checks complete. Six automated normal-resource runs reach all three tiers; physical phones/controllers and natural full-session difficulty still need acceptance. Preserve the original artwork/music; publish the pending Client focus fix before release.",
+      "source": "src/games/weed-smoke-willie/index.js"
+    },
+    {
+      "id": "wordforge",
+      "name": "Wordforge",
+      "decision": "test",
+      "featured": false,
+      "reason": "Turning words into platforms is a good experiment, but simultaneous typing, movement and rising-flood pressure split attention and fit phones awkwardly. Needs a simpler first interaction that makes word choices matter visibly.",
+      "polish": null,
+      "source": "src/games/wordforge/index.js"
+    },
+    {
+      "id": "world-eater",
+      "name": "World Eater",
+      "decision": "test",
+      "featured": false,
+      "reason": "The cooperative cosmic campaign includes progression, guardians and endings, but the tiny abstract action and broad systems require a dedicated legibility and pacing pass. Keep the clearer short cooperative loops while this develops.",
+      "polish": null,
+      "source": "src/games/world-eater/index.js"
+    },
+    {
+      "id": "worldseed",
+      "name": "WORLDSEED",
+      "decision": "test",
+      "featured": false,
+      "reason": "Secret choices and a shared world reveal are an interesting social system, but four abstract powers and metric changes need clearer causal feedback and player stories. Hold until repeated rounds demonstrate more than a simulation reveal.",
+      "polish": null,
+      "source": "src/games/worldseed/index.js"
+    }
+  ],
+  "verification": {
+    "status": "Initial selection, fixes, build and targeted verification complete; deep game polish remains open",
+    "evidence": "docs/review-evidence/catalog-editing-2026-10-17/README.md",
+    "candidateBrowser": {
+      "opened": 78,
+      "representativeInput": 75,
+      "openingOnly": [
+        "pitch-pot",
+        "snap-judgment",
+        "walkie-talkie"
+      ]
+    },
+    "coreTargetedPassed": 129,
+    "websiteUnitPassed": 70,
+    "packagedBrowserGamesPassed": 32,
+    "websiteBrowserFlow": "passed",
+    "finalCopyDesktopAndMobile": "passed",
+    "featuredOrderPreserved": true,
+    "cutDetailPagesAbsent": 46,
+    "polishComplete": false,
+    "fullCoreSuiteRerun": false
+  },
+  "limitations": [
+    "No production deployment.",
+    "A keep decision commits to a polish pass; it does not mark the game launch-ready.",
+    "A test decision preserves the complete project and can be reversed.",
+    "Newly authored site copy is handled separately through the maintainer interview."
+  ]
+}

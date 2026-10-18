@@ -1,0 +1,172 @@
+[
+  {
+    "url": "https://homegames.io/",
+    "status": 200,
+    "ms": 227,
+    "bytes": 28902,
+    "headers": {
+      "content-type": "text/html",
+      "cache-control": "no-cache",
+      "content-encoding": "br",
+      "age": null,
+      "etag": "W/\"c91603ebfcf6d81deb97391d457620af\"",
+      "strict-transport-security": null,
+      "content-security-policy": null,
+      "x-content-type-options": null
+    }
+  },
+  {
+    "url": "https://homegames.io/app.css",
+    "status": 200,
+    "ms": 117,
+    "bytes": 20571,
+    "headers": {
+      "content-type": "text/css",
+      "cache-control": "no-cache",
+      "content-encoding": "br",
+      "age": null,
+      "etag": "W/\"c5484c71cc35fdec1a64b30d72334e77\"",
+      "strict-transport-security": null,
+      "content-security-policy": null,
+      "x-content-type-options": null
+    }
+  },
+  {
+    "url": "https://homegames.io/builds/manifest.json",
+    "status": 200,
+    "ms": 106,
+    "bytes": 555,
+    "headers": {
+      "content-type": "application/json",
+      "cache-control": "no-cache,max-age=0,must-revalidate",
+      "content-encoding": null,
+      "age": null,
+      "etag": "\"d2ff3a6985b7d99ae8054e4aa58989f2\"",
+      "strict-transport-security": null,
+      "content-security-policy": null,
+      "x-content-type-options": null
+    },
+    "summary": {
+      "latest": "2.0.2"
+    }
+  },
+  {
+    "url": "https://api.homegames.io/health",
+    "status": 200,
+    "ms": 180,
+    "bytes": 3,
+    "headers": {
+      "content-type": null,
+      "cache-control": null,
+      "content-encoding": null,
+      "age": null,
+      "etag": null,
+      "strict-transport-security": null,
+      "content-security-policy": null,
+      "x-content-type-options": null
+    },
+    "summary": "ok!"
+  },
+  {
+    "url": "https://api.homegames.io/games?limit=1",
+    "status": 200,
+    "ms": 237,
+    "bytes": 421,
+    "headers": {
+      "content-type": "application/json",
+      "cache-control": null,
+      "content-encoding": null,
+      "age": null,
+      "etag": null,
+      "strict-transport-security": null,
+      "content-security-policy": null,
+      "x-content-type-options": null
+    },
+    "summary": {
+      "keys": [
+        "games",
+        "pageCount",
+        "total"
+      ]
+    }
+  },
+  {
+    "url": "https://api.homegames.io/rooms",
+    "status": 200,
+    "ms": 61,
+    "bytes": 22,
+    "headers": {
+      "content-type": "application/json",
+      "cache-control": "no-store",
+      "content-encoding": null,
+      "age": null,
+      "etag": null,
+      "strict-transport-security": null,
+      "content-security-policy": null,
+      "x-content-type-options": null
+    },
+    "summary": {
+      "keys": [
+        "rooms",
+        "total"
+      ]
+    }
+  },
+  {
+    "url": "https://api.homegames.io/studio/templates",
+    "status": 200,
+    "ms": 71,
+    "bytes": 1108,
+    "headers": {
+      "content-type": "application/json",
+      "cache-control": null,
+      "content-encoding": null,
+      "age": null,
+      "etag": null,
+      "strict-transport-security": null,
+      "content-security-policy": null,
+      "x-content-type-options": null
+    },
+    "summary": {
+      "keys": [
+        "templates"
+      ]
+    }
+  },
+  {
+    "url": "https://api.homegames.io/cert-status",
+    "status": 200,
+    "ms": 62,
+    "bytes": 146,
+    "headers": {
+      "content-type": "application/json",
+      "cache-control": null,
+      "content-encoding": null,
+      "age": null,
+      "etag": null,
+      "strict-transport-security": null,
+      "content-security-policy": null,
+      "x-content-type-options": null
+    },
+    "summary": {
+      "certFound": false,
+      "hasAssignedDomain": true
+    }
+  },
+  {
+    "url": "https://homegames.link/",
+    "status": 200,
+    "ms": 331,
+    "bytes": 97,
+    "headers": {
+      "content-type": "text/plain",
+      "cache-control": null,
+      "content-encoding": null,
+      "age": null,
+      "etag": null,
+      "strict-transport-security": null,
+      "content-security-policy": null,
+      "x-content-type-options": null
+    }
+  }
+]

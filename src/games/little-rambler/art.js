@@ -1,4 +1,4 @@
-const { Asset } = require('squish-142');
+const { Asset } = require('squish-150');
 const home = require('./art/home-data');
 const garden = require('./art/garden-data');
 const lagoon = require('./art/lagoon-data');

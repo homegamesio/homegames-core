@@ -1,28 +1,28 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 // DOODLE INVADERS — Space Invaders where every sprite and sound came out of
 // the Homegames studio's own asset tools: 32x32 five-color doodles from the
 // draw tool, mouth SFX from the recorder, jingles from the one-octave synth.
 //
-// Every asset is OPTIONAL. Placeholder ids are detected and skipped: sprites
+// Media lives beside this source. Every additional asset is OPTIONAL. Unset paths are skipped: sprites
 // fall back to shapes in the draw tool's palette and sounds fall back to
 // silence, so the game is fully playable before anything is drawn — and each
-// real id you paste in visibly upgrades it.
+// local path you register in metadata visibly upgrades it.
 
-const ASSET_IDS = {
-    'ship': 'REPLACE_SHIP_ID',              // draw: your ship, facing up
-    'invader-a': 'REPLACE_INVADER_A_ID',    // draw: the alien, pose A
-    'invader-b': 'REPLACE_INVADER_B_ID',    // draw: same alien, pose B (optional shuffle frame)
-    'boss': 'REPLACE_BOSS_ID',              // draw: anything — it gets rendered huge
-    'bullet': 'REPLACE_BULLET_ID',          // draw: a tiny bolt (optional)
-    'pew': 'REPLACE_PEW_ID',                // record: your mouth saying pew
-    'boom': 'REPLACE_BOOM_ID',              // record: an explosion noise
-    'ouch': 'REPLACE_OUCH_ID',              // record: a yelp — plays when any ship dies
-    'wave-clear': 'REPLACE_WAVE_CLEAR_ID',  // keyboard: a happy 3-8 note jingle
-    'game-over': 'REPLACE_GAME_OVER_ID'     // keyboard: a sad one
+const ASSET_PATHS = {
+    'ship': './assets/482edf6903c1622e06bda5280739c9b7.png',              // draw: your ship, facing up
+    'invader-a': null,    // draw: the alien, pose A
+    'invader-b': null,    // draw: same alien, pose B (optional shuffle frame)
+    'boss': null,              // draw: anything — it gets rendered huge
+    'bullet': null,          // draw: a tiny bolt (optional)
+    'pew': null,                // record: your mouth saying pew
+    'boom': null,              // record: an explosion noise
+    'ouch': null,              // record: a yelp — plays when any ship dies
+    'wave-clear': null,  // keyboard: a happy 3-8 note jingle
+    'game-over': null     // keyboard: a sad one
 };
 const AUDIO_KEYS = ['pew', 'boom', 'ouch', 'wave-clear', 'game-over'];
-const hasAsset = (key) => ASSET_IDS[key] && !ASSET_IDS[key].startsWith('REPLACE');
+const hasAsset = (key) => ASSET_PATHS[key] && !ASSET_PATHS[key].startsWith('REPLACE');
 
 const TICK_RATE = 15;
 const TEXT_H = 16 / 9;
@@ -82,19 +82,19 @@ const glow = (color, blur) => ({ shadow: { color: [color[0], color[1], color[2],
 class DoodleInvaders extends Game {
     static metadata() {
         return {
+            isTest: true, // Catalog review: see docs/game-consolidation.md.
+
             aspectRatio: { x: 16, y: 9 },
-            squishVersion: '142',
-            author: 'Homegames',
+            squishVersion: '150',
+            author: "Joseph Garcia",
             name: 'Doodle Invaders',
-            description: 'Space Invaders, except you drew the aliens and recorded the pew. Made entirely with studio assets.',
-            tickRate: TICK_RATE,
-            assets: Object.keys(ASSET_IDS).filter(hasAsset).reduce((assets, key) => {
-                assets[key] = new Asset({
-                    id: ASSET_IDS[key],
-                    type: AUDIO_KEYS.indexOf(key) >= 0 ? 'audio' : 'image'
-                });
-                return assets;
-            }, {})
+            description: 'Defend together through alien waves and bosses. A hand-drawn ship, colorful polygon invaders, and shared lives.',
+            tickRate: 15,
+            maxPlayers: 4,
+            services: ['multiplayer'],
+            assets: {
+                ship: new Asset({ path: './assets/482edf6903c1622e06bda5280739c9b7.png', type: 'image' })
+            }
         };
     }
 
@@ -264,14 +264,14 @@ class DoodleInvaders extends Game {
         });
         this.overlay.addChild(this.titleText, false);
 
-        const loaded = Object.keys(ASSET_IDS).filter(hasAsset).length;
+        const loaded = Object.keys(ASSET_PATHS).filter(hasAsset).length;
         this.overlay.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 22, text: 'THE FRIDGE DOODLES ARE ATTACKING', size: 1.8, align: 'center', font: 'monospace', color: FAINT }
         }), false);
         this.overlay.addChild(new GameNode.Text({
             textInfo: {
                 x: 50, y: 26.5,
-                text: loaded + '/' + Object.keys(ASSET_IDS).length + ' STUDIO ASSETS LOADED' + (loaded === 0 ? ' - DRAW SOME IN THE STUDIO!' : ''),
+                text: loaded + '/' + Object.keys(ASSET_PATHS).length + ' STUDIO ASSETS LOADED' + (loaded === 0 ? ' - DRAW SOME IN THE STUDIO!' : ''),
                 size: 1.3, align: 'center', font: 'monospace', color: loaded === 0 ? DOODLE_YELLOW : DOODLE_GREEN
             }
         }), false);

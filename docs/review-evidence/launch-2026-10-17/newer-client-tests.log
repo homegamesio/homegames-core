@@ -1,0 +1,34 @@
+✔ real touch drag: touchcancel cancels the drop (3.359417ms)
+✔ real touch drag: blur cancels the drop (1.251875ms)
+✔ real touch drag: visibilitychange cancels the drop (0.733459ms)
+✔ real touch drag: detach cancels the drop (0.629042ms)
+✔ real touch drag: touchend commits the drop (0.484ms)
+✔ Pointer Lock is opt-in: ordinary drag and touch preserve their coordinate contract (1.329625ms)
+✔ acquisition keeps one original click; captured presses target center and motion needs no button (0.205333ms)
+✔ first iframe gesture captures after mousedown precedes native focus, preserving one original click (0.177416ms)
+✔ deferred focus acquisition is cancelled by lifecycle changes and never retries a rejected request (0.577458ms)
+✔ relative motion coalesces at 60 Hz, rejects nonfinite values, and stays within protocol bounds (0.175042ms)
+✔ 60 Hz rAF rounding preserves smooth look while 144 Hz rendering cannot flood relative input (0.294ms)
+✔ escape releases held keys, fire and pending movement without affecting the next capture (0.331334ms)
+✔ native unlock releases held keys, fire and pending movement without affecting the next capture (0.077208ms)
+✔ blur releases held keys, fire and pending movement without affecting the next capture (0.0675ms)
+✔ hidden releases held keys, fire and pending movement without affecting the next capture (0.097125ms)
+✔ detach releases held keys, fire and pending movement without affecting the next capture (0.140167ms)
+✔ disable releases held keys, fire and pending movement without affecting the next capture (0.092875ms)
+✔ suspend releases held keys, fire and pending movement without affecting the next capture (0.059ms)
+✔ unsupported, synchronous rejection and asynchronous rejection retain usable drag input (0.153916ms)
+✔ suspending capture cancels pending native and deferred focus requests until a new gesture (0.069792ms)
+✔ a Start click can restore capture permission on mouseup without reacquiring until the next press (0.109083ms)
+✔ a click that opens a menu synchronously cancels capture before the native request is made (0.084208ms)
+✔ only canvas mouse gestures request capture; spectators and synthetic touch mouse events cannot (0.060333ms)
+✔ a legacy void-returning request finishing after detach releases capture and removes listeners (0.059166ms)
+✔ a quick ordinary click can synchronously stop its session without dereferencing cleared pointer state (0.051917ms)
+✔ an acquisition click that stops its session never requests capture or retains input timers/listeners (0.2215ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.527625

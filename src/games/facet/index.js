@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes } = require('squish-142');
+const { Game, GameNode, Shapes } = require('squish-150');
 const { Engine } = require('./engine');
 const { Painter, HIDDEN } = require('./painter');
 const { render, BOARD } = require('./scene');
@@ -11,19 +11,30 @@ const clamp = n => Math.max(0, Math.min(7, n));
 
 class Facet extends Game {
     static metadata() {
-        return { name: 'Facet', author: 'Homegames', squishVersion: '142',
-            description: 'Make something brilliant. A luminous match-three adventure through 30 stages and three crystal realms. Combine special gems, build radiant cascades, relax in endless Zen, or chase a record in two-minute Rush. Saved journeys, 90 stars, and treasured keepsakes.',
-            aspectRatio: { x: 16, y: 9 }, tickRate: 30, maxPlayers: 1, assets: {} };
+        return {
+            thumbnail: './assets/thumbnail.png',
+            name: 'Facet',
+            author: "Joseph Garcia",
+            description: 'Match jewels and gems to make them go away',
+            aspectRatio: { x: 16, y: 9 },
+            tickRate: 30,
+            maxPlayers: 1,
+            assets: {},
+            gameId: "e70e8c36-3c21-550c-ac49-2780568f3e82"
+        };
     }
     constructor(options = {}) {
         super();
+        this.now = options.now || Date.now; this.lastTick = this.now(); this.closed = false;
+        this.saveKey = null; this.saveRevision = 0; this.saveTail = Promise.resolve();
         const saved = options.saveData && typeof options.saveData === 'object' ? options.saveData : {};
         this.engine = new Engine();
         const progress = hydrate(saved);
         this.state = { engine: this.engine, progress, settings: { sound: saved.sound !== false, music: saved.music !== false, reduced: saved.reduced === true },
             screen: 'home', selectedLevel: progress.selectedLevel, selectedRealm: LEVELS[progress.selectedLevel].realmIndex,
             clock: 0, resultAge: 0, displayScore: 0, newAwards: [], cursor: { row: 3, col: 3 }, cursorVisible: false,
-            tutorial: false, hasArt: true, focusAction: '', hoverAction: '', hasResume: false, resumeLabel: '' };
+            tutorial: false, hasArt: true, focusAction: '', hoverAction: '', hasResume: false, resumeLabel: '',
+            saveFailed: false, pendingStart: null, collectionPage: 0 };
         this.accounted = {}; this.savedRun = null; this.resultRecorded = false; this.activeLevel = progress.selectedLevel;
         this.saveGame = options.saveGame; this.addAsset = options.addAsset; this.playerId = null; this.padIndex = null;
         this.clearInput();
@@ -34,19 +45,21 @@ class Facet extends Game {
         this.painter = new Painter(this.visual);
         this.surface = new GameNode.Shape({ shapeType: Shapes.POLYGON, coordinates2d: [[0, 0], [99.99, 0], [99.99, 99.99], [0, 99.99]],
             fill: [0, 0, 0, 0], color: [0, 0, 0, 0], onClick: (id, x, y) => this.click(id, x, y) });
-        this.surface.node.offClick = (id, x, y) => this.release(id, x, y);
+        this.surface.node.offClick = id => this.cancelPointer(id);
         this.base.addChild(this.surface, false);
         this.art = artAssets(); this.audio = new Sound(this.audioRoot, options.addAsset);
         this.acceptSavedRun(saved.run); this.draw();
     }
     getLayers() { return [{ root: this.base }]; }
     getAssets() { return { ...this.art, ...this.audio.assets }; }
-    owns(id) { return this.playerId !== null && Number(id) === this.playerId; }
+    owns(id) { return !this.closed && this.playerId !== null && ['number', 'string'].includes(typeof id) && Number(id) === this.playerId; }
     playing() { return this.state.screen === 'play' && !terminal(this.engine); }
-    canSelect() { return this.playing() && this.engine.phase === 'ready' && !this.engine.paused && !this.state.tutorial; }
+    canSelect() { return !this.closed && !this.state.pendingStart && this.playing() && this.engine.phase === 'ready' && !this.engine.paused && !this.state.tutorial; }
     refreshProgress() { return refresh(this.state.progress); }
-    handleNewPlayer({ playerId }) {
-        if (this.playerId === null) this.playerId = Number(playerId);
+    handleNewPlayer({ playerId } = {}) {
+        if (this.closed || this.playerId !== null || !['number', 'string'].includes(typeof playerId) ||
+            !Number.isSafeInteger(Number(playerId)) || Number(playerId) < 1) return;
+        this.playerId = Number(playerId);
         this.audio.register();
         if (this.addAsset && !this.artRegistered) {
             this.artRegistered = true;
@@ -59,6 +72,7 @@ class Facet extends Game {
     clearInput() { this.keyHeld = {}; this.axisLatch = ''; this.pointerHeld = false; this.pointerBlocked = false; this.pointerStart = null; }
     handlePlayerDisconnect(id) {
         if (!this.owns(id)) return;
+        this.tick(); this.snapshot();
         this.clearInput(); this.playerId = null; this.padIndex = null;
         if (this.playing()) { this.engine.paused = true; this.state.focusAction = 'resume'; }
         this.persist(); this.draw();
@@ -84,14 +98,32 @@ class Facet extends Game {
         this.setResumeLabel();
     }
     persist() {
+        if (this.closed) return;
         this.state.progress.selectedLevel = this.state.selectedLevel;
         if (!this.saveGame) return;
-        try {
-            const pending = this.saveGame({ schema: 1, ...saveProgress(this.state.progress), ...this.state.settings, run: this.savedRun });
-            if (pending?.catch) pending.catch(() => {});
-        } catch (_) { /* Saving cannot interrupt a cascade. */ }
+        const data = { schema: 1, ...saveProgress(this.state.progress), ...this.state.settings, run: this.savedRun };
+        const key = JSON.stringify(data);
+        if (key === this.saveKey && !this.state.saveFailed) return this.saveTail;
+        this.saveKey = key;
+        const revision = ++this.saveRevision;
+        const finish = success => { if (revision === this.saveRevision) this.state.saveFailed = !success; };
+        // Submit immediately so the platform receives the latest snapshot before
+        // its close/flush boundary. Storage backends order and coalesce writes.
+        try { this.saveTail = Promise.resolve(this.saveGame(data)).then(() => finish(true), () => finish(false)); }
+        catch (_) { finish(false); this.saveTail = Promise.resolve(); }
+        return this.saveTail;
+    }
+    requestStart(mode = 'journey', replay = false) {
+        const s = this.state;
+        if (mode === 'journey' && (!isLevelUnlocked(s.progress, s.selectedLevel) || LEVELS[s.selectedLevel].realmIndex !== s.selectedRealm)) return;
+        if (!this.savedRun) { this.start(mode, replay); return; }
+        this.snapshot();
+        s.pendingStart = { mode, replay, wasPaused: this.engine.paused };
+        this.engine.paused = true; this.clearInput(); s.focusAction = 'cancelStart';
     }
     start(mode = 'journey', replay = false) {
+        if (this.closed) return;
+        this.lastTick = this.now();
         const s = this.state;
         if (mode === 'journey' && (!isLevelUnlocked(s.progress, s.selectedLevel) || LEVELS[s.selectedLevel].realmIndex !== s.selectedRealm)) return;
         this.clearInput(); this.accounted = {}; this.resultRecorded = false; this.activeLevel = s.selectedLevel;
@@ -99,15 +131,27 @@ class Facet extends Game {
             seed: replay ? this.engine.level.seed : (Date.now() ^ Math.imul((this.runNumber = (this.runNumber || 0) + 1), 2654435761)) >>> 0 };
         this.engine.start({ mode, level }); this.engine.paused = false; this.engine.reduced = s.settings.reduced;
         Object.assign(s, { screen: 'play', focusAction: '', hoverAction: '', newAwards: [], resultAge: 0, displayScore: 0,
-            cursor: { row: 3, col: 3 }, cursorVisible: false, tutorial: !replay && !s.progress.tutorialSeen, tutorialWasPaused: false });
-        if (s.tutorial) this.engine.paused = true;
+            cursor: { row: 3, col: 3 }, cursorVisible: false, tutorial: false, tutorialWasPaused: false });
+        if (!s.progress.tutorialSeen) this.engine.hint();
         this.snapshot(); this.persist();
     }
     action(action) {
-        if (typeof action !== 'string') return;
+        if (this.closed || typeof action !== 'string') return;
+        this.tick(); // Account for elapsed play before pausing or accepting a new action.
         const s = this.state, e = this.engine;
-        if (action === 'start') this.start();
-        else if (action === 'zen' || action === 'rush') this.start(action);
+        if (s.pendingStart && !['confirmStart', 'cancelStart', 'retrySave'].includes(action)) return;
+        if (action === 'retrySave') this.persist();
+        else if (action === 'confirmStart' && s.pendingStart) {
+            const pending = s.pendingStart; s.pendingStart = null;
+            this.start(pending.mode, pending.replay);
+        } else if (action === 'cancelStart' && s.pendingStart) {
+            e.paused = s.pendingStart.wasPaused; s.pendingStart = null; s.focusAction = ''; this.clearInput();
+        } else if (action === 'start') this.requestStart();
+        else if (action === 'zen' || action === 'rush') this.requestStart(action);
+        else if (action.startsWith('collectionPage:') && s.screen === 'collection') {
+            const page = Number(action.slice(15)); if (![0, 1].includes(page)) return;
+            s.collectionPage = page; s.focusAction = '';
+        }
         else if (action === 'continue' && this.savedRun) {
             if (!this.acceptSavedRun(this.savedRun)) { this.savedRun = null; this.setResumeLabel(); }
             else {
@@ -116,7 +160,7 @@ class Facet extends Game {
                 this.resultRecorded = false; this.clearInput();
             }
         } else if (action === 'retry' && s.screen === 'play') {
-            s.selectedLevel = this.activeLevel; s.selectedRealm = LEVELS[this.activeLevel].realmIndex; this.start(e.mode, true);
+            s.selectedLevel = this.activeLevel; s.selectedRealm = LEVELS[this.activeLevel].realmIndex; this.requestStart(e.mode, true);
         } else if (action === 'next' && s.screen === 'play' && e.phase === 'won') {
             if (e.mode === 'journey' && this.activeLevel < LEVELS.length - 1) {
                 s.selectedLevel = this.activeLevel + 1; s.selectedRealm = LEVELS[s.selectedLevel].realmIndex;
@@ -154,7 +198,13 @@ class Facet extends Game {
         } else return;
         e.events.push({ type: 'ui' }); this.draw();
     }
-    draw() { render(this.painter, this.state); this.base.node.onStateChange(); }
+    draw() {
+        if (this.closed) return;
+        render(this.painter, this.state);
+        if (this.state.tutorial || this.state.pendingStart || this.state.screen === 'play' && this.engine.paused) this.audio?.tick([], 0, false);
+        this.drawnHover = this.state.hoverAction; this.drawnSaveFailed = this.state.saveFailed;
+        this.base.node.onStateChange();
+    }
     cellAt(x, y) {
         if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
         const col = Math.floor((x - BOARD.x) / BOARD.cell), row = Math.floor((y - BOARD.y) / BOARD.cell);
@@ -169,6 +219,7 @@ class Facet extends Game {
     }
     release(id, x, y) {
         if (!this.owns(id)) return;
+        this.tick();
         const from = this.pointerStart, blocked = this.pointerBlocked;
         this.pointerHeld = false; this.pointerStart = null; this.pointerBlocked = false;
         if (blocked || !from || !this.canSelect()) return;
@@ -182,6 +233,11 @@ class Facet extends Game {
         }
         this.draw();
     }
+    cancelPointer(id) {
+        if (!this.owns(id)) return;
+        this.pointerHeld = false; this.pointerStart = null; this.pointerBlocked = false;
+    }
+    handleMouseUp(id, data = {}) { this.release(id, data?.x, data?.y); }
     handleMouseMove(id, data = {}) {
         if (!this.owns(id)) return;
         const x = Number(data.x) * 1.6, y = Number(data.y) * .9;
@@ -196,21 +252,31 @@ class Facet extends Game {
         this.state.focusAction = buttons[(i + direction + buttons.length) % buttons.length].action; this.draw();
     }
     navigate(dr, dc) {
+        this.cancelPointer(this.playerId);
         if (this.canSelect()) {
             const cursor = this.state.cursor; this.state.cursor = { row: clamp(cursor.row + dr), col: clamp(cursor.col + dc) };
             this.state.cursorVisible = true; this.draw();
         } else if (!this.playing() || this.engine.paused || this.state.tutorial) this.menuMove(dr + dc > 0 ? 1 : -1);
     }
     confirm() {
+        if (this.closed) return;
+        const wasSelecting = this.canSelect();
+        this.tick(); this.cancelPointer(this.playerId);
         const s = this.state, e = this.engine;
-        if (s.tutorial) this.action(s.focusAction || 'dismissTutorial');
+        // A key intended for a gem at the deadline must not also retry the
+        // result screen that appeared while accounting for elapsed time.
+        if (wasSelecting && terminal(e)) return;
+        if (s.pendingStart) this.action(s.focusAction || 'cancelStart');
+        else if (s.tutorial) this.action(s.focusAction || 'dismissTutorial');
         else if (s.screen !== 'play') this.action(s.focusAction || (s.screen === 'home' ? s.hasResume ? 'continue' : 'screen:journey' : s.screen === 'journey' ? 'start' : 'screen:journey'));
         else if (e.paused) this.action(s.focusAction || 'resume');
         else if (terminal(e)) this.action(s.focusAction || (e.phase === 'lost' || e.mode !== 'journey' ? 'retry' : 'next'));
         else if (this.canSelect()) { s.cursorVisible = true; e.select(s.cursor.row, s.cursor.col); this.draw(); }
     }
     back() {
-        if (this.state.tutorial) this.action('dismissTutorial');
+        this.cancelPointer(this.playerId);
+        if (this.state.pendingStart) this.action('cancelStart');
+        else if (this.state.tutorial) this.action('dismissTutorial');
         else if (this.state.screen === 'play') {
             if (terminal(this.engine)) this.action('screen:journey');
             else if (this.engine.selected && !this.engine.paused) { this.engine.selected = null; this.draw(); }
@@ -259,22 +325,42 @@ class Facet extends Game {
         if (pressed.includes('FACE_1')) this.confirm();
     }
     tick() {
-        const s = this.state, e = this.engine, dt = 1 / 30; s.clock += dt; e.reduced = s.settings.reduced;
-        if (s.screen === 'play' && !s.tutorial) e.step(dt);
+        if (this.closed) return;
+        const stamp = this.now(), elapsed = Number.isFinite(stamp) ? Math.max(0, (stamp - this.lastTick) / 1000) : 0;
+        if (Number.isFinite(stamp)) this.lastTick = Math.max(this.lastTick, stamp);
+        const s = this.state, e = this.engine, dt = Math.min(.25, elapsed);
+        const overlay = s.tutorial || s.pendingStart || s.screen === 'play' && e.paused;
+        if (!overlay) s.clock += dt;
+        e.reduced = s.settings.reduced;
+        if (s.screen === 'play' && !s.tutorial) {
+            // Animation catch-up is bounded; Rush still counts active elapsed
+            // time after a stall. Explicit pause/help and automatic shuffles stop it.
+            if (e.mode === 'rush' && !e.paused && !terminal(e) && e.phase !== 'shuffling') {
+                e.timeLeft = Math.max(0, e.timeLeft - Math.max(0, elapsed - dt));
+            }
+            e.step(dt);
+        }
         const settled = e.events.some(v => v.type === 'settled');
         if (s.screen === 'play' && (settled || terminal(e) && !this.resultRecorded)) {
+            if (settled && e.score > 0) s.progress.tutorialSeen = true;
             s.newAwards.push(...record(s.progress, e, this.accounted, this.activeLevel));
             if (terminal(e)) { this.resultRecorded = true; this.savedRun = null; this.setResumeLabel(); s.resultAge = 0; s.focusAction = ''; }
             else this.snapshot();
             this.persist();
         }
         if (s.screen === 'play' && terminal(e) && !e.paused) s.resultAge += dt;
-        s.displayScore += (e.score - s.displayScore) * .25; if (Math.abs(e.score - s.displayScore) < 1) s.displayScore = e.score;
-        this.audio.tick(e.events, dt, s.settings.sound && (!e.paused || s.screen !== 'play'), {
+        if (!overlay) s.displayScore += (e.score - s.displayScore) * (1 - Math.pow(.75, dt * 30));
+        if (Math.abs(e.score - s.displayScore) < 1) s.displayScore = e.score;
+        this.audio.tick(e.events, dt, s.settings.sound && !overlay, {
             phase: s.screen === 'play' ? e.phase : 'title', realm: s.selectedRealm, music: s.settings.music,
             intensity: Math.min(1, (e.cascade || 0) / 6), radiance: !!(e.radiantMoves || e.radiantActive) });
+        const staticMenu = s.hasArt && ['journey', 'collection'].includes(s.screen);
+        if ((overlay || staticMenu) && this.drawnHover === s.hoverAction && this.drawnSaveFailed === s.saveFailed) return;
         this.draw();
     }
-    close() { this.snapshot(); this.persist(); this.clearInput(); this.audio.close(); super.close(); }
+    close() {
+        if (this.closed) return;
+        this.tick(); this.snapshot(); this.persist(); this.clearInput(); this.audio.close(); this.closed = true; super.close();
+    }
 }
 module.exports = Facet;

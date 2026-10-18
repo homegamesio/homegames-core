@@ -1,0 +1,31 @@
+CONFIRMED: malformed target causes an unhandled rejection and exits disposable Node process (no production request).
+wattt1
+watdsfdsf3
+{
+  '142': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-142/index.js',
+  '143': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-143/index.js',
+  '145': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-145/index.js',
+  '146': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-146/index.js'
+}
+this is Game
+[class Game]
+Found config at /Users/josephgarcia/homegames/homegames-core
+Found value https://api.homegames.io for API_URL in config
+Using dictionary file at /Users/josephgarcia/homegames/homegames-core/dictionary.txt
+Using environment value: false for key: ERROR_REPORTING
+Found value false for IS_DEMO in config
+Found value 6 for DASHBOARD_PAGE_SIZE in config
+Using default value (500) for CHILD_SESSION_HEARTBEAT_INTERVAL
+Using default value (null) for LOCAL_GAME_DIRECTORY
+Set config value FORK_SESSIONS_ENABLED in /tmp/hg-launch-security-Agn3lu/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Found value false for FORK_SESSIONS_ENABLED in config
+Set config value FORK_SESSIONS_ENABLED in /tmp/hg-launch-security-Agn3lu/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Found value true for FORK_SESSIONS_ENABLED in config
+CONFIRMED: arbitrary player handler can enable fork execution; only disposable configuration changed.
+Using default value (null) for PUBLIC_HOST
+Found value https://api.homegames.io for API_URL in config
+Using environment value: disposable-review-secret for key: HOMENAMES_API_SECRET
+[Homenames] Session review ready on port 9999
+CONFIRMED: unauthenticated source passed to mocked session manager despite configured internal secret; no game code executed.

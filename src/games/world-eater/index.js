@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-145');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { Engine } = require('./engine');
 const { Painter } = require('./painter');
 const { renderWorld, screenToWorld } = require('./scene');
@@ -13,9 +13,16 @@ const clamp = (v, a, b) => Number.isFinite(v) ? Math.max(a, Math.min(b, v)) : 0;
 class WorldEater extends Game {
     static metadata() {
         return {
-            name: 'World Eater', author: 'Joseph Garcia', createdBy: 'Joseph Garcia', squishVersion: '145',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
+            name: 'World Eater',
+            author: "Joseph Garcia",
+            createdBy: "Joseph Garcia",
             description: 'Become the thing the stars are afraid of. Join a crew of up to six pilots: devour or rescue procedural worlds, grow orbital weapons, fight five celestial guardians, and carry the last of your kind beyond the final sun. A complete persistent cooperative campaign with touch, keyboard, gamepad, and original synthesized music.',
-            aspectRatio: { x: 16, y: 9 }, tickRate: 30, maxPlayers: 6, services: ['multiplayer'],
+            aspectRatio: { x: 16, y: 9 },
+            tickRate: 30,
+            maxPlayers: 6,
+            gameId: "07df00a9-f2b9-5b01-a950-5cf1cdf08aa9"
         };
     }
 

@@ -22,7 +22,7 @@ Coral debris knocks you around and can break your line. Nobody is eliminated. Yo
 
 ## Run in Homegames
 
-This folder is the complete native game: `index.js`, `README.md`, and `LICENSE`. Its only runtime dependency is `squish-142`, supplied by Homegames.
+This folder is the complete native game: `index.js`, `README.md`, and `LICENSE`. Its only runtime dependency is `squish-150`, supplied by Homegames.
 
 Place the folder at `homegames-core/src/games/tug-club`. The core LocalLibrary scanner discovers its `index.js`. Restart the local host if its library is already loaded, then launch **Tug Club** from the game library. Use the existing Homegames session/link flow for multiplayer. No platform code changes are required.
 
@@ -49,7 +49,7 @@ Completed homes and the best completion time use the platform's `saveGame` callb
 
 ## Implementation notes
 
-The game uses shared world state with private identity/control HUDs. Tethers apply spring forces to the ship and the cargo, so multiple pilots contribute real forces. Transient particles use a bounded pool; ships, cargo and per-player HUDs are removed when they leave the scene. Rendering stays within the Squish 142 polygon and coordinate constraints.
+The game uses shared world state with private identity/control HUDs. Tethers apply spring forces to the ship and the cargo, so multiple pilots contribute real forces. Transient particles use a bounded pool; ships, cargo and per-player HUDs are removed when they leave the scene. Rendering stays within the Squish 1.5.0 polygon and coordinate constraints.
 
 The game also completes pointer actions on release because short presses can occur between the existing client's input frames. This is handled inside the game.
 
@@ -57,4 +57,4 @@ Sound and controller-specific input are intentionally left for a later pass.
 
 ## License
 
-GNU GPL version 3. See `LICENSE` for the complete text.
+MIT. See `LICENSE` for the complete text.

@@ -3,6 +3,11 @@ const crypto = require('crypto');
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
+const { isHostRequest } = require('./host-access');
+
+// Membership comes only from the upgrade request, never the ready message.
+const hostSockets = new WeakSet();
+const isHostSocket = socket => !!socket && hostSockets.has(socket);
 
 const { getConfigValue, log, getHash } = require('homegames-common');
 
@@ -21,9 +26,10 @@ const CERT_DOMAIN = getConfigValue('CERT_DOMAIN', null);
 
 // Max 10MB WebSocket messages — asset bundles (images, fonts, audio) can be several MB
 const MAX_PAYLOAD = 10 * 1024 * 1024;
-// Max 120 messages per second per connection
+// Default budget; FPS games also stream relative aim alongside repeated keys.
 const RATE_LIMIT_WINDOW_MS = 1000;
 const RATE_LIMIT_MAX = 120;
+const POINTER_LOCK_RATE_LIMIT_MAX = 240;
 // Homenames request timeout
 const HOMENAMES_TIMEOUT_MS = 5000;
 
@@ -81,7 +87,8 @@ const freeProxyPlayerId = (id) => {
 // ---------------------------------------------------------------------------
 // Simple per-connection rate limiter
 // ---------------------------------------------------------------------------
-const createRateLimiter = () => {
+// const createRateLimiter = () => {
+const createRateLimiter = (maxMessages = RATE_LIMIT_MAX) => {
     let count = 0;
     let windowStart = Date.now();
     return () => {
@@ -91,7 +98,8 @@ const createRateLimiter = () => {
             windowStart = now;
         }
         count++;
-        return count <= RATE_LIMIT_MAX;
+        // return count <= RATE_LIMIT_MAX;
+        return count <= maxMessages;
     };
 };
 
@@ -119,7 +127,7 @@ const broadcast = (gameSession) => {
             } else if (msg.startsWith && msg.startsWith('close-')) {
                 const pieces = msg.split('-');
                 const clientId = Number(pieces[1]);
-                if (isNaN(clientId)) return;
+                if (!Number.isInteger(clientId) || _proxyPlayerIds[clientId] !== true) return;
 
                 if (gameSession.spectators[clientId]) {
                     gameSession.removeSpectator(clientId);
@@ -143,6 +151,7 @@ const broadcast = (gameSession) => {
                     const jsonMessage = JSON.parse(msg);
                     if (jsonMessage.type === 'ready') {
                         const clientId = jsonMessage.id;
+                        if (!Number.isInteger(clientId) || _proxyPlayerIds[clientId] !== true) return;
                         const requestedGame = jsonMessage.clientInfo && jsonMessage.clientInfo.requestedGame;
                         const clientInfo = jsonMessage.clientInfo && jsonMessage.clientInfo.clientInfo;
                         const fakeWs = {
@@ -167,10 +176,12 @@ const broadcast = (gameSession) => {
                         }
 
                         try {
-                            proxyServer.send([2, clientId, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+                            // proxyServer.send([2, clientId, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+                            proxyServer.send([2, clientId, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray,
+                                gameMetadata?.pointerLock === true ? 1 : 0]);
                         } catch (e) {}
 
-                        const playerOpts = { clientInfo, info: {}, requestedGame, isRemote: true };
+                        const playerOpts = { clientInfo, info: {}, requestedGame, isRemote: true, playerName: jsonMessage.playerName };
 
                         if (jsonMessage.spectating) {
                             gameSession.addSpectator(clientId, fakeWs, playerOpts);
@@ -182,7 +193,7 @@ const broadcast = (gameSession) => {
                         if (typeof jsonMessage.code === 'string' && jsonMessage.code.length < 20) {
                             gameSession.setServerCode(jsonMessage.code);
                         }
-                    } else if (sentPlayerId != null) {
+                    } else if (sentPlayerId != null && _proxyPlayerIds[sentPlayerId] === true) {
                         gameSession.handleInput(sentPlayerId, jsonMessage);
                     }
                 }
@@ -205,19 +216,35 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
     // off — players reach them via WS redirects.
     let webClientHandler = null;
     let localPlayHandler = null;
+    let packHandler = null;
     if (opts.serveWebClient) {
         const { createWebClientHandler } = require('./web-client');
         const { createLocalPlayHandler } = require('./local-play');
         webClientHandler = createWebClientHandler();
         localPlayHandler = createLocalPlayHandler();
+        packHandler = require('../library/PortableLibrary').createPackHandler({
+            directory: require('path').join(require('homegames-common').getAppDataPath(), 'hg-games'),
+            onInstalled: () => gameSession.game.refreshLibrary?.(),
+        });
     }
 
     const requestHandler = (req, res) => {
+        if (opts.serveWebClient && req.method === 'GET' && req.url === '/api/capabilities') {
+            res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+            res.end(JSON.stringify({ manageServer: isHostRequest(req) }));
+            return;
+        }
+        if (packHandler?.(req, res)) return;
+        if (localRtc?.handleRequest(req, res)) return;
         if (opts.serveWebClient && req.method === 'GET' && req.url === '/rtc-config') {
+            const offline = getConfigValue('RTC_SHARE_ORIGIN', null) === 'local';
+            const origin = offline ? require('./browser-game-server').invitationOrigin({ host: req.headers.host,
+                port: server.address().port, certificate: certPath ? new crypto.X509Certificate(fs.readFileSync(`${certPath}/homegames.cert`)) : null }) : null;
             res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
             res.end(JSON.stringify({
-                signalingUrl: getConfigValue('RTC_SIGNAL_URL', null) || 'wss://api.homegames.io/rtc',
-                joinUrl: getConfigValue('RTC_JOIN_URL', null) || 'https://homegames.io/play.html',
+                signalingUrl: offline ? `${(origin || `http://${req.headers.host}`).replace(/^http/, 'ws')}/rtc` : getConfigValue('RTC_SIGNAL_URL', null) || 'wss://api.homegames.io/rtc',
+                joinUrl: offline ? `${origin || `http://${req.headers.host}`}/` : getConfigValue('RTC_JOIN_URL', null) || 'https://homegames.io/play.html',
+                autoStart: offline,
                 iceTransportPolicy: getConfigValue('RTC_ICE_TRANSPORT_POLICY', 'all'),
             }));
             return;
@@ -287,19 +314,25 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
         server = http.createServer(requestHandler);
     }
 
-    const wss = new WebSocket.Server({ server, maxPayload: MAX_PAYLOAD });
+    const localRtc = opts.serveWebClient && getConfigValue('RTC_SHARE_ORIGIN', null) === 'local'
+        ? require('homegames-common/rtc-signaling').attachRtcSignaling(server, { getIceServers: () => [], allowOtherUpgrades: true }) : null;
+    const wss = new WebSocket.Server({ noServer: true, maxPayload: MAX_PAYLOAD });
+    server.on('upgrade', (req, socket, head) => {
+        if (localRtc && req.url === '/rtc') return;
+        wss.handleUpgrade(req, socket, head, ws => wss.emit('connection', ws, req));
+    });
 
     let publicIp = null;
-    getPublicIP().then(ip => {
+    if (getConfigValue('PUBLIC_GAMES', false)) getPublicIP().then(ip => {
         publicIp = ip;
-        const broadcastEnabled = !!getConfigValue('PUBLIC_GAMES', false);
-        if (broadcastEnabled) {
-            broadcast(gameSession);
-        }
+        broadcast(gameSession);
     }).catch(() => {});
 
-    wss.on('connection', (ws) => {
-        const rateLimiter = createRateLimiter();
+    wss.on('connection', (ws, req) => {
+        if (isHostRequest(req)) hostSockets.add(ws);
+        // const rateLimiter = createRateLimiter();
+        const rateLimiter = createRateLimiter(gameSession.gameMetadata?.pointerLock === true
+            ? POINTER_LOCK_RATE_LIMIT_MAX : RATE_LIMIT_MAX);
 
         // Input forwarding — registered immediately, gated on _playerReady
         const inputHandler = (inputMsg) => {
@@ -381,13 +414,15 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
                     }
 
                     try {
-                        ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+                        // ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray]);
+                        ws.send([2, ws.id, aspectRatio.x, aspectRatio.y, BEZEL_SIZE_X, BEZEL_SIZE_Y, ...squishVersionArray,
+                            gameMetadata?.pointerLock === true ? 1 : 0]);
                     } catch (e) {
                         freePlayerId(ws.id);
                         return;
                     }
 
-                    const playerOpts = { clientInfo, info: playerInfo || {}, requestedGame };
+                    const playerOpts = { clientInfo, info: playerInfo || {}, requestedGame, playerName: jsonMessage.playerName };
 
                     if (ws.spectating) {
                         gameSession.addSpectator(ws.id, ws, playerOpts);
@@ -425,6 +460,7 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
         ws.on('message', messageHandler);
 
         ws.on('close', () => {
+            hostSockets.delete(ws);
             if (ws.id == null) return;
             if (ws.spectating) {
                 gameSession.removeSpectator(ws.id);
@@ -454,4 +490,4 @@ const socketServer = (gameSession, port, cb = null, certPath = null, username = 
     });
 };
 
-module.exports = { socketServer };
+module.exports = { socketServer, isHostSocket };

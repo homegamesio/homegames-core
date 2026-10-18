@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-145');
+const { Asset, GameNode } = require('squish-150');
 
 // Original PCM synthesis. Assets are registered through the same platform API in
 // a hosted session and an offline download; no browser or network APIs are used.

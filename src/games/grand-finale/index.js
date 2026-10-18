@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 // A 4th of July chain-reaction fireworks show. Rockets arc in from off
 // screen; tap one to detonate it, and the blast sets off anything nearby —
@@ -36,9 +36,12 @@ const glow = (color, blur) => ({ shadow: { color: [color[0], color[1], color[2],
 class GrandFinale extends Game {
     static metadata() {
         return {
+            isTest: true, // Catalog review: see docs/game-consolidation.md.
+
             aspectRatio: { x: 16, y: 9 },
-            squishVersion: '142',
-            author: 'Joseph Garcia',
+            squishVersion: '150',
+            services: ['multiplayer'],
+            author: "Joseph Garcia",
             name: 'Grand Finale',
             description: 'A 4th of July chain-reaction fireworks show. Tap a rocket, detonate the sky - big chains score big. Red, white, and blue only.',
             tickRate: TICK_RATE

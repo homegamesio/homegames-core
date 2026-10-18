@@ -1,0 +1,14 @@
+✅ (passed)  portable imports validate before writing, preserve revisions, and scan without executing code
+✅ (passed)  pack HTTP import accepts localhost ZIPs and rejects LAN and cross-origin writes
+✅ (passed)  metadata-only packs preserve identity and revisions without executing source during discovery
+✅ (passed)  collectGameFiles follows relative requires with browser-loader semantics
+✅ (passed)  buildLocalPlayContext extracts effective metadata and legacy assets
+✅ (passed)  metadata path assets are opt-in and preserve legacy API asset IDs
+✅ (passed)  asset bundle reads project-relative files alongside legacy ID assets
+✅ (passed)  local-manifest serves files, metadata, and an asset bundle URL
+✅ (passed)  asset-bundle packs declared assets via the injected fetcher, type-1 format
+✅ (passed)  After Hours manifest and bundle include all local image, video, and audio bytes
+✅ (passed)  missing local media returns an error and a later bundle request can retry
+✅ (passed)  local-play routes 404 unknown games and fall through on other paths
+✅ (passed)  metadata-only local manifests infer solo play from capacity and derive the Squish runtime
+✅ (passed)  local manifests explain unsupported legacy hosted services before the game starts

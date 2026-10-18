@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes } = require('squish-142');
+const { Game, GameNode, Shapes } = require('squish-150');
 const { Engine, POWERS, BOUNDS } = require('./engine');
 const { Painter, HIDDEN } = require('./painter');
 const { render } = require('./scene');
@@ -12,9 +12,16 @@ const { hydrate, refresh, saveProgress, isLevelUnlocked, isPowerUnlocked, isChal
 class Moonbounce extends Game {
     static metadata() {
         return {
-            name: 'Moonbounce', author: 'Joseph Garcia', createdBy: 'Joseph Garcia', squishVersion: '142',
-            description: 'One shot. Five magical worlds. A 40-level celestial adventure with bouncing bumpers, portals, moving constellations, five character powers, 15 mastery challenges, persistent stars and trophies. Mouse, touch, keyboard and controller play.',
-            aspectRatio: { x: 16, y: 9 }, tickRate: 30, maxPlayers: 1, assets: {},
+            thumbnail: './assets/thumbnail.png',
+            name: 'Moonbounce',
+            author: "Joseph Garcia",
+            createdBy: "Joseph Garcia",
+            description: 'Perhaps you have played a similar game before',
+            aspectRatio: { x: 16, y: 9 },
+            tickRate: 30,
+            maxPlayers: 1,
+            assets: {},
+            gameId: "12f57352-df02-5a98-a490-2767a9972803"
         };
     }
 
@@ -43,6 +50,11 @@ class Moonbounce extends Game {
         this.engine.newUnlocks = [];
         if (POWERS.some(p => p.id === saved.powerId) && isPowerUnlocked(this.engine.progress, saved.powerId)) this.engine.setPower(saved.powerId);
         this.saveGame = options.saveGame;
+        this.closed = false;
+        this.saveRevision = 0;
+        this.saveKey = null;
+        this.saveTail = Promise.resolve();
+        this.engine.saveFailed = false;
         this.playerId = null;
         this.clock = 0;
         this.keys = {};
@@ -68,7 +80,8 @@ class Moonbounce extends Game {
             coordinates2d: [[0, 0], [99.99, 0], [99.99, 99.99], [0, 99.99], [0, 0]],
             fill: [0, 0, 0, 0], color: [0, 0, 0, 0],
             onClick: (id, x, y) => this.click(id, x, y) });
-        this.surface.node.offClick = (id, x, y) => this.release(id, x, y);
+        // Capture replacement/cancellation is not a physical release.
+        this.surface.node.offClick = id => this.cancelPointer(id);
         this.base.addChild(this.surface, false);
         this.audio = new Sound(this.audioRoot, options.addAsset);
         this.art = artAssets();
@@ -78,11 +91,15 @@ class Moonbounce extends Game {
 
     getLayers() { return [{ root: this.base }]; }
     getAssets() { return { ...this.art, ...this.audio.assets }; }
-    owns(id) { return this.playerId !== null && Number(id) === this.playerId; }
+    owns(id) { return !this.closed && this.playerId !== null &&
+        (typeof id === 'number' || typeof id === 'string') && Number(id) === this.playerId; }
     isPlaying() { return this.engine.phase === 'ready' || this.engine.phase === 'flight'; }
 
-    handleNewPlayer({ playerId }) {
-        if (this.playerId === null) this.playerId = Number(playerId);
+    handleNewPlayer({ playerId } = {}) {
+        if (this.closed || this.playerId !== null ||
+            !['number', 'string'].includes(typeof playerId) ||
+            !Number.isSafeInteger(Number(playerId)) || Number(playerId) <= 0) return;
+        this.playerId = Number(playerId);
         this.audio.register();
         if (this.addAsset && !this.artRegistered) {
             this.artRegistered = true;
@@ -124,17 +141,29 @@ class Moonbounce extends Game {
     }
 
     persist() {
-        if (!this.saveGame) return;
+        if (this.closed || !this.saveGame) return;
+        const e = this.engine;
+        e.progress.selectedLevel = e.selectedLevel; e.progress.selectedWorld = e.selectedWorld;
+        const data = { schema: 2, best: e.best, sound: e.sound, music: e.music,
+            reduced: e.reduced, powerId: e.powerId, ...saveProgress(e.progress) };
+        const key = JSON.stringify(data);
+        if (key === this.saveKey && !e.saveFailed) return this.saveTail;
+        this.saveKey = key;
+        const revision = ++this.saveRevision;
+        const finish = success => {
+            if (revision === this.saveRevision) this.engine.saveFailed = !success;
+        };
+        // Submit immediately, including on close: the platform orders/coalesces
+        // storage writes and must receive the latest snapshot before it stops.
         try {
-            const e = this.engine;
-            e.progress.selectedLevel = e.selectedLevel; e.progress.selectedWorld = e.selectedWorld;
-            const result = this.saveGame({ schema: 2, best: e.best,
-                sound: e.sound, music: e.music, reduced: e.reduced, powerId: e.powerId, ...saveProgress(e.progress) });
-            if (result && result.catch) result.catch(() => {});
-        } catch (_) { /* A storage failure must not interrupt the game. */ }
+            const result = this.saveGame(data);
+            this.saveTail = Promise.resolve(result).then(() => finish(true), () => finish(false));
+        } catch (_) { finish(false); this.saveTail = Promise.resolve(); }
+        return this.saveTail;
     }
 
     draw() {
+        if (this.closed) return;
         const e = this.engine;
         if (this.lastPhase !== e.phase) {
             if (this.lastPhase === 'flight' && ['ready', 'cleared', 'lost'].includes(e.phase)) this.recordShot();
@@ -146,6 +175,9 @@ class Moonbounce extends Game {
             this.lastPhase = e.phase;
         }
         render(this.painter, e);
+        if (e.paused) this.audio?.tick([], 0, false);
+        this.drawnSaveFailed = e.saveFailed;
+        this.drawnHover = e.hoverAction;
         this.base.node.onStateChange();
     }
 
@@ -169,7 +201,7 @@ class Moonbounce extends Game {
         }
         const trophies = refresh(p);
         e.newUnlocks = [
-            ...p.unlockedPowers.filter(id => !oldPowers.includes(id)).map(id => ({ type: 'power', id, title: POWERS.find(power => power.id === id).name + ' joined your crew!', description: 'Choose your new character from the crew screen.' })),
+            ...p.unlockedPowers.filter(id => !oldPowers.includes(id)).map(id => ({ type: 'power', id, title: POWERS.find(power => power.id === id).name + ' unlocked', description: 'Select this character from the crew screen.' })),
             ...p.completedWorlds.filter(i => !oldWorlds.includes(i)).map(i => ({ type: 'world', id: String(i), title: WORLDS[i].name + ' complete!', description: 'Three new mastery challenges are now open.' })),
             ...trophies.map(a => ({ type: 'achievement', id: a.id, title: a.title, description: a.description })),
         ];
@@ -180,7 +212,9 @@ class Moonbounce extends Game {
     }
 
     action(action) {
+        if (this.closed) return;
         const e = this.engine;
+        if (action === 'retrySave') { this.persist(); this.draw(); return; }
         if (action === 'start') {
             if (e.phase === 'title' && e.screen === 'map' && LEVELS[e.selectedLevel].worldIndex !== e.selectedWorld) return;
             const level = this.unlockedLevel(e.selectedLevel) ? e.selectedLevel : 0;
@@ -287,8 +321,8 @@ class Moonbounce extends Game {
 
     menuMove(direction) {
         const e = this.engine;
-        const allowed = e.paused ? ['resume', 'sound', 'music', 'effects', 'retry', 'title']
-            : ['next', 'start', 'retry', 'title', 'home'];
+        const allowed = e.paused ? ['resume', 'sound', 'music', 'effects', 'retry', 'title', 'retrySave']
+            : ['next', 'start', 'retry', 'title', 'home', 'retrySave'];
         const buttons = this.painter.buttons.filter(b => b.enabled !== false && (e.phase === 'title' || allowed.includes(b.action)));
         if (!buttons.length) return;
         let i = buttons.findIndex(b => b.action === e.focusAction);
@@ -301,8 +335,8 @@ class Moonbounce extends Game {
     confirm() {
         const e = this.engine;
         if (e.paused) this.action(e.focusAction || 'resume');
-        else if (e.phase === 'title') this.action(e.focusAction || ({ home: 'screen:map', map: 'start', characters: 'screen:map', challenges: 'startChallenge', trophies: 'screen:map' }[e.screen] || 'screen:map'));
-        else if (e.phase === 'ready') { e.fire(); this.draw(); }
+        else if (e.phase === 'title') this.action(e.focusAction || ({ home: e.progress.clearedLevels ? 'screen:map' : 'start', map: 'start', characters: 'screen:map', challenges: 'startChallenge', trophies: 'screen:map' }[e.screen] || 'screen:map'));
+        else if (e.phase === 'ready') { this.cancelPointer(this.playerId); e.fire(); this.draw(); }
         else if (e.phase === 'cleared') this.action(e.focusAction || (e.mode === 'challenge' ? 'retry' : 'next'));
         else if (e.phase === 'lost') this.action(e.focusAction || 'retry');
         else if (e.phase === 'won') this.action(e.focusAction || 'title');
@@ -310,7 +344,7 @@ class Moonbounce extends Game {
 
     click(id, x, y) {
         if (!this.owns(id) || !Number.isFinite(x) || !Number.isFinite(y)) return;
-        // Squish 142 repeats clicks while held. Movement still reaches the aim
+        // Squish 1.5.0 repeats clicks while held. Movement still reaches the aim
         // handler, but one physical press must trigger at most one action.
         if (this.pointerHeld) return;
         this.pointerHeld = true;
@@ -345,6 +379,18 @@ class Moonbounce extends Game {
         this.engine.aimAt(x, y);
         this.engine.fire();
         this.draw();
+    }
+
+    cancelPointer(id) {
+        if (!this.owns(id)) return;
+        this.pointerHeld = false;
+        this.pointerShot = false;
+        this.pointerSpeed = false;
+        this.engine.aiming = false;
+    }
+
+    handleMouseUp(id, position = {}) {
+        this.release(id, position?.x, position?.y);
     }
 
     handleMouseMove(id, position = {}) {
@@ -433,10 +479,15 @@ class Moonbounce extends Game {
     }
 
     tick() {
+        if (this.closed) return;
         this.clock += 1 / 30;
         for (const key of Object.keys(this.keys)) if (this.clock - this.keys[key] > .8) { delete this.keys[key]; delete this.keyDownAt[key]; }
         if (this.clock - this.padTime > .55) { this.padAim = 0; this.padSpeed = false; this.padDownAt = null; }
         const e = this.engine;
+        if (e.paused) {
+            if (this.drawnSaveFailed !== e.saveFailed || this.drawnHover !== e.hoverAction) this.draw();
+            return;
+        }
         if (e.phase === 'ready' && !e.paused) {
             const down = key => this.keys[key] !== undefined ? 1 : 0;
             const direction = this.padAim || down('arrowright') + down('d') - down('arrowleft') - down('a');
@@ -455,13 +506,19 @@ class Moonbounce extends Game {
         }
         this.audio.tick(e.events, 1 / 30, e.sound && !e.paused, { phase: e.phase, fever: e.fever, music: e.music,
             world: e.phase === 'title' ? e.selectedWorld : LEVELS[e.levelIndex].worldIndex });
+        // These menu pages contain no animated geometry. Audio still advances
+        // independently, and actions/focus/hover/save feedback remain immediate.
+        if (e.phase === 'title' && ['map', 'challenges', 'trophies'].includes(e.screen) &&
+            this.drawnSaveFailed === e.saveFailed && this.drawnHover === e.hoverAction) return;
         this.draw();
     }
 
     close() {
+        if (this.closed) return;
         this.persist();
         this.clearInput();
         this.audio.tick([], 0, false);
+        this.closed = true;
         super.close();
     }
 }

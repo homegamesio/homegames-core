@@ -1,0 +1,20 @@
+[build] Building bundle at /Users/josephgarcia/homegames/homegames/dist/selfhost-link-review-20261018
+[build] Copying homegames-core and its installed production dependencies…
+[build] No --game given — bundle boots the dashboard
+[build] Verified 260 local asset files; no content downloads required
+[build] Runtime ready: runtimes/darwin-arm64/node
+[build] Runtime ready: runtimes/darwin-x64/node
+[build] Runtime ready: runtimes/linux-x64/node
+[build] Runtime ready: runtimes/win-x64/node.exe
+Wrote single executable preparation blob to /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-sea-Ke9DPA/launcher.blob
+[build] Building mac launcher slice (darwin-arm64) with Node SEA…
+[36mStart injection of NODE_SEA_BLOB in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-sea-Ke9DPA/launcher-darwin-arm64...[0m
+[32m💉 Injection done![0m
+[build] Building mac launcher slice (darwin-x64) with Node SEA…
+[36mStart injection of NODE_SEA_BLOB in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-sea-Ke9DPA/launcher-darwin-x64...[0m
+[32m💉 Injection done![0m
+[build] Assembling universal Play Mac.app…
+[build] 
+[build] Done. Bundle: /Users/josephgarcia/homegames/homegames/dist/selfhost-link-review-20261018 (1.3G, 260 bundled asset(s), platforms: darwin-arm64, darwin-x64, linux-x64, win-x64)
+[build] Add --iso to also produce a burnable image.
+[build] Distributing as a download? Add --notarize for a signed, stapled .dmg (discs don't need it).

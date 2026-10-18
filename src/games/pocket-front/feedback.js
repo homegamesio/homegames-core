@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-145');
+const { Asset, GameNode } = require('squish-150');
 
 const CURSORS = {
     select: { hotspot: { x: 4, y: 3 }, drawing: '<path d="M4 3v23l6-6 5 9 5-3-5-8 9-1Z" fill="#fff6d9" stroke="#162d3d" stroke-width="2.5" stroke-linejoin="round"/>' },

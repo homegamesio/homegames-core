@@ -1,0 +1,130 @@
+{
+  "at": "2026-10-18T18:12:46.939Z",
+  "site": "https://homegames.io",
+  "checks": [],
+  "errors": [],
+  "failures": [
+    {
+      "mode": "tls",
+      "stage": "selected relay pairs and sustained traffic",
+      "message": "The expression evaluated to a falsy value:\n\n  assert(p.bytesSent>0&&p.bytesReceived>0)\n",
+      "host": {
+        "peers": [
+          {
+            "state": "connected",
+            "policy": "relay",
+            "localType": "relay",
+            "remoteType": "relay",
+            "relayProtocol": "tls",
+            "url": "turns:api.homegames.io:5349?transport=tcp",
+            "bytesSent": 3721602,
+            "bytesReceived": 0
+          }
+        ],
+        "frames": [
+          {
+            "labels": [],
+            "audio": 0,
+            "status": "Saved on this device. Ready to play offline. Download the HTML to keep a file too."
+          },
+          {
+            "labels": [
+              "SOUND ON",
+              "2 / 8",
+              "PAUSE",
+              "−",
+              "108",
+              "BPM",
+              "+",
+              "UNDO",
+              "9 / 16",
+              "DRUMS",
+              "BASS",
+              "FX",
+              "ROOM",
+              "1–8",
+              "9–16",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "KICK",
+              "SNARE",
+              "HAT",
+              "Tap a pad to add a beat",
+              "gargantuan papaya started the loop",
+              ""
+            ],
+            "audio": 60
+          }
+        ]
+      },
+      "guest": {
+        "peers": [
+          {
+            "state": "connected",
+            "policy": "relay",
+            "localType": "relay",
+            "remoteType": "relay",
+            "relayProtocol": "tls",
+            "url": "turns:api.homegames.io:5349?transport=tcp",
+            "bytesSent": 91987,
+            "bytesReceived": 0
+          }
+        ],
+        "frames": [
+          {
+            "labels": [
+              "SOUND ON",
+              "2 / 8",
+              "PAUSE",
+              "−",
+              "108",
+              "BPM",
+              "+",
+              "UNDO",
+              "8 / 16",
+              "DRUMS",
+              "BASS",
+              "FX",
+              "ROOM",
+              "1–8",
+              "9–16",
+              "C",
+              "D",
+              "E",
+              "G",
+              "A",
+              "Pick a note, then a beat",
+              "C",
+              "1",
+              "·",
+              "2",
+              "·",
+              "3",
+              "E",
+              "4",
+              "·",
+              "5",
+              "·",
+              "6",
+              "G",
+              "7",
+              "·",
+              "8",
+              "gargantuan papaya started the loop",
+              ""
+            ],
+            "audio": 50,
+            "status": "Connected to host"
+          }
+        ]
+      }
+    }
+  ],
+  "browser": "143.0.7499.169"
+}

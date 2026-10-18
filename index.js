@@ -1,4 +1,3 @@
-const server = require('./game_server');
 const fs = require('fs');
 const assert = require('assert');
 const { reportBug } = require('./src/common/util');
@@ -116,12 +115,18 @@ const certDir = certPathArg
 
 const certManager = createCertManager({ certPath: certDir });
 setDefaultInstance(certManager);
+if (HTTPS_ENABLED) certManager.activatePreparedCertificate();
 
 // Serve HTTPS only when the user opted in (HTTPS_ENABLED) AND a valid cert
 // is on disk RIGHT NOW — a cert acquired while running takes effect on the
 // next restart (the restart contract), and a leftover cert with HTTPS
 // disabled stays unused.
 certPathArg = (HTTPS_ENABLED && certManager.hasValidCert()) ? certDir : null;
+
+// Child sessions and Homenames must use the protocol actually serving now.
+// Saved HTTPS intent remains in the user's config for the next launch.
+process.env.HTTPS_ENABLED = certPathArg ? 'true' : 'false';
+const server = require('./game_server');
 
 if (certPathArg) {
     process.env.HTTPS_ENABLED = true;
@@ -144,9 +149,14 @@ if (HTTPS_ENABLED && !certPathArg) {
 // need to register this server so homegames.link can find it on the household.
 let linkClient = null;
 let listening = false;
+const updateDiscoveryCertificate = () => linkHelper.setHttpsReady(linkClient, !!certPathArg, certManager.readCertificate());
+certManager.onUpdate(() => {
+    if (LINK_ENABLED && listening) updateDiscoveryCertificate().catch(err => log.error(err));
+});
 const onReady = (httpServer) => {
     listening = true;
     const port = httpServer.address().port;
+    linkHelper.setListeningPort(port);
     let url = `http://localhost:${port}`;
     if (certPathArg) {
         const { X509Certificate } = require('crypto');
@@ -158,7 +168,7 @@ const onReady = (httpServer) => {
     // The supervisor should use what actually bound, not guess from config:
     // HTTPS can be requested while the first certificate is still pending.
     if (process.connected) process.send({ type: 'homegames-ready', url }, () => {});
-    if (LINK_ENABLED) linkHelper.setHttpsReady(linkClient, !!certPathArg).catch(err => log.error(err));
+    if (LINK_ENABLED) updateDiscoveryCertificate().catch(err => log.error(err));
 };
 
 try {
@@ -167,11 +177,12 @@ try {
     log.error('Server error: ' + serverErr);
     reportBug(`Error starting server: ${serverErr}`);
 }
+if (HTTPS_ENABLED) certManager.scheduleNetworkChecks();
 
 if (LINK_ENABLED) {
     linkInit().then(wsClient => {
         linkClient = wsClient;
-        if (listening) return linkHelper.setHttpsReady(wsClient, !!certPathArg);
+        if (listening) return updateDiscoveryCertificate();
     }).catch(err => {
         log.info('Homegames is running locally; discovery will retry connecting to homegames.link');
         if (err) log.error(err);

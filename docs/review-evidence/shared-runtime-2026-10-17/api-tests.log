@@ -1,0 +1,24 @@
+✔ the active API starts without account or Forgejo credentials (0.601834ms)
+✔ the active API exposes connection helpers, not accounts or publishing (5.684541ms)
+✔ certificate requests are bounded and invalid JSON fails cleanly (1.1355ms)
+✔ only a configured loopback proxy may supply the client IP (0.075666ms)
+✔ disabled certificate status returns without loading a database or queue client (0.476666ms)
+✔ malformed targets return 400 and the HTTP server keeps serving requests (5.778333ms)
+✔ the server contains unexpected failures outside the route error handler (0.146208ms)
+✔ response serialization failures do not commit a success status (0.080292ms)
+✔ API rejects permitted CN plus extra SAN before publishing (150.886708ms)
+✔ certificate lookup selects the requested issuance, newest legacy cert and propagates DB failure (1.559459ms)
+✔ concurrent and repeated callbacks create one commit and return success after completion (0.524625ms)
+✔ commit succeeds but DB acknowledgement fails: retry recognizes content without another commit (0.191875ms)
+✔ changed source is retained for review instead of overwriting newer work (0.135708ms)
+✔ cancelled results are idempotently ignored without committing (0.060375ms)
+✔ Forgejo read outages retry and do not pretend index.js is absent (0.079833ms)
+✔ docs callbacks succeed on duplicates and stale questions release intake capacity (0.921333ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 296.905667

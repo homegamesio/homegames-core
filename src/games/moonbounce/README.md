@@ -1,8 +1,6 @@
 # Moonbounce
 
-An original celestial peg-bouncing arcade game for Homegames. Line up a shot,
-send a moonball through a constellation of pegs, and enjoy the cascade. Clear
-every orange peg to light the constellation and trigger the finale.
+Perhaps you have played a similar game before
 
 An adventure map connects **40 authored levels in five illustrated worlds**.
 Each world has eight stages, a finale, an original musical arrangement, and
@@ -76,8 +74,11 @@ strengths.
 Best scores and preferences use Homegames save data; the local preview keeps
 them in browser storage. Version 1 saves migrate to the adventure without losing
 their six original medals, preferences, best score, or original three characters.
-New profiles begin with Stargazer. Progress is recorded after each shot and
-completed board; a failed replay never reduces a record.
+New profiles begin with Stargazer. Career statistics are recorded after each shot;
+completed boards save medals, best scores and unlocks. Reopening starts the
+selected board fresh: unfinished pegs, remaining balls and current score are
+not saved. A failed replay never reduces a record. Failed writes show a warning
+and a Retry save control; later save points also retry.
 
 The five illustrated worlds are embedded as PNGs; jewel
 pegs, the expressive moon host, catcher, ball reservoir, fever meter, effects,
@@ -107,13 +108,14 @@ The build accepts an optional output path; without one it writes to
 `tools/moonbounce/moonbounce.html`.
 
 The core local-game loader discovers `src/games/moonbounce` directly. The game
-imports `squish-142` and its own modules, with a fixed 16:9 playfield that scales
-to the available screen.
+imports `squish-150` and its own modules, with a fixed 16:9 playfield that scales
+to the available screen. Turn phones sideways for the larger board and menus.
 
 Run the physics, campaign, input, save, sound, and serialization checks:
 
 ```sh
+node --test test/games/MoonbounceLaunch.test.cjs
 node testRunner.js ./test/games/MoonbounceEngine.test.js ./test/games/MoonbounceAdventureContent.test.js ./test/games/MoonbounceProgression.test.js ./test/games/Moonbounce.test.js ./test/games/MoonbounceNavigation.test.js ./test/games/MoonbouncePlaythroughs.test.js ./test/games/MoonbounceSound.test.js
 ```
 
-GPL-3.0. See `LICENSE`.
+MIT. See `LICENSE`.

@@ -1,6 +1,6 @@
 'use strict';
 
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { VisibleScene } = require('./world/scene');
 const {
     WORLD_WIDTH,
@@ -145,9 +145,11 @@ const triangle = (x1, y1, x2, y2, x3, y3) => [[x1, y1], [x2, y2], [x3, y3], [x1,
 class CityScanner extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true, // Catalog review: see docs/game-consolidation.md.
+
+            squishVersion: '150',
             name: 'City Scanner',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'Explore a little living city together. Feed the fish, call a taxi, and find a favorite neighborhood.',
             aspectRatio: { x: 16, y: 9 },
             tickRate: 30,

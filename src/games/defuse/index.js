@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const TICK_RATE = 10;
 const MAX_PLAYERS = 8;
@@ -158,13 +158,14 @@ const KEYPAD_INTRO = [
 class Defuse extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            thumbnail: './assets/thumbnail.png',
             name: 'Defuse',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'Co-op bomb disposal for a voice call. One player sees the bomb - everyone else holds pieces of the manual. Talk fast.',
             aspectRatio: { x: 16, y: 9 },
-            services: ['multiplayer'],
-            tickRate: TICK_RATE
+            tickRate: TICK_RATE,
+            gameId: "0ee4dfdf-c718-5873-a0ce-8c0314b98e6d",
+            maxPlayers: 8
         };
     }
 
@@ -851,11 +852,9 @@ class Defuse extends Game {
 
     buildLobbyShared() {
         const s = this.sharedRoot;
-        s.addChild(this.text('DEFUSE', 50.4, 8.4, 5.5, [0, 0, 0, 180], 'center'));
-        s.addChild(this.text('DEFUSE', 50, 8, 5.5, AMBER, 'center'));
-        s.addChild(this.text('CO-OP BOMB DISPOSAL FOR A VOICE CALL', 50, 21, 1.5, INK, 'center'));
-        s.addChild(this.text('ONE AGENT DEFUSES. EVERYONE ELSE HOLDS THE MANUAL. TALK FAST.', 50, 27, 1.15, FAINT, 'center'));
-        s.addChild(this.text('DEFUSER: NEVER SHARE YOUR SCREEN. EXPERTS: NO PEEKING.', 50, 30.5, 1.15, FAINT, 'center'));
+
+        s.addChild(this.text('ONE DEFUSES. THE OTHERS READ THE MANUAL.', 50, 23, 2, FAINT, 'center'));
+        s.addChild(this.text('TALK OUT LOUD. KEEP YOUR SCREEN PRIVATE.', 50, 29, 1.7, FAINT, 'center'));
         if (this.lobbyMsg) {
             s.addChild(this.text(this.lobbyMsg, 50, 35.5, 1.3, BAD, 'center'));
         }

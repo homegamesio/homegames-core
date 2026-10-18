@@ -1,26 +1,23 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-150');
+const TUNING = require('../tuning');
 const weapons = require('../weapons');
 
-// const WEAPONS = {
-//     DEFAULT: 'DEFAULT'
-// };
-
-const MAX_SHOTS = 3;
-const MAX_ENEMIES = 3;
+const MAX_SHOTS = TUNING.HUNT.maxShotsOnScreen;
+const MAX_ENEMIES = TUNING.HUNT.maxEnemiesOnScreen;
 
 // HUNTING SLOT MACHINES
 
 const createEnemy = (enemyType) => {
      const left = Math.random() < .5;
-     const startY = Math.max(Math.min(Math.random() * 100, 70), 30);
+     const startY = Math.max(Math.min(Math.random() * 100, TUNING.HUNT.enemySpawnMaxY), TUNING.HUNT.enemySpawnMinY);
 
      const enemyData = enemyTypes[enemyType];
      const xRate = (left ? 1 : -1) * enemyData.xRate;
 
      // it will take 100 / xRate ticks to get across the screen
-     // we want the enemy to move at most 20 units in either y direction
+     // we want the enemy to move at most enemyMaxYDrift units in either y direction
      const up = Math.random() < .5;
-     const velVal = Math.random() * 20;
+     const velVal = Math.random() * TUNING.HUNT.enemyMaxYDrift;
 
      const yVel = (up ? 1 : -1) * (velVal / (100 / xRate));
 
@@ -545,9 +542,9 @@ const legTypes = {
 
 const enemyTypes = {
     'big-saguaro': {
-        xRate: .25,
-        value: 25,
-        health: 50,
+        xRate: TUNING.HUNT.enemySpeed,
+        value: TUNING.HUNT.enemyScore,
+        health: TUNING.HUNT.enemyHealth,
         create: (startX, startY) => {
             return new GameNode.Asset({
                 coordinates2d:  ShapeUtils.rectangle(
@@ -572,9 +569,9 @@ const enemyTypes = {
         }
     },
     'little-saguaro': {
-        xRate: .25,
-        value: 25,
-        health: 50,
+        xRate: TUNING.HUNT.enemySpeed,
+        value: TUNING.HUNT.enemyScore,
+        health: TUNING.HUNT.enemyHealth,
         create: (startX, startY) => {
 
             return new GameNode.Asset({
@@ -605,9 +602,9 @@ const enemyTypes = {
         }
     },
     'gas-canister': {
-        xRate: .25,
-        value: 25,
-        health: 50,
+        xRate: TUNING.HUNT.enemySpeed,
+        value: TUNING.HUNT.enemyScore,
+        health: TUNING.HUNT.enemyHealth,
         create: (startX, startY) => {
 
             return new GameNode.Asset({
@@ -639,9 +636,9 @@ const enemyTypes = {
     },
 
     'gas-pump': {
-        xRate: .25,
-        value: 25,
-        health: 50,
+        xRate: TUNING.HUNT.enemySpeed,
+        value: TUNING.HUNT.enemyScore,
+        health: TUNING.HUNT.enemyHealth,
         create: (startX, startY) => {
 
             return new GameNode.Asset({
@@ -672,9 +669,9 @@ const enemyTypes = {
         }
     },
     'senor-die': {
-        xRate: .25,
-        value: 25,
-        health: 50,
+        xRate: TUNING.HUNT.enemySpeed,
+        value: TUNING.HUNT.enemyScore,
+        health: TUNING.HUNT.enemyHealth,
         create: (startX, startY) => {
 
             return new GameNode.Asset({
@@ -700,9 +697,9 @@ const enemyTypes = {
         }
     },
     'slot-enemy': {
-        xRate: .25,
-        value: 25,
-        health: 50,
+        xRate: TUNING.HUNT.enemySpeed,
+        value: TUNING.HUNT.enemyScore,
+        health: TUNING.HUNT.enemyHealth,
         create: (startX, startY) => {
 
             return new GameNode.Asset({
@@ -754,6 +751,7 @@ class Hunt {
         this.enemyPaths = {};
         this.shotPaths = {};
         this.scores = {};
+        this.lastShots = {};
         this.lastResources = {};
         this.infoNodes = [
             {
@@ -913,17 +911,23 @@ class Hunt {
     }
 
     shoot(playerId, x, y) {
+        if (!this.mainGame.canPlay(playerId, this) || !Number.isFinite(x) || !Number.isFinite(y)) return;
         if (Object.keys(this.renderedShots).length >= MAX_SHOTS) {
             return;
         }
 
-        if (!this.lastResources.ammo) {
+        if (this.mainGame.resources.ammo <= 0) {
             return;
         } 
         
         const playerWeapon = this.lastResources.weapon || 'baseball';
 
         const weapon = Object.assign({}, weapons[playerWeapon]);
+        if (this.lastShots[playerId] && Date.now() < this.lastShots[playerId] + weapon.cooldown) return;
+        this.lastShots[playerId] = Date.now();
+        // Keep aim inside the playfield and avoid a zero-velocity, unbounded path.
+        x = Math.max(0, Math.min(100, x));
+        y = Math.max(10, Math.min(90, y));
        
         const shot = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -974,7 +978,8 @@ class Hunt {
         this.renderedShots[shot.node.id] = {
             gameNode: shot,
             playerId,
-            weapon: playerWeapon
+            weapon: playerWeapon,
+            hitEnemies: new Set()
         };
 
         this.shotPaths[shot.node.id] = {
@@ -1035,21 +1040,14 @@ class Hunt {
             }
         });
 
-         const scrapCoords = scrapIcon.node.coordinates2d;
-
-         const goalX = 0;
-         const goalY = 0;
-
-         const xVel = scrapCoords[0][0] / -40; 
-         const yVel = scrapCoords[0][1] / - 40;
-
-         const newPath = Physics.getPath(
-             scrapCoords[0][0],
-             scrapCoords[0][1],
-             xVel,
-             yVel,
-             100, 
-             100);
+        // A fixed-length path also works when a defeated creature is partly offscreen.
+        // The generic physics path assumes its first step is inside the bounds.
+        const startX = Math.max(0, Math.min(97, x - 1));
+        const startY = Math.max(0, Math.min(97, y - 1));
+        const newPath = Array.from({length: TUNING.HUNT.scrapFlyTicks}, (_, i) => {
+            const remaining = 1 - (i + 1) / TUNING.HUNT.scrapFlyTicks;
+            return [startX * remaining, startY * remaining];
+        });
 
         this.renderedScrap[scrapIcon.id] = {
             node: scrapIcon,
@@ -1088,7 +1086,7 @@ class Hunt {
 
         this.expiringNodes[textNode.id] = {
             node: textNode,
-            lifetime: 500,
+            lifetime: TUNING.HUNT.hitTextLifetimeMs,
             createdAt: now
         }
 
@@ -1098,7 +1096,10 @@ class Hunt {
         this.lastResources = resources;
         const now = Date.now();
 
-        if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < now - 1000)) {
+        // true when this tick mutated node fields directly (tree ops notify on their own)
+        let changed = false;
+
+        if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < now - TUNING.HUNT.enemySpawnIntervalMs)) {
             this.lastSpawnTime = now;
             this.spawnEnemy();
         }
@@ -1136,17 +1137,20 @@ class Hunt {
                 let playerId;
 
                 for (const i in collidingBullets) {
-                    const shotData = this.renderedShots[collidingBullets[i].node.id]; 
+                    const shotData = this.renderedShots[collidingBullets[i].node.id];
+                    if (enemiesEliminated.has(key) || shotData.hitEnemies.has(key) ||
+                        (shotKeysToRemove.has(collidingBullets[i].node.id) && !weapons[shotData.weapon].penetration)) continue;
+                    shotData.hitEnemies.add(key);
                     playerId = playerId || shotData.playerId;
                     // this.root.removeChild(collidingBullets[i].node.id);
-                    shotKeysToRemove.add(collidingBullets[i].node.id);
+                    if (!weapons[shotData.weapon].penetration) shotKeysToRemove.add(collidingBullets[i].node.id);
                     const playerWeapon = shotData.weapon;
                     const hitWith = weapons[playerWeapon];
 
                     const baseDamage = hitWith.damage;
 
-                    // random value within 10% of base damage
-                    const padding = baseDamage * (Math.random() * 10) / 100;
+                    // random value within damageVariancePct of base damage
+                    const padding = baseDamage * (Math.random() * TUNING.HUNT.damageVariancePct) / 100;
 
                     const realDamage = Math.floor(baseDamage + ((Math.random() < .5 ? 1 : -1) * padding));
 
@@ -1194,7 +1198,7 @@ class Hunt {
 
                     let legKey = Object.keys(legsNode.node.asset)[0];//'legs-1-1';// + (Math.random() < .5 ? '1' : '2');
 
-                    if (!this.renderedEnemies[key].lastLegChange || this.renderedEnemies[key].lastLegChange + 500 <= Date.now()) {
+                    if (!this.renderedEnemies[key].lastLegChange || this.renderedEnemies[key].lastLegChange + TUNING.HUNT.legAnimIntervalMs <= Date.now()) {
                         legKey = legKey.substring(0, legKey.length - 1) + (legKey.endsWith('1') ? '2' : '1');
                         this.renderedEnemies[key].lastLegChange = Date.now();
                     }
@@ -1215,6 +1219,7 @@ class Hunt {
                     enemy.node.asset = newAsset;
                     legsNode.node.asset = newLegs;
                     this.enemyPaths[key].currentIndex = pathIndex + 1;
+                    changed = true;
                 }
             } else {
                 enemyKeysToRemove.add(key);
@@ -1238,16 +1243,18 @@ class Hunt {
                 }
             });
 
-            this.infoNodes.forEach(infoNode => {
-
-                if (infoNode.type === 'score') {
-                    const gameNode = infoNode.gameNode;
-                    const textInfo = Object.assign({}, gameNode.node.text);
-                    textInfo.text = Object.keys(this.scores).length > 0 ? '' + Object.values(this.scores)[0] : '0'; // todo: support multiple player scores? prob not
-                    gameNode.node.text = textInfo;
-                }
-            });
         }
+
+        const scoreValue = String(Object.values(this.scores).reduce((sum, value) => sum + value, 0));
+        this.infoNodes.forEach(infoNode => {
+            if (infoNode.type === 'score' && infoNode.gameNode.node.text.text !== scoreValue) {
+                const gameNode = infoNode.gameNode;
+                const textInfo = Object.assign({}, gameNode.node.text);
+                textInfo.text = scoreValue;
+                gameNode.node.text = textInfo;
+                changed = true;
+            }
+        });
 
         for (const key in this.renderedShots) {
             // move next index in path
@@ -1283,6 +1290,7 @@ class Hunt {
                     }
 
                     this.shotPaths[key].currentIndex = pathIndex + 1;
+                    changed = true;
                 }
             } else {
                 shotKeysToRemove.add(key);
@@ -1294,10 +1302,6 @@ class Hunt {
                 delete this.renderedShots[k];
                 delete this.shotPaths[k];
             });
-        }
-
-        for (const key in this.scores) {
-
         }
 
         const scrapKeysToRemove = new Set();
@@ -1316,6 +1320,7 @@ class Hunt {
                 scrapNode.node.coordinates2d = newCoordinates;
                 scrapNode.node.asset = { 'scrap': { pos: {x: scrapPath[pathIndex][0], y: scrapPath[pathIndex][1]}, size: {x: scrapCoords[1][0] - scrapCoords[0][0], y: scrapCoords[2][1] - scrapCoords[1][1]}}}
                 this.renderedScrap[key].currentIndex = pathIndex + 1;
+                changed = true;
             }
         }
 
@@ -1324,7 +1329,7 @@ class Hunt {
             this.gameLayer.removeChild(node.id);
 
             delete this.renderedScrap[key];
-            this.mainGame.resources.scrap = this.mainGame.resources.scrap + 1;
+            this.mainGame.resources.scrap = this.mainGame.resources.scrap + TUNING.HUNT.scrapPerPickup;
             this.mainGame.renderStatsLayer();
         }
 
@@ -1341,11 +1346,23 @@ class Hunt {
         for (const key of expiringNodesToDelete) {
             delete this.expiringNodes[key];
         }
- 
+
+        return changed;
     }
 
     getRoot() {
         return this.root;
+    }
+
+    removePlayer(playerId) {
+        delete this.scores[playerId];
+        delete this.lastShots[playerId];
+        for (const [key, shot] of Object.entries(this.renderedShots)) {
+            if (shot.playerId !== playerId) continue;
+            this.gameLayer.removeChild(key);
+            delete this.renderedShots[key];
+            delete this.shotPaths[key];
+        }
     }
 }
 

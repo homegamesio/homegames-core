@@ -1,14 +1,13 @@
-const { Asset, Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Asset, Colors, Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { getImageDimensions } = require('./image-dims');
 
 const COLORS = Colors.COLORS;
 
 // World-space board. The screen is a camera window into this larger plane.
-// 4000x4000 = 1600 default-zoom screenfuls; new players spawn scattered across it.
+// Everyone joins the same view, then can explore independently.
 const WORLD_SIZE = 4000;
 const ZOOM_WIDTHS = [25, 50, 100, 200, 500, 1000, 2000]; // camera width in world units per zoom level
 const DEFAULT_ZOOM_INDEX = 2;
-const SPAWN_GRID = 6; // joiners land in scattered cells of a 6x6 region grid
 
 const TOOLBAR_HEIGHT = 8;
 
@@ -59,14 +58,20 @@ class Draw extends Game {
             name: 'Draw',
             description: 'A big shared drawing board. Scroll, zoom, and doodle together.',
             aspectRatio: { x: 1, y: 1 },
-            squishVersion: '142',
-            author: 'Joseph Garcia',
-            thumbnail: '1e844026921f7662a62ce72da869da63'
+            assets: {
+                'pointer-pen': new Asset({ path: './assets/cursor-pen.png', type: 'image' }),
+                'pointer-eraser': new Asset({ path: './assets/cursor-eraser.png', type: 'image' })
+            },
+            author: "Joseph Garcia",
+            thumbnail: './assets/thumbnail.png',
+            gameId: "9d2d1021-6947-57ad-a78b-0ee1c4ea621e",
+            maxPlayers: 8
         };
     }
 
     constructor(options = {}) {
         super();
+        this.setCursor = options.setCursor;
 
         this.addAsset = (options && options.addAsset) || (() => Promise.resolve());
 
@@ -95,11 +100,13 @@ class Draw extends Game {
         this.tapCatcher = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            onHover: id => { if (this.players[id]) this.players[id].overPaper = true; this.updatePointer(id); },
+            offHover: id => { if (this.players[id]) this.players[id].overPaper = false; this.updatePointer(id); },
             onClick: this.handleDraw.bind(this)
         });
         // Current clients send mousemove during a held press instead of
         // repeated clicks — onDrag keeps continuous strokes working there.
-        // (squish-142's constructor doesn't take onDrag, so assign directly.)
+        // (squish-150's constructor doesn't take onDrag, so assign directly.)
         this.tapCatcher.node.onDrag = this.handleDraw.bind(this);
 
         // Above the tap catcher: audio blocks must receive their own clicks.
@@ -235,12 +242,21 @@ class Draw extends Game {
         return ShapeUtils.rectangle(SWATCH_X(colorIndex) - 0.5, SWATCH_Y - 0.5, SWATCH_W + 1, SWATCH_H + 1);
     }
 
+    updatePointer(id) {
+        const player = this.players[id];
+        if (typeof this.setCursor === 'function') this.setCursor(id, player?.overPaper ? {
+            assetKey: player.colorIndex === ERASER_INDEX ? 'pointer-eraser' : 'pointer-pen',
+            size: { width: 32, height: 32 }, hotspot: { x: 5, y: 27 }
+        } : null);
+    }
+
     selectColor(playerId, colorIndex) {
         const player = this.players[Number(playerId)];
         if (!player) {
             return;
         }
         player.colorIndex = colorIndex;
+        this.updatePointer(playerId);
         player.lastDraw = null;
         player.activeChunk = null;
         player.marker.node.coordinates2d = this.markerCoordinates(colorIndex);
@@ -251,20 +267,13 @@ class Draw extends Game {
     // Players
     // ------------------------------------------------------------------
 
-    // Scatter joiners across the board so 100 players get their own patch
-    // instead of piling onto one spot. Stride 13 is coprime with 36, so
-    // consecutive joiners land in far-apart cells.
+    // Join a friend's current view so the shared drawing is visible immediately.
+    // Each player still owns a separate camera after joining.
     spawnCamera() {
-        const cell = (this.joinCounter * 13) % (SPAWN_GRID * SPAWN_GRID);
-        const cellSize = WORLD_SIZE / SPAWN_GRID;
-        const centerX = ((cell % SPAWN_GRID) + 0.5) * cellSize;
-        const centerY = (Math.floor(cell / SPAWN_GRID) + 0.5) * cellSize;
+        const host = Object.values(this.players)[0];
+        if (host) return { ...host.camera };
         const width = ZOOM_WIDTHS[DEFAULT_ZOOM_INDEX];
-        return {
-            x: clamp(centerX - width / 2, 0, WORLD_SIZE - width),
-            y: clamp(centerY - width / 2, 0, WORLD_SIZE - width),
-            zoomIndex: DEFAULT_ZOOM_INDEX
-        };
+        return { x: (WORLD_SIZE-width)/2, y: (WORLD_SIZE-width)/2, zoomIndex: DEFAULT_ZOOM_INDEX };
     }
 
     handleNewPlayer({ playerId }) {
@@ -290,7 +299,7 @@ class Draw extends Game {
             playerIds: [pid]
         });
         player.zoomLabel = new GameNode.Text({
-            textInfo: this.zoomLabelText(DEFAULT_ZOOM_INDEX),
+            textInfo: this.zoomLabelText(player.camera.zoomIndex),
             playerIds: [pid]
         });
 
@@ -324,6 +333,7 @@ class Draw extends Game {
         this.markerRoot.removeChild(player.marker.id);
         this.zoomLabelRoot.removeChild(player.zoomLabel.id);
         delete this.players[pid];
+        this.updatePointer(pid);
         this.clearVotes.delete(pid);
         // The remaining votes may now be a majority of the remaining players.
         this.checkClearVotes();

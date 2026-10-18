@@ -1,0 +1,61 @@
+{
+  "localCandidate": true,
+  "published": false,
+  "common": {
+    "name": "homegames-common",
+    "version": "1.7.2",
+    "integrity": "sha512-eaVgZz2j29MHDyj3oXuPdWsYieIkouIPmJyE2oT5qJdnwlHHPgL0v2gSAVLAiE7fs0tyW5LerU4zDy2NP4VshA==",
+    "filename": "homegames-common-1.7.2.tgz"
+  },
+  "client": {
+    "name": "homegames-client",
+    "version": "0.1.2",
+    "integrity": "sha512-AdKeEph43F5xe2+m50ybQw20vWRaaBuA3kIy3i+LJLnpBk2Y1ZPVBXg8ZLwjpQ66tIQryAQRsbDqtgfpcD1whA==",
+    "filename": "homegames-client-0.1.2.tgz"
+  },
+  "installed": {
+    "homegames-common": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "94ebe41d14955c5e916448d06cf0967ee9b6b5422beca3d5ec8fcc49cd4cc6c9"
+    },
+    "homegames-client": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "4e7bd7e90446091dbf247c44dc43268fd38848814f405fcb26c09cd1f558c71d"
+    },
+    "homegames-core": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "b086e215e7dbe8e4f364d100107059af5ec0ba62b6085acc0099aa760176c50a"
+    },
+    "homegamesio": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "82709c9fce0815101a06bd9b80fd611eef26eabdcd0c689359e52435462934c9"
+    },
+    "homegames-web": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "e3fc224fca0b06f9a191e9011ccf3ecc533cee6fa48df323c03695cb6f61b575"
+    },
+    "api": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "2989790650940264e66a078cea226f686199020ee312384a9c2ec46e88260564"
+    }
+  },
+  "clientBundleSha256": "926f30abaed44ad318564c129784c5ac3392e286184e0d46dee55cc97d674c95"
+}

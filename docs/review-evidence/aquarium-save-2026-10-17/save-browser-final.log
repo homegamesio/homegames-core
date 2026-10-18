@@ -1,0 +1,6 @@
+frame.waitForFunction: Timeout 30000ms exceeded.
+    at runningFrame (/Users/josephgarcia/homegames/homegamesio/test/aquarium-save-browser.cjs:50:25)
+    at async /Users/josephgarcia/homegames/homegamesio/test/aquarium-save-browser.cjs:72:38 {
+  log: [],
+  name: 'TimeoutError'
+}

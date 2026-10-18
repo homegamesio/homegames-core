@@ -48,7 +48,7 @@ Custom cursors use Homegames' native per-player cursor API: a leaf pointer, soft
 
 ## Implementation and assets
 
-`index.js` is the native Squish 142 entry point, with literal metadata, a single player, a 16:9 scene, and 30 game ticks per second. `engine.js` owns saved state, care, home behavior, collision, and the 120 Hz simulation. `scene.js`, `painter.js`, and `creature.js` reuse a bounded scene graph to draw active scenes and expressive character poses. The game itself uses no browser globals, DOM, filesystem, timers, or network requests.
+`index.js` is the native Squish 1.5.0 entry point, with literal metadata, a single player, a 16:9 scene, and 30 game ticks per second. `engine.js` owns saved state, care, home behavior, collision, and the 120 Hz simulation. `scene.js`, `painter.js`, and `creature.js` reuse a bounded scene graph to draw active scenes and expressive character poses. The game itself uses no browser globals, DOM, filesystem, timers, or network requests.
 
 `audio.js` synthesizes three original musical arrangements and short effect cues as native PCM assets, with bounded playback voices. Background artwork was generated for this project with the built-in image generation tool. Original PNGs, compressed JPEGs, embedded asset modules, and the exact final prompts are preserved in [art/README.md](art/README.md). Pip, furniture, resources, and the interface are procedural Squish geometry. No Crunchling Adventure art, music, names, or assets are included.
 

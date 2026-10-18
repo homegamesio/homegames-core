@@ -1,4 +1,4 @@
-const { GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 class UIComponents {
     /**

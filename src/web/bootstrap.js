@@ -81,6 +81,9 @@
     }
 
     let dashboardSharing = null;
+    const importButton = document.getElementById('import-pack');
+    if (importButton) importButton.hidden = !!boot || !!invitation ||
+        !['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
     if (!boot && !invitation) {
         const response = await fetch('/rtc-config');
         if (response.ok) dashboardSharing = await response.json();
@@ -101,7 +104,7 @@
         transport: invitation ? HomegamesClient.createRtcTransport(invitation) : null,
         localHome: boot ? false : true,
         share: boot ? boot.share : dashboardSharing ? game => ({
-            ...dashboardSharing, autoStart: game.multiplayer,
+            ...dashboardSharing, autoStart: game.multiplayer && dashboardSharing.autoStart === true,
             ...HomegamesClient.householdRoom(game, err => showError(err.message)),
         }) : null,
         onLocalPlayRedirect: info => {

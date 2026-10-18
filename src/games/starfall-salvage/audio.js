@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-145');
+const { Asset, GameNode } = require('squish-150');
 
 // Original synthesized soundtrack and effects. Both local and hosted sessions
 // receive ordinary Squish audio assets; the game never touches a browser API.

@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-17",
+  "gameId": "88f88b4e-5728-57e8-a7bf-ca73103bd92a",
+  "revision": "3c33eae0e38bf3d3a54a7f72ed65be2d7b2d8905d12194a9c02b647c03edf598",
+  "description": "Fight lemons in the night and profit during the day",
+  "sha256": {
+    "src/games/lemonade-tycoon/index.js": "5a7abf7cc4939c26e3ab70f72c8e142cb755b6a76ed7cd335bffc63ec7cf1a02",
+    "src/games/lemonade-tycoon/rules.js": "b8616e7716c6293fbd7992a4c7b206edacdab394a86a187970b79a3f4a8615e3",
+    "src/games/lemonade-tycoon/save-state.js": "e27fd0b42b8f7d5f1403213e1522916c8b85b845d85cbd68791c30a9d4db9f97",
+    "src/games/lemonade-tycoon/README.md": "1fe03ca45a386c1bd2c8eaa8dc719298792766186fd5ee30adcc859cb9aa2ffe",
+    "test/games/LemonadeTycoon.test.cjs": "e3a9060a29f1a26cadd9e951ac743756f6a990ddaa1d88e588054f2ed8b49a4f",
+    "test/games/LemonadeTycoonSave.test.cjs": "e5f1831720d7ad961fca9a57c870dfe44033d232bae5c1a4bd31367b610c3059",
+    "test/lemonade-browser.cjs": "151a5d163e0d5484dd430bd5b0bd902cc2c97614e08c6b4d3ad7e60221dd9d53",
+    "test/lemonade-launch-browser.cjs": "870e6c94c01b1c3d3f28ad0a586e07aa39d2d285930bcddcfed9b54dc4166e1b",
+    "test/lemonade-package-browser.cjs": "1f81665642fbeb6226453df22416a32d6c41b5bbc2fd6e7e04c14e239c3486a2",
+    "tools/lemonade-performance.cjs": "67fa27ae22a47d345cd060b81a6635054c7ef2fb5ab843f56a41d6e7ea255a1a"
+  }
+}

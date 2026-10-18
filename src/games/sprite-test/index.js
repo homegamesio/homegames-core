@@ -1,40 +1,40 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const COLORS = Colors.COLORS;
 
 class SpriteTest extends Game {
     static metadata() {
         const danceFrames = {
-            'dance0': '3b16c6d6ee6d3709bf827b61e61003b1',
-            'dance_left': '1b2bd924c08a2b72d6ac18b28ba6a125',
-            'dance_right': 'd5b9d6f97fad560735509723314fa524',
-            'dance_up': '41ba50cf1bb69975c74d8f65ef43ee04',
-            'dance_down': '22f9dd0f7519fadc805a7dc1ec051e6f'
+            'dance0': './assets/3b16c6d6ee6d3709bf827b61e61003b1.png',
+            'dance_left': './assets/1b2bd924c08a2b72d6ac18b28ba6a125.png',
+            'dance_right': './assets/d5b9d6f97fad560735509723314fa524.png',
+            'dance_up': './assets/41ba50cf1bb69975c74d8f65ef43ee04.png',
+            'dance_down': './assets/22f9dd0f7519fadc805a7dc1ec051e6f.png'
         };
 
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '142',
+            squishVersion: '150',
             author: 'Joseph Garcia',
-            thumbnail: 'd8a39042ae0d7829b83f5c0280dc8230',
+            thumbnail: './assets/d8a39042ae0d7829b83f5c0280dc8230.png',
             assets: {
                 'dance0': new Asset({
-                    'id': danceFrames['dance0'],
+                    path: danceFrames['dance0'],
                     'type': 'image'
                 }),
                 'dance_up': new Asset({
-                    'id': danceFrames['dance_up'],
+                    path: danceFrames['dance_up'],
                     'type': 'image'
                 }),
                 'dance_down': new Asset({
-                    'id': danceFrames['dance_down'],
+                    path: danceFrames['dance_down'],
                     'type': 'image'
                 }),
                 'dance_left': new Asset({
-                    'id': danceFrames['dance_left'],
+                    path: danceFrames['dance_left'],
                     'type': 'image'
                 }),
                 'dance_right': new Asset({
-                    'id': danceFrames['dance_right'],
+                    path: danceFrames['dance_right'],
                     'type': 'image'
                 })
             },

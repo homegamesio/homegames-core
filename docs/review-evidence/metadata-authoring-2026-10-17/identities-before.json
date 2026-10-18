@@ -1,0 +1,548 @@
+[
+  {
+    "folder": "after-hours",
+    "gameId": "b9c5c7f3-7833-4210-a8a8-143058151ea4",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "b9c5c7f378334210a8a8143058151ea4"
+  },
+  {
+    "folder": "aquarium",
+    "gameId": "49f97a9a-18a3-5584-ac00-4a2bbb1b9a52",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "AquariumForever"
+  },
+  {
+    "folder": "backgammon",
+    "gameId": "978cdfe3-4a3d-598a-a755-5d62e5433176",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Backgammon"
+  },
+  {
+    "folder": "backstage",
+    "gameId": "c601dd38-feb7-435b-9d17-6a714887d64c",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "c601dd38feb7435b9d176a714887d64c"
+  },
+  {
+    "folder": "battleship",
+    "gameId": "35839de1-f18c-5dba-ad5d-4905bcc40b5f",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Battleship"
+  },
+  {
+    "folder": "billiards",
+    "gameId": "aafd99a8-76fe-5a19-a9b6-3f876f387908",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Billiards"
+  },
+  {
+    "folder": "block-brawlers",
+    "gameId": "35e00d46-3451-5f71-ad1d-926d97b1b907",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "BlockBrawlers"
+  },
+  {
+    "folder": "buddy-box",
+    "gameId": "ff0165bc-efa5-5323-a223-8e933ae96a2f",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "BuddyBox"
+  },
+  {
+    "folder": "checkers",
+    "gameId": "9f1666a3-e2ff-5eef-a511-9c14194032d6",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Checkers"
+  },
+  {
+    "folder": "chess",
+    "gameId": "f9b147ef-3d4c-58b7-aa73-b57691ce5b71",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Chess"
+  },
+  {
+    "folder": "chronoclast",
+    "gameId": "529bdbf9-b584-50ab-a938-6538b5e705e3",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Chronoclast"
+  },
+  {
+    "folder": "clicktionary",
+    "gameId": "a709a5bf-4cd1-5c0e-a2d9-c5524a052b52",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Clicktionary"
+  },
+  {
+    "folder": "clump",
+    "gameId": "29eecbfa-9393-5872-a90f-b89882d304f1",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Clump"
+  },
+  {
+    "folder": "common-ground",
+    "gameId": "cb6f1527-ca3a-5375-a6db-a8ab7aad2b34",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "CommonGround"
+  },
+  {
+    "folder": "connect-four",
+    "gameId": "748764a5-e977-57cc-a2a3-101f319832ad",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "ConnectFour"
+  },
+  {
+    "folder": "copperline",
+    "gameId": "86e54c64-d0c2-5396-ae97-c2e81a3e5b6e",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Copperline"
+  },
+  {
+    "folder": "counterforge-apex",
+    "gameId": "e0a913fe-f95d-597c-a7ec-bc6d30cb9365",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "CounterforgeApex"
+  },
+  {
+    "folder": "deadword",
+    "gameId": "761575f0-3bc2-597e-a4e0-92291b66f953",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Deadword"
+  },
+  {
+    "folder": "defuse",
+    "gameId": "0ee4dfdf-c718-5873-a0ce-8c0314b98e6d",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Defuse"
+  },
+  {
+    "folder": "desert-bloom",
+    "gameId": "04ee99b8-9b85-59be-a41d-221775851747",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "DesertBloom"
+  },
+  {
+    "folder": "dragon-drop",
+    "gameId": "92ea33cc-9bb7-5f5c-ac52-9bd7a77a2324",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "DragonDrop"
+  },
+  {
+    "folder": "draw",
+    "gameId": "9d2d1021-6947-57ad-a78b-0ee1c4ea621e",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Draw"
+  },
+  {
+    "folder": "draw-your-own-boss",
+    "gameId": "16629b5a-8962-4667-99ad-b7887fd4da2a",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "16629b5a8962466799adb7887fd4da2a"
+  },
+  {
+    "folder": "engine-room",
+    "gameId": "deda961d-ef30-5ff3-a6cf-dc8d15bdae6b",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "EngineRoom"
+  },
+  {
+    "folder": "facet",
+    "gameId": "e70e8c36-3c21-550c-ac49-2780568f3e82",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Facet"
+  },
+  {
+    "folder": "fakeout",
+    "gameId": "3a2663be-a3f6-5e0f-a70a-91cc1b9ccf39",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Fakeout"
+  },
+  {
+    "folder": "fleetfall",
+    "gameId": "c52c11db-ce0b-487f-988a-51e536dfc0c6",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "c52c11dbce0b487f988a51e536dfc0c6"
+  },
+  {
+    "folder": "gold-and-grit",
+    "gameId": "eccb16da-43b1-4c91-876e-2b420c403fc2",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "eccb16da43b14c91876e2b420c403fc2"
+  },
+  {
+    "folder": "hangman",
+    "gameId": "1494ecd3-d322-5f69-ae07-f331bfde9303",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Hangman"
+  },
+  {
+    "folder": "happy-haulers",
+    "gameId": "df1017cb-44b2-5ceb-a5d2-b550283201e4",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "HappyHaulers"
+  },
+  {
+    "folder": "hot-potato",
+    "gameId": "db3ac967-cf0a-5426-a6b6-78140ad315d6",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "HotPotato"
+  },
+  {
+    "folder": "house-band",
+    "gameId": "629a4d3d-7b26-4ef5-9e37-b3adbca4b720",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "629a4d3d7b264ef59e37b3adbca4b720"
+  },
+  {
+    "folder": "imposter",
+    "gameId": "a461be77-f75a-5ccd-a936-40e9556dd923",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Imposter"
+  },
+  {
+    "folder": "kaboom-valley",
+    "gameId": "3aa3c69c-35dc-5477-a0bd-c9f60bf8010f",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "KaboomValley"
+  },
+  {
+    "folder": "lemonade-tycoon",
+    "gameId": "88f88b4e-5728-57e8-a7bf-ca73103bd92a",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "LemonadeTycoon"
+  },
+  {
+    "folder": "little-consequences",
+    "gameId": "877fc3d5-2063-5113-aafe-50afaf9286b8",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "LittleConsequences"
+  },
+  {
+    "folder": "little-rambler",
+    "gameId": "151f3211-1ea9-51a0-aea8-8fd1e040d602",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "LittleRambler"
+  },
+  {
+    "folder": "little-scoop-shop",
+    "gameId": "5b00dc2e-6dbc-5bae-a040-f99e5bfe61a4",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "LittleScoopShop"
+  },
+  {
+    "folder": "little-zoo-walk",
+    "gameId": "86f9e9a7-8fd8-527f-ab43-1e55e7d3d7d2",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "LittleZooWalk"
+  },
+  {
+    "folder": "lumen-festival",
+    "gameId": "f08b1c3d-0eb0-5b2d-a111-31c606b51f78",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "LumenFestivalBonkers"
+  },
+  {
+    "folder": "mancala",
+    "gameId": "0a1c7aaf-7339-5555-a372-d207effda78a",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Mancala"
+  },
+  {
+    "folder": "masterpiece",
+    "gameId": "996a0cfe-d512-5f7b-a32a-7baf84f30c46",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Masterpiece"
+  },
+  {
+    "folder": "micro-mayhem",
+    "gameId": "39c80690-b66b-57d6-af47-62de3da01d41",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "MicroMayhem"
+  },
+  {
+    "folder": "midnight-movers",
+    "gameId": "ccea1106-1e99-551d-a0db-bf0bdb7ccbe3",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "MidnightMovers"
+  },
+  {
+    "folder": "moonbounce",
+    "gameId": "12f57352-df02-5a98-a490-2767a9972803",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Moonbounce"
+  },
+  {
+    "folder": "mouth-house",
+    "gameId": "d3a82741-c0a5-446b-8ba9-379f4ae86680",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "d3a82741c0a5446b8ba9379f4ae86680"
+  },
+  {
+    "folder": "neon-grid",
+    "gameId": "63edc66f-e7e1-5c2d-ab8d-6d39c436f964",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "NeonGrid"
+  },
+  {
+    "folder": "nova-guard",
+    "gameId": "6ca7be52-c375-53c6-a1bd-c640ae80d1af",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "NovaGuard"
+  },
+  {
+    "folder": "one-unreasonable-hole",
+    "gameId": "dade3cb2-096a-45f9-a0ee-33ad8d1270f8",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "dade3cb2096a45f9a0ee33ad8d1270f8"
+  },
+  {
+    "folder": "orbit-breaker",
+    "gameId": "0587c0e4-fe48-5714-a721-8848c4a19087",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "OrbitBreaker"
+  },
+  {
+    "folder": "pitch-pot",
+    "gameId": "9c77e586-883d-469c-a96d-d47502dc9b3a",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "9c77e586883d469ca96dd47502dc9b3a"
+  },
+  {
+    "folder": "pocket-front",
+    "gameId": "735a4238-91d4-57f3-ad24-faeaeb19f9b7",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "PocketFront"
+  },
+  {
+    "folder": "polystorm",
+    "gameId": "7d66f3d1-35f1-5315-aa7b-41eae35ee1bc",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Polystorm"
+  },
+  {
+    "folder": "pulsefront",
+    "gameId": "2524d7a6-34e7-5968-a998-dee74432c143",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "PulsefrontComplete"
+  },
+  {
+    "folder": "red-truck-ramble",
+    "gameId": "9619cba4-a2a0-520c-a72e-f9f46518fc79",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "RedTruckRamble"
+  },
+  {
+    "folder": "relic-rush",
+    "gameId": "59966e1e-86d8-5edf-aa98-eca5712f5146",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "RelicRush"
+  },
+  {
+    "folder": "sandy-castle",
+    "gameId": "448af41f-29de-5f52-a505-d9f33196e605",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "SandyCastle"
+  },
+  {
+    "folder": "seance",
+    "gameId": "8b62e8ba-8937-5b7a-a74d-621ab6f8817e",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Seance"
+  },
+  {
+    "folder": "sheep-drive",
+    "gameId": "32034a9f-ea5c-5d52-a0e4-f0e20549ee83",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "SheepDrive"
+  },
+  {
+    "folder": "showboat",
+    "gameId": "c9d7200e-4a80-5ae5-a0cc-f6c0f05d7f08",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Showboat"
+  },
+  {
+    "folder": "snap-judgment",
+    "gameId": "cf8fbf32-0def-5e75-af74-6958231e1cda",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "SnapJudgment"
+  },
+  {
+    "folder": "starfall-salvage",
+    "gameId": "4bb6fbe0-cdd4-5eb5-a021-e6ae80b0b192",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "StarfallSalvage"
+  },
+  {
+    "folder": "starweld",
+    "gameId": "5d5c5ee8-edd9-5c96-a829-ba9f808a11b1",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Starweld"
+  },
+  {
+    "folder": "sundown",
+    "gameId": "e9c4e23c-0487-5a19-a0aa-4238893dab45",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Sundown"
+  },
+  {
+    "folder": "sunwake",
+    "gameId": "8d39e013-e5c5-5148-a35c-95a10dd0e16a",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Sunwake"
+  },
+  {
+    "folder": "swarmwell",
+    "gameId": "325b20c2-e42f-5a97-ad64-9f9a209f637a",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Swarmwell"
+  },
+  {
+    "folder": "swish",
+    "gameId": "6f50ddde-0cbe-479f-94dc-19a33bf297db",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "6f50ddde0cbe479f94dc19a33bf297db"
+  },
+  {
+    "folder": "tabletop-railway",
+    "gameId": "81bd8bdd-3f29-424b-be59-440e9db2c696",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "81bd8bdd3f29424bbe59440e9db2c696"
+  },
+  {
+    "folder": "tiny-bean-cafe",
+    "gameId": "6ed87ed9-b749-5105-a8ec-22f172f2a5b8",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "TinyBeanCafe"
+  },
+  {
+    "folder": "tug-club",
+    "gameId": "badeeea3-3396-57e8-a9f8-75e5922e4df0",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "TugClub"
+  },
+  {
+    "folder": "tumble-tower",
+    "gameId": "7bcc907c-b9a6-5c20-a309-cf86cfa0515f",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "TumbleTower"
+  },
+  {
+    "folder": "vector-siege",
+    "gameId": "e1f5e7f0-408d-57bd-a2d6-cc7ed2eb2b4e",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "VectorSiege"
+  },
+  {
+    "folder": "vegas-trail",
+    "gameId": "62bc5b10-1035-5d5e-a986-3e0f4fb98d82",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "VegasTrail"
+  },
+  {
+    "folder": "walkie-talkie",
+    "gameId": "5a32359b-17ad-5ecd-ab79-f23f8b837d2d",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "WalkieTalkie"
+  },
+  {
+    "folder": "weed-smoke-willie",
+    "gameId": "364997b2-b1cf-59a1-ac27-1d5b9838f146",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "WeedSmokeWillie"
+  },
+  {
+    "folder": "wordforge",
+    "gameId": "ea1f58a5-76e7-515e-a9cf-599c15145caa",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "WordForge"
+  },
+  {
+    "folder": "world-eater",
+    "gameId": "07df00a9-f2b9-5b01-a950-5cf1cdf08aa9",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "WorldEater"
+  },
+  {
+    "folder": "worldseed",
+    "gameId": "5aac1fbd-6ac7-5310-a959-45b775a82163",
+    "entry": "index.js",
+    "saveSchemaVersion": 1,
+    "dashboardKey": "Worldseed"
+  }
+]

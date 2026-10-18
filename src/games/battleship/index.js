@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 
 const BLUE = 0;
 const RED = 1;
@@ -27,13 +27,14 @@ const FLEET = [
 class Battleship extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Battleship',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'Place your fleet by hand, then hunt your opponent across two private ocean grids.',
             aspectRatio: { x: 5, y: 8 },
             maxPlayers: 2,
-            services: ['multiplayer']
+            gameId: "35839de1-f18c-5dba-ad5d-4905bcc40b5f"
         };
     }
 
@@ -50,9 +51,9 @@ class Battleship extends Game {
             fill: T.felt, color: T.woodLight, border: 6
         });
         this.base.addChild(this.table);
-        this.titleText = this.makeText('Battleship', 50, 4.5, 6, T.cream);
+
         this.publicText = this.makeText('Sink all 5 ships · X hit · o miss · # sunk', 50, 10.2, 1.3, T.muted);
-        this.base.addChildren(this.titleText, this.publicText);
+        this.base.addChildren(this.publicText);
 
         this.phase = 'waiting';
         this.turn = BLUE;
@@ -505,15 +506,15 @@ class Battleship extends Game {
                 if (this.ready[side]) { status = 'Fleet ready'; hint = 'Waiting for the other captain'; }
                 else {
                     const selected = FLEET[placement.selectedShip];
-                    status = this.allShipsPlaced(side) ? 'Fleet placed · Tap Ready to begin' : `Place ${selected.name} · ${selected.length} squares`;
-                    hint = view.gridMode === 'target' ? 'Choose Your fleet to place your ships' : (placement.message || `Tap a starting square · ${placement.horizontal ? 'Across →' : 'Down ↓'}`);
+                    status = this.allShipsPlaced(side) ? 'Fleet ready' : `Place ${selected.name} · ${selected.length} squares`;
+                    hint = view.gridMode === 'target' ? 'Place ships in Your fleet' : (placement.message || 'Tap a starting square');
                 }
             } else if (this.phase === 'playing') {
                 status = this.turn === side ? (view.gridMode === 'target' ? 'Your turn · Tap a square to fire' : 'Your turn · Choose Their waters to fire') : `${this.seats[this.turn].name} is aiming`;
                 if (this.lastShot) {
                     const result = this.lastShot.hit ? (this.lastShot.sunk ? 'sunk a ship' : 'hit') : 'missed';
                     hint = `${this.seats[this.lastShot.side].name}: ${'ABCDEFGHIJ'[this.lastShot.col]}${this.lastShot.row + 1} · ${result}`;
-                } else hint = this.turn === side ? 'Tap their waters to fire' : '';
+                }
             } else if (this.phase === 'over') {
                 const winner = this.allShipsSunk(side) ? opp : side;
                 status = winner === side ? 'You won the battle' : `${this.seats[winner].name} won the battle`;
@@ -521,7 +522,7 @@ class Battleship extends Game {
             }
 
             view.status.node.text = { text: status, x: 50, y: 13.6, size: 4.0, align: 'center', color: T.cream, font: 'default' };
-            view.score.node.text = { text: `${SIDE_NAMES[BLUE]} ${this.matchScores[BLUE]}   ·   ${this.matchScores[RED]} ${SIDE_NAMES[RED]}`, x: 50, y: 17.2, size: 3.0, align: 'center', color: T.muted, font: 'default' };
+            view.score.node.text = { text: this.matchScores.some(Boolean) ? `${SIDE_NAMES[BLUE]} ${this.matchScores[BLUE]}   ·   ${this.matchScores[RED]} ${SIDE_NAMES[RED]}` : '', x: 50, y: 17.2, size: 3.0, align: 'center', color: T.muted, font: 'default' };
             view.hint.node.text = { text: hint, x: 50, y: 82, size: 3.0, align: 'center', color: T.soft, font: 'default' };
             view.fleetText.node.text = { text: this.phase === 'playing' || this.phase === 'over' ? `Ships afloat · You ${this.fleets[side].filter((_, i) => !this.isShipSunk(side, i)).length} · Rival ${this.fleets[opp].filter((_, i) => !this.isShipSunk(opp, i)).length}` : '', x: 50, y: 85.5, size: 2.5, align: 'center', color: T.muted, font: 'default' };
 

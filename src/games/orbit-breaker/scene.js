@@ -13,9 +13,8 @@ function background(p, e) {
         const x = (i * 47.91 + 5) % 158, y = (i * 31.37 + 4) % 87;
         p.rect(x, y, i % 4 ? .1 : .22, i % 4 ? .1 : .22, C.muted, .2 + (i % 3) * .15);
     }
-    p.text('O / B', 6, 4, 2, C.teal);
-    p.text('ORBITAL DEFENSE DIVISION', 18, 4.5, 1.3, C.muted);
-    p.text(e.device || 'PRESS A BUTTON ON YOUR CONTROLLER', 154, 4.5, 1.25, e.device ? C.teal : C.muted, 'right');
+
+    p.text(e.device || '', 154, 4.5, 1.25, e.device ? C.teal : C.muted, 'right');
     p.line(6, 10, 154, 10, C.line);
 }
 function hero(p, e, x = 118, y = 43, scale = 1) {
@@ -32,17 +31,14 @@ function hero(p, e, x = 118, y = 43, scale = 1) {
         const a = -.65 + i * .6, r = (24 + ((i * 6 - t * 8) % 12 + 12) % 12) * scale;
         p.line(x + Math.cos(a) * r, y + Math.sin(a) * r, x + Math.cos(a) * (r + 2), y + Math.sin(a) * (r + 2), C.gold, .25);
     }
-    p.text('CAPTURE / CONVERT / COUNTERATTACK', x, y + 33 * scale, 1.2, C.teal, 'center');
+
 }
 function title(p, e) {
     hero(p, e);
-    p.text('THEIR FIRE. YOUR AMMUNITION.', 8, 17, 1.7, C.gold);
-    p.text('ORBIT', 7, 23, 12, C.white);
-    p.text('BREAKER', 7, 35, 12, C.teal);
-    p.text('Steal the storm. Break the sun.', 8, 51, 2.3, C.white);
-    p.text('A twin-stick counterattack through three hostile sectors.', 8, 56, 1.55, C.muted);
-    p.button('LAUNCH RUN', 8, 63, 36, 8, 'start', e.selected === 0);
-    p.button('FLIGHT SCHOOL', 47, 63, 36, 8, 'practice', e.selected === 1);
+
+    p.text('Catch gold shots. Fire them back.', 8, 35, 2.6, C.white);
+    p.button('PLAY', 8, 48, 36, 10, 'start', e.selected === 0);
+    p.button('PRACTICE', 47, 48, 36, 10, 'practice', e.selected === 1);
     p.text('BEST  ' + number(e.best), 8, 76, 1.6, C.gold);
     p.text('D-pad: choose   /   A or Enter: launch   /   START: pause', 8, 82, 1.5, C.muted);
     p.text('M: sound ' + (e.sound ? 'on' : 'off') + '   /   V: reduced effects ' + (e.reduced ? 'on' : 'off'), 8, 86, 1.2, C.muted);
@@ -124,7 +120,7 @@ function hud(p, e) {
     p.text('PILOT STATUS', 133, 16, 1.1, C.muted);
     p.text('HULL', 133, 21, 1.5, C.white);
     for (let i = 0; i < a.maxHp; i++) p.rect(133 + (i % 4) * 5.1, 25 + Math.floor(i / 4) * 2.5, 4.1, 1.5, i < Math.ceil(a.hp) ? C.teal : C.line);
-    p.text('ORBIT', 133, 34, 1.5, C.white);
+
     p.text(a.orbit.length + ' / ' + a.capacity, 133, 38, 3.5, a.orbit.length ? C.teal : C.muted);
     p.text(a.orbit.length === a.capacity ? 'FULL / RETURN FIRE' : 'LT  CATCH', 133, 44, 1.05, a.orbit.length === a.capacity ? C.gold : C.muted);
     p.line(133, 49, 153, 49, C.line);

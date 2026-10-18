@@ -1,0 +1,1 @@
+PASS: HTTP startup, disabled API, same-request retry, HTTPS restart, live renewal, IP-change preparation, discovery gating and host-controlled restart

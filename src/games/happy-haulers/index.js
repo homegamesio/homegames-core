@@ -1,9 +1,9 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { HaulerAudio } = require('./audio');
 
 const TUNING = {
-    tickRate: 30, loadSeconds: .85, driveSeconds: 1.5, tipSeconds: 1.25,
-    returnSeconds: 1.1, celebrateSeconds: 3.5, deliveriesPerRound: 3,
+    tickRate: 30, loadSeconds: .5, driveSeconds: 1.5, tipSeconds: 1.25,
+    returnSeconds: 1.1, deliveriesPerRound: 3,
     homeX: 34, destinationX: 64, truckY: 81, particles: 40,
 };
 const C = {
@@ -45,24 +45,34 @@ const stroke = (points, width) => {
 class HappyHaulers extends Game {
     static metadata() {
         return {
-            name: 'Happy Haulers', squishVersion: '142', author: 'Joseph Garcia', createdBy: 'Joseph Garcia',
-            description: 'A smiling dump truck and a little town to build. Tap anywhere to load, drive, and tip colorful toy blocks! Gentle sounds, no losing, no time limits, and endless play for little hands.',
-            aspectRatio: { x: 1, y: 1 }, tickRate: TUNING.tickRate, maxPlayers: 1,
-            services: [], assets: {}, gamepadBindings: { ' ': ['FACE_1', 'FACE_2', 'FACE_3', 'FACE_4'] },
+            thumbnail: './assets/thumbnail.png',
+            name: 'Happy Haulers',
+            author: "Joseph Garcia",
+            createdBy: "Joseph Garcia",
+            description: 'Choose a castle, bridge, or flower garden. Pick colorful loads, drive your smiling truck, and build your own little town.',
+            aspectRatio: { x: 1, y: 1 },
+            tickRate: TUNING.tickRate,
+            maxPlayers: 1,
+            assets: {},
+            gamepadBindings: { ' ': ['FACE_1', 'FACE_2', 'FACE_3', 'FACE_4'] },
+            gameId: "df1017cb-44b2-5ceb-a5d2-b550283201e4"
         };
     }
 
     constructor({ addAsset } = {}) {
         super();
         this.addAsset = addAsset; this.players = new Map(); this.time = 0;
-        this.phase = 'ready'; this.phaseStarted = 0; this.deliveries = 0; this.round = 0;
+        this.phase = 'choosing'; this.phaseStarted = 0; this.deliveries = 0; this.round = 0; this.project = 'castle';
+        this.projects = ['castle','bridge','garden']; this.projectsBuilt = [0,0,0];
         this.sound = true; this.cargo = []; this.buildings = []; this.truckX = TUNING.homeX;
         this.base = this.shape(ShapeUtils.rectangle(0, 0, 100, 100), C.sky);
         this.scenery = this.group(this.base); this.townLayer = this.group(this.base);
         this.vehicleLayer = this.group(this.base); this.effects = this.group(this.base);
         this.hud = this.group(this.base); this.audioRoot = this.group(this.base);
         this.audio = new HaulerAudio(this.audioRoot);
-        this.buildScenery(); this.buildTruck(); this.buildHud();
+        this.buildScenery();this.blueprintLayer = this.group(this.scenery); this.buildTruck(); this.buildHud();
+        this.targetCue=this.put(this.hud,this.shape(HIDDEN,PALETTE[2]));
+        this.choiceLayer=this.group(this.hud);this.supplyLayer=this.group(this.hud);this.buildChoices();this.buildSupply();
         this.particles = Array.from({ length: TUNING.particles }, () => ({
             life: 0, node: this.put(this.effects, this.shape(HIDDEN, [0, 0, 0, 0])),
         }));
@@ -71,7 +81,7 @@ class HappyHaulers extends Game {
         const touch = this.put(this.base, this.shape(ShapeUtils.rectangle(0, 0, 100, 100), null, {
             onClick: (id, x, y) => this.pointerDown(id, x, y),
         }));
-        // Squish 142 ignores offClick in its constructor; the dispatcher reads the node hook.
+        // Squish 1.5.0 ignores offClick in its constructor; the dispatcher reads the node hook.
         touch.node.offClick = id => { const p = this.players.get(id); if (p) p.pointer = false; };
     }
 
@@ -123,12 +133,6 @@ class HappyHaulers extends Game {
         });
         this.disk(this.scenery, 75, 59.2, 18, 2.1, [157, 198, 146, 255]);
         this.put(this.scenery, this.shape(ShapeUtils.rectangle(60, 56.5, 30, 2.2), C.cream));
-        // Pale silhouettes are a visible invitation to fill the little castle.
-        [65, 75, 85].forEach((x, i) => {
-            this.put(this.scenery, this.shape(ShapeUtils.rectangle(x - 4.1, 37.5, 8.2, 19), [222, 235, 200, 255]));
-            this.put(this.scenery, this.shape(closed([[x - 4.7, 37.5], [x, 30], [x + 4.7, 37.5]]), [222, 235, 200, 255]));
-            if (i < 2) this.put(this.scenery, this.shape(ShapeUtils.rectangle(x + 4.1, 46, 1.8, 10.5), C.cream));
-        });
         this.put(this.scenery, this.shape(ShapeUtils.rectangle(0, 71, 100, 19), C.road));
         this.put(this.scenery, this.shape(ShapeUtils.rectangle(0, 70.2, 100, .8), C.cream));
         this.put(this.scenery, this.shape(ShapeUtils.rectangle(0, 89.8, 100, .8), C.cream));
@@ -187,22 +191,68 @@ class HappyHaulers extends Game {
         });
     }
     buildHud() {
-        this.text(this.hud, 'L I T T L E   P L A Y T I M E', 50, 3.7, 1.35, C.muted);
-        this.text(this.hud, 'happy haulers', 50, 7.6, 5.8);
-        this.message = this.text(this.hud, 'Tap anywhere. Load it up!', 50, 16.5, 2.25);
+
+        this.message = this.text(this.hud, 'What shall we build?', 50, 16.5, 2.25);
         this.progress = Array.from({ length: TUNING.deliveriesPerRound }, (_, i) =>
-            this.disk(this.hud, 44 + i * 6, 23.1, 1.6, 1.6, tint(TRUCK_COLORS[i], .68)));
+            this.disk(this.hud, 69 + i * 6, 23.1, 1.6, 1.6, tint(TRUCK_COLORS[i], .68)));
         this.disk(this.hud, 91, 8.3, 6, 3.1, C.white);
         this.soundLabel = this.text(this.hud, 'sound on', 91, 7.35, 1.5, C.muted);
         this.actionDots = [35, 50, 65].map(x => this.disk(this.hud, x, 94.4, 5.5, 3.3, C.cream));
-        this.text(this.hud, 'load', 35, 93.3, 2, C.ink);
-        this.text(this.hud, 'drive', 50, 93.3, 2, C.ink);
-        this.text(this.hud, 'tip!', 65, 93.3, 2, C.ink);
-        this.text(this.hud, 'tap / click / space', 50, 98, 1.25, C.muted);
+        this.actionLabels=['load','drive','tip!'].map((value,i)=>this.text(this.hud,value,35+i*15,93.3,2,C.ink));
+
     }
-    makeBlock(parent, color, roof = false) {
+    buildChoices() {
+        this.choiceCards=this.projects.map((name,i)=>{
+            const card=this.object(this.choiceLayer),x=20+i*30;
+            this.part(card,oval(0,0,13,13),C.cream);
+            const color=TRUCK_COLORS[i];
+            if(name==='castle'){
+                [-5,0,5].forEach(dx=>{this.part(card,ShapeUtils.rectangle(dx-2,-4,4,10),color);this.part(card,closed([[dx-3,-4],[dx,-8],[dx+3,-4]]),PALETTE[2]);});
+            }else if(name==='bridge'){
+                [-6,6].forEach(dx=>this.part(card,ShapeUtils.rectangle(dx-2,-1,4,8),color));
+                this.part(card,ShapeUtils.rectangle(-10,-4,20,4),color);
+                this.part(card,stroke([[-9,-7],[-9,-4],[9,-4],[9,-7]],.8),C.ink);
+            }else{
+                [-5,0,5].forEach((dx,j)=>{
+                    this.part(card,stroke([[dx,6],[dx,-4-j%2*2]],.8),C.leaf);
+                    this.part(card,oval(dx,-4-j%2*2,3),PALETTE[j]);this.part(card,oval(dx,-4-j%2*2,1),PALETTE[2]);
+                });
+            }
+            card.x=x;this.place(card,x,37);return card;
+        });
+        this.choiceLabels=this.projects.map((name,i)=>this.text(this.choiceLayer,name,20+i*30,51,2));
+    }
+    buildSupply() {
+        this.supplyLayer.clearChildren();
+        this.supplies=[0,1,2].map(i=>{
+            const root=this.group(this.supplyLayer),x=15+i*17;
+            const disk=this.disk(root,x,28,7.5,7.5,C.cream);
+            const block=this.makeBlock(root,PALETTE[(i+this.round)%6],this.deliveries===2);
+            this.place(block,x,28,.8);
+            return {root,x,block,disk};
+        });
+    }
+    chooseProject(index) {
+        if(this.phase!=='choosing')return;
+        this.project=this.projects[index];this.blueprintLayer.clearChildren();
+        for(let stage=0;stage<3;stage++)for(let i=0;i<3;i++){
+            const block=this.makeBlock(this.blueprintLayer,[220,234,201,255],stage===2,stage);
+            block.parts.forEach(part=>{part.node.node.fill=[220,234,201,255];});
+            this.place(block,65+i*10,52-stage*9.6);
+        }
+        this.buildSupply();this.enter('ready');this.playNote(3);
+    }
+    makeBlock(parent, color, roof = false, stage = this.deliveries) {
         const block = this.object(parent); block.roof = roof;
-        if (roof) {
+        if(this.project==='garden'){
+            if(stage===0){this.part(block,closed([[-4,-4],[4,-4],[3,4],[-3,4]]),color);this.part(block,ShapeUtils.rectangle(-4.5,-4,9,1.5),tint(color,.3));}
+            else if(stage===1){this.part(block,stroke([[0,6],[0,-5]],1),C.leaf);this.part(block,oval(-2,0,3,1.8),C.leaf);this.part(block,oval(2,-3,3,1.8),C.leaf);}
+            else{for(let i=0;i<5;i++){const a=i*TAU/5;this.part(block,oval(Math.cos(a)*2.6,Math.sin(a)*2.6,2.5),color);}this.part(block,oval(0,0,1.8),PALETTE[2]);}
+        }else if(this.project==='bridge'){
+            if(stage===0)this.part(block,ShapeUtils.rectangle(-3,-5,6,10),color);
+            else if(stage===1){this.part(block,ShapeUtils.rectangle(-5.2,-1.8,10.4,3.6),color);this.part(block,stroke([[-4,0],[4,0]],.4),C.cream);}
+            else{this.part(block,stroke([[-4,4],[-4,-3],[4,-3],[4,4]],.9),color);}
+        }else if (roof) {
             this.part(block, closed([[-4.8, 4], [0, -4.2], [4.8, 4]]), color);
             this.part(block, closed([[-2.4, 2.2], [0, -1.9], [2.4, 2.2]]), tint(color, .35));
         } else {
@@ -213,36 +263,36 @@ class HappyHaulers extends Game {
         }
         return block;
     }
-    createCargo() {
-        this.cargoLayer.clearChildren();
-        this.cargo = [0, 1, 2].map(i => {
-            const block = this.makeBlock(this.cargoLayer, PALETTE[(i + this.deliveries * 2 + this.round) % 6], this.deliveries === 2);
+    createCargo(choice=0) {
+        const i=this.cargo.length;
+        if(i>=3)return;
+            const block = this.makeBlock(this.cargoLayer, PALETTE[(choice + this.round) % 6], this.deliveries === 2);
             block.index = i; block.targetX = 65 + i * 10; block.targetY = 52 - this.deliveries * 9.6;
-            return block;
-        });
+            block.sourceX=this.supplies[choice].x;this.cargo.push(block);
     }
     updateHud() {
         const labels = {
-            ready: 'Tap anywhere. Load it up!', loading: 'Plop, plop, plop!', loaded: 'Tap anywhere. Let\'s roll!',
-            driving: 'Here comes your happy truck!', arrived: 'Tap anywhere. Tip the blocks!',
-            unloading: 'Tip, tip, hooray!', returning: 'Beep beep! More blocks!', celebrate: 'You built a little town!',
+            choosing:'What shall we build?', ready: `Pick a load! ${this.cargo.length} of 3`, loading: 'Plop! Into the truck!', loaded: 'Tap your truck. Let\'s roll!',
+            driving: 'Here comes your happy truck!', arrived: 'Tap the building site to tip!',
+            unloading: 'Tip, tip, hooray!', returning: 'Beep beep! More building!', celebrate: `You built a ${this.project}!`,
         };
         this.setText(this.message, labels[this.phase]);
-        const step = ['ready', 'loading'].includes(this.phase) ? 0 : ['loaded', 'driving'].includes(this.phase) ? 1 : 2;
+        const step = ['choosing','ready', 'loading'].includes(this.phase) ? 0 : ['loaded', 'driving'].includes(this.phase) ? 1 : 2;
         this.actionDots.forEach((node, i) => { node.node.fill = i === step ? tint(TRUCK_COLORS[this.deliveries % 3], .2) : C.cream; });
         this.progress.forEach((node, i) => { node.node.fill = i < this.deliveries ? TRUCK_COLORS[i] : tint(TRUCK_COLORS[i], .68); });
+        this.actionLabels.forEach((node,i)=>this.setText(node,this.phase==='celebrate'?(i===1?'again':''):['load','drive','tip!'][i]));
     }
     enter(phase) { this.phase = phase; this.phaseStarted = this.time; this.updateHud(); }
     playNote(note) { if (this.sound) this.audio.play(note); }
-    advance() {
+    advance(choice=0) {
+        if(this.phase==='choosing'){this.chooseProject(choice);return;}
+        if(this.phase==='celebrate'){this.resetRound();this.drawTruck();this.dirty();return;}
         if (this.phase === 'ready') {
-            this.createCargo(); this.enter('loading'); this.playNote(0);
+            this.createCargo(choice); this.enter('loading'); this.playNote(0);
         } else if (this.phase === 'loaded') {
             this.enter('driving'); this.playNote(2);
         } else if (this.phase === 'arrived') {
             this.enter('unloading'); this.playNote(4);
-        } else {
-            this.burst(this.truckX + 16, 53, 5); this.playNote(1);
         }
         this.drawTruck(); this.dirty();
     }
@@ -256,7 +306,7 @@ class HappyHaulers extends Game {
         this.cargo = []; this.deliveries++;
         this.burst(75, 40, 16); this.playNote(5);
         if (this.deliveries === TUNING.deliveriesPerRound) {
-            this.round++; this.enter('celebrate'); this.playNote('celebrate');
+            this.round++;this.projectsBuilt[this.projects.indexOf(this.project)]++; this.enter('celebrate'); this.playNote('celebrate');
             this.burst(47, 40, 16);
             this.flag = this.object(this.townLayer);
             this.part(this.flag, stroke([[0, 1], [0, -8]], .45), C.ink);
@@ -266,7 +316,7 @@ class HappyHaulers extends Game {
     }
     resetRound() {
         this.deliveries = 0; this.townLayer.clearChildren(); this.buildings = []; this.flag = null;
-        this.enter('returning');
+        this.blueprintLayer.clearChildren();this.truckX=TUNING.homeX;this.enter('choosing');
     }
     setTruckColor() {
         const color = TRUCK_COLORS[(this.deliveries + this.round) % TRUCK_COLORS.length];
@@ -293,9 +343,9 @@ class HappyHaulers extends Game {
             let x = this.truckX - 24 + localX * Math.cos(tip) - localY * Math.sin(tip);
             let blockY = y - 4 + localX * Math.sin(tip) + localY * Math.cos(tip);
             let scale = .86, angle = tip;
-            if (this.phase === 'loading') {
-                const p = ease((elapsed / TUNING.loadSeconds - cargo.index * .16) / .65);
-                blockY = mix(37 - cargo.index * 2, blockY, p);
+            if (this.phase === 'loading'&&cargo.index===this.cargo.length-1) {
+                const p = ease(elapsed / TUNING.loadSeconds);
+                x=mix(cargo.sourceX,x,p);blockY = mix(28, blockY, p)-Math.sin(p*Math.PI)*9;
                 angle = (1 - p) * (cargo.index - 1) * .2;
             } else if (this.phase === 'unloading') {
                 const p = ease((elapsed / TUNING.tipSeconds - .15 - cargo.index * .12) / .6);
@@ -309,6 +359,17 @@ class HappyHaulers extends Game {
             this.buildings.forEach((block, i) => this.place(block, block.targetX,
                 block.targetY - Math.abs(Math.sin(elapsed * 3.5 + Math.floor(i / 3) * .4)) * .45));
             if (this.flag) this.place(this.flag, 75, 30, 1, Math.sin(this.time * 3) * .05);
+        }
+        if(this.choiceCards){
+            const cueY=25+Math.sin(this.time*4)*1.2;
+            this.targetCue.node.coordinates2d=this.phase==='arrived'?closed([[70,cueY],[75,cueY+4],[80,cueY],[77,cueY],[75,cueY+1.7],[73,cueY]]):this.phase==='loaded'?closed([[this.truckX+7,53],[this.truckX+12,57],[this.truckX+17,53],[this.truckX+14,53],[this.truckX+12,54.7],[this.truckX+10,53]]):HIDDEN;
+            this.choiceCards.forEach(card=>{if(this.phase==='choosing')this.place(card,card.x,37);else card.parts.forEach(p=>p.node.node.coordinates2d=HIDDEN);});
+            this.choiceLabels.forEach((node,i)=>this.setText(node,this.phase==='choosing'?this.projects[i]:''));
+            this.supplies.forEach((s,i)=>{
+                const visible=this.phase==='ready'||this.phase==='loading';
+                s.disk.node.coordinates2d=visible?oval(s.x,28,7.5+Math.sin(this.time*3+i)*.2,7.5):HIDDEN;
+                if(visible)this.place(s.block,s.x,28,.8);else s.block.parts.forEach(p=>p.node.node.coordinates2d=HIDDEN);
+            });
         }
     }
     burst(x, y, count) {
@@ -348,26 +409,30 @@ class HappyHaulers extends Game {
             this.setText(this.soundLabel, this.sound ? 'sound on' : 'sound off', C.muted);
             this.dirty(); return;
         }
-        this.advance();
+        if(this.phase==='choosing'&&x>=6&&x<=94&&y>=22&&y<=56){this.advance(Math.max(0,Math.min(2,Math.round((x-20)/30))));return;}
+        if(this.phase==='celebrate'&&x>=35&&x<=65&&y>=89){this.advance();return;}
+        if(this.phase==='ready'&&y>=19&&y<=38&&x>=6&&x<=58){this.advance(Math.max(0,Math.min(2,Math.round((x-15)/17))));return;}
+        if(this.phase==='loaded'&&((x>=this.truckX-29&&x<=this.truckX+31&&y>=56&&y<=89)||(x>=42&&x<=58&&y>=90))){this.advance();return;}
+        if(this.phase==='arrived'&&((x>=53&&x<=97&&y>=27&&y<=61)||(x>=58&&x<=73&&y>=90)))this.advance();
     }
     handleKeyDown(id, key) {
         const p = this.players.get(id);
         if (!p || typeof key !== 'string' || p.keys.has(key)) return;
-        if (!(key === 'Enter' || key === ' ' || key.startsWith('Arrow') || /^[a-z0-9]$/i.test(key))) return;
-        p.keys.add(key); this.advance();
+        if (!['Enter',' ','1','2','3'].includes(key)) return;
+        p.keys.add(key); this.advance(['1','2','3'].includes(key)?Number(key)-1:0);
     }
     handleKeyUp(id, key) { this.players.get(id)?.keys.delete(key); }
     tick() {
         if (!this.players.size) return;
         const dt = 1 / TUNING.tickRate; this.time += dt; this.audio.tick(dt);
         const elapsed = this.time - this.phaseStarted;
-        if (this.phase === 'loading' && elapsed >= TUNING.loadSeconds) this.enter('loaded');
+        if (this.phase === 'loading' && elapsed >= TUNING.loadSeconds) this.enter(this.cargo.length===3?'loaded':'ready');
         else if (this.phase === 'driving' && elapsed >= TUNING.driveSeconds) {
             this.truckX = TUNING.destinationX; this.enter('arrived');
         } else if (this.phase === 'unloading' && elapsed >= TUNING.tipSeconds) this.finishDelivery();
         else if (this.phase === 'returning' && elapsed >= TUNING.returnSeconds) {
-            this.truckX = TUNING.homeX; this.setTruckColor(); this.enter('ready');
-        } else if (this.phase === 'celebrate' && elapsed >= TUNING.celebrateSeconds) this.resetRound();
+            this.truckX = TUNING.homeX; this.setTruckColor();this.buildSupply(); this.enter('ready');
+        }
         this.drawTruck();
         for (const p of this.particles) {
             if (p.life <= 0) continue;

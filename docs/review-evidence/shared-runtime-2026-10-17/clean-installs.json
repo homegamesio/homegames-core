@@ -1,0 +1,22 @@
+{
+  "purpose": "fresh production lockfile installs; registry baseline, not unpublished security code",
+  "result": {
+    "homegames-common": {
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "common": "1.7.2"
+    },
+    "homegames-core": {
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "common": "1.7.2",
+      "client": "0.1.2"
+    },
+    "homegamesio": {
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "common": "1.7.2",
+      "client": "0.1.2"
+    }
+  }
+}

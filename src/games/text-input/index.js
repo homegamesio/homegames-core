@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 // A live typing surface: every connected player gets a panel, and keystrokes
 // appear on screen instantly, like a shared document.
@@ -36,9 +36,11 @@ const FAINT = [150, 145, 160, 255];
 class Typewriter extends Game {
     static metadata() {
         return {
+            isTest: true, // Catalog review: see docs/game-consolidation.md.
+
             aspectRatio: { x: 16, y: 9 },
-            squishVersion: '142',
-            author: 'Joseph Garcia',
+            squishVersion: '150',
+            author: "Joseph Garcia",
             name: 'Typewriter',
             description: 'A live shared typing wall. Every keystroke lands on screen instantly - bring a keyboard and write together.',
             tickRate: TICK_RATE

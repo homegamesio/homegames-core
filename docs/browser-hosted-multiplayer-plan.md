@@ -4,17 +4,20 @@ Implementation brief · September 28, 2026
 
 ## 1. Objective and status
 
-Make the player's browser the default host for games launched from homegames.io. Keep homegames-core as a supported, self-hosted WebSocket host. Both hosts should use the same game session engine so features and fixes continue to apply to both.
+Make the player's browser the default host for games launched from homegames.io **and from the self-hosted Homegames dashboard**. Core continues to serve that dashboard and the installed game library, and remains a supported WebSocket game host as a separate fallback. Both game hosts should use the same session engine so features and fixes continue to apply to both.
 
 The operational goal is to shut down the public homegames-core and Homenames instances currently used by homegames.io. The public platform continues to provide the website, game discovery, source and asset delivery, room discovery, signaling, and optional TURN relay capacity. It stops running ordinary public game sessions.
 
-This document incorporates the user's decisions following the September 24 handoff. It is a design and implementation plan, not a record of an implemented RTC system. No runtime code, configuration, services, infrastructure, or deployed systems were changed to produce it. Suggested module names, API paths, and timing values below are proposals.
+This document incorporates the user's decisions following the September 24 handoff and subsequent implementation discussion. It describes the target architecture. The direct START_PATH browser/RTC sharing slice is now implemented; see [the happy-path notes](rtc-happy-path.md) for its actual configuration and limits. Dashboard and website launch integration, public discovery, and public signaling/TURN rollout remain further work. Suggested interfaces below remain proposals unless explicitly described as implemented in those notes.
 
 For tonight, read the [shared engine design](#5-shared-engine-the-main-refactor), [implementation sequence](#17-implementation-sequence), and [starting instructions](#18-starting-tonight) first. The [API contract](#8-proposed-api-and-signaling-contract), [validation matrix](#19-validation-matrix), and [retirement checklist](#20-public-hosting-retirement-checklist) define the larger target. A [copyable implementation prompt](#21-copyable-prompt-for-the-implementation-session) is at the end.
 
 ### Decisions already made
 
-- Browser hosting is the normal public play path.
+- Browser hosting is the normal play path from both the public website and the self-hosted dashboard.
+- Opening homegames.link on the home network discovers Core and opens its server-hosted dashboard. Selecting a game normally starts a LocalSession in that player's browser; the server does not become the game's simulation host merely because it served the dashboard.
+- The dashboard is also the household lobby: people on the same Wi-Fi can see and join existing browser-hosted sessions associated with that Core server. Host browsers register those sessions with Core and maintain their availability with heartbeats.
+- QR invitations are always intended to be publicly reachable. A public invitation does not, by itself, mean the session is listed in the public game directory.
 - Core/WebSocket remains a first-class self-hosted option, maintained through shared session code and shared verification.
 - A room is the API's discoverable record of a session running in a browser. The host registers it and sends heartbeats.
 - The existing API may own rooms and signaling. A separate signaling deployment is unnecessary initially.
@@ -43,12 +46,13 @@ flowchart TB
     HOST["Host browser: shared session engine + local view"]
     GUEST["Guest browsers: shared client renderer and input"]
     TURN["STUN/TURN service"]
-    CORE["Self-hosted Core: same session engine"]
+    CORE["Self-hosted Core: dashboard, LAN room registry, optional game host"]
     WSCLIENT["Browsers connected to Core"]
     WEB --> API
     API -->|"source / assets"| HOST
     API -->|"assets / game metadata"| GUEST
     HOST <-->|"room registration / signaling"| API
+    HOST <-->|"household registration / heartbeat / local signaling"| CORE
     GUEST <-->|"join / signaling"| API
     HOST <-->|"RTC inputs and scoped scenes"| GUEST
     HOST <-->|"relay when needed"| TURN
@@ -57,6 +61,79 @@ flowchart TB
 ~~~
 
 There is one authoritative simulation per game session. A browser host runs it for RTC play; a Node process runs it for Core play. Guests render the view assigned to them and send input. Guests do not execute a second simulation.
+
+### Entry points and invitations (confirmed after the RTC prototype)
+
+The two ordinary launch flows converge on the same LocalSession, Share controls,
+and RTC hosting implementation:
+
+1. **Self-hosted:** open homegames.link on the home network → discover the local
+   Core server → load its dashboard → select a game → load that game's source
+   and assets from Core → run it in the browser → Share.
+2. **Website:** browse homegames.io with the existing catalog/game-page flow →
+   choose Public/Private → Play → load source and assets from the API → run it
+   in the browser → register the multiplayer room with that visibility. Public
+   is the default. Share displays the invitation for that same running room.
+
+The game page has **Play** and **Download**, plus its list of sessions with Join
+actions. Play runs the selected version now; Download packages that version,
+its assets, the runtime and RTC hosting controls in a standalone HTML file.
+Both launches use the same session and sharing implementation. There is no
+separate Play offline or Create Session launch action. Offline is a connectivity
+condition, not a different game execution mode.
+
+Website-created public multiplayer sessions must appear in the game-page list
+and homepage Active Sessions after the host is ready, without clicking Share.
+The existing Private control belongs with Play and is sent in the initial room
+registration: a private session must never appear briefly in the public list.
+Private means unlisted and joinable by invitation; its QR still works outside
+the house. Clicking Share neither changes visibility nor creates a second room.
+Downloading a file alone does not create or advertise a live session.
+
+The household join flow is **homegames.link → Core dashboard → existing local
+session → join its host browser over RTC**. Joining from that list must attach
+to the existing game, not start another LocalSession simulation. Core's local
+session list therefore needs browser-hosted room records alongside its existing
+WebSocket sessions; enumerating Core's child processes is no longer sufficient.
+Register a browser-hosted game with its household Core when it starts, without
+requiring the host to click Share first. Heartbeats keep the list fresh, and
+stale records expire when the host closes or becomes unavailable.
+
+Local discovery and public sharing describe the same running session. A host
+associated with a household can advertise it to Core and obtain a public
+invitation through the API without creating a second game. Website-originated
+hosts need an association/registration with that Core to appear in its lobby;
+the dashboard cannot infer arbitrary browser sessions merely from shared Wi-Fi.
+The implementation must define that association explicitly rather than treating
+a shared public IP as proof of household membership.
+
+For both, the ordinary Share invitation must open a publicly reachable guest
+page (the existing homegames.io/play.html entry is suitable) and use public API
+signaling. A guest inside or outside the house follows the same invitation.
+The guest does not need to reach the host's dashboard, local file server, or
+private DNS address. The host and guest contact the API outbound; their RTC
+connection carries gameplay directly when possible and through TURN otherwise.
+Deploying API signaling, the guest page/client, and an operational STUN/TURN
+service is required for this public path. The API still does not simulate games.
+
+The current homegames.link discovery hostname points to a private LAN address.
+Its HTTPS certificate makes that local address usable securely; it does not
+make the machine reachable from outside the house. Same-Wi-Fi joining belongs
+in the dashboard. The normal Share/QR action always produces a public
+invitation. Direct-start sharing now defaults to public URLs; LAN QR behavior
+is available only as an explicit development override. If public sharing is unavailable, report
+that clearly instead of generating a local-only QR. Local dashboard discovery
+and joining can remain available independently.
+
+Keep three concerns distinct: household lobby visibility, public directory
+visibility, and possession of a publicly reachable invitation. Clicking Share
+enables the last of these without implicitly publishing the room in the public
+directory or exposing the local dashboard.
+
+Core/WebSocket hosting remains an explicit alternative. Public RTC signaling
+and TURN do not automatically provide outside access to a WebSocket game hosted
+by Core; that option needs its own reachable WSS endpoint or WebSocket relay.
+No such relay is required for the default browser-hosted flows above.
 
 Squish remains the scene format. This is serialized shapes, text, images, audio references, and interaction information, not video streaming.
 
@@ -100,6 +177,7 @@ Current local extra players are simulated views in DOM containers. They are a us
 | Guest refresh | Resume reserved seat within grace period | Exercise the same attach/detach policy for updated clients |
 | Solo/offline play | Shared engine with a local view and no room requirement | Existing local-play redirect remains |
 | Extra Studio views and inspector | Keep existing behavior | Shared game/input contracts remain comparable |
+| Household active sessions | Core's local registry lists browser-hosted rooms for dashboard joining | Existing Core sessions appear in the same lobby |
 | Public active rooms | API directory | Direct/LAN hosting remains available; public Core advertising can be added later |
 | Private invitations | Unlisted room and reusable invite | Existing self-hosted connection flow remains |
 | Studio shared drafts | Studio browser hosts the working game | Local Core remains usable by its owner |
@@ -254,8 +332,8 @@ For catalog rooms, derive canonical title/version metadata from the published ga
 
 ### Proposed product defaults
 
-- Published multiplayer Play: start browser hosting and register a public room, preserving a visible private/unlisted choice.
-- Explicit solo/offline play: no room registration.
+- Published multiplayer Play: start browser hosting and register a public room automatically once ready, preserving a visible private/unlisted choice. Share is not required for discovery.
+- Single-player/offline execution uses the same Play path; it does not need a joinable room. Do not expose a separate Play offline button.
 - Invite from an already-running local game: advertise that same runtime without restarting it.
 - Studio sharing: unlisted by default.
 - A game need not declare the multiplayer label to be technically shareable; use metadata for presentation and a deliberate sharing policy for unlabeled games such as Draw.
@@ -469,6 +547,14 @@ A host pressing Home should understand that it ends the hosted game. A guest pre
 ### Public discovery
 
 Replace both the game-page session list and homepage Active Sessions queries with GET /rooms. Keep selected game versions accurate. Exclude stale, ended, unlisted, and Studio-preview rooms from public results.
+
+Preserving these lists is required for the Play/Download simplification. Website
+Play publishes a ready public room by default, and the Private choice suppresses
+listing from its first registration. Entries include the game/version, player
+count, capacity and joinability. Host updates/heartbeats keep them current;
+closing the host removes the room promptly, with lease expiry as the backstop.
+Joining an entry attaches to the existing browser host over RTC. The API owns
+discovery metadata and connection coordination, not game simulation.
 
 Starting a room should preserve the existing “sessions played” metric if desired. Count registration once per runtime ID; heartbeats and guest resumes must not increment it. Discovery counts describe host reports, not centrally verified game execution.
 
@@ -712,7 +798,7 @@ Use expected behavior as the assertion, not merely “RTC and WebSocket produced
 | Duplicate transport | Old connection input/close events cannot affect a replacement |
 | Assets | Initial assets, dynamic uploads, replacement keys, and reconnect inventory render correctly |
 | Audio | Gesture unlock works and reconnect does not introduce unintended duplicate sound |
-| Discovery | Fresh public rooms list correctly; private, stale, ended, and preview rooms do not |
+| Discovery | Website Play lists its ready public room without Share; private rooms are never briefly published; stale, ended, and preview rooms do not appear; list joins reach the existing browser host |
 | API outage | Existing peer play can continue; signaling/listing recovers or fails explicitly |
 | Invitations | Same link admits multiple guests; revoked/invalid invitations have clear outcomes |
 | Studio | Unpublished working code can be shared, logs stay local, and stopping preview ends its room |
@@ -772,3 +858,16 @@ Shutting down public Core does not mean removing Docker validation used by publi
 ## 21. Copyable prompt for the implementation session
 
 > Read /Users/josephgarcia/homegames/homegames-core/docs/browser-hosted-multiplayer-plan.md and the applicable repository instructions. Implement Homegames browser-hosted multiplayer incrementally, preserving unrelated work. The goal is to retire the public Core/Homenames instances used by homegames.io while keeping self-hosted Core/WebSocket as a first-class host of the same shared session engine. Start by extracting the smallest portable session boundary behind existing LocalSession and GameSession, and verify both host paths before adding RTC. Then add API-owned rooms, heartbeats, public discovery, signaling, reusable QR/link invitations, multiple guests, and guest refresh/resume while the host survives. Preserve the existing game hooks, Squish scene format, renderer/input, assets, saves, local views/inspector, and supported self-hosted behavior. Include homepage/game-page discovery and multiplayer Studio draft sharing in the full parity scope. Remove pinned-session functionality and retire contentGenerator-dependent gameplay. Do not implement host migration or session transfer. Intentional local Squish alias differences are development setup, not a cleanup task; defer unrelated bug fixing. Use reliable ordered gameplay delivery with bounded transfers/queues, and distinguish source tests from real-device/direct/TURN evidence. Begin with a small demonstrable milestone and record exact run instructions, changed repos, tests, remaining parity work, and observed limitations. Do not deploy, change DNS/certificates, publish packages, shut down services, or alter production infrastructure without a separate explicit instruction.
+
+
+## October 3 implementation update
+
+Website Play/Download, automatic public/private room registration, API directory
+and leases, Studio RTC sharing, and self-hosted dashboard browser launch plus
+household discovery are implemented locally. WebSocket gameplay remains an
+explicit self-hosted option only. Deployment and validation instructions are
+in [rtc-happy-path.md](rtc-happy-path.md) and
+[rtc-public-deployment.md](rtc-public-deployment.md). This implementation update
+supersedes future-tense descriptions of those flows above; the broader parity
+plan remains a roadmap. TURN deployment/real off-Wi-Fi testing and service
+shutdown are still operator steps.

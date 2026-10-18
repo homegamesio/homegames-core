@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const TICK_RATE = 20;
 
@@ -60,13 +60,14 @@ const shuffled = (list) => {
 class KaboomValley extends Game {
     static metadata() {
         return {
+            thumbnail: './assets/thumbnail.png',
             aspectRatio: { x: 16, y: 9 },
-            squishVersion: '142',
-            services: ['multiplayer'],
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             name: 'Kaboom Valley',
             description: 'Turn-based artillery on procedurally generated, fully destructible terrain. Aim, mind the wind, and blast your friends off the hillside.',
-            tickRate: TICK_RATE
+            tickRate: TICK_RATE,
+            gameId: "3aa3c69c-35dc-5477-a0bd-c9f60bf8010f",
+            maxPlayers: 4
         };
     }
 
@@ -294,13 +295,7 @@ class KaboomValley extends Game {
         this.generateTerrain();
         this.redrawTerrain();
 
-        const title = this.makeGlowText('KABOOM VALLEY', 50, 10, 5.5, INK, [255, 140, 0, 255]);
-        this.titleHalos = title.slice(0, 4);
-        title.forEach(n => this.overlay.addChild(n, false));
-
-        this.overlay.addChild(new GameNode.Text({
-            textInfo: { x: 50, y: 22, text: 'ARTILLERY ON DESTRUCTIBLE HILLS', size: 1.7, align: 'center', font: 'monospace', color: FAINT }
-        }), false);
+        this.titleHalos = [];
 
         this.lobbyRow = this.makeContainer();
         this.overlay.addChild(this.lobbyRow, false);
@@ -321,9 +316,8 @@ class KaboomValley extends Game {
         this.overlay.addChildren(this.joinButton, this.startButton);
 
         const lines = [
-            'AIM WITH THE BUTTONS OR ARROW KEYS - SPACE OR FIRE TO SHOOT',
-            'SHOTS CARVE REAL CRATERS - WATCH THE WIND - LAST TANK WINS',
-            'A BOT ROLLS IN IF YOU ARE ALONE'
+            'Last tank standing wins.',
+            'Arrows: aim / Space: fire'
         ];
         lines.forEach((text, i) => this.overlay.addChild(new GameNode.Text({
             textInfo: { x: 50, y: 62 + i * 4, text, size: 1.3, align: 'center', font: 'monospace', color: FAINT }
@@ -339,7 +333,7 @@ class KaboomValley extends Game {
         this.lobbyRow.clearChildren();
         if (this.tanks.length === 0) {
             this.lobbyRow.addChild(new GameNode.Text({
-                textInfo: { x: 50, y: 34, text: 'NO TANKS DEPLOYED - TAP JOIN', size: 1.6, align: 'center', font: 'monospace', color: FAINT }
+                textInfo: { x: 50, y: 34, text: '', size: 1.6, align: 'center', font: 'monospace', color: FAINT }
             }), false);
         } else {
             const startX = 50 - this.tanks.length * 7;

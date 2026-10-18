@@ -126,4 +126,4 @@ Tests exercise native wire serialization, movement, input, collisions, all new c
 
 Classic Siege is one sector per run: three support sites and one boss, with three arena arrangements. Living Sector adds persistent friendly and rival fleets and a generated twelve-outpost RTS. Neither mode currently has a multi-sector campaign, resumable runs, touch controls or gamepad support. `DESIGN.md` describes the Classic Siege decisions; `LIVING-SECTOR.md` documents the new RTS.
 
-GPL-3.0; see LICENSE.
+MIT; see LICENSE.

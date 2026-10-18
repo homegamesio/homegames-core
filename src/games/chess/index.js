@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const { COLORS } = Colors;
 
 const WHITE = 0;
@@ -22,18 +22,25 @@ const GLYPHS = {
 class Chess extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Chess',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'Full classic chess with castling, en passant, promotion, and draw rules.',
             aspectRatio: { x: 1, y: 1 },
+            assets: {
+                'pointer-grab': new Asset({ path: './assets/cursor-grab.png', type: 'image' }),
+                'pointer-hold': new Asset({ path: './assets/cursor-hold.png', type: 'image' })
+            },
             maxPlayers: 2,
-            services: ['multiplayer']
+            gameId: "f9b147ef-3d4c-58b7-aa73-b57691ce5b71"
         };
     }
 
-    constructor() {
+    constructor({ setCursor } = {}) {
         super();
+        this.setCursor = setCursor;
+        this.drag = null;
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
@@ -72,7 +79,6 @@ class Chess extends Game {
         this.animating = false;
         this.recordPosition();
 
-        this.titleText = this.makeText('Chess', 50, 2.8, 4, [244, 237, 216, 255]);
         this.statusText = this.makeText('Welcome to the table', 50, 8.5, 1.95, [244, 237, 216, 255]);
         this.scoreText = this.makeText('WHITE 0   —   0 BLACK', 50, 12.5, 1.35, [224, 216, 193, 255]);
         this.hintText = this.makeText('Checkmate the king', 50, 88, 1.25, [224, 216, 193, 255]);
@@ -98,7 +104,9 @@ class Chess extends Game {
                     shapeType: Shapes.POLYGON,
                     coordinates2d: ShapeUtils.rectangle(x, y, this.cell, this.cell),
                     fill: (row + col) % 2 === 0 ? LIGHT : DARK,
-                    onClick: pid => this.pressOnce(pid, () => this.handleSquareClick(pid, row, col))
+                    onClick: (pid, x, y) => this.pressOnce(pid, () => this.beginPieceDrag(pid, row, col, x, y)),
+                    onHover: pid => this.hoverPiece(pid, row, col),
+                    offHover: pid => { if (!this.drag) this.pointerCursor(pid, null); }
                 });
                 const piece = this.makeText('', x + this.cell / 2, y + 0.5, 6.8, COLORS.WHITE);
                 this.squareNodes[row][col] = square;
@@ -112,6 +120,9 @@ class Chess extends Game {
         this.motionPiece = this.makeText('', 0, 0, 6.8, [244, 237, 216, 255], [0]);
         this.motionPiece2 = this.makeText('', 0, 0, 6.8, [244, 237, 216, 255], [0]);
         this.base.addChildren(this.motionPiece, this.motionPiece2);
+
+        this.dragPiece = this.makeText('', 0, 0, 6.8, [24, 28, 34, 255], [0]);
+        this.base.addChild(this.dragPiece);
 
         this.promotionButtons = [];
         for (let i = 0; i < 4; i++) {
@@ -127,7 +138,7 @@ class Chess extends Game {
         });
         this.moveText.node.playerIds = this.pendingPromotion || this.phase === 'over' ? [0] : [];
         this.rematchButton.node.playerIds = [0];
-        this.base.addChildren(this.titleText, this.statusText, this.scoreText, this.hintText, this.leftSeatText, this.rightSeatText, this.moveText, this.rematchButton);
+        this.base.addChildren(this.statusText, this.scoreText, this.hintText, this.leftSeatText, this.rightSeatText, this.moveText, this.rematchButton);
         this.render();
     }
 
@@ -175,7 +186,7 @@ class Chess extends Game {
         else if (this.seats[BLACK].isBot) { seat = BLACK; this.invalidateBot(); }
         if (seat < 0) return;
         this.seats[seat] = { playerId, isBot: false, name };
-        const youText = this.makeText(`Playing as ${SIDE_NAMES[seat]}`, 50, 95, 1.8, [244, 237, 216, 255], [playerId]);
+        const youText = this.makeText(`You: ${SIDE_NAMES[seat]}`, 50, 95, 1.8, [244, 237, 216, 255], [playerId]);
         this.players[playerId] = { seat, youText };
         this.base.addChild(youText);
         if (this.phase === 'waiting') this.phase = 'playing';
@@ -184,6 +195,8 @@ class Chess extends Game {
     }
 
     handlePlayerDisconnect(playerId) {
+        this.cancelPieceDrag(playerId);
+        this.pointerCursor(playerId, null);
         const p = this.players[playerId];
         if (!p) return;
         this.base.removeChild(p.youText.id);
@@ -207,7 +220,66 @@ class Chess extends Game {
         action();
     }
 
-    handleMouseUp(playerId) { this.pressedPlayers.delete(playerId); }
+    handleKeyDown(id, key) { if (key === 'Escape') { this.cancelPieceDrag(id); this.render(); } }
+
+    pointerCursor(id, mode) {
+        if (typeof this.setCursor === 'function') this.setCursor(id, mode ? {
+            assetKey: 'pointer-' + mode, size: { width: 32, height: 32 }, hotspot: { x: 16, y: 16 }
+        } : null);
+    }
+
+    hoverPiece(id, row, col) {
+        if (this.drag) return;
+        const piece = this.board[row][col];
+        const canMove = this.phase === 'playing' && !this.animating && !this.pendingPromotion
+            && this.players[id]?.seat === this.turn && piece?.side === this.turn;
+        this.pointerCursor(id, canMove ? 'grab' : null);
+    }
+
+    beginPieceDrag(id, row, col, x, y) {
+        if (this.drag) return;
+        const alreadySelected = this.selected?.row === row && this.selected?.col === col;
+        if (!alreadySelected) this.handleSquareClick(id, row, col);
+        if (this.phase !== 'playing' || this.animating || this.pendingPromotion
+            || this.players[id]?.seat !== this.turn || this.selected?.row !== row || this.selected?.col !== col) return;
+        this.drag = { id, row, col, x, y, moved: false };
+        this.pointerCursor(id, 'hold');
+    }
+
+    handleMouseMove(id, pos) {
+        const d = this.drag;
+        if (!d || d.id !== id || !pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return;
+        if (Math.hypot(pos.x - d.x, pos.y - d.y) < 1 && !d.moved) return;
+        d.moved = true;
+        const piece = this.board[d.row][d.col];
+        if (!piece) return;
+        this.dragPiece.node.playerIds = [];
+        this.pieceNodes[d.row][d.col].node.text = { ...this.pieceNodes[d.row][d.col].node.text, text: '' };
+        this.dragPiece.node.text = { ...this.dragPiece.node.text, text: GLYPHS[piece.side][piece.type], x: pos.x, y: pos.y - 3.5 };
+        this.base.node.onStateChange();
+    }
+
+    cancelPieceDrag(id) {
+        if (!this.drag || (id !== undefined && this.drag.id !== id)) return;
+        const owner = this.drag.id;
+        this.drag = null;
+        this.dragPiece.node.playerIds = [0];
+
+        this.pointerCursor(owner, null);
+    }
+
+    handleMouseUp(id, pos) {
+        this.pressedPlayers.delete(id);
+        const d = this.drag;
+        if (!d || d.id !== id) return;
+        this.cancelPieceDrag(id);
+        this.render();
+        if (!d.moved || !pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return;
+        const row = Math.floor((pos.y - this.boardY) / this.cell);
+        const col = Math.floor((pos.x - this.boardX) / this.cell);
+        if (this.legalTargets.some(m => m.to.row === row && m.to.col === col)) this.handleSquareClick(id, row, col);
+    }
+
 
     handleSquareClick(playerId, row, col) {
         if (this.phase !== 'playing' || this.pendingPromotion || this.animating) return;
@@ -666,6 +738,7 @@ class Chess extends Game {
     hasHuman() { return Object.keys(this.players).length > 0; }
 
     resetRound() {
+        this.cancelPieceDrag();
         this.invalidateBot();
         this.board = this.makeStartingBoard();
         this.turn = WHITE;
@@ -729,7 +802,7 @@ class Chess extends Game {
         } else if (this.phase === 'playing') {
             const seat = this.seats[this.turn];
             status = seat.isBot ? 'Computer is thinking…' : `${SIDE_NAMES[this.turn]} · ${seat.name} to move`;
-            hint = this.inCheck(this.board, this.turn) ? 'Your king is in check · Move it out of danger' : seat.isBot ? 'Protect your king · Trap theirs to win' : (this.selected ? 'Tap a dot to move or an outlined piece to capture' : 'Choose a piece to see where it can move');
+            hint = this.inCheck(this.board, this.turn) ? 'Check' : this.lastMove || seat.isBot ? '' : (this.selected ? 'Choose a highlighted square' : 'Drag a piece or tap to move');
         } else if (this.phase === 'over') {
             if (this.winnerSide !== null) {
                 status = `${this.seats[this.winnerSide].name} wins by checkmate`;
@@ -748,10 +821,11 @@ class Chess extends Game {
 
         this.statusText.node.text = { text: status, x: 50, y: 8.5, size: 2.6, align: 'center', color: [244, 237, 216, 255], font: 'default' };
         this.scoreText.node.text = { text: `White ${this.matchScores[WHITE]}   —   ${this.matchScores[BLACK]} Black`, x: 50, y: 12.5, size: 1.9, align: 'center', color: [224, 216, 193, 255], font: 'default' };
+        this.scoreText.node.playerIds = this.matchScores.some(score => score > 0) ? [] : [0];
         this.hintText.node.text = { text: hint, x: 50, y: 88, size: 2.0, align: 'center', color: this.phase === 'over' ? [244, 237, 216, 255] : [224, 216, 193, 255], font: 'default' };
         this.leftSeatText.node.text = { text: `White · ${this.seats[WHITE].name}`, x: 22, y: 92, size: 1.8, align: 'center', color: [244, 237, 216, 255], font: 'default' };
         this.rightSeatText.node.text = { text: `Black · ${this.seats[BLACK].name}`, x: 78, y: 92, size: 1.8, align: 'center', color: [244, 237, 216, 255], font: 'default' };
-        this.moveText.node.text = { text: this.lastMove ? `Move ${this.fullmove}${this.turn === BLACK ? '…' : ''} · ${this.moveLabel(this.lastMove)}` : 'Move 1', x: 50, y: 84, size: 1.6, align: 'center', color: [224, 216, 193, 255], font: 'default' };
+        this.moveText.node.text = { text: this.lastMove ? this.moveLabel(this.lastMove) : '', x: 50, y: 84, size: 1.6, align: 'center', color: [224, 216, 193, 255], font: 'default' };
 
         for (const btn of this.promotionButtons) btn.node.playerIds = [0];
         if (this.pendingPromotion && !this.animating) {

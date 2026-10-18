@@ -14,7 +14,7 @@
 // at runtime via addAsset, so nothing is baked into the game.
 // ===========================================================================
 
-const { Game, GameNode, Shapes, ShapeUtils, Asset } = require('squish-143');
+const { Game, GameNode, Shapes, ShapeUtils, Asset } = require('squish-150');
 
 // ---------------------------------------------------------------------------
 // TUNING - every gameplay number lives here. Durations are in SECONDS and the
@@ -251,14 +251,21 @@ const fitBox = (imgW, imgH, bx, by, bw, bh) => {
 class SnapJudgment extends Game {
     static metadata() {
         return {
-            squishVersion: '143',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Snap Judgment',
-            author: 'AI',
+            author: "Joseph Garcia",
             description: 'A photo scavenger hunt. Run around your house, photograph the prompt, let one friend judge you.',
             aspectRatio: { x: 16, y: 9 },
-            tickRate: 10,     // keep in sync with TUNING.TICK (this must stay a literal)
-            maxPlayers: 8,    // keep in sync with TUNING.MAX_PLAYERS (must stay a literal)
-            services: ['multiplayer']
+            tickRate: 10,
+            maxPlayers: 8,
+            assets: {
+                'amateur': new Asset({
+                    'type': 'font',
+                    path: './assets/026a26ef0dd340681f62565eb5bf08fb.bin'
+                })
+            },
+            gameId: "cf8fbf32-0def-5e75-af74-6958231e1cda"
         };
     }
 
@@ -341,7 +348,7 @@ class SnapJudgment extends Game {
         return new GameNode.Text({
             textInfo: {
                 text: text, x: x, y: y, size: size,
-                align: align || 'center', font: 'monospace', color: color
+                align: align || 'center', font: 'amateur', color: color
             }
         });
     }
@@ -370,10 +377,10 @@ class SnapJudgment extends Game {
     buildChrome() {
         this.chrome = this.makeContainer();
         this.roundText = this.label('', 3, 2.5, 1.6, DIM, 'left');
-        this.titleText = this.label('SNAP JUDGMENT', 50, 2.5, 1.6, DIM);
+
         this.clockText = this.label('', 97, 2.5, 1.6, DIM, 'right');
         this.chrome.addChild(this.roundText);
-        this.chrome.addChild(this.titleText);
+
         this.chrome.addChild(this.clockText);
     }
 
@@ -381,7 +388,7 @@ class SnapJudgment extends Game {
     buildLobby() {
         this.lobby = this.makeContainer();
         this.lobby.addChild(this.poly(ShapeUtils.rectangle(0, 0, 100, 100), BG_SOFT));
-        this.lobby.addChild(this.label('SNAP JUDGMENT', 50, 10, 6, INK));
+
         this.lobby.addChild(this.label('photograph the prompt. one friend decides.', 50, 22, 1.8, DIM));
 
         this.seatRows = [];
@@ -392,8 +399,7 @@ class SnapJudgment extends Game {
             const name = this.label('', x + 4, y + 0.4, 2, DIM, 'left');
             const you = new GameNode.Text({
                 textInfo: {
-                    text: 'YOU', x: x + 34, y: y + 0.6, size: 1.4, align: 'right',
-                    font: 'monospace', color: INK
+                    text: 'YOU', x: x + 34, y: y + 0.6, size: 1.4, align: 'right', color: INK, font: 'amateur'
                 },
                 playerIds: [0]
             });
@@ -463,7 +469,37 @@ class SnapJudgment extends Game {
         this.doneBanner.addChild(this.label('tap again to replace it', 50, 74, 1.5, DIM));
         this.shoot.addChild(this.doneBanner);
 
-        this.shootNote = this.label('', 50, 84, 1.6, DIM);
+        // A photo the picker refuses never reaches the game at all, so a
+        // stuck player has no way to say so and everyone waits out the clock.
+        // This gives them a way to bow out and let the round move on.
+        this.uploadHelp = new GameNode.Text({
+            textInfo: {
+                text: 'nothing happened? the file may be too big - try another',
+                x: 50, y: 80.5, size: 1.3, align: 'center',
+                font: 'amateur', color: DIM
+            },
+            playerIds: [0]
+        });
+        this.shoot.addChild(this.uploadHelp);
+
+        this.skipBtn = this.button(36, 84, 28, 7, 'SIT THIS ONE OUT', PANEL,
+            (playerId) => this.skipShot(playerId));
+        this.skipBtn._label.node.text.size = 1.4;
+        this.skipBtn._label.node.text.color = DIM;
+        this.setVisible(this.skipBtn, false);
+        this.shoot.addChild(this.skipBtn);
+
+        this.skippedBanner = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(22, 64, 56, 15),
+            fill: PANEL, color: EDGE, border: 5,
+            playerIds: [0]
+        });
+        this.skippedBanner.addChild(this.label('SITTING OUT', 50, 68, 2.6, DIM));
+        this.skippedBanner.addChild(this.label('tap the camera if you get one', 50, 74, 1.5, DIM));
+        this.shoot.addChild(this.skippedBanner);
+
+        this.shootNote = this.label('', 50, 93, 1.6, DIM);
         this.shoot.addChild(this.shootNote);
     }
 
@@ -616,9 +652,7 @@ class SnapJudgment extends Game {
         this.setVisible(this.judging, this.phase === 'judge');
         this.setVisible(this.reveal, this.phase === 'reveal' || this.phase === 'final');
         this.setVisible(this.chrome, this.phase !== 'lobby');
-        // On the judging screen the prompt is the header, so the decorative
-        // centre title stands down rather than sitting on top of it.
-        this.setVisible(this.titleText, this.phase !== 'judge');
+        this.applyScoping();
     }
 
     playerIds() {
@@ -715,13 +749,16 @@ class SnapJudgment extends Game {
         this.releaseRound(this.shots);   // ...then the assets they pointed at
         this.shots = [];
         this.viewIndex = 0;
-        this.playerIds().forEach(pid => { this.players[pid].submitted = false; });
+        this.playerIds().forEach(pid => {
+            this.players[pid].submitted = false;
+            this.players[pid].skipped = false;
+        });
 
         this.deadline = Date.now() + TUNING.SHOOT_SECONDS * 1000;
         this.lastRemaining = -1;
         this.phase = 'shoot';
         this.drawPrompt();
-        this.applyRoleScoping();
+        this.applyScoping();
         this.showPhase();
         this.drawAll();
         this.base.node.onStateChange();
@@ -730,13 +767,68 @@ class SnapJudgment extends Game {
     // Judge sees the judge banner; everyone else sees the file picker. Both are
     // per-player scoped nodes, which also keeps every connected player on the
     // filtered-frame path.
-    applyRoleScoping() {
-        const shooters = this.shooters();
-        const waiting = shooters.filter(pid => !this.players[pid].submitted);
+    // Every node that carries its own playerIds is switched here, by PHASE as
+    // well as by role.
+    //
+    // This has to be central because an explicitly scoped node is NOT masked by
+    // a hidden ancestor: scoping its screen container to [0] does not hide a
+    // child scoped to [somePlayer]. Leave a node scoped to a player and it
+    // follows them into every later screen - which is how the judge's thumbs
+    // survived into the next round and stacked text over the prompt.
+    applyScoping() {
+        const lobby = this.phase === 'lobby';
+        const shooting = this.phase === 'shoot';
+        const judging = this.phase === 'judge';
+        const some = (list) => (list && list.length) ? list : [0];
+
+        // Shooting screen: three states, and nobody at all off-phase.
+        const shooters = shooting ? this.shooters() : [];
         const done = shooters.filter(pid => this.players[pid].submitted);
-        this.judgeBanner.node.playerIds = this.judgeId !== null ? [this.judgeId] : [0];
-        this.uploadBtn.node.playerIds = waiting.length ? waiting : [0];
-        this.doneBanner.node.playerIds = done.length ? done : [0];
+        const sat = shooters.filter(pid =>
+            !this.players[pid].submitted && this.players[pid].skipped);
+        const waiting = shooters.filter(pid =>
+            !this.players[pid].submitted && !this.players[pid].skipped);
+
+        this.judgeBanner.node.playerIds =
+            (shooting && this.judgeId !== null) ? [this.judgeId] : [0];
+        this.uploadBtn.node.playerIds = some(waiting);
+        this.doneBanner.node.playerIds = some(done);
+        this.skippedBanner.node.playerIds = some(sat);
+        this.uploadHelp.node.playerIds = some(waiting);
+        this.skipBtn.node.playerIds = some(waiting);
+
+        // Judging screen: thumbs for the judge, a note for everyone else.
+        const judgeOnly = (judging && this.judgeId !== null) ? [this.judgeId] : [0];
+        this.thumbDownBtn.node.playerIds = judgeOnly;
+        this.thumbUpBtn.node.playerIds = judgeOnly;
+        this.judgeWait.node.playerIds = some(
+            judging ? this.playerIds().filter(pid => pid !== this.judgeId) : []);
+
+        // Lobby: each player's own YOU marker.
+        this.seatRows.forEach((row, i) => {
+            const pid = this.seats[i];
+            row.you.node.playerIds = (lobby && pid !== undefined) ? [pid] : [0];
+        });
+        this.startBtn.node.playerIds =
+            (lobby && this.playerIds().length >= TUNING.MIN_PLAYERS) ? [] : [0];
+    }
+
+    // Everyone who is not judging has either sent a photo or bowed out.
+    everyoneAccountedFor() {
+        return this.shooters().every(pid =>
+            this.players[pid].submitted || this.players[pid].skipped);
+    }
+
+    skipShot(playerId) {
+        const pid = Number(playerId);
+        if (this.phase !== 'shoot') return;
+        const p = this.players[pid];
+        if (!p || pid === this.judgeId || p.submitted) return;
+        p.skipped = true;
+        this.applyScoping();
+        this.drawAll();
+        this.base.node.onStateChange();
+        if (this.everyoneAccountedFor()) this.finishShooting();
     }
 
     finishShooting() {
@@ -838,10 +930,11 @@ class SnapJudgment extends Game {
                 });
             }
             this.players[pid].submitted = true;
-            this.applyRoleScoping();
+            this.players[pid].skipped = false;   // a late photo un-sits them
+            this.applyScoping();
             this.drawAll();
             this.base.node.onStateChange();
-            if (this.shots.length >= this.shooters().length) this.finishShooting();
+            if (this.everyoneAccountedFor()) this.finishShooting();
         }).catch(() => {
             this.releaseAsset(key);   // a failed upload leaves the player un-submitted
         });
@@ -909,7 +1002,7 @@ class SnapJudgment extends Game {
         this.lobbyHint.node.text.text = short > 0
             ? ('NEED ' + short + ' MORE PLAYER' + (short === 1 ? '' : 'S'))
             : (n + ' PLAYERS - ' + (n * TUNING.ROUND_LAPS) + ' ROUNDS, EVERYONE JUDGES ONCE');
-        this.setVisible(this.startBtn, short <= 0);
+
     }
 
     drawShoot() {
@@ -922,8 +1015,12 @@ class SnapJudgment extends Game {
         this.clockText.node.text.text = remaining + 's';
         this.clockText.node.text.color = remaining <= TUNING.HURRY_SECONDS ? HOT : DIM;
 
-        const total = this.shooters().length;
-        this.tallyText.node.text.text = this.shots.length + ' / ' + total + ' PHOTOS IN';
+        const shooters = this.shooters();
+        const sat = shooters.filter(pid => this.players[pid].skipped
+            && !this.players[pid].submitted).length;
+        this.tallyText.node.text.text = this.shots.length + ' / '
+            + (shooters.length - sat) + ' PHOTOS IN'
+            + (sat ? '   (' + sat + ' sitting out)' : '');
         this.shootNote.node.text.text = 'JUDGE: ' + this.name(this.judgeId).toUpperCase();
     }
 
@@ -953,13 +1050,7 @@ class SnapJudgment extends Game {
             d.node.fill = done ? (s.verdict ? GO : HOT) : (here ? INK : PANEL);
         });
 
-        // Only the judge gets the buttons; everyone else is told who to nag.
-        const j = this.judgeId !== null ? [this.judgeId] : [0];
-        this.thumbDownBtn.node.playerIds = j;
-        this.thumbUpBtn.node.playerIds = j;
-
-        const others = this.playerIds().filter(pid => pid !== this.judgeId);
-        this.judgeWait.node.playerIds = others.length ? others : [0];
+        // Who sees the thumbs is decided in applyScoping, not here.
         this.judgeWait.node.text.text = this.name(this.judgeId).toUpperCase() + ' IS DECIDING';
     }
 
@@ -1079,11 +1170,11 @@ class SnapJudgment extends Game {
             name: String((info && info.name) || ('PLAYER ' + pid)).toUpperCase().slice(0, 12),
             score: 0,
             seat: seat,
-            submitted: false
+            submitted: false,
+            skipped: false
         };
         if (this.order.indexOf(pid) < 0) this.order.push(pid);
-        this.seatRows[seat].you.node.playerIds = [pid];
-        if (this.phase === 'shoot') this.applyRoleScoping();
+        this.applyScoping();
         this.drawAll();
         this.base.node.onStateChange();
     }
@@ -1092,7 +1183,6 @@ class SnapJudgment extends Game {
         const pid = Number(playerId);
         const p = this.players[pid];
         if (!p) return;
-        this.seatRows[p.seat].you.node.playerIds = [0];
         delete this.seats[p.seat];
         delete this.players[pid];
         this.order = this.order.filter(id => id !== pid);
@@ -1105,10 +1195,11 @@ class SnapJudgment extends Game {
             // rather than stranding everyone.
             this.judgeId = this.order.length
                 ? this.order[(this.round - 1) % this.order.length] : null;
-            if (this.phase === 'shoot') this.applyRoleScoping();
-        } else if (this.phase === 'shoot') {
-            this.applyRoleScoping();
-            if (this.shots.length >= this.shooters().length) this.finishShooting();
+        }
+        // Whoever left, the buckets changed: re-scope on every path.
+        this.applyScoping();
+        if (this.phase === 'shoot' && this.everyoneAccountedFor()) {
+            this.finishShooting();
         }
         this.drawAll();
         this.base.node.onStateChange();

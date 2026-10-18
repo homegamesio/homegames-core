@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-142');
+const { Asset, GameNode } = require('squish-150');
 
 // Original instruments, motifs and accompaniment, synthesized as portable PCM.
 // Browser and hosted Homegames sessions play the same ordinary audio assets.
@@ -196,6 +196,7 @@ class Sound {
         if (!voice) return false;
         voice.active = true; voice.started = this.clock; voice.until = this.clock + voice.duration;
         voice.node.node.asset = { [voice.key]: { pos: { x: 0, y: 0 }, size: { x: 0, y: 0 }, startTime: 0 } };
+        voice.node.node.onStateChange();
         return true;
     }
 
@@ -204,6 +205,7 @@ class Sound {
         for (const voice of this.voices) {
             if (voice.active && (!enabled || voice.until <= this.clock || (voice.name.startsWith('music') && context && context.music === false))) {
                 voice.node.node.asset = undefined; voice.active = false;
+                voice.node.node.onStateChange();
                 // The renderer needs a genuinely absent frame before a key repeats.
                 voice.availableAt = this.clock + .04;
             }

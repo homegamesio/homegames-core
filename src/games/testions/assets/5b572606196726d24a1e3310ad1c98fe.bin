@@ -1,0 +1,52 @@
+[
+    {
+        "question": "You're trapped in an elevator.",
+        "answerA": "Panic",
+        "answerB": "Relax"
+    },
+    {
+        "question": "One gotta go",
+        "answerA": "Golden Girls",
+        "answerB": "Jimmy Neutron"
+    },
+    {
+        "question": "Coffee or tea?",
+        "answerA": "Coffee",
+        "answerB": "Tea"
+    },
+    {
+        "question": "USA! USA! USA!",
+        "answerA": "USA! USA! USA!",
+        "answerB": "USA! USA! USA!"
+    },
+    {
+        "question": "Which one?",
+        "answerA": "Hip-hop",
+        "answerB": "Country"
+    },
+    {
+        "question": "Which one?",
+        "answerA": "Blue",
+        "answerB": "Red"
+    },
+    {
+        "question": "Waka",
+        "answerA": "Waka",
+        "answerB": "Flocka"
+    },
+    {
+        "question": "One gotta go",
+        "answerA": "Tupac",
+        "answerB": "Biggie"
+    },
+    {
+        "question": "One gotta go'",
+        "answerA": "Kid Cudi",
+        "answerB": "Kanye West"
+    },
+    {
+        "question": "One gotta go",
+        "answerA": "South Park",
+        "answerB": "Family Guy"
+    }
+]

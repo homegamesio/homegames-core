@@ -1,13 +1,13 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils, GeometryUtils } = require('squish-150');
 const COLORS = Colors.COLORS;
 
 class SaveGameDemo extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '142',
-            author: 'Joseph Garcia',
-            thumbnail: '4d22ce79be8aef1c467271e7f27386e6',
+            squishVersion: '150',
+            author: "Joseph Garcia",
+            thumbnail: './assets/4d22ce79be8aef1c467271e7f27386e6.png',
             isTest: true
         };
     }

@@ -1,0 +1,5 @@
+Syntax: 16 JavaScript files passed.
+api git diff --check: passed.
+homegames-core git diff --check (checkpoint documentation scope): passed.
+Full Core working-tree whitespace check also reports an unrelated pre-existing/concurrent trailing space at src/games/pitch-pot/index.js:152; left untouched.
+New source/deployment files: no trailing whitespace.

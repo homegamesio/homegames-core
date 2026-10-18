@@ -1,0 +1,5 @@
+Artifacts: /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/homegames-static-browser-cCwRz9
+Browser: 143.0.7499.169
+No-JavaScript browsing and player guidance passed
+Private RTC invitation and expired invitation recovery passed
+PASS: no-JS catalog/detail pages; local search; pack download; isolated play; private RTC guest; Studio copy/export/import; mobile layout; no external HTTP requests

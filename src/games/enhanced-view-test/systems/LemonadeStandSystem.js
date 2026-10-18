@@ -1,4 +1,4 @@
-const { GameNode, ShapeUtils, Shapes } = require('squish-142');
+const { GameNode, ShapeUtils, Shapes } = require('squish-150');
 
 class LemonadeStandSystem {
     constructor(config) {

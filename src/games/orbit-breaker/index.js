@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes } = require('squish-142');
+const { Game, GameNode, Shapes } = require('squish-150');
 const { Engine, neutral } = require('./engine');
 const { Painter, HIDDEN } = require('./painter');
 const { render } = require('./scene');
@@ -6,9 +6,18 @@ const { Sound } = require('./sound');
 
 class OrbitBreaker extends Game {
     static metadata() {
-        return { name: 'Orbit Breaker', author: 'Joseph Garcia', squishVersion: '142',
+        return {
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
+            name: 'Orbit Breaker',
+            author: "Joseph Garcia",
             description: 'Their fire. Your ammunition. A controller-first twin-stick counterattack: catch enemy fire in a magnetic orbit, return perfect shots, dash through lasers, and dismantle the Heliophage. Three sectors, ship upgrades, flight school, procedural sound, and full keyboard controls.',
-            aspectRatio: { x: 16, y: 9 }, tickRate: 30, maxPlayers: 1, assets: {} };
+            aspectRatio: { x: 16, y: 9 },
+            tickRate: 30,
+            maxPlayers: 1,
+            assets: {},
+            gameId: "0587c0e4-fe48-5714-a721-8848c4a19087"
+        };
     }
     constructor(options = {}) {
         super(); this.engine = new Engine(Math.floor(Math.random() * 0xffffffff));

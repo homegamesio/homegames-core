@@ -1,0 +1,32 @@
+✔ issuance stores actual certificate expiry and binds reuse to CSR identity (67.590666ms)
+✔ abandoned certificate attempt does not start a new ACME order (59.096167ms)
+✔ unexpected ACME authorization cannot create a DNS record (25.010833ms)
+✔ legacy forwarding ACKs only after broker confirms and all job classes have consumers (2.30225ms)
+[amqp] delivery unsettled: unconfirmed
+✔ poison JSON is quarantined and acknowledged; failed quarantine remains unacked (7.131958ms)
+[job] LLM_REQUEST:game: Mongo unavailable; deferring delivery
+✔ message ACK waits for durable result save and retriable failures retain the delivery for delayed requeue (13.191792ms)
+✔ CSR policy checks all identifiers and canonicalizes domains (47.2795ms)
+✔ Mongo failure rejects, closes failed client, reconnects and uses DB_NAME (0.554875ms)
+✔ falsy, unknown and malformed payloads all settle as invalid (0.185ms)
+✔ broker heartbeat is in URL, frameMax is zero and queues are isolated (0.791917ms)
+✔ same-process redelivery shares generation without killing the child (1.982541ms)
+✔ expired readiness waiter never submits into a replacement child (12.803875ms)
+✔ busy docs admission does not restart ongoing game generation; cancellation frees bridge (0.222333ms)
+✔ durable lease and in-process dedup cover redelivery across consumers (2.108042ms)
+✔ callback outage retains output and retries delivery without regenerating (0.536042ms)
+✔ permanent callback error keeps recoverable output with blocked delivery state (0.174875ms)
+✔ a result write outage keeps generated output until storage recovers (0.111708ms)
+✔ certificate worker independently rejects extra SANs before database/DNS/ACME (45.591417ms)
+✔ whole certificate deadline includes database lookup (11.747875ms)
+✔ static game checks reject fake exports without executing generated source (2.592416ms)
+✔ crash between attempt persistence and outbox creation replays saved output (0.181875ms)
+✔ late completion after a replaced lease retains its output for recovery (0.104583ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 278.297959

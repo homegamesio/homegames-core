@@ -1,6 +1,6 @@
 const http = require('http');
 const https = require('https');
-const { socketServer } = require('./src/util/socket');
+const { socketServer, isHostSocket } = require('./src/util/socket');
 const Homenames = require('./src/Homenames');
 const path = require('path');
 const fs = require('fs');
@@ -24,21 +24,22 @@ const BEZEL_SIZE_Y = getConfigValue('BEZEL_SIZE_Y', 10);
 const serverPortMin = getConfigValue('GAME_SERVER_PORT_RANGE_MIN', 7002);
 const serverPortMax = getConfigValue('GAME_SERVER_PORT_RANGE_MAX', 7099);
 const childGameServerPath = path.join(path.resolve(__dirname, 'src'), 'child_game_server.js');
-const dockerImageDir = path.join(baseDir, 'docker');
+const { prepareContext, assertRunnerSupport } = require('./docker/prepare-context');
 
-const createSessionManager = () => new GameSessionManager({
-    portMin: serverPortMin,
-    portMax: serverPortMax,
-    childServerPath: childGameServerPath,
-    dockerImageDir: fs.existsSync(dockerImageDir) ? dockerImageDir : null,
-    saveDataRoot: path.join(getAppDataPath(), '.save-data'),
-    assetCachePath: path.join(getAppDataPath(), 'asset-cache'),
-    // Docker sessions reach Homenames on the host — they must use the SAME
-    // port Homenames actually listens on (the runner image bakes no config.json,
-    // so the container can't resolve this on its own).
-    homenamesPort: HOMENAMES_PORT,
-    log: logger,
-});
+const createSessionManager = () => {
+    assertRunnerSupport(__dirname);
+    return new GameSessionManager({
+        portMin: serverPortMin,
+        portMax: serverPortMax,
+        childServerPath: childGameServerPath,
+        prepareDockerImage: () => prepareContext(__dirname, path.join(getAppDataPath(), 'docker-runtime')),
+        saveDataRoot: path.join(getAppDataPath(), '.save-data'),
+        assetCachePath: path.join(getAppDataPath(), 'asset-cache'),
+        // Containers must use the host's effective player-service port.
+        homenamesPort: HOMENAMES_PORT,
+        log: logger,
+    });
+};
 
 const server = (certPath, squishMap, username, { onReady } = {}) => {
     logger.debug('running server');
@@ -81,16 +82,18 @@ const server = (certPath, squishMap, username, { onReady } = {}) => {
     gameSessionManager.username = username;
     gameSessionManager.certPath = certPath;
 
-    const customStartModule = resolvedStartPath ? require(resolvedStartPath) : null;
-    if (customStartModule) require('homegames-common/stream-node').installStreamNode(
-        require(`squish-${customStartModule.metadata?.().squishVersion || '142'}`).GameNode);
+    const customStartModule = resolvedStartPath ? require('homegames-common/game-loader').loadGameClassFromPath(require.resolve(resolvedStartPath)) : null;
 
     const HomegamesDashboard = require('./src/dashboard/HomegamesDashboard');
     const HomegamesRoot = require('./src/homegames_root/HomegamesRoot');
     const HomenamesHelper = require('./src/util/homenames-helper');
 
     let session;
-    const signalingUrl = getConfigValue('RTC_SIGNAL_URL', null) || 'wss://api.homegames.io/rtc';
+    const signalingUrl = getConfigValue('RTC_SHARE_ORIGIN', null) === 'local' ? req => {
+        const origin = require('./src/util/browser-game-server').invitationOrigin({ host: req.headers.host, port: Number(req.headers.host?.split(':').pop()) || HOME_PORT,
+            certificate: certPath ? new (require('crypto').X509Certificate)(fs.readFileSync(path.join(certPath, 'homegames.cert'))) : null });
+        return `${(origin || `http://${req.headers.host}`).replace(/^http/, 'ws')}/rtc`;
+    } : getConfigValue('RTC_SIGNAL_URL', null) || 'wss://api.homegames.io/rtc';
     const householdRooms = require('./src/util/household-rooms').createHouseholdRooms({
         signalingUrl,
         resolveGame: (key, versionId) => {
@@ -107,11 +110,14 @@ const server = (certPath, squishMap, username, { onReady } = {}) => {
         requestedServices.forEach(s => services[s] = getService(s));
     }
 
+    const userExportsStore = customStartModule && require('homegames-common/game-project').openGameExports(customStartModule);
     const dashboard = customStartModule ? new customStartModule({
+        createExport: userExportsStore.createExport,
+        userExports: userExportsStore.userExports,
         setCursor: (playerId, cursor) => session?.setCursor(playerId, cursor) ?? false,
         media: new (require('homegames-common/media-session'))(),
         handleFileUpload: require('homegames-common/media-upload').createFileUploadHandler({
-            Asset: require(`squish-${customStartModule.metadata?.().squishVersion || '142'}`).Asset,
+            Asset: require(`squish-${customStartModule.metadata?.().squishVersion || '150'}`).Asset,
             registerAsset: (key, asset) => session.registerSessionAsset(key, asset),
             isPlayerActive: id => !!session?.players[id],
         }),
@@ -123,6 +129,7 @@ const server = (certPath, squishMap, username, { onReady } = {}) => {
         certPath,
         services
     }) : new HomegamesDashboard({
+        canManageServer: playerId => isHostSocket(session?.players[playerId]),
         setCursor: (playerId, cursor) => session?.setCursor(playerId, cursor) ?? false,
         squishMap,
         movePlayer: (params) => {
@@ -156,7 +163,7 @@ const server = (certPath, squishMap, username, { onReady } = {}) => {
         householdRooms,
     });
 
-    const squishVersion = (dashboard.constructor.metadata && dashboard.constructor.metadata().squishVersion) || '142';
+    const squishVersion = (dashboard.constructor.metadata && dashboard.constructor.metadata().squishVersion) || '150';
     process.env.SQUISH_PATH = process.env.SQUISH_PATH || require.resolve(`squish-${squishVersion}`);
 
     // Build the session shim for HomegamesRoot (it expects a session-like object)
@@ -177,6 +184,7 @@ const server = (certPath, squishMap, username, { onReady } = {}) => {
     const homenamesHelper = new HomenamesHelper(HOME_PORT, username);
 
     session = new GameSession(dashboard, squishVersion, {
+        userExportsStore,
         port: HOME_PORT,
         username,
         spectators: true,

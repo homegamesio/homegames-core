@@ -1,0 +1,42 @@
+{
+  "name": "homegames_io",
+  "version": "0.4.2",
+  "description": "Play games at home - the website",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prosif/homegamesio.git"
+  },
+  "keywords": [
+    "homegames",
+    "io"
+  ],
+  "author": "Joseph Garcia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/prosif/homegamesio/issues"
+  },
+  "homepage": "https://github.com/prosif/homegamesio#readme",
+  "dependencies": {
+    "dompurify": "3.4.17",
+    "fflate": "0.8.3",
+    "homegames-client": "file:/tmp/homegames-security-runtime-verified/homegames-client-0.1.2.tgz",
+    "homegames-common": "file:/tmp/homegames-security-runtime-verified/homegames-common-1.7.2.tgz"
+  },
+  "overrides": {
+    "homepad": "0.2.1",
+    "homegames-common": {
+      ".": "$homegames-common",
+      "ws": "7.5.13"
+    }
+  },
+  "devDependencies": {
+    "@jimp/core": "1.6.1",
+    "@jimp/js-jpeg": "1.6.1",
+    "@jimp/js-png": "1.6.1",
+    "@jimp/plugin-resize": "1.6.1",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.3.1"
+  },
+  "private": true
+}

@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { buildCharacter, buildBall } = require('./character');
 const { TUNING, BRAND, COLORS:C, SWATCHES, CAMERA } = require('./settings');
 const { OUTFITS } = require('./wardrobe');
@@ -14,7 +14,9 @@ const strip=(x,y,xx,yy,w)=>{const a=Math.atan2(yy-y,xx-x),dx=Math.sin(a)*w/2,dy=
 
 class Sunside extends Game {
     static metadata(){return {
-        squishVersion:'142',name:'Sunside',author:'Joseph Garcia',createdBy:'Joseph Garcia',
+            // Catalog review: Character, outfit and camera showcase with a short attached rally.
+            isTest: true,
+        squishVersion:'150',name:'Sunside',author: "Joseph Garcia",createdBy: "Joseph Garcia",
         description:'A polygon character studio with Mika, a 25-year-old volleyball captain. Three outfits, blended animations, camera presets and a twelve-return rally. Entirely procedural 3D, rendered through Homegames.',
         aspectRatio:{x:1,y:1},tickRate:20,maxPlayers:1,
     };}
@@ -46,7 +48,7 @@ class Sunside extends Game {
     rect(x,y,w,h,color,opts){return this.shape(ShapeUtils.rectangle(x,y,w,h),color,opts);}
     group(){return this.shape(HIDDEN,null);}
     text(str,x,y,size,color=C.ink,align='left',font='sans-serif'){
-        // Squish 142 scales type by the length of its XY scale vector.
+        // Squish 1.5.0 scales type by the length of its XY scale vector.
         return new GameNode.Text({textInfo:{text:str,x,y,size:size/Math.SQRT2,color,align,font}});
     }
     put(parent,node){parent.addChild(node,false);return node;}

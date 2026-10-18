@@ -1,0 +1,2 @@
+[verify] Layout complete: 98 production packages, 260 assets, 4 runtimes
+[verify] Offline runtime smoke passed: {"target":"darwin-arm64","launcher":"mac-app","browserRoutes":4,"manifests":33,"dashboard":true,"gameSession":true}

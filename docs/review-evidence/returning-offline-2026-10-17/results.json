@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-17",
+  "localCandidate": true,
+  "published": false,
+  "common": {
+    "passed": 42,
+    "failed": 0
+  },
+  "website": {
+    "passed": 70,
+    "failed": 0
+  },
+  "rtcProtocol": {
+    "passed": 8,
+    "failed": 0
+  },
+  "browserSuites": {
+    "returningChrome": "passed",
+    "installationChrome": "passed",
+    "installationWebKit": "passed",
+    "copyChromeV1": "passed",
+    "copyChromeV2": "passed",
+    "copyChromeToWebKitV2": "passed",
+    "studioWorkspace": "passed",
+    "studioStorage": "passed",
+    "studioRecovery": "passed"
+  },
+  "catalogSha256": "b5e585169228f8c20e2d18edfe95907610bb578554c28caed0a75f56950b4661",
+  "client": "homegames-client.1f14a3f467767353.js",
+  "sourceFingerprintCount": 99,
+  "gameCount": 78,
+  "gameRevisionsChangedFromPreservedBaseline": [
+    "gold-and-grit"
+  ],
+  "notes": [
+    "Counts overlap; RTC protocol is included in website tests.",
+    "This pass does not repeat all-game QA. The Gold and Grit revision differs from the preserved start-of-step build; game source was outside this step.",
+    "Installed candidate and website build-local client have different bundle fingerprints; generated-sha256 records the actual full-site output. Both include the cancellation guard.",
+    "Physical mobile installation/storage and real TURN/WAN acceptance remain open."
+  ],
+  "testedCatalogSha256": "8f2163b3e8bc5a94ef19f8da892db944dbb52c3cdf278ecffa06e7737669c81b"
+}

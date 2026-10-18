@@ -1,4 +1,4 @@
-const { Asset } = require('squish-142');
+const { Asset } = require('squish-150');
 
 // Original 40px cursor artwork. Editable SVGs and matching transparent PNGs
 // live in ./cursors. PNG bytes are embedded for hosted and browser-local games.

@@ -105,4 +105,4 @@ encounter restoration, input ownership and repeats, and native Squish frame
 serialization. The browser acceptance test exercises real HomegamesClient input,
 shopping, local persistence, and touch controls and captures screenshots in `/tmp`.
 
-Licensed under GPLv3; see `LICENSE`.
+Licensed under MIT; see `LICENSE`.

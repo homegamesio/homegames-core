@@ -235,7 +235,7 @@ class Engine {
         }
         const pair = !!a.special && !!b.special;
         if (pair) { this.stats.combos++; this.emit('combo'); }
-        this.announce(title, pair ? 'TWO POWERS. ONE BEAUTIFUL CHAIN.' : 'ONE COLOR. EVERYWHERE.', [225, 187, 255], 1.8, 3);
+        this.announce(title, pair ? 'SPECIAL GEMS COMBINED' : 'CLEARING THE MATCHED COLOR', [225, 187, 255], 1.8, 3);
         this.pending = { clear, plan: new Map(), frost: new Set(clear), consumed };
         this.matchingKeys = new Set(clear); this.phase = 'matching'; this.phaseAge = 0; this.phaseDuration = pair ? .24 : .15;
     }
@@ -306,11 +306,10 @@ class Engine {
         if (cells.length) this.popup(cells.reduce((sum, p) => sum + p.col + .5, 0) / cells.length,
             cells.reduce((sum, p) => sum + p.row + .5, 0) / cells.length, '+' + points.toLocaleString('en-US'), [255, 235, 181]);
         if (this.cascade >= 2) {
-            const words = this.cascade >= 5 ? 'DAZZLING!' : this.cascade >= 3 ? 'BRILLIANT!' : 'BEAUTIFUL CASCADE';
-            this.announce(words, 'CASCADE ×' + this.cascade + ' · +' + points.toLocaleString('en-US'), [255, 224, 141], 1.25, 2);
+            this.announce('CASCADE ×' + this.cascade, '+' + points.toLocaleString('en-US') + ' POINTS', [255, 224, 141], 1.25, 2);
         } else if (plan.size) {
-            const special = [...plan.values()][0], title = special === 'prism' ? 'PRISM CREATED' : special === 'burst' ? 'NOVA CREATED' : 'LIGHTNING CREATED';
-            this.announce(title, special === 'prism' ? 'SWAP WITH ANY COLOR' : 'MATCH IT. WATCH IT SHINE.', [223, 197, 255], 1.3, 1);
+            const special = [...plan.values()][0], title = special === 'prism' ? 'PRISM CREATED' : special === 'burst' ? 'NOVA CREATED' : 'RAY CREATED';
+            this.announce(title, special === 'prism' ? 'SWAP WITH ANY COLOR' : 'MATCH TO ACTIVATE', [223, 197, 255], 1.3, 1);
         }
         this.shake = Math.max(this.shake, Math.min(.25, cells.length * .008));
         this.pending = null; this.swap = null; this.matchingKeys.clear(); this.updateGoals();
@@ -358,7 +357,7 @@ class Engine {
         this.radiantActive = false;
         if (this.radiance >= 100 && this.radiantMoves === 0) {
             this.radiance -= 100; this.radiantMoves = 3; this.stats.radiances++;
-            this.announce('RADIANCE!', 'YOUR NEXT 3 MATCHES SCORE DOUBLE', [255, 228, 148], 2.6, 4);
+            this.announce('RADIANCE', 'NEXT 3 SUCCESSFUL SWAPS: DOUBLE SCORE', [255, 228, 148], 2.6, 4);
             this.ring(4, 4, [255, 226, 159], 6, 1); this.emit('radiance');
         }
         this.updateGoals();
@@ -383,7 +382,7 @@ class Engine {
             const gem = this.board[r][c]; gem.row = r; gem.col = c; this.animate(gem, 'shuffle', .55);
         }
         this.phase = 'shuffling'; this.phaseAge = 0; this.phaseDuration = .55;
-        this.announce('A FRESH PERSPECTIVE', 'YOUR SPECIAL GEMS ARE SAFE', [188, 213, 255], 1.6, 1); this.emit('shuffle');
+        this.announce('RESHUFFLING', 'SPECIAL GEMS RETAINED', [188, 213, 255], 1.6, 1); this.emit('shuffle');
     }
     updateGoals() {
         this.goalProgress = this.goals.map(goal => {
@@ -403,8 +402,8 @@ class Engine {
         this.result = { won, mode: this.mode, score: this.score, matchScore, reserveBonus, stars, movesUsed: this.stats.moves, movesLeft: this.movesLeft,
             maxCascade: this.maxCascade, cleared: this.stats.gems, specialsCreated: this.specialsCreated,
             specialsActivated: this.specialsActivated, goals: copy(this.goalProgress),
-            reason: this.mode === 'rush' ? 'Time’s up — what a rush!' : won ? 'Every goal completed!' : 'Out of moves. Your next masterpiece awaits.' };
-        this.announce(this.mode === 'rush' ? 'TIME’S UP!' : won ? 'MASTERPIECE COMPLETE!' : 'ONE MORE TRY?',
+            reason: this.mode === 'rush' ? 'Time’s up.' : won ? 'Every goal completed.' : 'Out of moves.' };
+        this.announce(this.mode === 'rush' ? 'TIME’S UP' : won ? 'STAGE COMPLETE' : 'OUT OF MOVES',
             this.result.reason, won ? [255, 225, 154] : [193, 197, 226], 3, 5);
         this.emit(won ? 'win' : 'lose');
         return this.result;
@@ -512,7 +511,13 @@ class Engine {
             saved.level.moves !== undefined && (!Number.isInteger(saved.level.moves) || saved.level.moves < 1 || saved.level.moves > 200) ||
             saved.level.parScore !== undefined && !finite(saved.level.parScore)) return false;
         const candidate = new Engine(this.initialSeed); candidate.start({ mode: saved.mode, level: copy(saved.level) });
-        for (let r = 0; r < GRID; r++) for (let c = 0; c < GRID; c++) Object.assign(candidate.board[r][c], saved.board[r][c]);
+        // A snapshot owns only the gem's contents. Coordinates, identity and
+        // animation state belong to the live pool, even if an imported save
+        // contains extra fields from an old or damaged format.
+        for (let r = 0; r < GRID; r++) for (let c = 0; c < GRID; c++) {
+            const { type, special } = saved.board[r][c];
+            Object.assign(candidate.board[r][c], { type, special });
+        }
         if (candidate.findMatches().cells.size || !candidate.findValidMove()) return false;
         candidate.seed = saved.seed >>> 0; candidate.score = saved.score; candidate.movesLeft = saved.movesLeft; candidate.timeLeft = saved.timeLeft;
         candidate.collected = saved.collected.slice(); candidate.frost = copy(saved.frost); candidate.frostInitial = saved.frostInitial;

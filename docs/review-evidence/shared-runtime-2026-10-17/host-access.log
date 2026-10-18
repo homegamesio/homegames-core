@@ -1,0 +1,67 @@
+✔ host access accepts direct local clients and denies LAN, proxy claims, rebinding and foreign origins (3.037916ms)
+Found config at /Users/josephgarcia/homegames/homegames-core
+Using default value (null) for PUBLIC_HOST
+Found value https://api.homegames.io for API_URL in config
+Using environment value:  for key: HOMENAMES_API_SECRET
+✔ HTTPS host access uses the served certificate name, while LAN guests and unknown names stay unprivileged (130.720458ms)
+[Homenames] Session 1 ready on port 7002
+Using environment value: http://localhost:64239 for key: API_URL
+Using environment value: ws://127.0.0.1:64240 for key: LINK_PROXY_URL
+Using environment value: 64239 for key: HOMENAMES_PORT
+Found value 9 for BEZEL_SIZE_X in config
+Found value 9 for BEZEL_SIZE_Y in config
+Using default value (null) for DOMAIN_NAME
+Using default value (null) for CERT_DOMAIN
+Using default value (null) for LOCAL_GAME_DIRECTORY
+Starting regular server on port 0
+Using default value (null) for RTC_SHARE_ORIGIN
+Using environment value: true for key: PUBLIC_GAMES
+✔ session API blocks supplied code/files, lifecycle changes and logs before guest side effects (106.490208ms)
+client info 
+{ clientInfo: { isHost: true, isAdmin: true } }
+Opened connection to proxy server
+client info 
+{ clientInfo: { isHost: true, isAdmin: true } }
+wattt1
+watdsfdsf3
+{
+  '142': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-142/index.js',
+  '143': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-143/index.js',
+  '145': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-145/index.js',
+  '146': '/Users/josephgarcia/homegames/homegames-core/node_modules/squish-146/index.js'
+}
+this is Game
+[class Game]
+Using environment value: http://localhost:64239 for key: API_URL
+Using dictionary file at /Users/josephgarcia/homegames/homegames-core/dictionary.txt
+Using environment value: false for key: ERROR_REPORTING
+Found value false for IS_DEMO in config
+Found value 6 for DASHBOARD_PAGE_SIZE in config
+Using default value (500) for CHILD_SESSION_HEARTBEAT_INTERVAL
+Using default value (null) for LOCAL_GAME_DIRECTORY
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Set config value FORK_SESSIONS_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-WPnPvF/config.json
+Set config value HOME_PORT in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-WPnPvF/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Found value 7001 for HOME_PORT in config
+Set config value HOME_PORT in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-WPnPvF/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Found value 7005 for HOME_PORT in config
+Set config value FORK_SESSIONS_ENABLED in /var/folders/jp/xdgkbhcs3mx_g2t501zww9fh0000gn/T/hg-host-access-WPnPvF/config.json
+Found config at /Users/josephgarcia/homegames/homegames-core
+Found value true for FORK_SESSIONS_ENABLED in config
+Found value true for FORK_SESSIONS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+Found value false for TESTS_ENABLED in config
+✔ WebSocket privileges come from the upgrade, ignore ready-message claims, and expire on disconnect (13.183209ms)
+✔ guest dashboard handlers cannot change settings; host fields reject another sender and revoke on disconnect (7.768208ms)
+✔ guests can play installed games but cannot trigger downloads or installs (0.424916ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 308.208667

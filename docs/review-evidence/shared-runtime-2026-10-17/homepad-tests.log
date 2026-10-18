@@ -1,0 +1,19 @@
+✔ Android Chromium canonical controls work even when mapping is empty (1.337417ms)
+✔ Android compatibility does not guess other browsers, layouts, or incomplete devices (0.108292ms)
+✔ Android compatibility reads the browser environment by default (0.242708ms)
+✔ exports usable controls and works without window or navigator (0.054ms)
+✔ discovers already-connected and sparse controllers, reconnects without events (0.108875ms)
+✔ uses browser standard mapping before device-name heuristics (0.05ms)
+✔ custom mappings override standard layout and work for unknown hardware (0.081916ms)
+✔ dead zones are rescaled, symmetric, configurable and finite (0.205209ms)
+✔ clamps buttons and creates independent snapshots (0.106834ms)
+✔ maps named application actions, alternatives, analog axes and directions (0.212458ms)
+✔ policy errors are inspectable; unexpected errors are not hidden (0.0655ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.833541

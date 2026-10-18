@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const { COLORS } = Colors;
 
 const SIZE = 8;
@@ -24,18 +24,25 @@ const polyCircle = (cx, cy, r, sides = 18) => {
 class Checkers extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Checkers',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'American checkers with mandatory captures, multi-jumps, and kings.',
             aspectRatio: { x: 1, y: 1 },
+            assets: {
+                'pointer-grab': new Asset({ path: './assets/cursor-grab.png', type: 'image' }),
+                'pointer-hold': new Asset({ path: './assets/cursor-hold.png', type: 'image' })
+            },
             maxPlayers: 2,
-            services: ['multiplayer']
+            gameId: "9f1666a3-e2ff-5eef-a511-9c14194032d6"
         };
     }
 
-    constructor() {
+    constructor({ setCursor } = {}) {
         super();
+        this.setCursor = setCursor;
+        this.drag = null;
 
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
@@ -70,7 +77,6 @@ class Checkers extends Game {
         this.botPending = false;
         this.animating = false;
 
-        this.titleText = this.makeText('Checkers', 50, 3.2, 4, [244, 237, 216, 255]);
         this.statusText = this.makeText('Welcome to the table', 50, 9.5, 2.05, [244, 237, 216, 255]);
         this.scoreText = this.makeText('Red 0   —   0 White', 50, 14, 1.5, [224, 216, 193, 255]);
         this.leftSeatText = this.makeText('Red · Open seat', 24, 87.2, 1.18, SIDE_COLORS[RED]);
@@ -97,7 +103,9 @@ class Checkers extends Game {
                     shapeType: Shapes.POLYGON,
                     coordinates2d: ShapeUtils.rectangle(x, y, this.cell, this.cell),
                     fill: (row + col) % 2 === 0 ? LIGHT_SQUARE : DARK_SQUARE,
-                    onClick: pid => this.pressOnce(pid, () => this.handleSquareClick(pid, row, col))
+                    onClick: (pid, x, y) => this.pressOnce(pid, () => this.beginPieceDrag(pid, row, col, x, y)),
+                    onHover: pid => this.hoverPiece(pid, row, col),
+                    offHover: pid => { if (!this.drag) this.pointerCursor(pid, null); }
                 });
                 const piece = new GameNode.Shape({
                     shapeType: Shapes.POLYGON,
@@ -105,14 +113,17 @@ class Checkers extends Game {
                     fill: [0, 0, 0, 0],
                     color: COLORS.BLACK,
                     border: 4,
-                    onClick: pid => this.pressOnce(pid, () => this.handleSquareClick(pid, row, col)),
+                    onClick: (pid, x, y) => this.pressOnce(pid, () => this.beginPieceDrag(pid, row, col, x, y)),
+                    onHover: pid => this.hoverPiece(pid, row, col),
+                    offHover: pid => { if (!this.drag) this.pointerCursor(pid, null); },
                     playerIds: [0]
                 });
                 const king = this.makeText('', x + this.cell / 2, y + 2.25, 3.6, COLORS.GOLD);
                 const target = new GameNode.Shape({
                     shapeType: Shapes.POLYGON,
                     coordinates2d: polyCircle(x + this.cell / 2, y + this.cell / 2, 1.1),
-                    fill: [250, 241, 219, 255], playerIds: [0]
+                    fill: [250, 241, 219, 255], playerIds: [0],
+                    onClick: (pid, px, py) => this.pressOnce(pid, () => this.beginPieceDrag(pid, row, col, px, py))
                 });
                 this.squareNodes[row][col] = square;
                 this.pieceNodes[row][col] = piece;
@@ -130,13 +141,17 @@ class Checkers extends Game {
         this.motionKing = this.makeText('', 0, 0, 3.6, COLORS.GOLD, [0]);
         this.base.addChildren(this.motionPiece, this.motionKing);
 
+        this.dragPiece = new GameNode.Shape({ shapeType: Shapes.POLYGON, coordinates2d: [[0,0],[0,0],[0,0]], fill: SIDE_COLORS[0], color: COLORS.WHITE, border: 6, playerIds: [0] });
+        this.dragKing = this.makeText('', 0, 0, 3.2, COLORS.GOLD, [0]);
+        this.base.addChildren(this.dragPiece, this.dragKing);
+
         this.rematchButton = this.makeButton(37, 92.2, 26, 5.2, 'Play again', [116, 82, 53, 255], () => {
             if (this.phase === 'over') this.resetRound();
         });
         this.rematchButton.node.playerIds = [0];
-        this.keyboardText = this.makeText('Arrows + Enter also work · Reach the far edge to earn a king', 50, 95, 1.6, [244, 237, 216, 255]);
+        this.keyboardText = this.makeText('', 50, 95, 1.6, [244, 237, 216, 255]);
         this.base.addChild(this.keyboardText);
-        this.base.addChildren(this.titleText, this.statusText, this.scoreText, this.leftSeatText, this.rightSeatText, this.hintText, this.rematchButton);
+        this.base.addChildren(this.statusText, this.scoreText, this.leftSeatText, this.rightSeatText, this.hintText, this.rematchButton);
         this.render();
     }
 
@@ -195,7 +210,7 @@ class Checkers extends Game {
         if (seat < 0) return;
 
         this.seats[seat] = { playerId, isBot: false, name };
-        const youText = this.makeText(`Playing as ${SIDE_NAMES[seat]}`, 50, 90.2, 1.8, [244, 237, 216, 255], [playerId]);
+        const youText = this.makeText(`You: ${SIDE_NAMES[seat]}`, 50, 90.2, 1.8, [244, 237, 216, 255], [playerId]);
         const focus = new GameNode.Shape({
             shapeType: Shapes.POLYGON, coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
             fill: [0, 0, 0, 0], color: COLORS.WHITE, border: 12, playerIds: [playerId]
@@ -208,6 +223,8 @@ class Checkers extends Game {
     }
 
     handlePlayerDisconnect(playerId) {
+        this.cancelPieceDrag(playerId);
+        this.pointerCursor(playerId, null);
         const player = this.players[playerId];
         if (!player) return;
         const seat = player.seat;
@@ -230,6 +247,7 @@ class Checkers extends Game {
     }
 
     handleKeyDown(playerId, key) {
+        if (key === 'Escape') { this.cancelPieceDrag(playerId); this.render(); return; }
         if (key === 'Enter' || key === ' ') {
             if (!this.heldKeys[playerId]) this.heldKeys[playerId] = new Set();
             if (this.heldKeys[playerId].has(key)) return;
@@ -257,7 +275,68 @@ class Checkers extends Game {
         action();
     }
 
-    handleMouseUp(playerId) { this.pressedPlayers.delete(playerId); }
+    pointerCursor(id, mode) {
+        if (typeof this.setCursor === 'function') this.setCursor(id, mode ? {
+            assetKey: 'pointer-' + mode, size: { width: 32, height: 32 }, hotspot: { x: 16, y: 16 }
+        } : null);
+    }
+
+    hoverPiece(id, row, col) {
+        if (this.drag) return;
+        const piece = this.board[row][col];
+        const canMove = this.phase === 'playing' && !this.animating && !this.pendingPromotion
+            && this.players[id]?.seat === this.turn && piece?.side === this.turn;
+        this.pointerCursor(id, canMove ? 'grab' : null);
+    }
+
+    beginPieceDrag(id, row, col, x, y) {
+        if (this.drag) return;
+        const alreadySelected = this.selected?.row === row && this.selected?.col === col;
+        if (!alreadySelected) this.handleSquareClick(id, row, col);
+        if (this.phase !== 'playing' || this.animating || this.pendingPromotion
+            || this.players[id]?.seat !== this.turn || this.selected?.row !== row || this.selected?.col !== col) return;
+        this.drag = { id, row, col, x, y, moved: false };
+        this.pointerCursor(id, 'hold');
+    }
+
+    handleMouseMove(id, pos) {
+        const d = this.drag;
+        if (!d || d.id !== id || !pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return;
+        if (Math.hypot(pos.x - d.x, pos.y - d.y) < 1 && !d.moved) return;
+        d.moved = true;
+        const piece = this.board[d.row][d.col];
+        if (!piece) return;
+        this.dragPiece.node.playerIds = [];
+        this.pieceNodes[d.row][d.col].node.playerIds = [0];
+        this.kingNodes[d.row][d.col].node.text = { ...this.kingNodes[d.row][d.col].node.text, text: '' };
+        this.dragPiece.node.coordinates2d = polyCircle(pos.x, pos.y, 3.25);
+        this.dragPiece.node.fill = SIDE_COLORS[piece.side];
+        this.dragKing.node.playerIds = [];
+        this.dragKing.node.text = { ...this.dragKing.node.text, text: piece.king ? '★' : '', x: pos.x, y: pos.y - 2 };
+        this.base.node.onStateChange();
+    }
+
+    cancelPieceDrag(id) {
+        if (!this.drag || (id !== undefined && this.drag.id !== id)) return;
+        const owner = this.drag.id;
+        this.drag = null;
+        this.dragPiece.node.playerIds = [0];
+        this.dragKing.node.playerIds = [0];
+        this.pointerCursor(owner, null);
+    }
+
+    handleMouseUp(id, pos) {
+        this.pressedPlayers.delete(id);
+        const d = this.drag;
+        if (!d || d.id !== id) return;
+        this.cancelPieceDrag(id);
+        this.render();
+        if (!d.moved || !pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return;
+        const row = Math.floor((pos.y - this.boardY) / this.cell);
+        const col = Math.floor((pos.x - this.boardX) / this.cell);
+        if (this.legalTargets.some(m => m.to.row === row && m.to.col === col)) this.handleSquareClick(id, row, col);
+    }
+
 
     handleSquareClick(playerId, row, col) {
         if (this.phase !== 'playing' || this.animating) return;
@@ -650,6 +729,7 @@ class Checkers extends Game {
     }
 
     resetRound() {
+        this.cancelPieceDrag();
         this.invalidateBot();
         this.board = this.makeStartingBoard();
         this.turn = RED;
@@ -723,11 +803,10 @@ class Checkers extends Game {
             const seat = this.seats[this.turn];
             const mustCapture = allMoves.some(m => !!m.capture);
             status = seat && seat.isBot ? 'Computer is thinking…' : `${SIDE_NAMES[this.turn]} · ${seat.name}'s turn`;
-            if (this.animating) hint = 'Watch the move · Then it is the next turn';
-            else if (this.forcedFrom) hint = 'Jump again with the same piece · Tap a dot';
-            else if (seat && seat.isBot) hint = 'Jump over other pieces to capture them';
-            else if (this.selected) hint = 'Tap a dot to move · ★ kings move both ways';
-            else hint = mustCapture ? 'You must jump · Choose an outlined piece' : 'Choose an outlined piece · Then tap a dot';
+            if (this.animating || (seat && seat.isBot)) hint = '';
+            else if (this.forcedFrom) hint = 'Jump again';
+            else if (mustCapture) hint = 'Jump required';
+            else hint = this.lastTurnPath.length ? '' : 'Move an outlined piece';
         } else if (this.phase === 'over') {
             const redMoves = this.hasAnyPiece(this.board, RED) ? this.generateStepMoves(this.board, RED).length : 0;
             const whiteMoves = this.hasAnyPiece(this.board, WHITE) ? this.generateStepMoves(this.board, WHITE).length : 0;
@@ -740,6 +819,7 @@ class Checkers extends Game {
 
         this.statusText.node.text = { text: status, x: 50, y: 9.5, size: 2.6, align: 'center', color: [244, 237, 216, 255], font: 'default' };
         this.scoreText.node.text = { text: `RED ${this.scores[RED]}   —   ${this.scores[WHITE]} WHITE`, x: 50, y: 14, size: 1.9, align: 'center', color: [224, 216, 193, 255], font: 'default' };
+        this.scoreText.node.playerIds = this.scores.some(score => score > 0) ? [] : [0];
         this.leftSeatText.node.text = { text: `RED · ${this.seats[RED].name}`, x: 24, y: 87.2, size: 1.8, align: 'center', color: [244, 237, 216, 255], font: 'default' };
         this.rightSeatText.node.text = { text: `WHITE · ${this.seats[WHITE].name}`, x: 76, y: 87.2, size: 1.8, align: 'center', color: [244, 237, 216, 255], font: 'default' };
         this.hintText.node.text = { text: hint, x: 50, y: 83.2, size: 2.0, align: 'center', color: this.phase === 'over' ? [244, 237, 216, 255] : [224, 216, 193, 255], font: 'default' };

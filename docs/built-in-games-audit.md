@@ -1,5 +1,7 @@
 # Built-in games audit
 
+> Historical snapshot. The current decisions and implemented changes are in [the consolidation review](game-consolidation.md).
+
 Audit date: 2026-09-19. Scope: the current working tree of `homegames-core`, including untracked game folders.
 
 **Recommendation: retain 44 entries as games or intentional creative toys, improve five, move eight out of the default catalog into tests/showcases, and temporarily hide three unfinished games.** This would leave 49 default entries, with the five improvement candidates still available. No game code or classification flags were changed by this audit.

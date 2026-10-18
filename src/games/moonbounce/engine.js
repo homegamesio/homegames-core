@@ -2,10 +2,10 @@ const { LEVELS } = require('./levels');
 const BOUNDS = Object.freeze({ left: 7, right: 111, top: 12, bottom: 83 });
 const POWERS = [
     { id: 'guide', name: 'Stargazer', tagline: 'SEE THE NEXT BOUNCE', description: 'Green pegs reveal a longer path for your next two shots.', color: [99, 222, 255] },
-    { id: 'blast', name: 'Supernova', tagline: 'LIGHT UP THE NEIGHBORS', description: 'Your first hit bursts nearby pegs. Green pegs recharge it.', color: [255, 160, 99] },
-    { id: 'twin', name: 'Gemini', tagline: 'TWICE THE POSSIBILITY', description: 'Launch twin balls. Green pegs create another and recharge.', color: [193, 156, 255] },
-    { id: 'magnet', name: 'Cometkeeper', tagline: 'FOLLOW THE ORANGE STARS', description: 'Charged balls curve gently toward nearby orange pegs.', color: [255, 143, 190] },
-    { id: 'phoenix', name: 'Dawnkeeper', tagline: 'EVERY SHOT DESERVES A SECOND CHANCE', description: 'Rescue one missed ball from the bottom on each charged shot.', color: [255, 188, 87] }
+    { id: 'blast', name: 'Supernova', tagline: 'CLEAR NEARBY PEGS', description: 'Your first hit bursts nearby pegs. Green pegs recharge it.', color: [255, 160, 99] },
+    { id: 'twin', name: 'Gemini', tagline: 'TWO BALLS PER SHOT', description: 'Launch twin balls. Green pegs create another and recharge.', color: [193, 156, 255] },
+    { id: 'magnet', name: 'Cometkeeper', tagline: 'CURVE TOWARD ORANGE PEGS', description: 'Charged balls curve gently toward nearby orange pegs.', color: [255, 143, 190] },
+    { id: 'phoenix', name: 'Dawnkeeper', tagline: 'RESCUE ONE MISSED BALL', description: 'Rescue one missed ball from the bottom on each charged shot.', color: [255, 188, 87] }
 ];
 const COLORS = { orange: [255, 167, 70], blue: [91, 181, 245], purple: [204, 146, 255], green: [132, 242, 166] };
 const FIXED_DT = 1 / 120;
@@ -248,7 +248,7 @@ class Engine {
         this.fever = true; this.feverTime = 0; this.banner = 'CELESTIAL FEVER'; this.bannerTime = 3.2;
         this.anticipation = false; this.anticipationTime = 0;
         this.emit('fever'); this.emit('impact'); this.strike(59, 44, 1.4);
-        this.announce('CELESTIAL FEVER', 'LET IT FALL. MAKE IT LEGENDARY.', [255, 225, 140], 3.1, 5);
+        this.announce('CELESTIAL FEVER', 'LAND IN A BONUS SLOT', [255, 225, 140], 3.1, 5);
         this.ring(59, 44, [255, 225, 140], 58, 1.3); this.react('wow', 4);
         this.burst(59, 37, [255, 225, 140], 45);
         // A cleared board is already a win, even when this was the final ball.
@@ -318,7 +318,7 @@ class Engine {
         ball.y = this.bucket.y - 1; ball.vy = -48; ball.vx *= .7; ball.rescued = true;
         ball.trail = []; ball.stallClock = 0; ball.stallTravel = 0; ball.stallRadius = 0;
         ball.stallX = ball.x; ball.stallY = ball.y;
-        this.announce('RISE AGAIN!', 'DAWNKEEPER SAVED YOUR SHOT', [255, 188, 87], 1.8, 3);
+        this.announce('BALL RESCUED', 'DAWNKEEPER SAVED YOUR SHOT', [255, 188, 87], 1.8, 3);
         this.ring(ball.x, 79, [255, 188, 87], 16, .85); this.burst(ball.x, 78, [255, 188, 87], 20);
         this.react('wow', 1.8); this.emit('rescue'); return true;
     }
@@ -377,7 +377,7 @@ class Engine {
                 this.popup(ball.x, 75, 'CAUGHT! +1 BALL', [142, 255, 211], 1.7);
                 this.burst(ball.x, 78, [133, 247, 212], 16); this.emit('catch'); ball.gone = true;
                 this.ring(ball.x, 78, [133, 247, 212], 12, .7);
-                this.announce('NICE CATCH!', 'FREE BALL · KEEP THE MAGIC GOING', [133, 247, 212], 1.7, 3);
+                this.announce('BUCKET CATCH', '+1 BALL', [133, 247, 212], 1.7, 3);
                 this.react('happy', 2);
             } else this.rescue(ball);
         }
@@ -405,7 +405,7 @@ class Engine {
             this.react('wow', 4);
             this.emit('win');
         } else if (this.balls <= 0 || this.orangeRemaining === 0 && this.mode === 'challenge') {
-            this.phase = 'lost'; this.banner = 'SO CLOSE. ONE MORE TRY?'; this.bannerTime = 3; this.emit('lose');
+            this.phase = 'lost'; this.banner = 'OUT OF BALLS'; this.bannerTime = 3; this.emit('lose');
             if (this.mode === 'challenge' && this.orangeRemaining === 0 && !this.challengeComplete) {
                 const goal = this.challenge.goal, noun = goal.kind === 'score' ? 'points' : goal.kind === 'catches' ? 'catches' : 'style bonuses';
                 reason = 'All orange pegs cleared, but you needed ' + goal.target.toLocaleString('en-US') + ' ' + noun +
@@ -414,7 +414,7 @@ class Engine {
             } else reason = this.orangeRemaining + ' orange pegs still to clear.';
             this.react('sad', 4);
         } else {
-            this.phase = 'ready'; this.banner = this.shotHits ? this.shotHits + ' PEGS · +' + this.shotScore.toLocaleString('en-US') : 'FIND YOUR NEXT ANGLE';
+            this.phase = 'ready'; this.banner = this.shotHits ? this.shotHits + ' PEGS · +' + this.shotScore.toLocaleString('en-US') : 'AIM AND RELEASE';
             this.bannerTime = 1.8;
             // The violet bonus moves to a fresh ordinary peg each turn.
             for (const peg of this.pegs) if (peg.type === 'purple' && !peg.removed) peg.type = 'blue';
@@ -441,7 +441,7 @@ class Engine {
         });
         if (approaching) {
             this.anticipation = true; this.anticipationTime = .7; this.anticipationUsed = true;
-            this.announce('ONE MORE ORANGE...', 'THIS COULD BE THE ONE', [255, 201, 132], .9, 3);
+            this.announce('ONE ORANGE REMAINING', 'CLEAR IT TO OPEN THE JACKPOT', [255, 201, 132], .9, 3);
             this.ring(target.x, target.y, [255, 201, 132], 6, .7); this.react('wow', 1.2);
         }
     }

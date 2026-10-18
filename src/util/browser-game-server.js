@@ -67,7 +67,7 @@ const createBrowserGameServer = ({ startPath, port, certPath = null, shareOrigin
             res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
             res.end(JSON.stringify({ mode: 'browser', manifestUrl: '/games/start/local-manifest', gameKey, title,
                 share: shareOrigin !== 'local' || origin || (signalingUrl && joinUrl) ? {
-                    signalingUrl: signalingUrl || (origin ? `${origin}/rtc` : PUBLIC_SIGNAL_URL),
+                    signalingUrl: signalingUrl || (origin ? `${origin.replace(/^http/, 'ws')}/rtc` : PUBLIC_SIGNAL_URL),
                     joinUrl: joinUrl || (origin ? `${origin}/` : PUBLIC_JOIN_URL), iceTransportPolicy,
                 } : null }));
         } else if (req.method === 'GET' && req.url === '/health') {
@@ -76,7 +76,7 @@ const createBrowserGameServer = ({ startPath, port, certPath = null, shareOrigin
         } else if (!web(req, res) && !localPlay(req, res)) { res.writeHead(404); res.end(); }
     };
     const server = tls ? https.createServer(tls, request) : http.createServer(request);
-    const signaling = attachRtcSignaling(server, iceServers ? { getIceServers: () => iceServers } : {});
+    const signaling = attachRtcSignaling(server, iceServers || shareOrigin === 'local' ? { getIceServers: () => iceServers || [] } : {});
     // No game construction, session fork, Homenames or simulation on this path.
     return { server, signaling, listen: () => server.listen(port) };
 };

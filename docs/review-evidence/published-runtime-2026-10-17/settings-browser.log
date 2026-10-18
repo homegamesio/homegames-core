@@ -1,0 +1,1 @@
+PASS: actual Squish settings modal renders Off; click enables On; second click disables Off; no browser errors.

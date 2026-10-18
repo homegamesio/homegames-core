@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 
 const TICK_RATE = 15;
 const MAX_PLAYERS = 8;
@@ -53,14 +53,15 @@ const BOARD_POINTS = buildBoardPoints();
 class Seance extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
             name: 'Seance',
-            author: 'Joseph Garcia',
+            author: "Joseph Garcia",
             description: 'A haunted office ouija board. Ask a question out loud, rest your hands on the board, and watch it answer. Nobody is steering. Probably. The board keeps receipts.',
             aspectRatio: { x: 16, y: 9 },
-            services: ['multiplayer'],
-            maxPlayers: MAX_PLAYERS,
-            tickRate: TICK_RATE
+            maxPlayers: 8,
+            tickRate: TICK_RATE,
+            gameId: "8b62e8ba-8937-5b7a-a74d-621ab6f8817e"
         };
     }
 
@@ -89,7 +90,6 @@ class Seance extends Game {
 
         this.base = this.rect(0, 0, 100, 100, BG);
 
-        this.titleLabel = this.text('S E A N C E', 2, 2.2, 1.6, FAINT);
         this.handsLabel = this.text('', 2, 6.5, 1.1, FAINT);
         this.messageLabel = this.text('', 50, 2.5, 2.2, GOLD, 'center');
 
@@ -106,7 +106,7 @@ class Seance extends Game {
         this.playerLayer = this.container();
 
         this.base.addChildren(
-            this.titleLabel, this.handsLabel, this.messageLabel,
+            this.handsLabel, this.messageLabel,
             this.boardLayer, this.planchetteLayer, this.tapCatcher,
             this.hudLayer, this.centerLayer, this.playerLayer
         );
@@ -481,11 +481,10 @@ class Seance extends Game {
         this.centerLayer.clearChildren();
         if (this.phase === 'lobby') {
             const s = this.centerLayer;
-            s.addChild(this.text('S E A N C E', 50.3, 12.3, 4.5, [0, 0, 0, 150], 'center'));
-            s.addChild(this.text('S E A N C E', 50, 12, 4.5, GOLD, 'center'));
+
             s.addChild(this.text('ASK THE BOARD A QUESTION, OUT LOUD.', 50, 25, 1.4, BOARD_INK, 'center'));
             s.addChild(this.text('HOLD ANYWHERE TO PULL THE PLANCHETTE. QUIETLY.', 50, 29.5, 1.2, FAINT, 'center'));
-            s.addChild(this.text('NOBODY WILL KNOW IT WAS YOU. PROBABLY.', 50, 33, 1.2, FAINT, 'center'));
+
             const ids = Object.keys(this.players).map(Number);
             s.addChild(this.text('THE CIRCLE', 40, 42, 1.2, FAINT));
             ids.forEach((pid, i) => {

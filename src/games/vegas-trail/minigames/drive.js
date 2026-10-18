@@ -1,6 +1,7 @@
-const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-142');
+const { Asset, Game, GameNode, Colors, Shapes, ShapeUtils, Physics, GeometryUtils, subtypes } = require('squish-150');
+const TUNING = require('../tuning');
 
-const MAX_THINGS = 4;
+const MAX_THINGS = TUNING.DRIVE.maxThingsOnScreen;
 
 class Drive {
     constructor({mainGame}) {
@@ -22,8 +23,8 @@ class Drive {
             coordinates2d:  ShapeUtils.rectangle(
                 50,
                 85,
-                4,
-                8
+                6,
+                12
             ),
             assetInfo: {
                 'car-default': {
@@ -64,6 +65,8 @@ class Drive {
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             onClick: (player, x, y) => {
+                if (!this.mainGame.canPlay(player, this) || !Number.isFinite(x)) return;
+                x = Math.max(0, Math.min(92, x - 3));
                 const currentCarCoords = this.car.node.coordinates2d;
 
                 const xDiff = Math.abs(currentCarCoords[0][0] - x);
@@ -108,7 +111,10 @@ class Drive {
     }
 
     tick({ playerStates, resources}) {
-        if (!this.lastRoadTransition || this.lastRoadTransition + 500 < Date.now()) {
+        // true when this tick mutated node fields directly (tree ops notify on their own)
+        let changed = false;
+
+        if (!this.lastRoadTransition || this.lastRoadTransition + TUNING.DRIVE.roadAnimIntervalMs < Date.now()) {
             let currentAssetPieces = Object.keys(this.road.node.asset)[0].split('-');
             let zone = this.zone || 1;
             let currentFrame = Number(currentAssetPieces[2]);
@@ -127,9 +133,10 @@ class Drive {
             };
 
             this.lastRoadTransition = Date.now();
+            changed = true;
         }
         if (this.carPath && this.carPathIndex !== null && this.carPathIndex < this.carPath.length) {
-            this.car.node.coordinates2d = ShapeUtils.rectangle(this.carPath[this.carPathIndex][0], this.carPath[this.carPathIndex][1], 4, 4);
+            this.car.node.coordinates2d = ShapeUtils.rectangle(this.carPath[this.carPathIndex][0], this.carPath[this.carPathIndex][1], 6, 12);
 
             let assetKey = 'car-default';
             let assetWidth = 6;
@@ -161,9 +168,10 @@ class Drive {
             this.car.node.asset = asset;
 
             this.carPathIndex = this.carPathIndex + 1;
+            changed = true;
         }
 
-        if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - 500)) {
+        if (!this.lastSpawnTime || (this.lastSpawnTime && this.lastSpawnTime < Date.now() - TUNING.DRIVE.spawnIntervalMs)) {
             if (Object.keys(this.spawnedEnemies).length + Object.keys(this.spawnedRewards).length < MAX_THINGS) {
                 this.lastSpawnTime = Date.now();
                 this.spawnObstacle();
@@ -172,41 +180,37 @@ class Drive {
 
         const enemiesToRemove = new Set();
         const rewardsToRemove = new Set();
+        const rewardsCollected = new Set();
 
         for (let key in this.spawnedEnemies) {
             const currentCoords = this.spawnedEnemies[key].node.coordinates2d;
+            const newY = currentCoords[0][1] + TUNING.DRIVE.obstacleSpeed;
 
-            if (currentCoords[0][1] + 1 >= 96) {
+            if (newY >= 96) {
                 enemiesToRemove.add(key);
             } else {
-                this.spawnedEnemies[key].node.coordinates2d = ShapeUtils.rectangle(currentCoords[0][0], currentCoords[0][1] + 1, 4, 4);
+                const assetKey = Object.keys(this.spawnedEnemies[key].node.asset)[0];
+                this.spawnedEnemies[key].node.coordinates2d = ShapeUtils.rectangle(currentCoords[0][0], newY, 4, 4);
+                this.spawnedEnemies[key].node.asset = {[assetKey]: { pos: {x: currentCoords[0][0], y: newY}, size: {x: 4, y: 4 }}};
+                changed = true;
             }
         }
 
         for (let key in this.spawnedRewards) {
             const currentCoords = this.spawnedRewards[key].node.coordinates2d;
+            const newY = currentCoords[0][1] + TUNING.DRIVE.rewardSpeed;
 
-            if (currentCoords[0][1] + 1 >= 96) {
+            if (newY >= 96) {
                 rewardsToRemove.add(key);
             } else {
-                this.spawnedRewards[key].node.coordinates2d = ShapeUtils.rectangle(currentCoords[0][0], currentCoords[0][1] + 1, 4, 4);
-                this.spawnedRewards[key].node.asset = {'scrap': { pos: {x: currentCoords[0][0], y: currentCoords[0][1] + 1}, size: {x: 4, y: 4 }}};
+                this.spawnedRewards[key].node.coordinates2d = ShapeUtils.rectangle(currentCoords[0][0], newY, 4, 4);
+                this.spawnedRewards[key].node.asset = {'scrap': { pos: {x: currentCoords[0][0], y: newY}, size: {x: 4, y: 4 }}};
+                changed = true;
             }
         }
 
-        for (let key in this.spawnedEnemies) {
-            const currentCoords = this.spawnedEnemies[key].node.coordinates2d;
-
-            if (currentCoords[0][1] + 1 >= 96) {
-                enemiesToRemove.add(key);
-            } else {
-                const assetKey = Object.keys(this.spawnedEnemies[key].node.asset)[0];
-                this.spawnedEnemies[key].node.coordinates2d = ShapeUtils.rectangle(currentCoords[0][0], currentCoords[0][1] + 1, 4, 4);
-                this.spawnedEnemies[key].node.asset = {[assetKey]: { pos: {x: currentCoords[0][0], y: currentCoords[0][1] + 1}, size: {x: 4, y: 4 }}};
-            }
-        }
-
-        if (!this.lastCollisionCheck || this.lastCollisionCheck + 200 < Date.now()) {
+        if (!this.lastCollisionCheck || this.lastCollisionCheck + TUNING.DRIVE.collisionCheckIntervalMs <= Date.now()) {
+            this.lastCollisionCheck = Date.now();
             const collidingRewards = GeometryUtils.checkCollisions(
                 this.root, this.car,
                 (node) => {
@@ -224,12 +228,13 @@ class Drive {
             if (collidingRewards) {
                 for (let i in collidingRewards) {
                     rewardsToRemove.add(collidingRewards[i].node.id);
+                    rewardsCollected.add(collidingRewards[i].node.id);
                 }
             }
 
             if (collidingEnemies) {
                 for (let i in collidingEnemies) {
-                    this.mainGame.handleCarHit(50);
+                    this.mainGame.handleCarHit(TUNING.DRIVE.obstacleDamage);
                     enemiesToRemove.add(collidingEnemies[i].node.id);
                 }
             }
@@ -242,11 +247,15 @@ class Drive {
 
         for (let key of rewardsToRemove) {
             this.root.removeChild(key);
-            delete this.spawnedRewards[key]; 
+            delete this.spawnedRewards[key];
 
-            this.mainGame.resources.scrap = this.mainGame.resources.scrap + 1;
-            this.mainGame.renderStatsLayer();
+            if (rewardsCollected.has(key)) {
+                this.mainGame.resources.scrap += TUNING.DRIVE.scrapPerReward;
+                this.mainGame.renderStatsLayer();
+            }
         }
+
+        return changed;
     }
 
 
@@ -273,8 +282,8 @@ class Drive {
 
 
     spawnObstacle() {
-        const isReward = Math.random() <= 0.5;
-        const xVal = Math.floor(Math.random() * 100);
+        const isReward = Math.random() <= TUNING.DRIVE.rewardProbability;
+        const xVal = Math.floor(Math.random() * 96);
         
         if (isReward) {
             const gameNode = new GameNode.Asset({

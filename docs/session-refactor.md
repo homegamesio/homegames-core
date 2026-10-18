@@ -37,7 +37,7 @@ The follow-up cleanup uses one ordered player collection for the primary and add
 
 This second pass removed **186 more production lines** across three existing modules, with no new production modules: LocalSession went from 756 to 604 lines, HomegamesClient from 579 to 550, and GameView from 90 to 85. These counts compare saved working-tree copies immediately before this cleanup, excluding tests, documentation, generated bundles and unrelated existing edits.
 
-Squish 142 starts a tick interval without exposing its handle. Merely clearing `_tickInterval` therefore leaked stopped local games. The local runtime now temporarily hides `tick` during the synchronous Squisher constructor, restores its original property, and owns the clock itself for all installed versions. The clock uses `metadata().tickRate || 60`; stopping it is idempotent. No installed package files were patched.
+Squish 1.5.0 starts a tick interval without exposing its handle. Merely clearing `_tickInterval` therefore leaked stopped local games. The local runtime now temporarily hides `tick` during the synchronous Squisher constructor, restores its original property, and owns the clock itself for all installed versions. The clock uses `metadata().tickRate || 60`; stopping it is idempotent. No installed package files were patched.
 
 ## Save identity and compatibility
 
@@ -70,7 +70,7 @@ The first 25 characterization tests passed against the pre-refactor code:
 
 Separate regression tests describe intentional fixes instead of calling bugs “legacy contracts”:
 
-- [SessionRegression.test.js](../test/session/SessionRegression.test.js): owned-session teardown, stale loads and socket events, redirect loop duplication, repeated starts, construction failure, worker closure, and Squish 142/143 tick cleanup. The initial five lifecycle regressions were demonstrated failing before the fixes.
+- [SessionRegression.test.js](../test/session/SessionRegression.test.js): owned-session teardown, stale loads and socket events, redirect loop duplication, repeated starts, construction failure, worker closure, and Squish 1.5.0/143 tick cleanup. The initial five lifecycle regressions were demonstrated failing before the fixes.
 - [LocalLoading.test.js](../test/session/LocalLoading.test.js): manifest-relative assets, eligibility/errors, cancelled assets, same-class game save separation, version compatibility, and executable generated-download identity/escaping.
 - [SessionLifetime.test.js](../test/session/SessionLifetime.test.js): deterministic elapsed-time, spectator/player, pin/unpin, and heartbeat policy checks.
 - [HostedLifecycle.test.js](../test/session/HostedLifecycle.test.js): actual forked and standalone child processes, loopback HTTP/WS handshake and frames, spectator retention, idle exit, released port, and manager cleanup. The standalone process uses Docker's child entry path; it does **not** test Docker isolation/container creation.

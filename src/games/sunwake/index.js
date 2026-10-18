@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-145');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { Voyage } = require('./engine');
 const { SkyScene, tint } = require('./scene');
 const { ShipAudio } = require('./audio');
@@ -7,12 +7,21 @@ const INK = [245, 235, 211, 255], MUTED = [172, 189, 201, 255], GOLD = [255, 209
 
 class Sunwake extends Game {
     static metadata() {
-        return { name: 'SUNWAKE', squishVersion: '145', author: 'Joseph Garcia', createdBy: 'Joseph Garcia',
+        return {
+            isTest: true,
+            thumbnail: './assets/thumbnail.png',
+            name: 'SUNWAKE',
+            author: "Joseph Garcia",
+            createdBy: "Joseph Garcia",
             description: 'One impossible skyship. Six crewmates. Bring back the dawn. A cooperative expedition through a beautiful, broken world.',
-            aspectRatio: { x: 16, y: 10 }, services: ['multiplayer'], maxPlayers: 6, tickRate: 20,
+            aspectRatio: { x: 16, y: 10 },
+            maxPlayers: 6,
+            tickRate: 20,
             gamepadBindings: { w: ['DIRECTION_UP', 'STICK_1_UP'], s: ['DIRECTION_DOWN', 'STICK_1_DOWN'],
                 a: ['DIRECTION_LEFT', 'STICK_1_LEFT'], d: ['DIRECTION_RIGHT', 'STICK_1_RIGHT'],
-                ' ': 'FACE_1', e: 'FACE_2', q: 'RIGHT_SHOULDER', h: 'START' } };
+                ' ': 'FACE_1', e: 'FACE_2', q: 'RIGHT_SHOULDER', h: 'START' },
+            gameId: "8d39e013-e5c5-5148-a35c-95a10dd0e16a"
+        };
     }
     constructor({ saveGame, saveData, media, handleFileUpload, addAsset } = {}) {
         super(); this.saveGame = saveGame; this.media = media; this.handleFileUpload = handleFileUpload; this.addAsset = addAsset;
@@ -174,12 +183,10 @@ class Sunwake extends Game {
     }
     harbor() {
         const e = this.engine;
-        this.ui.addChild(this.rect(4, 8, 51, 69, [15, 24, 39, 236]), false);
-        this.text(this.ui, 'SUNWAKE', 8, 12, 5.4, GOLD);
-        this.text(this.ui, 'THE LAST SKYSHIP', 8, 23, 1.65, MUTED);
-        this.lines(this.ui, 'The world forgot the sun. Your crew has one seed of daylight and a ship that probably should not fly.', 8, 31, 44, 1.6, INK);
-        this.lines(this.ui, 'Light three beacons. Rescue who you can. Break the Eclipse Engine. Bring everyone home.', 8, 43, 46, 1.35, MUTED);
-        this.button(this.ui, 'CAST OFF TOGETHER', 8, 56, 43, 9, id => this.start(id), { color: [139, 89, 64, 255], size: 2 });
+        this.ui.addChild(this.rect(4, 32, 51, 45, [15, 24, 39, 236]), false);
+
+        this.lines(this.ui, 'Light the beacons and bring your crew home.', 8, 39, 46, 1.35, MUTED);
+        this.button(this.ui, 'PLAY', 8, 56, 43, 9, id => this.start(id), { color: [139, 89, 64, 255], size: 2 });
         this.button(this.ui, 'NAME THE SHIP', 8, 68, 22, 6, null, { size: 1.05, input: { type: 'text', oninput: (id, value) => this.rename(id, value) } });
         this.button(this.ui, 'HOIST YOUR FLAG', 32, 68, 19, 6, null, { size: 1.05, input: { type: 'file', oninput: (id, bytes, meta) => this.upload(id, bytes, meta) } });
         this.text(this.ui, e.save.name.toUpperCase(), 76, 51, 2, GOLD, 'center');
@@ -196,7 +203,7 @@ class Sunwake extends Game {
     }
     flightHud() {
         this.ui.addChild(this.rect(0, 0, 100, 13.5, PANEL), false);
-        this.text(this.ui, 'SUNWAKE', 3, 2, 1.7, GOLD);
+
         this.hud.objective = this.text(this.ui, '', 3, 6.2, 1.05, MUTED);
         const meters = [['hull', 33, [136, 224, 178, 255]], ['shield', 54, [137, 205, 239, 255]], ['energy', 75, GOLD]];
         for (const [key, x, color] of meters) {

@@ -1,7 +1,7 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { SluggerAudio } = require('./audio');
 
-const TUNING = { TICK: 30, FLIGHT: 1.45, REPLAY: 3, SWING: .5, MAX_PARTICLES: 48, TRAIL: 7 };
+const TUNING = { TICK: 30, FLIGHT: 1.35, REPLAY: 2.45, SWING: .5, PITCH: 2.8, MAX_PARTICLES: 48, TRAIL: 7 };
 const C = {
     sky: [229, 246, 249, 255], cream: [255, 253, 240, 255], ink: [63, 80, 92, 255],
     muted: [112, 139, 145, 255], grass: [170, 211, 149, 255], hill: [202, 225, 172, 255],
@@ -33,10 +33,13 @@ const stroke = (points, width) => {
 class LittleSlugger extends Game {
     static metadata() {
         return {
-            name: 'Little Slugger', squishVersion: '142', author: 'Joseph Garcia', createdBy: 'Joseph Garcia',
-            description: 'A sunny first baseball game for little hands. Tap anywhere to help Teddy hit a colorful ball to the stars. Every swing is a happy hit, with gentle sounds and endless play.',
+            isTest: true, // Showcase review: docs/game-curation.json.
+
+            thumbnail: './assets/thumbnail.png',
+            name: 'Little Slugger', squishVersion: '150', author: "Joseph Garcia", createdBy: "Joseph Garcia",
+            description: 'Choose a star, swing from the tee or try a gentle pitch, and collect a whole outfield of happy hits with Teddy.',
             aspectRatio: { x: 1, y: 1 }, tickRate: 30, maxPlayers: 1, services: [], assets: {},
-            gamepadBindings: { ' ': ['FACE_1', 'FACE_2', 'FACE_3', 'FACE_4'] },
+            gamepadBindings: { ' ': ['FACE_1'], p: ['FACE_2'], ArrowLeft: ['DPAD_LEFT'], ArrowRight: ['DPAD_RIGHT'] },
         };
     }
 
@@ -44,6 +47,9 @@ class LittleSlugger extends Game {
         super();
         this.addAsset = addAsset; this.players = new Map(); this.time = 0; this.hits = 0;
         this.phase = 'ready'; this.hitAt = 0; this.targetIndex = 0; this.sound = true;
+        this.mode = 'pitch'; this.round = 0; this.collected = [false, false, false];
+        this.pitchAt = 0; this.queuedSwing = false; this.shot = 'bounce'; this.shotTarget = null;
+        this.lastOutcome = ''; this.bigHits = 0; this.aimDots = [];
         this.base = this.shape(ShapeUtils.rectangle(0, 0, 100, 100), C.sky);
         this.scenery = this.group(this.base); this.targetLayer = this.group(this.base);
         this.actorLayer = this.group(this.base); this.ballLayer = this.group(this.base);
@@ -54,9 +60,9 @@ class LittleSlugger extends Game {
         this.trail = Array.from({ length: TUNING.TRAIL }, () => this.put(this.ballLayer, this.shape(HIDDEN, [0, 0, 0, 0])));
         this.prepareBall();
         // Decorative polygons are hit-testable in Squish. A final, transparent
-        // input surface makes the entire illustration an easy button.
+        // input surface routes generous target and control hit areas consistently.
         const touch = this.put(this.base, this.shape(ShapeUtils.rectangle(0, 0, 100, 100), null, { onClick: (id, x, y) => this.pointerDown(id, x, y) }));
-        // Squish 142 does not forward offClick through its constructor.
+        // Squish 1.5.0 does not forward offClick through its constructor.
         touch.node.offClick = id => { const player = this.players.get(id); if (player) player.pointer = false; };
     }
 
@@ -100,9 +106,11 @@ class LittleSlugger extends Game {
         this.put(this.scenery, this.shape(close([[49, 85], [58, 85], [58, 88], [53.5, 90], [49, 88]]), C.cream));
         this.disk(this.scenery, 33, 85, 11, 2, [149, 185, 131, 255]);
         this.disk(this.scenery, 54, 84.5, 5.5, 1.1, [207, 170, 130, 255]);
-        this.disk(this.scenery, 54, 84, 4, .8, C.navy);
-        this.line(this.scenery, [[54, 84], [54, 72]], 1.1, C.navy);
-        this.disk(this.scenery, 54, 72, 2, .65, C.blue);
+        this.teeParts = [
+            this.disk(this.scenery, 54, 84, 4, .8, C.navy),
+            this.line(this.scenery, [[54, 84], [54, 72]], 1.1, C.navy),
+            this.disk(this.scenery, 54, 72, 2, .65, C.blue),
+        ].map(node => ({ node, points: node.node.coordinates2d }));
         this.crowd = [];
         [[9, 66, COLORS[0]], [89, 68, COLORS[2]], [77, 62, COLORS[3]]].forEach(([x, y, shirt], index) => {
             const friend = { root: this.group(this.scenery), parts: [], x, y, index };
@@ -117,6 +125,7 @@ class LittleSlugger extends Game {
         });
     }
     buildTargets() {
+        this.aimRing = this.disk(this.targetLayer, 22, 43, 8.2, 8.2, C.navy);
         this.targets = TARGETS.map((position, i) => {
             const target = { ...position, root: this.group(this.targetLayer), parts: [] };
             this.part(target, oval(0, .7, 6.8, 6.8), pale(COLORS[i]));
@@ -162,6 +171,7 @@ class LittleSlugger extends Game {
         this.place(this.bat, 42, 74, 1, -.2);
     }
     buildBall() {
+        this.contactRing = this.disk(this.ballLayer, 54, 68.5, 4.8, 4.8, [0, 0, 0, 0]);
         this.ball = { root: this.group(this.ballLayer), parts: [] };
         this.part(this.ball, oval(.2, .3, 3.2, 3.2), [223, 224, 206, 255]);
         this.part(this.ball, oval(0, 0, 3.15, 3.15), C.cream);
@@ -172,31 +182,79 @@ class LittleSlugger extends Game {
         });
     }
     buildHud() {
-        this.text(this.hud, 'L I T T L E   P L A Y T I M E', 50, 3.7, 1.35, C.muted);
-        this.text(this.hud, 'little slugger', 49, 7.4, 5.6);
-        this.message = this.text(this.hud, 'A big hit for little hands!', 50, 16, 2.15);
-        this.disk(this.hud, 91, 8.3, 6, 3.1, C.cream);
+
+        this.message = this.text(this.hud, 'Choose a star', 50, 16, 2.15);
+        this.disk(this.hud, 10.5, 8.3, 9, 3.8, C.cream);
+        this.disk(this.hud, 4.5, 7.3, 1.4, 1.4, C.navy);
+        this.disk(this.hud, 4.5, 7.3, 1.16, 1.16, C.cream);
+        this.line(this.hud, [[4, 6.3], [4.4, 7.3], [4, 8.3]], .23, COLORS[0]);
+        this.modeTee = this.line(this.hud, [[4.5, 8.8], [4.5, 10.8]], .45, C.navy);
+        this.modeTeePoints = this.modeTee.node.coordinates2d;
+        this.modeLabel = this.text(this.hud, 'pitch ball', 12.5, 6.25, 1.6, C.navy);
+
+        this.disk(this.hud, 91, 8.3, 7, 3.1, C.cream);
         this.soundLabel = this.text(this.hud, 'sound on', 91, 7.35, 1.5, C.muted);
-        this.disk(this.hud, 51, 94, 21.5, 4.1, C.cream);
-        this.prompt = this.text(this.hud, 'Tap anywhere to hit!', 51, 92.5, 2.6);
-        this.text(this.hud, 'tap / click / space', 50, 98.3, 1.25, C.muted);
+        this.stickers = [0, 1, 2].map(i => this.put(this.hud, this.shape(star(42 + i * 8, 23, 2.6), pale(COLORS[i]))));
+        this.roundLabel = this.text(this.hud, 'collect all three!', 24, 22.2, 1.55, C.muted);
+        this.swingButton = this.disk(this.hud, 51, 94, 23, 4.3, COLORS[1]);
+        this.prompt = this.text(this.hud, 'SWING!', 51, 92.5, 2.8);
+
+        for (let i = 0; i < 5; i++) this.aimDots.push(this.disk(this.targetLayer, 0, 0, .45, .45, C.cream));
+    }
+    updatePrompt() {
+        if (this.phase === 'ready') this.setText(this.prompt, this.mode === 'tee' ? 'SWING!' : 'PITCH!');
+        else if (this.phase === 'pitch') this.setText(this.prompt, this.queuedSwing ? 'Ready... swing!' : this.contactReady() ? 'SWING NOW!' : 'SWING!');
+        else this.setText(this.prompt, this.phase === 'celebrate' ? 'Hooray!' : 'Go, ball, go!');
+        this.swingButton.node.fill = this.phase === 'pitch' && this.contactReady() ? COLORS[3] : COLORS[1];
+        this.setText(this.modeLabel, this.mode === 'tee' ? 'tee ball' : 'pitch ball');
+        this.modeTee.node.coordinates2d = this.mode === 'tee' ? this.modeTeePoints : HIDDEN;
     }
     prepareBall() {
-        this.phase = 'ready'; this.targetIndex = this.hits % TARGETS.length;
-        this.ball.seams.forEach(node => { node.node.fill = COLORS[this.hits % COLORS.length]; });
-        this.place(this.ball, 54, 68.5);
+        this.phase = 'ready'; this.queuedSwing = false;
+        this.ball.seams.forEach(node => { node.node.fill = COLORS[this.targetIndex]; });
+        this.place(this.ball, this.mode === 'tee' ? 54 : 77, this.mode === 'tee' ? 68.5 : 58, this.mode === 'tee' ? 1 : .8);
         this.place(this.bat, 42, 74, 1, -.2);
         this.trail.forEach(node => { node.node.coordinates2d = HIDDEN; node.node.fill = [0, 0, 0, 0]; });
-        this.setText(this.prompt, 'Tap anywhere to hit!');
-        this.setText(this.message, 'A big hit for little hands!'); this.dirty();
+        this.contactRing.node.fill = [0, 0, 0, 0];
+        this.teeParts.forEach(part => { part.node.node.coordinates2d = this.mode === 'tee' ? part.points : HIDDEN; });
+        this.setText(this.message, this.round ? 'Moving stars! Choose where to hit.' : this.mode === 'pitch' ? 'Choose a star. Tap PITCH, then SWING!' : 'Tap a star to aim. Then swing!');
+        this.updatePrompt(); this.dirty();
     }
-    hit() {
-        if (this.phase !== 'ready') return false;
+    selectTarget(index) {
+        if (this.phase !== 'ready' && this.phase !== 'pitch') return;
+        this.targetIndex = (index + 3) % 3;
+        this.ball.seams.forEach(node => { node.node.fill = COLORS[this.targetIndex]; });
+        this.setText(this.message, ['Red star! Aim left.', 'Yellow star! Aim up.', 'Purple star! Aim right.'][this.targetIndex]);
+        this.dirty();
+    }
+    toggleMode() {
+        if (this.phase !== 'ready' && this.phase !== 'pitch') return;
+        this.mode = this.mode === 'tee' ? 'pitch' : 'tee'; this.prepareBall();
+        this.setText(this.message, this.mode === 'tee' ? 'Tee time! Choose a star and swing.' : 'Tap PITCH. Swing when the ring is green!');
+    }
+    pitchProgress() { return ((this.time - this.pitchAt) % TUNING.PITCH) / TUNING.PITCH; }
+    contactReady() { const p = this.pitchProgress(); return this.phase === 'pitch' && p >= .51 && p <= .84; }
+    swing() {
+        if (this.phase === 'ready' && this.mode === 'pitch') {
+            this.phase = 'pitch'; this.pitchAt = this.time; this.queuedSwing = false;
+            this.setText(this.message, 'Watch the ball... green means swing!'); this.updatePrompt(); this.dirty(); return;
+        }
+        if (this.phase === 'pitch') {
+            if (this.contactReady()) this.hit('sky');
+            else { this.queuedSwing = true; this.setText(this.message, 'Ready! Teddy will help with this one.'); this.updatePrompt(); this.dirty(); }
+        } else if (this.phase === 'ready') this.hit('bounce');
+    }
+    hit(shot = 'bounce') {
+        if (this.phase !== 'ready' && this.phase !== 'pitch') return false;
+        this.shot = shot; this.queuedSwing = false;
+        this.shotTarget = { x: this.targets[this.targetIndex].x, y: this.targets[this.targetIndex].y };
         this.phase = 'flight'; this.hitAt = this.time; this.hits++;
-        this.setText(this.message, ['Wheee! To the stars!', 'Up, up, and away!', 'What a happy hit!'][(this.hits - 1) % 3]);
-        this.setText(this.prompt, 'Go, ball, go!');
-        this.burst(54, 68.5, 12, COLORS[(this.hits - 1) % COLORS.length]);
-        if (this.sound) this.audio.play((this.hits - 1) % COLORS.length);
+        if (shot === 'sky') this.bigHits++;
+        this.lastOutcome = shot === 'sky' ? 'Big sky hit!' : shot === 'line' ? 'A speedy line drive!' : 'Bouncy ground ball!';
+        this.setText(this.message, this.lastOutcome); this.updatePrompt();
+        this.contactRing.node.fill = [0, 0, 0, 0];
+        this.burst(54, 68.5, 12, COLORS[this.targetIndex]);
+        if (this.sound) this.audio.play(this.targetIndex + (shot === 'sky' ? 3 : 0));
         this.dirty(); return true;
     }
     burst(x, y, count, color) {
@@ -217,7 +275,7 @@ class LittleSlugger extends Game {
             Object.entries(this.audio.assets).forEach(([key, asset]) => { try { this.addAsset(key, asset)?.catch(() => {}); } catch (_) { /* Sound is optional. */ } });
         }
     }
-    handlePlayerDisconnect(id) { this.players.delete(id); }
+    handlePlayerDisconnect(id) { this.players.delete(id); if (!this.players.size) { this.audio.mute(); this.queuedSwing = false; if (this.phase === 'pitch') this.prepareBall(); } }
     pointerDown(id, x, y) { const p = this.players.get(id); if (!p || p.pointer) return; p.pointer = true; this.tap(x, y); }
     handleMouseUp(id, position) {
         const p = this.players.get(id); if (!p) return;
@@ -231,55 +289,98 @@ class LittleSlugger extends Game {
             if (this.sound) this.audio.play(4); else this.audio.mute();
             this.setText(this.soundLabel, this.sound ? 'sound on' : 'sound off'); this.dirty(); return;
         }
-        if (!this.hit()) { this.burst(x, y, 5, COLORS[this.hits % COLORS.length]); this.dirty(); }
+        if (x <= 21 && y <= 13) { this.toggleMode(); return; }
+        if ((this.phase === 'ready' || this.phase === 'pitch') && y >= 29 && y <= 54) {
+            const index = this.targets.findIndex(target => Math.hypot(x - target.x, y - target.y) <= 10);
+            if (index >= 0) this.selectTarget(index);
+            return;
+        }
+        if ((x >= 25 && x <= 78 && y >= 88) || (x >= 26 && x <= 62 && y >= 57 && y <= 85)) this.swing();
     }
     handleKeyDown(id, key) {
         const p = this.players.get(id);
         if (!p || typeof key !== 'string' || p.keys.has(key)) return;
-        if (!(key === ' ' || key === 'Enter' || key.startsWith('Arrow') || /^[a-z0-9]$/i.test(key))) return;
-        p.keys.add(key); this.tap(54, 68.5);
+        if (![' ', 'Enter', 'ArrowLeft', 'ArrowRight', '1', '2', '3', 'p', 'P'].includes(key)) return;
+        p.keys.add(key);
+        if (key === 'ArrowLeft') this.selectTarget(this.targetIndex - 1);
+        else if (key === 'ArrowRight') this.selectTarget(this.targetIndex + 1);
+        else if (['1', '2', '3'].includes(key)) this.selectTarget(Number(key) - 1);
+        else if (key.toLowerCase() === 'p') this.toggleMode();
+        else this.swing();
     }
     handleKeyUp(id, key) { this.players.get(id)?.keys.delete(key); }
     flightPosition(progress) {
-        const destination = TARGETS[this.targetIndex], t = Math.max(0, Math.min(1, progress));
-        return { x: 54 + (destination.x - 54) * t, y: 68.5 + (destination.y - 68.5) * t - Math.sin(t * Math.PI) * 21, scale: 1 - t * .43 };
+        const destination = this.shotTarget || this.targets[this.targetIndex], t = Math.max(0, Math.min(1, progress));
+        const height = this.shot === 'sky' ? 21 : this.shot === 'line' ? 11 : 0;
+        // Grounders visibly bounce; a well-timed pitch takes the high arc.
+        const bounce = this.shot === 'bounce' ? Math.abs(Math.sin(t * Math.PI * 3)) * (1 - t) * 7 : 0;
+        return { x: 54 + (destination.x - 54) * t, y: 68.5 + (destination.y - 68.5) * t - Math.sin(t * Math.PI) * height - bounce, scale: 1 - t * .43 };
     }
     tick() {
         if (!this.players.size) return;
         const dt = 1 / TUNING.TICK; this.time += dt; this.audio.tick(dt);
-        const elapsed = this.time - this.hitAt;
+        let elapsed = this.time - this.hitAt;
+        if (this.phase === 'pitch') {
+            const p = this.pitchProgress();
+            const t = p <= .55 ? p / .55 : p <= .84 ? 1 : 1 - (p - .84) / .16;
+            this.place(this.ball, 77 - 23 * t, 58 + 10.5 * t - Math.sin(t * Math.PI) * 7, .8 + .2 * t, this.time * 2);
+            this.contactRing.node.fill = this.contactReady() ? [100, 185, 167, 110] : [245, 199, 96, 75];
+            this.updatePrompt();
+            if (this.queuedSwing && this.contactReady()) this.hit('line');
+        }
+        elapsed = this.time - this.hitAt;
         if (this.phase === 'flight') {
-            const progress = elapsed / TUNING.FLIGHT, position = this.flightPosition(progress);
+            const progress = (this.time - this.hitAt) / TUNING.FLIGHT, position = this.flightPosition(progress);
             this.place(this.ball, position.x, position.y, position.scale, elapsed * 4);
             this.trail.forEach((node, i) => {
                 const p = this.flightPosition(progress - (i + 1) * .038);
                 const size = Math.max(.1, .75 - i * .09);
-                node.node.coordinates2d = oval(p.x, p.y, size); node.node.fill = pale(COLORS[(this.hits - 1) % COLORS.length]);
+                node.node.coordinates2d = oval(p.x, p.y, size); node.node.fill = pale(COLORS[this.targetIndex]);
             });
             if (progress >= 1) {
                 this.phase = 'celebrate';
                 this.trail.forEach(node => { node.node.coordinates2d = HIDDEN; node.node.fill = [0, 0, 0, 0]; });
                 this.burst(position.x, position.y, 24);
-                this.setText(this.message, ['Hooray, little slugger!', 'A star for you!', 'Teddy says: great hit!'][(this.hits - 1) % 3]);
+                const fresh = !this.collected[this.targetIndex];
+                this.collected[this.targetIndex] = true;
+                this.stickers.forEach((node, i) => { node.node.fill = this.collected[i] ? COLORS[i] : pale(COLORS[i]); });
+                this.setText(this.message, this.collected.every(Boolean) ? 'All three! A whole star team!' : fresh ? 'A new star! Pick another color next.' : 'Great hit! Try a new star next.');
                 this.setText(this.prompt, 'Hooray!');
                 if (this.sound) this.audio.play('celebrate');
             }
         }
         if (this.phase === 'celebrate') {
-            const target = TARGETS[this.targetIndex];
+            const target = this.shotTarget;
             this.place(this.ball, target.x, target.y, .57, elapsed * 2);
-            if (elapsed >= TUNING.REPLAY) this.prepareBall();
+            if (elapsed >= TUNING.REPLAY) {
+                if (this.collected.every(Boolean)) {
+                    this.round++; this.collected = [false, false, false];
+                    this.stickers.forEach((node, i) => { node.node.fill = pale(COLORS[i]); });
+                    this.setText(this.roundLabel, `star team ${this.round + 1}`);
+                }
+                this.prepareBall();
+            }
         }
-        const playing = this.phase !== 'ready';
+        const playing = this.phase === 'flight' || this.phase === 'celebrate';
         const hop = this.phase === 'celebrate' ? Math.abs(Math.sin(elapsed * 7)) * 1.5 : Math.sin(this.time * 2) * .15;
         this.place(this.teddy, 33, 75 - hop, 1, this.phase === 'celebrate' ? Math.sin(elapsed * 7) * .035 : 0);
         const swing = playing ? Math.sin(Math.min(1, elapsed / TUNING.SWING) * Math.PI) * 1.7 : Math.sin(this.time * 2) * .025;
         this.place(this.bat, 42, 74 - hop, 1, -.2 + swing);
         this.crowd.forEach(friend => this.place(friend, friend.x, friend.y - (playing ? Math.abs(Math.sin(this.time * 6 + friend.index)) * 1.2 : 0), 1, playing ? Math.sin(this.time * 5 + friend.index) * .09 : 0));
         this.targets.forEach((target, i) => {
+            if (!playing) {
+                target.x = TARGETS[i].x + (this.round ? Math.sin(this.time * .7 + i * 2) * 4 : 0);
+                target.y = TARGETS[i].y + (this.round ? Math.sin(this.time * .9 + i) * 2 : 0);
+            }
             const active = i === this.targetIndex;
             const pulse = active ? Math.sin(this.time * 3) * .035 : 0;
             this.place(target, target.x, target.y, 1 + pulse, active && this.phase === 'celebrate' ? Math.sin(elapsed * 6) * .18 : 0);
+        });
+        const aimed = this.targets[this.targetIndex];
+        this.aimRing.node.coordinates2d = oval(aimed.x, aimed.y, 7.6 + Math.sin(this.time * 3) * .3);
+        this.aimDots.forEach((node, i) => {
+            const t = (i + 1) / 7;
+            node.node.coordinates2d = playing ? HIDDEN : oval(54 + (aimed.x - 54) * t, 65 + (aimed.y - 65) * t, .45);
         });
         for (const p of this.particles) {
             if (p.life <= 0) continue;

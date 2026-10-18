@@ -1,12 +1,12 @@
 const { getConfigValue, getAppDataPath, log } = require('homegames-common');
 
-const { Parser } = require('acorn');
+const { parseSquishVersion } = require('homegames-common/game-loader');
 
 const fs = require('fs');
 const process = require('process');
 
 if (!process.env.SQUISH_PATH) {
-    const defaultVersion = 'squish-142';
+    const defaultVersion = 'squish-150';
     log.info('No SQUISH_PATH found. Using default: ' + defaultVersion);
     process.env.SQUISH_PATH = require.resolve(defaultVersion);
 }
@@ -47,44 +47,6 @@ if (!fs.existsSync(GAME_DIRECTORY)) {
     fs.mkdirSync(GAME_DIRECTORY);
 }
 
-const parseSquishVersion = (codePath) => {
-    const parsed = Parser.parse(fs.readFileSync(codePath));
-    
-    const foundGameClasses = parsed.body.filter(n => n.type === 'ClassDeclaration' && (n.superClass?.name === 'Game' || n.superClass?.name === 'ViewableGame'));
-    
-    if (foundGameClasses.length !== 1) {
-        throw new Error('Top-level file should have one defined game class');
-    }
-    
-    const foundGame = foundGameClasses[0];
-    
-    const foundConstructors = foundGame.body.body.filter(n => n.key?.name === 'metadata' && n.kind === 'method');
-    
-    if (foundConstructors.length !== 1) {
-        throw new Error('Game needs one constructor');
-    }
-    
-    const foundConstructor = foundConstructors[0];
-    
-    let foundSquishVersion;
-    
-    foundConstructor.value.body.body.forEach(n => {
-        const squishVersionNodes = n.argument.properties.filter(n => n.key?.name === 'squishVersion');
-        if (squishVersionNodes.length > 1 || (foundSquishVersion && squishVersionNodes.length == 1)) {
-            throw new Error('Multiple squish versions found');
-        } 
-    
-        if (squishVersionNodes.length === 1) {
-            foundSquishVersion = squishVersionNodes[0].value.value;
-        }
-    });
-    
-    if (!foundSquishVersion) {
-        throw new Error('No squish version found');
-    }
-    
-    return foundSquishVersion;
-};
 
 const getGameMetadataMap = () => {
     if (fs.existsSync(GAME_DIRECTORY + path.sep + '.metadata')) {
@@ -224,23 +186,23 @@ class HomegamesRoot {
         return {
             assets: {
                 'frame': new Asset({
-                    'id': 'c299f1f7e24d03e59cb569f5815bfe2f',
+                    path: "./assets/c299f1f7e24d03e59cb569f5815bfe2f.jpg",
                     // no gloss on frame
                     //'8fcdf21f0a48f98840775cf9dc453d49',
                     'type': 'image'
-                }),
+                }, fs.readFileSync(path.join(__dirname, "./assets/c299f1f7e24d03e59cb569f5815bfe2f.jpg"))),
                 'logo-horizontal': new Asset({
-                    'id': 'fcb652fab2a4cfe76fe1b6868e3ca7a1',
+                    path: "./assets/fcb652fab2a4cfe76fe1b6868e3ca7a1.png",
                     'type': 'image'
-                }),
+                }, fs.readFileSync(path.join(__dirname, "./assets/fcb652fab2a4cfe76fe1b6868e3ca7a1.png"))),
                 'amateur': new Asset({
                     'type': 'font',
-                    'id': '026a26ef0dd340681f62565eb5bf08fb'
-                }),
+                    path: "./assets/026a26ef0dd340681f62565eb5bf08fb.bin"
+                }, fs.readFileSync(path.join(__dirname, "./assets/026a26ef0dd340681f62565eb5bf08fb.bin"))),
                 'heavy-amateur': new Asset({
                     'type': 'font',
-                    'id': '9f11fac62df9c1559f6bd32de1382c20'
-                })
+                    path: "./assets/9f11fac62df9c1559f6bd32de1382c20.bin"
+                }, fs.readFileSync(path.join(__dirname, "./assets/9f11fac62df9c1559f6bd32de1382c20.bin")))
             }
         };
     }
@@ -250,7 +212,7 @@ class HomegamesRoot {
 
     constructor(session, isDashboard, profiling) {
         if (session.game.constructor.metadata && session.game.constructor.metadata()) {
-            let { Asset: _Asset, Game: _Game, GameNode: _GameNode, Colors: _Colors, Shapes: _Shapes, ShapeUtils: _ShapeUtils } = require("squish-" + session.game.constructor.metadata().squishVersion);
+            let { Asset: _Asset, Game: _Game, GameNode: _GameNode, Colors: _Colors, Shapes: _Shapes, ShapeUtils: _ShapeUtils } = require("squish-" + (session.gameMetadata?.squishVersion || session.game.constructor.metadata().squishVersion || '150'));
             Asset = _Asset;
             Game = _Game;
             GameNode = _GameNode;

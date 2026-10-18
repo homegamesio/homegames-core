@@ -1,0 +1,12 @@
+Syntax: 11 files passed
+PASS empty template rejects missing coordinates
+HG_DEPLOY_SSH_TARGET: set an SSH alias or user@host (configure SSH options separately).
+HG_DEPLOY_CHECKOUT: set an absolute remote checkout/release path.
+HG_DEPLOY_SYSTEMD_UNIT: set a systemd unit ending in .service.
+HG_DEPLOY_ENV_FILE: set an absolute remote runtime environment-file path.
+HG_DEPLOY_STAGING_MODE: set separate-instance or isolated-service.
+HG_DEPLOY_PUBLIC_URL: set an HTTPS origin without credentials, a path, query or fragment.
+PASS complete coordinates validate without a connection
+Deployment coordinates are valid. No host was contacted. Remote paths, staging isolation, systemd/nginx and live certificate acceptance still need verification.
+PASS invalid exported mode overrides and rejects file value
+HG_DEPLOY_STAGING_MODE: set separate-instance or isolated-service.

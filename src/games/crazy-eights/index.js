@@ -1,4 +1,4 @@
-const { Game, GameNode, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Shapes, ShapeUtils } = require('squish-150');
 const { T, text, button, card: makeCard, setCard, tableRoot } = require('./theme');
 
 const BLUE = 0;
@@ -18,9 +18,11 @@ const PAGE_SIZE = 12;
 class CrazyEights extends Game {
     static metadata() {
         return {
-            squishVersion: '142',
+            isTest: true, // Showcase review: docs/game-curation.json.
+            thumbnail: './assets/thumbnail.png',
+            squishVersion: '150',
             name: 'Crazy Eights',
-            author: 'Homegames',
+            author: "Joseph Garcia",
             description: 'A relaxed Crazy Eights table with private hands and wild suit choices.',
             aspectRatio: { x: 1, y: 1 },
             maxPlayers: 2,
@@ -32,7 +34,7 @@ class CrazyEights extends Game {
         super();
         const table = tableRoot();
         this.base = table.root;
-        this.titleText = text('Crazy Eights', 50, 5.5, 4.2, T.cream);
+
         this.statusText = text('Welcome to the table', 50, 12, 1.8, T.cream);
         this.scoreText = text('', 50, 16, 1.2, T.muted);
         this.activeText = text('Active suit · —', 50, 21, 1.3, T.soft);
@@ -45,7 +47,7 @@ class CrazyEights extends Game {
             coordinates2d: ShapeUtils.rectangle(62, 27, 16, 24),
             fill: [74, 92, 72, 255], color: T.gold, border: 5
         });
-        this.base.addChildren(this.discardCard, this.deckCard, this.titleText, this.statusText, this.scoreText, this.activeText, this.deckText, this.deckCountText, this.turnInfoText);
+        this.base.addChildren(this.discardCard, this.deckCard, this.statusText, this.scoreText, this.activeText, this.deckText, this.deckCountText, this.turnInfoText);
 
         this.phase = 'waiting';
         this.turn = BLUE;

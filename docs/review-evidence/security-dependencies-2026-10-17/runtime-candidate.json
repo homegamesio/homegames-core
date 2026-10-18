@@ -1,0 +1,76 @@
+{
+  "localCandidate": true,
+  "published": false,
+  "common": {
+    "name": "homegames-common",
+    "version": "1.7.2",
+    "integrity": "sha512-g0tH8+d0hT/28ykrCMvn9COYsmIdH9dQw92z0OGBA/OIZH33TSBf3Fowj3pAaxq1xp9iYTHH7+1459RzYwTTFA==",
+    "filename": "homegames-common-1.7.2.tgz"
+  },
+  "client": {
+    "name": "homegames-client",
+    "version": "0.1.2",
+    "integrity": "sha512-EhcD+gnlIhe0htL2zrdqGO1HJjyjMeL1AvxYIeE2VdK8OFY5446aKAwwO983YAAWqRkA9Gg/o9dBcyiTfVDc9A==",
+    "filename": "homegames-client-0.1.2.tgz"
+  },
+  "sharedHashes": {
+    "game-dispatch.js": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+    "game-metadata.js": "cfb0b5ab72a1c66c299ef5294f033d81c635ae5f1e69d44f8d0b0b013a3d7d46",
+    "runtime-metadata.js": "8042f02401c6bcae8f7dde865cc7bd36a9bbda44ad0451efdaf9aa5707e04fc1",
+    "game-loader.js": "c81678c9d0577497a020203cda238bc9f8ad815b9ca151d976393fc6b51b92c6",
+    "portable-project.js": "cc20996f20b8d818f842a38067b9984a3e0f30ca86a121296211c4b8f1e8cd6c",
+    "rtc-signaling.js": "9791742f33b528a19215abd48d793a3d082c6395b100b6aec328e2acfe4f75a8",
+    "network-limits.js": "9d96cfd69bf3fc68ec4358157c5d1b2c3e4ffdf96527e1d7d47a20ef388817b2"
+  },
+  "installed": {
+    "homegames-common": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "fflate": "0.8.3",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "a297bbac4d7bba776c76ea10ac7f84058b6c7eb8387ba187eb6d39cbfe7f0cd6"
+    },
+    "homegames-client": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "fflate": "0.8.3",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "d4eb461ceccd0e2e6b4416edb6239e2cbf43f430de6567c83050a0ec83928f72"
+    },
+    "homegames-core": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "fflate": "0.8.3",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "60254eec3641e4a01c0de0512b2f8ee20c78908c416b35f9417a09aa48e9eb10"
+    },
+    "homegamesio": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "fflate": "0.8.3",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "27351252b5345cd3838d3600deca4589867e0721b767495adc9d98c4337c0266"
+    },
+    "homegames-web": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "fflate": "0.8.3",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "a24d68f93ea101cdb8a031b685cbd507c9eee442bf01980521197ff5d0c445d9"
+    },
+    "api": {
+      "common": "1.7.2",
+      "homepad": "0.2.1",
+      "ws": "7.5.13",
+      "fflate": "0.8.3",
+      "dispatcherSha256": "e1aacb289a7731078bb3d3eae701749673cde32eb7e90f7a37d4cd70fcd486cb",
+      "lockfileSha256": "186a6e74e8c7153215cb6783f0bf7d187000a7db9d771d1c328622e51cec68df"
+    }
+  },
+  "clientBundleSha256": "9c2a0cc5a2b961e152c761d975036e02431e502cb8f401a9d8e72edf8e9e7084"
+}

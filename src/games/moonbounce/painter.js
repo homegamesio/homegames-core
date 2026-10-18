@@ -1,4 +1,4 @@
-const { GameNode, Shapes } = require('squish-142');
+const { GameNode, Shapes } = require('squish-150');
 
 const HIDDEN = [[0, 0], [0, 0], [0, 0]];
 const WHITE = [255, 245, 223];
@@ -151,8 +151,8 @@ class Painter {
         this.roundRect(x, y + .7, w, h, 1.8, primary ? [142, 64, 62] : [23, 23, 51]);
         this.roundRect(x, y, w, h, 1.8, fill, focused ? WHITE : primary ? [255, 238, 159] : [140, 105, 177]);
         this.line(x + 2, y + .7, x + w - 2, y + .7, primary ? [255, 245, 179] : [157, 122, 193], .23, .8);
-        this.heading(label, x + w / 2, y + (h - (small ? 1.5 : 2.5)) / 2 - .1,
-            small ? 1.5 : 2.5, primary ? [75, 37, 48] : WHITE, 'center');
+        this.heading(label, x + w / 2, y + (h - (small ? 2.6 : 3.2)) / 2 - .1,
+            small ? 2.6 : 3.2, primary ? [75, 37, 48] : WHITE, 'center');
         this.buttons.push({ x, y, w, h, action });
     }
 

@@ -53,7 +53,7 @@ const createHouseholdRooms = ({ resolveGame, signalingUrl, now = Date.now, lease
             const owner = crypto.randomBytes(24).toString('base64url');
             rooms.set(id, { id, owner, updatedAt: now(), game: data.gameKey, versionId: data.versionId,
                 name: game.name, maxPlayers: Math.min(17, game.maxPlayers || 17), playerCount: 1,
-                invitation: { roomId: data.roomId, invite: data.invite, signalingUrl } });
+                invitation: { roomId: data.roomId, invite: data.invite, signalingUrl: typeof signalingUrl === 'function' ? signalingUrl(req) : signalingUrl } });
             respond(201, { id, owner });
         });
         return true;

@@ -28,7 +28,7 @@ function button(g, text, x, y, w, h, action, options = {}) {
 function hud(g) {
     const p = g.painter, e = g.engine, s = SECTORS[e.sector] || {};
     p.rect(0, 0, 160, 14, C.void); p.rect(0, 13.75, 160, .25, C.line);
-    p.text('WORLD EATER', 4, 2.7, 2.65, C.text);
+
     label(p, `${String(e.sector + 1).padStart(2, '0')} / 05`, 34, 3.1, C.gold);
     p.text(s.name || 'THE NURSERY', 45, 2.7, 2.3, C.gold);
     const items = [['ore', 'ORE', C.gold], ['crystal', 'CRYSTAL', C.blue], ['life', 'LIFE', C.teal]];
@@ -47,22 +47,18 @@ function title(g) {
     const p = g.painter, e = g.engine;
     p.rect(0, 0, 160, 14, C.void); p.rect(0, 74, 160, 16, C.void);
     p.rect(8, 18, 8, .45, C.teal);
-    label(p, 'A COOPERATIVE COSMIC ODYSSEY', 19, 17.6, C.teal);
-    p.text('WORLD', 8, 24, 13, C.text);
-    p.text('EATER', 8, 37, 13, C.gold);
-    p.text('Become the thing the stars are afraid of.', 9, 53, 2.25, C.text);
-    label(p, 'Devour planets. Grow a living machine. Face the last sun.', 9, 58, C.muted);
+
+    p.text('Harvest worlds to grow your ship.', 9, 45, 2.5, C.text);
     if (e.hasCheckpoint) {
-        button(g, 'CONTINUE EXPEDITION', 9, 64, 44, 8, 'resume', { selected: true });
+        button(g, 'CONTINUE', 9, 64, 44, 8, 'resume', { selected: true });
         button(g, 'NEW VOYAGE', 56, 64, 29, 8, 'start', { color: C.gold });
     } else {
-        button(g, 'AWAKEN THE MACHINE', 9, 64, 49, 8, 'start', { selected: true });
+        button(g, 'PLAY', 9, 64, 49, 8, 'start', { selected: true });
         button(g, 'HOW TO PLAY', 61, 64, 27, 8, 'help', { color: C.gold });
     }
-    label(p, 'FIVE SYSTEMS', 10, 79, C.gold);
-    label(p, 'ONE EVOLVING ARK', 44, 79, C.gold);
+
     label(p, '1–6 PILOTS', 88, 79, C.gold);
-    label(p, 'KEYBOARD · TOUCH · CONTROLLER', 114, 79, C.gold);
+
     label(p, `${e.players.size || 0} PILOT${e.players.size === 1 ? '' : 'S'} ABOARD`, 10, 85, C.muted);
     label(p, 'ENTER TO AWAKEN  /  H FOR FLIGHT MANUAL', 44, 85, C.muted);
     button(g, g.sound ? 'SOUND ON' : 'SOUND OFF', 133, 3, 23, 6, 'sound', { size: 1.4 });

@@ -1,0 +1,41 @@
+✔ Tumble Tower uses the approved description and remains a solo game (0.3995ms)
+✔ invalid identities cannot take the solo seat and numeric string IDs work through dispatch (26.177333ms)
+✔ a second player cannot replace or control the owner, but can join after the owner leaves (19.940375ms)
+✔ ending a captured tool press cancels the drag without firing on a late release (21.897375ms)
+✔ a fresh press on another control discards an earlier dragged tool (20.643625ms)
+✔ keyboard actions cancel an active tool drag before its release arrives (79.702667ms)
+✔ held click packets cannot reactivate a drag cancelled by the keyboard (57.165417ms)
+✔ holding a preset choice does not rebuild the scene on every repeated click packet (23.956958ms)
+✔ cancelling a drag removes its aim marker from an otherwise sleeping scene (33.034584ms)
+✔ preset and rebuild operations invalidate a drag in the previous scene (57.249458ms)
+✔ invalid releases clear held gestures without performing a throw or block drop (153.145667ms)
+✔ a genuine quick-release tap works and a normal full press only performs one action (86.408791ms)
+✔ a disconnected player cannot finish an old drag after reconnecting (18.792416ms)
+✔ physics and cooldown clocks follow elapsed time at both 10 Hz and 30 Hz (36.757125ms)
+✔ stalled, backward and repeated clock samples cannot request unbounded simulation work (17.70275ms)
+✔ absence does not accrue a simulation backlog on reconnect (17.668166ms)
+✔ an idle structure sends no redundant frames while changed controls still update (208.937792ms)
+✔ audio cue expiry reaches the rendered frame even when the room is idle (26.728292ms)
+✔ normalized standard controllers aim with both the directional buttons and left stick (18.886792ms)
+✔ controller shoulders select every tool once per press and wrap in either direction (26.89875ms)
+✔ a normalized controller can build, rotate, start, throw, rebuild and choose another preset (23.213584ms)
+✔ close is idempotent and prevents late input, joins, simulation and direct gameplay actions (17.564833ms)
+✔ Tumble Tower saves remember the custom design and sound preference without restoring solver state (25.840833ms)
+✔ Tumble Tower preset choices preserve the current build and return to the same blueprint (59.310583ms)
+✔ Tumble Tower PLAY freezes a rebuildable blueprint while real projectile contacts demolish it (58.728292ms)
+✔ Tumble Tower Clear removes the remembered design from memory and the next saved game (37.725041ms)
+✔ Tumble Tower close submits the final moving build immediately and submitted snapshots stay independent (19.247792ms)
+✔ Tumble Tower disconnect preserves the moving build for the next player without simulating the absence (19.611417ms)
+✔ Tumble Tower reports synchronous and asynchronous save failures and retries from its visible message (38.305625ms)
+✔ Tumble Tower only lets the latest save completion update its warning (38.652166ms)
+✔ Tumble Tower deduplicates unchanged saves and does not write every physics tick (120.906208ms)
+✔ Tumble Tower imported builds whitelist geometry and reject invalid shapes, coordinates and oversized arrays (75.39975ms)
+✔ Tumble Tower rejects unbounded rotations and keeps accepted rotated geometry within the room (74.197083ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1037.734208

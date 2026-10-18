@@ -1,4 +1,4 @@
-const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-142');
+const { Game, GameNode, Colors, Shapes, ShapeUtils } = require('squish-150');
 const dictionary = require('../../common/util/dictionary');
 
 const COLORS = Colors.COLORS;
@@ -6,9 +6,9 @@ const COLORS = Colors.COLORS;
 class WordMatch extends Game {
     static metadata() {
         return {
-            author: 'Joseph Garcia',
-            thumbnail: '4def116d896ddf06311b8b0954fa8d6b',
-            squishVersion: '142',
+            author: "Joseph Garcia",
+            thumbnail: './assets/4def116d896ddf06311b8b0954fa8d6b.png',
+            squishVersion: '150',
             services: ['multiplayer'],
             aspectRatio: {
                 x: 16,

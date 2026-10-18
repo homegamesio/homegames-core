@@ -154,9 +154,9 @@ remains unverified in that environment.
 - `audio.js` synthesizes PCM WAV effects and a shifting ambient score. All
   assets travel through Squish, so remote guests receive the same audio.
 
-The game imports only its own modules and `squish-145`. It has no external image,
+The game imports only its own modules and `squish-150`. It has no external image,
 font, audio, or runtime downloads. Entity and effect counts are bounded; reduced
 effects removes decorative particles and cuts background detail. Painter pools
 retain node identities while serializing only the current frame's live nodes.
 
-GPL-3.0. See `LICENSE`.
+MIT. See `LICENSE`.

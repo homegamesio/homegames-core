@@ -1,4 +1,4 @@
-const { Asset, GameNode } = require('squish-145');
+const { Asset, GameNode } = require('squish-150');
 
 // All sound is original, synthesized PCM. It travels through ordinary Squish
 // assets, so browser hosts, remote guests and Node sessions hear the same score.
